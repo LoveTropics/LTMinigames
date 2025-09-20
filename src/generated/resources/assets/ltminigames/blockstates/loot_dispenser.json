@@ -1,79 +1,27 @@
 {
   "variants": {
-    "facing=down,state=active": {
+    "facing=down": {
       "model": "ltminigames:block/loot_dispenser",
       "x": 180
     },
-    "facing=down,state=clogged": {
-      "model": "ltminigames:block/loot_dispenser",
-      "x": 180
-    },
-    "facing=down,state=inactive": {
-      "model": "ltminigames:block/loot_dispenser",
-      "x": 180
-    },
-    "facing=east,state=active": {
+    "facing=east": {
       "model": "ltminigames:block/loot_dispenser",
       "x": 90,
       "y": 90
     },
-    "facing=east,state=clogged": {
-      "model": "ltminigames:block/loot_dispenser",
-      "x": 90,
-      "y": 90
-    },
-    "facing=east,state=inactive": {
-      "model": "ltminigames:block/loot_dispenser",
-      "x": 90,
-      "y": 90
-    },
-    "facing=north,state=active": {
+    "facing=north": {
       "model": "ltminigames:block/loot_dispenser",
       "x": 90
     },
-    "facing=north,state=clogged": {
-      "model": "ltminigames:block/loot_dispenser",
-      "x": 90
-    },
-    "facing=north,state=inactive": {
-      "model": "ltminigames:block/loot_dispenser",
-      "x": 90
-    },
-    "facing=south,state=active": {
+    "facing=south": {
       "model": "ltminigames:block/loot_dispenser",
       "x": 90,
       "y": 180
     },
-    "facing=south,state=clogged": {
-      "model": "ltminigames:block/loot_dispenser",
-      "x": 90,
-      "y": 180
-    },
-    "facing=south,state=inactive": {
-      "model": "ltminigames:block/loot_dispenser",
-      "x": 90,
-      "y": 180
-    },
-    "facing=up,state=active": {
+    "facing=up": {
       "model": "ltminigames:block/loot_dispenser"
     },
-    "facing=up,state=clogged": {
-      "model": "ltminigames:block/loot_dispenser"
-    },
-    "facing=up,state=inactive": {
-      "model": "ltminigames:block/loot_dispenser"
-    },
-    "facing=west,state=active": {
-      "model": "ltminigames:block/loot_dispenser",
-      "x": 90,
-      "y": 270
-    },
-    "facing=west,state=clogged": {
-      "model": "ltminigames:block/loot_dispenser",
-      "x": 90,
-      "y": 270
-    },
-    "facing=west,state=inactive": {
+    "facing=west": {
       "model": "ltminigames:block/loot_dispenser",
       "x": 90,
       "y": 270

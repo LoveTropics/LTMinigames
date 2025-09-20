@@ -1,8 +1,9 @@
 {
-  "carvers": {},
+  "carvers": [],
   "downfall": 1.25,
   "effects": {
     "fog_color": 4604482,
+    "music_volume": 1.0,
     "sky_color": 4604482,
     "water_color": 6898220,
     "water_fog_color": 4604482
