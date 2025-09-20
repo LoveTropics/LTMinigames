@@ -1,31 +1,79 @@
 {
-	"credit": "Made with Blockbench",
-    "parent": "block/block",
-	"textures": {
-		"0": "ltminigames:block/trash",
-        "particle": "block/glass"
-	},
-	"elements": [
-		{
-			"name": "chip bag",
-			"from": [4, 0, 1.5],
-			"to": [13, 1, 14.5],
-			"rotation": {"angle": 0, "axis": "y", "origin": [8, 0, 8]},
-			"faces": {
-				"north": {"uv": [9.75, 7.5, 10.875, 7.625], "texture": "#0"},
-				"east": {"uv": [8.125, 7.5, 9.75, 7.625], "texture": "#0"},
-				"south": {"uv": [12.5, 7.5, 13.625, 7.625], "texture": "#0"},
-				"west": {"uv": [10.875, 7.5, 12.5, 7.625], "texture": "#0"},
-				"up": {"uv": [10.875, 7.5, 9.75, 5.875], "texture": "#0"},
-				"down": {"uv": [12, 5.875, 10.875, 7.5], "texture": "#0"}
-			}
-		}
-	],
-	"groups": [
-		{
-			"name": "chip bag",
-			"origin": [-20, 0.5, -5],
-			"children": [0]
-		}
-	]
+  "credit": "Made with Blockbench",
+  "parent": "block/block",
+  "textures": {
+    "0": "ltminigames:block/trash",
+    "particle": "block/glass"
+  },
+  "display": {
+    "firstperson_lefthand": {
+      "rotation": [0, 255, 0],
+      "scale": [0.45, 0.45, 0.45],
+      "translation": [0, 5, 0]
+    },
+    "firstperson_righthand": {
+      "rotation": [0, 45, 0],
+      "scale": [0.45, 0.45, 0.45],
+      "translation": [0, 5, 0]
+    },
+    "ground": {
+      "scale": [0.5625, 0.5625, 0.5625],
+      "translation": [0, 5, 0]
+    },
+    "gui": {
+      "rotation": [30, 225, 0],
+      "scale": [0.703125, 0.703125, 0.703125],
+      "translation": [0, 5, 0]
+    },
+    "thirdperson_righthand": {
+      "rotation": [75, 45, 0],
+      "scale": [0.421875, 0.421875, 0.421875],
+      "translation": [0, 2.5, 5]
+    }
+  },
+  "elements": [
+    {
+      "name": "chip bag",
+      "from": [4, 0, 1.5],
+      "to": [13, 1, 14.5],
+      "rotation": {
+        "angle": 0,
+        "axis": "y",
+        "origin": [8, 0, 8]
+      },
+      "faces": {
+        "north": {
+          "uv": [9.75, 7.5, 10.875, 7.625],
+          "texture": "#0"
+        },
+        "east": {
+          "uv": [8.125, 7.5, 9.75, 7.625],
+          "texture": "#0"
+        },
+        "south": {
+          "uv": [12.5, 7.5, 13.625, 7.625],
+          "texture": "#0"
+        },
+        "west": {
+          "uv": [10.875, 7.5, 12.5, 7.625],
+          "texture": "#0"
+        },
+        "up": {
+          "uv": [10.875, 7.5, 9.75, 5.875],
+          "texture": "#0"
+        },
+        "down": {
+          "uv": [12, 5.875, 10.875, 7.5],
+          "texture": "#0"
+        }
+      }
+    }
+  ],
+  "groups": [
+    {
+      "name": "chip bag",
+      "origin": [-20, 0.5, -5],
+      "children": [0]
+    }
+  ]
 }

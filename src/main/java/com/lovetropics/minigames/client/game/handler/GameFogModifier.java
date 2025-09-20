@@ -3,7 +3,7 @@ package com.lovetropics.minigames.client.game.handler;
 import com.lovetropics.minigames.client.game.ClientGameStateManager;
 import com.lovetropics.minigames.common.core.game.client_state.GameClientStateTypes;
 import com.lovetropics.minigames.common.core.game.client_state.instance.FogClientState;
-import com.mojang.blaze3d.shaders.FogShape;
+import net.minecraft.world.level.material.FogType;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -26,27 +26,16 @@ public class GameFogModifier {
 
     @SubscribeEvent(priority = EventPriority.HIGH)
     static void onRenderFog(final ViewportEvent.RenderFog event) {
-        FogClientState state = ClientGameStateManager.getOrNull(GameClientStateTypes.FOG);
-        if (state == null) {
-            return;
-        }
+		if (event.getType() != FogType.ATMOSPHERIC) {
+			return;
+		}
 
-        event.setCanceled(true);
+		FogClientState state = ClientGameStateManager.getOrNull(GameClientStateTypes.FOG);
+		if (state == null) {
+			return;
+		}
 
-        state.fogType().ifPresent(type -> {
-            if (type == FogClientState.FogType.SKY) {
-                event.setNearPlaneDistance(0.0f);
-                event.setFarPlaneDistance(event.getRenderer().getRenderDistance());
-                event.setFogShape(FogShape.CYLINDER);
-            } else {
-                event.setNearPlaneDistance(Math.min(state.nearDistance(), event.getNearPlaneDistance()));
-                event.setFarPlaneDistance(Math.min(state.farDistance(), event.getFarPlaneDistance()));
-                event.setFogShape(FogShape.SPHERE);
-            }
-        });
-        state.fogShape().ifPresent(shape -> event.setFogShape(switch (shape) {
-            case SPHERE -> FogShape.SPHERE;
-            case CYLINDER -> FogShape.CYLINDER;
-        }));
+		event.setNearPlaneDistance(Math.min(state.nearDistance(), event.getNearPlaneDistance()));
+		event.setFarPlaneDistance(Math.min(state.farDistance(), event.getFarPlaneDistance()));
     }
 }

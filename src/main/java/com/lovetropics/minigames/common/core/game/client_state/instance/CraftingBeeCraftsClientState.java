@@ -7,8 +7,11 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.UUIDUtil;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.display.RecipeDisplay;
 
 import java.util.List;
 import java.util.UUID;
@@ -25,11 +28,12 @@ public record CraftingBeeCraftsClientState(List<Craft> crafts, UUID gameId, int 
         return GameClientStateTypes.CRAFTING_BEE_CRAFTS.get();
     }
 
-    public record Craft(ItemStack output, ResourceLocation recipeId, boolean done) {
+    public record Craft(ItemStack output, ResourceKey<Recipe<?>> recipeId, RecipeDisplay display, boolean done) {
         public static final Codec<Craft> CODEC = RecordCodecBuilder.create(in -> in.group(
                 ItemStack.CODEC.fieldOf("output").forGetter(Craft::output),
-                ResourceLocation.CODEC.fieldOf("recipe").forGetter(Craft::recipeId),
-                Codec.BOOL.fieldOf("done").forGetter(Craft::done)
+				ResourceKey.codec(Registries.RECIPE).fieldOf("recipe").forGetter(Craft::recipeId),
+				RecipeDisplay.CODEC.fieldOf("display").forGetter(Craft::display),
+                Codec.BOOL.optionalFieldOf("done", false).forGetter(Craft::done)
         ).apply(in, Craft::new));
     }
 }

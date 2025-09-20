@@ -17,7 +17,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
-import net.minecraft.util.random.SimpleWeightedRandomList;
+import net.minecraft.util.random.WeightedList;
 import net.minecraft.world.RandomizableContainer;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -32,19 +32,19 @@ import java.util.List;
 public class FillChestsByMarkerBehavior extends ChunkGeneratingBehavior {
 	public static final MapCodec<FillChestsByMarkerBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			BuiltInRegistries.BLOCK.byNameCodec().fieldOf("marker").forGetter(c -> c.marker),
-			SimpleWeightedRandomList.wrappedCodec(ResourceKey.codec(Registries.LOOT_TABLE)).fieldOf("loot_tables").forGetter(c -> c.lootTables),
+			WeightedList.codec(ResourceKey.codec(Registries.LOOT_TABLE)).fieldOf("loot_tables").forGetter(c -> c.lootTables),
 			Codec.FLOAT.optionalFieldOf("percentage", 1.0f).forGetter(c -> c.percentage),
 			Codec.INT.optionalFieldOf("max_per_chunk", Integer.MAX_VALUE).forGetter(c -> c.maxPerChunk),
 			Codec.INT.optionalFieldOf("max_per_section", Integer.MAX_VALUE).forGetter(c -> c.maxPerSection)
 	).apply(i, FillChestsByMarkerBehavior::new));
 
 	private final Block marker;
-	private final SimpleWeightedRandomList<ResourceKey<LootTable>> lootTables;
+	private final WeightedList<ResourceKey<LootTable>> lootTables;
 	private final float percentage;
 	private final int maxPerChunk;
 	private final int maxPerSection;
 
-	public FillChestsByMarkerBehavior(Block marker, SimpleWeightedRandomList<ResourceKey<LootTable>> lootTables, float percentage, int maxPerChunk, int maxPerSection) {
+	public FillChestsByMarkerBehavior(Block marker, WeightedList<ResourceKey<LootTable>> lootTables, float percentage, int maxPerChunk, int maxPerSection) {
 		this.marker = marker;
 		this.lootTables = lootTables;
 		this.percentage = percentage;
@@ -74,7 +74,7 @@ public class FillChestsByMarkerBehavior extends ChunkGeneratingBehavior {
 
 			for (Chest chest : sectionChests) {
 				world.setBlockAndUpdate(chest.pos, Blocks.AIR.defaultBlockState());
-				lootTables.getRandomValue(random).ifPresent(lootTable -> {
+				lootTables.getRandom(random).ifPresent(lootTable -> {
 					setChest(world, chest.pos.below(), chest, lootTable);
 				});
 			}

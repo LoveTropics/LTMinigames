@@ -37,7 +37,7 @@ public record RisingPlatformBehavior(
 
 		events.listen(GamePhaseEvents.START, () -> {
 			PlatformEntity platform = new PlatformEntity(SurviveTheTide.PLATFORM.get(), game.level());
-			platform.absMoveTo(center.x(), startY, center.z());
+			platform.absSnapTo(center.x(), startY, center.z());
 			platform.setWidth(platformRegion.size().getX());
 			platform.setBlockState(blockState);
 
@@ -47,7 +47,7 @@ public record RisingPlatformBehavior(
 				participant.startRiding(platform, true);
 			}
 
-			platform.lerpTo(center.x(), startY + height, center.z(), 0.0f, 0.0f, time);
+			platform.lerpTo(center.x(), startY + height, center.z(), time);
 		});
 	}
 }

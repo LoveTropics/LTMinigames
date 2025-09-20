@@ -5,29 +5,31 @@ import com.lovetropics.minigames.common.core.dimension.RuntimeDimensionHandle;
 import com.lovetropics.minigames.common.core.dimension.RuntimeDimensions;
 import com.lovetropics.minigames.common.core.map.MapWorldInfo;
 import com.lovetropics.minigames.common.core.map.MapWorldSettings;
-import com.mojang.serialization.DataResult;
-import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.NbtOps;
-import net.minecraft.nbt.Tag;
-import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.level.saveddata.SavedDataType;
 
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 public final class MapWorkspaceManager extends SavedData {
-	private static final String ID = LoveTropics.ID + "_map_workspace_manager";
+	private static final SavedDataType<MapWorkspaceManager> TYPE = new SavedDataType<>(
+			LoveTropics.ID + "_map_workspace_manager",
+			context -> new MapWorkspaceManager(context.levelOrThrow().getServer()),
+			context -> Packed.CODEC.xmap(
+					packed -> MapWorkspaceManager.load(context.levelOrThrow().getServer(), packed),
+					MapWorkspaceManager::pack
+			)
+	);
 
 	private final MinecraftServer server;
 	private final Map<String, MapWorkspace> workspaces = new Object2ObjectOpenHashMap<>();
@@ -37,11 +39,7 @@ public final class MapWorkspaceManager extends SavedData {
 	}
 
 	public static MapWorkspaceManager get(MinecraftServer server) {
-		ServerLevel overworld = server.overworld();
-		return overworld.getDataStorage().computeIfAbsent(new Factory<>(
-				() -> new MapWorkspaceManager(server),
-				(tag, registries) -> MapWorkspaceManager.load(server, tag)
-		), ID);
+		return server.overworld().getDataStorage().computeIfAbsent(TYPE);
 	}
 
 	public CompletableFuture<MapWorkspace> openWorkspace(String id, WorkspaceDimensionConfig dimensionConfig) {
@@ -98,52 +96,30 @@ public final class MapWorkspaceManager extends SavedData {
 		return getWorkspace(dimension) != null;
 	}
 
-	@Override
-	public CompoundTag save(CompoundTag root, HolderLookup.Provider registries) {
-		ListTag workspaceList = new ListTag();
-
-		RegistryOps<Tag> ops = registries.createSerializationContext(NbtOps.INSTANCE);
-
-		for (Map.Entry<String, MapWorkspace> entry : workspaces.entrySet()) {
-			MapWorkspaceData data = entry.getValue().intoData();
-			MapWorkspaceData.CODEC.encodeStart(ops, data)
-					.result().ifPresent(workspaceList::add);
-		}
-
-		root.put("workspaces", workspaceList);
-
-		return root;
+	private Packed pack() {
+		return new Packed(workspaces.values().stream().map(MapWorkspace::intoData).toList());
 	}
 
-	private static MapWorkspaceManager load(MinecraftServer server, CompoundTag root) {
+	private static MapWorkspaceManager load(MinecraftServer server, Packed packed) {
 		MapWorkspaceManager manager = new MapWorkspaceManager(server);
-
-		manager.workspaces.clear();
-
-		ListTag workspaceList = root.getList("workspaces", Tag.TAG_COMPOUND);
-
-		DynamicOps<Tag> ops = server.registryAccess().createSerializationContext(NbtOps.INSTANCE);
-
-		for (int i = 0; i < workspaceList.size(); i++) {
-			CompoundTag workspaceRoot = workspaceList.getCompound(i);
-
-			DataResult<MapWorkspaceData> result = MapWorkspaceData.CODEC.parse(ops, workspaceRoot);
-			result.result().ifPresent(workspaceData -> {
-				RuntimeDimensionHandle dimensionHandle = manager.getOrCreateDimension(workspaceData.id(), workspaceData.dimension(), workspaceData.worldSettings());
-				MapWorkspace workspace = workspaceData.create(dimensionHandle);
-				manager.workspaces.put(workspaceData.id(), workspace);
-			});
-
-			result.error().ifPresent(error -> {
-				LoveTropics.LOGGER.warn("Failed to load map workspace: {}", error);
-			});
+		for (MapWorkspaceData workspaceData : packed.workspaces) {
+			RuntimeDimensionHandle dimensionHandle = manager.getOrCreateDimension(workspaceData.id(), workspaceData.dimension(), workspaceData.worldSettings());
+			MapWorkspace workspace = workspaceData.create(dimensionHandle);
+			manager.workspaces.put(workspaceData.id(), workspace);
 		}
-
 		return manager;
 	}
 
 	@Override
 	public boolean isDirty() {
 		return true;
+	}
+
+	private record Packed(
+			List<MapWorkspaceData> workspaces
+	) {
+		public static final Codec<Packed> CODEC = RecordCodecBuilder.create(i -> i.group(
+				MapWorkspaceData.CODEC.listOf().fieldOf("workspaces").forGetter(Packed::workspaces)
+		).apply(i, Packed::new));
 	}
 }

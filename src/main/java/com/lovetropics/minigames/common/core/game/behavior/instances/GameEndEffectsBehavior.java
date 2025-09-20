@@ -33,6 +33,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 public final class GameEndEffectsBehavior implements IGameBehavior {
 	private static final long NO_STOP_DELAY = -1L;
@@ -126,7 +127,7 @@ public final class GameEndEffectsBehavior implements IGameBehavior {
 
 	private static void teleportToRegion(ServerPlayer player, BlockBox region) {
 		Vec3 pos = region.center();
-		player.teleportTo(player.serverLevel(), pos.x(), pos.y(), pos.z(), 0.0f, 0.0f);
+		player.teleportTo(player.level(), pos.x(), pos.y(), pos.z(), Set.of(), 0.0f, 0.0f, true);
 	}
 
 	private void tickEnded(IGamePhase game) {

@@ -24,10 +24,9 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.animal.Sheep;
 import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.level.ItemLike;
-import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 
 import java.util.List;
 import java.util.Map;
@@ -95,8 +94,25 @@ public final class SetupTeamsBehavior implements IGameBehavior {
             }
 
             @Override
-            public ItemLike getItemFor(GameTeam team) {
-                return Sheep.ITEM_BY_DYE.getOrDefault(team.config().dye(), Blocks.WHITE_WOOL);
+            public Item getItemFor(GameTeam team) {
+				return switch (team.config().dye()) {
+					case WHITE -> Items.WHITE_WOOL;
+					case ORANGE -> Items.ORANGE_WOOL;
+					case MAGENTA -> Items.MAGENTA_WOOL;
+					case LIGHT_BLUE -> Items.LIGHT_BLUE_WOOL;
+					case YELLOW -> Items.YELLOW_WOOL;
+					case LIME -> Items.LIME_WOOL;
+					case PINK -> Items.PINK_WOOL;
+					case GRAY -> Items.GRAY_WOOL;
+					case LIGHT_GRAY -> Items.LIGHT_GRAY_WOOL;
+					case CYAN -> Items.CYAN_WOOL;
+					case PURPLE -> Items.PURPLE_WOOL;
+					case BLUE -> Items.BLUE_WOOL;
+					case BROWN -> Items.BROWN_WOOL;
+					case GREEN -> Items.GREEN_WOOL;
+					case RED -> Items.RED_WOOL;
+					case BLACK -> Items.BLACK_WOOL;
+				};
             }
         };
 

@@ -7,12 +7,13 @@ import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.mixin.BaseSpawnerAccessor;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.level.BaseSpawner;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
@@ -35,7 +36,7 @@ import java.util.function.Supplier;
 public class LimitedSpawnerAttachment {
 	public static final DeferredRegister<AttachmentType<?>> ATTACHMENT_TYPES = DeferredRegister.create(NeoForgeRegistries.ATTACHMENT_TYPES, LoveTropics.ID);
 
-	public static final Codec<LimitedSpawnerAttachment> CODEC = RecordCodecBuilder.create(i -> i.group(
+	public static final MapCodec<LimitedSpawnerAttachment> MAP_CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			Codec.INT.fieldOf("max_count").forGetter(a -> a.maxCount),
 			UUIDUtil.CODEC_SET.optionalFieldOf("spawned_mobs", Set.of()).forGetter(a -> a.spawnedMobs)
 	).apply(i, (maxCount, spawnedMobs) -> {
@@ -48,7 +49,7 @@ public class LimitedSpawnerAttachment {
 			"limited_spawner",
 			() -> AttachmentType.<LimitedSpawnerAttachment>builder(() -> {
 				throw new IllegalStateException("Cannot create default limited_spawner attachment");
-			}).serialize(CODEC).build()
+			}).serialize(MAP_CODEC).build()
 	);
 
 	private final int maxCount;
@@ -60,7 +61,7 @@ public class LimitedSpawnerAttachment {
 
 	@SubscribeEvent
 	public static void onPreSpawnPlacementCheck(MobSpawnEvent.SpawnPlacementCheck event) {
-		if (event.getSpawnType() != MobSpawnType.SPAWNER) {
+		if (event.getSpawnType() != EntitySpawnReason.SPAWNER) {
 			return;
 		}
 		ServerLevel level = event.getLevel().getLevel();

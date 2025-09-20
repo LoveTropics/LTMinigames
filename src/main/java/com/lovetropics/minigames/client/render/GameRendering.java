@@ -18,12 +18,16 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderBuffers;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextColor;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.CommonColors;
-import net.minecraft.world.entity.Entity;
+import net.minecraft.util.TriState;
+import net.minecraft.util.context.ContextKey;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
@@ -32,21 +36,20 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.ClientHooks;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.event.RenderNameTagEvent;
-import net.neoforged.neoforge.common.util.TriState;
+import net.neoforged.neoforge.client.renderstate.RegisterRenderStateModifiersEvent;
 
 import java.util.List;
 
 @EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
 public class GameRendering {
-    @SubscribeEvent
-    public static void render(RenderLevelStageEvent event) {
-        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_WEATHER) {
-            return;
-        }
+	private static final ContextKey<PointTag> POINT_TAG_KEY = new ContextKey<>(LoveTropics.location("point_tag"));
 
+	private static final int MOB_SPAWN_COLOR = ARGB.color(160, CommonColors.RED);
+
+	@SubscribeEvent
+	public static void render(RenderLevelStageEvent.AfterWeather event) {
         PoseStack matrices = event.getPoseStack();
         Vec3 cameraPos = event.getCamera().getPosition();
         RenderBuffers buffers = Minecraft.getInstance().renderBuffers();
@@ -63,7 +66,7 @@ public class GameRendering {
                 float y1 = (float) (max.getY() + 1.0 - cameraPos.y);
                 float z0 = (float) (min.getZ() - cameraPos.z);
                 float z1 = (float) (max.getZ() + 1.0 - cameraPos.z);
-                buildBox(cons, matrices, x0, x1, y0, y1, z0, z1, 255, 0, 0, 160);
+                buildBox(cons, matrices, x0, x1, y0, y1, z0, z1, MOB_SPAWN_COLOR);
             }
         }
 
@@ -81,7 +84,7 @@ public class GameRendering {
         PoseStack.Pose entry = matrices.last();
 
         if (state.side()) {
-            buildEastFacing(cons, entry,  (float)(b.minY - camera.y), (float)(b.maxY - camera.y), (float)(b.minZ - camera.z), (float)(b.maxZ - camera.z), (float)(b.minX - camera.x), 0, 0, 0, 30, 60);
+            buildEastFacing(cons, entry,  (float)(b.minY - camera.y), (float)(b.maxY - camera.y), (float)(b.minZ - camera.z), (float)(b.maxZ - camera.z), (float)(b.minX - camera.x), ARGB.color(30, CommonColors.BLACK), ARGB.color(60, CommonColors.BLACK));
 
             int diff = (int) (b.maxZ - b.minZ) * 25;
 
@@ -110,12 +113,12 @@ public class GameRendering {
                 }
 
                 TextColor col = comp.getStyle().getColor();
-                drawComponent(matrices, buffers, hoff, voff, col == null ? 0xFFFFFF : col.getValue(), comp);
+                drawComponent(matrices, buffers, hoff, voff, col == null ? CommonColors.WHITE : col.getValue(), comp);
             }
 
             matrices.popPose();
         } else {
-            buildNorthFacing(cons, entry, (float)(b.minX - camera.x), (float)(b.maxX - camera.x), (float)(b.minY - camera.y), (float)(b.maxY - camera.y), (float)(b.minZ - camera.z), 0, 0, 0, 30, 60);
+            buildNorthFacing(cons, entry, (float)(b.minX - camera.x), (float)(b.maxX - camera.x), (float)(b.minY - camera.y), (float)(b.maxY - camera.y), (float)(b.minZ - camera.z), ARGB.color(30, CommonColors.BLACK), ARGB.color(60, CommonColors.BLACK));
         }
     }
 
@@ -134,87 +137,79 @@ public class GameRendering {
         );
     }
 
-    public static void buildBox(VertexConsumer buffer, PoseStack matrices, float x1, float x2, float y1, float y2, float z1, float z2, int r, int g, int b, int a) {
-        PoseStack.Pose entry = matrices.last();
+    public static void buildBox(VertexConsumer buffer, PoseStack poseStack, float x1, float x2, float y1, float y2, float z1, float z2, int color) {
+        PoseStack.Pose pose = poseStack.last();
 
-        buildNorthFacing(buffer, entry, x1, x2, y1, y2, z1, r, g, b, a, 0);
-        buildNorthFacing(buffer, entry, x1, x2, y1, y2, z2, r, g, b, a, 0);
+        buildNorthFacing(buffer, pose, x1, x2, y1, y2, z1, color, ARGB.transparent(color));
+        buildNorthFacing(buffer, pose, x1, x2, y1, y2, z2, color, ARGB.transparent(color));
 
-        buildEastFacing(buffer, entry, y1, y2, z1, z2, x1, r, g, b, a, 0);
-        buildEastFacing(buffer, entry, y1, y2, z1, z2, x2, r, g, b, a, 0);
+        buildEastFacing(buffer, pose, y1, y2, z1, z2, x1, color, ARGB.transparent(color));
+        buildEastFacing(buffer, pose, y1, y2, z1, z2, x2, color, ARGB.transparent(color));
     }
 
-    public static void buildNorthFacing(VertexConsumer buffer, PoseStack.Pose pose, float x1, float x2, float y1, float y2, float z, int r, int g, int b, int a, int a2) {
-        buffer.addVertex(pose, x1, y2, z).setColor(r, g, b, a2)
-                .setUv(0.0F, 1.0F).setLight(LightTexture.FULL_BRIGHT).setNormal(pose, 0.0F, 1.0F, 0.0F);
-        buffer.addVertex(pose, x2, y2, z).setColor(r, g, b, a2)
-                .setUv(1.0F, 1.0F).setLight(LightTexture.FULL_BRIGHT).setNormal(pose, 0.0F, 1.0F, 0.0F);
-        buffer.addVertex(pose, x2, y1, z).setColor(r, g, b, a)
-                .setUv(1.0F, 0.0F).setLight(LightTexture.FULL_BRIGHT).setNormal(pose, 0.0F, 1.0F, 0.0F);
-        buffer.addVertex(pose, x1, y1, z).setColor(r, g, b, a)
-                .setUv(0.0F, 0.0F).setLight(LightTexture.FULL_BRIGHT).setNormal(pose, 0.0F, 1.0F, 0.0F);
+    public static void buildNorthFacing(VertexConsumer buffer, PoseStack.Pose pose, float x1, float x2, float y1, float y2, float z, int colorBottom, int colorTop) {
+        buffer.addVertex(pose, x1, y2, z).setColor(colorTop);
+        buffer.addVertex(pose, x2, y2, z).setColor(colorTop);
+        buffer.addVertex(pose, x2, y1, z).setColor(colorBottom);
+        buffer.addVertex(pose, x1, y1, z).setColor(colorBottom);
+
+        // Reverse - TODO: why? culling is disabled?
+
+        buffer.addVertex(pose, x1, y2, z).setColor(colorTop);
+        buffer.addVertex(pose, x1, y1, z).setColor(colorBottom);
+        buffer.addVertex(pose, x2, y1, z).setColor(colorBottom);
+        buffer.addVertex(pose, x2, y2, z).setColor(colorTop);
+    }
+
+    public static void buildEastFacing(VertexConsumer buffer, PoseStack.Pose pose, float y1, float y2, float z1, float z2, float x, int colorBottom, int colorTop) {
+        buffer.addVertex(pose, x, y1, z2).setColor(colorBottom);
+        buffer.addVertex(pose, x, y2, z2).setColor(colorTop);
+        buffer.addVertex(pose, x, y2, z1).setColor(colorTop);
+        buffer.addVertex(pose, x, y1, z1).setColor(colorBottom);
 
         // Reverse
 
-        buffer.addVertex(pose, x1, y2, z).setColor(r, g, b, a2)
-                .setUv(0.0F, 1.0F).setLight(LightTexture.FULL_BRIGHT).setNormal(pose, 0.0F, 1.0F, 0.0F);
-        buffer.addVertex(pose, x1, y1, z).setColor(r, g, b, a)
-                .setUv(0.0F, 0.0F).setLight(LightTexture.FULL_BRIGHT).setNormal(pose, 0.0F, 1.0F, 0.0F);
-        buffer.addVertex(pose, x2, y1, z).setColor(r, g, b, a)
-                .setUv(1.0F, 0.0F).setLight(LightTexture.FULL_BRIGHT).setNormal(pose, 0.0F, 1.0F, 0.0F);
-        buffer.addVertex(pose, x2, y2, z).setColor(r, g, b, a2)
-                .setUv(1.0F, 1.0F).setLight(LightTexture.FULL_BRIGHT).setNormal(pose, 0.0F, 1.0F, 0.0F);
+        buffer.addVertex(pose, x, y1, z2).setColor(colorBottom);
+        buffer.addVertex(pose, x, y1, z1).setColor(colorBottom);
+        buffer.addVertex(pose, x, y2, z1).setColor(colorTop);
+        buffer.addVertex(pose, x, y2, z2).setColor(colorTop);
     }
 
-    public static void buildEastFacing(VertexConsumer buffer, PoseStack.Pose pose, float y1, float y2, float z1, float z2, float x, int r, int g, int b, int a, int a2) {
-        buffer.addVertex(pose, x, y1, z2).setColor(r, g, b, a)
-                .setUv(0.0F, 1.0F).setLight(LightTexture.FULL_BRIGHT).setNormal(pose, 0.0F, 1.0F, 0.0F);
-        buffer.addVertex(pose, x, y2, z2).setColor(r, g, b, a2)
-                .setUv(1.0F, 1.0F).setLight(LightTexture.FULL_BRIGHT).setNormal(pose, 0.0F, 1.0F, 0.0F);
-        buffer.addVertex(pose, x, y2, z1).setColor(r, g, b, a2)
-                .setUv(1.0F, 0.0F).setLight(LightTexture.FULL_BRIGHT).setNormal(pose, 0.0F, 1.0F, 0.0F);
-        buffer.addVertex(pose, x, y1, z1).setColor(r, g, b, a)
-                .setUv(0.0F, 0.0F).setLight(LightTexture.FULL_BRIGHT).setNormal(pose, 0.0F, 1.0F, 0.0F);
+	@SubscribeEvent
+	public static void onRegisterRenderStateModifiers(RegisterRenderStateModifiersEvent event) {
+		event.registerEntityModifier(PlayerRenderer.class, (player, state) -> {
+			PointTagClientState pointTags = ClientGameStateManager.getOrNull(GameClientStateTypes.POINT_TAGS);
+			Component points = pointTags != null ? pointTags.getPointsTextFor(player.getUUID()) : null;
+			if (points != null) {
+				state.setRenderData(POINT_TAG_KEY, new PointTag(points, pointTags.icon()));
+			}
+		});
+	}
 
-        // Reverse
-
-        buffer.addVertex(pose, x, y1, z2).setColor(r, g, b, a)
-                .setUv(0.0F, 1.0F).setLight(LightTexture.FULL_BRIGHT).setNormal(pose, 0.0F, 1.0F, 0.0F);
-        buffer.addVertex(pose, x, y1, z1).setColor(r, g, b, a)
-                .setUv(0.0F, 0.0F).setLight(LightTexture.FULL_BRIGHT).setNormal(pose, 0.0F, 1.0F, 0.0F);
-        buffer.addVertex(pose, x, y2, z1).setColor(r, g, b, a2)
-                .setUv(1.0F, 0.0F).setLight(LightTexture.FULL_BRIGHT).setNormal(pose, 0.0F, 1.0F, 0.0F);
-        buffer.addVertex(pose, x, y2, z2).setColor(r, g, b, a2)
-                .setUv(1.0F, 1.0F).setLight(LightTexture.FULL_BRIGHT).setNormal(pose, 0.0F, 1.0F, 0.0F);
-    }
+	@SubscribeEvent
+	public static void canRenderPlayerName(RenderNameTagEvent.CanRender event) {
+		if (event.getEntity() instanceof Player && ClientGameStateManager.getOrNull(GameClientStateTypes.HIDE_NAME_TAGS) != null) {
+			event.setCanRender(TriState.FALSE);
+		}
+	}
 
     @SubscribeEvent
-    public static void onRenderPlayerName(RenderNameTagEvent event) {
-        if (event.getEntity() instanceof Player player) {
-            if (ClientGameStateManager.getOrNull(GameClientStateTypes.HIDE_NAME_TAGS) != null) {
-                event.setCanRender(TriState.FALSE);
-                return;
-            }
-
-            PointTagClientState state = ClientGameStateManager.getOrNull(GameClientStateTypes.POINT_TAGS);
-            Component points = state != null ? state.getPointsTextFor(player.getUUID()) : null;
-            if (points != null) {
-                renderPlayerPoints(event, player, state.icon(), points);
-            }
+	public static void onRenderPlayerName(RenderNameTagEvent.DoRender event) {
+		if (event.getEntityRenderState() instanceof PlayerRenderState playerState) {
+			PointTag pointTag = playerState.getRenderData(POINT_TAG_KEY);
+			if (playerState.nameTagAttachment != null && pointTag != null) {
+				renderPlayerPoints(event, playerState, pointTag.icon, pointTag.points);
+			}
         }
     }
 
-    private static void renderPlayerPoints(RenderNameTagEvent event, Entity entity, ItemStack icon, Component points) {
-        final Minecraft client = Minecraft.getInstance();
-        final EntityRenderDispatcher renderDispatcher = client.getEntityRenderDispatcher();
-        double distance2 = renderDispatcher.distanceToSqr(entity);
-        if (!ClientHooks.isNameplateInRenderDistance(entity, distance2) || entity.isDiscrete()) {
-            return;
-        }
+	private static void renderPlayerPoints(RenderNameTagEvent.DoRender event, PlayerRenderState playerState, ItemStack icon, Component points) {
+        if (playerState.isDiscrete) {
+			return;
+		}
 
-        if (entity == client.cameraEntity || !Minecraft.renderNames()) {
-            return;
-        }
+		final Minecraft client = Minecraft.getInstance();
+		final EntityRenderDispatcher renderDispatcher = client.getEntityRenderDispatcher();
 
         final float itemSize = 16.0F;
         final float spacing = 4.0f;
@@ -223,7 +218,7 @@ public class GameRendering {
         PoseStack poseStack = event.getPoseStack();
 
         poseStack.pushPose();
-        poseStack.translate(0.0, entity.getBbHeight() + 0.75, 0.0);
+        poseStack.translate(0.0, playerState.boundingBoxHeight + 0.75, 0.0);
         poseStack.mulPose(renderDispatcher.cameraOrientation());
         poseStack.scale(-0.0625F * textScale, 0.0625F * textScale, 0.0625F * textScale);
 
@@ -252,4 +247,10 @@ public class GameRendering {
 
         poseStack.popPose();
     }
+
+	private record PointTag(
+			Component points,
+			ItemStack icon
+	) {
+	}
 }

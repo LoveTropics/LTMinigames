@@ -6,11 +6,12 @@ import com.lovetropics.minigames.common.core.item.MinigameDataComponents;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.TriState;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.ItemLike;
 
 import javax.annotation.Nullable;
 
@@ -22,7 +23,7 @@ public record SelectorItems<V>(Handlers<V> handlers, V[] values) {
 
 	public void giveSelectorsTo(ServerPlayer player) {
 		for (V value : values) {
-			ItemLike item = handlers.getItemFor(value);
+			Item item = handlers.getItemFor(value);
 			player.addItem(createSelectorItem(item, value));
 		}
 	}
@@ -42,13 +43,9 @@ public record SelectorItems<V>(Handlers<V> handlers, V[] values) {
 		return InteractionResult.PASS;
 	}
 
-	private InteractionResult onThrowItem(ServerPlayer player, ItemEntity entity) {
+	private TriState onThrowItem(ServerPlayer player, ItemEntity entity) {
 		V value = getValueForSelector(entity.getItem());
-		if (value != null) {
-			return InteractionResult.FAIL;
-		}
-
-		return InteractionResult.PASS;
+		return value != null ? TriState.FALSE : TriState.DEFAULT;
 	}
 
 	@Nullable
@@ -65,7 +62,7 @@ public record SelectorItems<V>(Handlers<V> handlers, V[] values) {
 		return null;
 	}
 
-	private ItemStack createSelectorItem(ItemLike item, V value) {
+	private ItemStack createSelectorItem(Item item, V value) {
 		ItemStack stack = new ItemStack(item);
 		stack.set(DataComponents.CUSTOM_NAME, handlers.getNameFor(value));
 		stack.set(MinigameDataComponents.SELECTOR, handlers.getIdFor(value));
@@ -80,6 +77,6 @@ public record SelectorItems<V>(Handlers<V> handlers, V[] values) {
 
 		Component getNameFor(V value);
 
-		ItemLike getItemFor(V value);
+		Item getItemFor(V value);
 	}
 }

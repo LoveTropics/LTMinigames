@@ -18,7 +18,6 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -57,7 +56,7 @@ public final class ServerPlayerDisguises {
 			literal("disguise").requires(source -> source.hasPermission(LEVEL_GAMEMASTERS))
 				.then(literal("as")
 					.then(argument("entity", ResourceArgument.resource(event.getBuildContext(), Registries.ENTITY_TYPE))
-						.suggests(SuggestionProviders.SUMMONABLE_ENTITIES)
+						.suggests(SuggestionProviders.cast(SuggestionProviders.SUMMONABLE_ENTITIES))
 						.executes(context -> disguiseAsEntity(context, ResourceArgument.getSummonableEntityType(context, "entity"), null))
 							.then(argument("nbt", compoundTag())
 								.executes(context -> disguiseAsEntity(context, ResourceArgument.getSummonableEntityType(context, "entity"), getCompoundTag(context, "nbt")))
@@ -77,7 +76,7 @@ public final class ServerPlayerDisguises {
 				.then(literal("name")
 						.then(literal("as")
 								.then(argument("name", ComponentArgument.textComponent(event.getBuildContext()))
-										.executes(context -> disguiseName(context, ComponentArgument.getComponent(context, "name")))
+										.executes(context -> disguiseName(context, ComponentArgument.getResolvedComponent(context, "name")))
 								)
 						)
 						.then(literal("clear")
@@ -182,8 +181,7 @@ public final class ServerPlayerDisguises {
 
 	private static int disguiseName(CommandContext<CommandSourceStack> context, Component name) throws CommandSyntaxException {
 		LivingEntity entity = getLivingEntity(context);
-		Component resolvedName = ComponentUtils.updateForEntity(context.getSource(), name, entity, 0);
-		updateType(entity, d -> d.withCustomName(resolvedName));
+		updateType(entity, d -> d.withCustomName(name));
 		return Command.SINGLE_SUCCESS;
 	}
 

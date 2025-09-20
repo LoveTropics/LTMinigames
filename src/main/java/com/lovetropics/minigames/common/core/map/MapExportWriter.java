@@ -35,7 +35,7 @@ public final class MapExportWriter implements Closeable {
 	}
 
 	public void writeMetadata(MapMetadata metadata) throws IOException {
-		CompoundTag nbt = metadata.write(new CompoundTag());
+		CompoundTag nbt = metadata.write();
 
 		Path path = fs.getPath("metadata.nbt");
 		try (DataOutputStream output = new DataOutputStream(new BufferedOutputStream(Files.newOutputStream(path)))) {

@@ -14,6 +14,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -38,13 +39,13 @@ public record KillAboveVoidBehavior(int ticks) implements IGameBehavior {
 				int oldTicks = ticksAboveVoid.addTo(player.getUUID(), 1);
 				if (oldTicks == ticks) {
 					// For style :)
-					LightningBolt lightning = MinigameEntities.QUIET_LIGHTNING_BOLT.get().create(player.level());
-					lightning.moveTo(player.position());
+					LightningBolt lightning = MinigameEntities.QUIET_LIGHTNING_BOLT.get().create(player.level(), EntitySpawnReason.COMMAND);
+					lightning.snapTo(player.position());
 					lightning.setVisualOnly(true);
 					player.level().addFreshEntity(lightning);
 					// Now die >:(
 					game.scheduler().runAfterSeconds(0.15f, () ->
-							player.hurt(player.damageSources().outOfBorder(), Float.MAX_VALUE)
+							player.hurtServer(player.level(), player.damageSources().outOfBorder(), Float.MAX_VALUE)
 					);
 				}
 			} else {
@@ -63,7 +64,7 @@ public record KillAboveVoidBehavior(int ticks) implements IGameBehavior {
 		for (int z = minZ; z <= maxZ; z++) {
 			for (int x = minX; x <= maxX; x++) {
 				int height = level.getHeight(Heightmap.Types.MOTION_BLOCKING, x, z);
-				if (height != level.getMinBuildHeight()) {
+				if (height != level.getMinY()) {
 					return false;
 				}
 			}

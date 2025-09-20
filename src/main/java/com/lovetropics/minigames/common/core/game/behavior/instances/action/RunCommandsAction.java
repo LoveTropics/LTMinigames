@@ -1,6 +1,5 @@
 package com.lovetropics.minigames.common.core.game.behavior.instances.action;
 
-import com.lovetropics.lib.codec.MoreCodecs;
 import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorType;
@@ -18,6 +17,7 @@ import net.minecraft.commands.CommandSource;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import org.apache.logging.log4j.LogManager;
@@ -41,8 +41,8 @@ public record RunCommandsAction(List<String> globalCommands, List<String> player
     );
 
     public static final MapCodec<RunCommandsAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-            MoreCodecs.listOrUnit(COMMAND_CODEC).optionalFieldOf("global", List.of()).forGetter(RunCommandsAction::globalCommands),
-            MoreCodecs.listOrUnit(COMMAND_CODEC).optionalFieldOf("player", List.of()).forGetter(RunCommandsAction::playerCommands)
+            ExtraCodecs.compactListCodec(COMMAND_CODEC).optionalFieldOf("global", List.of()).forGetter(RunCommandsAction::globalCommands),
+            ExtraCodecs.compactListCodec(COMMAND_CODEC).optionalFieldOf("player", List.of()).forGetter(RunCommandsAction::playerCommands)
     ).apply(i, RunCommandsAction::new));
 
     @Override

@@ -9,6 +9,7 @@ import com.lovetropics.minigames.common.content.biodiversity_blitz.plot.Plot;
 import com.lovetropics.minigames.common.content.biodiversity_blitz.plot.plant.Plant;
 import com.lovetropics.minigames.common.content.biodiversity_blitz.plot.plant.state.PlantHealth;
 import com.lovetropics.minigames.common.util.Util;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
@@ -70,14 +71,13 @@ public class BbZoglinEntity extends Zoglin implements BbMobEntity {
         targetSelector.addGoal(1, new BbTargetPlayerGoal(this));
     }
 
-    @Override
-    public boolean hurt(DamageSource pSource, float pAmount) {
-        if (pSource.is(DamageTypes.PLAYER_ATTACK)) {
-            pAmount /= 2.5f;
-        }
-
-        return super.hurt(pSource, pAmount);
-    }
+	@Override
+	public boolean hurtServer(ServerLevel level, DamageSource source, float amount) {
+		if (source.is(DamageTypes.PLAYER_ATTACK)) {
+			amount /= 2.5f;
+		}
+		return super.hurtServer(level, source, amount);
+	}
 
     @Override
     public void aiStep() {

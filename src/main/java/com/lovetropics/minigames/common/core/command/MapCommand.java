@@ -144,8 +144,8 @@ public final class MapCommand {
 							String command = "/map join " + id;
 							return style.withColor(ChatFormatting.BLUE)
 									.withUnderlined(true)
-									.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, command))
-									.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal(command)));
+									.withClickEvent(new ClickEvent.RunCommand(command))
+									.withHoverEvent(new HoverEvent.ShowText(Component.literal(command)));
 						});
 				return message.append(join);
 			}, false);

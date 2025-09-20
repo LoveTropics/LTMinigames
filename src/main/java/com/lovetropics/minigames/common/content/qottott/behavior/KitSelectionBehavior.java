@@ -17,6 +17,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.ExtraCodecs;
+import net.minecraft.util.TriState;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
@@ -57,7 +58,7 @@ public record KitSelectionBehavior(List<Kit> kits) implements IGameBehavior {
 						continue;
 					}
 					final Vec3 center = region.center();
-					entity.moveTo(center.x, region.min().getY(), center.z, kit.angle, 0.0f);
+					entity.snapTo(center.x, region.min().getY(), center.z, kit.angle, 0.0f);
                     game.level().addFreshEntity(entity);
 					kitEntities.put(entity.getUUID(), kit);
 				}
@@ -65,8 +66,8 @@ public record KitSelectionBehavior(List<Kit> kits) implements IGameBehavior {
 		});
 
 		final Map<UUID, Kit> selectedKits = new Object2ObjectOpenHashMap<>();
-		events.listen(GamePlayerEvents.INTERACT_ENTITY, (player, target, hand) -> applyKit(game, player, target, kitEntities, selectedKits));
-		events.listen(GamePlayerEvents.ATTACK, (player, target) -> applyKit(game, player, target, kitEntities, selectedKits));
+		events.listen(GamePlayerEvents.INTERACT_ENTITY, (player, target, hand) -> applyKit(game, player, target, kitEntities, selectedKits) ? InteractionResult.CONSUME : InteractionResult.PASS);
+		events.listen(GamePlayerEvents.ATTACK, (player, target) -> applyKit(game, player, target, kitEntities, selectedKits) ? TriState.TRUE : TriState.DEFAULT);
 
 		events.listen(GamePlayerEvents.SPAWN, (playerId, spawn, role) -> {
 			if (role == PlayerRole.PARTICIPANT) {
@@ -78,14 +79,14 @@ public record KitSelectionBehavior(List<Kit> kits) implements IGameBehavior {
 		});
 	}
 
-	private static InteractionResult applyKit(final IGamePhase game, final ServerPlayer player, final Entity target, final Map<UUID, Kit> kitEntities, final Map<UUID, Kit> selectedKits) {
+	private static boolean applyKit(final IGamePhase game, final ServerPlayer player, final Entity target, final Map<UUID, Kit> kitEntities, final Map<UUID, Kit> selectedKits) {
 		final Kit kit = kitEntities.get(target.getUUID());
 		if (kit != null) {
 			kit.apply.apply(game, GameActionContext.EMPTY, player);
 			selectedKits.put(player.getUUID(), kit);
-			return InteractionResult.CONSUME;
+			return true;
 		}
-		return InteractionResult.PASS;
+		return false;
 	}
 
 	private record Kit(String region, float angle, DisguiseType.EntityConfig entity, GameActionList<ServerPlayer> apply) {

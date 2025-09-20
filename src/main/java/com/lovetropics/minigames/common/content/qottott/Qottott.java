@@ -12,6 +12,7 @@ import com.lovetropics.minigames.common.content.qottott.behavior.PowerUpIndicato
 import com.lovetropics.minigames.common.util.registry.GameBehaviorEntry;
 import com.lovetropics.minigames.common.util.registry.LoveTropicsRegistrate;
 import net.minecraft.core.Holder;
+import net.minecraft.util.CommonColors;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.EntityType;
@@ -23,7 +24,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.EntityAttributeModificationEvent;
 
-@EventBusSubscriber(modid = LoveTropics.ID, bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = LoveTropics.ID)
 public class Qottott {
 	private static final LoveTropicsRegistrate REGISTRATE = LoveTropics.registrate();
 
@@ -94,7 +95,7 @@ public class Qottott {
 
 	private static class CustomMobEffect extends MobEffect {
 		protected CustomMobEffect(final MobEffectCategory category) {
-			super(category, 0xffffff);
+			super(category, CommonColors.WHITE);
 		}
 	}
 }

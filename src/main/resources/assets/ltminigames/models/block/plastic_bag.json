@@ -1,24 +1,72 @@
 {
-	"credit": "Made with Blockbench",
-    "parent": "block/block",
-	"textures": {
-		"0": "ltminigames:block/trash",
-        "particle": "block/glass"
-	},
-	"elements": [
-		{
-			"name": "plasticbag1",
-			"from": [0, 0, 0],
-			"to": [16, 1, 16],
-			"rotation": {"angle": 0, "axis": "y", "origin": [8, 0, 8]},
-			"faces": {
-				"north": {"uv": [2, 2, 4, 2.125], "texture": "#0"},
-				"east": {"uv": [0, 2, 2, 2.125], "texture": "#0"},
-				"south": {"uv": [6, 2, 8, 2.125], "texture": "#0"},
-				"west": {"uv": [4, 2, 6, 2.125], "texture": "#0"},
-				"up": {"uv": [4, 2, 2, 0], "texture": "#0"},
-				"down": {"uv": [6, 0, 4, 2], "texture": "#0"}
-			}
-		}
-	]
+  "credit": "Made with Blockbench",
+  "parent": "block/block",
+  "textures": {
+    "0": "ltminigames:block/trash",
+    "particle": "block/glass"
+  },
+  "display": {
+    "firstperson_lefthand": {
+      "rotation": [0, 255, 0],
+      "scale": [0.4, 0.4, 0.4],
+      "translation": [0, 5, 0]
+    },
+    "firstperson_righthand": {
+      "rotation": [0, 45, 0],
+      "scale": [0.4, 0.4, 0.4],
+      "translation": [0, 5, 0]
+    },
+    "ground": {
+      "scale": [0.5, 0.5, 0.5],
+      "translation": [0, 5, 0]
+    },
+    "gui": {
+      "rotation": [30, 225, 0],
+      "scale": [0.625, 0.625, 0.625],
+      "translation": [0, 5, 0]
+    },
+    "thirdperson_righthand": {
+      "rotation": [75, 45, 0],
+      "scale": [0.375, 0.375, 0.375],
+      "translation": [0, 2.5, 5]
+    }
+  },
+  "elements": [
+    {
+      "name": "plasticbag1",
+      "from": [0, 0, 0],
+      "to": [16, 1, 16],
+      "rotation": {
+        "angle": 0,
+        "axis": "y",
+        "origin": [8, 0, 8]
+      },
+      "faces": {
+        "north": {
+          "uv": [2, 2, 4, 2.125],
+          "texture": "#0"
+        },
+        "east": {
+          "uv": [0, 2, 2, 2.125],
+          "texture": "#0"
+        },
+        "south": {
+          "uv": [6, 2, 8, 2.125],
+          "texture": "#0"
+        },
+        "west": {
+          "uv": [4, 2, 6, 2.125],
+          "texture": "#0"
+        },
+        "up": {
+          "uv": [4, 2, 2, 0],
+          "texture": "#0"
+        },
+        "down": {
+          "uv": [6, 0, 4, 2],
+          "texture": "#0"
+        }
+      }
+    }
+  ]
 }

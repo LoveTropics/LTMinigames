@@ -11,8 +11,7 @@ import com.lovetropics.minigames.common.core.game.state.team.GameTeamKey;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.util.TriState;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -40,12 +39,12 @@ public final class BbEvents {
 
 	public static final GameEventType<PlacePlant> PLACE_PLANT = GameEventType.create(PlacePlant.class, listeners -> (player, plot, pos, plantType) -> {
 		for (PlacePlant listener : listeners) {
-			InteractionResultHolder<Plant> result = listener.placePlant(player, plot, pos, plantType);
-			if (result.getResult() != InteractionResult.PASS) {
+			PlacePlantResult result = listener.placePlant(player, plot, pos, plantType);
+			if (!(result instanceof PlacePlantResult.Pass)) {
 				return result;
 			}
 		}
-		return InteractionResultHolder.pass(null);
+		return PlacePlantResult.PASS;
 	});
 
 	public static final GameEventType<BreakPlant> BREAK_PLANT = GameEventType.create(BreakPlant.class, listeners -> (player, plot, plant) -> {
@@ -93,12 +92,12 @@ public final class BbEvents {
 
 	public static final GameEventType<GamePlayerEvents.Death> BB_DEATH = GameEventType.create(GamePlayerEvents.Death.class, listeners -> (player, damageSource) -> {
 		for (GamePlayerEvents.Death listener : listeners) {
-			InteractionResult result = listener.onDeath(player, damageSource);
-			if (result != InteractionResult.PASS) {
+			TriState result = listener.onDeath(player, damageSource);
+			if (!result.isDefault()) {
 				return result;
 			}
 		}
-		return InteractionResult.PASS;
+		return TriState.DEFAULT;
 	});
 
 	public static final GameEventType<ModifyWaveMobs> MODIFY_WAVE_MODS = GameEventType.create(ModifyWaveMobs.class, listeners -> (entities, random, world, plot, waveIndex) -> {
@@ -123,7 +122,7 @@ public final class BbEvents {
 	}
 
 	public interface PlacePlant {
-		InteractionResultHolder<Plant> placePlant(ServerPlayer player, Plot plot, BlockPos pos, PlantType plantType);
+		PlacePlantResult placePlant(ServerPlayer player, Plot plot, BlockPos pos, PlantType plantType);
 	}
 
 	public interface BreakPlant {

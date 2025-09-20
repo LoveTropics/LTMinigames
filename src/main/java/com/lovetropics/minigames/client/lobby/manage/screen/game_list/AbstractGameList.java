@@ -14,15 +14,12 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.CommonColors;
 
 import javax.annotation.Nullable;
-import java.util.List;
 
 public abstract class AbstractGameList extends AbstractLTList<AbstractGameList.Entry> {
 	private final Component title;
 
 	public AbstractGameList(Screen screen, Layout layout, Component title) {
-		super(screen, layout, Entry.HEIGHT);
-		setRenderHeader(true, minecraft.font.lineHeight + 4);
-
+		super(screen, layout, Entry.HEIGHT, screen.getMinecraft().font.lineHeight + 4);
 		this.title = title;
 	}
 
@@ -90,10 +87,10 @@ public abstract class AbstractGameList extends AbstractLTList<AbstractGameList.E
 			int maxTextWidth = getMaxTextWidth(width);
 		
 			if (subtitle != null) {
-				graphics.drawString(font, title.forWidth(font, maxTextWidth), left + PADDING, top + PADDING + 1, 0xFFFFFF);
-				graphics.drawString(font, subtitle.forWidth(font, maxTextWidth), left + PADDING, top + height - PADDING - fontHeight, 0x555555);
+				graphics.drawString(font, title.forWidth(font, maxTextWidth), left + PADDING, top + PADDING + 1, CommonColors.WHITE);
+				graphics.drawString(font, subtitle.forWidth(font, maxTextWidth), left + PADDING, top + height - PADDING - fontHeight, 0xff555555);
 			} else {
-				graphics.drawString(font, title.forWidth(font, maxTextWidth), left + PADDING, top + (height - fontHeight) / 2, 0xFFFFFF);
+				graphics.drawString(font, title.forWidth(font, maxTextWidth), left + PADDING, top + (height - fontHeight) / 2, CommonColors.WHITE);
 			}
 		}
 
@@ -104,7 +101,7 @@ public abstract class AbstractGameList extends AbstractLTList<AbstractGameList.E
 			int maxTextWidth = getMaxTextWidth(width);
 			Font font = screen.getMinecraft().font;
 			if (subtitle != null && subtitle.isTrimmedForWidth(font, maxTextWidth)) {
-				graphics.renderComponentTooltip(font, List.of(subtitle.text()), mouseX, mouseY);
+				graphics.setTooltipForNextFrame(subtitle.text(), mouseX, mouseY);
 			}
 		}
 

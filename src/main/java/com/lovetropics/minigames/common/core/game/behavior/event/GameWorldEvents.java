@@ -6,7 +6,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.util.TriState;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
@@ -41,14 +41,13 @@ public final class GameWorldEvents {
 
 	public static final GameEventType<SaplingGrow> SAPLING_GROW = GameEventType.create(SaplingGrow.class, listeners -> (world, pos) -> {
 		for (SaplingGrow listener : listeners) {
-			InteractionResult result = listener.onSaplingGrow(world, pos);
-
-			if (result != InteractionResult.PASS) {
+			TriState result = listener.onSaplingGrow(world, pos);
+			if (!result.isDefault()) {
 				return result;
 			}
 		}
 
-		return InteractionResult.PASS;
+		return TriState.DEFAULT;
 	});
 
 	public static final GameEventType<SetWeather> SET_WEATHER = GameEventType.create(SetWeather.class, listeners -> (lastEvent, event) -> {
@@ -97,7 +96,7 @@ public final class GameWorldEvents {
 	}
 
 	public interface SaplingGrow {
-		InteractionResult onSaplingGrow(Level world, BlockPos pos);
+		TriState onSaplingGrow(Level world, BlockPos pos);
 	}
 
 	public interface SetWeather {

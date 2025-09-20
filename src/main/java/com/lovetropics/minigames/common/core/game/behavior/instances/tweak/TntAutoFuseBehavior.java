@@ -5,7 +5,7 @@ import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
 import com.mojang.serialization.MapCodec;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.util.TriState;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.TntBlock;
 
@@ -19,7 +19,7 @@ public class TntAutoFuseBehavior implements IGameBehavior {
 				placed.getBlock().onCaughtFire(placed, player.level(), pos, null, null);
 				player.level().setBlock(pos, Blocks.AIR.defaultBlockState(), 11);
 			}
-			return InteractionResult.PASS;
+			return TriState.DEFAULT;
 		});
 	}
 }

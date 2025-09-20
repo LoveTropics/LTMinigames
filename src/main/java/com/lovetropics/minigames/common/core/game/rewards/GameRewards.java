@@ -67,11 +67,11 @@ public class GameRewards {
 	}
 
 	private static void grantCollectible(final ServerPlayer player, final ItemStack item) {
-		final CommandSourceStack source = player.server.createCommandSourceStack();
+		final CommandSourceStack source = player.getServer().createCommandSourceStack();
         String commandBuilder = "collectible give " +
                 player.getGameProfile().getName() +
                 " " +
                 new ItemInput(item.getItemHolder(), item.getComponentsPatch()).serialize(player.registryAccess());
-		player.server.getCommands().performPrefixedCommand(source, commandBuilder);
+		player.getServer().getCommands().performPrefixedCommand(source, commandBuilder);
 	}
 }

@@ -15,7 +15,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.util.TriState;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.GameRules;
@@ -49,26 +49,26 @@ public class SurviveTheTideRulesetBehavior implements IGameBehavior {
 		});
 	}
 
-	private InteractionResult onPlayerDeath(ServerPlayer player, DamageSource damageSource) {
+	private TriState onPlayerDeath(ServerPlayer player, DamageSource damageSource) {
 		if (forceDropItemsOnDeath && player.level().getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY)) {
 			ImmediateRespawnBehavior.destroyVanishingCursedItems(player.getInventory());
 			player.getInventory().dropAll();
 		}
-		return InteractionResult.PASS;
+		return TriState.DEFAULT;
 	}
 
-	private InteractionResult onPlayerHurt(ServerPlayer player, DamageSource source, float amount) {
+	private TriState onPlayerHurt(ServerPlayer player, DamageSource source, float amount) {
 		if ((source.getEntity() instanceof ServerPlayer || source.is(DamageTypeTags.IS_PROJECTILE)) && progression.is(safePeriod)) {
-			return InteractionResult.FAIL;
+			return TriState.FALSE;
 		}
-		return InteractionResult.PASS;
+		return TriState.DEFAULT;
 	}
 
-	private InteractionResult onPlayerAttackEntity(ServerPlayer player, Entity target) {
+	private TriState onPlayerAttackEntity(ServerPlayer player, Entity target) {
 		if (target instanceof ServerPlayer && progression.is(safePeriod)) {
-			return InteractionResult.FAIL;
+			return TriState.FALSE;
 		}
-		return InteractionResult.PASS;
+		return TriState.DEFAULT;
 	}
 
 

@@ -6,16 +6,17 @@ import com.lovetropics.minigames.common.content.biodiversity_blitz.entity.ai.BbM
 import com.lovetropics.minigames.common.content.biodiversity_blitz.entity.ai.BbTargetPlayerGoal;
 import com.lovetropics.minigames.common.content.biodiversity_blitz.entity.ai.DestroyCropGoal;
 import com.lovetropics.minigames.common.content.biodiversity_blitz.plot.Plot;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
@@ -62,7 +63,7 @@ public class BbPillagerEntity extends Pillager implements BbMobEntity {
 
     @Nullable
     @Override
-    public SpawnGroupData finalizeSpawn(ServerLevelAccessor worldIn, DifficultyInstance difficultyIn, MobSpawnType reason, @Nullable SpawnGroupData spawnDataIn) {
+    public SpawnGroupData finalizeSpawn(ServerLevelAccessor worldIn, DifficultyInstance difficultyIn, EntitySpawnReason reason, @Nullable SpawnGroupData spawnDataIn) {
         SpawnGroupData data = super.finalizeSpawn(worldIn, difficultyIn, reason, spawnDataIn);
         setPatrolLeader(false); // Make sure that the pillagers aren't raid leaders
         setPatrolling(false);
@@ -102,14 +103,13 @@ public class BbPillagerEntity extends Pillager implements BbMobEntity {
         return 0.8f;
     }
 
-    @Override
-    public boolean hurt(DamageSource pSource, float pAmount) {
-        if (pSource.is(DamageTypes.PLAYER_ATTACK)) {
-            pAmount /= 1.5f;
-        }
-
-        return super.hurt(pSource, pAmount);
-    }
+	@Override
+	public boolean hurtServer(ServerLevel level, DamageSource source, float amount) {
+		if (source.is(DamageTypes.PLAYER_ATTACK)) {
+			amount /= 1.5f;
+		}
+		return super.hurtServer(level, source, amount);
+	}
 
     @Override
     protected void pushEntities() {

@@ -31,7 +31,7 @@ public class LTFakePlayer extends ServerPlayer implements LTGameTestFakePlayer {
         this.builder = builder;
 
         before.accept(this);
-        level().getServer().getPlayerList().placeNewPlayer(new Connection(PacketFlow.CLIENTBOUND), this, CommonListenerCookie.createInitial(getGameProfile(), false));
+        level().getServer().getPlayerList().placeNewPlayer(new net.minecraft.network.Connection(PacketFlow.SERVERBOUND), this, CommonListenerCookie.createInitial(getGameProfile(), false));
     }
 
     @Override
@@ -59,9 +59,10 @@ public class LTFakePlayer extends ServerPlayer implements LTGameTestFakePlayer {
     }
 
     @Override
-    public boolean isInvulnerableTo(DamageSource source) {
+	public boolean isInvulnerableTo(ServerLevel level, DamageSource source) {
         return builder.isInvulnerableTo.test(source);
     }
+
     @Override
     public boolean canHarmPlayer(Player player) {
         return builder.canBeHarmedBy.test(player);

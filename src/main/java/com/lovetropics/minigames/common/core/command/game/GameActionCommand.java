@@ -85,7 +85,7 @@ public class GameActionCommand {
 	private static IGameBehavior parseBehavior(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
 		ResourceLocation id = ResourceLocationArgument.getId(ctx, "id");
 		Tag data = NbtTagArgument.getNbtTag(ctx, "data");
-		GameBehaviorType<?> type = GameBehaviorTypes.REGISTRY.get(id);
+		GameBehaviorType<?> type = GameBehaviorTypes.REGISTRY.getValue(id);
 		if (type == null) {
 			type = GameConfigs.CUSTOM_BEHAVIORS.get(id);
 		}

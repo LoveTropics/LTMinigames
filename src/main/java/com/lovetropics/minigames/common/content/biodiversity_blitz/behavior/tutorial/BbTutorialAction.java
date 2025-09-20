@@ -1,6 +1,7 @@
 package com.lovetropics.minigames.common.content.biodiversity_blitz.behavior.tutorial;
 
 import com.lovetropics.minigames.common.content.biodiversity_blitz.behavior.event.BbEvents;
+import com.lovetropics.minigames.common.content.biodiversity_blitz.behavior.event.PlacePlantResult;
 import com.lovetropics.minigames.common.content.biodiversity_blitz.entity.impl.BbTutorialHuskEntity;
 import com.lovetropics.minigames.common.content.biodiversity_blitz.plot.Plot;
 import com.lovetropics.minigames.common.content.biodiversity_blitz.plot.plant.Plant;
@@ -26,9 +27,9 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FarmBlock;
@@ -103,11 +104,11 @@ public class BbTutorialAction implements IGameBehavior {
                 Mob entity = new BbTutorialHuskEntity(EntityType.HUSK, game.level(), playerPlot);
 
                 Direction direction = playerPlot.forward.getOpposite();
-                entity.moveTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, direction.toYRot(), 0);
+                entity.snapTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, direction.toYRot(), 0);
 
                 game.level().addFreshEntity(entity);
 
-                entity.finalizeSpawn(game.level(), game.level().getCurrentDifficultyAt(pos), MobSpawnType.MOB_SUMMONED, null);
+                entity.finalizeSpawn(game.level(), game.level().getCurrentDifficultyAt(pos), EntitySpawnReason.MOB_SUMMONED, null);
             });
 
             ticks += 240;
@@ -283,11 +284,10 @@ public class BbTutorialAction implements IGameBehavior {
     public record SetPlant(IGamePhase game, ServerPlayer target, Plot playerPlot, BlockPos sample, PlantType type, SoundEvent sound) implements Runnable {
         @Override
         public void run() {
-            Plant plant = game.invoker(BbEvents.PLACE_PLANT).placePlant(target, playerPlot, sample, type).getObject();
-            if (plant != null) {
-                game.level().levelEvent(null, LevelEvent.PARTICLES_DESTROY_BLOCK, sample, Block.getId(game.level().getBlockState(plant.coverage().getOrigin())));
-                game.level().playSound(null, sample, sound, SoundSource.BLOCKS, 0.4F, 1.0F);
-            }
+			if (game.invoker(BbEvents.PLACE_PLANT).placePlant(target, playerPlot, sample, type) instanceof PlacePlantResult.Success(Plant plant)) {
+				game.level().levelEvent(null, LevelEvent.PARTICLES_DESTROY_BLOCK, sample, Block.getId(game.level().getBlockState(plant.coverage().getOrigin())));
+				game.level().playSound(null, sample, sound, SoundSource.BLOCKS, 0.4F, 1.0F);
+			}
         }
     }
 

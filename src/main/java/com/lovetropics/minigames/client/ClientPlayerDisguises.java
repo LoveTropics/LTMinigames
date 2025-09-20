@@ -17,9 +17,10 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.client.resources.DefaultPlayerSkin;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.client.resources.PlayerSkin;
-import net.minecraft.util.Mth;
+import net.minecraft.util.context.ContextKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -32,14 +33,14 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.CalculateDetachedCameraDistanceEvent;
 import net.neoforged.neoforge.client.event.RenderLivingEvent;
+import net.neoforged.neoforge.client.renderstate.RegisterRenderStateModifiersEvent;
 
+import javax.annotation.Nullable;
 import java.time.Duration;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 @EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
 public final class ClientPlayerDisguises {
-    private static final Minecraft CLIENT = Minecraft.getInstance();
     private static final EquipmentSlot[] EQUIPMENT_SLOTS = EquipmentSlot.values();
 
     private static final LoadingCache<ResolvableProfile, Supplier<PlayerSkin>> SKIN_LOOKUP_CACHE = CacheBuilder.newBuilder()
@@ -48,52 +49,89 @@ public final class ClientPlayerDisguises {
 				@Override
 				public Supplier<PlayerSkin> load(ResolvableProfile profile) {
                     GameProfile gameProfile = profile.gameProfile();
-                    CompletableFuture<PlayerSkin> future = Minecraft.getInstance().getSkinManager().getOrLoad(gameProfile);
-					PlayerSkin defaultSkin = DefaultPlayerSkin.get(gameProfile);
-					return () -> future.getNow(defaultSkin);
+					return Minecraft.getInstance().getSkinManager().lookupInsecure(gameProfile);
 				}
 			});
 
-    @SubscribeEvent
-    public static void onRenderPlayerPre(RenderLivingEvent.Pre<?, ?> event) {
-        LivingEntity entity = event.getEntity();
-        PlayerDisguise disguise = PlayerDisguise.getOrNull(entity);
-        if (disguise == null || !disguise.isDisguised()) {
-            return;
-        }
+	private static final ContextKey<DisguiseRenderState> DISGUISE_KEY = new ContextKey<>(LoveTropics.location("disguise"));
 
-        DisguiseType disguiseType = disguise.type();
-        Entity disguiseEntity = disguise.entity();
-        EntityRenderDispatcher dispatcher = CLIENT.getEntityRenderDispatcher();
+	@SubscribeEvent
+	public static void onRegisterRenderStateModifiers(RegisterRenderStateModifiersEvent event) {
+		event.registerEntityModifier((Class<? extends LivingEntityRenderer<?, ?, ?>>) (Class<?>) LivingEntityRenderer.class, (entity, state) -> {
+			DisguiseRenderState disguise = extractDisguiseState(entity, state.partialTick);
+			if (disguise != null) {
+				state.setRenderData(DISGUISE_KEY, disguise);
+			}
+		});
+	}
+
+	@Nullable
+	private static DisguiseRenderState extractDisguiseState(LivingEntity entity, float partialTicks) {
+		PlayerDisguise disguise = PlayerDisguise.getOrNull(entity);
+		if (disguise == null || !disguise.isDisguised()) {
+			return null;
+		}
+		Entity disguiseEntity = disguise.entity();
+		if (disguiseEntity == null) {
+			return DisguiseRenderState.scaling(disguise.type().scale());
+		}
+		return extractDisguiseState(entity, partialTicks, disguiseEntity, disguise);
+	}
+
+	private static <E extends Entity> DisguiseRenderState extractDisguiseState(LivingEntity entity, float partialTicks, E disguiseEntity, PlayerDisguise disguise) {
+		EntityRenderDispatcher entityRenderDispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
+		EntityRenderer<? super E, ?> renderer = entityRenderDispatcher.getRenderer(disguiseEntity);
+		if (renderer == null) {
+			return DisguiseRenderState.scaling(disguise.type().scale());
+		}
+
+		try {
+			copyDisguiseState(disguiseEntity, entity);
+			if (entity instanceof final Player player) {
+				disguiseEntity.setCustomNameVisible(shouldShowName(entityRenderDispatcher, player));
+			}
+
+			return new DisguiseRenderState(
+					renderer.createRenderState(disguiseEntity, partialTicks),
+					disguise.type().scale()
+			);
+		} catch (Exception e) {
+			disguise.clear();
+			LoveTropics.LOGGER.error("Failed to capture player disguise state", e);
+		}
+
+		return DisguiseRenderState.scaling(disguise.type().scale());
+	}
+
+	@SubscribeEvent
+    public static void onRenderPlayerPre(RenderLivingEvent.Pre<?, ?, ?> event) {
+		DisguiseRenderState disguiseState = event.getRenderState().getRenderData(DISGUISE_KEY);
+		if (disguiseState == null) {
+			return;
+		}
+
+		EntityRenderDispatcher dispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
         PoseStack poseStack = event.getPoseStack();
 
-        if (disguiseEntity != null) {
+		EntityRenderState disguiseEntityState = disguiseState.entityRenderState();
+		float scale = disguiseState.scale();
+
+		if (disguiseEntityState != null) {
             int capturedTransformState = PoseStackCapture.get(poseStack);
 
             try {
-                copyDisguiseState(disguiseEntity, entity);
-                if (entity instanceof final Player player) {
-                    disguiseEntity.setCustomNameVisible(shouldShowName(dispatcher, player));
-                }
-
-                float partialTicks = event.getPartialTick();
-                MultiBufferSource buffers = event.getMultiBufferSource();
+                MultiBufferSource bufferSource = event.getMultiBufferSource();
                 int packedLight = event.getPackedLight();
 
                 poseStack.pushPose();
-                if (disguiseType.scale() != 1.0f) {
-                    poseStack.scale(disguiseType.scale(), disguiseType.scale(), disguiseType.scale());
+                if (scale != 1.0f) {
+                    poseStack.scale(scale, scale, scale);
                 }
 
-                float yaw = Mth.lerp(partialTicks, entity.yRotO, entity.getYRot());
-                EntityRenderer<? super Entity> renderer = dispatcher.getRenderer(disguiseEntity);
-                if (renderer != null) {
-                    renderer.render(disguiseEntity, yaw, partialTicks, poseStack, buffers, packedLight);
-                }
+				dispatcher.render(disguiseEntityState, 0.0, 0.0, 0.0, poseStack, bufferSource, packedLight);
 
                 poseStack.popPose();
             } catch (Exception e) {
-                disguise.clear();
                 LoveTropics.LOGGER.error("Failed to render player disguise", e);
                 PoseStackCapture.restore(poseStack, capturedTransformState);
             }
@@ -101,21 +139,19 @@ public final class ClientPlayerDisguises {
             event.setCanceled(true);
         } else {
             poseStack.pushPose();
-            if (disguiseType.scale() != 1.0f) {
-                poseStack.scale(disguiseType.scale(), disguiseType.scale(), disguiseType.scale());
+            if (scale != 1.0f) {
+                poseStack.scale(scale, scale, scale);
             }
         }
     }
 
     @SubscribeEvent
-    public static void onRenderPlayerPost(RenderLivingEvent.Post<?, ?> event) {
-        LivingEntity entity = event.getEntity();
-        PlayerDisguise disguise = PlayerDisguise.getOrNull(entity);
-        if (disguise == null || !disguise.isDisguised()) {
-            return;
-        }
-
-        if (disguise.entity() == null) {
+    public static void onRenderPlayerPost(RenderLivingEvent.Post<?, ?, ?> event) {
+		DisguiseRenderState disguiseState = event.getRenderState().getRenderData(DISGUISE_KEY);
+		if (disguiseState == null) {
+			return;
+		}
+        if (disguiseState.entityRenderState() != null || disguiseState.scale() != 1.0f) {
             event.getPoseStack().popPose();
         }
     }
@@ -230,4 +266,14 @@ public final class ClientPlayerDisguises {
     public static PlayerSkin getSkin(ResolvableProfile profile) {
         return SKIN_LOOKUP_CACHE.getUnchecked(profile).get();
     }
+
+	private record DisguiseRenderState(
+			@Nullable
+			EntityRenderState entityRenderState,
+			float scale
+	) {
+		public static DisguiseRenderState scaling(float scale) {
+			return new DisguiseRenderState(null, scale);
+		}
+	}
 }

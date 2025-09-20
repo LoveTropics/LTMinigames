@@ -12,8 +12,6 @@ import javax.annotation.Nullable;
 import java.util.UUID;
 
 public final class ClientPlayerInfo {
-	private static final Minecraft CLIENT = Minecraft.getInstance();
-
 	@Nullable
 	public static GameProfile getPlayerProfile(UUID uuid) {
 		PlayerInfo info = get(uuid);
@@ -38,7 +36,7 @@ public final class ClientPlayerInfo {
 
 	@Nullable
 	public static PlayerInfo get(UUID uuid) {
-		ClientPacketListener connection = CLIENT.getConnection();
+		ClientPacketListener connection = Minecraft.getInstance().getConnection();
 		return connection != null ? connection.getPlayerInfo(uuid) : null;
 	}
 }

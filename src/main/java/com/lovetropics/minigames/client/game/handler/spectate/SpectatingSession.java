@@ -11,8 +11,6 @@ import java.util.List;
 import java.util.UUID;
 
 class SpectatingSession {
-	private static final Minecraft CLIENT = Minecraft.getInstance();
-
 	List<UUID> players;
 
 	final SpectatingUi ui;
@@ -36,14 +34,14 @@ class SpectatingSession {
 		zoom = targetZoom;
 
 		if (stateApplicator != null) {
-			if (stateApplicator.tryApply(CLIENT)) {
+			if (stateApplicator.tryApply(Minecraft.getInstance())) {
 				stateApplicator = null;
 			} else {
 				return;
 			}
 		}
 
-		SpectatingState newState = state.tick(CLIENT, this, CLIENT.player);
+		SpectatingState newState = state.tick(Minecraft.getInstance(), this, Minecraft.getInstance().player);
 		if (!newState.equals(state)) {
 			applyState(newState);
 			ui.updateState(newState);
@@ -55,15 +53,18 @@ class SpectatingSession {
 	}
 
 	void renderTick() {
-		state.renderTick(CLIENT, this, CLIENT.player);
+		Minecraft minecraft = Minecraft.getInstance();
+		state.renderTick(minecraft, this, minecraft.player);
 	}
 
 	void applyToCamera(Camera camera, float partialTicks, ViewportEvent.ComputeCameraAngles event) {
-		state.applyToCamera(CLIENT, this, CLIENT.player, camera, partialTicks, event);
+		Minecraft minecraft = Minecraft.getInstance();
+		state.applyToCamera(minecraft, this, minecraft.player, camera, partialTicks, event);
 	}
 
 	void applyCameraDistance(Camera camera, float partialTicks, CalculateDetachedCameraDistanceEvent event) {
-		state.applyCameraDistance(CLIENT, this, CLIENT.player, camera, partialTicks, event);
+		Minecraft minecraft = Minecraft.getInstance();
+		state.applyCameraDistance(minecraft, this, minecraft.player, camera, partialTicks, event);
 	}
 
 	void applyState(SpectatingState state) {
@@ -71,7 +72,7 @@ class SpectatingSession {
 			return;
 		}
 		this.state = state;
-		SpectatingState.StateApplicator applicator = state.apply(CLIENT, this);
+		SpectatingState.StateApplicator applicator = state.apply(Minecraft.getInstance(), this);
 		stateApplicator = applicator.isApplied() ? null : applicator;
 	}
 

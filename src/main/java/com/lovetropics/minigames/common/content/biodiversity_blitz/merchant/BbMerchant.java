@@ -90,7 +90,12 @@ public final class BbMerchant implements Merchant {
         return customer.level().isClientSide();
     }
 
-    private MerchantMenu createContainer(int id, Inventory playerInventory, Player player) {
+	@Override
+	public boolean stillValid(Player player) {
+		return true;
+	}
+
+	private MerchantMenu createContainer(int id, Inventory playerInventory, Player player) {
         return new BbMerchantContainer(this, id, playerInventory);
     }
 }

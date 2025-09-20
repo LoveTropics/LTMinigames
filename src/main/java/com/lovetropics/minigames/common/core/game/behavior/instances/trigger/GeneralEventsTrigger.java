@@ -15,7 +15,7 @@ import com.lovetropics.minigames.common.core.game.player.PlayerRole;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.util.TriState;
 
 import javax.annotation.Nullable;
 import java.util.Map;
@@ -45,15 +45,15 @@ public record GeneralEventsTrigger(Map<String, GameActionList<ServerPlayer>> eve
 
 		events.listen(GamePlayerEvents.DAMAGE, (player, damageSource, amount) -> {
 			invoke(game, "player_hurt", player);
-			return InteractionResult.PASS;
+			return TriState.DEFAULT;
 		});
 		events.listen(GamePlayerEvents.ATTACK, (player, target) -> {
 			invoke(game, "player_attack", player);
-			return InteractionResult.PASS;
+			return TriState.DEFAULT;
 		});
 		events.listen(GamePlayerEvents.DEATH, (player, damageSource) -> {
 			invoke(game, "player_death", player);
-			return InteractionResult.PASS;
+			return TriState.DEFAULT;
 		});
 
 		events.listen(GameLogicEvents.GAME_OVER, winner -> invoke(game, "game_over"));

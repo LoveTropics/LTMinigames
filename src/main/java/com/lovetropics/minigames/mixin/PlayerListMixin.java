@@ -12,6 +12,7 @@ import net.neoforged.neoforge.event.EventHooks;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
@@ -60,11 +61,17 @@ public abstract class PlayerListMixin implements PlayerListAccess {
 			CompoundTag loadedPlayerTag = server.getWorldData().getLoadedPlayerTag();
 			CompoundTag singleplayerData = getSingleplayerData();
 			if (loadedPlayerTag != null && singleplayerData != null) {
-				for (String key : List.copyOf(loadedPlayerTag.getAllKeys())) {
-					loadedPlayerTag.remove(key);
-				}
+				ltminigames$clear(loadedPlayerTag);
 				loadedPlayerTag.merge(singleplayerData);
 			}
+		}
+	}
+
+	@Unique
+	private static void ltminigames$clear(CompoundTag tag) {
+		// We have clear() at home
+		for (String key : List.copyOf(tag.keySet())) {
+			tag.remove(key);
 		}
 	}
 

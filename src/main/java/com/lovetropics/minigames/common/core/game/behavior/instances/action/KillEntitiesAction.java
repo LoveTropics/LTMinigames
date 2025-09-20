@@ -40,7 +40,7 @@ public record KillEntitiesAction(
 			int count = this.count.orElse(Integer.MAX_VALUE);
 			Util.shuffle(candidates, game.random());
 			for (int i = 0; i < candidates.size() && i < count; i++) {
-				candidates.get(i).kill();
+				candidates.get(i).kill(game.level());
 			}
 			return true;
 		});

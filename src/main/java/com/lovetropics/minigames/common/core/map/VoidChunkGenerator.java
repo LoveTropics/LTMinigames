@@ -11,6 +11,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.WorldGenRegion;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.NoiseColumn;
 import net.minecraft.world.level.StructureManager;
@@ -25,7 +26,6 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.chunk.ChunkGeneratorStructureState;
 import net.minecraft.world.level.dimension.DimensionDefaults;
-import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.blending.Blender;
@@ -59,11 +59,11 @@ public final class VoidChunkGenerator extends ChunkGenerator {
 	}
 
 	public VoidChunkGenerator(MinecraftServer server) {
-		this(server.registryAccess().registryOrThrow(Registries.BIOME));
+		this(server.registryAccess().lookupOrThrow(Registries.BIOME));
 	}
 
 	public VoidChunkGenerator(Registry<Biome> biomeRegistry, ResourceKey<Biome> biome) {
-		this(biomeRegistry.getHolderOrThrow(biome));
+		this(biomeRegistry.getOrThrow(biome));
 	}
 
 	@Override
@@ -72,7 +72,7 @@ public final class VoidChunkGenerator extends ChunkGenerator {
 	}
 
 	@Override
-	public void createStructures(RegistryAccess registries, ChunkGeneratorStructureState structureState, StructureManager structureManager, ChunkAccess chunk, StructureTemplateManager structureTemplateManager) {
+	public void createStructures(RegistryAccess registryAccess, ChunkGeneratorStructureState structureState, StructureManager structureManager, ChunkAccess chunk, StructureTemplateManager structureTemplateManager, ResourceKey<Level> level) {
 	}
 
 	@Override
@@ -96,14 +96,14 @@ public final class VoidChunkGenerator extends ChunkGenerator {
 
 	@Override
 	public int getBaseHeight(final int x, final int z, final Heightmap.Types heightmap, final LevelHeightAccessor level, final RandomState randomState) {
-		return level.getMinBuildHeight();
+		return level.getMinY();
 	}
 
 	@Override
 	public NoiseColumn getBaseColumn(final int x, final int z, final LevelHeightAccessor level, final RandomState randomState) {
 		final BlockState[] blocks = new BlockState[level.getHeight()];
 		Arrays.fill(blocks, Blocks.AIR.defaultBlockState());
-		return new NoiseColumn(level.getMinBuildHeight(), blocks);
+		return new NoiseColumn(level.getMinY(), blocks);
 	}
 
 	@Override
@@ -111,7 +111,7 @@ public final class VoidChunkGenerator extends ChunkGenerator {
 	}
 
 	@Override
-	public void applyCarvers(final WorldGenRegion region, final long seed, final RandomState randomState, final BiomeManager biomes, final StructureManager structures, final ChunkAccess chunk, final GenerationStep.Carving step) {
+	public void applyCarvers(WorldGenRegion level, long seed, RandomState random, BiomeManager biomeManager, StructureManager structureManager, ChunkAccess chunk) {
 	}
 
 	@Override

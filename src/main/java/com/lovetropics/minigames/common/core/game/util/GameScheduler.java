@@ -1,10 +1,7 @@
 package com.lovetropics.minigames.common.core.game.util;
 
 import net.minecraft.SharedConstants;
-import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 
 import java.util.ArrayList;
 import java.util.concurrent.Executor;
@@ -20,36 +17,15 @@ public final class GameScheduler implements Executor {
 	private final ArrayList<Task> newTasks = new ArrayList<>();
 	private final ArrayList<Task> delayedTasks = new ArrayList<>();
 
-	private final ArrayList<BlockChangeNotify> blockChangeNotifies = new ArrayList<>();
-
 	public void tick() {
 		delayedTasks.addAll(newTasks);
 		newTasks.clear();
 		delayedTasks.removeIf(Task::tick);
-		for (BlockChangeNotify blockChangeNotify : blockChangeNotifies) {
-			blockChangeNotify.level.blockUpdated(blockChangeNotify.pos, blockChangeNotify.block);
-		}
-		blockChangeNotifies.clear();
 	}
 
 	@Override
 	public void execute(Runnable command) {
 		schedule(new DelayedTask(command, 0));
-	}
-
-	/**
-	 * Just to make sure that the clients are notified of block changes happening from the scheduler
-	 * <p>
-	 * Should be slightly more efficient than firing this on each change during delayed events.
-	 *
-	 * @param pos
-	 * @param level
-	 */
-	public record BlockChangeNotify(Level level, BlockPos pos, Block block) {
-	}
-
-	public void notifyBlockChange(BlockPos pos, Level level, Block block) {
-		blockChangeNotifies.add(new BlockChangeNotify(level, pos, block));
 	}
 
 	public Handle runAfterTicks(int ticks, Runnable task) {

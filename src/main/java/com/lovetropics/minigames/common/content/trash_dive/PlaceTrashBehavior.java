@@ -105,13 +105,12 @@ public record PlaceTrashBehavior(ResourceLocation positionData, int centerY, int
 	}
 
 	private void tryPlaceTrash(ChunkAccess chunk, BlockPos pos, RandomSource random) {
-		if (chunk.getBlockState(pos).getBlock() == Blocks.WATER) {
+		if (chunk.getBlockState(pos).is(Blocks.WATER)) {
 			TrashType trashType = Util.getRandom(TRASH_TYPES, random);
 			chunk.setBlockState(pos, LoveTropicsBlocks.TRASH.get(trashType).getDefaultState()
 							.setValue(TrashBlock.WATERLOGGED, true)
 							.setValue(TrashBlock.ATTACHMENT, Block.canSupportRigidBlock(chunk, pos.below()) ? Attachment.FLOOR : Attachment.random(random))
-							.setValue(TrashBlock.FACING, Direction.from2DDataValue(random.nextInt(4))),
-					false
+							.setValue(TrashBlock.FACING, Direction.Plane.HORIZONTAL.getRandomDirection(random))
 			);
 		}
 	}

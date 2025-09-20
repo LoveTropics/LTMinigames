@@ -4,10 +4,10 @@ import com.lovetropics.lib.codec.MoreCodecs;
 import com.lovetropics.minigames.common.content.biodiversity_blitz.BiodiversityBlitz;
 import com.lovetropics.minigames.common.content.biodiversity_blitz.BiodiversityBlitzTexts;
 import com.lovetropics.minigames.common.content.biodiversity_blitz.behavior.event.BbEvents;
+import com.lovetropics.minigames.common.content.biodiversity_blitz.behavior.event.PlacePlantResult;
 import com.lovetropics.minigames.common.content.biodiversity_blitz.behavior.tutorial.TutorialState;
 import com.lovetropics.minigames.common.content.biodiversity_blitz.plot.Plot;
 import com.lovetropics.minigames.common.content.biodiversity_blitz.plot.PlotsState;
-import com.lovetropics.minigames.common.content.biodiversity_blitz.plot.plant.Plant;
 import com.lovetropics.minigames.common.content.biodiversity_blitz.plot.plant.PlantItemType;
 import com.lovetropics.minigames.common.content.biodiversity_blitz.plot.plant.PlantType;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
@@ -21,8 +21,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.util.TriState;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -57,43 +56,40 @@ public final class PlantItemBehavior implements IGameBehavior {
 		events.listen(BbEvents.CREATE_PLANT_ITEM, this::createPlantDrop);
 	}
 
-	private InteractionResult onPlaceBlock(ServerPlayer player, BlockPos pos, BlockState placed, BlockState placedOn, ItemStack placedItemStack) {
+	private TriState onPlaceBlock(ServerPlayer player, BlockPos pos, BlockState placed, BlockState placedOn, ItemStack placedItemStack) {
 		if (!tutorial.isTutorialFinished()) {
-			return InteractionResult.PASS;
+			return TriState.DEFAULT;
 		}
 
 		ItemStack heldItem = player.getMainHandItem();
 		if (!itemType.matches(heldItem)) {
-			return InteractionResult.PASS;
+			return TriState.DEFAULT;
 		}
 
 		Plot plot = plots.getPlotFor(player);
 		if (plot != null && plot.canPlantAt(pos)) {
 			if (plot.plants.getPlantAt(pos) != null) {
-				return InteractionResult.FAIL;
+				return TriState.FALSE;
 			}
 
 			// Don't let players place plants inside mob spawns
-			if (plot.mobSpawns.contains(pos)) {
-				return InteractionResult.FAIL;
+			if (plot.mobSpawns.stream().anyMatch(box -> box.contains(pos))) {
+				return TriState.FALSE;
 			}
 
-			InteractionResultHolder<Plant> result = game.invoker(BbEvents.PLACE_PLANT).placePlant(player, plot, pos, places);
-			if (result.getObject() == null) {
-				if (result.getResult() == InteractionResult.FAIL) {
+			return switch (game.invoker(BbEvents.PLACE_PLANT).placePlant(player, plot, pos, places)) {
+				case PlacePlantResult.Success ignored -> TriState.TRUE;
+				case PlacePlantResult.CannotFit ignored -> {
 					player.displayClientMessage(BiodiversityBlitzTexts.PLANT_CANNOT_FIT.copy().withStyle(ChatFormatting.RED), true);
 					player.playNotifySound(SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 1.0F, 1.0F);
+					yield TriState.FALSE;
 				}
-
-				if (result.getResult() == InteractionResult.CONSUME) {
-					return InteractionResult.FAIL;
-				}
-			}
-
-			return result.getResult();
+				case PlacePlantResult.Fail ignored -> TriState.FALSE;
+				case PlacePlantResult.Pass ignored -> TriState.DEFAULT;
+			};
 		}
 
-		return InteractionResult.PASS;
+		return TriState.DEFAULT;
 	}
 
 	private ItemStack createPlantDrop(PlantItemType itemType) {

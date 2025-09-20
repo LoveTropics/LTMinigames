@@ -64,8 +64,8 @@ public final class Plot {
 	public static Plot create(LevelHeightAccessor level, GameTeamKey team, Config config, RegionKeys regionKeys, MapRegions regions) {
 		BlockBox plantBounds = regionKeys.plot.getOrThrow(regions, config.key);
 		BlockBox bounds = BlockBox.of(
-				new BlockPos(plantBounds.min().getX(), level.getMinBuildHeight(), plantBounds.min().getZ()),
-				new BlockPos(plantBounds.max().getX(), level.getMaxBuildHeight(), plantBounds.max().getZ())
+				new BlockPos(plantBounds.min().getX(), level.getMinY(), plantBounds.min().getZ()),
+				new BlockPos(plantBounds.max().getX(), level.getMaxY(), plantBounds.max().getZ())
 		);
 		BlockBox floorBounds = BlockBox.of(
 				new BlockPos(plantBounds.min().getX(), plantBounds.min().getY() - 1, plantBounds.min().getZ()),

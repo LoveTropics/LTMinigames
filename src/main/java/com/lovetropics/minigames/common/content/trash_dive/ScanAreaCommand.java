@@ -61,10 +61,10 @@ public class ScanAreaCommand {
 		BlockPos.MutableBlockPos pos = BlockPos.containing(source.getPosition()).mutable();
 
 		ServerLevel world = source.getLevel();
-		while (pos.getY() >= world.getMinBuildHeight() && world.getBlockState(pos).getBlock() != Blocks.WATER) {
+		while (pos.getY() >= world.getMinY() && world.getBlockState(pos).getBlock() != Blocks.WATER) {
 			pos.move(Direction.DOWN);
 		}
-		if (pos.getY() < world.getMinBuildHeight()) {
+		if (pos.getY() < world.getMinY()) {
 			throw NO_WATER.create();
 		}
 
@@ -86,7 +86,7 @@ public class ScanAreaCommand {
 		while (!queue.isEmpty()) {
 			pos.set(queue.remove());
 			found.add(pos.asLong());
-			world.sendParticles(source.getPlayerOrException(), ParticleTypes.END_ROD, true, pos.getX() + 0.5, source.getPosition().y() - 3, pos.getZ(), 1, 0, 0, 0, 0);
+			world.sendParticles(source.getPlayerOrException(), ParticleTypes.END_ROD, true, false, pos.getX() + 0.5, source.getPosition().y() - 3, pos.getZ(), 1, 0, 0, 0, 0);
 			for (Direction dir : dirs) {
 				pos.move(dir);
 				if (seen.add(pos.asLong())) {

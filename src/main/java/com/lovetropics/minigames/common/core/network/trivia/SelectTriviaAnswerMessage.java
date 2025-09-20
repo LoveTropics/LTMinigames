@@ -24,7 +24,7 @@ public record SelectTriviaAnswerMessage(BlockPos triviaBlock, int selectedAnswer
 
     public static void handle(final SelectTriviaAnswerMessage message, final IPayloadContext context) {
         ServerPlayer player = (ServerPlayer) context.player();
-        if (!player.canInteractWithBlock(message.triviaBlock(), ServerPlayer.INTERACTION_DISTANCE_VERIFICATION_BUFFER)) {
+        if (!player.canInteractWithBlock(message.triviaBlock(), ServerPlayer.BLOCK_INTERACTION_DISTANCE_VERIFICATION_BUFFER)) {
             return;
         }
         IGamePhase game = IGameManager.get().getGamePhaseFor(player);

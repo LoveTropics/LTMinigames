@@ -1,17 +1,14 @@
 package com.lovetropics.minigames.common.core.game.config;
 
 import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
 import com.lovetropics.lib.codec.CodecRegistry;
 import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorType;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.util.DynamicTemplate;
 import com.lovetropics.minigames.common.util.registry.RegistryLoadingOps;
-import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
-import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.MapCodec;
@@ -23,9 +20,10 @@ import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.util.StrictJsonParser;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.AddReloadListenerEvent;
+import net.neoforged.neoforge.event.AddServerReloadListenersEvent;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -54,11 +52,11 @@ public final class GameConfigs {
 	private static final FileToIdConverter BEHAVIOR_LISTER = FileToIdConverter.json("behaviors");
 
 	@SubscribeEvent
-	public static void addReloadListener(AddReloadListenerEvent event) {
+	public static void addReloadListener(AddServerReloadListenersEvent event) {
 		RegistryAccess registryAccess = event.getRegistryAccess();
-		event.addListener((stage, resourceManager, preparationsProfiler, reloadProfiler, backgroundExecutor, gameExecutor) ->
+		event.addListener(LoveTropics.location("game_configs"), (barrier, resourceManager, backgroundExecutor, gameExecutor) ->
 				load(resourceManager, backgroundExecutor, registryAccess)
-						.thenCompose(stage::wait)
+						.thenCompose(barrier::wait)
 						.thenAcceptAsync(configs -> {
 							REGISTRY.clear();
 							configs.stream()
@@ -101,7 +99,7 @@ public final class GameConfigs {
 
 	private static DataResult<GameConfig> loadConfig(DynamicOps<JsonElement> ops, ResourceLocation path, Resource resource) throws IOException {
 		try (BufferedReader reader = resource.openAsReader()) {
-			JsonElement json = JsonParser.parseReader(reader);
+			JsonElement json = StrictJsonParser.parse(reader);
 			Codec<GameConfig> codec = GameConfig.codec(GAME_LISTER.fileToId(path));
 			return codec.parse(ops, json);
 		}
@@ -121,7 +119,7 @@ public final class GameConfigs {
 	private static Map.Entry<ResourceLocation, GameBehaviorType<?>> tryLoadBehavior(Resource resource, ResourceLocation path) {
 		try {
 			try (BufferedReader reader = resource.openAsReader()) {
-				JsonElement json = JsonParser.parseReader(reader);
+				JsonElement json = StrictJsonParser.parse(reader);
 				ResourceLocation id = BEHAVIOR_LISTER.fileToId(path);
 				return Map.entry(id, new GameBehaviorType<>(createCustomBehaviorCodec(DynamicTemplate.parse(JsonOps.INSTANCE, json))));
 			}

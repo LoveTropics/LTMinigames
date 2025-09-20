@@ -1,10 +1,8 @@
 package com.lovetropics.minigames.common.core.command.game;
 
-import com.lovetropics.minigames.common.core.command.argument.GameConfigArgument;
 import com.lovetropics.minigames.common.core.command.argument.GameLobbyArgument;
 import com.lovetropics.minigames.common.core.game.GameResult;
 import com.lovetropics.minigames.common.core.game.IGameManager;
-import com.lovetropics.minigames.common.core.game.config.GameConfig;
 import com.lovetropics.minigames.common.core.game.lobby.IGameLobby;
 import com.lovetropics.minigames.common.core.game.lobby.ILobbyManagement;
 import com.lovetropics.minigames.common.core.game.util.GameTexts;
@@ -49,19 +47,26 @@ public class ManageGameLobbyCommand {
 		// @formatter:on
 	}
 
-	private static int createLobby(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
-		ServerPlayer player = context.getSource().getPlayerOrException();
+	public static GameResult<IGameLobby> createAndJoinLobby(ServerPlayer player) {
 		String name = player.getScoreboardName() + "'s Lobby";
-
 		GameResult<IGameLobby> result = IGameManager.get().createGameLobby(name, player);
 		if (result.isError()) {
-			throw new SimpleCommandExceptionType(result.getError()).create();
+			return result.castError();
 		}
-
 		IGameLobby lobby = result.getOk();
 		lobby.getPlayers().joinAndPrompt(player).thenAcceptAsync($ -> {
 			lobby.getManagement().startManaging(player);
 		}, lobby.getServer());
+		return result;
+	}
+
+	private static int createLobby(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+		ServerPlayer player = context.getSource().getPlayerOrException();
+
+		GameResult<IGameLobby> result = createAndJoinLobby(player);
+		if (result.isError()) {
+			throw new SimpleCommandExceptionType(result.getError()).create();
+		}
 
 		return Command.SINGLE_SUCCESS;
 	}

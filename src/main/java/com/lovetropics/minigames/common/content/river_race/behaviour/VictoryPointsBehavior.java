@@ -1,7 +1,5 @@
 package com.lovetropics.minigames.common.content.river_race.behaviour;
 
-import com.lovetropics.lib.codec.MoreCodecs;
-import com.lovetropics.minigames.SoundRegistry;
 import com.lovetropics.minigames.common.content.river_race.RiverRaceState;
 import com.lovetropics.minigames.common.content.river_race.RiverRaceTexts;
 import com.lovetropics.minigames.common.content.river_race.block.TriviaType;
@@ -57,7 +55,7 @@ public class VictoryPointsBehavior implements IGameBehavior {
         Codec.INT.optionalFieldOf("trivia_challenge_points", 5).forGetter(c -> c.triviaChallengePoints),
         Codec.INT.optionalFieldOf("collectable_collected_points", 0).forGetter(c -> c.collectableCollectedPoints),
         Codec.INT.optionalFieldOf("collectable_placed_points", 1).forGetter(c -> c.collectablePlacedPoints),
-        ExtraCodecs.nonEmptyList(MoreCodecs.listOrUnit(Codec.INT)).optionalFieldOf("points_per_game_won", List.of(3, 2, 1)).forGetter(c -> c.pointsPerGameWon),
+        ExtraCodecs.nonEmptyList(ExtraCodecs.compactListCodec(Codec.INT)).optionalFieldOf("points_per_game_won", List.of(3, 2, 1)).forGetter(c -> c.pointsPerGameWon),
         Codec.unboundedMap(ResourceLocation.CODEC, Codec.INT).optionalFieldOf("special_points_per_game", Map.of()).forGetter(c -> c.specialPointsPerGame)
     ).apply(i, VictoryPointsBehavior::new));
 

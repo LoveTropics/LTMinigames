@@ -12,7 +12,6 @@ import com.lovetropics.minigames.common.core.game.behavior.config.ConfigData;
 import com.lovetropics.minigames.common.core.game.behavior.config.ConfigData.CompositeConfigData;
 import com.lovetropics.minigames.common.core.game.behavior.config.ConfigData.ListConfigData;
 import com.lovetropics.minigames.common.core.game.behavior.config.ConfigData.SimpleConfigData;
-import com.mojang.blaze3d.vertex.Tesselator;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -126,13 +125,13 @@ public final class GameConfig extends ScrollPanel {
 	}
 
 	@Override
-	protected void drawPanel(GuiGraphics graphics, int entryRight, int relativeY, Tesselator tess, int mouseX, int mouseY) {
+	protected void drawPanel(GuiGraphics graphics, int entryRight, int relativeY, int mouseX, int mouseY) {
 		mainLayout.debugRender(graphics);
-		graphics.pose().pushPose();
-		graphics.pose().translate(0, relativeY - top - border, 0);
+		graphics.pose().pushMatrix();
+		graphics.pose().translate(0, relativeY - top - border);
 		content.debugRender(graphics);
 		configMenus.values().forEach(ui -> ui.render(graphics, mouseX, mouseY + (int) scrollDistance, 0));
-		graphics.pose().popPose();
+		graphics.pose().popMatrix();
 		saveButton.render(graphics, mouseX, mouseY, mouseY);
 	}
 

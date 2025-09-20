@@ -1,21 +1,22 @@
 package com.lovetropics.minigames.common.util.world;
 
-import com.google.common.collect.Lists;
 import com.lovetropics.lib.BlockBox;
 import com.lovetropics.minigames.common.core.game.util.GameScheduler;
 import net.minecraft.commands.arguments.blocks.BlockInput;
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.commands.SetBlockCommand;
+import net.minecraft.server.commands.FillCommand;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Clearable;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.pattern.BlockInWorld;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -43,10 +44,10 @@ public class BlockPlacer {
             return p_137420_;
         });
 
-        public final SetBlockCommand.Filter filter;
+        public final FillCommand.Filter filter;
 
-        Mode(SetBlockCommand.Filter pFilter) {
-            filter = pFilter;
+        Mode(FillCommand.Filter filter) {
+            this.filter = filter;
         }
     }
 
@@ -78,24 +79,27 @@ public class BlockPlacer {
      * Logic mostly copied from the fill command.
      */
     public static void placeBlocks(ServerLevel level, BlockBox box, BlockInput newBlock, Mode mode, @Nullable Predicate<BlockInWorld> replacingPredicate, @Nullable GameScheduler scheduler, @Nullable Function<BlockPos, Integer> tickDelay, @Nullable Consumer<BlockPos> doneCallback) {
+		record UpdatedBlock(BlockPos pos, BlockState oldState) {
+		}
 
-        List<BlockPos> list = Lists.newArrayList();
+		List<UpdatedBlock> updatedBlocks = new ArrayList<>();
 
         BoundingBox boundingBox = new BoundingBox(box.min().getX(), box.min().getY(), box.min().getZ(), box.max().getX(), box.max().getY(), box.max().getZ());
-        for (BlockPos blockpos : box) {
-            if (replacingPredicate == null || replacingPredicate.test(new BlockInWorld(level, blockpos, true))) {
+		for (BlockPos pos : box) {
+			if (replacingPredicate == null || replacingPredicate.test(new BlockInWorld(level, pos, true))) {
 
                 if (scheduler != null) {
-                    var delay = tickDelay != null ? tickDelay.apply(blockpos) : 0;
-                    var blockPosCopy = blockpos.mutable();
+					var delay = tickDelay != null ? tickDelay.apply(pos) : 0;
+					var blockPosCopy = pos.immutable();
                     scheduler.runAfterTicks(delay, () -> {
-                        BlockInput blockinput = mode.filter.filter(boundingBox, blockPosCopy, newBlock, level);
+						BlockInput blockinput = mode.filter.filter(boundingBox, blockPosCopy, newBlock, level);
                         if (blockinput != null) {
-                            BlockEntity blockentity = level.getBlockEntity(blockPosCopy);
-                            Clearable.tryClear(blockentity);
-                            if (blockinput.place(level, blockPosCopy, 2)) {
-                                Block block = level.getBlockState(blockPosCopy).getBlock();
-                                level.blockUpdated(blockPosCopy, block);
+							BlockState oldState = level.getBlockState(blockPosCopy);
+							if (level.getBlockEntity(blockPosCopy) instanceof Clearable clearable) {
+								clearable.clearContent();
+							}
+							if (blockinput.place(level, blockPosCopy, Block.UPDATE_CLIENTS)) {
+								level.updateNeighboursOnBlockSet(blockPosCopy, oldState);
                             }
                         }
                         if (doneCallback != null) {
@@ -103,23 +107,24 @@ public class BlockPlacer {
                         }
                     });
                 } else {
-                    BlockInput blockinput = mode.filter.filter(boundingBox, blockpos, newBlock, level);
+					BlockInput blockinput = mode.filter.filter(boundingBox, pos, newBlock, level);
                     if (blockinput != null) {
-                        BlockEntity blockentity = level.getBlockEntity(blockpos);
-                        Clearable.tryClear(blockentity);
-                        if (blockinput.place(level, blockpos, 2)) {
-                            list.add(blockpos.immutable());
+						BlockState oldState = level.getBlockState(pos);
+						if (level.getBlockEntity(pos) instanceof Clearable clearable) {
+							clearable.clearContent();
+						}
+						if (blockinput.place(level, pos, Block.UPDATE_CLIENTS)) {
+							updatedBlocks.add(new UpdatedBlock(pos.immutable(), oldState));
                         }
                     }
                 }
             }
-        }
+		}
 
-        if(scheduler == null) {
-            for(BlockPos blockpos1 : list) {
-                Block block = level.getBlockState(blockpos1).getBlock();
-                level.blockUpdated(blockpos1, block);
-            }
-        }
+		if (scheduler == null) {
+			for (UpdatedBlock updatedBlock : updatedBlocks) {
+				level.updateNeighboursOnBlockSet(updatedBlock.pos, updatedBlock.oldState);
+			}
+		}
     }
 }

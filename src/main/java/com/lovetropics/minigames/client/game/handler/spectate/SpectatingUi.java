@@ -14,9 +14,11 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.PlayerFaceRenderer;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.multiplayer.PlayerInfo;
+import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ARGB;
+import net.minecraft.util.CommonColors;
 import net.minecraft.util.Mth;
 import net.minecraft.world.scores.PlayerTeam;
 import net.neoforged.api.distmarker.Dist;
@@ -35,8 +37,6 @@ import java.util.function.Supplier;
 
 @EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
 public final class SpectatingUi {
-	private static final Minecraft CLIENT = Minecraft.getInstance();
-
 	private static final Component FREE_CAMERA_TEXT = GameTexts.Ui.FREE_CAMERA.copy().withStyle(ChatFormatting.ITALIC);
 
 	private static final int FACE_SIZE = 16;
@@ -67,7 +67,8 @@ public final class SpectatingUi {
 	@SubscribeEvent
 	public static void onMouseScroll(InputEvent.MouseScrollingEvent event) {
 		SpectatingSession session = ClientSpectatingManager.INSTANCE.session;
-		if (session == null || CLIENT.screen != null) {
+		Minecraft minecraft = Minecraft.getInstance();
+		if (session == null || minecraft.screen != null) {
 			return;
 		}
 
@@ -76,7 +77,7 @@ public final class SpectatingUi {
 		// Prevent adjusting the spectator fly speed
 		event.setCanceled(true);
 
-		if (!InputConstants.isKeyDown(CLIENT.getWindow().getWindow(), InputConstants.KEY_LCONTROL)) {
+		if (!InputConstants.isKeyDown(minecraft.getWindow().getWindow(), InputConstants.KEY_LCONTROL)) {
 			session.ui.onScrollSelection(delta);
 		} else {
 			if (session.state.allowsZoom()) {
@@ -108,7 +109,7 @@ public final class SpectatingUi {
 	@SubscribeEvent
 	public static void onKeyInput(InputEvent.Key event) {
 		SpectatingSession session = ClientSpectatingManager.INSTANCE.session;
-		if (session == null || CLIENT.screen != null || event.getAction() == GLFW.GLFW_RELEASE) {
+		if (session == null || Minecraft.getInstance().screen != null || event.getAction() == GLFW.GLFW_RELEASE) {
 			return;
 		}
 
@@ -126,7 +127,7 @@ public final class SpectatingUi {
 	@SubscribeEvent
 	public static void onMouseInput(InputEvent.MouseButton.Post event) {
 		SpectatingSession session = ClientSpectatingManager.INSTANCE.session;
-		if (session == null || CLIENT.screen != null || event.getAction() == GLFW.GLFW_RELEASE) {
+		if (session == null || Minecraft.getInstance().screen != null || event.getAction() == GLFW.GLFW_RELEASE) {
 			return;
 		}
 
@@ -174,7 +175,7 @@ public final class SpectatingUi {
 
 	private int scrollViewSize() {
 		int padding = ENTRY_WIDTH * 4;
-		int availableWidth = CLIENT.getWindow().getGuiScaledWidth() - padding;
+		int availableWidth = Minecraft.getInstance().getWindow().getGuiScaledWidth() - padding;
 		return Mth.clamp(availableWidth / ENTRY_WIDTH, 1, MAX_ENTRIES_ON_SCREEN);
 	}
 
@@ -198,13 +199,13 @@ public final class SpectatingUi {
 		int right = left + width;
 		int bottom = graphics.guiHeight();
 
-		Font font = CLIENT.font;
+		Font font = Minecraft.getInstance().font;
 		int textY = bottom - (ENTRY_HEIGHT + font.lineHeight) / 2;
 		if (viewStart > 0) {
-			graphics.drawString(font, "<", left - font.width("<") - 2, textY, 0xffffffff);
+			graphics.drawString(font, "<", left - font.width("<") - 2, textY, CommonColors.WHITE);
 		}
 		if (viewEnd < entries.size() - 1) {
-			graphics.drawString(font, ">", right + 2, textY, 0xffffffff);
+			graphics.drawString(font, ">", right + 2, textY, CommonColors.WHITE);
 		}
 
 		int x = left;
@@ -260,7 +261,7 @@ public final class SpectatingUi {
 
 	List<Entry> createEntriesFor(List<UUID> players) {
 		List<Entry> entries = new ArrayList<>(players.size() + 1);
-		entries.add(new Entry(CLIENT.player.getUUID(), () -> FREE_CAMERA_TEXT, ChatFormatting.RESET, SpectatingState.FREE_CAMERA));
+		entries.add(new Entry(Minecraft.getInstance().player.getUUID(), () -> FREE_CAMERA_TEXT, ChatFormatting.RESET, SpectatingState.FREE_CAMERA));
 
 		for (UUID player : players) {
 			Supplier<Component> name = () -> {
@@ -283,7 +284,7 @@ public final class SpectatingUi {
 
 	@Nullable
 	private static PlayerTeam getTeamFor(UUID playerId) {
-		ClientPacketListener connection = CLIENT.getConnection();
+		ClientPacketListener connection = Minecraft.getInstance().getConnection();
 		if (connection != null) {
 			PlayerInfo player = connection.getPlayerInfo(playerId);
 			return player != null ? player.getTeam() : null;
@@ -292,7 +293,7 @@ public final class SpectatingUi {
 	}
 
 	record Entry(UUID playerIcon, Supplier<Component> nameSupplier, ChatFormatting tagColor, SpectatingState selectionState) {
-		private static final int SELECTED_OUTLINE_COLOR = 0xffffffff;
+		private static final int SELECTED_OUTLINE_COLOR = CommonColors.WHITE;
 		private static final int HIGHLIGHTED_OUTLINE_COLOR = 0xa0000000;
 		private static final int TAB_COLOR = 0xff404040;
 
@@ -305,11 +306,11 @@ public final class SpectatingUi {
 				graphics.fill(left, top, right, bottom, selected ? SELECTED_OUTLINE_COLOR : HIGHLIGHTED_OUTLINE_COLOR);
 			}
 
-			int color = tagColor.getColor() != null ? tagColor.getColor() | 0xff000000 : 0xffa0a0a0;
+			int color = tagColor.getColor() != null ? ARGB.opaque(tagColor.getColor()) : 0xffa0a0a0;
 			graphics.fill(left, bottom - ENTRY_TAG_HEIGHT, right, bottom, color);
 			graphics.fill(left, bottom, right, screenBottom, TAB_COLOR);
 
-			ResourceLocation skin = ClientPlayerInfo.getSkin(playerIcon).texture();
+			PlayerSkin skin = ClientPlayerInfo.getSkin(playerIcon);
 			PlayerFaceRenderer.draw(graphics, skin, left + ENTRY_PADDING, top + ENTRY_PADDING, FACE_SIZE);
 
 			long now = System.currentTimeMillis();
@@ -326,14 +327,14 @@ public final class SpectatingUi {
 		}
 
 		private void renderName(GuiGraphics graphics, int left, int top, boolean selected) {
-			Font font = CLIENT.font;
+			Font font = Minecraft.getInstance().font;
 			Component name = nameSupplier.get();
 			if (!selected) {
 				name = GameTexts.Ui.CLICK_TO_SELECT.apply(name.copy().withStyle(ChatFormatting.WHITE)).withStyle(ChatFormatting.GRAY);
 			}
 
 			int nameLeft = left + (ENTRY_WIDTH - font.width(name)) / 2;
-			graphics.drawString(font, name, nameLeft, top - font.lineHeight - 1, 0xffffffff);
+			graphics.drawString(font, name, nameLeft, top - font.lineHeight - 1, CommonColors.WHITE);
 		}
 	}
 

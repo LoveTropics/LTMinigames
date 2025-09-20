@@ -65,7 +65,7 @@ public class FakePlayerBuilder {
 
     public LTFakePlayer build() {
         final var player = new LTFakePlayer(helper.getLevel(), this, pl ->
-                pl.setPos(helper.absoluteVec(Vec3.atCenterOf(new Vec3i(0, 1, 0)))), "test-mock-player/" + helper.info.getTestName() + "/" + helper.playerCount.incrementAndGet());
+                pl.setPos(helper.absoluteVec(Vec3.atCenterOf(new Vec3i(0, 1, 0)))), "test-mock-player/" + helper.info.id() + "/" + helper.playerCount.incrementAndGet());
         helper.info.addListener(new GameTestListener() {
             @Override
             public void testStructureLoaded(GameTestInfo pTestInfo) {
@@ -87,7 +87,7 @@ public class FakePlayerBuilder {
 
             }
         });
-        player.server.getConnection().getConnections().add(player.connection.getConnection());
+        player.level().getServer().getConnection().getConnections().add(player.connection.getConnection());
         player.getAbilities().invulnerable = invulnerable;
         return player;
     }

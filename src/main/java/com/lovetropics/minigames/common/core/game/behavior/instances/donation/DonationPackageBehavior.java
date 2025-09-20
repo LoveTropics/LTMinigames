@@ -18,7 +18,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.Util;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.util.TriState;
 import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
@@ -58,9 +58,9 @@ public final class DonationPackageBehavior implements IGameBehavior {
 		game.state().get(GamePackageState.KEY).addPackageType(data.apply(costModifier));
 	}
 
-	private InteractionResult onGamePackageReceived(final IGamePhase game, final GamePackage gamePackage) {
+	private TriState onGamePackageReceived(final IGamePhase game, final GamePackage gamePackage) {
 		if (!gamePackage.packageType().equals(data.id())) {
-			return InteractionResult.PASS;
+			return TriState.DEFAULT;
 		}
 
 		return switch (data.targetSelectionMode()) {
@@ -70,26 +70,26 @@ public final class DonationPackageBehavior implements IGameBehavior {
 		};
 	}
 
-	private InteractionResult receiveSpecific(IGamePhase game, GamePackage gamePackage) {
+	private TriState receiveSpecific(IGamePhase game, GamePackage gamePackage) {
 		if (data.applyToTeam()) {
 			TeamState teams = game.instanceState().getOrDefault(TeamState.KEY, TeamState.EMPTY);
 			GameTeam receivingTeam = getReceivingTeam(teams, gamePackage);
 			if (receivingTeam == null) {
 				LOGGER.warn("Could not find a team receiver for package: {}", gamePackage);
-				return InteractionResult.FAIL;
+				return TriState.FALSE;
 			}
 			return applyToTeams(game, gamePackage, List.of(receivingTeam), teams.getPlayersForTeam(receivingTeam.key()));
 		}
 
 		if (gamePackage.receivingPlayer().isEmpty()) {
 			LOGGER.warn("Expected donation package to have a receiver, but did not receive from backend!");
-			return InteractionResult.FAIL;
+			return TriState.FALSE;
 		}
 
 		ServerPlayer receivingPlayer = game.participants().getPlayerBy(gamePackage.receivingPlayer().get());
 		if (receivingPlayer == null) {
 			// Player not on the server or in the game for some reason
-			return InteractionResult.FAIL;
+			return TriState.FALSE;
 		}
 		return applyToPlayers(game, gamePackage, List.of(receivingPlayer));
 	}
@@ -103,7 +103,7 @@ public final class DonationPackageBehavior implements IGameBehavior {
 				.orElse(null);
 	}
 
-	private InteractionResult receiveRandom(IGamePhase game, GamePackage gamePackage) {
+	private TriState receiveRandom(IGamePhase game, GamePackage gamePackage) {
 		if (data.applyToTeam()) {
 			TeamState teams = game.instanceState().getOrDefault(TeamState.KEY, TeamState.EMPTY);
 			List<GameTeam> allTeams = Lists.newArrayList(teams);
@@ -118,7 +118,7 @@ public final class DonationPackageBehavior implements IGameBehavior {
 		}
 	}
 
-	private InteractionResult receiveAll(IGamePhase game, GamePackage gamePackage) {
+	private TriState receiveAll(IGamePhase game, GamePackage gamePackage) {
 		if (data.applyToTeam()) {
 			TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
 			List<GameTeam> allTeams = teams != null ? Lists.newArrayList(teams) : List.of();
@@ -128,32 +128,32 @@ public final class DonationPackageBehavior implements IGameBehavior {
 		}
 	}
 
-	private InteractionResult applyToPlayers(IGamePhase game, GamePackage gamePackage, List<ServerPlayer> players) {
+	private TriState applyToPlayers(IGamePhase game, GamePackage gamePackage, List<ServerPlayer> players) {
 		if (players.isEmpty()) {
 			LOGGER.warn("No players to apply package {}, rejecting", gamePackage);
-			return InteractionResult.FAIL;
+			return TriState.FALSE;
 		}
 		GameActionContext context = actionContext(gamePackage);
 		if (receiveActions.apply(game, context, players)) {
 			ServerPlayer singleReceiver = players.size() == 1 ? players.getFirst() : null;
 			notification.ifPresent(notification -> notification.onPlayerReceive(game, singleReceiver, gamePackage.sendingPlayerName(), data.name()));
-			return InteractionResult.SUCCESS;
+			return TriState.TRUE;
 		}
-		return InteractionResult.FAIL;
+		return TriState.FALSE;
 	}
 
-	private InteractionResult applyToTeams(IGamePhase game, GamePackage gamePackage, List<GameTeam> teams, PlayerSet players) {
+	private TriState applyToTeams(IGamePhase game, GamePackage gamePackage, List<GameTeam> teams, PlayerSet players) {
 		if (teams.isEmpty()) {
 			LOGGER.warn("No teams to apply package {}, rejecting", gamePackage);
-			return InteractionResult.FAIL;
+			return TriState.FALSE;
 		}
 		GameActionContext context = actionContext(gamePackage);
 		if (teamReceiveActions.apply(game, context, teams) | receiveActions.apply(game, context, players)) {
 			GameTeam singleReceiver = teams.size() == 1 ? teams.getFirst() : null;
 			notification.ifPresent(notification -> notification.onTeamReceive(game, singleReceiver, gamePackage.sendingPlayerName(), data.name()));
-			return InteractionResult.SUCCESS;
+			return TriState.TRUE;
 		}
-		return InteractionResult.FAIL;
+		return TriState.FALSE;
 	}
 
 	private static GameActionContext actionContext(GamePackage gamePackage) {

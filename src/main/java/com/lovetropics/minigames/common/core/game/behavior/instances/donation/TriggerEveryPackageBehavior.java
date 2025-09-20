@@ -18,7 +18,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.Util;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.util.TriState;
 import net.minecraft.world.entity.Entity;
 
 import java.util.List;
@@ -46,14 +46,14 @@ public record TriggerEveryPackageBehavior(Set<String> exclude) implements IGameB
 				if (exclude.contains(donationPackage.id()) || donationPackage.id().equals(sourcePackage.packageType())) {
 					continue;
 				}
-				applied |= triggerPackage(game, donationPackage, sourcePackage) == InteractionResult.SUCCESS;
+				applied |= triggerPackage(game, donationPackage, sourcePackage) == TriState.TRUE;
 			}
 
 			return applied;
 		});
 	}
 
-	private static InteractionResult triggerPackage(final IGamePhase game, final DonationPackageData packageData, final GamePackage sourcePackage) {
+	private static TriState triggerPackage(final IGamePhase game, final DonationPackageData packageData, final GamePackage sourcePackage) {
 		Optional<UUID> targetPlayer = Optional.empty();
 		Optional<GameTeamKey> targetTeam = Optional.empty();
 

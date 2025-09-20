@@ -20,10 +20,13 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.ServerExplosion;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public record ProximityBombPlantBehavior(double radius) implements IGameBehavior {
 	public static final MapCodec<ProximityBombPlantBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
@@ -63,25 +66,19 @@ public record ProximityBombPlantBehavior(double radius) implements IGameBehavior
 		for (BlockPos pos : coverage) {
 			world.removeBlock(pos, true);
 
-			double x = pos.getX() + 0.5;
-			double y = pos.getY() + 0.5;
-			double z = pos.getZ() + 0.5;
+			Vec3 center = Vec3.atCenterOf(pos);
 
-			Explosion explosion = new FilteredExplosion(world, null, null, null, x, y, z, 2.0f, false, Explosion.BlockInteraction.DESTROY, ParticleTypes.EXPLOSION, ParticleTypes.EXPLOSION_EMITTER, SoundEvents.GENERIC_EXPLODE, e -> e instanceof ServerPlayer);
+			ServerExplosion explosion = new FilteredExplosion(world, null, null, null, center, 2.0f, false, Explosion.BlockInteraction.DESTROY, e -> e instanceof ServerPlayer);
 			explosion.explode();
-			explosion.finalizeExplosion(false);
 
 			for (ServerPlayer player : world.players()) {
-				if (player.distanceToSqr(x, y, z) < 4096.0) {
+				if (player.distanceToSqr(center) < 4096.0) {
+					Optional<Vec3> knockback = Optional.ofNullable(explosion.getHitPlayers().get(player));
 					player.connection.send(new ClientboundExplodePacket(
-							x, y, z,
-							2.0f,
-							explosion.getToBlow(),
-							explosion.getHitPlayers().get(player),
-							explosion.getBlockInteraction(),
-							explosion.getSmallExplosionParticles(),
-							explosion.getLargeExplosionParticles(),
-							explosion.getExplosionSound()
+							center,
+							knockback.map(k -> k.scale(2.0f)),
+							explosion.isSmall() ? ParticleTypes.EXPLOSION : ParticleTypes.EXPLOSION_EMITTER,
+							SoundEvents.GENERIC_EXPLODE
 					));
 				}
 			}

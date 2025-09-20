@@ -72,7 +72,7 @@ public record TurtleRiderBehavior(EntityTemplate turtle) implements IGameBehavio
 
 		Entity turtle = turtles.remove(player.getUUID());
 		if (turtle != null) {
-			turtle.kill();
+			turtle.kill(player.level());
 		}
 	}
 
@@ -88,12 +88,12 @@ public record TurtleRiderBehavior(EntityTemplate turtle) implements IGameBehavio
 
 		player.startRiding(turtle, true);
 
-		ServerChunkCache chunkSource = player.serverLevel().getChunkSource();
+		ServerChunkCache chunkSource = player.level().getChunkSource();
 		chunkSource.chunkMap.broadcast(turtle, new ClientboundSetPassengersPacket(turtle));
 	}
 
 	@Nullable
 	private Entity spawnTurtle(ServerPlayer player) {
-		return turtle.spawn(player.serverLevel(), player.getX(), player.getY(), player.getZ(), player.getYRot(), player.getXRot());
+		return turtle.spawn(player.level(), player.getX(), player.getY(), player.getZ(), player.getYRot(), player.getXRot());
 	}
 }

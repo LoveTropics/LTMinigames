@@ -4,13 +4,14 @@ import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.core.diguise.DisguiseType;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.util.ExtraCodecs;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 public class MinigameDataComponents {
-    public static final DeferredRegister.DataComponents REGISTER = DeferredRegister.createDataComponents(LoveTropics.ID);
+    public static final DeferredRegister.DataComponents REGISTER = DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, LoveTropics.ID);
 
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<DisguiseType>> DISGUISE = REGISTER.registerComponentType(
             "disguise",

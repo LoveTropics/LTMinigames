@@ -32,9 +32,9 @@ public record SpawnEntityAtPlayerAction(EntityTemplate entity, int damagePlayerA
 				spawnPos = player.position();
 			}
 
-			entity.spawn(player.serverLevel(), spawnPos.x, spawnPos.y, spawnPos.z, 0.0f, 0.0f);
+			entity.spawn(player.level(), spawnPos.x, spawnPos.y, spawnPos.z, 0.0f, 0.0f);
 			if (damagePlayerAmount > 0) {
-				player.hurt(player.damageSources().generic(), damagePlayerAmount);
+				player.hurtServer(player.level(), player.damageSources().generic(), damagePlayerAmount);
 			}
 
 			return true;

@@ -40,8 +40,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
+import net.minecraft.util.TriState;
 import net.minecraft.world.Difficulty;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -101,9 +101,9 @@ public final class BbCurrencyBehavior implements IGameBehavior {
 		events.listen(GamePlayerEvents.THROW_ITEM, (player, item) -> {
 			ItemStack stack = item.getItem();
 			if (stack.getItem() == this.item) {
-				return InteractionResult.FAIL;
+				return TriState.FALSE;
 			}
-			return InteractionResult.PASS;
+			return TriState.DEFAULT;
 		});
 
 		events.listen(GamePhaseEvents.TICK, () -> currency.tickTracked());
@@ -163,7 +163,7 @@ public final class BbCurrencyBehavior implements IGameBehavior {
 		return dropCalculation.applyGlobal(value);
 	}
 
-	private InteractionResult onPlayerDeath(ServerPlayer player, DamageSource damageSource) {
+	private TriState onPlayerDeath(ServerPlayer player, DamageSource damageSource) {
 		// Resets all currency from the player's inventory and adds a new stack with 80% of the amount.
 		// A better way of just removing 20% of the existing stacks could be done but this was chosen for the time being to save time
 		Difficulty difficulty = game.level().getDifficulty();
@@ -178,7 +178,7 @@ public final class BbCurrencyBehavior implements IGameBehavior {
 			player.connection.send(new ClientboundSetSubtitleTextPacket(BiodiversityBlitzTexts.deathDecrease(oldCurrency - newCurrency).withStyle(ChatFormatting.RED, ChatFormatting.ITALIC)));
 		}
 
-		return InteractionResult.PASS;
+		return TriState.DEFAULT;
 	}
 
 	private record DropCalculation(double base, double bound, double diversityFactor) {

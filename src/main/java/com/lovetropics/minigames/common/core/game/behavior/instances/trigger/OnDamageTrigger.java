@@ -9,7 +9,7 @@ import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.util.TriState;
 
 public record OnDamageTrigger(GameActionList<ServerPlayer> actions) implements IGameBehavior {
     public static final MapCodec<OnDamageTrigger> CODEC = GameActionList.PLAYER_MAP_CODEC.xmap(OnDamageTrigger::new, OnDamageTrigger::actions);
@@ -20,7 +20,7 @@ public record OnDamageTrigger(GameActionList<ServerPlayer> actions) implements I
 
         events.listen(GamePlayerEvents.DAMAGE, (player, damageSource, amount) -> {
             actions.apply(game, GameActionContext.EMPTY, player);
-            return InteractionResult.PASS;
+            return TriState.DEFAULT;
         });
     }
 }

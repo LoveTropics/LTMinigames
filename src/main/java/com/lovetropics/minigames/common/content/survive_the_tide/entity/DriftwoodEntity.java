@@ -1,20 +1,23 @@
 package com.lovetropics.minigames.common.content.survive_the_tide.entity;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.InterpolationHandler;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -29,12 +32,7 @@ public final class DriftwoodEntity extends Entity {
 	private static final int FLOAT_TICKS = 20 * 60;
 	private static final float SINK_PER_TICK = (1.0F - START_FLOAT_DEPTH) / FLOAT_TICKS;
 
-	private double lerpX;
-	private double lerpY;
-	private double lerpZ;
-	private float lerpYaw;
-	private float lerpPitch;
-	private int lerpTicks;
+	private final InterpolationHandler interpolation = new InterpolationHandler(this, 3);
 
 	private float floatDepth = START_FLOAT_DEPTH;
 
@@ -70,13 +68,18 @@ public final class DriftwoodEntity extends Entity {
 	}
 
 	@Override
-	public boolean canBeCollidedWith() {
+	public InterpolationHandler getInterpolation() {
+		return interpolation;
+	}
+
+	@Override
+	public boolean canBeCollidedWith(@Nullable Entity entity) {
 		return true;
 	}
 
 	@Override
 	public boolean canCollideWith(Entity entity) {
-		return (entity.canBeCollidedWith() || entity.isPushable()) && !isPassengerOfSameVehicle(entity);
+		return (entity.canBeCollidedWith(this) || entity.isPushable()) && !isPassengerOfSameVehicle(entity);
 	}
 
 	public boolean paddle(float direction) {
@@ -118,7 +121,7 @@ public final class DriftwoodEntity extends Entity {
 			tickSteering();
 			tickMovement();
 		} else {
-			tickLerp();
+			interpolation.interpolate();
 		}
 	}
 
@@ -157,25 +160,6 @@ public final class DriftwoodEntity extends Entity {
 		}
 
 		move(MoverType.SELF, getDeltaMovement());
-	}
-
-	private void tickLerp() {
-		if (lerpTicks <= 0) {
-			return;
-		}
-
-		double lerpTicks = this.lerpTicks--;
-
-		setPos(
-				getX() + (lerpX - getX()) / lerpTicks,
-				getY() + (lerpY - getY()) / lerpTicks,
-				getZ() + (lerpZ - getZ()) / lerpTicks
-		);
-
-		setRot(
-				(float) (getYRot() + Mth.wrapDegrees(lerpYaw - getYRot()) / lerpTicks),
-				(float) (getXRot() + (lerpPitch - getXRot()) / lerpTicks)
-		);
 	}
 
 	private void tickSteering() {
@@ -238,28 +222,21 @@ public final class DriftwoodEntity extends Entity {
 	}
 
 	@Override
-	public void lerpTo(double x, double y, double z, float yaw, float pitch, int lerpLength) {
-		lerpX = x;
-		lerpY = y;
-		lerpZ = z;
-		lerpYaw = yaw;
-		lerpPitch = pitch;
-		lerpTicks = lerpLength;
-	}
-
-	@Override
 	public void push(Entity entity) {
 	}
 
 	@Override
-	protected void readAdditionalSaveData(CompoundTag compound) {
-		if (compound.contains("float_depth", Tag.TAG_FLOAT)) {
-			setFloatDepth(compound.getFloat("float_depth"));
-		}
+	public boolean hurtServer(ServerLevel level, DamageSource damageSource, float amount) {
+		return false;
 	}
 
 	@Override
-	protected void addAdditionalSaveData(CompoundTag compound) {
-		compound.putFloat("float_depth", floatDepth);
+	protected void readAdditionalSaveData(ValueInput input) {
+		setFloatDepth(input.getFloatOr("float_depth", START_FLOAT_DEPTH));
+	}
+
+	@Override
+	protected void addAdditionalSaveData(ValueOutput output) {
+		output.putFloat("float_depth", floatDepth);
 	}
 }

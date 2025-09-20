@@ -28,7 +28,7 @@ public record KillInVoidBehavior(String voidBelowRegionKey) implements IGameBeha
 				return;
 			}
 			if (player.getY() < voidY) {
-				player.kill();
+				player.kill(game.level());
 			}
 		});
 	}

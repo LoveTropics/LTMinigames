@@ -18,8 +18,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.TriState;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -89,13 +89,13 @@ public class GrowCoconutsBehavior implements IGameBehavior {
 	}
 
 	// TODO: manual handling of coverage is not a good solution! next year: change our approach to how we're handling dynamic coverages like this
-	private InteractionResult breakFromCoconut(ServerPlayer player, BlockPos pos, BlockState state, InteractionHand hand) {
-		if (state.getBlock() == COCONUT.get()) {
+	private TriState breakFromCoconut(ServerPlayer player, BlockPos pos, BlockState state, InteractionHand hand) {
+		if (state.is(COCONUT)) {
 			BlockPos trunkPos = pos.relative(state.getValue(DirectionalBlock.FACING));
 			game.invoker(GamePlayerEvents.BREAK_BLOCK).onBreakBlock(player, trunkPos, player.level().getBlockState(trunkPos), InteractionHand.MAIN_HAND);
-			return InteractionResult.FAIL;
+			return TriState.FALSE;
 		}
-		return InteractionResult.PASS;
+		return TriState.TRUE;
 	}
 
 	private void onPlantBreak(ServerPlayer player, Plot plot, Plant plant, BlockPos pos) {

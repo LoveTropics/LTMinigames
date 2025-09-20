@@ -13,11 +13,14 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.TagValueInput;
 import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
@@ -147,13 +150,15 @@ public record DisguiseType(
 		@Nullable
 		public Entity createEntity(Level level) {
 			try {
-				Entity entity = type.create(level);
+				Entity entity = type.create(level, EntitySpawnReason.LOAD);
 				if (entity == null) {
 					return null;
 				}
 
 				if (nbt != null) {
-					entity.load(nbt);
+					try (ProblemReporter.ScopedCollector reporter = new ProblemReporter.ScopedCollector(entity.problemPath(), LOGGER)) {
+						entity.load(TagValueInput.create(reporter, entity.registryAccess(), nbt));
+					}
 				}
 
 				fixInvalidEntity(entity);

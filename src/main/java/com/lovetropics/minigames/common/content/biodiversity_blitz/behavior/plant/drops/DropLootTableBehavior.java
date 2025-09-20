@@ -91,7 +91,7 @@ public final class DropLootTableBehavior implements IGameBehavior {
     }
 
 	private LootParams buildLootParams(ServerPlayer player, BlockPos pos) {
-		return new LootParams.Builder(player.serverLevel())
+		return new LootParams.Builder(player.level())
 				.withParameter(LootContextParams.THIS_ENTITY, player)
 				.withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(pos))
 				.withParameter(LootContextParams.BLOCK_STATE, player.level().getBlockState(pos))

@@ -9,7 +9,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -41,7 +41,7 @@ public interface RegionEditOperator {
 
 		@Override
 		public boolean select(Player player, @Nullable RegionTraceTarget target) {
-			PacketDistributor.sendToServer(new UpdateWorkspaceRegionMessage(this.target.entry().id, Optional.of(this.target.entry().region)));
+			ClientPacketDistributor.sendToServer(new UpdateWorkspaceRegionMessage(this.target.entry().id, Optional.of(this.target.entry().region)));
 			return true;
 		}
 

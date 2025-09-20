@@ -16,7 +16,6 @@ import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import javax.annotation.Nullable;
 
 public final class BbClientRenderEffects {
-	private static final Minecraft CLIENT = Minecraft.getInstance();
 	private static final int PADDING = 2;
 
 	private static final int ITEM_SIZE = 16;
@@ -35,7 +34,7 @@ public final class BbClientRenderEffects {
 	}
 
 	private static void renderOverlay(GuiGraphics graphics, ClientBbSelfState selfState, @Nullable CurrencyTargetState currencyTarget) {
-		Font font = CLIENT.font;
+		Font font = Minecraft.getInstance().font;
 
 		final int left = PADDING;
 		final int top = PADDING;

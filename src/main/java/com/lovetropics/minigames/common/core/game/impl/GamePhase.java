@@ -28,6 +28,7 @@ import com.lovetropics.minigames.common.core.game.util.GameScheduler;
 import com.lovetropics.minigames.common.core.game.util.GameTexts;
 import com.lovetropics.minigames.common.core.game.util.TeamAllocator;
 import com.lovetropics.minigames.common.core.map.MapRegions;
+import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -35,8 +36,11 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.util.Unit;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.TagValueOutput;
+import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -50,6 +54,8 @@ import java.util.concurrent.CompletableFuture;
  * Think of a GamePhase like an act in a play, where the play is a GameInstance
  */
 public class GamePhase implements IGamePhase {
+	private static final Logger LOGGER = LogUtils.getLogger();
+
 	final GameInstance game;
 	final MinecraftServer server;
 	final IGameDefinition gameDefinition;
@@ -156,7 +162,13 @@ public class GamePhase implements IGamePhase {
 		addedPlayers.add(player.getUUID());
 
 		if (savePlayerDataToMemory) {
-			game.playerStorage.setPlayerData(player, player.saveWithoutId(new CompoundTag()));
+			CompoundTag tag;
+			try (ProblemReporter.ScopedCollector reporter = new ProblemReporter.ScopedCollector(player.problemPath(), LOGGER)) {
+				TagValueOutput output = TagValueOutput.createWithContext(reporter, player.registryAccess());
+				player.saveWithoutId(output);
+				tag = output.buildResult();
+			}
+			game.playerStorage.setPlayerData(player, tag);
 		}
 
 		return newPlayer;

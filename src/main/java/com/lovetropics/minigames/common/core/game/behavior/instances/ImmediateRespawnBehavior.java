@@ -16,8 +16,8 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.TriState;
 import net.minecraft.world.Container;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
@@ -43,7 +43,7 @@ public record ImmediateRespawnBehavior(Optional<PlayerRole> role, Optional<Playe
 		events.listen(GamePlayerEvents.DEATH, (player, source) -> onPlayerDeath(game, player, source));
 	}
 
-	private InteractionResult onPlayerDeath(IGamePhase game, ServerPlayer player, DamageSource source) {
+	private TriState onPlayerDeath(IGamePhase game, ServerPlayer player, DamageSource source) {
 		destroyVanishingCursedItems(player.getInventory());
 		if (dropInventory) {
 			player.getInventory().dropAll();
@@ -54,10 +54,10 @@ public record ImmediateRespawnBehavior(Optional<PlayerRole> role, Optional<Playe
 			respawnPlayer(game, player, playerRole, source);
 			sendDeathMessage(game, player);
 
-			return InteractionResult.FAIL;
+			return TriState.FALSE;
 		}
 
-		return InteractionResult.PASS;
+		return TriState.DEFAULT;
 	}
 
 	private void respawnPlayer(IGamePhase game, ServerPlayer player, @Nullable PlayerRole playerRole, DamageSource source) {
@@ -87,7 +87,7 @@ public record ImmediateRespawnBehavior(Optional<PlayerRole> role, Optional<Playe
 		if (clearKillTracker) {
 			for (ServerPlayer otherPlayer : game.participants()) {
 				if (otherPlayer.getKillCredit() == player) {
-					otherPlayer.setLastHurtByPlayer(null);
+					otherPlayer.setLastHurtByPlayer(net.minecraft.Util.NIL_UUID, 0);
 				}
 			}
 		}

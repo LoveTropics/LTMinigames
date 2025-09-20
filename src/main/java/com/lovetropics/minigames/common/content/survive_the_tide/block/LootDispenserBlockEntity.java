@@ -1,16 +1,12 @@
 package com.lovetropics.minigames.common.content.survive_the_tide.block;
 
-import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.protocol.game.ClientboundExplodePacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
@@ -19,27 +15,24 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.valueproviders.IntProvider;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.phys.Vec3;
-import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
 import java.util.ArrayDeque;
-import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
 
 public class LootDispenserBlockEntity extends BlockEntity {
-	private static final Logger LOGGER = LogUtils.getLogger();
-
 	private static final int PLAYER_CHECK_INTERVAL = SharedConstants.TICKS_PER_SECOND;
 
 	private static final double DISPENSE_DISTANCE = 1.0;
@@ -131,13 +124,9 @@ public class LootDispenserBlockEntity extends BlockEntity {
 		for (ServerPlayer player : level.players()) {
 			if (player.position().closerThan(dispensePos, 64.0)) {
 				player.connection.send(new ClientboundExplodePacket(
-						dispensePos.x, dispensePos.y, dispensePos.z,
-						1.0f,
-						List.of(),
-						Vec3.ZERO,
-						Explosion.BlockInteraction.KEEP,
+						dispensePos,
+						Optional.empty(),
 						ParticleTypes.EXPLOSION,
-						ParticleTypes.EXPLOSION_EMITTER,
 						SoundEvents.GENERIC_EXPLODE
 				));
 			}
@@ -154,24 +143,19 @@ public class LootDispenserBlockEntity extends BlockEntity {
 	}
 
 	@Override
-	protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-		if (loot != null) {
-			tag.put(TAG_LOOT, LootConfig.CODEC.encodeStart(NbtOps.INSTANCE, loot).getOrThrow());
-		}
-		tag.putInt(TAG_DROPS_LEFT, dropsLeft);
-		tag.putInt(TAG_TICKS_TO_NEXT_DROP, ticksToNextDrop);
+	protected void saveAdditional(ValueOutput output) {
+		super.saveAdditional(output);
+		output.storeNullable(TAG_LOOT, LootConfig.CODEC, loot);
+		output.putInt(TAG_DROPS_LEFT, dropsLeft);
+		output.putInt(TAG_TICKS_TO_NEXT_DROP, ticksToNextDrop);
 	}
 
 	@Override
-	public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-		super.loadAdditional(tag, registries);
-		if (tag.contains(TAG_LOOT)) {
-			loot = LootConfig.CODEC.parse(NbtOps.INSTANCE, tag.get(TAG_LOOT)).resultOrPartial(LOGGER::error).orElse(null);
-		} else {
-			loot = null;
-		}
-		dropsLeft = tag.getInt(TAG_DROPS_LEFT);
-		ticksToNextDrop = tag.getInt(TAG_TICKS_TO_NEXT_DROP);
+	protected void loadAdditional(ValueInput input) {
+		super.loadAdditional(input);
+		loot = input.read(TAG_LOOT, LootConfig.CODEC).orElse(null);
+		dropsLeft = input.getIntOr(TAG_DROPS_LEFT, 0);
+		ticksToNextDrop = input.getIntOr(TAG_TICKS_TO_NEXT_DROP, 0);
 	}
 
 	private record LootConfig(ResourceKey<LootTable> lootTable, Optional<ResourceKey<LootTable>> junkTable, IntProvider dropInterval, int playerRange, int maxPlayerCount) {

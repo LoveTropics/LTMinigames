@@ -24,10 +24,9 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.MobSpawnType;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.trading.ItemCost;
 import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.item.trading.MerchantOffers;
@@ -89,13 +88,13 @@ public class RiverRaceMerchantBehavior implements IGameBehavior {
             if (merchant == null) {
                 return;
             }
-            merchant.moveTo(center.x(), center.y() - 0.5, center.z(), 0, 0);
+            merchant.snapTo(center.x(), center.y() - 0.5, center.z(), 0, 0);
 
             level.getChunk(region.centerBlock());
             level.addFreshEntity(merchant);
 
             if (merchant instanceof Mob mob) {
-                mob.finalizeSpawn(level, level.getCurrentDifficultyAt(BlockPos.containing(center)), MobSpawnType.MOB_SUMMONED, null);
+                mob.finalizeSpawn(level, level.getCurrentDifficultyAt(BlockPos.containing(center)), EntitySpawnReason.MOB_SUMMONED, null);
                 mob.setNoAi(true);
                 mob.setBaby(false);
                 mob.setInvulnerable(true);
@@ -125,7 +124,7 @@ public class RiverRaceMerchantBehavior implements IGameBehavior {
 
     @Nullable
     private Entity createMerchant(ServerLevel world) {
-        Entity merchant = entity.create(world);
+        Entity merchant = entity.create(world, EntitySpawnReason.COMMAND);
         if (merchant != null) {
             if (name != CommonComponents.EMPTY) {
                 merchant.setCustomName(name);

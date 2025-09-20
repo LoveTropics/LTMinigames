@@ -15,7 +15,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.AbstractChestBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DoubleBlockCombiner;
@@ -32,7 +33,6 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.ChestType;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
@@ -45,7 +45,7 @@ import javax.annotation.Nullable;
 
 public class TriviaChestBlock extends AbstractChestBlock<ChestBlockEntity> {
 	public static final MapCodec<TriviaChestBlock> CODEC = simpleCodec(TriviaChestBlock::new);
-	private static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
+	private static final EnumProperty<Direction> FACING = HorizontalDirectionalBlock.FACING;
 	private static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 	private static final EnumProperty<ChestType> TYPE = BlockStateProperties.CHEST_TYPE;
 	public static final BooleanProperty ANSWERED = TriviaBlock.ANSWERED;
@@ -63,15 +63,15 @@ public class TriviaChestBlock extends AbstractChestBlock<ChestBlockEntity> {
 
 	@Override
 	protected RenderShape getRenderShape(BlockState state) {
-		return RenderShape.ENTITYBLOCK_ANIMATED;
+		return RenderShape.INVISIBLE;
 	}
 
 	@Override
-	protected BlockState updateShape(BlockState state, Direction facing, BlockState facingState, LevelAccessor level, BlockPos currentPos, BlockPos facingPos) {
+	protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess scheduledTickAccess, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, RandomSource random) {
 		if (state.getValue(WATERLOGGED)) {
-			level.scheduleTick(currentPos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+			scheduledTickAccess.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
 		}
-		return super.updateShape(state, facing, facingState, level, currentPos, facingPos);
+		return super.updateShape(state, level, scheduledTickAccess, pos, direction, neighborPos, neighborState, random);
 	}
 
 	@Override
@@ -92,23 +92,22 @@ public class TriviaChestBlock extends AbstractChestBlock<ChestBlockEntity> {
 	}
 
 	@Override
-	protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
-		Containers.dropContentsOnDestroy(state, newState, level, pos);
-		super.onRemove(state, level, pos, newState, isMoving);
+	protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
+		Containers.updateNeighboursAfterDestroy(state, level, pos);
 	}
 
 	@Override
 	protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-		if (level.isClientSide) {
-			return InteractionResult.SUCCESS;
+		if (level instanceof ServerLevel serverLevel) {
+			MenuProvider menuProvider = getMenuProvider(state, level, pos);
+			if (menuProvider != null) {
+				player.openMenu(menuProvider);
+				player.awardStat(Stats.CUSTOM.get(Stats.OPEN_CHEST));
+				PiglinAi.angerNearbyPiglins(serverLevel, player, true);
+			}
+			return InteractionResult.CONSUME;
 		}
-		MenuProvider menuProvider = getMenuProvider(state, level, pos);
-		if (menuProvider != null) {
-			player.openMenu(menuProvider);
-			player.awardStat(Stats.CUSTOM.get(Stats.OPEN_CHEST));
-			PiglinAi.angerNearbyPiglins(player, true);
-		}
-		return InteractionResult.CONSUME;
+		return InteractionResult.SUCCESS;
 	}
 
 	@Override

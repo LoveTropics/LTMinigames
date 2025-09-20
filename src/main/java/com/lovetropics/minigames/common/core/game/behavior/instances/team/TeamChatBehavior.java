@@ -58,7 +58,7 @@ public record TeamChatBehavior(ResourceKey<ChatType> chatType, boolean includeSp
 		ChatType.Bound chatType = ChatType.bind(this.chatType, player)
 				.withTargetName(team.config().name().copy().withStyle(team.config().formatting()));
 
-		player.server.logChatMessage(signedMessage.decoratedContent(), chatType, null);
+		player.level().getServer().logChatMessage(signedMessage.decoratedContent(), chatType, null);
 		OutgoingChatMessage message = OutgoingChatMessage.create(signedMessage);
 
 		TeamState teams = game.instanceState().getOrThrow(TeamState.KEY);

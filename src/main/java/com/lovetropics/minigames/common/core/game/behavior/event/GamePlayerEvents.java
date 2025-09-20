@@ -8,6 +8,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.PlayerChatMessage;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.TriState;
 import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -80,12 +81,12 @@ public final class GamePlayerEvents {
 
 	public static final GameEventType<Damage> DAMAGE = GameEventType.create(Damage.class, listeners -> (player, damageSource, amount) -> {
 		for (Damage listener : listeners) {
-			InteractionResult result = listener.onDamage(player, damageSource, amount);
-			if (result != InteractionResult.PASS) {
+			TriState result = listener.onDamage(player, damageSource, amount);
+			if (!result.isDefault()) {
 				return result;
 			}
 		}
-		return InteractionResult.PASS;
+		return TriState.DEFAULT;
 	});
 
 	public static final GameEventType<DamageAmount> DAMAGE_AMOUNT = GameEventType.create(DamageAmount.class, listeners -> (player, damageSource, amount, originalAmount) -> {
@@ -97,12 +98,12 @@ public final class GamePlayerEvents {
 
 	public static final GameEventType<Attack> ATTACK = GameEventType.create(Attack.class, listeners -> (player, target) -> {
 		for (Attack listener : listeners) {
-			InteractionResult result = listener.onAttack(player, target);
-			if (result != InteractionResult.PASS) {
+			TriState result = listener.onAttack(player, target);
+			if (!result.isDefault()) {
 				return result;
 			}
 		}
-		return InteractionResult.PASS;
+		return TriState.DEFAULT;
 	});
 
 	public static final GameEventType<InteractEntity> INTERACT_ENTITY = GameEventType.create(InteractEntity.class, listeners -> (player, target, hand) -> {
@@ -153,52 +154,52 @@ public final class GamePlayerEvents {
 
 	public static final GameEventType<BreakBlock> BREAK_BLOCK = GameEventType.create(BreakBlock.class, listeners -> (player, pos, state, hand) -> {
 		for (BreakBlock listener : listeners) {
-			InteractionResult result = listener.onBreakBlock(player, pos, state, hand);
-			if (result != InteractionResult.PASS) {
+			TriState result = listener.onBreakBlock(player, pos, state, hand);
+			if (!result.isDefault()) {
 				return result;
 			}
 		}
-		return InteractionResult.PASS;
+		return TriState.DEFAULT;
 	});
 
 	public static final GameEventType<PlaceBlock> PLACE_BLOCK = GameEventType.create(PlaceBlock.class, listeners -> (player, pos, placed, placedOn, placedItemStack) -> {
 		for (PlaceBlock listener : listeners) {
-			InteractionResult result = listener.onPlaceBlock(player, pos, placed, placedOn, placedItemStack);
-			if (result != InteractionResult.PASS) {
+			TriState result = listener.onPlaceBlock(player, pos, placed, placedOn, placedItemStack);
+			if (!result.isDefault()) {
 				return result;
 			}
 		}
-		return InteractionResult.PASS;
+		return TriState.DEFAULT;
 	});
 
 	public static final GameEventType<ThrowItem> THROW_ITEM = GameEventType.create(ThrowItem.class, listeners -> (player, item) -> {
 		for (ThrowItem listener : listeners) {
-			InteractionResult result = listener.onThrowItem(player, item);
-			if (result != InteractionResult.PASS) {
+			TriState result = listener.onThrowItem(player, item);
+			if (!result.isDefault()) {
 				return result;
 			}
 		}
-		return InteractionResult.PASS;
+		return TriState.DEFAULT;
 	});
 
 	public static final GameEventType<PickUpItem> PICK_UP_ITEM = GameEventType.create(PickUpItem.class, listeners -> (player, item) -> {
 		for (PickUpItem listener : listeners) {
-			InteractionResult result = listener.onPickUpItem(player, item);
-			if (result != InteractionResult.PASS) {
+			PickUpResult result = listener.onPickUpItem(player, item);
+			if (result != PickUpResult.PASS) {
 				return result;
 			}
 		}
-		return InteractionResult.PASS;
+		return PickUpResult.PASS;
 	});
 
 	public static final GameEventType<Death> DEATH = GameEventType.create(Death.class, listeners -> (player, damageSource) -> {
 		for (Death listener : listeners) {
-			InteractionResult result = listener.onDeath(player, damageSource);
-			if (result != InteractionResult.PASS) {
+			TriState result = listener.onDeath(player, damageSource);
+			if (!result.isDefault()) {
 				return result;
 			}
 		}
-		return InteractionResult.PASS;
+		return TriState.DEFAULT;
 	});
 
 	public static final GameEventType<Respawn> RESPAWN = GameEventType.create(Respawn.class, listeners -> player -> {
@@ -276,7 +277,7 @@ public final class GamePlayerEvents {
 	}
 
 	public interface Damage {
-		InteractionResult onDamage(ServerPlayer player, DamageSource damageSource, float amount);
+		TriState onDamage(ServerPlayer player, DamageSource damageSource, float amount);
 	}
 
 	public interface DamageAmount {
@@ -284,7 +285,7 @@ public final class GamePlayerEvents {
 	}
 
 	public interface Attack {
-		InteractionResult onAttack(ServerPlayer player, Entity target);
+		TriState onAttack(ServerPlayer player, Entity target);
 	}
 
 	public interface InteractEntity {
@@ -304,23 +305,23 @@ public final class GamePlayerEvents {
 	}
 
 	public interface BreakBlock {
-		InteractionResult onBreakBlock(ServerPlayer player, BlockPos pos, BlockState state, InteractionHand hand);
+		TriState onBreakBlock(ServerPlayer player, BlockPos pos, BlockState state, InteractionHand hand);
 	}
 
 	public interface PlaceBlock {
-		InteractionResult onPlaceBlock(ServerPlayer player, BlockPos pos, BlockState placed, BlockState placedOn, ItemStack placedItemStack);
+		TriState onPlaceBlock(ServerPlayer player, BlockPos pos, BlockState placed, BlockState placedOn, ItemStack placedItemStack);
 	}
 
 	public interface ThrowItem {
-		InteractionResult onThrowItem(ServerPlayer player, ItemEntity item);
+		TriState onThrowItem(ServerPlayer player, ItemEntity item);
 	}
 
 	public interface PickUpItem {
-		InteractionResult onPickUpItem(ServerPlayer player, ItemEntity item);
+		PickUpResult onPickUpItem(ServerPlayer player, ItemEntity item);
 	}
 
 	public interface Death {
-		InteractionResult onDeath(ServerPlayer player, DamageSource damageSource);
+		TriState onDeath(ServerPlayer player, DamageSource damageSource);
 	}
 
 	public interface Respawn {

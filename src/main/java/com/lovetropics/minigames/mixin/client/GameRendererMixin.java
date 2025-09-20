@@ -23,7 +23,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class GameRendererMixin {
 	@Shadow
 	@Final
-	Minecraft minecraft;
+	private Minecraft minecraft;
 
 	@Inject(method = "pick(F)V", at = @At("RETURN"))
 	private void pick(float partialTicks, CallbackInfo ci) {

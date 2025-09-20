@@ -20,8 +20,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.TriState;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.level.block.Block;
@@ -87,8 +87,8 @@ public final class TrashCollectionBehavior implements IGameBehavior {
 				.apply(collected -> collected + 1);
 	}
 
-	private InteractionResult onPlayerBreakBlock(ServerPlayer player, BlockPos pos, BlockState state, InteractionHand hand) {
-		return isTrash(state) ? InteractionResult.PASS : InteractionResult.FAIL;
+	private TriState onPlayerBreakBlock(ServerPlayer player, BlockPos pos, BlockState state, InteractionHand hand) {
+		return isTrash(state) ? TriState.DEFAULT : TriState.FALSE;
 	}
 
 	private boolean isTrash(BlockState state) {

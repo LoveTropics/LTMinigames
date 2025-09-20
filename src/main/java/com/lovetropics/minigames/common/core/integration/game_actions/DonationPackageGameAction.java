@@ -5,7 +5,7 @@ import com.lovetropics.minigames.common.core.game.behavior.event.GamePackageEven
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.util.TriState;
 import org.slf4j.Logger;
 
 /**
@@ -19,12 +19,12 @@ public record DonationPackageGameAction(GamePackage gamePackage) implements Game
 
     @Override
     public boolean resolve(IGamePhase game, MinecraftServer server) {
-        InteractionResult result = game.invoker(GamePackageEvents.RECEIVE_PACKAGE).onReceivePackage(gamePackage);
+        TriState result = game.invoker(GamePackageEvents.RECEIVE_PACKAGE).onReceivePackage(gamePackage);
         switch (result) {
-            case SUCCESS -> LOGGER.debug("Incoming donation package was successfully processed by behavior: {}", gamePackage);
-            case PASS -> LOGGER.debug("Incoming donation package was not handled by behavior: {}", gamePackage);
-            case FAIL -> LOGGER.debug("Incoming donation package was rejected by behavior: {}", gamePackage);
+            case TRUE -> LOGGER.debug("Incoming donation package was successfully processed by behavior: {}", gamePackage);
+			case DEFAULT -> LOGGER.debug("Incoming donation package was not handled by behavior: {}", gamePackage);
+            case FALSE -> LOGGER.debug("Incoming donation package was rejected by behavior: {}", gamePackage);
         }
-        return result == InteractionResult.SUCCESS;
+        return result.isTrue();
     }
 }

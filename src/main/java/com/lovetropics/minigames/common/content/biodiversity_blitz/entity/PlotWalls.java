@@ -1,12 +1,12 @@
 package com.lovetropics.minigames.common.content.biodiversity_blitz.entity;
 
-import net.minecraft.world.entity.Entity;
-import net.minecraft.core.Direction;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.core.Direction;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +37,7 @@ public final class PlotWalls {
 		double size = bounds.max(axis) - bounds.min(axis);
 
 		// offset to the edge in this direction
-		Vec3 offset = Vec3.atLowerCornerOf(direction.getNormal()).scale(size);
+		Vec3 offset = direction.getUnitVec3().scale(size);
 
 		// grow on every other axis to not create any holes
 		Vec3 grow = new Vec3(

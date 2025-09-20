@@ -69,7 +69,7 @@ public class MultiGameManager implements IGameManager {
 		GameLobbyId id = GameLobbyId.next();
 		GameLobbyMetadata metadata = new GameLobbyMetadata(id, PlayerKey.from(initiator), name);
 
-		GameLobby lobby = new GameLobby(this, initiator.server, metadata);
+		GameLobby lobby = new GameLobby(this, initiator.getServer(), metadata);
 		lobbies.add(lobby);
 
 		return GameResult.ok(lobby);
@@ -280,7 +280,7 @@ public class MultiGameManager implements IGameManager {
 	public static void onPlayerTryChangeDimension(EntityTravelToDimensionEvent event) {
 		Entity entity = event.getEntity();
 		if (entity instanceof ServerPlayer player) {
-            ServerLevel targetWorld = player.server.getLevel(event.getDimension());
+            ServerLevel targetWorld = player.getServer().getLevel(event.getDimension());
 			if (targetWorld == null) {
 				return;
 			}

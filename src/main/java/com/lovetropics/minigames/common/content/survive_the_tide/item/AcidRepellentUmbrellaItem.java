@@ -2,27 +2,16 @@ package com.lovetropics.minigames.common.content.survive_the_tide.item;
 
 import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.content.survive_the_tide.SurviveTheTide;
-import com.lovetropics.minigames.common.content.survive_the_tide.SurviveTheTideTexts;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-
-import java.util.List;
 
 @EventBusSubscriber(modid = LoveTropics.ID)
 public class AcidRepellentUmbrellaItem extends Item {
     public AcidRepellentUmbrellaItem(Properties properties) {
         super(properties.durability(180));
-    }
-
-    @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
-        tooltip.add(SurviveTheTideTexts.ACID_REPELLENT_UMBRELLA_TOOLTIP);
     }
 
     @SubscribeEvent

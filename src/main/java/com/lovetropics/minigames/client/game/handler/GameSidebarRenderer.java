@@ -17,7 +17,6 @@ import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import java.util.List;
 
 public final class GameSidebarRenderer {
-	private static final Minecraft CLIENT = Minecraft.getInstance();
 
 	private static final int PADDING = 2;
 	private static final int MARGIN = 1;
@@ -38,9 +37,10 @@ public final class GameSidebarRenderer {
 		Component title = sidebar.title();
 		List<Component> lines = sidebar.lines();
 
-		Font font = CLIENT.font;
-		Window window = CLIENT.getWindow();
-		Options options = CLIENT.options;
+		Minecraft minecraft = Minecraft.getInstance();
+		Font font = minecraft.font;
+		Window window = minecraft.getWindow();
+		Options options = minecraft.options;
 		int screenWidth = window.getGuiScaledWidth();
 		int screenHeight = window.getGuiScaledHeight();
 

@@ -2,21 +2,24 @@ package com.lovetropics.minigames.common.content.survive_the_tide.entity;
 
 import com.lovetropics.minigames.LoveTropics;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.InterpolationHandler;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.PushReaction;
-import net.minecraft.world.phys.AABB;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -30,10 +33,7 @@ public class PlatformEntity extends Entity {
 	private static final EntityDataAccessor<Integer> DATA_WIDTH_ID = SynchedEntityData.defineId(PlatformEntity.class, EntityDataSerializers.INT);
 	private static final EntityDataAccessor<BlockState> DATA_BLOCK_STATE = SynchedEntityData.defineId(PlatformEntity.class, EntityDataSerializers.BLOCK_STATE);
 
-	private double lerpX;
-	private double lerpY;
-	private double lerpZ;
-	private int lerpSteps;
+	private final InterpolationHandler interpolation = new InterpolationHandler(this, 3);
 
 	private List<Vec3> riderOffsets = List.of();
 
@@ -80,11 +80,10 @@ public class PlatformEntity extends Entity {
 	@Override
 	public void tick() {
 		super.tick();
-		if (lerpSteps > 0) {
-			lerpPositionAndRotationStep(lerpSteps, lerpX, lerpY, lerpZ, 0.0f, 0.0f);
-			if (--lerpSteps == 0 && !level().isClientSide()) {
-				solidifyAndRemove();
-			}
+		boolean wasInterpolating = interpolation.hasActiveInterpolation();
+		interpolation.interpolate();
+		if (!level().isClientSide() && wasInterpolating && !interpolation.hasActiveInterpolation()) {
+			solidifyAndRemove();
 		}
 	}
 
@@ -101,19 +100,16 @@ public class PlatformEntity extends Entity {
 		discard();
 	}
 
-	@Override
-	public void lerpTo(double x, double y, double z, float yaw, float pitch, int lerpLength) {
-		lerpX = x;
-		lerpY = y;
-		lerpZ = z;
-		lerpSteps = lerpLength;
+	public void lerpTo(double x, double y, double z, int lerpLength) {
+		interpolation.setInterpolationLength(lerpLength);
+		interpolation.interpolateTo(new Vec3(x, y, z), 0.f, 0.0f);
 	}
 
 	@Override
 	public void onSyncedDataUpdated(EntityDataAccessor<?> key) {
 		super.onSyncedDataUpdated(key);
 		if (DATA_WIDTH_ID.equals(key)) {
-			setBoundingBox(makeBoundingBox());
+			refreshDimensions();
 		}
 	}
 
@@ -143,16 +139,11 @@ public class PlatformEntity extends Entity {
 	}
 
 	@Override
-	protected AABB makeBoundingBox() {
-		return getDimensions().makeBoundingBox(position());
+	protected void readAdditionalSaveData(ValueInput input) {
 	}
 
 	@Override
-	protected void readAdditionalSaveData(CompoundTag compound) {
-	}
-
-	@Override
-	protected void addAdditionalSaveData(CompoundTag compound) {
+	protected void addAdditionalSaveData(ValueOutput output) {
 		// Not persistent, nothing to save
 	}
 
@@ -197,6 +188,11 @@ public class PlatformEntity extends Entity {
 				return true;
 			}
 		}
+		return false;
+	}
+
+	@Override
+	public boolean hurtServer(ServerLevel level, DamageSource damageSource, float amount) {
 		return false;
 	}
 

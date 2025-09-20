@@ -2,6 +2,7 @@ package com.lovetropics.minigames.common.content.crafting_bee.ingredient;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
+import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
@@ -24,8 +25,8 @@ public record PreferItemFromTagDecomposer(Map<TagKey<Item>, Item> preferences) i
 
     @Override
     public @Nullable List<Ingredient> decompose(Ingredient ingredient) {
-        if (ingredient.getValues().length == 1 && ingredient.getValues()[0] instanceof Ingredient.TagValue(TagKey<Item> tag)) {
-            var pref = preferences.get(tag);
+        if (ingredient.getValues().size() == 1 && ingredient.getValues() instanceof HolderSet.Named<Item> named) {
+            var pref = preferences.get(named.key());
             if (pref != null) {
                 return List.of(Ingredient.of(pref));
             }

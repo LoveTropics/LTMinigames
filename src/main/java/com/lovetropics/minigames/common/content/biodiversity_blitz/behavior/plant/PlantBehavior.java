@@ -2,6 +2,7 @@ package com.lovetropics.minigames.common.content.biodiversity_blitz.behavior.pla
 
 import com.lovetropics.minigames.common.content.biodiversity_blitz.behavior.event.BbEvents;
 import com.lovetropics.minigames.common.content.biodiversity_blitz.behavior.event.BbPlantEvents;
+import com.lovetropics.minigames.common.content.biodiversity_blitz.behavior.event.PlacePlantResult;
 import com.lovetropics.minigames.common.content.biodiversity_blitz.behavior.tutorial.TutorialState;
 import com.lovetropics.minigames.common.content.biodiversity_blitz.plot.Plot;
 import com.lovetropics.minigames.common.content.biodiversity_blitz.plot.PlotsState;
@@ -20,12 +21,12 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.TriState;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.item.SwordItem;
+import net.minecraft.world.item.component.Tool;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
@@ -80,31 +81,31 @@ public final class PlantBehavior implements IGameBehavior {
 		behavior.register(game, plantEvents);
 	}
 
-	private InteractionResultHolder<Plant> placePlant(ServerPlayer player, Plot plot, BlockPos pos, PlantType plantType) {
+	private PlacePlantResult placePlant(ServerPlayer player, Plot plot, BlockPos pos, PlantType plantType) {
 		if (!this.plantType.equals(plantType)) {
-			return InteractionResultHolder.pass(null);
+			return PlacePlantResult.PASS;
 		}
 
 		PlantPlacement placement = plantEvents.invoker(BbPlantEvents.PLACE).placePlant(player, plot, pos);
-		if (placement == null) return InteractionResultHolder.pass(null);
+		if (placement == null) return PlacePlantResult.PASS;
 
 		if (placement.getFunctionalCoverage() == null) {
-			return InteractionResultHolder.consume(null);
+			return new PlacePlantResult.Fail();
 		}
 
 		Plant plant = plot.plants.addPlant(plantType, family, value, placement);
 		if (plant == null) {
-			return InteractionResultHolder.fail(null);
+			return new PlacePlantResult.CannotFit();
 		}
 
 		if (placement.place(game.level(), plant.coverage())) {
 			plantEvents.invoker(BbPlantEvents.ADD).onAddPlant(player, plot, plant);
 			game.invoker(BbEvents.PLANTS_CHANGED).onPlantsChanged(player, plot);
 
-			return InteractionResultHolder.success(plant);
+			return new PlacePlantResult.Success(plant);
 		} else {
 			plot.plants.removePlant(plant);
-			return InteractionResultHolder.fail(null);
+			return new PlacePlantResult.CannotFit();
 		}
 	}
 
@@ -129,33 +130,34 @@ public final class PlantBehavior implements IGameBehavior {
 		return true;
 	}
 
-	private InteractionResult onBreakBlock(ServerPlayer player, BlockPos pos, BlockState state, InteractionHand hand) {
+	private TriState onBreakBlock(ServerPlayer player, BlockPos pos, BlockState state, InteractionHand hand) {
 		if (!tutorial.isTutorialFinished()) {
-			return InteractionResult.FAIL;
+			return TriState.FALSE;
 		}
 
 		Plot plot = plots.getPlotFor(player);
 		if (plot == null) {
-			return InteractionResult.PASS;
+			return TriState.DEFAULT;
 		}
 
-		if (player.getItemInHand(hand).getItem() instanceof SwordItem) {
-			return InteractionResult.FAIL;
+		Tool tool = player.getItemInHand(hand).get(DataComponents.TOOL);
+		if (tool != null && !tool.canDestroyBlocksInCreative()) {
+			return TriState.FALSE;
 		}
 
 		Plant plant = plot.plants.getPlantAt(pos, plantType);
 		if (plant != null) {
 			return onBreakPlantBlock(player, pos, plot, plant);
 		} else {
-			return InteractionResult.PASS;
+			return TriState.DEFAULT;
 		}
 	}
 
-	private InteractionResult onBreakPlantBlock(ServerPlayer player, BlockPos pos, Plot plot, Plant plant) {
+	private TriState onBreakPlantBlock(ServerPlayer player, BlockPos pos, Plot plot, Plant plant) {
 		plantEvents.invoker(BbPlantEvents.BREAK).breakPlant(player, plot, plant, pos);
 		game.invoker(BbEvents.BREAK_PLANT).breakPlant(player, plot, plant);
 
-		return InteractionResult.FAIL;
+		return TriState.FALSE;
 	}
 
 	private void onTickPlot(Plot plot, PlayerSet players) {

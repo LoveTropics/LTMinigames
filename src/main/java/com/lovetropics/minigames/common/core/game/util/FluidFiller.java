@@ -109,7 +109,7 @@ public class FluidFiller {
 
 		if (updatedBlocks > 0 && !level.isClientSide) {
 			// Make sure this chunk gets saved
-			chunk.setUnsaved(true);
+			chunk.markUnsaved();
 		}
 
 		return updatedBlocks;

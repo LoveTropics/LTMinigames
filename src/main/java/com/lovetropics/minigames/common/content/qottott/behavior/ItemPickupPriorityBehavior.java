@@ -6,6 +6,7 @@ import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorType;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
+import com.lovetropics.minigames.common.core.game.behavior.event.PickUpResult;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -13,7 +14,6 @@ import net.minecraft.SharedConstants;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.item.ItemStack;
 
@@ -34,10 +34,10 @@ public record ItemPickupPriorityBehavior(Optional<ItemPredicate> itemPredicate, 
 				final float minSeconds = Math.max(maxSeconds - getPickupPriority(player), 0.0f);
 				final int minAge = Mth.floor(minSeconds * SharedConstants.TICKS_PER_SECOND);
 				if (item.getAge() <= minAge) {
-					return InteractionResult.FAIL;
+					return PickUpResult.CANCEL;
 				}
 			}
-			return InteractionResult.PASS;
+			return PickUpResult.PASS;
 		});
 	}
 

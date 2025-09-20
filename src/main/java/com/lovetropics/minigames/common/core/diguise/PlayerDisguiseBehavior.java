@@ -53,7 +53,7 @@ public final class PlayerDisguiseBehavior {
 		AttributeMap playerAttributes = entity.getAttributes();
 		AttributeMap disguiseAttributes = disguise.getAttributes();
 
-		BuiltInRegistries.ATTRIBUTE.holders().forEach(attribute -> {
+		BuiltInRegistries.ATTRIBUTE.listElements().forEach(attribute -> {
 			if (!disguiseAttributes.hasAttribute(attribute) || !playerAttributes.hasAttribute(attribute)) {
 				return;
 			}
@@ -70,7 +70,7 @@ public final class PlayerDisguiseBehavior {
 
 	public static void clearAttributes(LivingEntity entity) {
 		AttributeMap attributes = entity.getAttributes();
-		BuiltInRegistries.ATTRIBUTE.holders().forEach(attribute -> {
+		BuiltInRegistries.ATTRIBUTE.listElements().forEach(attribute -> {
 			AttributeInstance instance = attributes.getInstance(attribute);
 			if (instance != null) {
 				instance.removeModifier(ATTRIBUTE_MODIFIER_ID);
@@ -101,9 +101,9 @@ public final class PlayerDisguiseBehavior {
 	}
 
 	public static void copyWalkAnimation(WalkAnimationState from, WalkAnimationState to) {
-		to.update(from.position() - to.position() - from.speed(), 1.0f);
+		to.update(from.position() - to.position() - from.speed(), 1.0f, 1.0f);
 		to.setSpeed(from.speed(0.0f));
-		to.update(from.speed(), 1.0f);
+		to.update(from.speed(), 1.0f, 1.0f);
 	}
 
 	public static void onDisguiseChange(LivingEntity entity) {

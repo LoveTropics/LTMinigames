@@ -60,7 +60,7 @@ public record LimitedTimeLootAction(
 		});
 
 		events.listen(GameWorldEvents.BLOCK_DROPS, (player, pos, blockState, blockEntity, tool, drops) -> {
-			ServerLevel level = player.serverLevel();
+			ServerLevel level = player.level();
 			if (expiryTimes.getLong(player.getUUID()) <= game.ticks() || !blockState.is(blocks)) {
 				return;
 			}

@@ -28,14 +28,14 @@ public record GiveLootAction(ResourceKey<LootTable> lootTable) implements IGameB
 	}
 
 	private boolean addLootTableToInventory(final ServerPlayer player) {
-		LootParams params = new LootParams.Builder(player.serverLevel())
+		LootParams params = new LootParams.Builder(player.level())
 				.withParameter(LootContextParams.THIS_ENTITY, player)
 				.withParameter(LootContextParams.ORIGIN, player.position())
 				.withLuck(player.getLuck())
 				.create(LootContextParamSets.GIFT);
 
 		boolean changed = false;
-		for (ItemStack stack : player.server.reloadableRegistries().getLootTable(lootTable).getRandomItems(params)) {
+		for (ItemStack stack : player.level().getServer().reloadableRegistries().getLootTable(lootTable).getRandomItems(params)) {
 			if (Util.addItemStackToInventory(player, stack)) {
 				changed = true;
 			}

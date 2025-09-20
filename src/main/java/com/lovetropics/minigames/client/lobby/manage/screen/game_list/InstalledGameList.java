@@ -10,11 +10,13 @@ import com.lovetropics.minigames.common.core.game.util.GameTexts;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.IntConsumer;
 
 public final class InstalledGameList extends AbstractGameList {
@@ -39,6 +41,16 @@ public final class InstalledGameList extends AbstractGameList {
 		FlexSolver.Results solve = new FlexSolver(footer.content()).apply(root);
 		enqueueButton = FlexUi.createButton(solve.layout(enqueue), Component.literal("✔"), this::enqueue);
 		cancelButton = FlexUi.createButton(solve.layout(cancel), Component.literal("❌"), this::cancel);
+	}
+
+	@Override
+	public Optional<GuiEventListener> getChildAt(double x, double y) {
+		if (enqueueButton.isMouseOver(x, y)) {
+			return Optional.of(enqueueButton);
+		} else if (cancelButton.isMouseOver(x, y)) {
+			return Optional.of(cancelButton);
+		}
+		return super.getChildAt(x, y);
 	}
 
 	@Override

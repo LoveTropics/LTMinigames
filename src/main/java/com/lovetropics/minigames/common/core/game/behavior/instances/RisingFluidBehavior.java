@@ -1,7 +1,6 @@
 package com.lovetropics.minigames.common.core.game.behavior.instances;
 
 import com.lovetropics.lib.BlockBox;
-import com.lovetropics.minigames.common.core.game.util.FluidFiller;
 import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
@@ -11,6 +10,7 @@ import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents
 import com.lovetropics.minigames.common.core.game.state.progress.ProgressChannel;
 import com.lovetropics.minigames.common.core.game.state.progress.ProgressHolder;
 import com.lovetropics.minigames.common.core.game.state.progress.ProgressionSpline;
+import com.lovetropics.minigames.common.core.game.util.FluidFiller;
 import com.lovetropics.minigames.common.core.network.FillFluidPacket;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -131,7 +131,7 @@ public class RisingFluidBehavior implements IGameBehavior {
 			mutablePos.set(particleX, fluidLevel, particleZ);
 
 			if (!world.isEmptyBlock(mutablePos) && world.isEmptyBlock(mutablePos.move(Direction.UP))) {
-				Packet<?> packet = new ClientboundLevelParticlesPacket(ParticleTypes.SPLASH, false, particleX, fluidLevel + 1, particleZ, 0.1F, 0.0F, 0.1F, 0.0F, 4);
+				Packet<?> packet = new ClientboundLevelParticlesPacket(ParticleTypes.SPLASH, false, false, particleX, fluidLevel + 1, particleZ, 0.1F, 0.0F, 0.1F, 0.0F, 4);
 				player.connection.send(packet);
 			}
 		}

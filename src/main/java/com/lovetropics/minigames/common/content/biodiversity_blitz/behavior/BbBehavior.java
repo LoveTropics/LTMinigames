@@ -38,6 +38,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.RandomSource;
+import net.minecraft.util.TriState;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
@@ -82,7 +83,7 @@ public final class BbBehavior implements IGameBehavior {
 		events.listen(GamePlayerEvents.DEATH, this::onPlayerDeath);
 		events.listen(GameWorldEvents.EXPLOSION_DETONATE, this::onExplosion);
 		// Don't grow any trees- we handle that ourselves
-		events.listen(GameWorldEvents.SAPLING_GROW, (w, p) -> InteractionResult.FAIL);
+		events.listen(GameWorldEvents.SAPLING_GROW, (w, p) -> TriState.FALSE);
 		events.listen(GamePlayerEvents.ATTACK, this::onAttack);
 		// Custom mob drops
 		events.listen(GameLivingEntityEvents.MOB_DROP, (e, d, r) -> {
@@ -90,37 +91,37 @@ public final class BbBehavior implements IGameBehavior {
 
 			r.add(new ItemEntity(e.level(), e.getX(), e.getY(), e.getZ(), new ItemStack(BiodiversityBlitz.OSA_POINT.get(), 1)));
 
-			return InteractionResult.PASS;
+			return TriState.DEFAULT;
 		});
 		events.listen(GameLivingEntityEvents.FARMLAND_TRAMPLE, this::onTrampleFarmland);
 		events.listen(GameEntityEvents.MOUNTED, (mounting, beingMounted) -> {
 			if (mounting instanceof ServerPlayer) {
-				return InteractionResult.PASS;
+				return TriState.DEFAULT;
 			} else {
-				return InteractionResult.FAIL;
+				return TriState.FALSE;
 			}
 		});
 		events.listen(GamePlayerEvents.DAMAGE, (player, damageSource, amount) -> {
 			Plot plot = plots.getPlotFor(player);
 			if (plot == null) {
-				return InteractionResult.PASS;
+				return TriState.DEFAULT;
 			}
 
 			if (!plot.walls.getBounds().contains(player.position())) {
-				return InteractionResult.FAIL;
+				return TriState.FALSE;
 			}
 
 			// Don't damage players from sweet berry bushes or wither roses
 			// TODO: reduce slowdown from bush
 			if (damageSource.is(DamageTypes.SWEET_BERRY_BUSH) || damageSource.is(DamageTypes.WITHER)) {
-				return InteractionResult.FAIL;
+				return TriState.FALSE;
 			}
 
-			return InteractionResult.PASS;
+			return TriState.DEFAULT;
 		});
 
 		events.listen(GamePlayerEvents.PLACE_BLOCK, this::onPlaceBlock);
-		events.listen(GamePlayerEvents.BREAK_BLOCK, (player, pos, state, hand) -> InteractionResult.FAIL);
+		events.listen(GamePlayerEvents.BREAK_BLOCK, (player, pos, state, hand) -> TriState.FALSE);
 
 		events.listen(GamePlayerEvents.USE_BLOCK, this::onUseBlock);
 	}
@@ -149,7 +150,7 @@ public final class BbBehavior implements IGameBehavior {
 			if (state.is(Blocks.FARMLAND) && !plot.plants.hasPlantAt(pos.above())) {
 				world.setBlockAndUpdate(pos, Blocks.GRASS_BLOCK.defaultBlockState());
 				world.playSound(null, blockPos, SoundEvents.HOE_TILL, SoundSource.BLOCKS, 1.0F, 1.0F);
-				player.getCooldowns().addCooldown(player.getItemInHand(hand).getItem(), 3);
+				player.getCooldowns().addCooldown(player.getItemInHand(hand), 3);
 				return InteractionResult.SUCCESS;
 			} else if (state.is(Blocks.DIRT_PATH)) {
 				return InteractionResult.FAIL;
@@ -163,19 +164,19 @@ public final class BbBehavior implements IGameBehavior {
 		return InteractionResult.PASS;
 	}
 
-	private InteractionResult onTrampleFarmland(Entity entity, BlockPos pos, BlockState state) {
+	private TriState onTrampleFarmland(Entity entity, BlockPos pos, BlockState state) {
 		if (!tutorial.isTutorialFinished()) {
-			return InteractionResult.FAIL;
+			return TriState.FALSE;
 		}
 
 		Plot plot = plots.getPlotFor(entity);
 		if (plot != null && plot.isFloorAt(pos)) {
 			if (!plot.plants.hasPlantAt(pos.above())) {
-				return InteractionResult.PASS;
+				return TriState.DEFAULT;
 			}
 		}
 
-		return InteractionResult.FAIL;
+		return TriState.FALSE;
 	}
 
 	private void setupPlayerAsRole(UUID playerId, SpawnBuilder spawn, @Nullable PlayerRole role) {
@@ -204,35 +205,35 @@ public final class BbBehavior implements IGameBehavior {
 		affectedEntities.removeIf(e -> e instanceof Player);
 		
 		// Remove from filtered explosions
-		if (explosion instanceof FilteredExplosion) {
-			affectedEntities.removeIf(((FilteredExplosion)explosion).remove);
+		if (explosion instanceof FilteredExplosion filteredExplosion) {
+			affectedEntities.removeIf(filteredExplosion.remove);
 		}
 
-		if (explosion instanceof PlantAffectingExplosion) {
-			((PlantAffectingExplosion)explosion).affectPlants(affectedBlocks);
+		if (explosion instanceof PlantAffectingExplosion plantAffectingExplosion) {
+			plantAffectingExplosion.affectPlants(affectedBlocks);
 		}
 
 		// Blocks should not explode
 		affectedBlocks.clear();
 	}
 
-	private InteractionResult onAttack(ServerPlayer player, Entity target) {
+	private TriState onAttack(ServerPlayer player, Entity target) {
 		if (!tutorial.isTutorialFinished()) {
-			return InteractionResult.FAIL;
+			return TriState.FALSE;
 		}
 
 		if (BbMobEntity.matches(target)) {
 			Plot plot = plots.getPlotAt(target.blockPosition());
 			if (plot != null && plot.walls.containsEntity(player)) {
-				return InteractionResult.PASS;
+				return TriState.DEFAULT;
 			}
 		}
-		return InteractionResult.FAIL;
+		return TriState.FALSE;
 	}
 
-	private InteractionResult onPlaceBlock(ServerPlayer player, BlockPos pos, BlockState placed, BlockState placedOn, ItemStack placedItemStack) {
+	private TriState onPlaceBlock(ServerPlayer player, BlockPos pos, BlockState placed, BlockState placedOn, ItemStack placedItemStack) {
 		if (!tutorial.isTutorialFinished()) {
-			return InteractionResult.FAIL;
+			return TriState.FALSE;
 		}
 
 		Plot plot = plots.getPlotFor(player);
@@ -240,31 +241,31 @@ public final class BbBehavior implements IGameBehavior {
 			// Don't let players place plants inside mob spawns
 			if (plot.mobSpawns.contains(pos)) {
 				sendActionRejection(player, BiodiversityBlitzTexts.PLANT_CANNOT_FIT);
-				return InteractionResult.FAIL;
+				return TriState.FALSE;
 			}
 
 			return onPlaceBlockInOwnPlot(player, pos, placed, plot);
 		} else {
 			sendActionRejection(player, BiodiversityBlitzTexts.NOT_YOUR_PLOT);
-			return InteractionResult.FAIL;
+			return TriState.FALSE;
 		}
 	}
 
-	private InteractionResult onPlaceBlockInOwnPlot(ServerPlayer player, BlockPos pos, BlockState placed, Plot plot) {
+	private TriState onPlaceBlockInOwnPlot(ServerPlayer player, BlockPos pos, BlockState placed, Plot plot) {
 		if (placed.is(Blocks.FARMLAND)) {
 			player.level().setBlockAndUpdate(pos, Blocks.FARMLAND.defaultBlockState().setValue(FarmBlock.MOISTURE, 7));
-			return InteractionResult.PASS;
+			return TriState.DEFAULT;
 		}
 		// TODO: Data-drive
 		if (placed.is(Blocks.ANVIL)) {
-			return InteractionResult.PASS;
+			return TriState.DEFAULT;
 		}
 
 		if (plot.canPlantAt(pos)) {
 			sendActionRejection(player, BiodiversityBlitzTexts.CAN_ONLY_PLACE_PLANTS);
 		}
 
-		return InteractionResult.FAIL;
+		return TriState.FALSE;
 	}
 
 	private void sendActionRejection(ServerPlayer player, Component message) {
@@ -272,10 +273,10 @@ public final class BbBehavior implements IGameBehavior {
 		player.level().playSound(null, player.blockPosition(), SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS,  1.0F, 1.0F);
 	}
 
-	private InteractionResult onPlayerDeath(ServerPlayer player, DamageSource damageSource) {
+	private TriState onPlayerDeath(ServerPlayer player, DamageSource damageSource) {
 		Plot plot = plots.getPlotFor(player);
 		if (plot == null) {
-			return InteractionResult.PASS;
+			return TriState.DEFAULT;
 		}
 
 		teleportToRegion(player, plot.spawn, plot.forward);
@@ -290,12 +291,12 @@ public final class BbBehavior implements IGameBehavior {
 
 		player.playNotifySound(SoundEvents.ARROW_HIT_PLAYER, SoundSource.PLAYERS, 0.18F, 1.0F);
 		player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 80));
-		player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 255, 80));
+		player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, 255, 80));
 
 		player.connection.send(new ClientboundSetTitlesAnimationPacket(40, 20, 0));
 		player.connection.send(new ClientboundSetTitleTextPacket(BiodiversityBlitzTexts.DEATH_TITLE.copy().withStyle(ChatFormatting.RED)));
 
-		return InteractionResult.FAIL;
+		return TriState.FALSE;
 	}
 
 	private void tick(IGamePhase game) {

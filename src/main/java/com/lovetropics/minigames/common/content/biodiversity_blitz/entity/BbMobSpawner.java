@@ -21,9 +21,9 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 
@@ -62,11 +62,13 @@ public final class BbMobSpawner {
         double z = spawnBounds.minZ + spawnBounds.getZsize() * random.nextFloat();
         BlockPos pos = BlockPos.containing(x, y, z);
         Direction direction = plot.forward.getOpposite();
-        entity.moveTo(x, y, z, direction.toYRot(), 0);
+        entity.snapTo(x, y, z, direction.toYRot(), 0);
 
         world.addFreshEntity(entity);
 
-        ((Mob) entity).finalizeSpawn(world, world.getCurrentDifficultyAt(pos), MobSpawnType.MOB_SUMMONED, null);
+		if (entity instanceof Mob mob) {
+			mob.finalizeSpawn(world, world.getCurrentDifficultyAt(pos), EntitySpawnReason.MOB_SUMMONED, null);
+		}
     }
 
     // TODO: data-drive, more entity types & getting harder as time goes on

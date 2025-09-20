@@ -11,7 +11,7 @@ import com.lovetropics.minigames.common.util.Util;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.util.TriState;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.ResolvableProfile;
@@ -38,7 +38,7 @@ public record PlayerHeadRewardBehavior() implements IGameBehavior {
 						.thenAcceptAsync(stack -> rewards.forPlayer(killer).giveCollectible(stack), game.server());
 				resolvedFuture.setValue(resolvedFuture.getValue().thenCombine(future, (a, b) -> b));
 			}
-			return InteractionResult.PASS;
+			return TriState.DEFAULT;
 		});
 
 		events.listen(GamePhaseEvents.FINISH, () -> {

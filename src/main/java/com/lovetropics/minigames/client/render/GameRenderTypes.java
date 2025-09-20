@@ -1,37 +1,46 @@
 package com.lovetropics.minigames.client.render;
 
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormat;
+import com.lovetropics.minigames.LoveTropics;
+import com.mojang.blaze3d.pipeline.RenderPipeline;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.RegisterRenderPipelinesEvent;
 
 import static net.minecraft.client.renderer.RenderType.create;
 
 // LTMinigames Render Types
 // Extends RenderStateShard to access protected fields
+@EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
 public class GameRenderTypes extends RenderStateShard {
+	private static final RenderPipeline TRANSLUCENT_NO_TEX_PIPELINE = RenderPipelines.DEBUG_QUADS.toBuilder()
+			.withLocation(LoveTropics.location("translucent_broken_depth"))
+			.withColorWrite(true)
+			.withDepthWrite(false)
+			.withDepthBias(-1.0f, -10.0f)
+			.build();
+
     public static final RenderType TRANSLUCENT_NO_TEX = create(
-            "translucent_broken_depth", DefaultVertexFormat.BLOCK,
-            VertexFormat.Mode.QUADS, 2097152, true, true, of(RENDERTYPE_TRANSLUCENT_SHADER)
+            "translucent_broken_depth",
+			2097152,
+			false,
+			true,
+			TRANSLUCENT_NO_TEX_PIPELINE,
+			RenderType.CompositeState.builder()
+					.setOutputState(TRANSLUCENT_TARGET)
+					.createCompositeState(false)
     );
 
     public GameRenderTypes(String pName, Runnable pSetupState, Runnable pClearState) {
         super(pName, pSetupState, pClearState);
-
         throw new IllegalStateException("Don't call this");
     }
 
-    public static RenderType.CompositeState of(RenderStateShard.ShaderStateShard program) {
-        return RenderType.CompositeState.builder()
-                .setLightmapState(LIGHTMAP)
-                .setShaderState(program)
-                .setTextureState(new TextureStateShard(ResourceLocation.withDefaultNamespace("textures/misc/white.png"), false, false))
-                .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-                .setOutputState(TRANSLUCENT_TARGET)
-                .setCullState(NO_CULL)
-                .setLayeringState(POLYGON_OFFSET_LAYERING)
-                .setWriteMaskState(COLOR_WRITE)
-                .createCompositeState(true);
-    }
+	@SubscribeEvent
+	public static void registerPipelines(RegisterRenderPipelinesEvent event) {
+		event.registerPipeline(TRANSLUCENT_NO_TEX_PIPELINE);
+	}
 }

@@ -45,7 +45,7 @@ public final class PlayerRoleSelections {
 			future = rootFuture.thenApplyAsync(role -> {
 				roles.put(player.getUUID(), role);
 				return role;
-			}, player.server);
+			}, player.getServer());
 			pendingResponses.put(player.getUUID(), future);
 		}
 		sendPromptTo(player);

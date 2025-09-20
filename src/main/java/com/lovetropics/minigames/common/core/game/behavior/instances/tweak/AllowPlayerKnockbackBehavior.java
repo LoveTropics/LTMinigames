@@ -7,7 +7,7 @@ import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
 import com.mojang.serialization.MapCodec;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.util.TriState;
 import net.minecraft.world.entity.player.Player;
 
 import java.util.function.Supplier;
@@ -18,8 +18,8 @@ public record AllowPlayerKnockbackBehavior() implements IGameBehavior {
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
 		// Override CancelPlayerDamageBehavior
-		events.listen(GamePlayerEvents.ATTACK, (player, target) -> target instanceof Player ? InteractionResult.SUCCESS : InteractionResult.PASS);
-		events.listen(GamePlayerEvents.DAMAGE, (player, damageSource, amount) -> InteractionResult.SUCCESS);
+		events.listen(GamePlayerEvents.ATTACK, (player, target) -> target instanceof Player ? TriState.TRUE : TriState.DEFAULT);
+		events.listen(GamePlayerEvents.DAMAGE, (player, damageSource, amount) -> TriState.TRUE);
 		events.listen(GamePlayerEvents.DAMAGE_AMOUNT, (player, damageSource, amount, originalAmount) -> 0.0f);
 	}
 

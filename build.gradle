@@ -2,10 +2,10 @@ plugins {
     id 'eclipse'
     id 'idea'
     id 'java-library'
-    id 'net.neoforged.moddev' version '2.0.36-beta'
+    id 'net.neoforged.moddev' version '2.0.103'
 }
 
-group = 'com.lovetropics.minigames'
+group = 'org.lovetropics'
 base {
     archivesName = 'LTMinigames'
 }
@@ -32,7 +32,7 @@ sourceSets.main.resources {
 sourceSets.test.resources {
     srcDir 'src/generated/resources'
     include 'testing/**'
-    include 'data/ltminigames/structures/**'
+    include 'data/ltminigames/structure/**'
 }
 
 neoForge {
@@ -81,7 +81,7 @@ neoForge {
         }
 
         data {
-            data()
+            clientData()
             loadedMods = [mods."${mod_id}_test"]
 
             programArguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
@@ -109,26 +109,37 @@ configurations {
 }
 
 repositories {
-    maven { url = "https://maven.ithundxr.dev/snapshots/" }
-    maven { url = "https://maven.tterrag.com/" }
-    maven { url = "https://api.modrinth.com/maven" }
+    maven {
+        url = 'https://maven.gegy.dev/releases'
+        content {
+            includeGroup 'org.lovetropics'
+            includeGroup 'com.tterrag.registrate'
+            includeGroup 'eu.pb4'
+        }
+    }
+    maven {
+        url = 'https://api.modrinth.com/maven'
+        content {
+            includeGroup 'maven.modrinth'
+        }
+    }
     mavenLocal()
 }
 
 dependencies {
-    modRuntime 'org.lovetropics:Tropicraft:9.7.3-beta+2'
+    modRuntime 'maven.modrinth:tropicraft:9.9.1-1.21.8'
 
     // TODO: HACK - We get Registrate at runtime through JarJar from Tropicraft. We should rather prefer to depend on the slim jar.
-    jarJar(modCompile("com.tterrag.registrate:Registrate:MC1.21-${registrate_version}")) {
+    jarJar(modCompile("com.tterrag.registrate:Registrate-LT:MC1.21.8-${registrate_version}")) {
         version {
-            strictly "[MC1.21-${registrate_version},MC1.22)"
-            prefer "MC1.21-${registrate_version}"
+            strictly "[MC1.21.8-${registrate_version},MC1.22)"
+            prefer "MC1.21.8-${registrate_version}"
         }
     }
 
-    jarJar(modImpl("com.lovetropics.lib:LTLib:$ltlib_version"))
+    jarJar(modImpl("org.lovetropics:LTLib:$ltlib_version"))
 
-    modRuntime "com.lovetropics.extras:LTExtras:$ltextras_version"
+    modRuntime "org.lovetropics:LTExtras:$ltextras_version"
 
     testImplementation platform("org.junit:junit-bom:5.7.0")
     testImplementation "org.junit.jupiter:junit-jupiter"
@@ -149,7 +160,13 @@ tasks.register('sourceJar', Jar) {
 
 var generateModMetadata = tasks.register('generateModMetadata', ProcessResources) {
     var replaceProperties = [
-            mod_version: mod_version,
+            minecraft_version      : minecraft_version,
+            minecraft_version_range: minecraft_version_range,
+            neo_version            : neo_version,
+            neo_version_range      : neo_version_range,
+            loader_version_range   : loader_version_range,
+            mod_id                 : mod_id,
+            mod_version            : mod_version,
     ]
     inputs.properties replaceProperties
     expand replaceProperties

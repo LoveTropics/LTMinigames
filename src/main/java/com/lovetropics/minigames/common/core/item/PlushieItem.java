@@ -1,13 +1,9 @@
 package com.lovetropics.minigames.common.core.item;
 
-import com.lovetropics.minigames.client.CustomItemRenderers;
 import com.lovetropics.minigames.common.core.diguise.DisguiseType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
-
-import java.util.function.Consumer;
 
 public class PlushieItem extends Item {
 	public PlushieItem(final Properties properties) {
@@ -21,10 +17,5 @@ public class PlushieItem extends Item {
 			return Component.translatable(getDescriptionId() + ".entity", entityType.type().getDescription());
 		}
 		return super.getName(stack);
-	}
-
-	@Override
-	public void initializeClient(final Consumer<IClientItemExtensions> consumer) {
-		consumer.accept(CustomItemRenderers.plushieItem());
 	}
 }

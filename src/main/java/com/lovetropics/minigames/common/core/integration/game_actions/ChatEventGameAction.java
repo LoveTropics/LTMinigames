@@ -7,7 +7,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.util.TriState;
 import org.slf4j.Logger;
 
 import java.util.Optional;
@@ -24,13 +24,13 @@ public record ChatEventGameAction(String trigger) implements GameAction {
     public boolean resolve(IGamePhase game, MinecraftServer server) {
         GamePackage triggeredPackage = new GamePackage(trigger, "", Optional.empty(), Optional.empty());
 
-        InteractionResult result = game.invoker(GamePackageEvents.RECEIVE_PACKAGE).onReceivePackage(triggeredPackage);
+        TriState result = game.invoker(GamePackageEvents.RECEIVE_PACKAGE).onReceivePackage(triggeredPackage);
         switch (result) {
-            case SUCCESS -> LOGGER.debug("Incoming chat event was successfully processed by behavior: {}", triggeredPackage);
-            case PASS -> LOGGER.debug("Incoming chat event was not handled by behavior: {}", triggeredPackage);
-            case FAIL -> LOGGER.debug("Incoming chat event was rejected by behavior: {}", triggeredPackage);
+			case TRUE -> LOGGER.debug("Incoming chat event was successfully processed by behavior: {}", triggeredPackage);
+			case DEFAULT -> LOGGER.debug("Incoming chat event was not handled by behavior: {}", triggeredPackage);
+			case FALSE -> LOGGER.debug("Incoming chat event was rejected by behavior: {}", triggeredPackage);
         }
 
-        return result == InteractionResult.SUCCESS;
+        return result.isTrue();
     }
 }

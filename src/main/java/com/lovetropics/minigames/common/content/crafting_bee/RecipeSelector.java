@@ -7,13 +7,19 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.Util;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingInput;
+import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
-import net.minecraft.world.item.crafting.RecipeType;
+import org.slf4j.Logger;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,25 +27,27 @@ public interface RecipeSelector {
     BiMap<String, MapCodec<? extends RecipeSelector>> TYPES = ImmutableBiMap.of("from_list", FromList.CODEC, "one_of", OneOf.CODEC, "from_item_tag", FromItemTag.CODEC);
     Codec<RecipeSelector> CODEC = Codec.STRING.dispatch(s -> TYPES.inverse().get(s.getType()), TYPES::get);
 
-    SelectedRecipe select(ServerLevel level);
+    RecipeHolder<?> select(ServerLevel level);
 
     MapCodec<? extends RecipeSelector> getType();
 
-    record FromList(List<ResourceLocation> recipes) implements RecipeSelector {
-        public static final MapCodec<FromList> CODEC = ResourceLocation.CODEC.listOf().fieldOf("recipes")
+    record FromList(List<ResourceKey<Recipe<?>>> recipes) implements RecipeSelector {
+        public static final MapCodec<FromList> CODEC = ResourceKey.codec(Registries.RECIPE).listOf().fieldOf("recipes")
                 .xmap(FromList::new, FromList::recipes);
 
-        @Override
-        public SelectedRecipe select(ServerLevel level) {
+		private static final Logger LOGGER = LogUtils.getLogger();
+
+		@Override
+        public RecipeHolder<?> select(ServerLevel level) {
             Optional<RecipeHolder<?>> recipe = Optional.empty();
             while (recipe.isEmpty()) {
                 var key = Util.getRandom(recipes, level.getRandom());
-                recipe = level.getRecipeManager().byKey(key);
+                recipe = level.recipeAccess().byKey(key);
                 if (recipe.isEmpty()) {
-                    LogUtils.getLogger().error("Recipe '{}' doesn't exist", key);
+                    LOGGER.error("Recipe '{}' doesn't exist", key);
                 }
             }
-            return new SelectedRecipe(recipe.get());
+            return recipe.get();
         }
 
         @Override
@@ -52,7 +60,7 @@ public interface RecipeSelector {
         public static final MapCodec<OneOf> CODEC = MapCodec.assumeMapUnsafe(Codec.lazyInitialized(() -> RecipeSelector.CODEC.listOf().fieldOf("selectors")
                 .xmap(OneOf::new, OneOf::selectors).codec()));
         @Override
-        public SelectedRecipe select(ServerLevel level) {
+        public RecipeHolder<?> select(ServerLevel level) {
             return Util.getRandom(selectors, level.getRandom()).select(level);
         }
 
@@ -68,26 +76,36 @@ public interface RecipeSelector {
 
         private final TagKey<Item> tag;
 
-        private List<SelectedRecipe> cache;
+		@Nullable
+        private List<RecipeHolder<?>> cache;
 
         public FromItemTag(TagKey<Item> tag) {
             this.tag = tag;
         }
 
         @Override
-        public SelectedRecipe select(ServerLevel level) {
+        public RecipeHolder<?> select(ServerLevel level) {
             if (cache == null) {
-                cache = level.getRecipeManager().getAllRecipesFor(RecipeType.CRAFTING)
-                        .stream().filter(h -> h.value().getResultItem(level.registryAccess()).is(tag) && h.id().getNamespace().equals(ResourceLocation.DEFAULT_NAMESPACE))
-                        .map(SelectedRecipe::new)
+                cache = level.recipeAccess().getRecipes().stream()
+                        .filter(h -> {
+							if (h.value() instanceof CraftingRecipe recipe) {
+								ItemStack result = recipe.assemble(CraftingInput.EMPTY, level.registryAccess());
+								return result.is(tag) && isVanilla(h);
+							}
+							return false;
+                        })
                         .toList();
             }
             return Util.getRandom(cache, level.getRandom());
         }
 
-        @Override
+		@Override
         public MapCodec<? extends RecipeSelector> getType() {
             return CODEC;
         }
-    }
+	}
+
+	private static boolean isVanilla(RecipeHolder<?> recipe) {
+		return recipe.id().location().getNamespace().equals(ResourceLocation.DEFAULT_NAMESPACE);
+	}
 }

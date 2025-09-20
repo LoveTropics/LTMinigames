@@ -1,0 +1,48 @@
+package com.lovetropics.minigames.client.lobby;
+
+import com.lovetropics.minigames.LoveTropics;
+import com.lovetropics.minigames.common.core.command.game.ManageGameLobbyCommand;
+import com.lovetropics.minigames.common.core.game.GameResult;
+import com.lovetropics.minigames.common.core.game.IGameManager;
+import com.lovetropics.minigames.common.core.game.lobby.IGameLobby;
+import com.lovetropics.minigames.common.core.game.util.GameTexts;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.commands.Commands;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.server.level.ServerPlayer;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
+
+public record ManageOrCreateLobbyPacket() implements CustomPacketPayload {
+    public static final Type<ManageOrCreateLobbyPacket> TYPE = new Type<>(LoveTropics.location("lobby_manage"));
+
+	public static final ManageOrCreateLobbyPacket INSTANCE = new ManageOrCreateLobbyPacket();
+
+    public static final StreamCodec<ByteBuf, ManageOrCreateLobbyPacket> STREAM_CODEC = StreamCodec.unit(INSTANCE);
+
+    public static void handle(ManageOrCreateLobbyPacket message, IPayloadContext context) {
+		if (!(context.player() instanceof ServerPlayer player)) {
+			return;
+		}
+		if (!player.hasPermissions(Commands.LEVEL_GAMEMASTERS)) {
+			player.sendSystemMessage(GameTexts.Commands.NO_MANAGE_PERMISSION);
+			return;
+		}
+		IGameLobby lobby = IGameManager.get().getLobbyFor(player);
+		if (lobby != null) {
+			if (!lobby.getManagement().startManaging(player)) {
+				player.sendSystemMessage(GameTexts.Commands.NO_MANAGE_PERMISSION);
+			}
+		} else {
+			GameResult<IGameLobby> result = ManageGameLobbyCommand.createAndJoinLobby(player);
+			if (result.isError()) {
+				player.sendSystemMessage(result.getError());
+			}
+		}
+	}
+
+    @Override
+    public Type<ManageOrCreateLobbyPacket> type() {
+        return TYPE;
+    }
+}

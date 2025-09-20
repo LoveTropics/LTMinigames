@@ -17,6 +17,7 @@ import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 // TODO: grid element utility
 public final class LobbyPlayerList implements GuiEventListener, NarratableEntry {
@@ -88,7 +89,7 @@ public final class LobbyPlayerList implements GuiEventListener, NarratableEntry 
 							.withStyle(ChatFormatting.GRAY));
 				}
 
-				graphics.renderComponentTooltip(screen.getMinecraft().font, tooltip, mouseX, mouseY);
+				graphics.setTooltipForNextFrame(screen.getMinecraft().font, tooltip, Optional.empty(), mouseX, mouseY);
 			}
 		}
 	}

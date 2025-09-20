@@ -25,7 +25,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.util.TriState;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.NetherPortalBlock;
@@ -84,7 +84,7 @@ public record LobbyWithPortalBehavior(String portalRegion, String targetRegion, 
 			if (portal.contains(player.position()) && playersInLobby.remove(player.getUUID())) {
 				final BlockBox target = Util.getRandom(targets, game.random());
 				final Vec3 center = target.center();
-				player.teleportTo(player.serverLevel(), center.x, center.y, center.z, computeAngle(center, pointTowards), 0.0f);
+				player.teleportTo(player.level(), center.x, center.y, center.z, Set.of(), computeAngle(center, pointTowards), 0.0f, true);
 				player.level().playSound(null, center.x, center.y, center.z, SoundEvents.CHORUS_FRUIT_TELEPORT, SoundSource.PLAYERS, 1.0f, 1.0f);
 				teleportAction.apply(game, GameActionContext.EMPTY, player);
 			}
@@ -108,10 +108,10 @@ public record LobbyWithPortalBehavior(String portalRegion, String targetRegion, 
 		}
 	}
 
-	private static InteractionResult checkInLobby(final ServerPlayer player, final Set<UUID> playersInLobby) {
+	private static TriState checkInLobby(final ServerPlayer player, final Set<UUID> playersInLobby) {
 		if (playersInLobby.contains(player.getUUID())) {
-			return InteractionResult.FAIL;
+			return TriState.FALSE;
 		}
-		return InteractionResult.PASS;
+		return TriState.DEFAULT;
 	}
 }

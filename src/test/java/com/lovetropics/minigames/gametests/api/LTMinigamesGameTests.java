@@ -1,5 +1,6 @@
 package com.lovetropics.minigames.gametests.api;
 
+import com.google.common.base.CaseFormat;
 import com.google.common.base.Suppliers;
 import com.lovetropics.lib.permission.PermissionsApi;
 import com.lovetropics.lib.permission.role.RoleLookup;
@@ -7,16 +8,20 @@ import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.core.game.datagen.BehaviorFactory;
 import com.lovetropics.minigames.common.core.game.datagen.BehaviorProvider;
 import com.lovetropics.minigames.common.core.game.datagen.GameProvider;
+import com.mojang.serialization.MapCodec;
 import net.minecraft.SharedConstants;
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.metadata.PackMetadataGenerator;
-import net.minecraft.gametest.framework.GameTest;
-import net.minecraft.gametest.framework.GameTestGenerator;
-import net.minecraft.gametest.framework.StructureUtils;
-import net.minecraft.gametest.framework.TestFunction;
+import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.gametest.framework.GameTestInstance;
+import net.minecraft.gametest.framework.TestData;
+import net.minecraft.gametest.framework.TestEnvironmentDefinition;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.packs.PackLocationInfo;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PackSelectionConfig;
@@ -32,19 +37,14 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 import net.neoforged.neoforge.event.AddPackFindersEvent;
 import net.neoforged.neoforge.event.RegisterGameTestsEvent;
-import net.neoforged.neoforge.gametest.GameTestHooks;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-@EventBusSubscriber(modid = "ltminigames", bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = "ltminigames")
 public class LTMinigamesGameTests {
     public static final TestPermissionAPI PERMISSIONS = new TestPermissionAPI();
 
@@ -71,17 +71,83 @@ public class LTMinigamesGameTests {
     public static final String TESTING_PACK = "testing";
 
     @SubscribeEvent
-    static void register(final RegisterGameTestsEvent event) throws NoSuchMethodException {
-        event.register(LTMinigamesGameTests.class.getMethod("generate"));
+    static void register(final RegisterGameTestsEvent event) {
+		for (var entry : TESTS.get().entrySet()) {
+			var test = entry.getValue();
+			var id = entry.getKey();
+			for (Method testMethod : test.getClass().getDeclaredMethods()) {
+				GameTest gametest = testMethod.getAnnotation(GameTest.class);
+				if (gametest == null) continue;
+
+				testMethod.setAccessible(true);
+
+				ResourceLocation testId = id.withPath(path -> CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, path)
+						+ "/" + CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, testMethod.getName()));
+
+				// Register a unique environment for every test, as we cannot run them in parallel right now
+				Holder<TestEnvironmentDefinition> environment = event.registerEnvironment(testId, new TestEnvironmentDefinition() {
+					private RoleLookup lastRoleLookup;
+
+					@Override
+					public void setup(ServerLevel level) {
+						lastRoleLookup = PermissionsApi.lookup();
+						PermissionsApi.setRoleLookup(PERMISSIONS);
+					}
+
+					@Override
+					public void teardown(ServerLevel level) {
+						PermissionsApi.setRoleLookup(lastRoleLookup);
+					}
+
+					@Override
+					public MapCodec<? extends TestEnvironmentDefinition> codec() {
+						throw new UnsupportedOperationException();
+					}
+				});
+
+				var info = new TestData<>(
+						environment,
+						LoveTropics.location("empty_3x3"),
+						gametest.timeoutTicks(),
+						5,
+						true,
+						Rotation.NONE,
+						false,
+						1,
+						1,
+						false
+				);
+				event.registerTest(testId, new GameTestInstance(info) {
+					@Override
+					public void run(GameTestHelper helper) {
+						try {
+							testMethod.invoke(test, new LTGameTestHelper(helper));
+						} catch (Exception e) {
+							throw new RuntimeException(e);
+						}
+					}
+
+					@Override
+					public MapCodec<? extends GameTestInstance> codec() {
+						throw new UnsupportedOperationException();
+					}
+
+					@Override
+					protected MutableComponent typeDescription() {
+						return Component.literal("LTMinigames");
+					}
+				});
+			}
+		}
     }
 
     @SubscribeEvent
-    static void gather(final GatherDataEvent event) {
+    static void gather(final GatherDataEvent.Client event) {
         final PackOutput out = event.getGenerator().getPackOutput(TESTING_PACK);
 
         final BehaviorFactory behaviors = new BehaviorFactory();
         event.getGenerator()
-                .addProvider(event.includeServer(), new GameProvider(out, behaviors, event.getLookupProvider()) {
+                .addProvider(true, new GameProvider(out, behaviors, event.getLookupProvider()) {
                     @Override
                     protected void generate(GameGenerator generator, HolderLookup.Provider holderProvider) {
                         TESTS.get().forEach((key, test) -> test.generateGame(generator, behaviors, holderProvider));
@@ -89,10 +155,10 @@ public class LTMinigamesGameTests {
                 });
 
         event.getGenerator()
-                .addProvider(event.includeServer(), new BehaviorProvider(out, behaviors, event.getLookupProvider()));
+                .addProvider(true, new BehaviorProvider(out, behaviors, event.getLookupProvider()));
 
         event.getGenerator().addProvider(true, new PackMetadataGenerator(out)
-                .add(PackMetadataSection.TYPE, new PackMetadataSection(Component.literal("LTMinigames testing"), SharedConstants.getCurrentVersion().getPackVersion(PackType.SERVER_DATA))));
+                .add(PackMetadataSection.TYPE, new PackMetadataSection(Component.literal("LTMinigames testing"), SharedConstants.getCurrentVersion().packVersion(PackType.SERVER_DATA))));
     }
 
     @SubscribeEvent
@@ -117,52 +183,5 @@ public class LTMinigamesGameTests {
                     }, PackType.SERVER_DATA, new PackSelectionConfig(true, Pack.Position.TOP, false)
             )));
         }
-    }
-
-    @GameTestGenerator
-    public static List<TestFunction> generate() {
-        final List<TestFunction> tests = new ArrayList<>();
-
-        for (var entry : TESTS.get().entrySet()) {
-            var test = entry.getValue();
-            var id = entry.getKey();
-            for (Method testMethod : test.getClass().getDeclaredMethods()) {
-                GameTest gametest = testMethod.getAnnotation(GameTest.class);
-                if (gametest == null) continue;
-
-                String testName =  id.getPath() + "." + testMethod.getName();
-                String template = gametest.template().isBlank() ? "ltminigames:empty_3x3" : GameTestHooks.getTemplateNamespace(testMethod) + ":" + (gametest.template().isEmpty() ? testName : gametest.template());
-                String batch = gametest.batch().equals("defaultBatch") ? id.getPath() : gametest.batch();
-                Rotation rotation = StructureUtils.getRotationForRotationSteps(gametest.rotationSteps());
-                final var consumer = (Consumer<LTGameTestHelper>)turnMethodIntoConsumer(testMethod, test);
-                tests.add(new TestFunction(batch, testName, template, rotation, gametest.timeoutTicks(), gametest.setupTicks(), gametest.required(), gametest.manualOnly(), gametest.attempts(), gametest.requiredSuccesses(), gametest.skyAccess(), helper -> {
-                    RoleLookup lookup = PermissionsApi.lookup();
-                    try {
-                        PermissionsApi.setRoleLookup(PERMISSIONS);
-                        consumer.accept(new LTGameTestHelper(helper));
-                    } finally {
-                        PermissionsApi.setRoleLookup(lookup);
-                    }
-                }));
-            }
-        }
-
-        return tests;
-    }
-
-    private static Consumer<?> turnMethodIntoConsumer(Method pTestMethod, Object instance) {
-        return (arg) -> {
-            try {
-                pTestMethod.invoke(instance, arg);
-            } catch (InvocationTargetException invocationtargetexception) {
-                if (invocationtargetexception.getCause() instanceof RuntimeException) {
-                    throw (RuntimeException)invocationtargetexception.getCause();
-                } else {
-                    throw new RuntimeException(invocationtargetexception.getCause());
-                }
-            } catch (ReflectiveOperationException reflectiveoperationexception) {
-                throw new RuntimeException(reflectiveoperationexception);
-            }
-        };
     }
 }

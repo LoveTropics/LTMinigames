@@ -2,6 +2,7 @@ package com.lovetropics.minigames.common.content.biodiversity_blitz.behavior.pla
 
 import com.lovetropics.minigames.common.content.biodiversity_blitz.behavior.event.BbEvents;
 import com.lovetropics.minigames.common.content.biodiversity_blitz.behavior.event.BbPlantEvents;
+import com.lovetropics.minigames.common.content.biodiversity_blitz.behavior.event.PlacePlantResult;
 import com.lovetropics.minigames.common.content.biodiversity_blitz.plot.Plot;
 import com.lovetropics.minigames.common.content.biodiversity_blitz.plot.plant.Plant;
 import com.lovetropics.minigames.common.content.biodiversity_blitz.plot.plant.PlantType;
@@ -18,8 +19,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.valueproviders.IntProvider;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -59,8 +58,8 @@ public record GrowPlantBehavior(IntProvider time, PlantType growInto) implements
 		PlantSnapshot snapshot = removeAndSnapshot(world, plot, plant);
 
 		BlockPos origin = plant.coverage().getOrigin();
-		InteractionResultHolder<Plant> result = game.invoker(BbEvents.PLACE_PLANT).placePlant(player, plot, origin, growInto);
-		if (result.getResult() != InteractionResult.SUCCESS) {
+		PlacePlantResult result = game.invoker(BbEvents.PLACE_PLANT).placePlant(player, plot, origin, growInto);
+		if (!(result instanceof PlacePlantResult.Success)) {
 			restoreSnapshot(world, plot, snapshot);
 		}
 	}

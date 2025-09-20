@@ -9,6 +9,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
+import java.util.Set;
 import java.util.UUID;
 
 public record SpectatePlayerAndTeleportMessage(UUID player) implements CustomPacketPayload {
@@ -27,7 +28,7 @@ public record SpectatePlayerAndTeleportMessage(UUID player) implements CustomPac
 
         Player target = sender.level().getPlayerByUUID(message.player);
         if (target != null) {
-            sender.teleportTo(sender.serverLevel(), target.getX(), target.getY(), target.getZ(), target.getYRot(), target.getXRot());
+            sender.teleportTo(sender.level(), target.getX(), target.getY(), target.getZ(), Set.of(), target.getYRot(), target.getXRot(), true);
         }
 
         sender.setCamera(target);

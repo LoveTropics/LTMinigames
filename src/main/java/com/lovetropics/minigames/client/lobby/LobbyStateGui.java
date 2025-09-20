@@ -20,11 +20,12 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.CustomizeGuiOverlayEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
 
-@EventBusSubscriber(modid = LoveTropics.ID, bus = EventBusSubscriber.Bus.GAME, value = Dist.CLIENT)
+@EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
 public class LobbyStateGui {
 
 	private static final int PADDING = 2;
@@ -40,10 +41,10 @@ public class LobbyStateGui {
 			return;
 		}
 		if (LobbyKeybinds.JOIN.consumeClick()) {
-			player.connection.sendUnsignedCommand("game join");
+			ClientPacketDistributor.sendToServer(new JoinLobbyPacket());
 		}
 		if (LobbyKeybinds.LEAVE.consumeClick()) {
-			player.connection.sendUnsignedCommand("game leave");
+			ClientPacketDistributor.sendToServer(new LeaveLobbyPacket());
 		}
 	}
 

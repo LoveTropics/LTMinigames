@@ -24,6 +24,7 @@ import net.minecraft.core.HolderSet;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.TriState;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.Item;
@@ -33,7 +34,6 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RenderTooltipEvent;
 
-import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -63,15 +63,15 @@ public final class BbSendMobsToEnemyItemBehavior implements IGameBehavior {
         final var plots = game.state().getOrThrow(PlotsState.KEY);
         events.listen(GamePlayerEvents.USE_ITEM, (player, hand) -> {
             final var item = player.getItemInHand(hand);
-            return tryUseMobItem(player, item, plots, teams);
+            return tryUseMobItem(player, item, plots, teams) ? InteractionResult.CONSUME : InteractionResult.PASS;
         });
 
-        events.listen(GamePlayerEvents.ATTACK, (player, target) -> tryUseMobItem(player, player.getMainHandItem(), plots, teams));
+        events.listen(GamePlayerEvents.ATTACK, (player, target) -> tryUseMobItem(player, player.getMainHandItem(), plots, teams) ? TriState.TRUE : TriState.DEFAULT);
     }
 
-    private InteractionResult tryUseMobItem(ServerPlayer player, ItemStack item, PlotsState plots, TeamState teams) {
+    private boolean tryUseMobItem(ServerPlayer player, ItemStack item, PlotsState plots, TeamState teams) {
 		if (!items.contains(item.getItemHolder())) {
-			return InteractionResult.PASS;
+			return false;
 		}
 
 		final var playerPlot = plots.getPlotFor(player);
@@ -90,7 +90,7 @@ public final class BbSendMobsToEnemyItemBehavior implements IGameBehavior {
         }
 
 		item.shrink(1);
-		return InteractionResult.CONSUME;
+		return true;
 	}
 
     public Component buildMessage(Map<BbEntityTypes, Integer> entities) {

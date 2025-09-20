@@ -3,6 +3,7 @@ package com.lovetropics.minigames.common.content.survive_the_tide.entity;
 import com.lovetropics.minigames.common.content.survive_the_tide.SurviveTheTide;
 import com.lovetropics.minigames.common.core.entity.MinigameEntities;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.LivingEntity;
@@ -25,9 +26,9 @@ public class LightningArrowEntity extends AbstractArrow {
 	@Override
 	protected void onHit(final HitResult result) {
 		super.onHit(result);
-		final LightningBolt lightning = MinigameEntities.QUIET_LIGHTNING_BOLT.get().create(level());
+		final LightningBolt lightning = MinigameEntities.QUIET_LIGHTNING_BOLT.get().create(level(), EntitySpawnReason.TRIGGERED);
 		final BlockPos hitPos = BlockPos.containing(result.getLocation());
-		lightning.moveTo(Vec3.atBottomCenterOf(hitPos));
+		lightning.snapTo(Vec3.atBottomCenterOf(hitPos));
 		level().addFreshEntity(lightning);
 	}
 

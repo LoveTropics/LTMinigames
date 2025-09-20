@@ -6,6 +6,7 @@ import com.lovetropics.minigames.common.content.biodiversity_blitz.entity.ai.BbM
 import com.lovetropics.minigames.common.content.biodiversity_blitz.entity.ai.BbTargetPlayerGoal;
 import com.lovetropics.minigames.common.content.biodiversity_blitz.entity.ai.DestroyCropGoal;
 import com.lovetropics.minigames.common.content.biodiversity_blitz.plot.Plot;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
@@ -53,14 +54,13 @@ public class BbVindicatorEntity extends Vindicator implements BbMobEntity {
         return mobBrain.getPlotWalls().collide(getBoundingBox(), offset);
     }
 
-    @Override
-    public boolean hurt(DamageSource pSource, float pAmount) {
-        if (pSource.is(DamageTypes.PLAYER_ATTACK)) {
-            pAmount /= 2;
-        }
-
-        return super.hurt(pSource, pAmount);
-    }
+	@Override
+	public boolean hurtServer(ServerLevel level, DamageSource source, float amount) {
+		if (source.is(DamageTypes.PLAYER_ATTACK)) {
+			amount /= 2.0f;
+		}
+		return super.hurtServer(level, source, amount);
+	}
 
     @Override
     public BbMobBrain getMobBrain() {

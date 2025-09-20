@@ -31,9 +31,10 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.ExtraCodecs;
+import net.minecraft.util.TriState;
 import net.minecraft.util.Unit;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Display;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -92,13 +93,13 @@ public final class CollectablesBehaviour implements IGameBehavior {
 			if (expectedCollectable != null || placedCollectable != null) {
 				return tryPlaceCollectable(game, teams, player, pos, expectedCollectable, placedCollectable);
 			}
-			return InteractionResult.PASS;
+			return TriState.DEFAULT;
 		});
         events.listen(GamePlayerEvents.BREAK_BLOCK, (player, pos, state, hand) -> {
 			if (placedCollectables.contains(pos.asLong())) {
-                return InteractionResult.FAIL;
+                return TriState.FALSE;
 			}
-            return InteractionResult.PASS;
+            return TriState.DEFAULT;
         });
 
         events.listen(GamePlayerEvents.INVENTORY_CHANGED, (player, container, slotIndex, newItemStack) -> {
@@ -112,35 +113,35 @@ public final class CollectablesBehaviour implements IGameBehavior {
     }
 
     private void spawnCollectableDisplay(IGamePhase game, ItemStack collectable, Vec3 position) {
-        Display.ItemDisplay itemDisplay = EntityType.ITEM_DISPLAY.create(game.level());
+        Display.ItemDisplay itemDisplay = EntityType.ITEM_DISPLAY.create(game.level(), EntitySpawnReason.COMMAND);
         itemDisplay.setPos(position);
         itemDisplay.setItemStack(collectable.copy());
         itemDisplay.setTransformation(new Transformation(null, null, new Vector3f(0.2f, 0.2f, 0.2f), null));
         game.level().addFreshEntity(itemDisplay);
     }
 
-    private InteractionResult tryPlaceCollectable(IGamePhase game, TeamState teams, ServerPlayer player, BlockPos pos, @Nullable RiverRaceState.Zone expectedCollectable, @Nullable RiverRaceState.Zone placedCollectable) {
+    private TriState tryPlaceCollectable(IGamePhase game, TeamState teams, ServerPlayer player, BlockPos pos, @Nullable RiverRaceState.Zone expectedCollectable, @Nullable RiverRaceState.Zone placedCollectable) {
         if (placedCollectable == null || !Objects.equals(expectedCollectable, placedCollectable)) {
             player.playNotifySound(SoundEvents.VILLAGER_NO, SoundSource.PLAYERS, 1.0f, 1.0f);
             player.sendSystemMessage(RiverRaceTexts.CANT_PLACE_COLLECTABLE, true);
-            return InteractionResult.FAIL;
+            return TriState.FALSE;
         }
 
         GameTeamKey teamKey = teams.getTeamForPlayer(player);
         GameTeam team = teamKey != null ? teams.getTeamByKey(teamKey) : null;
         if (team == null) {
-            return InteractionResult.FAIL;
+            return TriState.FALSE;
         }
 
         // If the players somehow broke the old one - don't let them continue to trigger it and gain points
         if (!placedCollectables.add(pos.asLong())) {
-            return InteractionResult.FAIL;
+            return TriState.FALSE;
         }
 
         return onCollectablePlaced(game, player, team, placedCollectable, pos);
     }
 
-    private InteractionResult onCollectablePlaced(IGamePhase game, ServerPlayer player, GameTeam team, RiverRaceState.Zone collectableZone, BlockPos slotPos) {
+    private TriState onCollectablePlaced(IGamePhase game, ServerPlayer player, GameTeam team, RiverRaceState.Zone collectableZone, BlockPos slotPos) {
         if (firstTeamToCollect.putIfAbsent(collectableZone.id(), team.key()) == null) {
             GameActionContext context = GameActionContext.builder()
                     .set(GameActionParameter.TEAM, team)
@@ -153,7 +154,7 @@ public final class CollectablesBehaviour implements IGameBehavior {
         }
         game.invoker(RiverRaceEvents.COLLECTABLE_PLACED).onCollectablePlaced(player, team, slotPos);
         FireworkPalette.DYE_COLORS.spawn(slotPos.above(), game.level());
-        return InteractionResult.PASS;
+        return TriState.DEFAULT;
     }
 
     private ItemStack createItem(RiverRaceState.Zone zone, CollectableConfig collectable) {

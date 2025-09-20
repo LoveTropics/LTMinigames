@@ -4,17 +4,17 @@ import com.google.gson.JsonObject;
 import com.lovetropics.minigames.common.core.integration.Crud;
 import com.lovetropics.minigames.common.core.integration.game_actions.Donation;
 import com.lovetropics.minigames.common.core.integration.game_actions.GamePackage;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.util.TriState;
 
 public final class GamePackageEvents {
 	public static final GameEventType<ReceivePackage> RECEIVE_PACKAGE = GameEventType.create(ReceivePackage.class, listeners -> (gamePackage) -> {
 		for (ReceivePackage listener : listeners) {
-			InteractionResult result = listener.onReceivePackage(gamePackage);
-			if (result != InteractionResult.PASS) {
+			TriState result = listener.onReceivePackage(gamePackage);
+			if (!result.isDefault()) {
 				return result;
 			}
 		}
-		return InteractionResult.FAIL;
+		return TriState.FALSE;
 	});
 
 	public static final GameEventType<ReceivePollEvent> RECEIVE_POLL_EVENT = GameEventType.create(ReceivePollEvent.class, listeners -> (object, crud) -> {
@@ -33,7 +33,7 @@ public final class GamePackageEvents {
 	}
 
 	public interface ReceivePackage {
-		InteractionResult onReceivePackage(GamePackage gamePackage);
+		TriState onReceivePackage(GamePackage gamePackage);
 	}
 
 	public interface ReceivePollEvent {

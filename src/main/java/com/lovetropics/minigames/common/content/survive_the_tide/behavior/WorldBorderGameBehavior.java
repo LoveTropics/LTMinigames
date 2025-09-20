@@ -1,7 +1,6 @@
 package com.lovetropics.minigames.common.content.survive_the_tide.behavior;
 
 import com.lovetropics.lib.BlockBox;
-import com.lovetropics.lib.codec.MoreCodecs;
 import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
@@ -17,11 +16,13 @@ import com.lovetropics.minigames.common.core.game.state.progress.ProgressionPeri
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -37,7 +38,7 @@ public class WorldBorderGameBehavior implements IGameBehavior {
 			Codec.INT.fieldOf("particle_height").forGetter(c -> c.particleHeight),
 			Codec.INT.fieldOf("damage_rate_delay").forGetter(c -> c.damageRateDelay),
 			Codec.INT.fieldOf("damage_amount").forGetter(c -> c.damageAmount),
-			MoreCodecs.listOrUnit(ParticleType.CODEC).fieldOf("border_particles").forGetter(c -> c.borderParticles)
+			ExtraCodecs.compactListCodec(ParticleType.CODEC).fieldOf("border_particles").forGetter(c -> c.borderParticles)
 	).apply(i, WorldBorderGameBehavior::new));
 
 	private final String worldBorderCenterKey;
@@ -147,8 +148,8 @@ public class WorldBorderGameBehavior implements IGameBehavior {
 			//ignore Y val, only do X Z dist compare
 			double distanceSq = player.distanceToSqr(worldBorderCenter.getX(), player.getY(), worldBorderCenter.getZ());
 			if (isCollapsing || !(currentRadius < 0.0 || distanceSq < currentRadius * currentRadius)) {
-				player.hurt(player.damageSources().explosion(null, null), damageAmount);
-				player.addEffect(new MobEffectInstance(MobEffects.CONFUSION, 40, 0));
+				player.hurtServer(game.level(), player.damageSources().explosion(null, null), damageAmount);
+				player.addEffect(new MobEffectInstance(MobEffects.NAUSEA, SharedConstants.TICKS_PER_SECOND * 2, 0));
 			}
 		}
 	}

@@ -12,6 +12,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -58,8 +59,8 @@ public class SttWinLogicBehavior implements IGameBehavior {
 
 				int posY = world.getHeight(Heightmap.Types.MOTION_BLOCKING, posX, posZ);
 
-				LightningBolt lightning = MinigameEntities.QUIET_LIGHTNING_BOLT.get().create(world);
-				lightning.moveTo(new Vec3(posX + 0.5, posY, posZ + 0.5));
+				LightningBolt lightning = MinigameEntities.QUIET_LIGHTNING_BOLT.get().create(world, EntitySpawnReason.EVENT);
+				lightning.snapTo(new Vec3(posX + 0.5, posY, posZ + 0.5));
 				lightning.setVisualOnly(true);
 
 				world.addFreshEntity(lightning);

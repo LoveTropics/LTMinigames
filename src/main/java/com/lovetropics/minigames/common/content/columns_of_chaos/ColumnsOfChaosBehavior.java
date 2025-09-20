@@ -6,7 +6,10 @@ import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.GameStopReason;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
-import com.lovetropics.minigames.common.core.game.behavior.event.*;
+import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
+import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents;
+import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
+import com.lovetropics.minigames.common.core.game.behavior.event.GameTeamEvents;
 import com.lovetropics.minigames.common.core.game.player.PlayerRole;
 import com.lovetropics.minigames.common.core.game.player.PlayerSet;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeam;
@@ -19,7 +22,6 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.ChatFormatting;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
-import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.RegistryCodecs;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -29,15 +31,20 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
-import net.minecraft.world.item.*;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 
 import javax.annotation.Nullable;
-import java.util.*;
-import java.util.function.Predicate;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 public final class ColumnsOfChaosBehavior implements IGameBehavior {
     public static final MapCodec<ColumnsOfChaosBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
@@ -108,7 +115,7 @@ public final class ColumnsOfChaosBehavior implements IGameBehavior {
         });
         filteredItems = new ArrayList<>();
         CreativeModeTab.ItemDisplayParameters parameters = new CreativeModeTab.ItemDisplayParameters(game.level().enabledFeatures(), true, game.level().registryAccess());
-        BuiltInRegistries.CREATIVE_MODE_TAB.holders().forEach(holder -> {
+        BuiltInRegistries.CREATIVE_MODE_TAB.listElements().forEach(holder -> {
             CreativeModeTab tab = holder.value();
             if (tab.getType() != CreativeModeTab.Type.SEARCH) {
                 tab.buildContents(parameters);
@@ -145,7 +152,7 @@ public final class ColumnsOfChaosBehavior implements IGameBehavior {
         List<ServerPlayer> eliminated = new ArrayList<>();
         for (ServerPlayer player : participants) {
             double y = player.getY();
-            if (y < player.level().getMinBuildHeight() || y < floorRegion.min().getY() - 10) {
+            if (y < player.level().getMinY() || y < floorRegion.min().getY() - 10) {
                 eliminated.add(player);
             }
         }

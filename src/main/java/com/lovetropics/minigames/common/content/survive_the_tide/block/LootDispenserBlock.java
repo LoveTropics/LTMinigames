@@ -18,14 +18,14 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.redstone.Orientation;
 import org.jetbrains.annotations.Nullable;
 
 public class LootDispenserBlock extends BaseEntityBlock {
 	public static final MapCodec<LootDispenserBlock> CODEC = simpleCodec(LootDispenserBlock::new);
 
-	public static final DirectionProperty FACING = DirectionalBlock.FACING;
+	public static final EnumProperty<Direction> FACING = DirectionalBlock.FACING;
 	public static final EnumProperty<State> STATE = EnumProperty.create("state", State.class);
 
 	public LootDispenserBlock(Properties properties) {
@@ -65,7 +65,7 @@ public class LootDispenserBlock extends BaseEntityBlock {
 	}
 
 	@Override
-	public void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, BlockPos fromPos, boolean isMoving) {
+	protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock, @Nullable Orientation orientation, boolean movedByPiston) {
 		boolean hasSignal = level.hasNeighborSignal(pos);
 		if (hasSignal && state.getValue(STATE) == State.INACTIVE) {
 			level.setBlock(pos, state.setValue(STATE, State.ACTIVE), Block.UPDATE_ALL);

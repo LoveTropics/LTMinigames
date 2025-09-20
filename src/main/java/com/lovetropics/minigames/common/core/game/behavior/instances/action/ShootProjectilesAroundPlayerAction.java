@@ -121,14 +121,14 @@ public class ShootProjectilesAroundPlayerAction implements IGameBehavior {
 				}
 
 				if (!level().isClientSide) {
-					boolean mobGriefing = EventHooks.canEntityGrief(level(), getOwner());
+					boolean mobGriefing = EventHooks.canEntityGrief(world, getOwner());
 					level().explode(null, getX(), getY(), getZ(), explosionStrength, mobGriefing, Level.ExplosionInteraction.MOB);
 					discard();
 				}
 			}
 		};
 
-		fireball.moveTo(spawn.getX(), spawn.getY(), spawn.getZ(), fireball.getYRot(), fireball.getXRot());
+		fireball.snapTo(spawn.getX(), spawn.getY(), spawn.getZ(), fireball.getYRot(), fireball.getXRot());
 		Vec3 direction = Vec3.atCenterOf(target).subtract(Vec3.atCenterOf(spawn));
 		fireball.setDeltaMovement(direction.normalize().scale(fireball.accelerationPower));
 

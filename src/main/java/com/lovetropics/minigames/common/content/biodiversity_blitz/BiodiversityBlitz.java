@@ -48,24 +48,31 @@ import com.lovetropics.minigames.common.content.biodiversity_blitz.client_state.
 import com.lovetropics.minigames.common.content.biodiversity_blitz.client_state.CurrencyItemState;
 import com.lovetropics.minigames.common.content.biodiversity_blitz.client_state.CurrencyTargetState;
 import com.lovetropics.minigames.common.content.biodiversity_blitz.entity.BbMobSpawner;
-import com.lovetropics.minigames.common.content.biodiversity_blitz.item.UniqueBlockNamedItem;
 import com.lovetropics.minigames.common.content.biodiversity_blitz.plot.plant.PlantItemType;
 import com.lovetropics.minigames.common.util.registry.GameBehaviorEntry;
 import com.lovetropics.minigames.common.util.registry.GameClientTweakEntry;
 import com.lovetropics.minigames.common.util.registry.LoveTropicsRegistrate;
 import com.mojang.serialization.Codec;
+import com.tterrag.registrate.providers.DataGenContext;
+import com.tterrag.registrate.providers.generators.RegistrateBlockModelGenerator;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import com.tterrag.registrate.util.entry.ItemEntry;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.data.models.BlockModelGenerators;
+import net.minecraft.client.data.models.model.ModelTemplates;
+import net.minecraft.client.data.models.model.TextureMapping;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.ExtraCodecs;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemLore;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -77,11 +84,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@EventBusSubscriber(modid = LoveTropics.ID)
 public final class BiodiversityBlitz {
 	private static final LoveTropicsRegistrate REGISTRATE = LoveTropics.registrate();
 
-	public static final DeferredRegister.DataComponents DATA_COMPONENTS = DeferredRegister.createDataComponents(LoveTropics.ID);
+	public static final DeferredRegister.DataComponents DATA_COMPONENTS = DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, LoveTropics.ID);
 
 	// Behaviors
 
@@ -265,13 +271,13 @@ public final class BiodiversityBlitz {
 
 	// Items
 
-	public static final ItemEntry<UniqueBlockNamedItem> CARROT_SEEDS = REGISTRATE.item("carrot_seeds", p -> new UniqueBlockNamedItem(Blocks.CARROTS, p))
+	public static final ItemEntry<BlockItem> CARROT_SEEDS = REGISTRATE.item("carrot_seeds", p -> new BlockItem(Blocks.CARROTS, p))
 			.register();
 
-	public static final ItemEntry<UniqueBlockNamedItem> POTATO_SEEDS = REGISTRATE.item("potato_seeds", p -> new UniqueBlockNamedItem(Blocks.POTATOES, p))
+	public static final ItemEntry<BlockItem> POTATO_SEEDS = REGISTRATE.item("potato_seeds", p -> new BlockItem(Blocks.POTATOES, p))
 			.register();
 
-	public static final ItemEntry<UniqueBlockNamedItem> SWEET_BERRY_SEEDS = REGISTRATE.item("sweet_berry_seeds", p -> new UniqueBlockNamedItem(Blocks.SWEET_BERRY_BUSH, p))
+	public static final ItemEntry<BlockItem> SWEET_BERRY_SEEDS = REGISTRATE.item("sweet_berry_seeds", p -> new BlockItem(Blocks.SWEET_BERRY_BUSH, p))
 			.register();
 
 	public static final ItemEntry<Item> OSA_POINT = REGISTRATE.item("osa_point", Item::new)
@@ -282,20 +288,19 @@ public final class BiodiversityBlitz {
 
 	public static final BlockEntry<DirtySandBlock> DIRTY_SAND = REGISTRATE.block("dirty_sand", DirtySandBlock::new)
 			.initialProperties(() -> Blocks.SAND)
-			.tag(BlockTags.DIRT, BlockTags.SAND, BlockTags.BAMBOO_PLANTABLE_ON, BlockTags.DEAD_BUSH_MAY_PLACE_ON)
-			.blockstate((ctx, prov) -> prov.simpleBlock(ctx.get(), prov.models().getExistingFile(prov.mcLoc("block/sand"))))
+			.tag(BlockTags.DIRT, BlockTags.SAND, BlockTags.BAMBOO_PLANTABLE_ON, BlockTags.DRY_VEGETATION_MAY_PLACE_ON)
+			.blockstate(() -> (ctx, prov) -> Models.generateCubeLike(ctx, prov, Blocks.SAND))
 			.simpleItem()
 			.register();
 
 	public static final BlockEntry<BrambleBlock> BRAMBLE = REGISTRATE.block("bramble", BrambleBlock::new)
 			.initialProperties(() -> Blocks.SWEET_BERRY_BUSH)
-			.addLayer(() -> RenderType::cutout)
-			.blockstate((ctx, prov) -> {
-				prov.simpleBlock(ctx.get(), prov.models().withExistingParent(ctx.getName(), "block/cross")
-						.texture("cross", prov.modLoc("block/bramble")));
-			})
+			.addLayer(() -> () -> ChunkSectionLayer.CUTOUT)
+			.blockstate(() -> (ctx, prov) ->
+					prov.createCrossBlock(ctx.get(), BlockModelGenerators.PlantType.NOT_TINTED)
+			)
 			.item()
-			.model((ctx, prov) -> prov.blockSprite(ctx, prov.modLoc("block/bramble")))
+			.model(() -> (ctx, prov) -> prov.generateFlatBlockItem(ctx.get()))
 			.build()
 			.register();
 
@@ -315,31 +320,40 @@ public final class BiodiversityBlitz {
 			builder -> builder.persistent(Codec.unboundedMap(BbMobSpawner.BbEntityTypes.CODEC, ExtraCodecs.NON_NEGATIVE_INT))
 	);
 
-	@SubscribeEvent
-	public static void onItemTooltip(ItemTooltipEvent event) {
-		ItemStack stack = event.getItemStack();
-		List<Component> list = event.getToolTip();
+	@EventBusSubscriber(modid = LoveTropics.ID)
+	public static class Events {
+		@SubscribeEvent
+		public static void onItemTooltip(ItemTooltipEvent event) {
+			ItemStack stack = event.getItemStack();
+			List<Component> list = event.getToolTip();
 
-		// Used to pop the advanced tooltip off the stack and add it back at the end
-		List<Component> removedComponents = null;
+			// Used to pop the advanced tooltip off the stack and add it back at the end
+			List<Component> removedComponents = null;
 
-		ItemLore shiftLore = stack.get(SHIFT_LORE);
-		if (shiftLore != null) {
-			if (event.getFlags().isAdvanced()) {
-				removedComponents = new ArrayList<>();
-				removedComponents.add(list.removeLast());
-				removedComponents.add(list.removeLast());
+			ItemLore shiftLore = stack.get(SHIFT_LORE);
+			if (shiftLore != null) {
+				if (event.getFlags().isAdvanced()) {
+					removedComponents = new ArrayList<>();
+					removedComponents.add(list.removeLast());
+					removedComponents.add(list.removeLast());
+				}
+
+				if (Screen.hasShiftDown()) {
+					list.addAll(shiftLore.styledLines());
+				} else {
+					list.add(BiodiversityBlitzTexts.SHIFT_FOR_MORE_INFORMATION.copy().withStyle(ChatFormatting.GOLD));
+				}
 			}
 
-			if (Screen.hasShiftDown()) {
-				shiftLore.addToTooltip(event.getContext(), list::add, event.getFlags());
-			} else {
-				list.add(BiodiversityBlitzTexts.SHIFT_FOR_MORE_INFORMATION.copy().withStyle(ChatFormatting.GOLD));
+			if (removedComponents != null) {
+				list.addAll(removedComponents);
 			}
 		}
+	}
 
-		if (removedComponents != null) {
-			list.addAll(removedComponents);
+	private static class Models {
+		private static void generateCubeLike(DataGenContext<Block, DirtySandBlock> ctx, RegistrateBlockModelGenerator prov, Block textureBlock) {
+			prov.generateWithTemplate(ctx.get(), ModelTemplates.CUBE_ALL, TextureMapping.cube(textureBlock));
 		}
 	}
 }

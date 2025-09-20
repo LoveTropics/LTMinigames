@@ -10,7 +10,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.client.event.CalculateDetachedCameraDistanceEvent;
 import net.neoforged.neoforge.client.event.ViewportEvent;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import java.util.UUID;
 import java.util.function.BooleanSupplier;
@@ -42,7 +42,7 @@ interface SpectatingState {
 			client.options.setCameraType(CameraType.FIRST_PERSON);
 
 			return new StateApplicator(
-					() -> PacketDistributor.sendToServer(new SpectatePlayerAndTeleportMessage(client.player.getUUID())),
+					() -> ClientPacketDistributor.sendToServer(new SpectatePlayerAndTeleportMessage(client.player.getUUID())),
 					() -> client.getCameraEntity() == client.player
 			);
 		}
@@ -69,7 +69,7 @@ interface SpectatingState {
 		@Override
 		public StateApplicator apply(Minecraft client, SpectatingSession session) {
 			return new StateApplicator(
-					() -> PacketDistributor.sendToServer(new SpectatePlayerAndTeleportMessage(spectatedId)),
+					() -> ClientPacketDistributor.sendToServer(new SpectatePlayerAndTeleportMessage(spectatedId)),
 					() -> spectatedId.equals(client.getCameraEntity().getUUID())
 			);
 		}

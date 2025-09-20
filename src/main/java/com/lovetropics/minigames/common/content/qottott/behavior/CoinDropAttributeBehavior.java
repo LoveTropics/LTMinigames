@@ -16,7 +16,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.util.TriState;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -44,7 +44,7 @@ public record CoinDropAttributeBehavior(ItemStack item, StatisticKey<Integer> st
 					}
 				}
 			}
-			return InteractionResult.PASS;
+			return TriState.DEFAULT;
 		});
 	}
 

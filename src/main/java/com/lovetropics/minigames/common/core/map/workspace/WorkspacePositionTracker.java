@@ -20,6 +20,8 @@ import net.neoforged.neoforge.event.entity.EntityTravelToDimensionEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 
 import javax.annotation.Nullable;
+import java.util.Optional;
+import java.util.Set;
 
 // TODO: Replace this with DataAttachment
 @EventBusSubscriber(modid = LoveTropics.ID)
@@ -35,7 +37,7 @@ public final class WorkspacePositionTracker {
 	@Nullable
 	public static Position getPositionFor(ServerPlayer player, MapWorkspace workspace) {
 		CompoundTag data = getOrCreateTag(player);
-		return Position.read(data.getCompound(workspace.id()));
+		return data.getCompound(workspace.id()).flatMap(Position::read).orElse(null);
 	}
 
 	public static void setReturnPositionFor(ServerPlayer player, Position position) {
@@ -46,15 +48,14 @@ public final class WorkspacePositionTracker {
 	@Nullable
 	public static Position getReturnPositionFor(ServerPlayer player) {
 		CompoundTag data = getOrCreateTag(player);
-		return Position.read(data.getCompound(NBT_RETURN_KEY));
+		return data.getCompound(NBT_RETURN_KEY).flatMap(Position::read).orElse(null);
 	}
 
 	private static CompoundTag getOrCreateTag(ServerPlayer player) {
 		CompoundTag persistentData = player.getPersistentData();
-		if (!persistentData.contains(NBT_KEY, Tag.TAG_COMPOUND)) {
-			persistentData.put(NBT_KEY, new CompoundTag());
-		}
-		return persistentData.getCompound(NBT_KEY);
+		CompoundTag tag = persistentData.getCompoundOrEmpty(NBT_KEY);
+		persistentData.put(NBT_KEY, tag);
+		return tag;
 	}
 
 	@SubscribeEvent
@@ -63,7 +64,7 @@ public final class WorkspacePositionTracker {
 			return;
 		}
 
-		MinecraftServer server = player.server;
+		MinecraftServer server = player.getServer();
 
 		ResourceKey<Level> from = player.level().dimension();
 
@@ -91,10 +92,9 @@ public final class WorkspacePositionTracker {
 		ServerPlayer toPlayer = (ServerPlayer) event.getEntity();
 
 		CompoundTag fromData = fromPlayer.getPersistentData();
-		if (fromData.contains(NBT_KEY, Tag.TAG_COMPOUND)) {
-			CompoundTag fromTag = fromData.getCompound(NBT_KEY);
-			toPlayer.getPersistentData().put(NBT_KEY, fromTag.copy());
-		}
+		fromData.getCompound(NBT_KEY).ifPresent(fromTag ->
+				toPlayer.getPersistentData().put(NBT_KEY, fromTag.copy())
+		);
 	}
 
 	public record Position(ResourceKey<Level> dimension, Vec3 pos, float yaw, float pitch) {
@@ -111,16 +111,15 @@ public final class WorkspacePositionTracker {
 
 		public void applyTo(ServerPlayer entity) {
 			ServerLevel level = entity.getServer().getLevel(dimension);
-			entity.teleportTo(level, pos.x, pos.y, pos.z, yaw, pitch);
+			entity.teleportTo(level, pos.x, pos.y, pos.z, Set.of(), yaw, pitch, false);
 		}
 
 		public Tag write() {
 			return CODEC.encodeStart(NbtOps.INSTANCE, this).getOrThrow();
 		}
 
-		@Nullable
-		public static Position read(CompoundTag nbt) {
-			return CODEC.parse(NbtOps.INSTANCE, nbt).result().orElse(null);
+		public static Optional<Position> read(CompoundTag nbt) {
+			return CODEC.parse(NbtOps.INSTANCE, nbt).result();
 		}
 	}
 }

@@ -6,7 +6,6 @@ import com.lovetropics.lib.entity.FireworkPalette;
 import com.lovetropics.minigames.common.content.MinigameTexts;
 import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.GameStopReason;
-import com.lovetropics.minigames.common.core.game.GameWinner;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.SpawnBuilder;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
@@ -25,17 +24,16 @@ import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.FastColor;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.util.TriState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
@@ -110,8 +108,8 @@ public final class BlockPartyBehavior implements IGameBehavior {
 		events.listen(GamePhaseEvents.TICK, this::tick);
 
 		events.listen(GamePlayerEvents.DAMAGE_AMOUNT, (player, damageSource, amount, originalAmount) -> hasKnockback(state) ? 0.0f : amount);
-		events.listen(GamePlayerEvents.ATTACK, (player, target) -> target instanceof Player && !hasKnockback(state) ? InteractionResult.FAIL : InteractionResult.PASS);
-		events.listen(GamePlayerEvents.DAMAGE, (player, damageSource, amount) -> hasKnockback(state) ? InteractionResult.PASS : InteractionResult.FAIL);
+		events.listen(GamePlayerEvents.ATTACK, (player, target) -> target instanceof Player && !hasKnockback(state) ? TriState.FALSE : TriState.DEFAULT);
+		events.listen(GamePlayerEvents.DAMAGE, (player, damageSource, amount) -> hasKnockback(state) ? TriState.DEFAULT : TriState.FALSE);
 
 		events.listen(GameLogicEvents.GAME_OVER, winner -> {
 			game.allPlayers().playSound(SoundEvents.RESPAWN_ANCHOR_DEPLETE.value(), SoundSource.PLAYERS, 0.5f, 1.0f);
@@ -156,7 +154,7 @@ public final class BlockPartyBehavior implements IGameBehavior {
 		PlayerSet participants = game.participants();
 		for (ServerPlayer player : participants) {
 			double y = player.getY();
-			if (y < player.level().getMinBuildHeight() || y < floorRegion.min().getY() - 10) {
+			if (y < player.level().getMinY() || y < floorRegion.min().getY() - 10) {
 				eliminated.add(player);
 			}
 		}
@@ -237,7 +235,7 @@ public final class BlockPartyBehavior implements IGameBehavior {
 
 			if (secondsLeft <= FINAL_COUNTDOWN_SECONDS && ticksLeft % SharedConstants.TICKS_PER_SECOND == 0) {
 				players.playSound(SoundEvents.NOTE_BLOCK_HARP.value(), SoundSource.PLAYERS, 1.0f, 1.0f);
-				int color = FastColor.ARGB32.lerp(
+				int color = ARGB.lerp(
 						Mth.inverseLerp(secondsLeft, FINAL_COUNTDOWN_SECONDS, 1),
 						0x55ff55, 0xffaa00
 				);

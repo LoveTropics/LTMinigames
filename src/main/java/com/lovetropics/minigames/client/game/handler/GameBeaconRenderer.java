@@ -22,15 +22,10 @@ import java.util.List;
 
 @EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
 public final class GameBeaconRenderer {
-	private static final Minecraft CLIENT = Minecraft.getInstance();
 	private static final int COLOR = DyeColor.WHITE.getTextureDiffuseColor();
 
 	@SubscribeEvent
-	public static void onRenderLevel(RenderLevelStageEvent event) {
-		if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_WEATHER) {
-			return;
-		}
-
+	public static void onRenderLevel(RenderLevelStageEvent.AfterWeather event) {
 		BeaconClientState state = ClientGameStateManager.getOrNull(GameClientStateTypes.BEACON);
 		if (state == null || state.positions().isEmpty()) {
 			return;
@@ -38,13 +33,14 @@ public final class GameBeaconRenderer {
 
 		List<BlockPos> positions = state.positions();
 
-		ClientLevel level = CLIENT.level;
-		Camera camera = CLIENT.gameRenderer.getMainCamera();
+		Minecraft minecraft = Minecraft.getInstance();
+		ClientLevel level = minecraft.level;
+		Camera camera = minecraft.gameRenderer.getMainCamera();
 		if (level == null || !camera.isInitialized()) {
 			return;
 		}
 
-		MultiBufferSource.BufferSource bufferSource = CLIENT.renderBuffers().bufferSource();
+		MultiBufferSource.BufferSource bufferSource = minecraft.renderBuffers().bufferSource();
 
 		Vec3 cameraPosition = camera.getPosition();
 		PoseStack poseStack = event.getPoseStack();

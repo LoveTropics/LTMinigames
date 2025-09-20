@@ -1,12 +1,10 @@
 package com.lovetropics.minigames.common.content.river_race.block;
 
 import com.lovetropics.minigames.common.content.river_race.behaviour.TriviaBehaviour;
-import com.mojang.logging.LogUtils;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.Connection;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -17,7 +15,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import org.slf4j.Logger;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 import javax.annotation.Nullable;
 
@@ -34,7 +33,7 @@ public class TriviaBlockEntity extends BlockEntity implements HasTrivia {
             return unlocksAt > 0;
         }
     }
-    private static final Logger LOGGER = LogUtils.getLogger();
+
     public static final String TAG_QUESTION = "question";
     public static final String TAG_UNLOCKS_AT = "unlocksAt";
     @Nullable
@@ -51,51 +50,37 @@ public class TriviaBlockEntity extends BlockEntity implements HasTrivia {
         }
     }
 
-    @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
-        if (question != null) {
-            tag.put(TAG_QUESTION, TriviaBehaviour.TriviaQuestion.CODEC.encodeStart(NbtOps.INSTANCE, question).getOrThrow());
-        }
-        if (unlocksAt > 0) {
-            tag.putLong(TAG_UNLOCKS_AT, unlocksAt);
-        }
-    }
+	@Override
+	protected void saveAdditional(ValueOutput output) {
+		super.saveAdditional(output);
+		output.storeNullable(TAG_QUESTION, TriviaBehaviour.TriviaQuestion.CODEC, question);
+		if (unlocksAt > 0) {
+			output.putLong(TAG_UNLOCKS_AT, unlocksAt);
+		}
+	}
 
-    @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        if(tag.contains(TAG_QUESTION)) {
-            TriviaBehaviour.TriviaQuestion.CODEC.parse(NbtOps.INSTANCE, tag.get(TAG_QUESTION))
-                    .resultOrPartial(LOGGER::error)
-                    .ifPresent(q -> question = q);
-        }
-        if(tag.contains(TAG_UNLOCKS_AT)) {
-            unlocksAt = tag.getLong(TAG_UNLOCKS_AT);
-        }
+	@Override
+	protected void loadAdditional(ValueInput input) {
+		super.loadAdditional(input);
+		question = input.read(TAG_QUESTION, TriviaBehaviour.TriviaQuestion.CODEC).orElse(null);
+		unlocksAt = input.getLongOr(TAG_UNLOCKS_AT, 0);
     }
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        CompoundTag tag = new CompoundTag();
-        if(unlocksAt > 0) {
-            tag.putLong(TAG_UNLOCKS_AT, unlocksAt);
-        }
-        return tag;
+		CompoundTag tag = new CompoundTag();
+		tag.putLong(TAG_UNLOCKS_AT, unlocksAt);
+		return tag;
     }
 
-    @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider registries) {
-        if (pkt.getTag() != null) {
-            handleUpdateTag(pkt.getTag(), registries);
-        }
+	@Override
+	public void onDataPacket(Connection net, ValueInput input) {
+		handleUpdateTag(input);
     }
 
-    @Override
-    public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
-        if (tag.contains(TAG_UNLOCKS_AT)) {
-            unlocksAt = tag.getLong(TAG_UNLOCKS_AT);
-        }
+	@Override
+	public void handleUpdateTag(ValueInput input) {
+		unlocksAt = input.getLongOr(TAG_UNLOCKS_AT, 0);
     }
 
     @Override

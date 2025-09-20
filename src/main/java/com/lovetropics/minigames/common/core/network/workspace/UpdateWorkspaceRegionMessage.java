@@ -24,24 +24,16 @@ public record UpdateWorkspaceRegionMessage(int id, Optional<BlockBox> region) im
 			UpdateWorkspaceRegionMessage::new
 	);
 
-	public static void handle(UpdateWorkspaceRegionMessage message, IPayloadContext context) {
-		if (context.flow() == PacketFlow.CLIENTBOUND) {
-			message.handleClientbound();
-		} else {
-			message.handleServerbound(context);
-		}
-	}
-
-	private void handleServerbound(IPayloadContext context) {
+	public void handleServerbound(IPayloadContext context) {
 		ServerPlayer sender = (ServerPlayer) context.player();
-		MapWorkspaceManager workspaceManager = MapWorkspaceManager.get(sender.server);
+		MapWorkspaceManager workspaceManager = MapWorkspaceManager.get(sender.getServer());
 		MapWorkspace workspace = workspaceManager.getWorkspace(sender.level().dimension());
 		if (workspace != null) {
-			workspace.regions().set(sender.server, id, region.orElse(null));
+			workspace.regions().set(sender.getServer(), id, region.orElse(null));
 		}
 	}
 
-	private void handleClientbound() {
+	public void handleClientbound(IPayloadContext context) {
 		ClientMapWorkspace.INSTANCE.updateRegion(id, region.orElse(null));
 	}
 

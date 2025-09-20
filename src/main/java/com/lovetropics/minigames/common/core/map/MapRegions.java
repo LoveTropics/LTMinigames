@@ -5,26 +5,46 @@ import com.google.common.collect.Multimap;
 import com.lovetropics.lib.BlockBox;
 import com.lovetropics.minigames.common.core.game.GameException;
 import com.mojang.serialization.Codec;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
 import net.minecraft.network.chat.Component;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public final class MapRegions {
-	public static final Codec<MapRegions> CODEC = CompoundTag.CODEC.xmap(
-			tag -> {
+	private static final Codec<BlockPos> LEGACY_POS_CODEC = RecordCodecBuilder.create(i -> i.group(
+			Codec.INT.fieldOf("x").forGetter(Vec3i::getX),
+			Codec.INT.fieldOf("y").forGetter(Vec3i::getY),
+			Codec.INT.fieldOf("z").forGetter(Vec3i::getZ)
+	).apply(i, BlockPos::new));
+	private static final Codec<BlockBox> LEGACY_BOX_CODEC = RecordCodecBuilder.create(i -> i.group(
+			LEGACY_POS_CODEC.fieldOf("min").forGetter(BlockBox::min),
+			LEGACY_POS_CODEC.fieldOf("max").forGetter(BlockBox::max)
+	).apply(i, BlockBox::new));
+
+	private static final Codec<BlockBox> BOX_CODEC = Codec.withAlternative(BlockBox.CODEC, LEGACY_BOX_CODEC);
+
+	public static final Codec<MapRegions> CODEC = Codec.unboundedMap(Codec.STRING, BOX_CODEC.listOf()).xmap(
+			map -> {
 				MapRegions regions = new MapRegions();
-				regions.read(tag);
+				for (Map.Entry<String, List<BlockBox>> entry : map.entrySet()) {
+					regions.regions.putAll(entry.getKey(), entry.getValue());
+				}
 				return regions;
 			},
-			regions -> regions.write(new CompoundTag())
+			regions -> regions.regions.entries().stream().collect(Collectors.groupingBy(
+					Map.Entry::getKey,
+					HashMap::new,
+					Collectors.mapping(Map.Entry::getValue, Collectors.toList())
+			))
 	);
 
 	private final Multimap<String, BlockBox> regions = HashMultimap.create();
@@ -63,38 +83,12 @@ public final class MapRegions {
 		return keys.stream().flatMap(key -> get(key).stream()).toList();
 	}
 
-	@Nonnull
 	public BlockBox getOrThrow(String key) {
 		BlockBox box = getAny(key);
 		if (box == null) {
 			throw new GameException(Component.literal("Missing expected region with key '" + key + "'"));
 		}
 		return box;
-	}
-
-	public CompoundTag write(CompoundTag root) {
-		for (String key : regions.keySet()) {
-			ListTag regionsList = new ListTag();
-			for (BlockBox region : regions.get(key)) {
-				regionsList.add(region.write(new CompoundTag()));
-			}
-
-			root.put(key, regionsList);
-		}
-
-		return root;
-	}
-
-	public void read(CompoundTag root) {
-		regions.clear();
-
-		for (String key : root.getAllKeys()) {
-			ListTag regionsList = root.getList(key, Tag.TAG_COMPOUND);
-			for (int i = 0; i < regionsList.size(); i++) {
-				BlockBox region = BlockBox.read(regionsList.getCompound(i));
-				regions.put(key, region);
-			}
-		}
 	}
 
 	public boolean isEmpty() {

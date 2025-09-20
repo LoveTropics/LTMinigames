@@ -12,7 +12,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.util.TriState;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.phys.Vec3;
 
@@ -80,9 +80,9 @@ public final class CampingTrackerBehavior implements IGameBehavior {
 		return campingTrackers.computeIfAbsent(player.getUUID(), i -> new CampingTracker());
 	}
 
-	private InteractionResult onPlayerDeath(ServerPlayer player, DamageSource source) {
+	private TriState onPlayerDeath(ServerPlayer player, DamageSource source) {
 		campingTrackers.remove(player.getUUID());
-		return InteractionResult.PASS;
+		return TriState.DEFAULT;
 	}
 
 	private void onPlayerLeave(ServerPlayer player) {

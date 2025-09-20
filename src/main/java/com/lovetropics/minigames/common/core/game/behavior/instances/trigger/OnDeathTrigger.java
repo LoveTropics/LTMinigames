@@ -15,7 +15,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.advancements.critereon.EntityPredicate;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.util.TriState;
 
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -37,13 +37,13 @@ public record OnDeathTrigger(GameActionList<ServerPlayer> killedAction, GameActi
 		events.listen(GamePlayerEvents.DEATH, (player, damageSource) -> {
 			final ServerPlayer killer = Util.getKillerPlayer(player, damageSource);
 			if (excludeSelf && killer == player) {
-				return InteractionResult.PASS;
+				return TriState.DEFAULT;
 			}
 			if (killerPredicate.isPresent() && !killerPredicate.get().matches(player, killer)) {
-				return InteractionResult.PASS;
+				return TriState.DEFAULT;
 			}
 			if (killedPredicate.isPresent() && !killedPredicate.get().matches(player, player)) {
-				return InteractionResult.PASS;
+				return TriState.DEFAULT;
 			}
 			final GameActionContext.Builder context = GameActionContext.builder().set(GameActionParameter.KILLED, player);
 			if (killer != null) {
@@ -52,7 +52,7 @@ public record OnDeathTrigger(GameActionList<ServerPlayer> killedAction, GameActi
 			} else {
 				killedAction.apply(game, context.build(), player);
 			}
-			return InteractionResult.PASS;
+			return TriState.DEFAULT;
 		});
 	}
 

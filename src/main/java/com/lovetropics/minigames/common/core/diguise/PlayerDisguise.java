@@ -1,44 +1,37 @@
 package com.lovetropics.minigames.common.core.diguise;
 
 import com.lovetropics.minigames.LoveTropics;
-import com.mojang.logging.LogUtils;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.NbtOps;
-import net.minecraft.nbt.Tag;
-import net.minecraft.resources.RegistryOps;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.attachment.IAttachmentHolder;
 import net.neoforged.neoforge.attachment.IAttachmentSerializer;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
-import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
 import java.util.function.Supplier;
 
 public final class PlayerDisguise {
-    private static final Logger LOGGER = LogUtils.getLogger();
-
     public static final DeferredRegister<AttachmentType<?>> ATTACHMENT_TYPES = DeferredRegister.create(NeoForgeRegistries.ATTACHMENT_TYPES, LoveTropics.ID);
 
     public static final Supplier<AttachmentType<PlayerDisguise>> ATTACHMENT = ATTACHMENT_TYPES.register(
             "player_disguise", () -> AttachmentType.builder(holder -> new PlayerDisguise((LivingEntity) holder))
                     .serialize(new IAttachmentSerializer<>() {
-                        @Override
-                        public PlayerDisguise read(IAttachmentHolder holder, Tag tag, HolderLookup.Provider registries) {
+						@Override
+						public PlayerDisguise read(IAttachmentHolder holder, ValueInput input) {
                             PlayerDisguise disguise = new PlayerDisguise((LivingEntity) holder);
-                            RegistryOps<Tag> registryOps = registries.createSerializationContext(NbtOps.INSTANCE);
-                            DisguiseType.CODEC.parse(registryOps, tag).resultOrPartial(LOGGER::error).ifPresent(disguise::set);
+							input.read(DisguiseType.MAP_CODEC).ifPresent(disguise::set);
                             return disguise;
                         }
 
-                        @Override
-                        public Tag write(PlayerDisguise disguise, HolderLookup.Provider registries) {
-                            RegistryOps<Tag> registryOps = registries.createSerializationContext(NbtOps.INSTANCE);
-                            return DisguiseType.CODEC.encodeStart(registryOps, disguise.disguise).getOrThrow();
+						@Override
+						public boolean write(PlayerDisguise attachment, ValueOutput output) {
+							output.store(DisguiseType.MAP_CODEC, attachment.disguise);
+							return true;
                         }
                     }).build()
     );

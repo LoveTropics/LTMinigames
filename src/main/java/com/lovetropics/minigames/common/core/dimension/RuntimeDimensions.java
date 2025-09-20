@@ -130,7 +130,7 @@ public final class RuntimeDimensions {
 		ResourceKey<Level> levelKey = ResourceKey.create(Registries.DIMENSION, key);
 
 		MappedRegistry<LevelStem> dimensionsRegistry = getLevelStemRegistry(server);
-		dimensionsRegistry.unfreeze();
+		dimensionsRegistry.unfreeze(false);
 		dimensionsRegistry.register(ResourceKey.create(Registries.LEVEL_STEM, key), config.dimension(), RegistrationInfo.BUILT_IN);
 		dimensionsRegistry.freeze();
 
@@ -220,7 +220,7 @@ public final class RuntimeDimensions {
 
 		List<ServerPlayer> players = new ArrayList<>(world.players());
 		for (ServerPlayer player : players) {
-			player.teleportTo(overworld, spawnPos.getX() + 0.5, spawnPos.getY(), spawnPos.getZ() + 0.5, spawnAngle, 0.0F);
+			player.teleportTo(overworld, spawnPos.getX() + 0.5, spawnPos.getY(), spawnPos.getZ() + 0.5, Set.of(), spawnAngle, 0.0F, true);
 		}
 	}
 
@@ -240,13 +240,13 @@ public final class RuntimeDimensions {
 
 			MappedRegistry<LevelStem> dimensionsRegistry = getLevelStemRegistry(server);
 
-			dimensionsRegistry.unfreeze();
+			dimensionsRegistry.unfreeze(false);
 			RegistryEntryRemover.remove(dimensionsRegistry, dimensionKey.location());
 			dimensionsRegistry.freeze();
 
 			LevelStorageSource.LevelStorageAccess save = server.storageSource;
 			Path dimensionPath = save.getDimensionPath(dimensionKey);
-			Util.ioPool().submit(() -> {
+			Util.ioPool().execute(() -> {
 				try {
 					level.close();
 				} catch (IOException e) {
@@ -272,7 +272,7 @@ public final class RuntimeDimensions {
 	}
 
 	private static MappedRegistry<LevelStem> getLevelStemRegistry(MinecraftServer server) {
-		return (MappedRegistry<LevelStem>) server.registryAccess().registryOrThrow(Registries.LEVEL_STEM);
+		return (MappedRegistry<LevelStem>) server.registryAccess().lookupOrThrow(Registries.LEVEL_STEM);
 	}
 
 	private static ResourceLocation generateTemporaryDimensionKey() {

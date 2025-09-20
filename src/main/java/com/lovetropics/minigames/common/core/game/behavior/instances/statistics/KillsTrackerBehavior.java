@@ -13,7 +13,7 @@ import com.lovetropics.minigames.common.core.game.state.team.TeamState;
 import com.lovetropics.minigames.common.util.Util;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.util.TriState;
 
 public final class KillsTrackerBehavior implements IGameBehavior {
 	public static final MapCodec<KillsTrackerBehavior> CODEC = MapCodec.unit(KillsTrackerBehavior::new);
@@ -39,7 +39,7 @@ public final class KillsTrackerBehavior implements IGameBehavior {
 				playerStatistics.set(StatisticKey.KILLED_BY, PlayerKey.from(killerPlayer));
 			}
 
-			return InteractionResult.PASS;
+			return TriState.DEFAULT;
 		});
 	}
 }

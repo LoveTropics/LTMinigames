@@ -99,8 +99,8 @@ public class DelegatingWorldGenLevel implements WorldGenLevel {
 	}
 
 	@Override
-	public void playSound(@Nullable Player player, BlockPos pos, SoundEvent sound, SoundSource category, float volume, float pitch) {
-		parent.playSound(player, pos, sound, category, volume, pitch);
+	public void playSound(@Nullable Entity entity, BlockPos pos, SoundEvent sound, SoundSource source, float volume, float pitch) {
+		parent.playSound(entity, pos, sound, source, volume, pitch);
 	}
 
 	@Override
@@ -109,8 +109,8 @@ public class DelegatingWorldGenLevel implements WorldGenLevel {
 	}
 
 	@Override
-	public void levelEvent(@Nullable Player player, int type, BlockPos pos, int data) {
-		parent.levelEvent(player, type, pos, data);
+	public void levelEvent(@Nullable Entity entity, int type, BlockPos pos, int data) {
+		parent.levelEvent(entity, type, pos, data);
 	}
 
 	@Override

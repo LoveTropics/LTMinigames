@@ -11,14 +11,21 @@ import com.lovetropics.minigames.mixin.gametest.GameTestInfoAccess;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
 import net.minecraft.gametest.framework.GameTestAssertException;
+import net.minecraft.gametest.framework.GameTestAssertPosException;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.gametest.framework.GameTestInfo;
 import net.minecraft.gametest.framework.GameTestListener;
 import net.minecraft.gametest.framework.GameTestRunner;
 import net.minecraft.gametest.framework.GameTestSequence;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -29,12 +36,15 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
@@ -69,12 +79,6 @@ public class LTGameTestHelper extends GameTestHelper {
     @Override
     public BlockState getBlockState(BlockPos pPos) {
         return delegate.getBlockState(pPos);
-    }
-
-    @Override
-    @Nullable
-    public BlockEntity getBlockEntity(BlockPos pPos) {
-        return delegate.getBlockEntity(pPos);
     }
 
     @Override
@@ -263,33 +267,8 @@ public class LTGameTestHelper extends GameTestHelper {
     }
 
     @Override
-    public void assertBlock(BlockPos pPos, Predicate<Block> pPredicate, String pExceptionMessage) {
-        delegate.assertBlock(pPos, pPredicate, pExceptionMessage);
-    }
-
-    @Override
-    public void assertBlock(BlockPos pPos, Predicate<Block> pPredicate, Supplier<String> pExceptionMessage) {
-        delegate.assertBlock(pPos, pPredicate, pExceptionMessage);
-    }
-
-    @Override
     public <T extends Comparable<T>> void assertBlockProperty(BlockPos pPos, Property<T> pProperty, T pValue) {
         delegate.assertBlockProperty(pPos, pProperty, pValue);
-    }
-
-    @Override
-    public <T extends Comparable<T>> void assertBlockProperty(BlockPos pPos, Property<T> pProperty, Predicate<T> pPredicate, String pExceptionMessage) {
-        delegate.assertBlockProperty(pPos, pProperty, pPredicate, pExceptionMessage);
-    }
-
-    @Override
-    public void assertBlockState(BlockPos pPos, Predicate<BlockState> pPredicate, Supplier<String> pExceptionMessage) {
-        delegate.assertBlockState(pPos, pPredicate, pExceptionMessage);
-    }
-
-    @Override
-    public void assertRedstoneSignal(BlockPos pPos, Direction pDirection, IntPredicate pSignalStrengthPredicate, Supplier<String> pExceptionMessage) {
-        delegate.assertRedstoneSignal(pPos, pDirection, pSignalStrengthPredicate, pExceptionMessage);
     }
 
     @Override
@@ -307,12 +286,243 @@ public class LTGameTestHelper extends GameTestHelper {
         delegate.assertEntityPresent(pType, pPos);
     }
 
-    @Override
-    public void assertEntityPresent(EntityType<?> pEntityType, Vec3 pStartPos, Vec3 pEndPos) {
-        delegate.assertEntityPresent(pEntityType, pStartPos, pEndPos);
-    }
+	@Override
+	public GameTestAssertException assertionException(Component message) {
+		return delegate.assertionException(message);
+	}
 
-    @Override
+	@Override
+	public GameTestAssertException assertionException(String messageKey, Object... args) {
+		return delegate.assertionException(messageKey, args);
+	}
+
+	@Override
+	public GameTestAssertPosException assertionException(BlockPos pos, Component message) {
+		return delegate.assertionException(pos, message);
+	}
+
+	@Override
+	public GameTestAssertPosException assertionException(BlockPos pos, String messageKey, Object... args) {
+		return delegate.assertionException(pos, messageKey, args);
+	}
+
+	@Override
+	public <T extends BlockEntity> T getBlockEntity(BlockPos pos, Class<T> clazz) {
+		return delegate.getBlockEntity(pos, clazz);
+	}
+
+	@Override
+	public ItemEntity spawnItem(Item item, Vec3 pos) {
+		return delegate.spawnItem(item, pos);
+	}
+
+	@Override
+	public void hurt(Entity entity, DamageSource damageSource, float amount) {
+		delegate.hurt(entity, damageSource, amount);
+	}
+
+	@Override
+	public void kill(Entity entity) {
+		delegate.kill(entity);
+	}
+
+	@Override
+	public <E extends Entity> E findOneEntity(EntityType<E> type) {
+		return delegate.findOneEntity(type);
+	}
+
+	@Override
+	public <E extends Entity> E findClosestEntity(EntityType<E> type, int x, int y, int z, double radius) {
+		return delegate.findClosestEntity(type, x, y, z, radius);
+	}
+
+	@Override
+	public <E extends Entity> List<E> findEntities(EntityType<E> type, int x, int y, int z, double radius) {
+		return delegate.findEntities(type, x, y, z, radius);
+	}
+
+	@Override
+	public <E extends Entity> List<E> findEntities(EntityType<E> type, Vec3 pos, double radius) {
+		return delegate.findEntities(type, pos, radius);
+	}
+
+	@Override
+	public void moveTo(Mob mob, float x, float y, float z) {
+		delegate.moveTo(mob, x, y, z);
+	}
+
+	@Deprecated(forRemoval = true)
+	@Override
+	public ServerPlayer makeMockServerPlayerInLevel() {
+		return delegate.makeMockServerPlayerInLevel();
+	}
+
+	@Override
+	public void assertBlockTag(TagKey<Block> tag, BlockPos pos) {
+		delegate.assertBlockTag(tag, pos);
+	}
+
+	@Override
+	public void assertBlock(BlockPos pos, Predicate<Block> predicate, Function<Block, Component> message) {
+		delegate.assertBlock(pos, predicate, message);
+	}
+
+	@Override
+	public <T extends Comparable<T>> void assertBlockProperty(BlockPos pos, Property<T> property, Predicate<T> predicate, Component message) {
+		delegate.assertBlockProperty(pos, property, predicate, message);
+	}
+
+	@Override
+	public void assertBlockState(BlockPos pos, BlockState state) {
+		delegate.assertBlockState(pos, state);
+	}
+
+	@Override
+	public void assertBlockState(BlockPos pos, Predicate<BlockState> predicate, Function<BlockState, Component> message) {
+		delegate.assertBlockState(pos, predicate, message);
+	}
+
+	@Override
+	public <T extends BlockEntity> void assertBlockEntityData(BlockPos pos, Class<T> blockEntityClass, Predicate<T> predicate, Supplier<Component> message) {
+		delegate.assertBlockEntityData(pos, blockEntityClass, predicate, message);
+	}
+
+	@Override
+	public void assertRedstoneSignal(BlockPos pos, Direction direction, IntPredicate signalStrengthPredicate, Supplier<Component> message) {
+		delegate.assertRedstoneSignal(pos, direction, signalStrengthPredicate, message);
+	}
+
+	@Override
+	public void assertEntityPresent(EntityType<?> type, AABB box) {
+		delegate.assertEntityPresent(type, box);
+	}
+
+	@Override
+	public void assertEntitiesPresent(EntityType<?> entityType, int count) {
+		delegate.assertEntitiesPresent(entityType, count);
+	}
+
+	@Override
+	public <T extends Entity> List<T> getEntities(EntityType<T> entityType) {
+		return delegate.getEntities(entityType);
+	}
+
+	@Override
+	public void assertItemEntityPresent(Item item) {
+		delegate.assertItemEntityPresent(item);
+	}
+
+	@Override
+	public void assertItemEntityNotPresent(Item item) {
+		delegate.assertItemEntityNotPresent(item);
+	}
+
+	@Override
+	public void assertEntityNotPresent(EntityType<?> type, AABB box) {
+		delegate.assertEntityNotPresent(type, box);
+	}
+
+	@Override
+	public <E extends Entity, T> void assertEntityData(BlockPos pos, EntityType<E> type, Predicate<E> predicate) {
+		delegate.assertEntityData(pos, type, predicate);
+	}
+
+	@Override
+	public void assertContainerContainsSingle(BlockPos pos, Item item) {
+		delegate.assertContainerContainsSingle(pos, item);
+	}
+
+	@Override
+	public void assertEntityPosition(Entity entity, AABB boundingBox, Component message) {
+		delegate.assertEntityPosition(entity, boundingBox, message);
+	}
+
+	@Override
+	public <E extends Entity> void assertEntityProperty(E entity, Predicate<E> predicate, Component message) {
+		delegate.assertEntityProperty(entity, predicate, message);
+	}
+
+	@Override
+	public <E extends Entity, T> void assertEntityProperty(E entity, Function<E, T> valueGetter, T expectedValue, Component message) {
+		delegate.assertEntityProperty(entity, valueGetter, expectedValue, message);
+	}
+
+	@Override
+	public void assertLivingEntityHasMobEffect(LivingEntity entity, Holder<MobEffect> effect, int amplifier) {
+		delegate.assertLivingEntityHasMobEffect(entity, effect, amplifier);
+	}
+
+	@Override
+	public void tickBlock(BlockPos pos) {
+		delegate.tickBlock(pos);
+	}
+
+	@Override
+	public void tickPrecipitation(BlockPos pos) {
+		delegate.tickPrecipitation(pos);
+	}
+
+	@Override
+	public void tickPrecipitation() {
+		delegate.tickPrecipitation();
+	}
+
+	@Override
+	public void fail(Component message, BlockPos pos) {
+		delegate.fail(message, pos);
+	}
+
+	@Override
+	public void fail(Component message, Entity entity) {
+		delegate.fail(message, entity);
+	}
+
+	@Override
+	public void fail(Component message) {
+		delegate.fail(message);
+	}
+
+	@Override
+	public AABB absoluteAABB(AABB aabb) {
+		return delegate.absoluteAABB(aabb);
+	}
+
+	@Override
+	public AABB relativeAABB(AABB aabb) {
+		return delegate.relativeAABB(aabb);
+	}
+
+	@Override
+	public Rotation getTestRotation() {
+		return delegate.getTestRotation();
+	}
+
+	@Override
+	public void assertTrue(boolean condition, Component message) {
+		delegate.assertTrue(condition, message);
+	}
+
+	@Override
+	public <N> void assertValueEqual(N expected, N actual, Component name) {
+		delegate.assertValueEqual(expected, actual, name);
+	}
+
+	@Override
+	public void assertFalse(boolean condition, Component message) {
+		delegate.assertFalse(condition, message);
+	}
+
+	@Override
+	public AABB getBounds() {
+		return delegate.getBounds();
+	}
+
+	@Override
+	public void setBiome(ResourceKey<Biome> biome) {
+		delegate.setBiome(biome);
+	}
+
+	@Override
     public void assertEntitiesPresent(EntityType<?> pEntityType, BlockPos pPos, int pCount, double pRadius) {
         delegate.assertEntitiesPresent(pEntityType, pPos, pCount, pRadius);
     }
@@ -428,16 +638,6 @@ public class LTGameTestHelper extends GameTestHelper {
     }
 
     @Override
-    public <E extends Entity> void assertEntityProperty(E pEntity, Predicate<E> pPredicate, String pName) {
-        delegate.assertEntityProperty(pEntity, pPredicate, pName);
-    }
-
-    @Override
-    public <E extends Entity, T> void assertEntityProperty(E pEntity, Function<E, T> pEntityPropertyGetter, String pValueName, T pTestEntityProperty) {
-        delegate.assertEntityProperty(pEntity, pEntityPropertyGetter, pValueName, pTestEntityProperty);
-    }
-
-    @Override
     public void succeedWhenEntityPresent(EntityType<?> pType, int pX, int pY, int pZ) {
         delegate.succeedWhenEntityPresent(pType, pX, pY, pZ);
     }
@@ -498,21 +698,6 @@ public class LTGameTestHelper extends GameTestHelper {
     }
 
     @Override
-    public void fail(String pExceptionMessage, BlockPos pPos) {
-        delegate.fail(pExceptionMessage, pPos);
-    }
-
-    @Override
-    public void fail(String pExceptionMessage, Entity pEntity) {
-        delegate.fail(pExceptionMessage, pEntity);
-    }
-
-    @Override
-    public void fail(String pExceptionMessage) {
-        delegate.fail(pExceptionMessage);
-    }
-
-    @Override
     public void failIf(Runnable pCriterion) {
         delegate.failIf(pCriterion);
     }
@@ -547,20 +732,18 @@ public class LTGameTestHelper extends GameTestHelper {
         return delegate.relativeVec(pAbsoluteVec3);
     }
 
-    @Override
     public void assertTrue(boolean pCondition, String pFailureMessage) {
-        delegate.assertTrue(pCondition, pFailureMessage);
+        delegate.assertTrue(pCondition, Component.literal(pFailureMessage));
     }
 
     public void assertTrue(boolean pCondition, Supplier<String> pFailureMessage) {
         if (!pCondition) {
-            throw new GameTestAssertException(pFailureMessage.get());
+            assertTrue(pCondition, pFailureMessage.get());
         }
     }
 
-    @Override
     public void assertFalse(boolean pCondition, String pFailureMessage) {
-        delegate.assertFalse(pCondition, pFailureMessage);
+        assertFalse(pCondition, Component.literal(pFailureMessage));
     }
 
     @Override

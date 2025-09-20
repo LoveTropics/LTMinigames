@@ -11,6 +11,8 @@ import net.minecraft.client.gui.navigation.FocusNavigationEvent;
 import net.minecraft.client.gui.screens.Screen;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
+
 // TODO: name?
 public final class GameList implements GuiEventListener, NarratableEntry {
 	private final Screen screen;
@@ -156,6 +158,10 @@ public final class GameList implements GuiEventListener, NarratableEntry {
 	@Override
 	public void updateNarration(final NarrationElementOutput output) {
 		active.updateNarration(output);
+	}
+
+	public Optional<GuiEventListener> getChildAt(double mouseX, double mouseY) {
+		return active.getChildAt(mouseX, mouseY);
 	}
 
 	public interface Handlers {

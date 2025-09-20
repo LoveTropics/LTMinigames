@@ -1,5 +1,6 @@
 package com.lovetropics.minigames.client.lobby.select_role;
 
+import com.lovetropics.minigames.client.lobby.LeaveLobbyPacket;
 import com.lovetropics.minigames.common.core.game.util.GameTexts;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.Button;
@@ -9,7 +10,7 @@ import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 public final class SelectPlayerRoleScreen extends Screen {
 	private static final Component TITLE = GameTexts.Ui.SELECT_PLAYER_ROLE.copy()
@@ -69,7 +70,7 @@ public final class SelectPlayerRoleScreen extends Screen {
 
 	private void sendResponse(boolean play) {
 		if (!responded) {
-			PacketDistributor.sendToServer(new SelectRoleMessage(lobbyId, play));
+			ClientPacketDistributor.sendToServer(new SelectRoleMessage(lobbyId, play));
 			responded = true;
 		}
 	}
@@ -84,7 +85,7 @@ public final class SelectPlayerRoleScreen extends Screen {
 	public void onClose() {
 		super.onClose();
 		if (!responded) {
-			minecraft.player.connection.sendUnsignedCommand("game leave");
+			ClientPacketDistributor.sendToServer(new LeaveLobbyPacket());
 			responded = true;
 		}
 	}

@@ -11,7 +11,7 @@ import com.lovetropics.minigames.common.core.game.state.progress.ProgressionPeri
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.util.TriState;
 import net.minecraft.world.entity.player.Player;
 
 import java.util.Optional;
@@ -31,8 +31,8 @@ public record CancelPlayerDamageBehavior(boolean knockback, ProgressChannel chan
 		if (knockback) {
 			events.listen(GamePlayerEvents.DAMAGE_AMOUNT, (player, damageSource, amount, originalAmount) -> predicate.getAsBoolean() ? 0.0F : amount);
 		} else {
-			events.listen(GamePlayerEvents.ATTACK, (player, target) -> target instanceof Player && predicate.getAsBoolean() ? InteractionResult.FAIL : InteractionResult.PASS);
-			events.listen(GamePlayerEvents.DAMAGE, (player, damageSource, amount) -> predicate.getAsBoolean() ? InteractionResult.FAIL : InteractionResult.PASS);
+			events.listen(GamePlayerEvents.ATTACK, (player, target) -> target instanceof Player && predicate.getAsBoolean() ? TriState.FALSE : TriState.DEFAULT);
+			events.listen(GamePlayerEvents.DAMAGE, (player, damageSource, amount) -> predicate.getAsBoolean() ? TriState.FALSE : TriState.DEFAULT);
 		}
 	}
 

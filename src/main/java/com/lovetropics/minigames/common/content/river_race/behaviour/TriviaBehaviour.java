@@ -23,7 +23,6 @@ import com.lovetropics.minigames.common.core.network.trivia.TriviaAnswerResponse
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
@@ -38,7 +37,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
@@ -155,7 +153,7 @@ public final class TriviaBehaviour implements IGameBehavior {
                 yield InteractionResult.FAIL;
             }
             case COLLECTABLE ->
-					giveCollectableFromBlock(game, player, pos) ? InteractionResult.SUCCESS_NO_ITEM_USED : InteractionResult.FAIL;
+					giveCollectableFromBlock(game, player, pos) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
             // Let the player open the chest
             case REWARD -> InteractionResult.PASS;
         };
@@ -175,7 +173,7 @@ public final class TriviaBehaviour implements IGameBehavior {
             }
         }
         PacketDistributor.sendToPlayer(player, new ShowTriviaMessage(pos, question, hasTrivia.getState()));
-        return InteractionResult.SUCCESS_NO_ITEM_USED;
+        return InteractionResult.SUCCESS;
     }
 
     @Nullable

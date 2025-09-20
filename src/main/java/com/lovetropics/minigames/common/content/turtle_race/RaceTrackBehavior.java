@@ -147,7 +147,7 @@ public class RaceTrackBehavior implements IGameBehavior {
 	private void tickSidebar(ServerPlayer player, Component sidebarTitle) {
 		GameSidebar sidebar = sidebars.get(player.getUUID());
 		if (sidebar == null) {
-			sidebar = new GameSidebar(player.server, sidebarTitle);
+			sidebar = new GameSidebar(player.level().getServer(), sidebarTitle);
 			sidebar.addPlayer(player);
 			sidebars.put(player.getUUID(), sidebar);
 		}

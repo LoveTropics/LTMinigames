@@ -13,12 +13,13 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.util.TriState;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
@@ -53,16 +54,16 @@ public final class SttPetsBehavior implements IGameBehavior {
 		events.listen(GamePhaseEvents.TICK, this::tick);
 
 		events.listen(GameLivingEntityEvents.SPAWNED, (entity, reason, player) -> {
-			if (reason == MobSpawnType.SPAWN_EGG && player != null && entity instanceof PathfinderMob) {
+			if (reason == EntitySpawnReason.SPAWN_ITEM_USE && player != null && entity instanceof PathfinderMob) {
 				onCreatureSpawnedFromEgg((PathfinderMob) entity, player);
 			}
 		});
 
 		events.listen(GameLivingEntityEvents.DEATH, (entity, damageSource) -> {
-			if (entity instanceof PathfinderMob) {
-				onCreatureDeath((PathfinderMob) entity);
+			if (entity instanceof PathfinderMob mob) {
+				onCreatureDeath(mob);
 			}
-			return InteractionResult.PASS;
+			return TriState.DEFAULT;
 		});
 
 		events.listen(GamePlayerEvents.REMOVE, player -> {
@@ -158,7 +159,7 @@ public final class SttPetsBehavior implements IGameBehavior {
 
 			LivingEntity target = entity.getTarget();
 			if (target != null) {
-				tickAttacking(target);
+				tickAttacking(game.level(), target);
 			} else {
 				tickFollowingPlayer();
 			}
@@ -177,20 +178,20 @@ public final class SttPetsBehavior implements IGameBehavior {
 			}
 		}
 
-		private void tickAttacking(LivingEntity target) {
+		private void tickAttacking(ServerLevel serverLevel, LivingEntity target) {
 			if (attackCooldown > 0) {
 				attackCooldown--;
 			}
 
 			double attackDistance = (entity.getBbWidth() + target.getBbWidth()) / 2.0 + 0.5;
 			if (entity.distanceToSqr(target) <= attackDistance * attackDistance) {
-				tickAttackTarget(target);
+				tickAttackTarget(serverLevel, target);
 			} else {
 				tickMoveToTarget(target);
 			}
 		}
 
-		private void tickAttackTarget(LivingEntity target) {
+		private void tickAttackTarget(ServerLevel serverLevel, LivingEntity target) {
 			if (attackCooldown > 0) {
 				return;
 			}
@@ -198,7 +199,7 @@ public final class SttPetsBehavior implements IGameBehavior {
 			attackCooldown = ATTACK_COOLDOWN;
 
 			DamageSource source = target.damageSources().mobAttack(entity);
-			if (target.hurt(source, config.attackDamage)) {
+			if (target.hurtServer(serverLevel, source, config.attackDamage)) {
 				entity.setLastHurtMob(target);
 			}
 		}

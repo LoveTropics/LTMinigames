@@ -9,7 +9,7 @@ import com.lovetropics.minigames.common.core.game.behavior.event.GameWorldEvents
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.advancements.critereon.BlockPredicate;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.util.TriState;
 
 import java.util.List;
 
@@ -22,11 +22,11 @@ public record PreventBreakBehavior(List<BlockPredicate> predicates) implements I
     public void register(IGamePhase game, EventRegistrar events) throws GameException {
         events.listen(GamePlayerEvents.BREAK_BLOCK, (player, pos, state, hand) -> {
             for (BlockPredicate predicate : predicates) {
-				if (predicate.matches(player.serverLevel(), pos)) {
-					return InteractionResult.FAIL;
+				if (predicate.matches(player.level(), pos)) {
+					return TriState.FALSE;
 				}
             }
-            return InteractionResult.PASS;
+            return TriState.DEFAULT;
         });
 		events.listen(GameWorldEvents.EXPLOSION_DETONATE, (explosion, affectedBlocks, affectedEntities) -> {
 			affectedBlocks.removeIf(pos -> {

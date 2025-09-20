@@ -10,7 +10,7 @@ import com.lovetropics.minigames.common.core.game.state.progress.ProgressChannel
 import com.lovetropics.minigames.common.core.game.state.progress.ProgressionPeriod;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.util.TriState;
 
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
@@ -25,7 +25,7 @@ public record CancelPlayerAttacksBehavior(ProgressChannel channel, Optional<Prog
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
 		BooleanSupplier predicate = period.map(p -> p.createPredicate(game, channel)).orElse(() -> true);
-		events.listen(GamePlayerEvents.ATTACK, (player, target) -> predicate.getAsBoolean() ? InteractionResult.FAIL : InteractionResult.PASS);
+		events.listen(GamePlayerEvents.ATTACK, (player, target) -> predicate.getAsBoolean() ? TriState.FALSE : TriState.DEFAULT);
 	}
 
 	@Override

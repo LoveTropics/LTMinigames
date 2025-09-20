@@ -25,7 +25,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
-import net.minecraft.util.random.SimpleWeightedRandomList;
+import net.minecraft.util.random.WeightedList;
 import net.minecraft.util.valueproviders.IntProvider;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -39,10 +39,10 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import java.util.ArrayList;
 import java.util.List;
 
-public record ChestDropAction(String region, SimpleWeightedRandomList<ResourceKey<LootTable>> lootTables, int delay, IntProvider count, float glowRadius) implements IGameBehavior {
+public record ChestDropAction(String region, WeightedList<ResourceKey<LootTable>> lootTables, int delay, IntProvider count, float glowRadius) implements IGameBehavior {
 	public static final MapCodec<ChestDropAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			Codec.STRING.fieldOf("region").forGetter(ChestDropAction::region),
-			SimpleWeightedRandomList.wrappedCodec(ResourceKey.codec(Registries.LOOT_TABLE)).fieldOf("loot_tables").forGetter(c -> c.lootTables),
+			WeightedList.codec(ResourceKey.codec(Registries.LOOT_TABLE)).fieldOf("loot_tables").forGetter(c -> c.lootTables),
 			Codec.INT.fieldOf("delay").forGetter(ChestDropAction::delay),
 			IntProvider.POSITIVE_CODEC.fieldOf("count").forGetter(ChestDropAction::count),
 			Codec.FLOAT.optionalFieldOf("glow_radius", 8.0f).forGetter(ChestDropAction::glowRadius)
@@ -114,7 +114,7 @@ public record ChestDropAction(String region, SimpleWeightedRandomList<ResourceKe
 		level.setBlock(drop.pos(), Blocks.CHEST.defaultBlockState().setValue(ChestBlock.FACING, direction), Block.UPDATE_ALL);
 
 		if (level.getBlockEntity(drop.pos()) instanceof ChestBlockEntity chest) {
-			lootTables.getRandomValue(random).ifPresent(lootTable -> chest.setLootTable(lootTable, random.nextLong()));
+			lootTables.getRandom(random).ifPresent(lootTable -> chest.setLootTable(lootTable, random.nextLong()));
 		}
 
 		FireworkPalette.DYE_COLORS.spawn(drop.pos().above(), level);

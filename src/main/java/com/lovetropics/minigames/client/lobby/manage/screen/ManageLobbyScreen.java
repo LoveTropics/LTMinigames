@@ -27,6 +27,7 @@ import net.minecraft.util.Mth;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Optional;
 
 public final class ManageLobbyScreen extends Screen {
 	private final ClientLobbyManagement.Session session;
@@ -244,6 +245,11 @@ public final class ManageLobbyScreen extends Screen {
 		}
 
 		playerList.renderTooltip(graphics, mouseX, mouseY);
+	}
+
+	@Override
+	public Optional<GuiEventListener> getChildAt(double mouseX, double mouseY) {
+		return gameList.getChildAt(mouseX, mouseY).or(() -> super.getChildAt(mouseX, mouseY));
 	}
 
 	private void renderSelectedGame(ClientLobbyQueuedGame game, GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {

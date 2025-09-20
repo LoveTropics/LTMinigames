@@ -19,8 +19,8 @@ public class HotbarOverride {
 			method = "renderItemHotbar",
 			at = @At(
 					value = "INVOKE",
-					target = "Lnet/minecraft/client/gui/GuiGraphics;blitSprite(Lnet/minecraft/resources/ResourceLocation;IIII)V"),
-			index = 0)
+					target = "Lnet/minecraft/client/gui/GuiGraphics;blitSprite(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/ResourceLocation;IIII)V"),
+			index = 1)
 	public ResourceLocation getHotbarTexture(ResourceLocation sprite) {
 		if (!sprite.equals(HOTBAR_SPRITE)) {
 			return sprite;

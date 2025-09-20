@@ -2,11 +2,11 @@ package com.lovetropics.minigames.common.core.game.behavior.event;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.util.TriState;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.block.state.BlockState;
@@ -25,35 +25,35 @@ public final class GameLivingEntityEvents {
 
 	public static final GameEventType<Death> DEATH = GameEventType.create(Death.class, listeners -> (entity, damageSource) -> {
 		for (Death listener : listeners) {
-			InteractionResult result = listener.onDeath(entity, damageSource);
-			if (result != InteractionResult.PASS) {
+			TriState result = listener.onDeath(entity, damageSource);
+			if (!result.isDefault()) {
 				return result;
 			}
 		}
 
-		return InteractionResult.PASS;
+		return TriState.DEFAULT;
 	});
 
 	public static final GameEventType<MobDrop> MOB_DROP = GameEventType.create(MobDrop.class, listeners -> (entity, damageSource, drops) -> {
 		for (MobDrop listener : listeners) {
-			InteractionResult result = listener.onMobDrop(entity, damageSource, drops);
-			if (result != InteractionResult.PASS) {
+			TriState result = listener.onMobDrop(entity, damageSource, drops);
+			if (!result.isDefault()) {
 				return result;
 			}
 		}
 
-		return InteractionResult.PASS;
+		return TriState.DEFAULT;
 	});
 
 	public static final GameEventType<FarmlandTrample> FARMLAND_TRAMPLE = GameEventType.create(FarmlandTrample.class, listeners -> (entity, pos, state) -> {
 		for (FarmlandTrample listener : listeners) {
-			InteractionResult result = listener.onFarmlandTrample(entity, pos, state);
-			if (result != InteractionResult.PASS) {
+			TriState result = listener.onFarmlandTrample(entity, pos, state);
+			if (!result.isDefault()) {
 				return result;
 			}
 		}
 
-		return InteractionResult.PASS;
+		return TriState.DEFAULT;
 	});
 
 	public static final GameEventType<Spawn> SPAWNED = GameEventType.create(Spawn.class, listeners -> (entity, reason, player) -> {
@@ -83,19 +83,19 @@ public final class GameLivingEntityEvents {
 	}
 
 	public interface Death {
-		InteractionResult onDeath(LivingEntity entity, DamageSource damageSource);
+		TriState onDeath(LivingEntity entity, DamageSource damageSource);
 	}
 
 	public interface MobDrop {
-		InteractionResult onMobDrop(LivingEntity entity, DamageSource damageSource, Collection<ItemEntity> drops);
+		TriState onMobDrop(LivingEntity entity, DamageSource damageSource, Collection<ItemEntity> drops);
 	}
 
 	public interface FarmlandTrample {
-		InteractionResult onFarmlandTrample(Entity entity, BlockPos pos, BlockState state);
+		TriState onFarmlandTrample(Entity entity, BlockPos pos, BlockState state);
 	}
 
 	public interface Spawn {
-		void onSpawn(LivingEntity entity, MobSpawnType reason, @Nullable ServerPlayer player);
+		void onSpawn(LivingEntity entity, EntitySpawnReason reason, @Nullable ServerPlayer player);
 	}
 
 	public interface EnderTeleport {

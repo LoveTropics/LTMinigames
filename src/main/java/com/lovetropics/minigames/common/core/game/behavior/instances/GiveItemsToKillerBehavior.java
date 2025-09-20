@@ -1,6 +1,5 @@
 package com.lovetropics.minigames.common.core.game.behavior.instances;
 
-import com.lovetropics.lib.codec.MoreCodecs;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorType;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorTypes;
@@ -12,7 +11,8 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.util.ExtraCodecs;
+import net.minecraft.util.TriState;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 
@@ -21,7 +21,7 @@ import java.util.function.Supplier;
 
 public record GiveItemsToKillerBehavior(List<ItemPredicate> predicates) implements IGameBehavior {
 	public static final MapCodec<GiveItemsToKillerBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			MoreCodecs.listOrUnit(ItemPredicate.CODEC).fieldOf("item_predicate").forGetter(GiveItemsToKillerBehavior::predicates)
+			ExtraCodecs.compactListCodec(ItemPredicate.CODEC).fieldOf("item_predicate").forGetter(GiveItemsToKillerBehavior::predicates)
 	).apply(i, GiveItemsToKillerBehavior::new));
 
 	@Override
@@ -31,7 +31,7 @@ public record GiveItemsToKillerBehavior(List<ItemPredicate> predicates) implemen
 			if (killer != null && game.participants().contains(killer)) {
 				giveItems(player, killer);
 			}
-			return InteractionResult.PASS;
+			return TriState.DEFAULT;
 		});
 	}
 

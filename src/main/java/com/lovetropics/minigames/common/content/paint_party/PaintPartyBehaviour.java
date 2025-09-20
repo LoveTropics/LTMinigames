@@ -25,9 +25,11 @@ import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.ContainerHelper;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Pose;
@@ -36,12 +38,13 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.ServerExplosion;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -145,15 +148,16 @@ public record PaintPartyBehaviour(Map<GameTeamKey, TeamConfig> teamConfigs, Bloc
 
             TeamConfig teamConfig = getTeamConfig(teamKey);
 
-            if (stack.getItem() == Items.DIAMOND_HOE && player.getInventory().countItem(teamConfig.ammoItem.getItem()) >= 20) {
+            if (stack.is(Items.DIAMOND_HOE) && player.getInventory().countItem(teamConfig.ammoItem.getItem()) >= 20) {
                 removeFromInventory(player, teamConfig, 20);
 
-                player.getCooldowns().addCooldown(stack.getItem(), 60);
+                player.getCooldowns().addCooldown(stack, 60);
 
                 PaintBallEntity paintball = new PaintBallEntity(player.level());
                 paintball.setOwner(player);
                 paintball.setPos(player.getX(), player.getEyeY() - 0.1F, player.getZ());
                 paintball.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 0.75F, 1.0F);
+				paintball.setVisualItem(teamConfig.ammoItem);
                 player.level().addFreshEntity(paintball);
 
                 return InteractionResult.PASS;
@@ -162,7 +166,7 @@ public record PaintPartyBehaviour(Map<GameTeamKey, TeamConfig> teamConfigs, Bloc
             return InteractionResult.PASS;
         });
 
-        events.listen(PaintPartyEvents.PAINTBALL_HIT, (eventLevel, entity, pos) -> {
+        events.listen(PaintPartyEvents.PAINTBALL_HIT, (level, entity, pos) -> {
             Entity owner = entity.getOwner();
             if (!(owner instanceof ServerPlayer player)) {
                 return;
@@ -172,15 +176,16 @@ public record PaintPartyBehaviour(Map<GameTeamKey, TeamConfig> teamConfigs, Bloc
             if (teamKey == null) {
                 return;
             }
-            BlockState state = eventLevel.getBlockState(pos);
+            BlockState state = level.getBlockState(pos);
 
-            float rad = 2.5f;
+            float radius = 2.5f;
             if (state.is(neutralBlock.getBlock()) || state.is(getTeamConfig(teamKey).blockType.getBlock())) {
-                rad = 4f;
+                radius = 4f;
             }
 
-            Explosion explosion = new Explosion(eventLevel, entity, entity.getX(), entity.getY() + 1, entity.getZ(), rad, false, Explosion.BlockInteraction.KEEP);
-            explosion.explode();
+			Vec3 center = entity.position().add(0.0, 1.0, 0.0);
+			ServerExplosion explosion = new ServerExplosion((ServerLevel) level, entity, null, null, center, radius, false, Explosion.BlockInteraction.KEEP);
+			explosion.explode();
         });
     }
 
@@ -232,8 +237,8 @@ public record PaintPartyBehaviour(Map<GameTeamKey, TeamConfig> teamConfigs, Bloc
                 if (game.ticks() % ammoRechargeTicks() == 0) {
                     if (player.getInventory().countItem(teamConfig.ammoItem.getItem()) < startAmmo) {
                         player.getInventory().add(teamConfig.ammoItem.copy());
-                        game.level().sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, teamConfig.blockType())
-                                .setPos(playerPos), playerPos.getX() + 0.5, playerPos.getY() + 1.5, playerPos.getZ() + 0.5, 150, 0, 0, 0, 0.15F);
+						BlockParticleOption particle = new BlockParticleOption(ParticleTypes.BLOCK, teamConfig.blockType(), playerPos);
+						game.level().sendParticles(particle, playerPos.getX() + 0.5, playerPos.getY() + 1.5, playerPos.getZ() + 0.5, 150, 0, 0, 0, 0.15F);
                     }
                 }
             }
@@ -273,8 +278,7 @@ public record PaintPartyBehaviour(Map<GameTeamKey, TeamConfig> teamConfigs, Bloc
             }
         }
         game.level().setBlock(pos, team.blockType(), Block.UPDATE_CLIENTS);
-        game.level().sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, team.blockType())
-                .setPos(pos), pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 100, 0, 0, 0, 0.15F);
+        game.level().sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, team.blockType(), pos), pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 100, 0, 0, 0, 0.15F);
         game.statistics().forTeam(teamKey).incrementInt(StatisticKey.POINTS, 1);
     }
 

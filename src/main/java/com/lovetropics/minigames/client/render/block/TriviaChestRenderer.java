@@ -19,6 +19,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.ChestBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 
 public class TriviaChestRenderer implements BlockEntityRenderer<TriviaChestBlockEntity> {
 	private static final Material MATERIAL = new Material(Sheets.CHEST_SHEET, LoveTropics.location("entity/chest/trivia"));
@@ -37,7 +38,7 @@ public class TriviaChestRenderer implements BlockEntityRenderer<TriviaChestBlock
 	}
 
 	@Override
-	public void render(TriviaChestBlockEntity blockEntity, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
+	public void render(TriviaChestBlockEntity blockEntity, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay, Vec3 cameraPos) {
 		BlockState blockState = blockEntity.getBlockState();
 
 		poseStack.pushPose();

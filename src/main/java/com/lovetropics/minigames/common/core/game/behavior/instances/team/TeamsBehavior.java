@@ -22,7 +22,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerScoreboard;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.util.TriState;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.scores.PlayerTeam;
@@ -135,7 +135,7 @@ public final class TeamsBehavior implements IGameBehavior {
 
 		game.statistics().forPlayer(player).set(StatisticKey.TEAM, team.key());
 
-		ServerScoreboard scoreboard = player.server.getScoreboard();
+		ServerScoreboard scoreboard = player.level().getScoreboard();
 		PlayerTeam scoreboardTeam = scoreboardTeams.get(team.key());
 		scoreboard.addPlayerToTeam(player.getScoreboardName(), scoreboardTeam);
 
@@ -151,21 +151,21 @@ public final class TeamsBehavior implements IGameBehavior {
 			game.invoker(GameTeamEvents.REMOVE_FROM_TEAM).onRemoveFromTeam(player, teams, teamKey);
 		}
 
-		ServerScoreboard scoreboard = player.server.getScoreboard();
+		ServerScoreboard scoreboard = player.level().getScoreboard();
 		scoreboard.removePlayerFromTeam(player.getScoreboardName());
 	}
 
-	private InteractionResult onPlayerHurt(ServerPlayer player, DamageSource source, float amount) {
+	private TriState onPlayerHurt(ServerPlayer player, DamageSource source, float amount) {
 		if (!friendlyFire && teams.areSameTeam(source.getEntity(), player)) {
-			return InteractionResult.FAIL;
+			return TriState.FALSE;
 		}
-		return InteractionResult.PASS;
+		return TriState.DEFAULT;
 	}
 
-	private InteractionResult onPlayerAttack(ServerPlayer player, Entity target) {
+	private TriState onPlayerAttack(ServerPlayer player, Entity target) {
 		if (!friendlyFire && teams.areSameTeam(player, target)) {
-			return InteractionResult.FAIL;
+			return TriState.FALSE;
 		}
-		return InteractionResult.PASS;
+		return TriState.DEFAULT;
 	}
 }

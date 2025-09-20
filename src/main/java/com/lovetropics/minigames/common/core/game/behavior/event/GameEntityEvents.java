@@ -1,24 +1,24 @@
 
 package com.lovetropics.minigames.common.core.game.behavior.event;
 
+import net.minecraft.util.TriState;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.InteractionResult;
 
 public final class GameEntityEvents {
 	public static final GameEventType<Mounted> MOUNTED = GameEventType.create(Mounted.class, listeners -> (entityMounting, entityBeingMounted) -> {
 		for (Mounted listener : listeners) {
-			InteractionResult result = listener.onEntityMounted(entityMounting, entityBeingMounted);
-			if (result != InteractionResult.PASS) {
+			TriState result = listener.onEntityMounted(entityMounting, entityBeingMounted);
+			if (!result.isDefault()) {
 				return result;
 			}
 		}
-		return InteractionResult.PASS;
+		return TriState.DEFAULT;
 	});
 
 	private GameEntityEvents() {
 	}
 
 	public interface Mounted {
-		InteractionResult onEntityMounted(Entity entityMounting, Entity entityBeingMounted);
+		TriState onEntityMounted(Entity entityMounting, Entity entityBeingMounted);
 	}
 }

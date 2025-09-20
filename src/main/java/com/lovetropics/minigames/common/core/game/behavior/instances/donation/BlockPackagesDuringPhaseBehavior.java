@@ -1,6 +1,5 @@
 package com.lovetropics.minigames.common.core.game.behavior.instances.donation;
 
-import com.lovetropics.lib.codec.MoreCodecs;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
@@ -11,7 +10,8 @@ import com.lovetropics.minigames.common.core.game.state.progress.ProgressHolder;
 import com.lovetropics.minigames.common.core.game.state.progress.ProgressionPeriod;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.util.ExtraCodecs;
+import net.minecraft.util.TriState;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 
 import java.util.List;
@@ -19,7 +19,7 @@ import java.util.List;
 public record BlockPackagesDuringPhaseBehavior(ProgressChannel channel, List<ProgressionPeriod> blockedPeriods) implements IGameBehavior {
 	public static final MapCodec<BlockPackagesDuringPhaseBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			ProgressChannel.CODEC.optionalFieldOf("channel", ProgressChannel.MAIN).forGetter(BlockPackagesDuringPhaseBehavior::channel),
-			MoreCodecs.listOrUnit(ProgressionPeriod.CODEC).fieldOf("block_periods").forGetter(BlockPackagesDuringPhaseBehavior::blockedPeriods)
+			ExtraCodecs.compactListCodec(ProgressionPeriod.CODEC).fieldOf("block_periods").forGetter(BlockPackagesDuringPhaseBehavior::blockedPeriods)
 	).apply(i, BlockPackagesDuringPhaseBehavior::new));
 
 	@Override
@@ -31,9 +31,9 @@ public record BlockPackagesDuringPhaseBehavior(ProgressChannel channel, List<Pro
 
 		events.listen(GamePackageEvents.RECEIVE_PACKAGE, gamePackage -> {
 			if (progression.is(blockedPeriods) || gameOver.isTrue()) {
-				return InteractionResult.FAIL;
+				return TriState.FALSE;
 			}
-			return InteractionResult.PASS;
+			return TriState.DEFAULT;
 		});
 	}
 }

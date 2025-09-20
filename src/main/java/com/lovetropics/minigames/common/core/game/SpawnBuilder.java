@@ -1,19 +1,27 @@
 package com.lovetropics.minigames.common.core.game;
 
+import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.phys.Vec3;
+import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 
 public class SpawnBuilder {
+	private static final Logger LOGGER = LogUtils.getLogger();
+
 	private ServerLevel level;
 	private Vec3 position;
 	private float yRot;
@@ -23,7 +31,7 @@ public class SpawnBuilder {
 	private final List<Consumer<ServerPlayer>> initializers = new ArrayList<>();
 
 	public SpawnBuilder(final ServerPlayer player) {
-		level = player.serverLevel();
+		level = player.level();
 		position = player.position();
 		yRot = player.getYRot();
 		xRot = player.getXRot();
@@ -81,15 +89,18 @@ public class SpawnBuilder {
 	}
 
 	public void teleportAndApply(final ServerPlayer player) {
-		player.teleportTo(level, position.x, position.y, position.z, yRot, xRot);
+		player.teleportTo(level, position.x, position.y, position.z, Set.of(), yRot, xRot, true);
 		player.connection.resetPosition();
 		applyInitializers(player);
 	}
 
 	public void loadInto(final ServerPlayer player) {
 		if (loadFromTag != null) {
-			player.load(loadFromTag);
-			player.loadGameTypes(loadFromTag);
+			try (ProblemReporter.ScopedCollector reporter = new ProblemReporter.ScopedCollector(player.problemPath(), LOGGER)) {
+				ValueInput input = TagValueInput.create(reporter, player.registryAccess(), loadFromTag);
+				player.load(input);
+				player.loadGameTypes(input);
+			}
 		}
 	}
 

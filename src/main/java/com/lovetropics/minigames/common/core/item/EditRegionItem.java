@@ -8,13 +8,13 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
@@ -28,32 +28,30 @@ public final class EditRegionItem extends Item {
 	}
 
 	@Override
-	public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
-		ItemStack stack = player.getItemInHand(hand);
-
-		if (world.isClientSide && isClientPlayer(player)) {
+	public InteractionResult use(Level level, Player player, InteractionHand hand) {
+		if (level.isClientSide() && isClientPlayer(player)) {
 			RegionTraceTarget traceResult = MapWorkspaceTracer.trace(player);
 
 			useTick = player.tickCount;
 
 			if (traceResult != null && mode == Mode.REMOVE) {
-				PacketDistributor.sendToServer(new UpdateWorkspaceRegionMessage(traceResult.entry().id, Optional.empty()));
-				return InteractionResultHolder.success(stack);
+				ClientPacketDistributor.sendToServer(new UpdateWorkspaceRegionMessage(traceResult.entry().id, Optional.empty()));
+				return InteractionResult.SUCCESS;
 			}
 
 			if (MapWorkspaceTracer.select(player, traceResult, target -> mode.createEdit(target))) {
-				return InteractionResultHolder.success(stack);
+				return InteractionResult.SUCCESS;
 			} else {
-				return InteractionResultHolder.pass(stack);
+				return InteractionResult.PASS;
 			}
 		}
 
-		return InteractionResultHolder.pass(stack);
+		return InteractionResult.PASS;
 	}
 
 	@Override
-	public boolean onEntitySwing(ItemStack stack, LivingEntity entity) {
-		if (entity.level().isClientSide && entity.tickCount != useTick && isClientPlayer(entity)) {
+	public boolean onEntitySwing(ItemStack stack, LivingEntity entity, InteractionHand hand) {
+		if (entity.level().isClientSide() && entity.tickCount != useTick && isClientPlayer(entity)) {
 			mode = mode.getNext();
 
 			MapWorkspaceTracer.stopEditing();

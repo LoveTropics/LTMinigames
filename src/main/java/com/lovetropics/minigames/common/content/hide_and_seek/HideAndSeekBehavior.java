@@ -28,7 +28,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.util.TriState;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -100,7 +100,7 @@ public final class HideAndSeekBehavior implements IGameBehavior {
 		PlayerSet seekers = teams.getParticipantsForTeam(game, this.seekers.key());
 		PlayerSet hiders = teams.getParticipantsForTeam(game, this.hiders.key());
 
-		seekers.addPotionEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, hideTicks, 255, true, false));
+		seekers.addPotionEffect(new MobEffectInstance(MobEffects.SLOWNESS, hideTicks, 255, true, false));
 		seekers.addPotionEffect(new MobEffectInstance(MobEffects.BLINDNESS, hideTicks, 255, true, false));
 
 		seekers.sendMessage(Component.literal("You will be let out to catch the hiders in " + initialHideSeconds + " seconds!"));
@@ -132,23 +132,23 @@ public final class HideAndSeekBehavior implements IGameBehavior {
 		spawn.teleportTo(game.level(), spawnPos, Direction.getRandom(random));
 	}
 
-	private InteractionResult onPlayerAttack(ServerPlayer player, Entity target) {
+	private TriState onPlayerAttack(ServerPlayer player, Entity target) {
 		if (teams.isOnTeam(player, seekers.key()) && player.getMainHandItem().getItem() == HideAndSeek.NET.get()) {
 			if (target instanceof ServerPlayer && teams.isOnTeam((ServerPlayer) target, hiders.key())) {
-				return InteractionResult.PASS;
+				return TriState.DEFAULT;
 			}
 		}
-		return InteractionResult.FAIL;
+		return TriState.FALSE;
 	}
 
-	private InteractionResult onPlayerDeath(ServerPlayer player, DamageSource damageSource) {
+	private TriState onPlayerDeath(ServerPlayer player, DamageSource damageSource) {
 		GameTeamKey team = teams.getTeamForPlayer(player);
 		if (team == hiders.key()) {
 			onHiderCaptured(player);
 		} else if (team == seekers.key()) {
 			onSeekerDied(player);
 		}
-		return InteractionResult.FAIL;
+		return TriState.FALSE;
 	}
 
 	private void removeParticipant(ServerPlayer player) {

@@ -48,8 +48,8 @@ public final class GameTexts {
 	private static MutableComponent formatLink(Component link, String command) {
 		Style style = Style.EMPTY
 				.withUnderlined(true).withColor(ChatFormatting.BLUE)
-				.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, command))
-				.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal(command)));
+				.withClickEvent(new ClickEvent.RunCommand(command))
+				.withHoverEvent(new HoverEvent.ShowText(Component.literal(command)));
 
 		return link.copy().setStyle(style);
 	}

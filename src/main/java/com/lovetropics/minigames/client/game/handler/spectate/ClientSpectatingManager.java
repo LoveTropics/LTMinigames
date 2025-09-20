@@ -20,8 +20,6 @@ import java.util.UUID;
 public final class ClientSpectatingManager implements ClientGameStateHandler<SpectatingClientState> {
 	public static final ClientSpectatingManager INSTANCE = new ClientSpectatingManager();
 
-	private static final Minecraft CLIENT = Minecraft.getInstance();
-
 	static final double MAX_CHASE_DISTANCE = 16.0;
 
 	@Nullable
@@ -55,13 +53,14 @@ public final class ClientSpectatingManager implements ClientGameStateHandler<Spe
 
 	@SubscribeEvent
 	public static void onClientTick(ClientTickEvent.Post event) {
-		if (CLIENT.player != null) {
+		Minecraft minecraft = Minecraft.getInstance();
+		if (minecraft.player != null) {
 			SpectatingSession session = INSTANCE.session;
 			if (session != null) {
 				session.tick();
 
 				// keep the vanilla spectator gui closed
-				SpectatorGui spectatorGui = CLIENT.gui.getSpectatorGui();
+				SpectatorGui spectatorGui = minecraft.gui.getSpectatorGui();
 				spectatorGui.onSpectatorMenuClosed(null);
 			}
 		}
@@ -69,7 +68,7 @@ public final class ClientSpectatingManager implements ClientGameStateHandler<Spe
 
 	@SubscribeEvent
 	public static void onRenderTick(RenderFrameEvent.Pre event) {
-		if (CLIENT.player != null) {
+		if (Minecraft.getInstance().player != null) {
 			SpectatingSession session = INSTANCE.session;
 			if (session != null) {
 				session.renderTick();

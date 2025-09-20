@@ -23,7 +23,6 @@ import java.util.function.Function;
 
 @EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
 public final class MapWorkspaceTracer {
-	private static final Minecraft CLIENT = Minecraft.getInstance();
 	private static final double TRACE_RANGE = 64.0;
 
 	@Nullable
@@ -31,7 +30,7 @@ public final class MapWorkspaceTracer {
 
 	@SubscribeEvent
 	public static void onClientTick(ClientTickEvent.Post event) {
-		LocalPlayer player = CLIENT.player;
+		LocalPlayer player = Minecraft.getInstance().player;
         if (player != null && edit != null) {
             edit.update(player);
         }

@@ -13,6 +13,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -30,12 +31,15 @@ import net.minecraft.world.level.storage.loot.LootTable;
 
 import java.util.Map;
 
-public record TreasureDigBehaviour(String chestsRegion, Map<Block,
-        ResourceKey<LootTable>> lootTables, Map<ResourceKey<Item>, Integer> pointsMap) implements IGameBehavior {
+public record TreasureDigBehaviour(
+		String chestsRegion,
+		Map<Block, ResourceKey<LootTable>> lootTables,
+		Map<Holder<Item>, Integer> pointsMap
+) implements IGameBehavior {
     public static final MapCodec<TreasureDigBehaviour> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
             Codec.STRING.fieldOf("chests_region").forGetter(b -> b.chestsRegion),
             Codec.unboundedMap(BuiltInRegistries.BLOCK.byNameCodec(), ResourceKey.codec(Registries.LOOT_TABLE)).optionalFieldOf("loot_tables", Map.of()).forGetter(b -> b.lootTables),
-            Codec.unboundedMap(ResourceKey.codec(Registries.ITEM), Codec.INT).optionalFieldOf("points_map", Map.of()).forGetter(b -> b.pointsMap)
+            Codec.unboundedMap(BuiltInRegistries.ITEM.holderByNameCodec(), Codec.INT).optionalFieldOf("points_map", Map.of()).forGetter(b -> b.pointsMap)
     ).apply(i, TreasureDigBehaviour::new));
 
     @Override
@@ -84,13 +88,13 @@ public record TreasureDigBehaviour(String chestsRegion, Map<Block,
     }
 
     private int calculatePlayerScore(ServerPlayer serverPlayer){
-        int score = 0;
-        for(ItemStack itemStack : serverPlayer.getInventory().items) {
-            if(itemStack.isEmpty()){
-                continue;
-            }
-            score += pointsMap().getOrDefault(itemStack.getItemHolder().getKey(), 0) * itemStack.getCount();
-        }
-        return score;
+		int score = 0;
+		for (ItemStack itemStack : serverPlayer.getInventory()) {
+			if (itemStack.isEmpty()) {
+				continue;
+			}
+			score += pointsMap().getOrDefault(itemStack.getItemHolder(), 0) * itemStack.getCount();
+		}
+		return score;
     }
 }

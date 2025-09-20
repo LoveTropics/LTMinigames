@@ -21,7 +21,7 @@ import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import java.util.HashSet;
 import java.util.List;
@@ -134,12 +134,12 @@ public class TriviaQuestionScreen extends Screen {
             onClose();
         }
         if(triviaBlockState.lockedOut() && triviaBlockState.unlocksAt() <= Minecraft.getInstance().level.getGameTime()){
-            PacketDistributor.sendToServer(new RequestTriviaStateUpdateMessage(triviaBlockPos));
+            ClientPacketDistributor.sendToServer(new RequestTriviaStateUpdateMessage(triviaBlockPos));
         }
     }
 
     private void handleAnswerClick(int answerIndex) {
-        PacketDistributor.sendToServer(new SelectTriviaAnswerMessage(triviaBlockPos, answerIndex));
+        ClientPacketDistributor.sendToServer(new SelectTriviaAnswerMessage(triviaBlockPos, answerIndex));
 	}
 
     public void handleAnswerResponse(TriviaBlockEntity.TriviaBlockState triviaBlockState){

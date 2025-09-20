@@ -8,10 +8,11 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.util.FastColor;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.ButtonBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 
 public class BigRedButtonBlockEntityRenderer implements BlockEntityRenderer<BigRedButtonBlockEntity> {
 	private static final int TEXT_PADDING = 4;
@@ -27,7 +28,7 @@ public class BigRedButtonBlockEntityRenderer implements BlockEntityRenderer<BigR
 	}
 
 	@Override
-	public void render(BigRedButtonBlockEntity entity, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
+	public void render(BigRedButtonBlockEntity entity, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay, Vec3 cameraPos) {
 		int presentCount = entity.getPlayersPresentCount();
 		int requiredCount = entity.getPlayersRequiredCount();
 		String text = presentCount + "/" + requiredCount;
@@ -47,7 +48,7 @@ public class BigRedButtonBlockEntityRenderer implements BlockEntityRenderer<BigR
 		float scale = 1.0f / (textWidth + TEXT_PADDING);
 		poseStack.scale(scale, scale, -scale);
 
-		int color = FastColor.ARGB32.lerp((float) presentCount / requiredCount, START_COLOR, TRIGGERED_COLOR);
+		int color = ARGB.lerp((float) presentCount / requiredCount, START_COLOR, TRIGGERED_COLOR);
 		font.drawInBatch(text, -textWidth / 2.0f, -font.lineHeight, color, true, poseStack.last().pose(), bufferSource, Font.DisplayMode.NORMAL, 0, packedLight);
 
 		poseStack.popPose();

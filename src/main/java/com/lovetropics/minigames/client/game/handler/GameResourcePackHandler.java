@@ -12,8 +12,6 @@ import java.util.stream.Collectors;
 public final class GameResourcePackHandler implements ClientGameStateHandler<ResourcePackClientState> {
 	public static final GameResourcePackHandler INSTANCE = new GameResourcePackHandler();
 
-	private static final Minecraft CLIENT = Minecraft.getInstance();
-
 	private GameResourcePackHandler() {
 	}
 
@@ -41,7 +39,7 @@ public final class GameResourcePackHandler implements ClientGameStateHandler<Res
 	}
 
 	private void updatePacks(Predicate<List<String>> apply) {
-		PackRepository packList = CLIENT.getResourcePackRepository();
+		PackRepository packList = Minecraft.getInstance().getResourcePackRepository();
 
 		List<String> enabledPacks = packList.getSelectedPacks().stream()
 				.map(Pack::getId)
@@ -50,11 +48,11 @@ public final class GameResourcePackHandler implements ClientGameStateHandler<Res
 		if (apply.test(enabledPacks)) {
 			packList.setSelected(enabledPacks);
 
-			CLIENT.delayTextureReload();
+			Minecraft.getInstance().delayTextureReload();
 		}
 	}
 
 	private boolean packExists(String packName) {
-		return CLIENT.getResourcePackRepository().isAvailable(packName);
+		return Minecraft.getInstance().getResourcePackRepository().isAvailable(packName);
 	}
 }

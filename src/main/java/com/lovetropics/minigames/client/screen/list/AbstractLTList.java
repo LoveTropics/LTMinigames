@@ -22,12 +22,24 @@ public abstract class AbstractLTList<T extends LTListEntry<T>> extends ObjectSel
 		void onReorder(int offset);
 	}
 	
-	public AbstractLTList(Screen screen, Layout layout, int slotHeightIn) {
+	public AbstractLTList(Screen screen, Layout layout, int entryHeight) {
 		super(
 				screen.getMinecraft(),
 				layout.background().width(), layout.background().height(),
 				layout.background().top(),
-				slotHeightIn
+				entryHeight
+		);
+		this.screen = screen;
+		setPosition(layout.background().left(), layout.background().top());
+	}
+
+	public AbstractLTList(Screen screen, Layout layout, int entryHeight, int headerHeight) {
+		super(
+				screen.getMinecraft(),
+				layout.background().width(), layout.background().height(),
+				layout.background().top(),
+				entryHeight,
+				headerHeight
 		);
 		this.screen = screen;
 		setPosition(layout.background().left(), layout.background().top());
@@ -75,7 +87,7 @@ public abstract class AbstractLTList<T extends LTListEntry<T>> extends ObjectSel
 	}
 
 	private int getEntryIndexAt(int y) {
-		int contentY = y - getY() - headerHeight + (int) getScrollAmount();
+		int contentY = y - getY() - headerHeight + (int) scrollAmount();
 		return contentY / itemHeight;
 	}
 
@@ -88,17 +100,17 @@ public abstract class AbstractLTList<T extends LTListEntry<T>> extends ObjectSel
 
 	@Override
 	public int getRowWidth() {
-		return getMaxScroll() > 0 ? width - SCROLL_WIDTH : width;
+		return maxScrollAmount() > 0 ? width - SCROLL_WIDTH : width;
 	}
 
 	@Override
-	protected int getScrollbarPosition() {
-		return getMaxScroll() > 0 ? getX() + getWidth() - SCROLL_WIDTH : getX() + getWidth();
+	protected int scrollBarX() {
+		return maxScrollAmount() > 0 ? getX() + getWidth() - SCROLL_WIDTH : getX() + getWidth();
 	}
 
 	@Override
-	protected int getRowTop(int index) {
-		return getY() + headerHeight - (int) getScrollAmount()
+	public int getRowTop(int index) {
+		return getY() + headerHeight - (int) scrollAmount()
 				+ index * itemHeight;
 	}
 

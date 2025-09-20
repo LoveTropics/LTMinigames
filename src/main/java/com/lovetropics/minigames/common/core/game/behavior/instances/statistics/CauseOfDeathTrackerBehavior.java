@@ -10,7 +10,7 @@ import com.lovetropics.minigames.common.core.game.state.statistics.StatisticKey;
 import com.lovetropics.minigames.common.core.game.state.statistics.StatisticsMap;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.util.TriState;
 import net.minecraft.world.damagesource.DamageSource;
 
 import javax.annotation.Nullable;
@@ -32,12 +32,12 @@ public final class CauseOfDeathTrackerBehavior implements IGameBehavior {
 		}
 	}
 
-	private InteractionResult onPlayerDeath(IGamePhase game, ServerPlayer player, DamageSource source) {
+	private TriState onPlayerDeath(IGamePhase game, ServerPlayer player, DamageSource source) {
 		StatisticsMap playerStatistics = game.statistics().forPlayer(player);
 
 		playerStatistics.set(StatisticKey.CAUSE_OF_DEATH, CauseOfDeath.from(source));
 		playerStatistics.set(StatisticKey.DEAD, true);
 
-		return InteractionResult.PASS;
+		return TriState.DEFAULT;
 	}
 }

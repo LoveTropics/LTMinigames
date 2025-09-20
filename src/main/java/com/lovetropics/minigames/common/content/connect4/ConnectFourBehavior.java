@@ -29,7 +29,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.util.TriState;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -101,7 +101,7 @@ public class ConnectFourBehavior implements IGameBehavior {
         events.listen(GamePhaseEvents.START, this::onStart);
 
         events.listen(GamePlayerEvents.PLACE_BLOCK, this::onPlaceBlock);
-        events.listen(GamePlayerEvents.BREAK_BLOCK, (player, pos, state, hand) -> player.isCreative() ? InteractionResult.PASS : InteractionResult.FAIL);
+        events.listen(GamePlayerEvents.BREAK_BLOCK, (player, pos, state, hand) -> player.isCreative() ? TriState.DEFAULT : TriState.FALSE);
 
         events.listen(GameWorldEvents.BLOCK_LANDED, this::onBlockLanded);
 
@@ -124,32 +124,32 @@ public class ConnectFourBehavior implements IGameBehavior {
         nextPlayer();
     }
 
-    private InteractionResult onPlaceBlock(ServerPlayer player, BlockPos pos, BlockState placed, BlockState placedOn, ItemStack placedItemStack) {
-        if (player.isCreative()) return InteractionResult.PASS;
+    private TriState onPlaceBlock(ServerPlayer player, BlockPos pos, BlockState placed, BlockState placedOn, ItemStack placedItemStack) {
+        if (player.isCreative()) return TriState.DEFAULT;
 
         if (gameOver || !Objects.equals(playingTeams.current().players.current(), PlayerKey.from(player)) || !placingRegion.contains(pos))
-            return InteractionResult.FAIL;
+            return TriState.FALSE;
 
         var expected = teamBlocks.get(playingTeams.current().key).powder;
-        if (expected != placed.getBlock()) return InteractionResult.FAIL;
+        if (expected != placed.getBlock()) return TriState.FALSE;
 
         int x = blockToGridX(pos);
         if (x < 0 || x >= pieces.length) {
-            return InteractionResult.FAIL;
+            return TriState.FALSE;
         }
 
 		PlacedPiece[] column = pieces[x];
 		if (column[column.length - 1] != null) {
             // Column already filled
             player.playNotifySound(SoundEvents.VILLAGER_NO, SoundSource.BLOCKS, 1.0f, 1.0f);
-			return InteractionResult.FAIL;
+			return TriState.FALSE;
 		}
 
         var below = pos.below();
         pendingGate = new PendingGate(below, player.level().getBlockState(below));
         player.level().setBlock(below, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
 
-        return InteractionResult.PASS;
+        return TriState.DEFAULT;
     }
 
     private void onBlockLanded(ServerLevel level, BlockPos pos, BlockState state) {

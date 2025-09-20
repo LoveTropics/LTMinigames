@@ -23,7 +23,7 @@ public final class DimensionArgument {
         return Commands.argument(name, ResourceLocationArgument.id())
                 .suggests((context, builder) -> {
                     CommandSourceStack source = context.getSource();
-                    Registry<LevelStem> dimensions = source.getServer().registryAccess().registryOrThrow(Registries.LEVEL_STEM);
+                    Registry<LevelStem> dimensions = source.getServer().registryAccess().lookupOrThrow(Registries.LEVEL_STEM);
                     return SharedSuggestionProvider.suggestResource(
                             dimensions.keySet().stream(),
                             builder
@@ -35,9 +35,9 @@ public final class DimensionArgument {
 		ResourceLocation key = ResourceLocationArgument.getId(context, name);
 
 		CommandSourceStack source = context.getSource();
-		Registry<LevelStem> dimensions = source.getServer().registryAccess().registryOrThrow(Registries.LEVEL_STEM);
+		Registry<LevelStem> dimensions = source.getServer().registryAccess().lookupOrThrow(Registries.LEVEL_STEM);
 
-		LevelStem dimension = dimensions.get(key);
+		LevelStem dimension = dimensions.getValue(key);
 		if (dimension == null) {
 			throw DIMENSION_NOT_FOUND.create(key);
 		}

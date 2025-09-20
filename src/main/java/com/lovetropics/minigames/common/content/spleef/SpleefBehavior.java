@@ -30,8 +30,8 @@ import net.minecraft.network.protocol.game.ClientboundSetTitlesAnimationPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.TriState;
 import net.minecraft.world.BossEvent;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -155,12 +155,10 @@ public class SpleefBehavior implements IGameBehavior {
         events.listen(GamePlayerEvents.DEATH, this::onPlayerDeath);
     }
 
-
-    private InteractionResult onPlayerDeath(ServerPlayer player, DamageSource damageSource) {
-        killPlayer(player);
-
-        return InteractionResult.FAIL;
-    }
+	private TriState onPlayerDeath(ServerPlayer player, DamageSource damageSource) {
+		killPlayer(player);
+		return TriState.FALSE;
+	}
 
     /**
      * This is after the countdown has finished.
@@ -289,10 +287,9 @@ public class SpleefBehavior implements IGameBehavior {
             BlockPlacer.replace(game.level(), floorRegions[currentFloor], floorBreakingMaterial, BlockPlacer.Mode.REPLACE, floorMaterial, game.scheduler(),
                     (pos) -> (game.level().random.nextInt(breakCount) * breakInterval),
                     (pos) -> {
-                        game.scheduler().runAfterTicks(15 + game.level().random.nextInt(10), () -> {
-                            game.level().destroyBlock(pos, false);
-                            game.scheduler().notifyBlockChange(pos, game.level(), Blocks.AIR);
-                        });
+                        game.scheduler().runAfterTicks(15 + game.level().random.nextInt(10), () ->
+								game.level().destroyBlock(pos, false)
+						);
                     });
             currentFloor++;
         }

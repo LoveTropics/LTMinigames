@@ -1,9 +1,9 @@
 package com.lovetropics.minigames.mixin.gametest;
 
 import com.lovetropics.minigames.common.util.LTGameTestFakePlayer;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.embedded.EmbeddedChannel;
 import net.minecraft.network.Connection;
-import net.minecraft.network.PacketSendListener;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -26,9 +26,9 @@ public class GTPlayerListMixin {
                     ObfuscationReflectionHelper.setPrivateValue(Connection.class, connection, new EmbeddedChannel(), "channel");
                 }
 
-                @Override
-                public void send(Packet<?> pPacket, @Nullable PacketSendListener pListener) {
-                    fp.capturePacket(pPacket);
+				@Override
+				public void send(Packet<?> packet, @Nullable ChannelFutureListener sendListener) {
+                    fp.capturePacket(packet);
                 }
             };
         }

@@ -23,16 +23,19 @@ import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.ServerExplosion;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.Optional;
+
 public class BbCreeperEntity extends Creeper implements BbMobEntity {
     private final BbMobBrain mobBrain;
     private final Plot plot;
-    private float explosionSizeOffset = 0;
 
-    
+	private float explosionSizeOffset = 0;
+
     public BbCreeperEntity(EntityType<? extends Creeper> type, Level world, Plot plot) {
         super(type, world);
         mobBrain = new BbMobBrain(plot.walls);
@@ -64,20 +67,23 @@ public class BbCreeperEntity extends Creeper implements BbMobEntity {
 
     @Override
     public void explodeCreeper() {
-        if (!level().isClientSide) {
-            double x = getX();
-            double y = getY();
-            double z = getZ();
+        if (level() instanceof ServerLevel level) {
+			Vec3 center = position();
 
-            float size = 2.5f + explosionSizeOffset;
-            Explosion explosion = new PlantAffectingExplosion(level(), null, null, null, x, y, z, size, false, Explosion.BlockInteraction.DESTROY, ParticleTypes.EXPLOSION, ParticleTypes.EXPLOSION_EMITTER, SoundEvents.GENERIC_EXPLODE, e -> true, plot);
+			float size = 2.5f + explosionSizeOffset;
+            ServerExplosion explosion = new PlantAffectingExplosion(level, null, null, null, center, size, false, Explosion.BlockInteraction.DESTROY, e -> true, plot);
             explosion.explode();
-            explosion.finalizeExplosion(false);
 
             float factor = isPowered() ? 2.0F : 1.0F;
-            for (ServerPlayer player : ((ServerLevel) level()).players()) {
-                if (player.distanceToSqr(x, y, z) < 4096.0) {
-                    player.connection.send(new ClientboundExplodePacket(x, y, z, size * factor, explosion.getToBlow(), explosion.getHitPlayers().get(player), explosion.getBlockInteraction(), explosion.getSmallExplosionParticles(), explosion.getLargeExplosionParticles(), explosion.getExplosionSound()));
+            for (ServerPlayer player : level.players()) {
+                if (player.distanceToSqr(center) < 4096.0) {
+					Optional<Vec3> knockback = Optional.ofNullable(explosion.getHitPlayers().get(player));
+                    player.connection.send(new ClientboundExplodePacket(
+							center,
+							knockback.map(k -> k.scale(size * factor)),
+							explosion.isSmall() ? ParticleTypes.EXPLOSION : ParticleTypes.EXPLOSION_EMITTER,
+							SoundEvents.GENERIC_EXPLODE
+					));
                 }
             }
 

@@ -15,7 +15,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.util.TriState;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 
@@ -52,7 +52,7 @@ public class MushroomPlantBehavior implements IGameBehavior {
                 }
             }
 
-            return InteractionResult.PASS;
+            return TriState.DEFAULT;
         });
     }
 }

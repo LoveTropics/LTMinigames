@@ -51,13 +51,17 @@ import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Display;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.StainedGlassBlock;
@@ -78,7 +82,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class CraftingBeeBehavior implements IGameBehavior {
@@ -165,7 +168,7 @@ public class CraftingBeeBehavior implements IGameBehavior {
         for (GameTeam team : teams) {
             var recipes = selectors.stream().map(selector -> selector.select(game.level()))
                     .map(recipe -> new CraftingTask(
-                            recipe.getResult(game.registryAccess()),
+							((Recipe<CraftingInput>) recipe.value()).assemble(CraftingInput.EMPTY, game.registryAccess()),
                             recipe
                     ))
                     .toList();
@@ -222,7 +225,7 @@ public class CraftingBeeBehavior implements IGameBehavior {
     }
 
     private Display.ItemDisplay spawnItemDisplay(BlockPos displayPos, ItemStack displayItem) {
-        Display.ItemDisplay itemDisplay = EntityType.ITEM_DISPLAY.create(game.level());
+        Display.ItemDisplay itemDisplay = EntityType.ITEM_DISPLAY.create(game.level(), EntitySpawnReason.COMMAND);
         itemDisplay.setPos(Vec3.atCenterOf(displayPos));
         itemDisplay.setItemStack(displayItem.copy());
         itemDisplay.setTransformation(new Transformation(null, null, new Vector3f(0.5f), null));
@@ -239,8 +242,8 @@ public class CraftingBeeBehavior implements IGameBehavior {
         if (players.isEmpty()) return;
 
         for (CraftingTask task : tasks) {
-            var ingredients = task.recipe.decompose();
-            var items = ingredients.stream().flatMap(this::singleDecomposition).collect(Collectors.toCollection(ArrayList::new));
+            var ingredients = task.recipe.value().placementInfo().ingredients();
+            var items = ingredients.stream().flatMap(this::singleDecomposition).collect(net.minecraft.Util.toMutableList());
             Collections.shuffle(items);
 
             // Evenly distribute the items between the players
@@ -264,13 +267,13 @@ public class CraftingBeeBehavior implements IGameBehavior {
         }
 
         // We have reduced the ingredient to its most basic form, so now we just pick the first item of the ingredient
-        for (ItemStack item : ingredient.getItems()) {
+		for (Holder<Item> item : ingredient.getValues()) {
             // Prioritize vanilla items
-            if (item.getItem().builtInRegistryHolder().key().location().getNamespace().equals(ResourceLocation.DEFAULT_NAMESPACE)) {
-                return Stream.of(item);
+            if (item.unwrapKey().filter(k -> k.location().getNamespace().equals(ResourceLocation.DEFAULT_NAMESPACE)).isPresent()) {
+                return Stream.of(new ItemStack(item));
             }
         }
-        return Stream.of(ingredient.getItems()[0]);
+        return Stream.of(new ItemStack(ingredient.getValues().get(0)));
     }
 
     private ItemStack modifyCraftResult(ServerPlayer player, ItemStack result, CraftingInput craftingInput, CraftingRecipe recipe) {
@@ -468,17 +471,17 @@ public class CraftingBeeBehavior implements IGameBehavior {
 
     private static class CraftingTask {
         private final ItemStack output;
-        private final SelectedRecipe recipe;
+        private final RecipeHolder<?> recipe;
         private boolean done;
 
-        private CraftingTask(ItemStack output, SelectedRecipe recipe) {
+        private CraftingTask(ItemStack output, RecipeHolder<?> recipe) {
             this.output = output;
-            this.recipe = recipe;
-        }
+			this.recipe = recipe;
+		}
 
-        public CraftingBeeCraftsClientState.Craft toCraft() {
-            return new CraftingBeeCraftsClientState.Craft(output, recipe.id(), done);
-        }
+		public CraftingBeeCraftsClientState.Craft toCraft() {
+			return new CraftingBeeCraftsClientState.Craft(output, recipe.id(), recipe.value().display().getFirst(), done);
+		}
     }
 
     private record TeamRegions(

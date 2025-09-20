@@ -9,7 +9,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -46,7 +46,7 @@ public final class GenerateEntitiesBehavior extends ChunkGeneratingBehavior {
 
 			BlockPos pos = level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, new BlockPos(x, 0, z));
 			float yRot = Mth.wrapDegrees(random.nextFloat() * 360.0f);
-			entity.spawn(level, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, yRot, 0.0f, MobSpawnType.CHUNK_GENERATION);
+			entity.spawn(level, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, yRot, 0.0f, EntitySpawnReason.CHUNK_GENERATION);
 		}
 	}
 }

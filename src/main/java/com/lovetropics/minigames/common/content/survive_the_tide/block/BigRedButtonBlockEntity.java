@@ -5,14 +5,11 @@ import com.lovetropics.minigames.common.core.game.IGameManager;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeam;
 import com.lovetropics.minigames.common.core.game.state.team.TeamState;
-import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtOps;
-import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -24,12 +21,11 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
 
 public class BigRedButtonBlockEntity extends BlockEntity {
-	private static final Logger LOGGER = LogUtils.getLogger();
-
 	private static final String TAG_PRESSED = "pressed";
 	private static final String TAG_PRESENT = "present";
 	private static final String TAG_REQUIREMENTS = "requirements";
@@ -37,7 +33,7 @@ public class BigRedButtonBlockEntity extends BlockEntity {
 
 	private boolean pressed;
 
-	private Requirements requirements = new Requirements(0.0f, 1, Requirements.DEFAULT_DISTANCE);
+	private Requirements requirements = Requirements.DEFAULT;
 	private int playersPresentCount;
 	private int playersRequiredCount;
 
@@ -119,23 +115,19 @@ public class BigRedButtonBlockEntity extends BlockEntity {
 	}
 
 	@Override
-	protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-		super.saveAdditional(tag, registries);
-		tag.putBoolean(TAG_PRESSED, pressed);
-		tag.put(TAG_REQUIREMENTS, Requirements.CODEC.encodeStart(NbtOps.INSTANCE, requirements).getOrThrow());
-		if (triggerPos != null) {
-			tag.put(TAG_TRIGGER_POS, NbtUtils.writeBlockPos(triggerPos));
-		}
+	protected void saveAdditional(ValueOutput output) {
+		super.saveAdditional(output);
+		output.putBoolean(TAG_PRESSED, pressed);
+		output.store(TAG_REQUIREMENTS, Requirements.CODEC, requirements);
+		output.storeNullable(TAG_TRIGGER_POS, BlockPos.CODEC, triggerPos);
 	}
 
 	@Override
-	public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-		super.loadAdditional(tag, registries);
-		pressed = tag.getBoolean(TAG_PRESSED);
-		Requirements.CODEC.parse(NbtOps.INSTANCE, tag.get(TAG_REQUIREMENTS))
-				.resultOrPartial(LOGGER::error)
-				.ifPresent(r -> requirements = r);
-		triggerPos = NbtUtils.readBlockPos(tag, TAG_TRIGGER_POS).orElse(null);
+	protected void loadAdditional(ValueInput input) {
+		super.loadAdditional(input);
+		pressed = input.getBooleanOr(TAG_PRESSED, false);
+		requirements = input.read(TAG_REQUIREMENTS, Requirements.CODEC).orElse(Requirements.DEFAULT);
+		triggerPos = input.read(TAG_TRIGGER_POS, BlockPos.CODEC).orElse(null);
 	}
 
 	@Override
@@ -147,16 +139,14 @@ public class BigRedButtonBlockEntity extends BlockEntity {
 	}
 
 	@Override
-	public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider registries) {
-		if (pkt.getTag() != null) {
-			handleUpdateTag(pkt.getTag(), registries);
-		}
+	public void onDataPacket(Connection net, ValueInput input) {
+		handleUpdateTag(input);
 	}
 
 	@Override
-	public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
-		playersPresentCount = tag.getInt(TAG_PRESENT);
-		playersRequiredCount = tag.getInt(TAG_REQUIREMENTS);
+	public void handleUpdateTag(ValueInput input) {
+		playersPresentCount = input.getIntOr(TAG_PRESENT, 0);
+		playersRequiredCount = input.getIntOr(TAG_REQUIREMENTS, 0);
 	}
 
 	@Override
@@ -178,11 +168,12 @@ public class BigRedButtonBlockEntity extends BlockEntity {
 	}
 
 	private record Requirements(float percent, int count, float distance) {
-		public static final float DEFAULT_DISTANCE = 4.0f;
+		public static final Requirements DEFAULT = new Requirements(0.0f, 1, 4.0f);
+
 		public static final Codec<Requirements> CODEC = RecordCodecBuilder.create(i -> i.group(
-				Codec.FLOAT.optionalFieldOf("percent", 0.0f).forGetter(Requirements::percent),
-				Codec.INT.optionalFieldOf("count", 1).forGetter(Requirements::count),
-				Codec.FLOAT.optionalFieldOf("distance", DEFAULT_DISTANCE).forGetter(Requirements::distance)
+				Codec.FLOAT.optionalFieldOf("percent", DEFAULT.percent).forGetter(Requirements::percent),
+				Codec.INT.optionalFieldOf("count", DEFAULT.count).forGetter(Requirements::count),
+				Codec.FLOAT.optionalFieldOf("distance", DEFAULT.distance).forGetter(Requirements::distance)
 		).apply(i, Requirements::new));
 
 		public int resolve(int smallestTeamSize) {

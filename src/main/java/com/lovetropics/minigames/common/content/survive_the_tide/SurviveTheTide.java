@@ -28,27 +28,38 @@ import com.lovetropics.minigames.common.content.survive_the_tide.entity.Platform
 import com.lovetropics.minigames.common.content.survive_the_tide.item.AcidRepellentUmbrellaItem;
 import com.lovetropics.minigames.common.content.survive_the_tide.item.LightningArrowItem;
 import com.lovetropics.minigames.common.content.survive_the_tide.item.PaddleItem;
-import com.lovetropics.minigames.common.content.survive_the_tide.item.SuperSunscreenItem;
 import com.lovetropics.minigames.common.util.registry.GameBehaviorEntry;
 import com.lovetropics.minigames.common.util.registry.LoveTropicsRegistrate;
 import com.tterrag.registrate.providers.DataGenContext;
-import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
+import com.tterrag.registrate.providers.generators.RegistrateBlockModelGenerator;
+import com.tterrag.registrate.providers.generators.RegistrateItemModelGenerator;
 import com.tterrag.registrate.util.entry.BlockEntityEntry;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import com.tterrag.registrate.util.entry.ItemEntry;
 import com.tterrag.registrate.util.entry.RegistryEntry;
+import net.minecraft.ChatFormatting;
 import net.minecraft.SharedConstants;
+import net.minecraft.client.data.models.model.ModelLocationUtils;
+import net.minecraft.client.data.models.model.ModelTemplates;
+import net.minecraft.client.data.models.model.TextureMapping;
+import net.minecraft.client.data.models.model.TextureSlot;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ButtonBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.block.state.properties.BlockSetType;
-import net.neoforged.neoforge.client.model.generators.BlockModelBuilder;
+
+import java.util.List;
+
+import static net.minecraft.client.data.models.BlockModelGenerators.plainVariant;
+import static net.minecraft.world.level.storage.loot.LootTable.lootTable;
 
 public final class SurviveTheTide {
 	private static final LoveTropicsRegistrate REGISTRATE = LoveTropics.registrate();
@@ -60,68 +71,45 @@ public final class SurviveTheTide {
 			.blockEntity(BigRedButtonBlockEntity::new)
 			.renderer(() -> BigRedButtonBlockEntityRenderer::new)
 			.build()
-			.blockstate(SurviveTheTide::bigRedButtonBlockState)
+			.blockstate(() -> Models::generateCustomButton)
 			.simpleItem()
 			.register();
 
 	public static final BlockEntry<BaseBigRedButtonBlock> NORMAL_BIG_RED_BUTTON = REGISTRATE
 			.block("normal_big_red_button", BaseBigRedButtonBlock::new)
 			.initialProperties(() -> Blocks.STONE_BUTTON)
-			.blockstate(SurviveTheTide::bigRedButtonBlockState)
-			.simpleItem()
+			.blockstate(() -> (ctx, prov) -> Models.generateCustomButton(ctx, prov, BIG_RED_BUTTON.get()))
+			.item()
+			.model(() -> (ctx, prov) -> Models.generateExistingModel(ctx, prov, BIG_RED_BUTTON.asItem()))
+			.build()
 			.register();
 
-	private static void bigRedButtonBlockState(DataGenContext<Block, ? extends ButtonBlock> ctx, RegistrateBlockstateProvider prov) {
-		ResourceLocation texture = prov.mcLoc("block/redstone_block");
-		prov.buttonBlock(ctx.get(),
-				buttonModel(ctx.getName(), prov, BigRedButtonBlock.HALF_SIZE, BigRedButtonBlock.HALF_SIZE, BigRedButtonBlock.UNPRESSED_DEPTH, texture),
-				buttonModel(ctx.getName() + "_pressed", prov, BigRedButtonBlock.HALF_SIZE, BigRedButtonBlock.HALF_SIZE, BigRedButtonBlock.PRESSED_DEPTH, texture)
-		);
-	}
-
 	public static final BlockEntityEntry<BigRedButtonBlockEntity> BIG_RED_BUTTON_ENTITY = BlockEntityEntry.cast(REGISTRATE.get("big_red_button", Registries.BLOCK_ENTITY_TYPE));
-
-	private static BlockModelBuilder buttonModel(String name, RegistrateBlockstateProvider prov, int halfWidth, int halfHeight, int depth, ResourceLocation texture) {
-		return prov.models().getBuilder(name)
-				.texture("button", texture)
-				.texture("surface", prov.mcLoc("block/polished_deepslate"))
-				.texture("particle", "#button")
-				.element()
-				.from(8 - halfWidth, 0, 8 - halfHeight)
-				.to(8 + halfWidth, depth, 8 + halfHeight)
-				.allFaces((direction, face) -> face.texture("#button"))
-				.end()
-				.element()
-				.from(2, 0, 2)
-				.to(14, 1, 14)
-				.allFaces((direction, face) -> face.texture("#surface"))
-				.end();
-	}
 
 	public static final BlockEntry<LootDispenserBlock> LOOT_DISPENSER = REGISTRATE
 			.block("loot_dispenser", LootDispenserBlock::new)
 			.initialProperties(() -> Blocks.DISPENSER)
 			.properties(BlockBehaviour.Properties::noLootTable)
 			.blockEntity(LootDispenserBlockEntity::new).build()
-			.blockstate((ctx, prov) -> prov.directionalBlock(ctx.get(), prov.models().orientableVertical(
-					ctx.getName(),
-					prov.mcLoc("block/furnace_side"),
-					prov.mcLoc("block/dispenser_front_vertical")
-			)))
+			.blockstate(() -> Models::generateLootDispenser)
 			.simpleItem()
 			.register();
 
 	public static final BlockEntityEntry<LootDispenserBlockEntity> LOOT_DISPENSER_ENTITY = BlockEntityEntry.cast(REGISTRATE.get("loot_dispenser", Registries.BLOCK_ENTITY_TYPE));
 
-	public static final ItemEntry<SuperSunscreenItem> SUPER_SUNSCREEN = REGISTRATE.item("super_sunscreen", SuperSunscreenItem::new)
+	public static final ItemEntry<Item> SUPER_SUNSCREEN = REGISTRATE.item("super_sunscreen", Item::new)
+			.properties(p -> p.durability(180)
+					.component(DataComponents.LORE, simpleLore(SurviveTheTideTexts.SUPER_SUNSCREEN_TOOLTIP)))
 			.register();
 
 	public static final ItemEntry<AcidRepellentUmbrellaItem> ACID_REPELLENT_UMBRELLA = REGISTRATE.item("acid_repellent_umbrella", AcidRepellentUmbrellaItem::new)
-			.model((ctx, prov) -> {})
+			.properties(p -> p.component(DataComponents.LORE, simpleLore(SurviveTheTideTexts.ACID_REPELLENT_UMBRELLA_TOOLTIP)))
+			.model(() -> Models::generateExistingModel)
 			.register();
 
 	public static final ItemEntry<PaddleItem> PADDLE = REGISTRATE.item("paddle", PaddleItem::new)
-			.model((ctx, prov) -> {})
+			.properties(p -> p.component(DataComponents.LORE, simpleLore(SurviveTheTideTexts.PADDLE_TOOLTIP)))
+			.model(() -> Models::generateExistingModel)
 			.register();
 
 	public static final ItemEntry<LightningArrowItem> LIGHTNING_ARROW = REGISTRATE.item("lightning_arrow", LightningArrowItem::new)
@@ -130,19 +118,19 @@ public final class SurviveTheTide {
 
 	public static final RegistryEntry<EntityType<?>, EntityType<DriftwoodEntity>> DRIFTWOOD = REGISTRATE.entity("driftwood", DriftwoodEntity::new, MobCategory.MISC)
 			.properties(properties -> properties.sized(2.0F, 1.0F).setShouldReceiveVelocityUpdates(true).setUpdateInterval(3))
-			.defaultLang()
+			.loot((loot, type) -> loot.add(type, lootTable()))
 			.renderer(() -> DriftwoodRenderer::new)
 			.register();
 
 	public static final RegistryEntry<EntityType<?>, EntityType<LightningArrowEntity>> LIGHTNING_ARROW_ENTITY = REGISTRATE.<LightningArrowEntity>entity("lightning_arrow", LightningArrowEntity::new, MobCategory.MISC)
 			.properties(properties -> properties.sized(0.5f, 0.5f).clientTrackingRange(4).updateInterval(SharedConstants.TICKS_PER_SECOND))
-			.defaultLang()
+			.loot((loot, type) -> loot.add(type, lootTable()))
 			.renderer(() -> LightningArrowRenderer::new)
 			.register();
 
 	public static final RegistryEntry<EntityType<?>, EntityType<PlatformEntity>> PLATFORM = REGISTRATE.entity("platform", PlatformEntity::new, MobCategory.MISC)
 			.properties(properties -> properties.sized(0.0f, 0.0f).updateInterval(3).clientTrackingRange(1).noSave())
-			.defaultLang()
+			.loot((loot, type) -> loot.add(type, lootTable()))
 			.renderer(() -> PlatformRenderer::new)
 			.register();
 
@@ -184,5 +172,45 @@ public final class SurviveTheTide {
 			.register();
 
 	public static void init() {
+	}
+
+	public static ItemLore simpleLore(Component lore) {
+		return new ItemLore(List.of(lore.copy().withStyle(style -> {
+			if (style.getColor() == null) {
+				style = style.withColor(ChatFormatting.WHITE);
+			}
+			return style.withItalic(style.isItalic());
+		})));
+	}
+
+	private static class Models {
+		private static void generateCustomButton(DataGenContext<Block, ? extends ButtonBlock> ctx, RegistrateBlockModelGenerator prov) {
+			generateCustomButton(ctx, prov, ctx.get());
+		}
+
+		private static void generateCustomButton(DataGenContext<Block, ? extends ButtonBlock> ctx, RegistrateBlockModelGenerator prov, ButtonBlock modelBlock) {
+			prov.generateButtonBlock(ctx.get(),
+					plainVariant(ModelLocationUtils.getModelLocation(modelBlock)),
+					plainVariant(ModelLocationUtils.getModelLocation(modelBlock, "_pressed"))
+			);
+		}
+
+		private static void generateLootDispenser(DataGenContext<Block, LootDispenserBlock> ctx, RegistrateBlockModelGenerator prov) {
+			prov.generateDirectionalBlock(ctx.get(), plainVariant(ModelTemplates.CUBE_ORIENTABLE_VERTICAL.create(
+					ModelLocationUtils.getModelLocation(ctx.get()),
+					new TextureMapping()
+							.put(TextureSlot.SIDE, TextureMapping.getBlockTexture(Blocks.FURNACE, "_side"))
+							.put(TextureSlot.FRONT, TextureMapping.getBlockTexture(Blocks.DISPENSER, "_front_vertical")),
+					prov.modelOutput
+			)));
+		}
+
+		private static void generateExistingModel(DataGenContext<Item, ? extends Item> ctx, RegistrateItemModelGenerator prov) {
+			generateExistingModel(ctx, prov, ctx.get());
+		}
+
+		private static void generateExistingModel(DataGenContext<Item, ? extends Item> ctx, RegistrateItemModelGenerator prov, Item modelItem) {
+			prov.createWithExistingModel(ctx.get(), ModelLocationUtils.getModelLocation(modelItem));
+		}
 	}
 }

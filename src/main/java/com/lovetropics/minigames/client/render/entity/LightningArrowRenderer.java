@@ -4,15 +4,21 @@ import com.lovetropics.minigames.common.content.survive_the_tide.entity.Lightnin
 import net.minecraft.client.renderer.entity.ArrowRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.TippableArrowRenderer;
+import net.minecraft.client.renderer.entity.state.ArrowRenderState;
 import net.minecraft.resources.ResourceLocation;
 
-public class LightningArrowRenderer extends ArrowRenderer<LightningArrowEntity> {
+public class LightningArrowRenderer extends ArrowRenderer<LightningArrowEntity, ArrowRenderState> {
 	public LightningArrowRenderer(final EntityRendererProvider.Context context) {
 		super(context);
 	}
 
 	@Override
-	public ResourceLocation getTextureLocation(final LightningArrowEntity entity) {
+	public ArrowRenderState createRenderState() {
+		return new ArrowRenderState();
+	}
+
+	@Override
+	protected ResourceLocation getTextureLocation(ArrowRenderState renderState) {
 		return TippableArrowRenderer.NORMAL_ARROW_LOCATION;
 	}
 }

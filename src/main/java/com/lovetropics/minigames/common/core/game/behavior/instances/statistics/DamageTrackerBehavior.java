@@ -8,9 +8,8 @@ import com.lovetropics.minigames.common.core.game.state.statistics.GameStatistic
 import com.lovetropics.minigames.common.core.game.state.statistics.StatisticKey;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.util.TriState;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
 
 public final class DamageTrackerBehavior implements IGameBehavior {
 	public static final MapCodec<DamageTrackerBehavior> CODEC = MapCodec.unit(DamageTrackerBehavior::new);
@@ -25,13 +24,13 @@ public final class DamageTrackerBehavior implements IGameBehavior {
 					.apply(total -> total + damageAmount);
 
 			Entity attacker = source.getEntity();
-			if (attacker instanceof ServerPlayer) {
-				statistics.forPlayer((Player) attacker)
+			if (attacker instanceof ServerPlayer attackerPlayer) {
+				statistics.forPlayer(attackerPlayer)
 						.withDefault(StatisticKey.DAMAGE_DEALT, () -> 0.0F)
 						.apply(total -> total + damageAmount);
 			}
 
-			return InteractionResult.PASS;
+			return TriState.DEFAULT;
 		});
 	}
 }

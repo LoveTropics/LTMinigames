@@ -7,11 +7,13 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import it.unimi.dsi.fastutil.HashCommon;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.ShapeRenderer;
 import net.minecraft.client.renderer.debug.DebugRenderer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.ARGB;
+import net.minecraft.util.CommonColors;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
@@ -24,11 +26,7 @@ import java.util.Set;
 @EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
 public final class MapWorkspaceRenderer {
 	@SubscribeEvent
-	public static void onRenderLevel(RenderLevelStageEvent event) {
-		if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_WEATHER) {
-			return;
-		}
-
+	public static void onRenderLevel(RenderLevelStageEvent.AfterWeather event) {
 		ClientWorkspaceRegions regions = ClientMapWorkspace.INSTANCE.getRegions();
 		if (regions.isEmpty()) {
 			return;
@@ -49,9 +47,9 @@ public final class MapWorkspaceRenderer {
 
 		for (ClientWorkspaceRegions.Entry entry : regions) {
 			int color = colorForKey(entry.key);
-			float red = (color >> 16 & 0xFF) / 255.0F;
-			float green = (color >> 8 & 0xFF) / 255.0F;
-			float blue = (color & 0xFF) / 255.0F;
+			float red = ARGB.redFloat(color);
+			float green = ARGB.greenFloat(color);
+			float blue = ARGB.blueFloat(color);
 			float outlineRed = red;
 			float outlineGreen = green;
 			float outlineBlue = blue;
@@ -79,7 +77,7 @@ public final class MapWorkspaceRenderer {
 			double maxZ = region.max().getZ() + 1.0 - view.z;
 
 			DebugRenderer.renderFilledBox(poseStack, bufferSource, minX, minY, minZ, maxX, maxY, maxZ, red, green, blue, alpha);
-			LevelRenderer.renderLineBox(poseStack, bufferSource.getBuffer(RenderType.lines()), minX, minY, minZ, maxX, maxY, maxZ, outlineRed, outlineGreen, outlineBlue, 1.0F);
+			ShapeRenderer.renderLineBox(poseStack, bufferSource.getBuffer(RenderType.lines()), minX, minY, minZ, maxX, maxY, maxZ, outlineRed, outlineGreen, outlineBlue, 1.0F);
 		}
 
 		for (ClientWorkspaceRegions.Entry entry : regions) {
@@ -89,13 +87,13 @@ public final class MapWorkspaceRenderer {
 			int minSize = Math.min(size.getX(), Math.min(size.getY(), size.getZ())) - 1;
 			float scale = Mth.clamp(minSize * 0.03125F, 0.03125F, 0.125F);
 
-			DebugRenderer.renderFloatingText(poseStack, bufferSource, entry.key, center.x, center.y, center.z, 0xFFFFFFFF, scale, true, 0.0F, true);
+			DebugRenderer.renderFloatingText(poseStack, bufferSource, entry.key, center.x, center.y, center.z, CommonColors.WHITE, scale, true, 0.0F, true);
 		}
 
 		bufferSource.endLastBatch();
 	}
 
 	private static int colorForKey(String key) {
-		return HashCommon.mix(key.hashCode()) & 0xFFFFFF;
+		return ARGB.opaque(HashCommon.mix(key.hashCode()) & 0xFFFFFF);
 	}
 }

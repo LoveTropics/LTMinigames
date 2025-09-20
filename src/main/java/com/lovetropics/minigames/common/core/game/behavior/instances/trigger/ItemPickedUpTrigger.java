@@ -9,12 +9,12 @@ import com.lovetropics.minigames.common.core.game.behavior.action.GameActionList
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionParameter;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
+import com.lovetropics.minigames.common.core.game.behavior.event.PickUpResult;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.Optional;
@@ -39,9 +39,9 @@ public record ItemPickedUpTrigger(Optional<ItemPredicate> itemPredicate, GameAct
 						.set(GameActionParameter.COUNT, stack.getCount())
 						.build();
 				action.apply(game, context, player);
-				return consume ? InteractionResult.CONSUME : InteractionResult.PASS;
+				return consume ? PickUpResult.DISCARD : PickUpResult.PASS;
 			}
-			return InteractionResult.PASS;
+			return PickUpResult.PASS;
 		});
 	}
 

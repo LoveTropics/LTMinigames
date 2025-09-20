@@ -16,8 +16,8 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
@@ -74,7 +74,7 @@ public class FruitDropEntityBehavior implements IGameBehavior {
 				})
 				.forEach(bp -> {
 					level.setBlockAndUpdate(bp, Blocks.AIR.defaultBlockState());
-					Entity spawnedEntity = entity.spawn(level, null, null, bp, MobSpawnType.TRIGGERED, false, false);
+					Entity spawnedEntity = entity.spawn(level, null, null, bp, EntitySpawnReason.TRIGGERED, false, false);
 					if (spawnedEntity != null) {
 						level.addFreshEntity(spawnedEntity);
 					}

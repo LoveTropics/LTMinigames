@@ -4,10 +4,10 @@ issueTrackerURL = "https://github.com/LoveTropics/LTMinigames/issues"
 license = "Mozilla Public License Version 2.0"
 
 [[mods]]
-modId = "ltminigames"
+modId = "${mod_id}"
 version = "${mod_version}"
 displayName = "LTMinigames"
-displayURL = "https://lovetropics.com"
+displayURL = "https://lovetropics.org"
 authors = "The Love Tropics team"
 description = '''
 Minigame engine for the LoveTropics livestream event.
@@ -15,3 +15,17 @@ Minigame engine for the LoveTropics livestream event.
 
 [[mixins]]
 config = "ltminigames.mixins.json"
+
+[[dependencies.${ mod_id }]]
+modId = "neoforge"
+type = "required"
+versionRange = "${neo_version_range}"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.${ mod_id }]]
+modId = "minecraft"
+type = "required"
+versionRange = "${minecraft_version_range}"
+ordering = "NONE"
+side = "BOTH"

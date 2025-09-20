@@ -7,14 +7,15 @@ import com.lovetropics.minigames.common.core.game.behavior.event.GameEntityEvent
 import com.lovetropics.minigames.common.core.game.behavior.event.GameLivingEntityEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameWorldEvents;
+import com.lovetropics.minigames.common.core.game.behavior.event.PickUpResult;
 import com.lovetropics.minigames.common.util.Scheduler;
-import com.lovetropics.minigames.common.util.duck.ExtendedExplosion;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.util.TriState;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
@@ -25,13 +26,13 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerListener;
+import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.ServerExplosion;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.neoforge.common.util.TriState;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 import net.neoforged.neoforge.event.entity.EntityMountEvent;
@@ -89,8 +90,8 @@ public final class GameEventDispatcher {
 				try {
 					DamageSource source = event.getSource();
 					float amount = event.getNewDamage();
-					InteractionResult result = game.invoker(GamePlayerEvents.DAMAGE).onDamage(player, source, amount);
-					if (result == InteractionResult.FAIL) {
+					TriState result = game.invoker(GamePlayerEvents.DAMAGE).onDamage(player, source, amount);
+					if (result.isFalse()) {
 						event.setNewDamage(0.0f);
 						return;
 					}
@@ -133,8 +134,8 @@ public final class GameEventDispatcher {
 
 	private boolean dispatchAttackEvent(IGamePhase game, ServerPlayer player, Entity target) {
 		try {
-			InteractionResult result = game.invoker(GamePlayerEvents.ATTACK).onAttack(player, target);
-			return result == InteractionResult.FAIL;
+			TriState result = game.invoker(GamePlayerEvents.ATTACK).onAttack(player, target);
+			return result.isFalse();
 		} catch (Exception e) {
 			LoveTropics.LOGGER.warn("Failed to dispatch player attack event", e);
 		}
@@ -171,8 +172,8 @@ public final class GameEventDispatcher {
 		if (game != null) {
 			if (entity instanceof ServerPlayer) {
 				try {
-					InteractionResult result = game.invoker(GamePlayerEvents.DEATH).onDeath((ServerPlayer) entity, event.getSource());
-					if (result == InteractionResult.FAIL) {
+					TriState result = game.invoker(GamePlayerEvents.DEATH).onDeath((ServerPlayer) entity, event.getSource());
+					if (result.isFalse()) {
 						event.setCanceled(true);
 					}
 				} catch (Exception e) {
@@ -180,8 +181,8 @@ public final class GameEventDispatcher {
 				}
 			} else {
 				try {
-					InteractionResult result = game.invoker(GameLivingEntityEvents.DEATH).onDeath(entity, event.getSource());
-					if (result == InteractionResult.FAIL) {
+					TriState result = game.invoker(GameLivingEntityEvents.DEATH).onDeath(entity, event.getSource());
+					if (result.isFalse()) {
 						event.setCanceled(true);
 					}
 				} catch (Exception e) {
@@ -208,8 +209,8 @@ public final class GameEventDispatcher {
 		IGamePhase game = gameLookup.getGamePhaseFor(entity);
 		if (game != null) {
 			try {
-				InteractionResult result = game.invoker(GameLivingEntityEvents.MOB_DROP).onMobDrop(entity, event.getSource(), event.getDrops());
-				if (result == InteractionResult.FAIL) {
+				TriState result = game.invoker(GameLivingEntityEvents.MOB_DROP).onMobDrop(entity, event.getSource(), event.getDrops());
+				if (result.isFalse()) {
 					event.setCanceled(true);
 				}
 			} catch (Exception e) {
@@ -235,8 +236,8 @@ public final class GameEventDispatcher {
 		IGamePhase game = gameLookup.getGamePhaseFor(event.getEntity());
 		if (game != null) {
 			try {
-				InteractionResult result = game.invoker(GameLivingEntityEvents.FARMLAND_TRAMPLE).onFarmlandTrample(event.getEntity(), event.getPos(), event.getState());
-				if (result == InteractionResult.FAIL) {
+				TriState result = game.invoker(GameLivingEntityEvents.FARMLAND_TRAMPLE).onFarmlandTrample(event.getEntity(), event.getPos(), event.getState());
+				if (result.isFalse()) {
 					event.setCanceled(true);
 				}
 			} catch (Exception e) {
@@ -261,8 +262,8 @@ public final class GameEventDispatcher {
 		IGamePhase game = gameLookup.getGamePhaseFor(player);
 		if (game != null) {
 			try {
-				InteractionResult result = game.invoker(GamePlayerEvents.THROW_ITEM).onThrowItem(player, item);
-				if (result == InteractionResult.FAIL) {
+				TriState result = game.invoker(GamePlayerEvents.THROW_ITEM).onThrowItem(player, item);
+				if (result.isFalse()) {
 					player.getInventory().add(item.getItem());
 					player.containerMenu.broadcastFullState();
 					return true;
@@ -282,7 +283,7 @@ public final class GameEventDispatcher {
 
 			try {
 				InteractionResult result = game.invoker(GamePlayerEvents.INTERACT_ENTITY).onInteractEntity(player, event.getTarget(), event.getHand());
-				if (result != InteractionResult.PASS) {
+				if (result.consumesAction()) {
 					event.setCancellationResult(result);
 					event.setCanceled(true);
 				}
@@ -299,7 +300,7 @@ public final class GameEventDispatcher {
 			ServerPlayer player = (ServerPlayer) event.getEntity();
 
 			try {
-				game.invoker(GamePlayerEvents.LEFT_CLICK_BLOCK).onLeftClickBlock(player, player.serverLevel(), event.getPos());
+				game.invoker(GamePlayerEvents.LEFT_CLICK_BLOCK).onLeftClickBlock(player, player.level(), event.getPos());
 			} catch (Exception e) {
 				LoveTropics.LOGGER.warn("Failed to dispatch player left click block event", e);
 			}
@@ -313,18 +314,18 @@ public final class GameEventDispatcher {
 			ServerPlayer player = (ServerPlayer) event.getEntity();
 
 			try {
-				InteractionResult blockResult = game.invoker(GamePlayerEvents.USE_BLOCK).onUseBlock(player, player.serverLevel(), event.getPos(), event.getHand(), event.getHitVec());
+				InteractionResult blockResult = game.invoker(GamePlayerEvents.USE_BLOCK).onUseBlock(player, player.level(), event.getPos(), event.getHand(), event.getHitVec());
 				if (blockResult == InteractionResult.CONSUME) {
 					event.setUseBlock(TriState.FALSE);
-				} else if (blockResult != InteractionResult.PASS) {
+				} else if (blockResult.consumesAction()) {
 					event.setCanceled(true);
 					event.setCancellationResult(blockResult);
 					return;
 				}
-				InteractionResult itemResult = game.invoker(GamePlayerEvents.USE_ITEM_ON_BLOCK).onUseBlock(player, player.serverLevel(), event.getPos(), event.getHand(), event.getHitVec());
+				InteractionResult itemResult = game.invoker(GamePlayerEvents.USE_ITEM_ON_BLOCK).onUseBlock(player, player.level(), event.getPos(), event.getHand(), event.getHitVec());
 				if (itemResult == InteractionResult.CONSUME) {
 					event.setUseItem(TriState.FALSE);
-				} else if (itemResult != InteractionResult.PASS) {
+				} else if (itemResult.consumesAction()) {
 					event.setCanceled(true);
 					event.setCancellationResult(itemResult);
 				}
@@ -337,12 +338,10 @@ public final class GameEventDispatcher {
 	@SubscribeEvent
 	public void onPlayerRightClickItem(PlayerInteractEvent.RightClickItem event) {
 		IGamePhase game = gameLookup.getGamePhaseFor(event.getEntity());
-		if (game != null) {
-			ServerPlayer player = (ServerPlayer) event.getEntity();
-
+		if (game != null && event.getEntity() instanceof ServerPlayer player) {
 			try {
 				InteractionResult result = game.invoker(GamePlayerEvents.USE_ITEM).onUseItem(player, event.getHand());
-				if (result != InteractionResult.PASS) {
+				if (result.consumesAction()) {
 					event.setCancellationResult(result);
 					event.setCanceled(true);
 					resendPlayerHeldItem(player, event.getHand());
@@ -360,8 +359,8 @@ public final class GameEventDispatcher {
 			try {
 				ServerPlayer player = (ServerPlayer) event.getPlayer();
 				InteractionHand hand = player.getUsedItemHand();
-				InteractionResult result = game.invoker(GamePlayerEvents.BREAK_BLOCK).onBreakBlock(player, event.getPos(), event.getState(), hand);
-				if (result == InteractionResult.FAIL) {
+				TriState result = game.invoker(GamePlayerEvents.BREAK_BLOCK).onBreakBlock(player, event.getPos(), event.getState(), hand);
+				if (result.isFalse()) {
 					event.setCanceled(true);
 				}
 			} catch (Exception e) {
@@ -391,8 +390,8 @@ public final class GameEventDispatcher {
 				return;
 			}
 			try {
-				InteractionResult result = game.invoker(GamePlayerEvents.PLACE_BLOCK).onPlaceBlock(player, event.getPos(), event.getPlacedBlock(), event.getPlacedAgainst(), placedItemStack);
-				if (result == InteractionResult.FAIL) {
+				TriState result = game.invoker(GamePlayerEvents.PLACE_BLOCK).onPlaceBlock(player, event.getPos(), event.getPlacedBlock(), event.getPlacedAgainst(), placedItemStack);
+				if (result.isFalse()) {
 					event.setCanceled(true);
 					resendPlayerHeldItem(player, InteractionHand.MAIN_HAND);
 					resendPlayerHeldItem(player, InteractionHand.OFF_HAND);
@@ -404,23 +403,22 @@ public final class GameEventDispatcher {
 	}
 
 	private void resendPlayerHeldItem(ServerPlayer player, InteractionHand hand) {
-		int handSlot = hand == InteractionHand.MAIN_HAND ? player.getInventory().selected : Inventory.SLOT_OFFHAND;
+		int handSlot = hand == InteractionHand.MAIN_HAND ? player.getInventory().getSelectedSlot() : Inventory.SLOT_OFFHAND;
 		ItemStack handItem = player.getItemInHand(hand);
-		player.connection.send(new ClientboundContainerSetSlotPacket(ClientboundContainerSetSlotPacket.PLAYER_INVENTORY, 0, handSlot, handItem));
+		InventoryMenu inventory = player.inventoryMenu;
+		player.connection.send(new ClientboundContainerSetSlotPacket(inventory.containerId, inventory.incrementStateId(), handSlot, handItem));
 	}
 
-	@SubscribeEvent
-	public void onExplosionStart(ExplosionEvent.Start event) {
-		Explosion explosion = event.getExplosion();
-		IGamePhase game = gameLookup.getGamePhaseAt(event.getLevel(), BlockPos.containing(explosion.center()));
+	public Holder<SoundEvent> modifyExplosionSound(ServerLevel level, ServerExplosion explosion, Holder<SoundEvent> sound) {
+		IGamePhase game = gameLookup.getGamePhaseAt(level, BlockPos.containing(explosion.center()));
 		if (game != null) {
 			try {
-				Holder<SoundEvent> newSound = game.invoker(GameWorldEvents.EXPLOSION_SOUND).updateExplosionSound(explosion, explosion.getExplosionSound());
-				((ExtendedExplosion) explosion).ltminigames$setSound(newSound);
+				return game.invoker(GameWorldEvents.EXPLOSION_SOUND).updateExplosionSound(explosion, sound);
 			} catch (Exception e) {
 				LoveTropics.LOGGER.warn("Failed to dispatch explosion event", e);
 			}
 		}
+		return sound;
 	}
 
 	@SubscribeEvent
@@ -453,9 +451,8 @@ public final class GameEventDispatcher {
 		IGamePhase game = gameLookup.getGamePhaseAt((Level) event.getLevel(), event.getPos());
 		if (game != null) {
 			try {
-				InteractionResult result = game.invoker(GameWorldEvents.SAPLING_GROW).onSaplingGrow((Level) event.getLevel(), event.getPos());
-
-				if (result == InteractionResult.FAIL) {
+				TriState result = game.invoker(GameWorldEvents.SAPLING_GROW).onSaplingGrow(game.level(), event.getPos());
+				if (result.isFalse()) {
 					event.setCanceled(true);
 				}
 			} catch (Exception e) {
@@ -472,8 +469,8 @@ public final class GameEventDispatcher {
 		IGamePhase game = gameLookup.getGamePhaseFor(entityBeingMounted);
 		if (game != null) {
 			try {
-				InteractionResult result = game.invoker(GameEntityEvents.MOUNTED).onEntityMounted(entityMounting, entityBeingMounted);
-				if (result == InteractionResult.FAIL) {
+				TriState result = game.invoker(GameEntityEvents.MOUNTED).onEntityMounted(entityMounting, entityBeingMounted);
+				if (result.isFalse()) {
 					event.setCanceled(true);
 				}
 			} catch (Exception e) {
@@ -491,13 +488,13 @@ public final class GameEventDispatcher {
 		}
 		if (event.getPlayer() instanceof ServerPlayer serverPlayer && game.allPlayers().contains(serverPlayer)) {
 			try {
-				InteractionResult result = game.invoker(GamePlayerEvents.PICK_UP_ITEM).onPickUpItem(serverPlayer, itemEntity);
+				PickUpResult result = game.invoker(GamePlayerEvents.PICK_UP_ITEM).onPickUpItem(serverPlayer, itemEntity);
 				switch (result) {
-					case CONSUME, CONSUME_PARTIAL -> {
+					case DISCARD -> {
 						event.setCanPickup(TriState.TRUE);
 						event.getItemEntity().getItem().setCount(0);
 					}
-					case FAIL -> event.setCanPickup(TriState.FALSE);
+					case CANCEL -> event.setCanPickup(TriState.FALSE);
 				}
 			} catch (Exception e) {
 				LoveTropics.LOGGER.warn("Failed to dispatch item pickup event", e);

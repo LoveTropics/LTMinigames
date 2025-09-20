@@ -1,18 +1,12 @@
 package com.lovetropics.minigames.common.content.survive_the_tide.item;
 
-import com.lovetropics.minigames.common.content.survive_the_tide.SurviveTheTideTexts;
 import com.lovetropics.minigames.common.content.survive_the_tide.entity.DriftwoodEntity;
 import com.lovetropics.minigames.common.content.survive_the_tide.entity.DriftwoodRider;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
-
-import java.util.List;
 
 public class PaddleItem extends Item {
 	public PaddleItem(Properties properties) {
@@ -20,15 +14,9 @@ public class PaddleItem extends Item {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
-		tooltip.add(SurviveTheTideTexts.PADDLE_TOOLTIP);
-	}
-
-	@Override
-	public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
-		ItemStack stack = player.getItemInHand(hand);
+	public InteractionResult use(Level world, Player player, InteractionHand hand) {
 		if (world.isClientSide) {
-			return InteractionResultHolder.pass(stack);
+			return InteractionResult.PASS;
 		}
 
 		DriftwoodRider rider = player.getData(DriftwoodRider.ATTACHMENT);
@@ -36,12 +24,12 @@ public class PaddleItem extends Item {
 		if (driftwood != null) {
 			if (driftwood.paddle(player.getYRot())) {
 				player.swing(hand, true);
-				return InteractionResultHolder.success(stack);
+				return InteractionResult.SUCCESS;
 			} else {
-				return InteractionResultHolder.fail(stack);
+				return InteractionResult.FAIL;
 			}
 		}
 
-		return InteractionResultHolder.pass(stack);
+		return InteractionResult.PASS;
 	}
 }
