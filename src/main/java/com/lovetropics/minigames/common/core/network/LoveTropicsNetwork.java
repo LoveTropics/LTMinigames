@@ -53,7 +53,6 @@ public final class LoveTropicsNetwork {
 		registrar.playToClient(SelectRolePromptMessage.TYPE, SelectRolePromptMessage.STREAM_CODEC);
 		registrar.playToServer(SelectRoleMessage.TYPE, SelectRoleMessage.STREAM_CODEC, SelectRoleMessage::handle);
 		registrar.playToServer(ManageOrCreateLobbyPacket.TYPE, ManageOrCreateLobbyPacket.STREAM_CODEC, ManageOrCreateLobbyPacket::handle);
-		registrar.playToServer(JoinedLobbyMessage.TYPE, JoinedLobbyMessage.STREAM_CODEC, JoinedLobbyMessage::handle);
 		registrar.playToServer(LeaveLobbyPacket.TYPE, LeaveLobbyPacket.STREAM_CODEC, LeaveLobbyPacket::handle);
 
 		registrar.playToClient(DrawParticleLineMessage.TYPE, DrawParticleLineMessage.STREAM_CODEC);
