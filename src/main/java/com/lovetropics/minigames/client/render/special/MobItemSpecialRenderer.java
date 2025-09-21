@@ -50,7 +50,7 @@ public class MobItemSpecialRenderer implements SpecialModelRenderer<MobItemSpeci
 	}
 
 	private static void addVertex(final VertexConsumer consumer, final PoseStack.Pose pose, final float x, final float y, final float u, final float v, final int packedLight, int packedOverlay) {
-		consumer.addVertex(pose, x, y, 100.0f)
+		consumer.addVertex(pose, x, y, 0.0f)
 				.setColor(1.0f, 1.0f, 1.0f, 1.0f)
 				.setUv(u, v)
 				.setOverlay(packedOverlay)
