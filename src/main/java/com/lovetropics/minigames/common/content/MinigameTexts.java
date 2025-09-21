@@ -71,17 +71,17 @@ public final class MinigameTexts {
 
 	public static final Component SURVIVE_THE_TIDE_DOWN_TO_TWO = KEYS.add("survive_the_tide_down_to_two", "IT'S DOWN TO TWO PLAYERS! %s and %s are now head to head - who will triumph above these rising tides?");
 
-    public static final Component SPLEEF_TITLE_FORCED_PROGRESSION = KEYS.add("spleef.title.forced_progression", "Forced Progression in: ");
-    public static final Component SPLEEF_TITLE_PREPARE = KEYS.add("spleef.title.prepare", "Prepare for Spleef!");
+	public static final Component SPLEEF_TITLE_FORCED_PROGRESSION = KEYS.add("spleef.title.forced_progression", "Forced Progression in: ");
+	public static final Component SPLEEF_TITLE_PREPARE = KEYS.add("spleef.title.prepare", "Prepare for Spleef!");
 
-    public static final Component SPLEEF_ELIMINATED = KEYS.add("spleef.title.eliminated", "Eliminated!");
+	public static final Component SPLEEF_ELIMINATED = KEYS.add("spleef.title.eliminated", "Eliminated!");
 
-    public static final TranslationCollector.Fun1 SPLEEF_COUNTDOWN_TITLE = KEYS.add1("spleef.countdown.title", "◁ %s ▷");
+	public static final TranslationCollector.Fun1 SPLEEF_COUNTDOWN_TITLE = KEYS.add1("spleef.countdown.title", "◁ %s ▷");
 
-    public static final Component SPLEEF_COUNTDOWN_SUBTITLE = KEYS.add("spleef.countdown.subtitle", "> Spleef In <");
+	public static final Component SPLEEF_COUNTDOWN_SUBTITLE = KEYS.add("spleef.countdown.subtitle", "> Spleef In <");
 
-    public static final Component WINNER_TITLE = KEYS.add("winner.title", "WINNER");
-    public static final Component WINNER_SUBTITLE = KEYS.add("winner.subtitle", "You've emerged victorious!");
+	public static final Component WINNER_TITLE = KEYS.add("winner.title", "WINNER");
+	public static final Component WINNER_SUBTITLE = KEYS.add("winner.subtitle", "You've emerged victorious!");
 
 	public static final Component NOBODY = KEYS.add("nobody", "Nobody");
 	public static final Component RESULTS = KEYS.add("results", "The game is over! Here are the results:");
@@ -337,23 +337,22 @@ public final class MinigameTexts {
 		KEYS.add("event.hail_event.description", "Hail rains down from the sky! The players better have their Umbrellas ready.");
 		KEYS.add("event.hail_event.toast", "Chat has started a HAILSTORM for 1 minute!");
 
-        KEYS.add("spleef.flavor.volcano.layer_countdown", "Next layer crumble in %s");
-        KEYS.add("spleef.flavor.volcano.forced_progression", "The %s level of the volcano has become unstable. It will now crumble below your feet!");
-        KEYS.add("spleef.flavor.volcano.eliminated", "You fell into the volcano");
-        KEYS.add("spleef.flavor.volcano.win", "%s has won Volcano Spleef!");
+		KEYS.add("spleef.flavor.volcano.layer_countdown", "Next layer crumble in %s");
+		KEYS.add("spleef.flavor.volcano.forced_progression", "The %s level of the volcano has become unstable. It will now crumble below your feet!");
+		KEYS.add("spleef.flavor.volcano.eliminated", "You fell into the volcano");
+		KEYS.add("spleef.flavor.volcano.win", "%s has won Volcano Spleef!");
 		KEYS.add("spleef.flavor.volcano.winners", "%s have won Volcano Spleef! We have multiple winners!!!");
 
 		KEYS.add("levitation.intro1", "Race to be the first to reach the top of the tube!");
 		KEYS.add("levitation.intro2", "Use your fishing rod to pull other players down.");
 
-
-        KEYS.add("position.1", "first");
-        KEYS.add("position.2", "second");
-        KEYS.add("position.3", "third");
-        KEYS.add("position.4", "forth");
-        KEYS.add("position.5", "fifth");
-        KEYS.add("position.6", "sixth");
-        KEYS.add("position.7", "seventh");
+		KEYS.add("position.1", "first");
+		KEYS.add("position.2", "second");
+		KEYS.add("position.3", "third");
+		KEYS.add("position.4", "forth");
+		KEYS.add("position.5", "fifth");
+		KEYS.add("position.6", "sixth");
+		KEYS.add("position.7", "seventh");
 
 		KEYS.add("game_over.title", "Game Over!");
 		KEYS.add("game_over.subtitle", "%winner% won!");

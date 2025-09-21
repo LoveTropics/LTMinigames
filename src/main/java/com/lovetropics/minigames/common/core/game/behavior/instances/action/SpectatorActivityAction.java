@@ -11,15 +11,15 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.chat.TextColor;
 
 public record SpectatorActivityAction(TextColor style) implements IGameBehavior {
-    public static final MapCodec<SpectatorActivityAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-            TextColor.CODEC.fieldOf("style").forGetter(SpectatorActivityAction::style)
-    ).apply(i, SpectatorActivityAction::new));
+	public static final MapCodec<SpectatorActivityAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+			TextColor.CODEC.fieldOf("style").forGetter(SpectatorActivityAction::style)
+	).apply(i, SpectatorActivityAction::new));
 
-    @Override
-    public void register(IGamePhase game, EventRegistrar events) throws GameException {
-        events.listen(GameActionEvents.APPLY_TO_PLAYER, (context, target) -> {
-            game.spectators().sendPacket(new SpectatorPlayerActivityMessage(target.getUUID(), style.getValue()));
-            return true;
-        });
-    }
+	@Override
+	public void register(IGamePhase game, EventRegistrar events) throws GameException {
+		events.listen(GameActionEvents.APPLY_TO_PLAYER, (context, target) -> {
+			game.spectators().sendPacket(new SpectatorPlayerActivityMessage(target.getUUID(), style.getValue()));
+			return true;
+		});
+	}
 }

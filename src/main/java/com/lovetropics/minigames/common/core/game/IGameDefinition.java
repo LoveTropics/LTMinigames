@@ -1,7 +1,7 @@
 package com.lovetropics.minigames.common.core.game;
 
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
@@ -70,7 +70,9 @@ public interface IGameDefinition {
 		return Integer.MAX_VALUE;
 	}
 
-	default boolean isMultiGamePhase() {return false;}
+	default boolean isMultiGamePhase() {
+		return false;
+	}
 
 	default boolean hideFromList() {
 		return false;

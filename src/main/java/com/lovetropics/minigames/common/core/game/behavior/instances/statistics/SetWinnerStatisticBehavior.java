@@ -23,9 +23,12 @@ public record SetWinnerStatisticBehavior() implements IGameBehavior {
 	public void register(IGamePhase game, EventRegistrar events) {
 		events.listen(GameLogicEvents.GAME_OVER, winner -> {
 			switch (winner) {
-				case GameWinner.Player(ServerPlayer player) -> game.statistics().global().set(StatisticKey.WINNING_PLAYER, PlayerKey.from(player));
-				case GameWinner.OfflinePlayer(PlayerKey playerKey, Component ignored) -> game.statistics().global().set(StatisticKey.WINNING_PLAYER, playerKey);
-				case GameWinner.Team(GameTeam team) -> game.statistics().global().set(StatisticKey.WINNING_TEAM, team.key());
+				case GameWinner.Player(ServerPlayer player) ->
+						game.statistics().global().set(StatisticKey.WINNING_PLAYER, PlayerKey.from(player));
+				case GameWinner.OfflinePlayer(PlayerKey playerKey, Component ignored) ->
+						game.statistics().global().set(StatisticKey.WINNING_PLAYER, playerKey);
+				case GameWinner.Team(GameTeam team) ->
+						game.statistics().global().set(StatisticKey.WINNING_TEAM, team.key());
 				case GameWinner.Nobody ignored -> {
 				}
 			}

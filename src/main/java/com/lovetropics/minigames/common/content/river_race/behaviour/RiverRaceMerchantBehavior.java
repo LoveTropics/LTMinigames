@@ -44,98 +44,98 @@ public class RiverRaceMerchantBehavior implements IGameBehavior {
 			MoreCodecs.ITEM_STACK.fieldOf("output").forGetter(MerchantOffer::getResult)
 	).apply(i, (input, output) -> new MerchantOffer(input, output, Integer.MAX_VALUE, 0, 0)));
 
-    public static final MapCodec<RiverRaceMerchantBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-            Codec.STRING.fieldOf("zone").forGetter(c -> c.region),
-            BuiltInRegistries.ENTITY_TYPE.byNameCodec().fieldOf("entity").forGetter(c -> c.entity),
-            ComponentSerialization.CODEC.optionalFieldOf("name", CommonComponents.EMPTY).forGetter(c -> c.name),
+	public static final MapCodec<RiverRaceMerchantBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+			Codec.STRING.fieldOf("zone").forGetter(c -> c.region),
+			BuiltInRegistries.ENTITY_TYPE.byNameCodec().fieldOf("entity").forGetter(c -> c.entity),
+			ComponentSerialization.CODEC.optionalFieldOf("name", CommonComponents.EMPTY).forGetter(c -> c.name),
 			OFFER_CODEC.listOf().fieldOf("offers").forGetter(c -> c.offers)
-    ).apply(i, RiverRaceMerchantBehavior::new));
+	).apply(i, RiverRaceMerchantBehavior::new));
 
-    private final String region;
-    private final EntityType<?> entity;
-    private final Component name;
-    private final List<MerchantOffer> offers;
+	private final String region;
+	private final EntityType<?> entity;
+	private final Component name;
+	private final List<MerchantOffer> offers;
 
-    private final Set<UUID> merchants = new ObjectOpenHashSet<>();
+	private final Set<UUID> merchants = new ObjectOpenHashSet<>();
 
-    private IGamePhase game;
+	private IGamePhase game;
 
-    public RiverRaceMerchantBehavior(String region, EntityType<?> entity, Component name, List<MerchantOffer> offers) {
-        this.region = region;
-        this.entity = entity;
-        this.name = name;
-        this.offers = offers;
-    }
+	public RiverRaceMerchantBehavior(String region, EntityType<?> entity, Component name, List<MerchantOffer> offers) {
+		this.region = region;
+		this.entity = entity;
+		this.name = name;
+		this.offers = offers;
+	}
 
-    @Override
-    public void register(IGamePhase game, EventRegistrar events) throws GameException {
-        this.game = game;
+	@Override
+	public void register(IGamePhase game, EventRegistrar events) throws GameException {
+		this.game = game;
 
-        events.listen(GamePhaseEvents.CREATE, this::onGameStarted);
-        events.listen(GamePlayerEvents.INTERACT_ENTITY, this::interactWithEntity);
-    }
+		events.listen(GamePhaseEvents.CREATE, this::onGameStarted);
+		events.listen(GamePlayerEvents.INTERACT_ENTITY, this::interactWithEntity);
+	}
 
-    /**
-     * When the game loads, load this merchant into its proper section
-     */
-    private void onGameStarted() {
-        ServerLevel level = game.level();
-        List<BlockBox> regions = game.mapRegions().getAll(region);
-        for (BlockBox region : regions) {
-            Vec3 center = region.center();
+	/**
+	 * When the game loads, load this merchant into its proper section
+	 */
+	private void onGameStarted() {
+		ServerLevel level = game.level();
+		List<BlockBox> regions = game.mapRegions().getAll(region);
+		for (BlockBox region : regions) {
+			Vec3 center = region.center();
 
-            Entity merchant = createMerchant(level);
-            if (merchant == null) {
-                return;
-            }
-            merchant.snapTo(center.x(), center.y() - 0.5, center.z(), 0, 0);
+			Entity merchant = createMerchant(level);
+			if (merchant == null) {
+				return;
+			}
+			merchant.snapTo(center.x(), center.y() - 0.5, center.z(), 0, 0);
 
-            level.getChunk(region.centerBlock());
-            level.addFreshEntity(merchant);
+			level.getChunk(region.centerBlock());
+			level.addFreshEntity(merchant);
 
-            if (merchant instanceof Mob mob) {
-                mob.finalizeSpawn(level, level.getCurrentDifficultyAt(BlockPos.containing(center)), EntitySpawnReason.MOB_SUMMONED, null);
-                mob.setNoAi(true);
-                mob.setBaby(false);
-                mob.setInvulnerable(true);
-                mob.setPersistenceRequired();
-            }
+			if (merchant instanceof Mob mob) {
+				mob.finalizeSpawn(level, level.getCurrentDifficultyAt(BlockPos.containing(center)), EntitySpawnReason.MOB_SUMMONED, null);
+				mob.setNoAi(true);
+				mob.setBaby(false);
+				mob.setInvulnerable(true);
+				mob.setPersistenceRequired();
+			}
 
-            merchants.add(merchant.getUUID());
-        }
-    }
+			merchants.add(merchant.getUUID());
+		}
+	}
 
-    private InteractionResult interactWithEntity(ServerPlayer player, Entity target, InteractionHand hand) {
-        if (merchants.contains(target.getUUID())) {
-            MerchantOffers builtOffers = new MerchantOffers();
-            for (MerchantOffer offer : offers) {
-                builtOffers.add(offer.copy());
-            }
+	private InteractionResult interactWithEntity(ServerPlayer player, Entity target, InteractionHand hand) {
+		if (merchants.contains(target.getUUID())) {
+			MerchantOffers builtOffers = new MerchantOffers();
+			for (MerchantOffer offer : offers) {
+				builtOffers.add(offer.copy());
+			}
 
-            // TODO need a different screen?
-            BbMerchant merchant = new BbMerchant(player, builtOffers);
-            merchant.openTradingScreen(player, BiodiversityBlitzTexts.TRADING, 1);
+			// TODO need a different screen?
+			BbMerchant merchant = new BbMerchant(player, builtOffers);
+			merchant.openTradingScreen(player, BiodiversityBlitzTexts.TRADING, 1);
 
-            return InteractionResult.SUCCESS;
-        }
+			return InteractionResult.SUCCESS;
+		}
 
-        return InteractionResult.PASS;
-    }
+		return InteractionResult.PASS;
+	}
 
-    @Nullable
-    private Entity createMerchant(ServerLevel world) {
-        Entity merchant = entity.create(world, EntitySpawnReason.COMMAND);
-        if (merchant != null) {
-            if (name != CommonComponents.EMPTY) {
-                merchant.setCustomName(name);
-                merchant.setCustomNameVisible(true);
-            }
+	@Nullable
+	private Entity createMerchant(ServerLevel world) {
+		Entity merchant = entity.create(world, EntitySpawnReason.COMMAND);
+		if (merchant != null) {
+			if (name != CommonComponents.EMPTY) {
+				merchant.setCustomName(name);
+				merchant.setCustomNameVisible(true);
+			}
 
-            merchant.setSilent(true);
+			merchant.setSilent(true);
 
-            return merchant;
-        }
+			return merchant;
+		}
 
-        return null;
-    }
+		return null;
+	}
 }

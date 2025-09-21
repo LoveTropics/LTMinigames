@@ -87,7 +87,9 @@ public final class PlantBehavior implements IGameBehavior {
 		}
 
 		PlantPlacement placement = plantEvents.invoker(BbPlantEvents.PLACE).placePlant(player, plot, pos);
-		if (placement == null) return PlacePlantResult.PASS;
+		if (placement == null) {
+			return PlacePlantResult.PASS;
+		}
 
 		if (placement.getFunctionalCoverage() == null) {
 			return new PlacePlantResult.Fail();

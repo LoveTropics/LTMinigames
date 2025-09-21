@@ -22,47 +22,47 @@ import net.minecraft.world.item.ItemStack;
 import java.util.List;
 
 public final class IdleDropItemPlantBehavior implements IGameBehavior {
-    public static final MapCodec<IdleDropItemPlantBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-            MoreCodecs.ITEM_STACK.fieldOf("item").forGetter(b -> b.item),
-            Codec.INT.fieldOf("interval").forGetter(b -> b.interval)
-    ).apply(i, IdleDropItemPlantBehavior::new));
-    private final ItemStack item;
-    private final int interval;
+	public static final MapCodec<IdleDropItemPlantBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+			MoreCodecs.ITEM_STACK.fieldOf("item").forGetter(b -> b.item),
+			Codec.INT.fieldOf("interval").forGetter(b -> b.interval)
+	).apply(i, IdleDropItemPlantBehavior::new));
+	private final ItemStack item;
+	private final int interval;
 
-    private IGamePhase game;
+	private IGamePhase game;
 
-    public IdleDropItemPlantBehavior(ItemStack item, int interval) {
-        this.item = item;
-        this.interval = interval;
-    }
+	public IdleDropItemPlantBehavior(ItemStack item, int interval) {
+		this.item = item;
+		this.interval = interval;
+	}
 
-    @Override
-    public void register(IGamePhase game, EventRegistrar events) throws GameException {
-        this.game = game;
-        events.listen(BbPlantEvents.TICK, this::tickPlants);
-    }
+	@Override
+	public void register(IGamePhase game, EventRegistrar events) throws GameException {
+		this.game = game;
+		events.listen(BbPlantEvents.TICK, this::tickPlants);
+	}
 
-    private void tickPlants(PlayerSet players, Plot plot, List<Plant> plants) {
-        long ticks = game.ticks();
-        RandomSource random = game.level().getRandom();
+	private void tickPlants(PlayerSet players, Plot plot, List<Plant> plants) {
+		long ticks = game.ticks();
+		RandomSource random = game.level().getRandom();
 
-        if (ticks % interval != 0) {
-            return;
-        }
+		if (ticks % interval != 0) {
+			return;
+		}
 
-        ServerLevel world = game.level();
+		ServerLevel world = game.level();
 
-        for (Plant plant : plants) {
-            BlockPos.MutableBlockPos pos = plant.coverage().random(random).mutable();
+		for (Plant plant : plants) {
+			BlockPos.MutableBlockPos pos = plant.coverage().random(random).mutable();
 
-            for (int i = 0; i < 8; i++) {
-                if (world.getBlockState(pos).isAir()) {
-                    world.addFreshEntity(new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), item.copy()));
-                    break;
-                }
+			for (int i = 0; i < 8; i++) {
+				if (world.getBlockState(pos).isAir()) {
+					world.addFreshEntity(new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), item.copy()));
+					break;
+				}
 
-                pos.move(Direction.DOWN);
-            }
-        }
-    }
+				pos.move(Direction.DOWN);
+			}
+		}
+	}
 }

@@ -15,22 +15,22 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.function.Supplier;
 
 public record UnlockZoneAction(
-        String zone
+		String zone
 ) implements IGameBehavior {
-    public static final MapCodec<UnlockZoneAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-            Codec.STRING.fieldOf("zone").forGetter(UnlockZoneAction::zone)
-    ).apply(i, UnlockZoneAction::new));
+	public static final MapCodec<UnlockZoneAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+			Codec.STRING.fieldOf("zone").forGetter(UnlockZoneAction::zone)
+	).apply(i, UnlockZoneAction::new));
 
-    @Override
-    public void register(IGamePhase game, EventRegistrar events) throws GameException {
-        events.listen(GameActionEvents.APPLY, context -> {
-            game.invoker(RiverRaceEvents.UNLOCK_ZONE).onUnlockZone(zone);
-            return true;
-        });
-    }
+	@Override
+	public void register(IGamePhase game, EventRegistrar events) throws GameException {
+		events.listen(GameActionEvents.APPLY, context -> {
+			game.invoker(RiverRaceEvents.UNLOCK_ZONE).onUnlockZone(zone);
+			return true;
+		});
+	}
 
-    @Override
-    public Supplier<? extends GameBehaviorType<?>> behaviorType() {
-        return RiverRace.UNLOCK_ZONE_ACTION;
-    }
+	@Override
+	public Supplier<? extends GameBehaviorType<?>> behaviorType() {
+		return RiverRace.UNLOCK_ZONE_ACTION;
+	}
 }

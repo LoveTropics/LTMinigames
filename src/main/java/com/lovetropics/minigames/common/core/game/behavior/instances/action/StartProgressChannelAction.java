@@ -15,23 +15,23 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.function.Supplier;
 
 public record StartProgressChannelAction(
-        ProgressChannel channel
+		ProgressChannel channel
 ) implements IGameBehavior {
-    public static final MapCodec<StartProgressChannelAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-            ProgressChannel.CODEC.fieldOf("channel").forGetter(StartProgressChannelAction::channel)
-    ).apply(i, StartProgressChannelAction::new));
+	public static final MapCodec<StartProgressChannelAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+			ProgressChannel.CODEC.fieldOf("channel").forGetter(StartProgressChannelAction::channel)
+	).apply(i, StartProgressChannelAction::new));
 
-    @Override
-    public void register(IGamePhase game, EventRegistrar events) throws GameException {
-        ProgressHolder holder = channel.getOrThrow(game);
-        events.listen(GameActionEvents.APPLY, context -> {
-            holder.start();
-            return true;
-        });
-    }
+	@Override
+	public void register(IGamePhase game, EventRegistrar events) throws GameException {
+		ProgressHolder holder = channel.getOrThrow(game);
+		events.listen(GameActionEvents.APPLY, context -> {
+			holder.start();
+			return true;
+		});
+	}
 
-    @Override
-    public Supplier<? extends GameBehaviorType<?>> behaviorType() {
-        return GameBehaviorTypes.START_PROGRESS_CHANNEL;
-    }
+	@Override
+	public Supplier<? extends GameBehaviorType<?>> behaviorType() {
+		return GameBehaviorTypes.START_PROGRESS_CHANNEL;
+	}
 }

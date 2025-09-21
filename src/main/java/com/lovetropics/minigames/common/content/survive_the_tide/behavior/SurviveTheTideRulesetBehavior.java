@@ -70,6 +70,4 @@ public class SurviveTheTideRulesetBehavior implements IGameBehavior {
 		}
 		return TriState.DEFAULT;
 	}
-
-
 }

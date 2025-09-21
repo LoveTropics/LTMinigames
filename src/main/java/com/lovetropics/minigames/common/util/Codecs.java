@@ -18,7 +18,7 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 public class Codecs {
-    public static final Codec<HolderSet<Item>> ITEMS = RegistryCodecs.homogeneousList(Registries.ITEM);
+	public static final Codec<HolderSet<Item>> ITEMS = RegistryCodecs.homogeneousList(Registries.ITEM);
 
 	private static <T> MapLike<T> emptyMapLike() {
 		return new MapLike<>() {
@@ -47,13 +47,13 @@ public class Codecs {
 			@Override
 			public <T> DataResult<Pair<E, T>> decode(DynamicOps<T> ops, T input) {
 				DataResult<A> inlineKey = keyCodec.parse(ops, input);
-                if (inlineKey.result().isPresent()) {
-                    return inlineKey.flatMap(key -> {
-                        return codec.apply(key).decode(ops, emptyMapLike())
-                                .mapError(err -> "In type " + input + ": " + err)
-                                .map(b -> Pair.of(b, input));
-                    });
-                }
+				if (inlineKey.result().isPresent()) {
+					return inlineKey.flatMap(key -> {
+						return codec.apply(key).decode(ops, emptyMapLike())
+								.mapError(err -> "In type " + input + ": " + err)
+								.map(b -> Pair.of(b, input));
+					});
+				}
 				return delegate.decode(ops, input);
 			}
 

@@ -9,8 +9,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(NetworkFilters.class)
 public class GTNetworkFiltersMixin {
-    @Inject(at = @At("HEAD"), method = "injectIfNecessary", cancellable = true, remap = false)
-    private static void dontInjectIfNotPossible(Connection manager, CallbackInfo ci) {
-        if (manager.channel() == null) ci.cancel();
-    }
+	@Inject(at = @At("HEAD"), method = "injectIfNecessary", cancellable = true, remap = false)
+	private static void dontInjectIfNotPossible(Connection manager, CallbackInfo ci) {
+		if (manager.channel() == null) {
+			ci.cancel();
+		}
+	}
 }

@@ -1,7 +1,6 @@
 package com.lovetropics.minigames.common.core.game.behavior.instances;
 
 import com.lovetropics.lib.BlockBox;
-import com.lovetropics.minigames.client.screen.flex.Axis;
 import com.lovetropics.minigames.common.content.MinigameTexts;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;

@@ -14,7 +14,7 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public record FillFluidPacket(FluidFiller.Type fillType, BlockPos min, BlockPos max) implements CustomPacketPayload {
-    public static final Type<FillFluidPacket> TYPE = new Type<>(LoveTropics.location("fill_fluid"));
+	public static final Type<FillFluidPacket> TYPE = new Type<>(LoveTropics.location("fill_fluid"));
 
 	public static final StreamCodec<ByteBuf, FillFluidPacket> STREAM_CODEC = StreamCodec.composite(
 			FluidFiller.Type.STREAM_CODEC, FillFluidPacket::fillType,
@@ -48,8 +48,8 @@ public record FillFluidPacket(FluidFiller.Type fillType, BlockPos min, BlockPos 
 		}
 	}
 
-    @Override
-    public Type<FillFluidPacket> type() {
-        return TYPE;
-    }
+	@Override
+	public Type<FillFluidPacket> type() {
+		return TYPE;
+	}
 }

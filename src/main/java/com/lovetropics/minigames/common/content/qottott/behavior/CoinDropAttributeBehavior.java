@@ -49,7 +49,7 @@ public record CoinDropAttributeBehavior(ItemStack item, StatisticKey<Integer> st
 	}
 
 	public static void spawnItems(final IGamePhase game, final Player player, final int amount, final ItemStack item) {
-        final ServerLevel level = game.level();
+		final ServerLevel level = game.level();
 		final RandomSource random = level.random;
 		for (int i = 0; i < amount; i++) {
 			final ItemEntity entity = new ItemEntity(level, player.getRandomX(1.0), player.getRandomY(), player.getRandomZ(1.0), item.copyWithCount(1));

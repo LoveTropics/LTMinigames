@@ -38,7 +38,7 @@ public final class SurviveTheTideTexts {
 	public static final Component SNOWSTORM_TOAST = KEYS.add("toast.snowstorm", "WEATHER REPORT:\nA Snowstorm is passing!\nFind shelter!");
 	public static final Component FLASH_FLOOD_TOAST = KEYS.add("toast.flash_flood", "WEATHER REPORT:\nSeek higher ground! Heavy rains are falling!");
 
-	static  {
+	static {
 		KEYS.add("eliminated", "☠ %message%. They are eliminated!");
 		KEYS.add("outro.ffa1", "Through the rising sea levels, the volatile and chaotic weather, and the struggle to survive, one player remains: %winner%.");
 		KEYS.add("outro.ffa2", "\nThose who have fallen have been swept away by the encroaching tides that engulf countless landmasses in this dire future.");

@@ -10,7 +10,7 @@ import net.minecraft.server.MinecraftServer;
 
 import java.util.UUID;
 
-public interface IGame  {
+public interface IGame {
 	IGameLobby lobby();
 
 	UUID gameUuid();
@@ -35,7 +35,7 @@ public interface IGame  {
 		return instanceState().getOrThrow(GameInstanceIntegrations.KEY);
 	}
 
-    default RegistryAccess registryAccess() {
+	default RegistryAccess registryAccess() {
 		return server().registryAccess();
 	}
 }

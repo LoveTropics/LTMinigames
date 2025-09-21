@@ -12,13 +12,13 @@ import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public record LeaveLobbyPacket() implements CustomPacketPayload {
-    public static final Type<LeaveLobbyPacket> TYPE = new Type<>(LoveTropics.location("leave_lobby"));
+	public static final Type<LeaveLobbyPacket> TYPE = new Type<>(LoveTropics.location("leave_lobby"));
 
 	public static final LeaveLobbyPacket INSTANCE = new LeaveLobbyPacket();
 
-    public static final StreamCodec<ByteBuf, LeaveLobbyPacket> STREAM_CODEC = StreamCodec.unit(INSTANCE);
+	public static final StreamCodec<ByteBuf, LeaveLobbyPacket> STREAM_CODEC = StreamCodec.unit(INSTANCE);
 
-    public static void handle(LeaveLobbyPacket message, IPayloadContext context) {
+	public static void handle(LeaveLobbyPacket message, IPayloadContext context) {
 		if (!(context.player() instanceof ServerPlayer player)) {
 			return;
 		}
@@ -30,8 +30,8 @@ public record LeaveLobbyPacket() implements CustomPacketPayload {
 		}
 	}
 
-    @Override
-    public Type<LeaveLobbyPacket> type() {
-        return TYPE;
-    }
+	@Override
+	public Type<LeaveLobbyPacket> type() {
+		return TYPE;
+	}
 }

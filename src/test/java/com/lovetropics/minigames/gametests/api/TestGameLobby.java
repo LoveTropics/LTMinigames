@@ -20,76 +20,76 @@ import net.minecraft.server.level.ServerPlayer;
 import javax.annotation.Nullable;
 
 public record TestGameLobby(IGameLobby delegate) implements IGameLobby {
-    @Override
-    public MinecraftServer getServer() {
-        return delegate.getServer();
-    }
+	@Override
+	public MinecraftServer getServer() {
+		return delegate.getServer();
+	}
 
-    @Override
-    public GameLobbyMetadata getMetadata() {
-        return delegate.getMetadata();
-    }
+	@Override
+	public GameLobbyMetadata getMetadata() {
+		return delegate.getMetadata();
+	}
 
-    @Override
-    public IGameLobbyPlayers getPlayers() {
-        return delegate.getPlayers();
-    }
+	@Override
+	public IGameLobbyPlayers getPlayers() {
+		return delegate.getPlayers();
+	}
 
-    @Override
-    public ILobbyGameQueue getGameQueue() {
-        return delegate.getGameQueue();
-    }
+	@Override
+	public ILobbyGameQueue getGameQueue() {
+		return delegate.getGameQueue();
+	}
 
-    @Override
-    @Nullable
-    public IGame getCurrentGame() {
-        return delegate.getCurrentGame();
-    }
+	@Override
+	@Nullable
+	public IGame getCurrentGame() {
+		return delegate.getCurrentGame();
+	}
 
-    @Nullable
-    @Override
-    public IGamePhase getTopPhase() {
-        return delegate.getTopPhase();
-    }
+	@Nullable
+	@Override
+	public IGamePhase getTopPhase() {
+		return delegate.getTopPhase();
+	}
 
-    @Override
-    @Nullable
-    public IGamePhase getActivePhase() {
-        return delegate.getActivePhase();
-    }
+	@Override
+	@Nullable
+	public IGamePhase getActivePhase() {
+		return delegate.getActivePhase();
+	}
 
-    @Override
-    @Nullable
-    public ClientCurrentGame getClientCurrentGame() {
-        return delegate.getClientCurrentGame();
-    }
+	@Override
+	@Nullable
+	public ClientCurrentGame getClientCurrentGame() {
+		return delegate.getClientCurrentGame();
+	}
 
-    @Override
-    public LobbyControls getControls() {
-        return delegate.getControls();
-    }
+	@Override
+	public LobbyControls getControls() {
+		return delegate.getControls();
+	}
 
-    @Override
-    public ILobbyManagement getManagement() {
-        return delegate.getManagement();
-    }
+	@Override
+	public ILobbyManagement getManagement() {
+		return delegate.getManagement();
+	}
 
-    @Override
-    public PlayerIterable getTrackingPlayers() {
-        return delegate.getTrackingPlayers();
-    }
+	@Override
+	public PlayerIterable getTrackingPlayers() {
+		return delegate.getTrackingPlayers();
+	}
 
-    @Override
-    public boolean isVisibleTo(CommandSourceStack source) {
-        return delegate.isVisibleTo(source);
-    }
+	@Override
+	public boolean isVisibleTo(CommandSourceStack source) {
+		return delegate.isVisibleTo(source);
+	}
 
-    @Override
-    public boolean isVisibleTo(ServerPlayer player) {
-        return delegate.isVisibleTo(player);
-    }
+	@Override
+	public boolean isVisibleTo(ServerPlayer player) {
+		return delegate.isVisibleTo(player);
+	}
 
-    public QueuedGame enqueue(ResourceLocation gameId) {
-        return getGameQueue().enqueue(GameConfigs.REGISTRY.get(gameId));
-    }
+	public QueuedGame enqueue(ResourceLocation gameId) {
+		return getGameQueue().enqueue(GameConfigs.REGISTRY.get(gameId));
+	}
 }

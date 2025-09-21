@@ -54,7 +54,9 @@ final class LobbyGameQueue implements ILobbyGameQueue {
 
 	boolean reorderByNetworkId(int networkId, int newIndex) {
 		int index = indexByNetworkId(networkId);
-		if (index == -1 || index == newIndex) return false;
+		if (index == -1 || index == newIndex) {
+			return false;
+		}
 
 		QueuedGame entry = entries.remove(index);
 		entries.add(Mth.clamp(newIndex, 0, entries.size()), entry);

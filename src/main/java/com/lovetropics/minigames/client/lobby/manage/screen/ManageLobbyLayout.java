@@ -1,6 +1,10 @@
 package com.lovetropics.minigames.client.lobby.manage.screen;
 
-import com.lovetropics.minigames.client.screen.flex.*;
+import com.lovetropics.minigames.client.screen.flex.Align;
+import com.lovetropics.minigames.client.screen.flex.Box;
+import com.lovetropics.minigames.client.screen.flex.Flex;
+import com.lovetropics.minigames.client.screen.flex.FlexSolver;
+import com.lovetropics.minigames.client.screen.flex.Layout;
 import net.minecraft.client.gui.screens.Screen;
 
 final class ManageLobbyLayout {
@@ -141,6 +145,6 @@ final class ManageLobbyLayout {
 		this.close = solve.layout(close);
 		this.done = solve.layout(done);
 
-		marginals = new Layout[] { this.header, this.leftFooter, this.centerFooter, this.rightFooter };
+		marginals = new Layout[]{this.header, this.leftFooter, this.centerFooter, this.rightFooter};
 	}
 }

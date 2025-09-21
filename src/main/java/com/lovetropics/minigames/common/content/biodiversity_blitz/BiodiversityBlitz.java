@@ -216,8 +216,8 @@ public final class BiodiversityBlitz {
 			.register();
 
 	public static final GameBehaviorEntry<RemoveFromBlockBehavior> REMOVE_FROM_BLOCK = REGISTRATE.object("remove_from_block")
-            .behavior(RemoveFromBlockBehavior.CODEC)
-            .register();
+			.behavior(RemoveFromBlockBehavior.CODEC)
+			.register();
 
 	public static final GameBehaviorEntry<BbCurrencyWinTrigger> CURRENCY_WIN_TRIGGER = REGISTRATE.object("biodiversity_blitz_currency_win_trigger")
 			.behavior(BbCurrencyWinTrigger.CODEC)

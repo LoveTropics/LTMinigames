@@ -13,43 +13,43 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import java.util.Optional;
 
 public record LobbyUpdateMessage(int id, Optional<Update> update) implements CustomPacketPayload {
-    public static final Type<LobbyUpdateMessage> TYPE = new Type<>(LoveTropics.location("lobby_update"));
+	public static final Type<LobbyUpdateMessage> TYPE = new Type<>(LoveTropics.location("lobby_update"));
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, LobbyUpdateMessage> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.VAR_INT, LobbyUpdateMessage::id,
-            Update.STREAM_CODEC.apply(ByteBufCodecs::optional), LobbyUpdateMessage::update,
-            LobbyUpdateMessage::new
-    );
+	public static final StreamCodec<RegistryFriendlyByteBuf, LobbyUpdateMessage> STREAM_CODEC = StreamCodec.composite(
+			ByteBufCodecs.VAR_INT, LobbyUpdateMessage::id,
+			Update.STREAM_CODEC.apply(ByteBufCodecs::optional), LobbyUpdateMessage::update,
+			LobbyUpdateMessage::new
+	);
 
-    public static LobbyUpdateMessage update(IGameLobby lobby) {
-        int id = lobby.getMetadata().id().networkId();
-        String name = lobby.getMetadata().name();
-        ClientCurrentGame currentGame = lobby.getClientCurrentGame();
-        return new LobbyUpdateMessage(id, Optional.of(new Update(name, Optional.ofNullable(currentGame))));
-    }
+	public static LobbyUpdateMessage update(IGameLobby lobby) {
+		int id = lobby.getMetadata().id().networkId();
+		String name = lobby.getMetadata().name();
+		ClientCurrentGame currentGame = lobby.getClientCurrentGame();
+		return new LobbyUpdateMessage(id, Optional.of(new Update(name, Optional.ofNullable(currentGame))));
+	}
 
-    public static LobbyUpdateMessage remove(IGameLobby lobby) {
-        return new LobbyUpdateMessage(lobby.getMetadata().id().networkId(), Optional.empty());
-    }
+	public static LobbyUpdateMessage remove(IGameLobby lobby) {
+		return new LobbyUpdateMessage(lobby.getMetadata().id().networkId(), Optional.empty());
+	}
 
-    public static void handle(LobbyUpdateMessage message, IPayloadContext context) {
-        if (message.update.isPresent()) {
-            ClientLobbyManager.addOrUpdate(message.id, message.update.get().name, message.update.get().currentGame.orElse(null));
-        } else {
-            ClientLobbyManager.remove(message.id);
-        }
-    }
+	public static void handle(LobbyUpdateMessage message, IPayloadContext context) {
+		if (message.update.isPresent()) {
+			ClientLobbyManager.addOrUpdate(message.id, message.update.get().name, message.update.get().currentGame.orElse(null));
+		} else {
+			ClientLobbyManager.remove(message.id);
+		}
+	}
 
-    @Override
-    public Type<LobbyUpdateMessage> type() {
-        return TYPE;
-    }
+	@Override
+	public Type<LobbyUpdateMessage> type() {
+		return TYPE;
+	}
 
-    private record Update(String name, Optional<ClientCurrentGame> currentGame) {
-        public static final StreamCodec<RegistryFriendlyByteBuf, Update> STREAM_CODEC = StreamCodec.composite(
-                ByteBufCodecs.stringUtf8(200), Update::name,
-                ClientCurrentGame.STREAM_CODEC.apply(ByteBufCodecs::optional), Update::currentGame,
-                Update::new
-        );
-    }
+	private record Update(String name, Optional<ClientCurrentGame> currentGame) {
+		public static final StreamCodec<RegistryFriendlyByteBuf, Update> STREAM_CODEC = StreamCodec.composite(
+				ByteBufCodecs.stringUtf8(200), Update::name,
+				ClientCurrentGame.STREAM_CODEC.apply(ByteBufCodecs::optional), Update::currentGame,
+				Update::new
+		);
+	}
 }

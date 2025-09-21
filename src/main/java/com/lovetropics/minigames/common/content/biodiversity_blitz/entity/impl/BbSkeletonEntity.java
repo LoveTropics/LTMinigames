@@ -19,69 +19,69 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.pathfinder.PathType;
 
 public class BbSkeletonEntity extends Skeleton implements BbMobEntity {
-    private final BbMobBrain mobBrain;
-    private final Plot plot;
+	private final BbMobBrain mobBrain;
+	private final Plot plot;
 
-    public BbSkeletonEntity(EntityType<? extends Skeleton> p_33570_, Level level, Plot plot) {
-        super(p_33570_, level);
+	public BbSkeletonEntity(EntityType<? extends Skeleton> p_33570_, Level level, Plot plot) {
+		super(p_33570_, level);
 
-        mobBrain = new BbMobBrain(plot.walls);
-        this.plot = plot;
+		mobBrain = new BbMobBrain(plot.walls);
+		this.plot = plot;
 
-        setPathfindingMalus(PathType.DANGER_OTHER, BERRY_BUSH_MALUS);
-    }
+		setPathfindingMalus(PathType.DANGER_OTHER, BERRY_BUSH_MALUS);
+	}
 
-    @Override
-    protected void registerGoals() {
-        goalSelector.addGoal(3, new DestroyCropGoal(this));
-        goalSelector.addGoal(4, new LookAtPlayerGoal(this, Player.class, 15.0F, 0.02F));
+	@Override
+	protected void registerGoals() {
+		goalSelector.addGoal(3, new DestroyCropGoal(this));
+		goalSelector.addGoal(4, new LookAtPlayerGoal(this, Player.class, 15.0F, 0.02F));
 
-        targetSelector.addGoal(1, new BbTargetPlayerGoal(this));
+		targetSelector.addGoal(1, new BbTargetPlayerGoal(this));
 
-        // Setup bow goal
+		// Setup bow goal
 
-        // TODO: is this the right spot for this?
-        populateDefaultEquipmentSlots(random, new DifficultyInstance(Difficulty.NORMAL, 0, 0, 0));
-        reassessWeaponGoal();
-    }
+		// TODO: is this the right spot for this?
+		populateDefaultEquipmentSlots(random, new DifficultyInstance(Difficulty.NORMAL, 0, 0, 0));
+		reassessWeaponGoal();
+	}
 
-    @Override
-    public BbMobBrain getMobBrain() {
-        return mobBrain;
-    }
+	@Override
+	public BbMobBrain getMobBrain() {
+		return mobBrain;
+	}
 
-    @Override
-    public Mob asMob() {
-        return this;
-    }
+	@Override
+	public Mob asMob() {
+		return this;
+	}
 
-    @Override
-    public Plot getPlot() {
-        return plot;
-    }
+	@Override
+	public Plot getPlot() {
+		return plot;
+	}
 
-    @Override
-    protected void pushEntities() {
-    }
+	@Override
+	protected void pushEntities() {
+	}
 
-    @Override
-    public void updateSwimming() {
-        // Just use the default navigator, we never need to swim
-    }
+	@Override
+	public void updateSwimming() {
+		// Just use the default navigator, we never need to swim
+	}
 
-    @Override
-    public boolean updateFluidHeightAndDoFluidPushing(TagKey<Fluid> fluid, double scale) {
-        if (fluid == FluidTags.WATER) {
-            return false;
-        }
-        return super.updateFluidHeightAndDoFluidPushing(fluid, scale);
-    }
+	@Override
+	public boolean updateFluidHeightAndDoFluidPushing(TagKey<Fluid> fluid, double scale) {
+		if (fluid == FluidTags.WATER) {
+			return false;
+		}
+		return super.updateFluidHeightAndDoFluidPushing(fluid, scale);
+	}
 
-    @Override
-    public boolean isEyeInFluid(TagKey<Fluid> fluid) {
-        if (fluid == FluidTags.WATER) {
-            return false;
-        }
-        return super.isEyeInFluid(fluid);
-    }
+	@Override
+	public boolean isEyeInFluid(TagKey<Fluid> fluid) {
+		if (fluid == FluidTags.WATER) {
+			return false;
+		}
+		return super.isEyeInFluid(fluid);
+	}
 }

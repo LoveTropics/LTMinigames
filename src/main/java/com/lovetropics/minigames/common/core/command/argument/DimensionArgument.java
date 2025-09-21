@@ -19,17 +19,17 @@ public final class DimensionArgument {
 			Component.literal("Dimension does not exist with id: " + arg)
 	);
 
-    public static RequiredArgumentBuilder<CommandSourceStack, ResourceLocation> argument(String name) {
-        return Commands.argument(name, ResourceLocationArgument.id())
-                .suggests((context, builder) -> {
-                    CommandSourceStack source = context.getSource();
-                    Registry<LevelStem> dimensions = source.getServer().registryAccess().lookupOrThrow(Registries.LEVEL_STEM);
-                    return SharedSuggestionProvider.suggestResource(
-                            dimensions.keySet().stream(),
-                            builder
-                    );
-                });
-    }
+	public static RequiredArgumentBuilder<CommandSourceStack, ResourceLocation> argument(String name) {
+		return Commands.argument(name, ResourceLocationArgument.id())
+				.suggests((context, builder) -> {
+					CommandSourceStack source = context.getSource();
+					Registry<LevelStem> dimensions = source.getServer().registryAccess().lookupOrThrow(Registries.LEVEL_STEM);
+					return SharedSuggestionProvider.suggestResource(
+							dimensions.keySet().stream(),
+							builder
+					);
+				});
+	}
 
 	public static LevelStem get(CommandContext<CommandSourceStack> context, String name) throws CommandSyntaxException {
 		ResourceLocation key = ResourceLocationArgument.getId(context, name);

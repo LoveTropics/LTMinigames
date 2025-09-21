@@ -26,51 +26,51 @@ import net.minecraft.world.phys.Vec3;
 import java.util.List;
 
 public final class LightningPlantBehavior implements IGameBehavior {
-    public static final MapCodec<LightningPlantBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-            Codec.INT.fieldOf("radius").forGetter(b -> b.radius)
-    ).apply(i, LightningPlantBehavior::new));
+	public static final MapCodec<LightningPlantBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+			Codec.INT.fieldOf("radius").forGetter(b -> b.radius)
+	).apply(i, LightningPlantBehavior::new));
 
-    private static final int INTERVAL_TICKS = SharedConstants.TICKS_PER_SECOND * 8;
+	private static final int INTERVAL_TICKS = SharedConstants.TICKS_PER_SECOND * 8;
 
-    private final int radius;
+	private final int radius;
 
-    private IGamePhase game;
+	private IGamePhase game;
 
-    public LightningPlantBehavior(int radius) {
-        this.radius = radius;
-    }
+	public LightningPlantBehavior(int radius) {
+		this.radius = radius;
+	}
 
-    @Override
-    public void register(IGamePhase game, EventRegistrar events) throws GameException {
-        this.game = game;
-        events.listen(BbPlantEvents.TICK, this::tickPlants);
-    }
+	@Override
+	public void register(IGamePhase game, EventRegistrar events) throws GameException {
+		this.game = game;
+		events.listen(BbPlantEvents.TICK, this::tickPlants);
+	}
 
-    private void tickPlants(PlayerSet players, Plot plot, List<Plant> plants) {
-        long ticks = game.ticks();
-        RandomSource random = game.level().getRandom();
+	private void tickPlants(PlayerSet players, Plot plot, List<Plant> plants) {
+		long ticks = game.ticks();
+		RandomSource random = game.level().getRandom();
 
-        if (ticks % INTERVAL_TICKS != 0) {
-            return;
-        }
+		if (ticks % INTERVAL_TICKS != 0) {
+			return;
+		}
 
-        ServerLevel world = game.level();
+		ServerLevel world = game.level();
 
-        for (Plant plant : plants) {
-            AABB flameBounds = plant.coverage().asBounds().inflate(radius);
-            List<Mob> entities = world.getEntitiesOfClass(Mob.class, flameBounds, BbMobEntity.PREDICATE);
+		for (Plant plant : plants) {
+			AABB flameBounds = plant.coverage().asBounds().inflate(radius);
+			List<Mob> entities = world.getEntitiesOfClass(Mob.class, flameBounds, BbMobEntity.PREDICATE);
 
-            // Select random entity and spawn lightning on top of it.
-            if (!entities.isEmpty()) {
-                Mob target = entities.get(random.nextInt(entities.size()));
+			// Select random entity and spawn lightning on top of it.
+			if (!entities.isEmpty()) {
+				Mob target = entities.get(random.nextInt(entities.size()));
 
-                BlockPos pos = target.blockPosition();
-                // TODO: custom lightning bolt class to prevent too loud sounds and fire!
-                LightningBolt lightningbolt = EntityType.LIGHTNING_BOLT.create(world, EntitySpawnReason.COMMAND);
-                lightningbolt.snapTo(Vec3.atBottomCenterOf(pos));
-                lightningbolt.setCause(null);
-                world.addFreshEntity(lightningbolt);
-            }
-        }
-    }
+				BlockPos pos = target.blockPosition();
+				// TODO: custom lightning bolt class to prevent too loud sounds and fire!
+				LightningBolt lightningbolt = EntityType.LIGHTNING_BOLT.create(world, EntitySpawnReason.COMMAND);
+				lightningbolt.snapTo(Vec3.atBottomCenterOf(pos));
+				lightningbolt.setCause(null);
+				world.addFreshEntity(lightningbolt);
+			}
+		}
+	}
 }

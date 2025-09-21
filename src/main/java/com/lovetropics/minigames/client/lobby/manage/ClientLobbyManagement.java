@@ -47,7 +47,7 @@ public final class ClientLobbyManagement {
 		LocalPlayer player = Minecraft.getInstance().player;
 		if (player != null && LobbyKeybinds.MANAGE.consumeClick()) {
 			ClientPacketDistributor.sendToServer(new ManageOrCreateLobbyPacket());
-        }
+		}
 	}
 
 	public static final class Session {

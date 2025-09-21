@@ -12,15 +12,15 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.TriState;
 
 public record OnDamageTrigger(GameActionList<ServerPlayer> actions) implements IGameBehavior {
-    public static final MapCodec<OnDamageTrigger> CODEC = GameActionList.PLAYER_MAP_CODEC.xmap(OnDamageTrigger::new, OnDamageTrigger::actions);
+	public static final MapCodec<OnDamageTrigger> CODEC = GameActionList.PLAYER_MAP_CODEC.xmap(OnDamageTrigger::new, OnDamageTrigger::actions);
 
-    @Override
-    public void register(IGamePhase game, EventRegistrar events) throws GameException {
-        actions.register(game, events);
+	@Override
+	public void register(IGamePhase game, EventRegistrar events) throws GameException {
+		actions.register(game, events);
 
-        events.listen(GamePlayerEvents.DAMAGE, (player, damageSource, amount) -> {
-            actions.apply(game, GameActionContext.EMPTY, player);
-            return TriState.DEFAULT;
-        });
-    }
+		events.listen(GamePlayerEvents.DAMAGE, (player, damageSource, amount) -> {
+			actions.apply(game, GameActionContext.EMPTY, player);
+			return TriState.DEFAULT;
+		});
+	}
 }

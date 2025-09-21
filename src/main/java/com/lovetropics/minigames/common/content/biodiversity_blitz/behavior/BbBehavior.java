@@ -203,7 +203,7 @@ public final class BbBehavior implements IGameBehavior {
 
 	private void onExplosion(Explosion explosion, List<BlockPos> affectedBlocks, List<Entity> affectedEntities) {
 		affectedEntities.removeIf(e -> e instanceof Player);
-		
+
 		// Remove from filtered explosions
 		if (explosion instanceof FilteredExplosion filteredExplosion) {
 			affectedEntities.removeIf(filteredExplosion.remove);
@@ -270,7 +270,7 @@ public final class BbBehavior implements IGameBehavior {
 
 	private void sendActionRejection(ServerPlayer player, Component message) {
 		player.displayClientMessage(message.copy().withStyle(ChatFormatting.RED), true);
-		player.level().playSound(null, player.blockPosition(), SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS,  1.0F, 1.0F);
+		player.level().playSound(null, player.blockPosition(), SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 1.0F, 1.0F);
 	}
 
 	private TriState onPlayerDeath(ServerPlayer player, DamageSource damageSource) {

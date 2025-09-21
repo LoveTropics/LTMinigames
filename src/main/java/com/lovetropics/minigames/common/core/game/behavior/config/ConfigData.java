@@ -1,5 +1,9 @@
 package com.lovetropics.minigames.common.core.game.behavior.config;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -10,23 +14,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
-
-import javax.annotation.Nullable;
-
 public abstract class ConfigData {
-	
+
 	private final DisplayHint display = DisplayHint.NONE;
-	
-	ConfigData() {}
-	
+
+	ConfigData() {
+	}
+
 	public final DisplayHint display() {
 		return display;
 	}
 
 	public abstract Object value();
-	
+
 	public final void setValue(Object value) {
 		if (type().isValidValue(value)) {
 			setValueInternal(value);
@@ -34,16 +34,16 @@ public abstract class ConfigData {
 			throw new IllegalArgumentException("Value is not valid for config type " + type().name() + ": " + value);
 		}
 	}
-	
+
 	protected abstract void setValueInternal(Object value);
-	
+
 	public abstract ConfigType type();
-	
+
 	public static class SimpleConfigData extends ConfigData {
-		
+
 		private final ConfigType type;
 		private Object value;
-		
+
 		public SimpleConfigData(ConfigType type) {
 			this(type, null);
 		}
@@ -60,7 +60,7 @@ public abstract class ConfigData {
 		public Object value() {
 			return value;
 		}
-		
+
 		@Override
 		protected void setValueInternal(Object value) {
 			this.value = value;
@@ -70,7 +70,7 @@ public abstract class ConfigData {
 		public ConfigType type() {
 			return type;
 		}
-		
+
 		@Override
 		public String toString() {
 			return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
@@ -79,11 +79,11 @@ public abstract class ConfigData {
 					.build();
 		}
 	}
-	
+
 	public static class ListConfigData extends ConfigData implements Iterable<Object> {
-		
+
 		public static final ListConfigData EMPTY = new ListConfigData(ConfigType.NONE);
-		
+
 		private ConfigType type;
 		@Nullable
 		private Object defaultValue;
@@ -107,7 +107,9 @@ public abstract class ConfigData {
 		}
 
 		public ListConfigData setComponentType(ConfigType type) {
-			if (type == this.type) return this;
+			if (type == this.type) {
+				return this;
+			}
 			if (this.type != ConfigType.NONE) {
 				throw new IllegalStateException("List component type already set");
 			}
@@ -139,11 +141,11 @@ public abstract class ConfigData {
 		public List<Object> value() {
 			return values;
 		}
-		
+
 		@Override
 		protected void setValueInternal(Object value) {
 			if (value instanceof Collection<?> coll) {
-                if (!coll.isEmpty()) {
+				if (!coll.isEmpty()) {
 					if (coll.stream().allMatch(componentType()::isValidValue)) {
 						values.clear();
 						values.addAll(coll);
@@ -154,7 +156,7 @@ public abstract class ConfigData {
 					values.clear();
 				}
 			} else if (value instanceof Object[] arr) {
-                if (arr.length > 0) {
+				if (arr.length > 0) {
 					if (Arrays.stream(arr).allMatch(componentType()::isValidValue)) {
 						values.clear();
 						values.addAll(Arrays.asList(arr));
@@ -173,11 +175,11 @@ public abstract class ConfigData {
 		public ConfigType type() {
 			return ConfigType.LIST;
 		}
-		
+
 		public ConfigType componentType() {
 			return type;
 		}
-		
+
 		@Override
 		public String toString() {
 			return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
@@ -216,7 +218,7 @@ public abstract class ConfigData {
 		public ConfigData put(String name, ConfigData value) {
 			return values.put(name, value);
 		}
-		
+
 		@Override
 		protected void setValueInternal(Object value) {
 			throw new UnsupportedOperationException();
@@ -226,7 +228,7 @@ public abstract class ConfigData {
 		public ConfigType type() {
 			return ConfigType.COMPOSITE;
 		}
-		
+
 		@Override
 		public String toString() {
 			return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)

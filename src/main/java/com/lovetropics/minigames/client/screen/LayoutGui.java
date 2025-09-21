@@ -6,13 +6,13 @@ import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.AbstractContainerEventHandler;
 
 public abstract class LayoutGui extends AbstractContainerEventHandler implements Renderable {
-	
+
 	protected Layout mainLayout;
-	
+
 	public LayoutGui() {
 		this(null);
 	}
-	
+
 	public LayoutGui(Layout mainLayout) {
 		this.mainLayout = mainLayout;
 	}

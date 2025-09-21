@@ -20,7 +20,7 @@ public class TextLabel implements Renderable {
 	private final Font fnt = Minecraft.getInstance().font;
 
 	private final EnumMap<Axis, Align.Cross> alignment = new EnumMap<>(Axis.class);
-	
+
 	public TextLabel(LayoutTree ltree, int height, Component text, Align.Cross horizontalAlign, Align.Cross verticalAlign) {
 		height = Math.max(height, fnt.lineHeight);
 		int width = ltree.head().content().width();

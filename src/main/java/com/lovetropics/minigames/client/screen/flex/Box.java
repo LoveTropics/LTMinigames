@@ -1,8 +1,8 @@
 package com.lovetropics.minigames.client.screen.flex;
 
-import java.util.Objects;
-
 import net.minecraft.client.gui.screens.Screen;
+
+import java.util.Objects;
 
 public final class Box {
 
@@ -167,12 +167,15 @@ public final class Box {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
+		}
 		Box other = (Box) obj;
 		return bottom == other.bottom && left == other.left && right == other.right && top == other.top;
 	}
@@ -211,10 +214,10 @@ public final class Box {
 		}
 
 		public int along(Axis axis) {
-            return switch (axis) {
-                case X -> width;
-                case Y -> height;
-            };
+			return switch (axis) {
+				case X -> width;
+				case Y -> height;
+			};
 		}
 	}
 
@@ -228,10 +231,10 @@ public final class Box {
 		}
 
 		Interval subtract(Align.Main align, int size) {
-            return switch (align) {
-                case START -> new Interval(start + size, end);
-                case END -> new Interval(start, end - size);
-            };
+			return switch (align) {
+				case START -> new Interval(start + size, end);
+				case END -> new Interval(start, end - size);
+			};
 		}
 
 		int size() {
@@ -239,21 +242,21 @@ public final class Box {
 		}
 
 		Interval applyMainAlign(Align.Main align, int size) {
-            return switch (align) {
-                case START -> new Interval(start, start + size);
-                case END -> new Interval(end - size, end);
-            };
+			return switch (align) {
+				case START -> new Interval(start, start + size);
+				case END -> new Interval(end - size, end);
+			};
 		}
 
 		Interval applyCrossAlign(Align.Cross align, int size) {
-            return switch (align) {
-                case START -> new Interval(start, start + size);
-                case CENTER -> {
-                    int start = (this.start + end - size) / 2;
-                    yield new Interval(start, start + size);
-                }
-                case END -> new Interval(end - size, end);
-            };
+			return switch (align) {
+				case START -> new Interval(start, start + size);
+				case CENTER -> {
+					int start = (this.start + end - size) / 2;
+					yield new Interval(start, start + size);
+				}
+				case END -> new Interval(end - size, end);
+			};
 		}
 	}
 }

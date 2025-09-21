@@ -4,8 +4,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.storage.DerivedLevelData;
-import net.minecraft.world.level.storage.WorldData;
 import net.minecraft.world.level.storage.ServerLevelData;
+import net.minecraft.world.level.storage.WorldData;
 
 public final class MapWorldInfo extends DerivedLevelData {
 	private final MapWorldSettings settings;

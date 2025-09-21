@@ -16,9 +16,9 @@ import java.util.Optional;
 
 public final class NotificationIcon {
 	public static final Codec<NotificationIcon> CODEC = RecordCodecBuilder.create(i -> i.group(
-            MoreCodecs.ITEM_STACK.optionalFieldOf("item").forGetter(c -> Optional.ofNullable(c.item)),
-            MobEffect.CODEC.optionalFieldOf("effect").forGetter(c -> Optional.ofNullable(c.effect))
-    ).apply(i, NotificationIcon::new));
+			MoreCodecs.ITEM_STACK.optionalFieldOf("item").forGetter(c -> Optional.ofNullable(c.item)),
+			MobEffect.CODEC.optionalFieldOf("effect").forGetter(c -> Optional.ofNullable(c.effect))
+	).apply(i, NotificationIcon::new));
 
 	public static final StreamCodec<RegistryFriendlyByteBuf, NotificationIcon> STREAM_CODEC = ByteBufCodecs.either(ItemStack.STREAM_CODEC, MobEffect.STREAM_CODEC).map(
 			either -> either.map(NotificationIcon::item, NotificationIcon::effect),

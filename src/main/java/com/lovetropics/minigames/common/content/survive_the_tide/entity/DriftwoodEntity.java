@@ -177,16 +177,22 @@ public final class DriftwoodEntity extends Entity {
 	}
 
 	private float getFloatHeight() {
-		if (!canFloat()) return -1.0F;
+		if (!canFloat()) {
+			return -1.0F;
+		}
 
 		float waterSurface = getWaterSurface();
-		if (waterSurface == -1.0F) return -1.0F;
+		if (waterSurface == -1.0F) {
+			return -1.0F;
+		}
 
 		return waterSurface - floatDepth;
 	}
 
 	private float getWaterSurface() {
-		if (!wasTouchingWater) return -1.0F;
+		if (!wasTouchingWater) {
+			return -1.0F;
+		}
 
 		int minY = Mth.floor(getBoundingBox().minY - 0.5);
 		int maxY = Mth.ceil(getBoundingBox().maxY);

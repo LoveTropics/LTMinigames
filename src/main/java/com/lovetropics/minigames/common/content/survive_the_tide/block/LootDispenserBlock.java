@@ -86,13 +86,13 @@ public class LootDispenserBlock extends BaseEntityBlock {
 	public BlockState mirror(BlockState state, Mirror mirror) {
 		return state.rotate(mirror.getRotation(state.getValue(FACING)));
 	}
-	
+
 	public enum State implements StringRepresentable {
 		INACTIVE("inactive"),
 		ACTIVE("active"),
 		CLOGGED("clogged"),
 		;
-		
+
 		private final String name;
 
 		State(String name) {

@@ -12,7 +12,6 @@ import net.minecraft.Util;
 import net.minecraft.client.data.models.model.ItemModelUtils;
 import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureMapping;
-import net.minecraft.client.data.models.model.TextureSlot;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
@@ -24,58 +23,59 @@ import net.minecraft.world.level.block.Blocks;
 import java.util.Optional;
 
 public class MinigameItems {
-    
-    private static final LoveTropicsRegistrate REGISTRATE = LoveTropics.registrate();
- 
-    public static final ItemEntry<EditRegionItem> EDIT_REGION = REGISTRATE.item("edit_region", EditRegionItem::new)
-            .register();
 
-    public static final ItemEntry<DisguiseItem> DISGUISE = REGISTRATE.item("disguise", DisguiseItem::new)
-            .properties(p -> p.stacksTo(1))
-            .model(() -> Models::generateDisguiseItem)
-            .addMiscData(ProviderType.LANG, prov -> {
-                String descriptionId = Util.makeDescriptionId("item", LoveTropics.location("disguise"));
-                prov.add(descriptionId + ".entity", "%s Disguise");
-            })
-            .tab(LoveTropics.TAB_KEY, modifier -> {
-                for (EntityType<?> entity : BuiltInRegistries.ENTITY_TYPE) {
-                    if (entity.getCategory() != MobCategory.MISC) {
-                        final ItemStack stack = new ItemStack(MinigameItems.DISGUISE.get());
-                        stack.set(MinigameDataComponents.DISGUISE, DisguiseType.DEFAULT.withEntity(new DisguiseType.EntityConfig(entity, null, false)));
-                        modifier.accept(stack);
-                    }
-                }
-            })
-            .register();
+	private static final LoveTropicsRegistrate REGISTRATE = LoveTropics.registrate();
 
-    public static final ItemEntry<MobHatItem> MOB_HAT = REGISTRATE.item("mob_hat", MobHatItem::new)
-            .properties(p -> p.stacksTo(1))
-            .model(() -> Models::generateMobHatItem)
-            .addMiscData(ProviderType.LANG, prov -> {
-                String descriptionId = Util.makeDescriptionId("item", LoveTropics.location("mob_hat"));
-                prov.add(descriptionId + ".entity", "%s Hat");
-            })
-            .tab(LoveTropics.TAB_KEY, modifier -> {
-                for (EntityType<?> entity : BuiltInRegistries.ENTITY_TYPE) {
-                    if (entity.getCategory() != MobCategory.MISC) {
-                        final ItemStack stack = new ItemStack(MinigameItems.MOB_HAT.get());
-                        stack.set(MinigameDataComponents.ENTITY, new DisguiseType.EntityConfig(entity, null, false));
-                        modifier.accept(stack);
-                    }
-                }
-            })
-            .register();
+	public static final ItemEntry<EditRegionItem> EDIT_REGION = REGISTRATE.item("edit_region", EditRegionItem::new)
+			.register();
 
-    public static final ItemEntry<PlushieItem> PLUSHIE = REGISTRATE.item("plushie", PlushieItem::new)
-            .properties(p -> p.stacksTo(1))
+	public static final ItemEntry<DisguiseItem> DISGUISE = REGISTRATE.item("disguise", DisguiseItem::new)
+			.properties(p -> p.stacksTo(1))
+			.model(() -> Models::generateDisguiseItem)
+			.addMiscData(ProviderType.LANG, prov -> {
+				String descriptionId = Util.makeDescriptionId("item", LoveTropics.location("disguise"));
+				prov.add(descriptionId + ".entity", "%s Disguise");
+			})
+			.tab(LoveTropics.TAB_KEY, modifier -> {
+				for (EntityType<?> entity : BuiltInRegistries.ENTITY_TYPE) {
+					if (entity.getCategory() != MobCategory.MISC) {
+						final ItemStack stack = new ItemStack(MinigameItems.DISGUISE.get());
+						stack.set(MinigameDataComponents.DISGUISE, DisguiseType.DEFAULT.withEntity(new DisguiseType.EntityConfig(entity, null, false)));
+						modifier.accept(stack);
+					}
+				}
+			})
+			.register();
+
+	public static final ItemEntry<MobHatItem> MOB_HAT = REGISTRATE.item("mob_hat", MobHatItem::new)
+			.properties(p -> p.stacksTo(1))
+			.model(() -> Models::generateMobHatItem)
+			.addMiscData(ProviderType.LANG, prov -> {
+				String descriptionId = Util.makeDescriptionId("item", LoveTropics.location("mob_hat"));
+				prov.add(descriptionId + ".entity", "%s Hat");
+			})
+			.tab(LoveTropics.TAB_KEY, modifier -> {
+				for (EntityType<?> entity : BuiltInRegistries.ENTITY_TYPE) {
+					if (entity.getCategory() != MobCategory.MISC) {
+						final ItemStack stack = new ItemStack(MinigameItems.MOB_HAT.get());
+						stack.set(MinigameDataComponents.ENTITY, new DisguiseType.EntityConfig(entity, null, false));
+						modifier.accept(stack);
+					}
+				}
+			})
+			.register();
+
+	public static final ItemEntry<PlushieItem> PLUSHIE = REGISTRATE.item("plushie", PlushieItem::new)
+			.properties(p -> p.stacksTo(1))
 			.model(() -> Models::generatePlushieItem)
-            .addMiscData(ProviderType.LANG, prov -> {
-                String descriptionId = Util.makeDescriptionId("item", LoveTropics.location("plushie"));
-                prov.add(descriptionId + ".entity", "%s Plushie");
-            })
-            .register();
+			.addMiscData(ProviderType.LANG, prov -> {
+				String descriptionId = Util.makeDescriptionId("item", LoveTropics.location("plushie"));
+				prov.add(descriptionId + ".entity", "%s Plushie");
+			})
+			.register();
 
-    public static void init() {}
+	public static void init() {
+	}
 
 	private static class Models {
 		private static final ResourceLocation DISGUISE_ITEM_SPRITE = LoveTropics.location("item/disguise");

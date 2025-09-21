@@ -17,9 +17,9 @@ import java.util.Set;
 import java.util.UUID;
 
 public record LobbyPlayersMessage(int id, Set<UUID> players) implements CustomPacketPayload {
-    public static final Type<LobbyPlayersMessage> TYPE = new Type<>(LoveTropics.location("lobby_players"));
+	public static final Type<LobbyPlayersMessage> TYPE = new Type<>(LoveTropics.location("lobby_players"));
 
-    public static final StreamCodec<ByteBuf, LobbyPlayersMessage> STREAM_CODEC = StreamCodec.composite(
+	public static final StreamCodec<ByteBuf, LobbyPlayersMessage> STREAM_CODEC = StreamCodec.composite(
 			ByteBufCodecs.VAR_INT, LobbyPlayersMessage::id,
 			UUIDUtil.STREAM_CODEC.apply(ByteBufCodecs.collection(ObjectOpenHashSet::new)), LobbyPlayersMessage::players,
 			LobbyPlayersMessage::new
@@ -39,7 +39,7 @@ public record LobbyPlayersMessage(int id, Set<UUID> players) implements CustomPa
 	}
 
 	@Override
-    public Type<LobbyPlayersMessage> type() {
-        return TYPE;
-    }
+	public Type<LobbyPlayersMessage> type() {
+		return TYPE;
+	}
 }

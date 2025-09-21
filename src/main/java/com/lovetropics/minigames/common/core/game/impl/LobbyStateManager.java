@@ -57,7 +57,9 @@ final class LobbyStateManager {
 	@Nullable
 	private Change trySetState(LobbyState newState) {
 		LobbyState oldState = state;
-		if (oldState == newState) return null;
+		if (oldState == newState) {
+			return null;
+		}
 
 		state = newState;
 		return new Change(oldState.phase, newState.phase);

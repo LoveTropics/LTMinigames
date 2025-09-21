@@ -14,17 +14,17 @@ import com.mojang.serialization.MapCodec;
 import java.util.function.Supplier;
 
 public record StartGameTrigger(GameActionList<Void> actions) implements IGameBehavior {
-    public static final MapCodec<StartGameTrigger> CODEC = GameActionList.VOID_MAP_CODEC
-            .xmap(StartGameTrigger::new, StartGameTrigger::actions);
+	public static final MapCodec<StartGameTrigger> CODEC = GameActionList.VOID_MAP_CODEC
+			.xmap(StartGameTrigger::new, StartGameTrigger::actions);
 
-    @Override
-    public void register(IGamePhase game, EventRegistrar events) throws GameException {
-        actions.register(game, events);
-        events.listen(GamePhaseEvents.START, () -> actions.apply(game, GameActionContext.EMPTY));
-    }
+	@Override
+	public void register(IGamePhase game, EventRegistrar events) throws GameException {
+		actions.register(game, events);
+		events.listen(GamePhaseEvents.START, () -> actions.apply(game, GameActionContext.EMPTY));
+	}
 
-    @Override
-    public Supplier<? extends GameBehaviorType<?>> behaviorType() {
-        return GameBehaviorTypes.START_GAME;
-    }
+	@Override
+	public Supplier<? extends GameBehaviorType<?>> behaviorType() {
+		return GameBehaviorTypes.START_GAME;
+	}
 }

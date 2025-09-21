@@ -42,7 +42,7 @@ public record SpawnParticlesAroundPlayerAction(ParticleOptions[] particles, IntP
 				ParticleOptions particle = particles[random.nextInt(particles.length)];
 				int repeats = this.repeats.sample(random);
 				Vec3 pos = positionGenerator.apply(player);
-                game.level().sendParticles(particle, pos.x, pos.y, pos.z, repeats, offset.x, offset.y, offset.z, speed);
+				game.level().sendParticles(particle, pos.x, pos.y, pos.z, repeats, offset.x, offset.y, offset.z, speed);
 			}
 			return true;
 		});

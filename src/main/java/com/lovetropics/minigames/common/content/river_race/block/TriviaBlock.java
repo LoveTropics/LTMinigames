@@ -12,51 +12,53 @@ import org.jetbrains.annotations.Nullable;
 
 public class TriviaBlock extends Block implements EntityBlock {
 
-    public static class RewardTriviaBlock extends TriviaBlock {
-        public RewardTriviaBlock(Properties properties) {
-            super(properties, TriviaType.REWARD);
-        }
-    }
-    public static class GateTriviaBlock extends TriviaBlock {
-        public GateTriviaBlock(Properties properties) {
-            super(properties, TriviaType.GATE);
-        }
-    }
+	public static class RewardTriviaBlock extends TriviaBlock {
+		public RewardTriviaBlock(Properties properties) {
+			super(properties, TriviaType.REWARD);
+		}
+	}
 
-    public static class CollectableTriviaBlock extends TriviaBlock {
-        public CollectableTriviaBlock(Properties properties) {
-            super(properties, TriviaType.COLLECTABLE);
-        }
-    }
-    public static class VictoryTriviaBlock extends TriviaBlock {
-        public VictoryTriviaBlock(Properties properties) {
-            super(properties, TriviaType.VICTORY);
-        }
-    }
+	public static class GateTriviaBlock extends TriviaBlock {
+		public GateTriviaBlock(Properties properties) {
+			super(properties, TriviaType.GATE);
+		}
+	}
 
-    public static final BooleanProperty ANSWERED = BooleanProperty.create("answered");
+	public static class CollectableTriviaBlock extends TriviaBlock {
+		public CollectableTriviaBlock(Properties properties) {
+			super(properties, TriviaType.COLLECTABLE);
+		}
+	}
 
-    private final TriviaType type;
+	public static class VictoryTriviaBlock extends TriviaBlock {
+		public VictoryTriviaBlock(Properties properties) {
+			super(properties, TriviaType.VICTORY);
+		}
+	}
 
-    public TriviaBlock(Properties properties, TriviaType type) {
-        super(properties);
-        this.type = type;
-        registerDefaultState(getStateDefinition().any().setValue(ANSWERED, false));
-    }
+	public static final BooleanProperty ANSWERED = BooleanProperty.create("answered");
 
-    @Override
-    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        super.createBlockStateDefinition(builder);
-        builder.add(ANSWERED);
-    }
+	private final TriviaType type;
 
-    @Nullable
-    @Override
-    public BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
-        return new TriviaBlockEntity(RiverRace.TRIVIA_BLOCK_ENTITY.get(), blockPos, blockState);
-    }
+	public TriviaBlock(Properties properties, TriviaType type) {
+		super(properties);
+		this.type = type;
+		registerDefaultState(getStateDefinition().any().setValue(ANSWERED, false));
+	}
 
-    public TriviaType getType() {
-        return type;
-    }
+	@Override
+	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+		super.createBlockStateDefinition(builder);
+		builder.add(ANSWERED);
+	}
+
+	@Nullable
+	@Override
+	public BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
+		return new TriviaBlockEntity(RiverRace.TRIVIA_BLOCK_ENTITY.get(), blockPos, blockState);
+	}
+
+	public TriviaType getType() {
+		return type;
+	}
 }

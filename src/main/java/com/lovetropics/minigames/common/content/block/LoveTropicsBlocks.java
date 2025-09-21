@@ -26,12 +26,12 @@ import java.util.stream.Collectors;
 import static net.minecraft.client.data.models.BlockModelGenerators.*;
 
 public class LoveTropicsBlocks {
-    
-    public static final LoveTropicsRegistrate REGISTRATE = LoveTropics.registrate();
 
-    public static final Map<TrashType, BlockEntry<TrashBlock>> TRASH = Arrays.stream(TrashType.values())
-            .collect(Collectors.toMap(Function.identity(), t -> REGISTRATE.block(t.getId(), p -> new TrashBlock(t, p))
-                    .properties(p -> p.mapColor(MapColor.PLANT).pushReaction(PushReaction.DESTROY).noCollission().offsetType(BlockBehaviour.OffsetType.XZ))
+	public static final LoveTropicsRegistrate REGISTRATE = LoveTropics.registrate();
+
+	public static final Map<TrashType, BlockEntry<TrashBlock>> TRASH = Arrays.stream(TrashType.values())
+			.collect(Collectors.toMap(Function.identity(), t -> REGISTRATE.block(t.getId(), p -> new TrashBlock(t, p))
+					.properties(p -> p.mapColor(MapColor.PLANT).pushReaction(PushReaction.DESTROY).noCollission().offsetType(BlockBehaviour.OffsetType.XZ))
 					.addLayer(() -> () -> ChunkSectionLayer.CUTOUT)
 					.blockstate(() -> Models::generateTrashBlock)
 					.simpleItem()

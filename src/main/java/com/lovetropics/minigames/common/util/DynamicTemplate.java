@@ -91,7 +91,7 @@ public class DynamicTemplate {
 		}
 	}
 
-	public  <U> U substitute(final DynamicOps<U> ops, final U parameters) {
+	public <U> U substitute(final DynamicOps<U> ops, final U parameters) {
 		final Optional<MapLike<U>> map = ops.getMap(parameters).result();
 		if (map.isPresent()) {
 			return substituteMap(ops, map.get());

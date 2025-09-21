@@ -30,7 +30,9 @@ public final class ClientGameStateManager {
 
 	public static <T extends GameClientState> void remove(GameClientStateType<T> type) {
 		GameClientStateMap map = ClientGameStateManager.map;
-		if (map == null) return;
+		if (map == null) {
+			return;
+		}
 
 		T state = map.remove(type);
 		if (state != null) {

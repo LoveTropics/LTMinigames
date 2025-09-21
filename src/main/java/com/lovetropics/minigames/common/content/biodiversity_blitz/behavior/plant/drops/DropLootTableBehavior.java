@@ -82,13 +82,13 @@ public final class DropLootTableBehavior implements IGameBehavior {
 
 	private void dropLoot(ServerPlayer player, Plot plot, Plant plant, BlockPos pos) {
 		LootTable lootTable = getLootTable(game.server());
-        ServerLevel world = game.level();
+		ServerLevel world = game.level();
 
-        LootParams params = buildLootParams(player, pos);
-        for (ItemStack stack : lootTable.getRandomItems(params)) {
-            Block.popResource(world, pos, stack);
-        }
-    }
+		LootParams params = buildLootParams(player, pos);
+		for (ItemStack stack : lootTable.getRandomItems(params)) {
+			Block.popResource(world, pos, stack);
+		}
+	}
 
 	private LootParams buildLootParams(ServerPlayer player, BlockPos pos) {
 		return new LootParams.Builder(player.level())
@@ -101,6 +101,6 @@ public final class DropLootTableBehavior implements IGameBehavior {
 	}
 
 	private LootTable getLootTable(MinecraftServer server) {
-        return server.reloadableRegistries().getLootTable(lootTable);
-    }
+		return server.reloadableRegistries().getLootTable(lootTable);
+	}
 }

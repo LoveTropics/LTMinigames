@@ -25,49 +25,49 @@ import net.minecraft.world.level.block.state.BlockState;
 import java.util.List;
 
 public final class PianguasPlantBehavior implements IGameBehavior {
-    public static final MapCodec<PianguasPlantBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-            Codec.INT.fieldOf("radius").forGetter(b -> b.radius),
-            MoreCodecs.BLOCK_STATE.fieldOf("block").forGetter(c -> c.state)
-    ).apply(i, PianguasPlantBehavior::new));
-    private static final TagKey<Block> MUD = TagKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath("tropicraft", "mud"));
-    private static final int INTERVAL_TICKS = SharedConstants.TICKS_PER_SECOND * 15;
+	public static final MapCodec<PianguasPlantBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+			Codec.INT.fieldOf("radius").forGetter(b -> b.radius),
+			MoreCodecs.BLOCK_STATE.fieldOf("block").forGetter(c -> c.state)
+	).apply(i, PianguasPlantBehavior::new));
+	private static final TagKey<Block> MUD = TagKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath("tropicraft", "mud"));
+	private static final int INTERVAL_TICKS = SharedConstants.TICKS_PER_SECOND * 15;
 
-    private final int radius;
-    private final BlockState state;
+	private final int radius;
+	private final BlockState state;
 
-    private IGamePhase game;
+	private IGamePhase game;
 
-    public PianguasPlantBehavior(int radius, BlockState state) {
-        this.radius = radius;
-        this.state = state;
-    }
+	public PianguasPlantBehavior(int radius, BlockState state) {
+		this.radius = radius;
+		this.state = state;
+	}
 
-    @Override
-    public void register(IGamePhase game, EventRegistrar events) throws GameException {
-        this.game = game;
-        events.listen(BbPlantEvents.TICK, this::tickPlants);
-    }
+	@Override
+	public void register(IGamePhase game, EventRegistrar events) throws GameException {
+		this.game = game;
+		events.listen(BbPlantEvents.TICK, this::tickPlants);
+	}
 
-    private void tickPlants(PlayerSet players, Plot plot, List<Plant> plants) {
-        long ticks = game.ticks();
-        RandomSource random = game.level().getRandom();
+	private void tickPlants(PlayerSet players, Plot plot, List<Plant> plants) {
+		long ticks = game.ticks();
+		RandomSource random = game.level().getRandom();
 
-        // TODO: rebalance
-        if (ticks % INTERVAL_TICKS != 0 || random.nextInt(4) != 0) {
-            return;
-        }
+		// TODO: rebalance
+		if (ticks % INTERVAL_TICKS != 0 || random.nextInt(4) != 0) {
+			return;
+		}
 
-        ServerLevel world = game.level();
+		ServerLevel world = game.level();
 
-        for (Plant plant : plants) {
-            int dx = random.nextInt(radius) - random.nextInt(radius);
-            int dz = random.nextInt(radius) - random.nextInt(radius);
+		for (Plant plant : plants) {
+			int dx = random.nextInt(radius) - random.nextInt(radius);
+			int dz = random.nextInt(radius) - random.nextInt(radius);
 
-            BlockPos check = plant.coverage().getOrigin().offset(dx, -1, dz);
+			BlockPos check = plant.coverage().getOrigin().offset(dx, -1, dz);
 
-            if (world.getBlockState(check).is(MUD)) {
-                world.setBlockAndUpdate(check, state);
-            }
-        }
-    }
+			if (world.getBlockState(check).is(MUD)) {
+				world.setBlockAndUpdate(check, state);
+			}
+		}
+	}
 }

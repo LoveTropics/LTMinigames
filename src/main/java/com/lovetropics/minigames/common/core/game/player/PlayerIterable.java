@@ -92,20 +92,20 @@ public interface PlayerIterable extends PlayerOps, Iterable<ServerPlayer> {
 	static Iterator<ServerPlayer> resolvingIterator(MinecraftServer server, Iterator<UUID> ids) {
 		PlayerList playerList = server.getPlayerList();
 		return new AbstractIterator<>() {
-            @Override
-            protected ServerPlayer computeNext() {
-                while (true) {
-                    if (!ids.hasNext()) {
-                        return endOfData();
-                    }
+			@Override
+			protected ServerPlayer computeNext() {
+				while (true) {
+					if (!ids.hasNext()) {
+						return endOfData();
+					}
 
-                    UUID id = ids.next();
-                    ServerPlayer player = playerList.getPlayer(id);
-                    if (player != null) {
-                        return player;
-                    }
-                }
-            }
-        };
+					UUID id = ids.next();
+					ServerPlayer player = playerList.getPlayer(id);
+					if (player != null) {
+						return player;
+					}
+				}
+			}
+		};
 	}
 }

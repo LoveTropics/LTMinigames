@@ -20,7 +20,7 @@ public class ConfigDataUI extends LayoutGui implements IConfigWidget {
 	private final String name;
 	private final ConfigData configs;
 	private final TextLabel label;
-	
+
 	private final List<ContainerEventHandler> children = new ArrayList<>();
 
 	public ConfigDataUI(GameConfig parent, LayoutTree ltree, String name, ConfigData configs) {
@@ -28,7 +28,6 @@ public class ConfigDataUI extends LayoutGui implements IConfigWidget {
 		this.parent = parent;
 		this.name = name;
 		this.configs = configs;
-		
 
 		label = new TextLabel(ltree.child(1, Axis.X), 11, Component.translatable(name), Align.Cross.START, Align.Cross.START);
 		IConfigWidget widget = parent.createWidget(ltree.child(1, Axis.X), configs);
@@ -40,7 +39,7 @@ public class ConfigDataUI extends LayoutGui implements IConfigWidget {
 	public List<? extends GuiEventListener> children() {
 		return children;
 	}
-	
+
 	@Override
 	public int getHeight() {
 		return mainLayout.background().height();

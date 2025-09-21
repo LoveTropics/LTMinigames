@@ -46,38 +46,40 @@ import java.util.function.Supplier;
 
 @EventBusSubscriber(modid = "ltminigames")
 public class LTMinigamesGameTests {
-    public static final TestPermissionAPI PERMISSIONS = new TestPermissionAPI();
+	public static final TestPermissionAPI PERMISSIONS = new TestPermissionAPI();
 
-    private static final Supplier<Map<ResourceLocation, MinigameTest>> TESTS = Suppliers.memoize(() -> {
-        final var classes = ModList.get().getAllScanData().stream()
-                .flatMap(sc -> sc.getAnnotations().stream())
-                .filter(an -> an.annotationType().equals(RegisterMinigameTest.TYPE))
-                .map(an -> an.clazz().getInternalName())
-                .toList();
+	private static final Supplier<Map<ResourceLocation, MinigameTest>> TESTS = Suppliers.memoize(() -> {
+		final var classes = ModList.get().getAllScanData().stream()
+				.flatMap(sc -> sc.getAnnotations().stream())
+				.filter(an -> an.annotationType().equals(RegisterMinigameTest.TYPE))
+				.map(an -> an.clazz().getInternalName())
+				.toList();
 
-        final var testMap = new HashMap<ResourceLocation, MinigameTest>();
-        try {
-            for (String cls : classes) {
-                final Class<?> clazz = Class.forName(cls.replace('/', '.'));
-                final MinigameTest test = (MinigameTest) clazz.getDeclaredConstructor().newInstance();
-                testMap.put(test.id(), test);
-            }
-        } catch (Exception ex) {
-            LoveTropics.LOGGER.error("Could not create minigame test: ", ex);
-        }
+		final var testMap = new HashMap<ResourceLocation, MinigameTest>();
+		try {
+			for (String cls : classes) {
+				final Class<?> clazz = Class.forName(cls.replace('/', '.'));
+				final MinigameTest test = (MinigameTest) clazz.getDeclaredConstructor().newInstance();
+				testMap.put(test.id(), test);
+			}
+		} catch (Exception ex) {
+			LoveTropics.LOGGER.error("Could not create minigame test: ", ex);
+		}
 
-        return testMap;
-    });
-    public static final String TESTING_PACK = "testing";
+		return testMap;
+	});
+	public static final String TESTING_PACK = "testing";
 
-    @SubscribeEvent
-    static void register(final RegisterGameTestsEvent event) {
+	@SubscribeEvent
+	static void register(final RegisterGameTestsEvent event) {
 		for (var entry : TESTS.get().entrySet()) {
 			var test = entry.getValue();
 			var id = entry.getKey();
 			for (Method testMethod : test.getClass().getDeclaredMethods()) {
 				GameTest gametest = testMethod.getAnnotation(GameTest.class);
-				if (gametest == null) continue;
+				if (gametest == null) {
+					continue;
+				}
 
 				testMethod.setAccessible(true);
 
@@ -139,49 +141,49 @@ public class LTMinigamesGameTests {
 				});
 			}
 		}
-    }
+	}
 
-    @SubscribeEvent
-    static void gather(final GatherDataEvent.Client event) {
-        final PackOutput out = event.getGenerator().getPackOutput(TESTING_PACK);
+	@SubscribeEvent
+	static void gather(final GatherDataEvent.Client event) {
+		final PackOutput out = event.getGenerator().getPackOutput(TESTING_PACK);
 
-        final BehaviorFactory behaviors = new BehaviorFactory();
-        event.getGenerator()
-                .addProvider(true, new GameProvider(out, behaviors, event.getLookupProvider()) {
-                    @Override
-                    protected void generate(GameGenerator generator, HolderLookup.Provider holderProvider) {
-                        TESTS.get().forEach((key, test) -> test.generateGame(generator, behaviors, holderProvider));
-                    }
-                });
+		final BehaviorFactory behaviors = new BehaviorFactory();
+		event.getGenerator()
+				.addProvider(true, new GameProvider(out, behaviors, event.getLookupProvider()) {
+					@Override
+					protected void generate(GameGenerator generator, HolderLookup.Provider holderProvider) {
+						TESTS.get().forEach((key, test) -> test.generateGame(generator, behaviors, holderProvider));
+					}
+				});
 
-        event.getGenerator()
-                .addProvider(true, new BehaviorProvider(out, behaviors, event.getLookupProvider()));
+		event.getGenerator()
+				.addProvider(true, new BehaviorProvider(out, behaviors, event.getLookupProvider()));
 
-        event.getGenerator().addProvider(true, new PackMetadataGenerator(out)
-                .add(PackMetadataSection.TYPE, new PackMetadataSection(Component.literal("LTMinigames testing"), SharedConstants.getCurrentVersion().packVersion(PackType.SERVER_DATA))));
-    }
+		event.getGenerator().addProvider(true, new PackMetadataGenerator(out)
+				.add(PackMetadataSection.TYPE, new PackMetadataSection(Component.literal("LTMinigames testing"), SharedConstants.getCurrentVersion().packVersion(PackType.SERVER_DATA))));
+	}
 
-    @SubscribeEvent
-    static void addFinders(final AddPackFindersEvent event) {
-        if (event.getPackType() == PackType.SERVER_DATA) {
-            PackLocationInfo info = new PackLocationInfo(TESTING_PACK, Component.literal("testing"), PackSource.BUILT_IN, Optional.empty());
-            final var resources = new PathPackResources(info, ModList.get()
-                    .getModContainerById(LoveTropics.ID).orElseThrow()
-                    .getModInfo().getOwningFile()
-                    .getFile().findResource(TESTING_PACK));
-            event.addRepositorySource(onLoad -> onLoad.accept(Pack.readMetaAndCreate(
-                    info, new Pack.ResourcesSupplier() {
-                        @Override
-                        public PackResources openPrimary(PackLocationInfo pLocation) {
-                            return resources;
-                        }
+	@SubscribeEvent
+	static void addFinders(final AddPackFindersEvent event) {
+		if (event.getPackType() == PackType.SERVER_DATA) {
+			PackLocationInfo info = new PackLocationInfo(TESTING_PACK, Component.literal("testing"), PackSource.BUILT_IN, Optional.empty());
+			final var resources = new PathPackResources(info, ModList.get()
+					.getModContainerById(LoveTropics.ID).orElseThrow()
+					.getModInfo().getOwningFile()
+					.getFile().findResource(TESTING_PACK));
+			event.addRepositorySource(onLoad -> onLoad.accept(Pack.readMetaAndCreate(
+					info, new Pack.ResourcesSupplier() {
+						@Override
+						public PackResources openPrimary(PackLocationInfo pLocation) {
+							return resources;
+						}
 
-                        @Override
-                        public PackResources openFull(PackLocationInfo pLocation, Pack.Metadata pMetadata) {
-                            return resources;
-                        }
-                    }, PackType.SERVER_DATA, new PackSelectionConfig(true, Pack.Position.TOP, false)
-            )));
-        }
-    }
+						@Override
+						public PackResources openFull(PackLocationInfo pLocation, Pack.Metadata pMetadata) {
+							return resources;
+						}
+					}, PackType.SERVER_DATA, new PackSelectionConfig(true, Pack.Position.TOP, false)
+			)));
+		}
+	}
 }

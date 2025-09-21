@@ -20,7 +20,7 @@ public record SetGameRulesBehavior(Map<String, String> rules) implements IGameBe
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
-        final GameRules gameRules = game.level().getGameRules();
+		final GameRules gameRules = game.level().getGameRules();
 		final CompoundTag nbt = new CompoundTag();
 		rules.forEach(nbt::putString);
 		gameRules.loadFromTag(new Dynamic<>(NbtOps.INSTANCE, nbt));

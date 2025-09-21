@@ -17,14 +17,14 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 public final class BrambleBlock extends BushBlock {
-    public BrambleBlock(Properties pProperties) {
-        super(pProperties);
-    }
+	public BrambleBlock(Properties pProperties) {
+		super(pProperties);
+	}
 
-    @Override
+	@Override
 	public MapCodec<BushBlock> codec() {
 		throw new UnsupportedOperationException();
-    }
+	}
 
 	@Override
 	protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity, InsideBlockEffectApplier effectApplier) {
@@ -40,8 +40,8 @@ public final class BrambleBlock extends BushBlock {
 		}
 	}
 
-    @Override
-    public PathType getBlockPathType(BlockState state, BlockGetter level, BlockPos pos, @Nullable Mob mob) {
-        return PathType.DANGER_OTHER;
-    }
+	@Override
+	public PathType getBlockPathType(BlockState state, BlockGetter level, BlockPos pos, @Nullable Mob mob) {
+		return PathType.DANGER_OTHER;
+	}
 }

@@ -11,18 +11,19 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public record TriviaAnswerResponseMessage(BlockPos triviaBlock, TriviaBlockEntity.TriviaBlockState triviaBlockState) implements CustomPacketPayload {
 
-    public static final Type<TriviaAnswerResponseMessage> TYPE = new Type<>(LoveTropics.location("trivia_answer_response"));
-    public static final StreamCodec<ByteBuf, TriviaAnswerResponseMessage> STREAM_CODEC = StreamCodec.composite(
-            BlockPos.STREAM_CODEC, TriviaAnswerResponseMessage::triviaBlock,
-            TriviaBlockEntity.TriviaBlockState.STREAM_CODEC, TriviaAnswerResponseMessage::triviaBlockState,
-            TriviaAnswerResponseMessage::new
-    );
-    public static void handle(final TriviaAnswerResponseMessage message, final IPayloadContext context) {
-        ClientTriviaHandler.handleResponse(message);
-    }
+	public static final Type<TriviaAnswerResponseMessage> TYPE = new Type<>(LoveTropics.location("trivia_answer_response"));
+	public static final StreamCodec<ByteBuf, TriviaAnswerResponseMessage> STREAM_CODEC = StreamCodec.composite(
+			BlockPos.STREAM_CODEC, TriviaAnswerResponseMessage::triviaBlock,
+			TriviaBlockEntity.TriviaBlockState.STREAM_CODEC, TriviaAnswerResponseMessage::triviaBlockState,
+			TriviaAnswerResponseMessage::new
+	);
 
-    @Override
-    public Type<? extends CustomPacketPayload> type() {
-        return TYPE;
-    }
+	public static void handle(final TriviaAnswerResponseMessage message, final IPayloadContext context) {
+		ClientTriviaHandler.handleResponse(message);
+	}
+
+	@Override
+	public Type<? extends CustomPacketPayload> type() {
+		return TYPE;
+	}
 }

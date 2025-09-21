@@ -18,30 +18,30 @@ import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 public class SyncTeamsBehavior implements IGameBehavior {
-    public static final MapCodec<SyncTeamsBehavior> CODEC = MapCodec.unit(SyncTeamsBehavior::new);
+	public static final MapCodec<SyncTeamsBehavior> CODEC = MapCodec.unit(SyncTeamsBehavior::new);
 
-    @Override
-    public void register(IGamePhase game, EventRegistrar events) throws GameException {
-        TeamState teamState = game.instanceState().getOrThrow(TeamState.KEY);
+	@Override
+	public void register(IGamePhase game, EventRegistrar events) throws GameException {
+		TeamState teamState = game.instanceState().getOrThrow(TeamState.KEY);
 
-        events.listen(GameTeamEvents.SET_GAME_TEAM, (player, teams, team) -> sendSync(teams, team, game));
-        events.listen(GamePlayerEvents.SET_ROLE, (player, role, lastRole) -> {
-            GameTeamKey team = teamState.getTeamForPlayer(player);
+		events.listen(GameTeamEvents.SET_GAME_TEAM, (player, teams, team) -> sendSync(teams, team, game));
+		events.listen(GamePlayerEvents.SET_ROLE, (player, role, lastRole) -> {
+			GameTeamKey team = teamState.getTeamForPlayer(player);
 			if (team != null) {
 				sendSync(teamState, team, game);
 			}
 		});
-        events.listen(GameTeamEvents.REMOVE_FROM_TEAM, (player, teams, team) -> {
-            sendSync(teams, team, game);
-            GameClientStateSender.get().byPlayer(player).enqueueRemove(GameClientStateTypes.TEAM_MEMBERS.get());
-        });
+		events.listen(GameTeamEvents.REMOVE_FROM_TEAM, (player, teams, team) -> {
+			sendSync(teams, team, game);
+			GameClientStateSender.get().byPlayer(player).enqueueRemove(GameClientStateTypes.TEAM_MEMBERS.get());
+		});
 
-        events.listen(GamePhaseEvents.STOP, reason -> PacketDistributor.sendToAllPlayers(SetGameClientStateMessage.remove(GameClientStateTypes.TEAM_MEMBERS.get())));
-    }
+		events.listen(GamePhaseEvents.STOP, reason -> PacketDistributor.sendToAllPlayers(SetGameClientStateMessage.remove(GameClientStateTypes.TEAM_MEMBERS.get())));
+	}
 
-    private void sendSync(TeamState teams, GameTeamKey key, IGamePhase game) {
-        final var team = teams.getParticipantsForTeam(game, key);
-        team.forEach(player -> GameClientStateSender.get().byPlayer(player).enqueueSet(new TeamMembersClientState(team.stream().filter(p -> p != player)
-                .map(ServerPlayer::getUUID).toList())));
-    }
+	private void sendSync(TeamState teams, GameTeamKey key, IGamePhase game) {
+		final var team = teams.getParticipantsForTeam(game, key);
+		team.forEach(player -> GameClientStateSender.get().byPlayer(player).enqueueSet(new TeamMembersClientState(team.stream().filter(p -> p != player)
+				.map(ServerPlayer::getUUID).toList())));
+	}
 }

@@ -93,7 +93,7 @@ public abstract class PlayerListMixin implements PlayerListAccess {
 
 	// We need to run the rest of the logic with the new player instance
 	// FIXME: It would be nice to not need to produce new player instances in the logout process - but microgames need it right now to pull players all the way out
-	@ModifyVariable(method = "remove", at = @At(value= "HEAD"), argsOnly = true)
+	@ModifyVariable(method = "remove", at = @At(value = "HEAD"), argsOnly = true)
 	private ServerPlayer onPlayerLogOut(ServerPlayer player) {
 		return MultiGameManager.onPlayerLoggedOut(player);
 	}

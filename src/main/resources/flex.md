@@ -8,19 +8,23 @@
 
 **Main Size / Cross Size**: The dimensions of the element along the given axis.
 
-**Main Start, Main End, Cross Start, Cross End**: The positions at which the container starts and ends along the given axis. These are one dimensional units, so the main start position is the leftmost X position for a row() flex element.
+**Main Start, Main End, Cross Start, Cross End**: The positions at which the container starts and ends along the given
+axis. These are one dimensional units, so the main start position is the leftmost X position for a row() flex element.
 
 **Flex Container**: The parent flex object.
 
 **Flex Item**: Child flex objects that are fit within the container (parent).
 
-**Definite Size**: A size that can be determined before performing layout. This can include typically indefinite sizes (such as percentages) that are immediately within a definitely sized parent flex object.
+**Definite Size**: A size that can be determined before performing layout. This can include typically indefinite sizes (
+such as percentages) that are immediately within a definitely sized parent flex object.
 
 ## Line Length
 
 ### Determine available main/cross space for flex items
 
-This calculates the total available space for any children of this object. This is the area inside the container, as well as within its margin, border, and padding. At this point, because this is a recursive process, the current object's available space will already be known.
+This calculates the total available space for any children of this object. This is the area inside the container, as
+well as within its margin, border, and padding. At this point, because this is a recursive process, the current object's
+available space will already be known.
 
 For each dimension (main, cross):
 

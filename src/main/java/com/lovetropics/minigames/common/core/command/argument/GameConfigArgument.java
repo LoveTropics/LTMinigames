@@ -19,13 +19,13 @@ public final class GameConfigArgument {
 			Component.literal("Game config does not exist with id: " + arg)
 	);
 
-    public static RequiredArgumentBuilder<CommandSourceStack, ResourceLocation> argument(String name) {
-        return Commands.argument(name, ResourceLocationArgument.id())
-                .suggests((context, builder) -> SharedSuggestionProvider.suggestResource(
+	public static RequiredArgumentBuilder<CommandSourceStack, ResourceLocation> argument(String name) {
+		return Commands.argument(name, ResourceLocationArgument.id())
+				.suggests((context, builder) -> SharedSuggestionProvider.suggestResource(
 						GameConfigs.REGISTRY.stream().map(IGameDefinition::id),
 						builder
 				));
-    }
+	}
 
 	public static GameConfig get(CommandContext<CommandSourceStack> context, String name) throws CommandSyntaxException {
 		ResourceLocation id = ResourceLocationArgument.getId(context, name);

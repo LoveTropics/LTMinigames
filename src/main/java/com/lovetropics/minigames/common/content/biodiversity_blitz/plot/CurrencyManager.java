@@ -111,7 +111,9 @@ public final class CurrencyManager implements IGameState {
 		List<Slot> slots = player.containerMenu.slots;
 		for (Slot slot : slots) {
 			remaining -= removeFromSlot(slot, remaining);
-			if (remaining <= 0) break;
+			if (remaining <= 0) {
+				break;
+			}
 		}
 
 		remaining -= ContainerHelper.clearOrCountMatchingItems(player.containerMenu.getCarried(), itemPredicate, remaining, false);

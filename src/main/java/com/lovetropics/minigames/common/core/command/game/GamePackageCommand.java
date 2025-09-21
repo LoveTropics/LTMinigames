@@ -30,13 +30,13 @@ import static net.minecraft.commands.Commands.literal;
 public class GamePackageCommand {
 	public static void register(final CommandDispatcher<CommandSourceStack> dispatcher) {
 		dispatcher.register(
-			literal("game")
-			.then(literal("package").requires(s -> s.hasPermission(Commands.LEVEL_GAMEMASTERS))
-				.then(argument("id", StringArgumentType.word())
-					.suggests(GamePackageCommand::suggestPackages)
-						.executes(ctx -> GamePackageCommand.spawnPackage(ctx, null))
-						.then(argument("target", EntityArgument.player())
-							.executes(ctx -> GamePackageCommand.spawnPackage(ctx, EntityArgument.getPlayer(ctx, "target"))))))
+				literal("game")
+						.then(literal("package").requires(s -> s.hasPermission(Commands.LEVEL_GAMEMASTERS))
+								.then(argument("id", StringArgumentType.word())
+										.suggests(GamePackageCommand::suggestPackages)
+										.executes(ctx -> GamePackageCommand.spawnPackage(ctx, null))
+										.then(argument("target", EntityArgument.player())
+												.executes(ctx -> GamePackageCommand.spawnPackage(ctx, EntityArgument.getPlayer(ctx, "target"))))))
 		);
 	}
 
@@ -56,7 +56,8 @@ public class GamePackageCommand {
 			GamePackage gamePackage = new GamePackage(type, "LoveTropics", Optional.ofNullable(target).map(Entity::getUUID), Optional.empty());
 			TriState result = game.invoker(GamePackageEvents.RECEIVE_PACKAGE).onReceivePackage(gamePackage);
 			switch (result) {
-				case TRUE -> ctx.getSource().sendSuccess(() -> Component.translatable("Successfully sent '%s'", type), false);
+				case TRUE ->
+						ctx.getSource().sendSuccess(() -> Component.translatable("Successfully sent '%s'", type), false);
 				case DEFAULT -> ctx.getSource().sendFailure(Component.translatable("'%s' was not processed", type));
 				case FALSE -> ctx.getSource().sendFailure(Component.translatable("'%s' was rejected", type));
 			}

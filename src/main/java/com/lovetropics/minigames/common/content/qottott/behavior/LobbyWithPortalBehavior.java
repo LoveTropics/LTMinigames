@@ -65,7 +65,7 @@ public record LobbyWithPortalBehavior(String portalRegion, String targetRegion, 
 		events.listen(GamePhaseEvents.TICK, () -> {
 			final boolean shouldOpen = predicate.getAsBoolean();
 			if (portalOpen.getValue() != shouldOpen) {
-                setPortal(game.level(), portal, shouldOpen);
+				setPortal(game.level(), portal, shouldOpen);
 				portalOpen.setValue(shouldOpen);
 			}
 		});

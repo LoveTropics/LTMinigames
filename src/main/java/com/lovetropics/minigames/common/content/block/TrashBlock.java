@@ -45,49 +45,49 @@ public class TrashBlock extends Block implements SimpleWaterloggedBlock {
 		}
 	}
 
-    public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
-    public static final EnumProperty<Attachment> ATTACHMENT = EnumProperty.create("attachment", Attachment.class);
-    public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
+	public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
+	public static final EnumProperty<Attachment> ATTACHMENT = EnumProperty.create("attachment", Attachment.class);
+	public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
-    private final TrashType type;
+	private final TrashType type;
 
-    public TrashBlock(TrashType type, Properties properties) {
-        super(properties);
-        this.type = type;
-        registerDefaultState(stateDefinition.any().setValue(ATTACHMENT, Attachment.FLOOR).setValue(WATERLOGGED, false));
-    }
+	public TrashBlock(TrashType type, Properties properties) {
+		super(properties);
+		this.type = type;
+		registerDefaultState(stateDefinition.any().setValue(ATTACHMENT, Attachment.FLOOR).setValue(WATERLOGGED, false));
+	}
 
-    @Override
-    protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
-        super.createBlockStateDefinition(builder);
-        builder.add(FACING, ATTACHMENT, WATERLOGGED);
-    }
+	@Override
+	protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
+		super.createBlockStateDefinition(builder);
+		builder.add(FACING, ATTACHMENT, WATERLOGGED);
+	}
 
-    @Override
-    public BlockState getStateForPlacement(BlockPlaceContext context) {
-        FluidState fluid = context.getLevel().getFluidState(context.getClickedPos());
-        return super.getStateForPlacement(context)
-                .setValue(FACING, context.getHorizontalDirection())
-                .setValue(WATERLOGGED, fluid.is(FluidTags.WATER) && fluid.getAmount() == 8);
-    }
+	@Override
+	public BlockState getStateForPlacement(BlockPlaceContext context) {
+		FluidState fluid = context.getLevel().getFluidState(context.getClickedPos());
+		return super.getStateForPlacement(context)
+				.setValue(FACING, context.getHorizontalDirection())
+				.setValue(WATERLOGGED, fluid.is(FluidTags.WATER) && fluid.getAmount() == 8);
+	}
 
-    @Override
-    @Deprecated
-    public FluidState getFluidState(BlockState state) {
-        return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
-    }
+	@Override
+	@Deprecated
+	public FluidState getFluidState(BlockState state) {
+		return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
+	}
 
 	@Override
 	protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess scheduledTickAccess, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, RandomSource random) {
-        if (state.getValue(WATERLOGGED)) {
-            scheduledTickAccess.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
-        }
+		if (state.getValue(WATERLOGGED)) {
+			scheduledTickAccess.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+		}
 		return super.updateShape(state, level, scheduledTickAccess, pos, direction, neighborPos, neighborState, random);
-    }
+	}
 
-    @Override
-    public VoxelShape getShape(BlockState state, BlockGetter worldIn, BlockPos pos, CollisionContext context) {
-    	Vec3 offset = state.getOffset(pos);
-    	return type.getShape(state.getValue(FACING), state.getValue(ATTACHMENT)).move(offset.x, offset.y, offset.z);
-    }
+	@Override
+	public VoxelShape getShape(BlockState state, BlockGetter worldIn, BlockPos pos, CollisionContext context) {
+		Vec3 offset = state.getOffset(pos);
+		return type.getShape(state.getValue(FACING), state.getValue(ATTACHMENT)).move(offset.x, offset.y, offset.z);
+	}
 }

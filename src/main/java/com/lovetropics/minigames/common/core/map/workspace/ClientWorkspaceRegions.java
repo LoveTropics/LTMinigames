@@ -12,14 +12,16 @@ public class ClientWorkspaceRegions implements Iterable<ClientWorkspaceRegions.E
 
 	// Used when regions are hidden on the client
 	public static ClientWorkspaceRegions noop() {
-		
+
 		return new ClientWorkspaceRegions() {
-			
+
 			@Override
-			protected void add(Entry entry) {}
-			
+			protected void add(Entry entry) {
+			}
+
 			@Override
-			public void set(int id, @Nullable BlockBox region) {}
+			public void set(int id, @Nullable BlockBox region) {
+			}
 		};
 	}
 
@@ -85,7 +87,9 @@ public class ClientWorkspaceRegions implements Iterable<ClientWorkspaceRegions.E
 
 		@Override
 		public boolean equals(Object o) {
-			if (this == o) return true;
+			if (this == o) {
+				return true;
+			}
 
 			if (o instanceof Entry entry) {
 				return id == entry.id;

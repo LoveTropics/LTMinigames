@@ -8,11 +8,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 
 public record HideRecipeBookClientState(Component message) implements GameClientState {
-    public static final MapCodec<HideRecipeBookClientState> CODEC = ComponentSerialization.CODEC
-            .fieldOf("message").xmap(HideRecipeBookClientState::new, HideRecipeBookClientState::message);
+	public static final MapCodec<HideRecipeBookClientState> CODEC = ComponentSerialization.CODEC
+			.fieldOf("message").xmap(HideRecipeBookClientState::new, HideRecipeBookClientState::message);
 
-    @Override
-    public GameClientStateType<?> getType() {
-        return GameClientStateTypes.HIDE_RECIPE_BOOK.get();
-    }
+	@Override
+	public GameClientStateType<?> getType() {
+		return GameClientStateTypes.HIDE_RECIPE_BOOK.get();
+	}
 }

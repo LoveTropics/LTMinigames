@@ -106,14 +106,15 @@ public final class GameConfig extends ScrollPanel {
 	}
 
 	public IConfigWidget createWidget(LayoutTree ltree, ConfigData value) {
-        return switch (value) {
-            case SimpleConfigData simpleConfigData -> SimpleConfigWidget.from(ltree, simpleConfigData);
-            case ListConfigData objects -> ListConfigWidget.from(this, ltree, objects);
-            case CompositeConfigData compositeConfigData -> CompositeConfigWidget.from(this, ltree, compositeConfigData);
-            default -> throw new IllegalArgumentException("Unknown config type: " + value);
-        };
-    }
-	
+		return switch (value) {
+			case SimpleConfigData simpleConfigData -> SimpleConfigWidget.from(ltree, simpleConfigData);
+			case ListConfigData objects -> ListConfigWidget.from(this, ltree, objects);
+			case CompositeConfigData compositeConfigData ->
+					CompositeConfigWidget.from(this, ltree, compositeConfigData);
+			default -> throw new IllegalArgumentException("Unknown config type: " + value);
+		};
+	}
+
 	@Override
 	public boolean isMouseOver(double mouseX, double mouseY) {
 		return mainLayout.content().contains(mouseX, mouseY);
@@ -136,7 +137,8 @@ public final class GameConfig extends ScrollPanel {
 	}
 
 	@Override
-	protected void drawGradientRect(GuiGraphics graphics, int left, int top, int right, int bottom, int color1, int color2) {}
+	protected void drawGradientRect(GuiGraphics graphics, int left, int top, int right, int bottom, int color1, int color2) {
+	}
 
 	@Override
 	public Optional<GuiEventListener> getChildAt(double mouseX, double mouseY) {

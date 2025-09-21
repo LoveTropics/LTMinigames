@@ -46,15 +46,15 @@ public class ScanAreaCommand {
 			Component.translatable("commands.ltminigames.scan.nowater.fail"));
 	private static final SimpleCommandExceptionType TOO_FAR = new SimpleCommandExceptionType(
 			Component.translatable("commands.ltminigames.scan.toofar.fail"));
-	private static final DynamicCommandExceptionType WRITE_ERROR = new DynamicCommandExceptionType(ex -> 
+	private static final DynamicCommandExceptionType WRITE_ERROR = new DynamicCommandExceptionType(ex ->
 			Component.translatable("commands.ltminigames.scan.write.fail", ex));
 
 	public static void register(final CommandDispatcher<CommandSourceStack> dispatcher) {
 		dispatcher.register(literal("game")
-			.then(literal("scan").requires(s -> s.hasPermission(4))
-				.then(argument("name", StringArgumentType.word())
-					.executes(ctx -> scanArea(ctx.getSource(), StringArgumentType.getString(ctx, "name"))))
-				.executes(ctx -> scanArea(ctx.getSource(), "scan_result"))));
+				.then(literal("scan").requires(s -> s.hasPermission(4))
+						.then(argument("name", StringArgumentType.word())
+								.executes(ctx -> scanArea(ctx.getSource(), StringArgumentType.getString(ctx, "name"))))
+						.executes(ctx -> scanArea(ctx.getSource(), "scan_result"))));
 	}
 
 	private static int scanArea(CommandSourceStack source, String fileName) throws CommandSyntaxException {
@@ -79,7 +79,7 @@ public class ScanAreaCommand {
 		if (PURIFIED_SAND.isBound()) {
 			edges.add(PURIFIED_SAND.value());
 		}
-		final Direction[] dirs = new Direction[] { Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST };
+		final Direction[] dirs = new Direction[]{Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST};
 
 		Map<ChunkPos, LevelChunk> chunkCache = new HashMap<>();
 

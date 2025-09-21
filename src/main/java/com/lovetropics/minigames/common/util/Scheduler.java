@@ -22,7 +22,7 @@ public final class Scheduler {
 
 	@SubscribeEvent
 	public static void onTick(ServerTickEvent.Post event) {
-        Scheduler.runTasks(event.getServer());
+		Scheduler.runTasks(event.getServer());
 	}
 
 	public static Tick atTime(int time) {

@@ -9,20 +9,20 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public record ClientManageLobbyMessage(int id, ClientLobbyUpdate.Set updates) implements CustomPacketPayload {
-    public static final Type<ClientManageLobbyMessage> TYPE = new Type<>(LoveTropics.location("client_manage_lobby"));
+	public static final Type<ClientManageLobbyMessage> TYPE = new Type<>(LoveTropics.location("client_manage_lobby"));
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, ClientManageLobbyMessage> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.VAR_INT, ClientManageLobbyMessage::id,
-            ClientLobbyUpdate.Set.STREAM_CODEC, ClientManageLobbyMessage::updates,
-            ClientManageLobbyMessage::new
-    );
+	public static final StreamCodec<RegistryFriendlyByteBuf, ClientManageLobbyMessage> STREAM_CODEC = StreamCodec.composite(
+			ByteBufCodecs.VAR_INT, ClientManageLobbyMessage::id,
+			ClientLobbyUpdate.Set.STREAM_CODEC, ClientManageLobbyMessage::updates,
+			ClientManageLobbyMessage::new
+	);
 
-    public static void handle(ClientManageLobbyMessage message, IPayloadContext context) {
-        ClientLobbyManagement.update(message.id, message.updates);
-    }
+	public static void handle(ClientManageLobbyMessage message, IPayloadContext context) {
+		ClientLobbyManagement.update(message.id, message.updates);
+	}
 
-    @Override
-    public Type<ClientManageLobbyMessage> type() {
-        return TYPE;
-    }
+	@Override
+	public Type<ClientManageLobbyMessage> type() {
+		return TYPE;
+	}
 }

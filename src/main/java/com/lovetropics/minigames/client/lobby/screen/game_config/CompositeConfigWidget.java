@@ -39,7 +39,7 @@ public class CompositeConfigWidget extends LayoutGui implements IConfigWidget {
 	public int getHeight() {
 		return mainLayout.margin().height();
 	}
-	
+
 	@Override
 	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
 		super.render(graphics, mouseX, mouseY, partialTicks);

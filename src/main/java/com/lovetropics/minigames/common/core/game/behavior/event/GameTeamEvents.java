@@ -33,6 +33,7 @@ public final class GameTeamEvents {
 	public interface RemoveFromTeam {
 		void onRemoveFromTeam(ServerPlayer player, TeamState teams, GameTeamKey team);
 	}
+
 	public interface TeamsAllocated {
 		void onTeamsAllocated();
 	}

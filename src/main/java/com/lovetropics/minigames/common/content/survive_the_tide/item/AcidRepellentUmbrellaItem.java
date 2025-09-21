@@ -10,20 +10,20 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 @EventBusSubscriber(modid = LoveTropics.ID)
 public class AcidRepellentUmbrellaItem extends Item {
-    public AcidRepellentUmbrellaItem(Properties properties) {
-        super(properties.durability(180));
-    }
+	public AcidRepellentUmbrellaItem(Properties properties) {
+		super(properties.durability(180));
+	}
 
-    @SubscribeEvent
-    public static void onPlayerTick(PlayerTickEvent.Post event) {
-        Player player = event.getEntity();
-        if (player.getDeltaMovement().y() < 0.0 && !player.getAbilities().flying && isHoldingItem(player, SurviveTheTide.ACID_REPELLENT_UMBRELLA.get())) {
-            player.setDeltaMovement(player.getDeltaMovement().multiply(1.0, 0.8, 1.0));
-            player.fallDistance = 0.0F;
-        }
-    }
+	@SubscribeEvent
+	public static void onPlayerTick(PlayerTickEvent.Post event) {
+		Player player = event.getEntity();
+		if (player.getDeltaMovement().y() < 0.0 && !player.getAbilities().flying && isHoldingItem(player, SurviveTheTide.ACID_REPELLENT_UMBRELLA.get())) {
+			player.setDeltaMovement(player.getDeltaMovement().multiply(1.0, 0.8, 1.0));
+			player.fallDistance = 0.0F;
+		}
+	}
 
-    private static boolean isHoldingItem(Player player, Item item) {
-        return player.getMainHandItem().getItem() == item || player.getOffhandItem().getItem() == item;
-    }
+	private static boolean isHoldingItem(Player player, Item item) {
+		return player.getMainHandItem().getItem() == item || player.getOffhandItem().getItem() == item;
+	}
 }

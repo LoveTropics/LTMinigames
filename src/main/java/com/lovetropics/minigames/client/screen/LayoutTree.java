@@ -1,14 +1,13 @@
 package com.lovetropics.minigames.client.screen;
 
-import java.util.BitSet;
-import java.util.LinkedList;
-
 import com.google.common.collect.TreeTraverser;
 import com.lovetropics.minigames.client.screen.flex.Axis;
 import com.lovetropics.minigames.client.screen.flex.Box;
 import com.lovetropics.minigames.client.screen.flex.Layout;
 
 import javax.annotation.Nullable;
+import java.util.BitSet;
+import java.util.LinkedList;
 
 /**
  * A simple tree based system, you push children onto the tree with various
@@ -17,7 +16,7 @@ import javax.annotation.Nullable;
  * Items automatically flow downwards if necessary (no overlapping allowed).
  * <p>
  * Reasons why it's easier:
- * 
+ *
  * <ol>
  * <li>No grow() or axis switching, everything starts out max size and then
  * contracts to min size when popped</li>
@@ -27,19 +26,19 @@ import javax.annotation.Nullable;
  * ltree.child(...) from the parent UI, and the child UI gets its layout with
  * ltree.pop() (with whatever further nested elements created in between)</li>
  * </ol>
- * 
+ * <p>
  * It's a bit like MatrixStack but also not at all since it remembers the entire
  * tree even after an element is popped. All pop() does is head = head.parent.
  * <p>
  * And rather than the caller doing both push and pop, it expects the caller to
  * do child() e.g.
- * 
+ *
  * <pre>
  * new MyUI(ltree.child(3, 0))
  * </pre>
- * 
+ * <p>
  * And the receiver to do pop() e.g.
- * 
+ *
  * <pre>
  * MyUI(LayoutTree ltree) {
  * 	this.layout = ltree.pop();
@@ -65,7 +64,9 @@ public class LayoutTree {
 		}
 
 		LayoutNode addChild(Layout layout, Axis... definite) {
-			if (contracted) throw new IllegalArgumentException("Cannot add child to contracted node");
+			if (contracted) {
+				throw new IllegalArgumentException("Cannot add child to contracted node");
+			}
 			LayoutNode child = new LayoutNode(this, layout, definite);
 			children.forEach(n -> {
 				if (n.bounds.margin().intersects(child.bounds.margin())) {
@@ -77,7 +78,9 @@ public class LayoutTree {
 		}
 
 		void fitToChildren() {
-			if (contracted || definite.cardinality() == Axis.values().length) return;
+			if (contracted || definite.cardinality() == Axis.values().length) {
+				return;
+			}
 			Layout orig = bounds;
 			if (children.isEmpty()) {
 				bounds = bounds.shrinkTo(new Box(bounds.content().left(), bounds.content().top(), bounds.content().left(), bounds.content().top()));
@@ -102,9 +105,9 @@ public class LayoutTree {
 			contracted = true;
 		}
 	}
-	
+
 	private LayoutNode head;
-	
+
 	public LayoutTree(Layout root) {
 		head = new LayoutNode(null, root);
 	}
@@ -132,7 +135,7 @@ public class LayoutTree {
 	public Layout get(Box margin, Box padding) {
 		return get(head().content(), margin, padding);
 	}
-	
+
 	public LayoutTree child(int margin, int padding) {
 		return child(get(margin, padding));
 	}
@@ -144,9 +147,9 @@ public class LayoutTree {
 	public Layout get(float amount, Axis axis) {
 		Box area = head().content();
 		Box contract = new Box()
-				.left(	(int) (axis == Axis.X && amount < 0 ? Math.ceil(-amount * area.width()) : 0))
-				.right(	(int) (axis == Axis.X && amount > 0 ? Math.ceil((1 - amount) * area.width()) : 0))
-				.top(	(int) (axis == Axis.Y && amount < 0 ? Math.ceil(-amount * area.height()) : 0))
+				.left((int) (axis == Axis.X && amount < 0 ? Math.ceil(-amount * area.width()) : 0))
+				.right((int) (axis == Axis.X && amount > 0 ? Math.ceil((1 - amount) * area.width()) : 0))
+				.top((int) (axis == Axis.Y && amount < 0 ? Math.ceil(-amount * area.height()) : 0))
 				.bottom((int) (axis == Axis.Y && amount > 0 ? Math.ceil((1 - amount) * area.height()) : 0));
 		return get(area.contract(contract), new Box(), new Box());
 	}
@@ -175,8 +178,8 @@ public class LayoutTree {
 
 	private void contract() {
 		TreeTraverser.<LayoutNode>using(n -> n.children)
-			.postOrderTraversal(head)
-			.forEach(LayoutNode::fitToChildren);
+				.postOrderTraversal(head)
+				.forEach(LayoutNode::fitToChildren);
 	}
 
 	public LayoutTree definiteChild(int width, int height, Box margin, Box padding) {

@@ -16,13 +16,13 @@ public final class ChatChannelArgument {
 			Component.literal("Channel does not exist with id: " + arg)
 	);
 
-    public static RequiredArgumentBuilder<CommandSourceStack, String> argument(String name) {
-        return Commands.argument(name, StringArgumentType.word())
-                .suggests((context, builder) -> SharedSuggestionProvider.suggest(
+	public static RequiredArgumentBuilder<CommandSourceStack, String> argument(String name) {
+		return Commands.argument(name, StringArgumentType.word())
+				.suggests((context, builder) -> SharedSuggestionProvider.suggest(
 						ChatChannel.names(),
 						builder
 				));
-    }
+	}
 
 	public static ChatChannel get(CommandContext<CommandSourceStack> context, String name) throws CommandSyntaxException {
 		String key = StringArgumentType.getString(context, name);

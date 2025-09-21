@@ -17,6 +17,6 @@ public record WorkspaceDimensionConfig(Holder<DimensionType> dimensionType, Chun
 	).apply(i, WorkspaceDimensionConfig::new));
 
 	public RuntimeDimensionConfig toRuntimeConfig(ServerLevelData worldInfo) {
-        return new RuntimeDimensionConfig(new LevelStem(dimensionType, generator), seed, worldInfo);
+		return new RuntimeDimensionConfig(new LevelStem(dimensionType, generator), seed, worldInfo);
 	}
 }

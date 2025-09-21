@@ -9,15 +9,15 @@ import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvent
 import com.mojang.serialization.MapCodec;
 
 public class EqualizeCurrencyBehavior implements IGameBehavior {
-    public static final MapCodec<EqualizeCurrencyBehavior> CODEC = MapCodec.unit(EqualizeCurrencyBehavior::new);
+	public static final MapCodec<EqualizeCurrencyBehavior> CODEC = MapCodec.unit(EqualizeCurrencyBehavior::new);
 
-    @Override
-    public void register(IGamePhase game, EventRegistrar events) throws GameException {
-        CurrencyManager currency = game.state().getOrThrow(CurrencyManager.KEY);
+	@Override
+	public void register(IGamePhase game, EventRegistrar events) throws GameException {
+		CurrencyManager currency = game.state().getOrThrow(CurrencyManager.KEY);
 
-        events.listen(GameActionEvents.APPLY, (context) -> {
-            currency.equalize();
-            return true;
-        });
-    }
+		events.listen(GameActionEvents.APPLY, (context) -> {
+			currency.equalize();
+			return true;
+		});
+	}
 }

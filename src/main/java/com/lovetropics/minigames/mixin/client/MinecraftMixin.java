@@ -16,18 +16,18 @@ import javax.annotation.Nullable;
 
 @Mixin(Minecraft.class)
 public class MinecraftMixin {
-    @Nullable
-    @Shadow
-    public LocalPlayer player;
+	@Nullable
+	@Shadow
+	public LocalPlayer player;
 
-    @Inject(at = @At("HEAD"), method = "shouldEntityAppearGlowing", cancellable = true)
-    private void ltminigames$glowingTeamMembers(Entity entity, CallbackInfoReturnable<Boolean> cir) {
-        if (entity.getType() == EntityType.PLAYER && ClientGameStateManager.getOrNull(GameClientStateTypes.GLOW_TEAM_MEMBERS) != null) {
-            final var team = ClientGameStateManager.getOrNull(GameClientStateTypes.TEAM_MEMBERS);
+	@Inject(at = @At("HEAD"), method = "shouldEntityAppearGlowing", cancellable = true)
+	private void ltminigames$glowingTeamMembers(Entity entity, CallbackInfoReturnable<Boolean> cir) {
+		if (entity.getType() == EntityType.PLAYER && ClientGameStateManager.getOrNull(GameClientStateTypes.GLOW_TEAM_MEMBERS) != null) {
+			final var team = ClientGameStateManager.getOrNull(GameClientStateTypes.TEAM_MEMBERS);
 
-            if (team != null && (team.teamMembers().contains(entity.getUUID()) || player == entity)) {
-                cir.setReturnValue(true);
-            }
-        }
-    }
+			if (team != null && (team.teamMembers().contains(entity.getUUID()) || player == entity)) {
+				cir.setReturnValue(true);
+			}
+		}
+	}
 }

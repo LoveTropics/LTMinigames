@@ -88,7 +88,7 @@ public final class GameConfigs {
 	private static GameConfig tryLoadConfig(DynamicOps<JsonElement> ops, ResourceLocation path, Resource resource) {
 		try {
 			// TODO: Mark games that had only a partial result with a warning in the UI?
-            return loadConfig(ops, path, resource)
+			return loadConfig(ops, path, resource)
 					.resultOrPartial(error -> LOGGER.error("Failed to load game config at {}: {}", path, error))
 					.orElse(null);
 		} catch (Exception e) {

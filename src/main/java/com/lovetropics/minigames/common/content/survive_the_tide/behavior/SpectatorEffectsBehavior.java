@@ -27,7 +27,6 @@ public record SpectatorEffectsBehavior(float radius, float power, float threshol
 
 			grid.candidateCells().forEach(cell -> {
 				List<ServerPlayer> players = cell.players;
-
 			});
 		});
 	}

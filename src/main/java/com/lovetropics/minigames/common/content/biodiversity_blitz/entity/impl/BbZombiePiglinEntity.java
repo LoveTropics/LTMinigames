@@ -24,56 +24,56 @@ import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.phys.Vec3;
 
 public class BbZombiePiglinEntity extends ZombifiedPiglin implements BbMobEntity {
-    private final BbMobBrain mobBrain;
-    private final Plot plot;
+	private final BbMobBrain mobBrain;
+	private final Plot plot;
 
-    public BbZombiePiglinEntity(EntityType<? extends ZombifiedPiglin> pEntityType, Level pLevel, Plot plot) {
-        super(pEntityType, pLevel);
+	public BbZombiePiglinEntity(EntityType<? extends ZombifiedPiglin> pEntityType, Level pLevel, Plot plot) {
+		super(pEntityType, pLevel);
 
-        mobBrain = new BbMobBrain(plot.walls);
-        this.plot = plot;
+		mobBrain = new BbMobBrain(plot.walls);
+		this.plot = plot;
 
-        // Ignore sweet berry bushes and water
-        setPathfindingMalus(PathType.DANGER_OTHER, BERRY_BUSH_MALUS);
-    }
+		// Ignore sweet berry bushes and water
+		setPathfindingMalus(PathType.DANGER_OTHER, BERRY_BUSH_MALUS);
+	}
 
-    @Override
-    protected PathNavigation createNavigation(Level world) {
-        return new BbGroundNavigator(this);
-    }
+	@Override
+	protected PathNavigation createNavigation(Level world) {
+		return new BbGroundNavigator(this);
+	}
 
-    @Override
-    protected void addBehaviourGoals() {
-        goalSelector.addGoal(2, new DestroyCropGoal(this));
-        goalSelector.addGoal(3, new ZombieAttackGoal(this, 1.0, false));
+	@Override
+	protected void addBehaviourGoals() {
+		goalSelector.addGoal(2, new DestroyCropGoal(this));
+		goalSelector.addGoal(3, new ZombieAttackGoal(this, 1.0, false));
 
-        targetSelector.addGoal(1, new BbTargetPlayerGoal(this));
-    }
+		targetSelector.addGoal(1, new BbTargetPlayerGoal(this));
+	}
 
-    @Override
-    protected Vec3 maybeBackOffFromEdge(Vec3 offset, MoverType mover) {
-        return mobBrain.getPlotWalls().collide(getBoundingBox(), offset);
-    }
+	@Override
+	protected Vec3 maybeBackOffFromEdge(Vec3 offset, MoverType mover) {
+		return mobBrain.getPlotWalls().collide(getBoundingBox(), offset);
+	}
 
-    @Override
-    public BbMobBrain getMobBrain() {
-        return mobBrain;
-    }
+	@Override
+	public BbMobBrain getMobBrain() {
+		return mobBrain;
+	}
 
-    @Override
-    public Mob asMob() {
-        return this;
-    }
+	@Override
+	public Mob asMob() {
+		return this;
+	}
 
-    @Override
-    public Plot getPlot() {
-        return plot;
-    }
+	@Override
+	public Plot getPlot() {
+		return plot;
+	}
 
-    @Override
-    public int meleeDamage(RandomSource random) {
-        return 4 + BbMobEntity.super.meleeDamage(random);
-    }
+	@Override
+	public int meleeDamage(RandomSource random) {
+		return 4 + BbMobEntity.super.meleeDamage(random);
+	}
 
 	@Override
 	public boolean hurtServer(ServerLevel level, DamageSource source, float amount) {
@@ -83,38 +83,38 @@ public class BbZombiePiglinEntity extends ZombifiedPiglin implements BbMobEntity
 		return super.hurtServer(level, source, amount);
 	}
 
-    @Override
-    protected void pushEntities() {
-    }
+	@Override
+	protected void pushEntities() {
+	}
 
-    @Override
-    public float aiSpeed() {
-        return 1.1f;
-    }
+	@Override
+	public float aiSpeed() {
+		return 1.1f;
+	}
 
-    @Override
-    public boolean immuneToFire() {
-        return true;
-    }
+	@Override
+	public boolean immuneToFire() {
+		return true;
+	}
 
-    @Override
-    public void updateSwimming() {
-        // Just use the default navigator, we never need to swim
-    }
+	@Override
+	public void updateSwimming() {
+		// Just use the default navigator, we never need to swim
+	}
 
-    @Override
-    public boolean updateFluidHeightAndDoFluidPushing(TagKey<Fluid> fluid, double scale) {
-        if (fluid == FluidTags.WATER) {
-            return false;
-        }
-        return super.updateFluidHeightAndDoFluidPushing(fluid, scale);
-    }
+	@Override
+	public boolean updateFluidHeightAndDoFluidPushing(TagKey<Fluid> fluid, double scale) {
+		if (fluid == FluidTags.WATER) {
+			return false;
+		}
+		return super.updateFluidHeightAndDoFluidPushing(fluid, scale);
+	}
 
-    @Override
-    public boolean isEyeInFluid(TagKey<Fluid> fluid) {
-        if (fluid == FluidTags.WATER) {
-            return false;
-        }
-        return super.isEyeInFluid(fluid);
-    }
+	@Override
+	public boolean isEyeInFluid(TagKey<Fluid> fluid) {
+		if (fluid == FluidTags.WATER) {
+			return false;
+		}
+		return super.isEyeInFluid(fluid);
+	}
 }

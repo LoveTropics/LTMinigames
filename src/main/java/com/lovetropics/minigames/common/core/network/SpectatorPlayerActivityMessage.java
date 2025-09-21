@@ -12,20 +12,20 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import java.util.UUID;
 
 public record SpectatorPlayerActivityMessage(UUID player, int color) implements CustomPacketPayload {
-    public static final Type<SpectatorPlayerActivityMessage> TYPE = new Type<>(LoveTropics.location("spectator_player_activity"));
+	public static final Type<SpectatorPlayerActivityMessage> TYPE = new Type<>(LoveTropics.location("spectator_player_activity"));
 
-    public static final StreamCodec<ByteBuf, SpectatorPlayerActivityMessage> STREAM_CODEC = StreamCodec.composite(
-            UUIDUtil.STREAM_CODEC, SpectatorPlayerActivityMessage::player,
-            ByteBufCodecs.INT, SpectatorPlayerActivityMessage::color,
-            SpectatorPlayerActivityMessage::new
-    );
+	public static final StreamCodec<ByteBuf, SpectatorPlayerActivityMessage> STREAM_CODEC = StreamCodec.composite(
+			UUIDUtil.STREAM_CODEC, SpectatorPlayerActivityMessage::player,
+			ByteBufCodecs.INT, SpectatorPlayerActivityMessage::color,
+			SpectatorPlayerActivityMessage::new
+	);
 
-    public static void handle(SpectatorPlayerActivityMessage message, IPayloadContext context) {
-        ClientSpectatingManager.INSTANCE.onPlayerActivity(message.player, message.color);
-    }
+	public static void handle(SpectatorPlayerActivityMessage message, IPayloadContext context) {
+		ClientSpectatingManager.INSTANCE.onPlayerActivity(message.player, message.color);
+	}
 
-    @Override
-    public Type<SpectatorPlayerActivityMessage> type() {
-        return TYPE;
-    }
+	@Override
+	public Type<SpectatorPlayerActivityMessage> type() {
+		return TYPE;
+	}
 }

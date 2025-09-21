@@ -41,14 +41,14 @@ import java.util.function.Supplier;
 
 @EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
 public final class ClientPlayerDisguises {
-    private static final EquipmentSlot[] EQUIPMENT_SLOTS = EquipmentSlot.values();
+	private static final EquipmentSlot[] EQUIPMENT_SLOTS = EquipmentSlot.values();
 
-    private static final LoadingCache<ResolvableProfile, Supplier<PlayerSkin>> SKIN_LOOKUP_CACHE = CacheBuilder.newBuilder()
-            .expireAfterAccess(Duration.ofSeconds(15))
-            .build(new CacheLoader<>() {
+	private static final LoadingCache<ResolvableProfile, Supplier<PlayerSkin>> SKIN_LOOKUP_CACHE = CacheBuilder.newBuilder()
+			.expireAfterAccess(Duration.ofSeconds(15))
+			.build(new CacheLoader<>() {
 				@Override
 				public Supplier<PlayerSkin> load(ResolvableProfile profile) {
-                    GameProfile gameProfile = profile.gameProfile();
+					GameProfile gameProfile = profile.gameProfile();
 					return Minecraft.getInstance().getSkinManager().lookupInsecure(gameProfile);
 				}
 			});
@@ -104,168 +104,168 @@ public final class ClientPlayerDisguises {
 	}
 
 	@SubscribeEvent
-    public static void onRenderPlayerPre(RenderLivingEvent.Pre<?, ?, ?> event) {
+	public static void onRenderPlayerPre(RenderLivingEvent.Pre<?, ?, ?> event) {
 		DisguiseRenderState disguiseState = event.getRenderState().getRenderData(DISGUISE_KEY);
 		if (disguiseState == null) {
 			return;
 		}
 
 		EntityRenderDispatcher dispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
-        PoseStack poseStack = event.getPoseStack();
+		PoseStack poseStack = event.getPoseStack();
 
 		EntityRenderState disguiseEntityState = disguiseState.entityRenderState();
 		float scale = disguiseState.scale();
 
 		if (disguiseEntityState != null) {
-            int capturedTransformState = PoseStackCapture.get(poseStack);
+			int capturedTransformState = PoseStackCapture.get(poseStack);
 
-            try {
-                MultiBufferSource bufferSource = event.getMultiBufferSource();
-                int packedLight = event.getPackedLight();
+			try {
+				MultiBufferSource bufferSource = event.getMultiBufferSource();
+				int packedLight = event.getPackedLight();
 
-                poseStack.pushPose();
-                if (scale != 1.0f) {
-                    poseStack.scale(scale, scale, scale);
-                }
+				poseStack.pushPose();
+				if (scale != 1.0f) {
+					poseStack.scale(scale, scale, scale);
+				}
 
 				dispatcher.render(disguiseEntityState, 0.0, 0.0, 0.0, poseStack, bufferSource, packedLight);
 
-                poseStack.popPose();
-            } catch (Exception e) {
-                LoveTropics.LOGGER.error("Failed to render player disguise", e);
-                PoseStackCapture.restore(poseStack, capturedTransformState);
-            }
+				poseStack.popPose();
+			} catch (Exception e) {
+				LoveTropics.LOGGER.error("Failed to render player disguise", e);
+				PoseStackCapture.restore(poseStack, capturedTransformState);
+			}
 
-            event.setCanceled(true);
-        } else {
-            poseStack.pushPose();
-            if (scale != 1.0f) {
-                poseStack.scale(scale, scale, scale);
-            }
-        }
-    }
+			event.setCanceled(true);
+		} else {
+			poseStack.pushPose();
+			if (scale != 1.0f) {
+				poseStack.scale(scale, scale, scale);
+			}
+		}
+	}
 
-    @SubscribeEvent
-    public static void onRenderPlayerPost(RenderLivingEvent.Post<?, ?, ?> event) {
+	@SubscribeEvent
+	public static void onRenderPlayerPost(RenderLivingEvent.Post<?, ?, ?> event) {
 		DisguiseRenderState disguiseState = event.getRenderState().getRenderData(DISGUISE_KEY);
 		if (disguiseState == null) {
 			return;
 		}
-        if (disguiseState.entityRenderState() != null || disguiseState.scale() != 1.0f) {
-            event.getPoseStack().popPose();
-        }
-    }
+		if (disguiseState.entityRenderState() != null || disguiseState.scale() != 1.0f) {
+			event.getPoseStack().popPose();
+		}
+	}
 
-    private static void copyDisguiseState(Entity disguise, LivingEntity entity) {
-        disguise.setPos(entity.getX(), entity.getY(), entity.getZ());
-        disguise.xo = entity.xo;
-        disguise.yo = entity.yo;
-        disguise.zo = entity.zo;
+	private static void copyDisguiseState(Entity disguise, LivingEntity entity) {
+		disguise.setPos(entity.getX(), entity.getY(), entity.getZ());
+		disguise.xo = entity.xo;
+		disguise.yo = entity.yo;
+		disguise.zo = entity.zo;
 
-        disguise.setYRot(entity.getYRot());
-        disguise.yRotO = entity.yRotO;
-        disguise.setXRot(entity.getXRot());
-        disguise.xRotO = entity.xRotO;
+		disguise.setYRot(entity.getYRot());
+		disguise.yRotO = entity.yRotO;
+		disguise.setXRot(entity.getXRot());
+		disguise.xRotO = entity.xRotO;
 
-        disguise.setShiftKeyDown(entity.isShiftKeyDown());
-        disguise.setPose(entity.getPose());
-        disguise.setInvisible(entity.isInvisible());
-        disguise.setSprinting(entity.isSprinting());
-        disguise.setSwimming(entity.isSwimming());
+		disguise.setShiftKeyDown(entity.isShiftKeyDown());
+		disguise.setPose(entity.getPose());
+		disguise.setInvisible(entity.isInvisible());
+		disguise.setSprinting(entity.isSprinting());
+		disguise.setSwimming(entity.isSwimming());
 
-        disguise.setCustomName(entity.getDisplayName());
-        disguise.setCustomNameVisible(entity.isCustomNameVisible());
-        disguise.setGlowingTag(entity.isCurrentlyGlowing());
+		disguise.setCustomName(entity.getDisplayName());
+		disguise.setCustomNameVisible(entity.isCustomNameVisible());
+		disguise.setGlowingTag(entity.isCurrentlyGlowing());
 
-        if (disguise instanceof LivingEntity livingDisguise) {
-            livingDisguise.yBodyRot = entity.yBodyRot;
-            livingDisguise.yBodyRotO = entity.yBodyRotO;
+		if (disguise instanceof LivingEntity livingDisguise) {
+			livingDisguise.yBodyRot = entity.yBodyRot;
+			livingDisguise.yBodyRotO = entity.yBodyRotO;
 
-            livingDisguise.yHeadRot = entity.yHeadRot;
-            livingDisguise.yHeadRotO = entity.yHeadRotO;
+			livingDisguise.yHeadRot = entity.yHeadRot;
+			livingDisguise.yHeadRotO = entity.yHeadRotO;
 
-            PlayerDisguiseBehavior.copyWalkAnimation(entity.walkAnimation, livingDisguise.walkAnimation);
+			PlayerDisguiseBehavior.copyWalkAnimation(entity.walkAnimation, livingDisguise.walkAnimation);
 
-            livingDisguise.swingingArm = entity.swingingArm;
-            livingDisguise.attackAnim = entity.attackAnim;
-            livingDisguise.swingTime = entity.swingTime;
-            livingDisguise.oAttackAnim = entity.oAttackAnim;
-            livingDisguise.swinging = entity.swinging;
+			livingDisguise.swingingArm = entity.swingingArm;
+			livingDisguise.attackAnim = entity.attackAnim;
+			livingDisguise.swingTime = entity.swingTime;
+			livingDisguise.oAttackAnim = entity.oAttackAnim;
+			livingDisguise.swinging = entity.swinging;
 
-            livingDisguise.setOnGround(entity.onGround());
+			livingDisguise.setOnGround(entity.onGround());
 
-            livingDisguise.hurtTime = entity.hurtTime;
-            livingDisguise.hurtDuration = entity.hurtDuration;
-            livingDisguise.hurtMarked = entity.hurtMarked;
+			livingDisguise.hurtTime = entity.hurtTime;
+			livingDisguise.hurtDuration = entity.hurtDuration;
+			livingDisguise.hurtMarked = entity.hurtMarked;
 
-            for (final EquipmentSlot slot : EQUIPMENT_SLOTS) {
-                final ItemStack stack = entity.getItemBySlot(slot);
-                if (!stack.is(MinigameItems.DISGUISE.get())) {
-                    livingDisguise.setItemSlot(slot, stack);
-                }
-            }
-        }
+			for (final EquipmentSlot slot : EQUIPMENT_SLOTS) {
+				final ItemStack stack = entity.getItemBySlot(slot);
+				if (!stack.is(MinigameItems.DISGUISE.get())) {
+					livingDisguise.setItemSlot(slot, stack);
+				}
+			}
+		}
 
-        disguise.tickCount = entity.tickCount;
-    }
+		disguise.tickCount = entity.tickCount;
+	}
 
-    // TODO: Shameless code duplication
-    private static boolean shouldShowName(EntityRenderDispatcher entityRenderDispatcher, Player player) {
-        if (ClientGameStateManager.getOrNull(GameClientStateTypes.HIDE_NAME_TAGS) != null) {
-            return false;
-        }
+	// TODO: Shameless code duplication
+	private static boolean shouldShowName(EntityRenderDispatcher entityRenderDispatcher, Player player) {
+		if (ClientGameStateManager.getOrNull(GameClientStateTypes.HIDE_NAME_TAGS) != null) {
+			return false;
+		}
 
-        double distanceSq = entityRenderDispatcher.distanceToSqr(player);
-        float maximumDistance = player.isDiscrete() ? 32.0f : 64.0f;
-        if (distanceSq >= maximumDistance * maximumDistance) {
-            return false;
-        }
+		double distanceSq = entityRenderDispatcher.distanceToSqr(player);
+		float maximumDistance = player.isDiscrete() ? 32.0f : 64.0f;
+		if (distanceSq >= maximumDistance * maximumDistance) {
+			return false;
+		}
 
-        Minecraft minecraft = Minecraft.getInstance();
-        LocalPlayer localPlayer = minecraft.player;
-        boolean visible = !player.isInvisibleTo(localPlayer);
-        if (player != localPlayer) {
-            Team playerTeam = player.getTeam();
-            Team localPlayerTeam = localPlayer.getTeam();
-            if (playerTeam != null) {
-                return switch (playerTeam.getNameTagVisibility()) {
-                    case ALWAYS -> visible;
-                    case NEVER -> false;
-                    case HIDE_FOR_OTHER_TEAMS ->
-                            localPlayerTeam == null ? visible : playerTeam.isAlliedTo(localPlayerTeam) && (playerTeam.canSeeFriendlyInvisibles() || visible);
-                    case HIDE_FOR_OWN_TEAM ->
-                            localPlayerTeam == null ? visible : !playerTeam.isAlliedTo(localPlayerTeam) && visible;
-                };
-            }
-        }
+		Minecraft minecraft = Minecraft.getInstance();
+		LocalPlayer localPlayer = minecraft.player;
+		boolean visible = !player.isInvisibleTo(localPlayer);
+		if (player != localPlayer) {
+			Team playerTeam = player.getTeam();
+			Team localPlayerTeam = localPlayer.getTeam();
+			if (playerTeam != null) {
+				return switch (playerTeam.getNameTagVisibility()) {
+					case ALWAYS -> visible;
+					case NEVER -> false;
+					case HIDE_FOR_OTHER_TEAMS ->
+							localPlayerTeam == null ? visible : playerTeam.isAlliedTo(localPlayerTeam) && (playerTeam.canSeeFriendlyInvisibles() || visible);
+					case HIDE_FOR_OWN_TEAM ->
+							localPlayerTeam == null ? visible : !playerTeam.isAlliedTo(localPlayerTeam) && visible;
+				};
+			}
+		}
 
-        return Minecraft.renderNames() && player != minecraft.getCameraEntity() && visible && !player.isVehicle();
-    }
+		return Minecraft.renderNames() && player != minecraft.getCameraEntity() && visible && !player.isVehicle();
+	}
 
-    public static void updateClientDisguise(int id, DisguiseType disguiseType) {
-        if (Minecraft.getInstance().level.getEntity(id) instanceof LivingEntity entity) {
-            PlayerDisguise disguise = PlayerDisguise.getOrNull(entity);
-            if (disguise != null) {
-                disguise.set(disguiseType);
-            }
-        }
-    }
+	public static void updateClientDisguise(int id, DisguiseType disguiseType) {
+		if (Minecraft.getInstance().level.getEntity(id) instanceof LivingEntity entity) {
+			PlayerDisguise disguise = PlayerDisguise.getOrNull(entity);
+			if (disguise != null) {
+				disguise.set(disguiseType);
+			}
+		}
+	}
 
-    @SubscribeEvent
-    public static void calculateCameraDistance(CalculateDetachedCameraDistanceEvent event) {
+	@SubscribeEvent
+	public static void calculateCameraDistance(CalculateDetachedCameraDistanceEvent event) {
 		if (event.getCamera().getEntity() instanceof Player player) {
-            PlayerDisguise disguise = PlayerDisguise.getOrNull(player);
-            if (disguise == null) {
-                return;
-            }
-            float scale = Math.max(disguise.getEffectiveScale(), 1.0f);
-            event.setDistance(event.getDistance() * scale);
-        }
-    }
+			PlayerDisguise disguise = PlayerDisguise.getOrNull(player);
+			if (disguise == null) {
+				return;
+			}
+			float scale = Math.max(disguise.getEffectiveScale(), 1.0f);
+			event.setDistance(event.getDistance() * scale);
+		}
+	}
 
-    public static PlayerSkin getSkin(ResolvableProfile profile) {
-        return SKIN_LOOKUP_CACHE.getUnchecked(profile).get();
-    }
+	public static PlayerSkin getSkin(ResolvableProfile profile) {
+		return SKIN_LOOKUP_CACHE.getUnchecked(profile).get();
+	}
 
 	private record DisguiseRenderState(
 			@Nullable

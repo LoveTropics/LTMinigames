@@ -31,77 +31,77 @@ import java.util.function.Function;
 
 public class GameDataAccessor implements DataAccessor {
 
-    public static final TranslationCollector KEYS = new TranslationCollector(LoveTropics.ID + ".commands.gamedata.");
+	public static final TranslationCollector KEYS = new TranslationCollector(LoveTropics.ID + ".commands.gamedata.");
 
-    public static final TranslationCollector.Fun5 STORAGE_GET = KEYS.add5("storage.get", "%s in %s for %s after scale factor of %s is %s");
-    public static final TranslationCollector.Fun2 STORAGE_MODIFIED = KEYS.add2("storage.modified", "Modified %s in %s");
-    public static final TranslationCollector.Fun3 STORAGE_QUERY = KEYS.add3("storage.query", "Gamedata for %s in %s has the following contents: %s");
+	public static final TranslationCollector.Fun5 STORAGE_GET = KEYS.add5("storage.get", "%s in %s for %s after scale factor of %s is %s");
+	public static final TranslationCollector.Fun2 STORAGE_MODIFIED = KEYS.add2("storage.modified", "Modified %s in %s");
+	public static final TranslationCollector.Fun3 STORAGE_QUERY = KEYS.add3("storage.query", "Gamedata for %s in %s has the following contents: %s");
 
-    static final SuggestionProvider<CommandSourceStack> SUGGEST_GAMEDATA = ((context, builder) -> SharedSuggestionProvider.suggestResource(
-            getGameDataStorage(context).playerData.keySet(), builder
-    ));
+	static final SuggestionProvider<CommandSourceStack> SUGGEST_GAMEDATA = ((context, builder) -> SharedSuggestionProvider.suggestResource(
+			getGameDataStorage(context).playerData.keySet(), builder
+	));
 
-    public static final Function<String, DataCommands.DataProvider> PROVIDER = (str) -> new DataCommands.DataProvider() {
-        @Override
-        public DataAccessor access(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
-            Collection<GameProfile> gameProfiles = GameProfileArgument.getGameProfiles(context, "player");
-            if(gameProfiles.size() != 1) {
-                throw EntityArgument.ERROR_NOT_SINGLE_PLAYER.create();
-            }
-            Optional<GameProfile> playerProfile = gameProfiles.stream().findFirst();
-            return new GameDataAccessor(context.getSource().getLevel(), getGameDataStorage(context),
-                    ResourceLocationArgument.getId(context, str), playerProfile.get());
-        }
+	public static final Function<String, DataCommands.DataProvider> PROVIDER = (str) -> new DataCommands.DataProvider() {
+		@Override
+		public DataAccessor access(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+			Collection<GameProfile> gameProfiles = GameProfileArgument.getGameProfiles(context, "player");
+			if (gameProfiles.size() != 1) {
+				throw EntityArgument.ERROR_NOT_SINGLE_PLAYER.create();
+			}
+			Optional<GameProfile> playerProfile = gameProfiles.stream().findFirst();
+			return new GameDataAccessor(context.getSource().getLevel(), getGameDataStorage(context),
+					ResourceLocationArgument.getId(context, str), playerProfile.get());
+		}
 
-        @Override
-        public ArgumentBuilder<CommandSourceStack, ?> wrap(ArgumentBuilder<CommandSourceStack, ?> builder, Function<ArgumentBuilder<CommandSourceStack, ?>, ArgumentBuilder<CommandSourceStack, ?>> action) {
-            return builder.then(
-                    Commands.literal("gamedata")
-                            .then(Commands.argument(str, ResourceLocationArgument.id()).suggests(GameDataAccessor.SUGGEST_GAMEDATA)
-                                    .then(action.apply(Commands.argument("player", GameProfileArgument.gameProfile()))))
-            );
-        }
-    };
+		@Override
+		public ArgumentBuilder<CommandSourceStack, ?> wrap(ArgumentBuilder<CommandSourceStack, ?> builder, Function<ArgumentBuilder<CommandSourceStack, ?>, ArgumentBuilder<CommandSourceStack, ?>> action) {
+			return builder.then(
+					Commands.literal("gamedata")
+							.then(Commands.argument(str, ResourceLocationArgument.id()).suggests(GameDataAccessor.SUGGEST_GAMEDATA)
+									.then(action.apply(Commands.argument("player", GameProfileArgument.gameProfile()))))
+			);
+		}
+	};
 
-    @NotNull
-    private static GameDataStorage getGameDataStorage(CommandContext<CommandSourceStack> context) {
-        return GameDataStorage.get(context.getSource().getLevel());
-    }
-    private final Level level;
-    private final GameDataStorage gameDataStorage;
-    private final ResourceLocation id;
-    private final GameProfile player;
+	@NotNull
+	private static GameDataStorage getGameDataStorage(CommandContext<CommandSourceStack> context) {
+		return GameDataStorage.get(context.getSource().getLevel());
+	}
 
-    public GameDataAccessor(Level level, GameDataStorage gameDataStorage, ResourceLocation id, GameProfile player) {
-        this.level = level;
-        this.gameDataStorage = gameDataStorage;
-        this.id = id;
-        this.player = player;
-    }
+	private final Level level;
+	private final GameDataStorage gameDataStorage;
+	private final ResourceLocation id;
+	private final GameProfile player;
 
-    @Override
-    public void setData(CompoundTag other) throws CommandSyntaxException {
-        gameDataStorage.set(id, player.getId(), other);
-    }
+	public GameDataAccessor(Level level, GameDataStorage gameDataStorage, ResourceLocation id, GameProfile player) {
+		this.level = level;
+		this.gameDataStorage = gameDataStorage;
+		this.id = id;
+		this.player = player;
+	}
 
-    @Override
-    public CompoundTag getData() throws CommandSyntaxException {
-        return gameDataStorage.get(id, player.getId());
-    }
+	@Override
+	public void setData(CompoundTag other) throws CommandSyntaxException {
+		gameDataStorage.set(id, player.getId(), other);
+	}
 
-    @Override
-    public Component getModifiedSuccess() {
-        return STORAGE_MODIFIED.apply(player.getName(), Component.translationArg(this.id));
-    }
+	@Override
+	public CompoundTag getData() throws CommandSyntaxException {
+		return gameDataStorage.get(id, player.getId());
+	}
 
-    @Override
-    public Component getPrintSuccess(Tag nbt) {
-        return STORAGE_QUERY.apply(player.getName(), Component.translationArg(this.id), NbtUtils.toPrettyComponent(nbt));
-    }
+	@Override
+	public Component getModifiedSuccess() {
+		return STORAGE_MODIFIED.apply(player.getName(), Component.translationArg(this.id));
+	}
 
-    @Override
-    public Component getPrintSuccess(NbtPathArgument.NbtPath path, double scale, int value) {
-        return STORAGE_GET.apply(path.asString(), Component.translationArg(this.id), player.getName(), String.format(Locale.ROOT, "%.2f", scale), value);
-    }
+	@Override
+	public Component getPrintSuccess(Tag nbt) {
+		return STORAGE_QUERY.apply(player.getName(), Component.translationArg(this.id), NbtUtils.toPrettyComponent(nbt));
+	}
 
+	@Override
+	public Component getPrintSuccess(NbtPathArgument.NbtPath path, double scale, int value) {
+		return STORAGE_GET.apply(path.asString(), Component.translationArg(this.id), player.getName(), String.format(Locale.ROOT, "%.2f", scale), value);
+	}
 }

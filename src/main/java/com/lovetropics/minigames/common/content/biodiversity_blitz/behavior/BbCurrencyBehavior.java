@@ -210,62 +210,62 @@ public final class BbCurrencyBehavior implements IGameBehavior {
 	private record PlotMetrics(Reference2DoubleMap<PlantFamily> valuesByFamily, Reference2DoubleMap<PlantFamily> diversityByFamily) {
 
 		private static PlotMetrics compute(Iterable<Plant> plants) {
-				// Temp fix for plant types not knowing the plant value
-				Object2DoubleOpenHashMap<PlantType> valueByType = new Object2DoubleOpenHashMap<>();
-				Reference2DoubleOpenHashMap<PlantFamily> values = new Reference2DoubleOpenHashMap<>();
+			// Temp fix for plant types not knowing the plant value
+			Object2DoubleOpenHashMap<PlantType> valueByType = new Object2DoubleOpenHashMap<>();
+			Reference2DoubleOpenHashMap<PlantFamily> values = new Reference2DoubleOpenHashMap<>();
 
-				// Number of plants per plant type in family
-				Reference2ObjectMap<PlantFamily, Object2IntOpenHashMap<PlantType>> numberOfPlants = new Reference2ObjectOpenHashMap<>();
+			// Number of plants per plant type in family
+			Reference2ObjectMap<PlantFamily, Object2IntOpenHashMap<PlantType>> numberOfPlants = new Reference2ObjectOpenHashMap<>();
 
-				for (Plant plant : plants) {
-					// Increment plant type
+			for (Plant plant : plants) {
+				// Increment plant type
 
-					// Negative or zero value marks plants that shouldn't count towards biodiversity
-					if (plant.value() > 0.0) {
-						numberOfPlants.computeIfAbsent(plant.family(), f -> new Object2IntOpenHashMap<>())
-								.addTo(plant.type(), 1);
+				// Negative or zero value marks plants that shouldn't count towards biodiversity
+				if (plant.value() > 0.0) {
+					numberOfPlants.computeIfAbsent(plant.family(), f -> new Object2IntOpenHashMap<>())
+							.addTo(plant.type(), 1);
 
-						valueByType.put(plant.type(), plant.value());
-					}
+					valueByType.put(plant.type(), plant.value());
 				}
-
-				Reference2DoubleMap<PlantFamily> diversity = new Reference2DoubleOpenHashMap<>();
-
-				for (Reference2ObjectMap.Entry<PlantFamily, Object2IntOpenHashMap<PlantType>> entry : Reference2ObjectMaps.fastIterable(numberOfPlants)) {
-					// Total amount of plants in this family
-					int total = IntStream.of(entry.getValue().values().toIntArray()).sum();
-
-					// Amount of plant types
-					int types = entry.getValue().size();
-
-					double biodiversity = 0.0;
-
-					// The target is to have an equal amount of plant types in the family
-					int target = total / types;
-
-					// Scale the plants, so when you have a lot of a single plant type and less of another, the biodiversity is proportional to that
-					for (Object2IntMap.Entry<PlantType> e : Object2IntMaps.fastIterable(entry.getValue())) {
-						int plantCount = e.getIntValue();
-						double ratio = (double) plantCount / target;
-						double percent = (double) plantCount / total;
-						biodiversity += Math.max(1, ratio);
-
-						int amountThatShouldCount = plantCount;
-						if (total > entry.getKey().getMinBeforeMonoculture()) {
-							if (percent > 0.5) {
-								// Monoculture detected, only count bottom half
-								amountThatShouldCount = plantCount / 2;
-							}
-						}
-
-						// Multiply the amount of plants by their value to get the total value for this type, add that to the family
-						values.addTo(entry.getKey(), amountThatShouldCount * valueByType.getDouble(e.getKey()));
-					}
-
-					diversity.put(entry.getKey(), biodiversity);
-				}
-
-				return new PlotMetrics(values, diversity);
 			}
+
+			Reference2DoubleMap<PlantFamily> diversity = new Reference2DoubleOpenHashMap<>();
+
+			for (Reference2ObjectMap.Entry<PlantFamily, Object2IntOpenHashMap<PlantType>> entry : Reference2ObjectMaps.fastIterable(numberOfPlants)) {
+				// Total amount of plants in this family
+				int total = IntStream.of(entry.getValue().values().toIntArray()).sum();
+
+				// Amount of plant types
+				int types = entry.getValue().size();
+
+				double biodiversity = 0.0;
+
+				// The target is to have an equal amount of plant types in the family
+				int target = total / types;
+
+				// Scale the plants, so when you have a lot of a single plant type and less of another, the biodiversity is proportional to that
+				for (Object2IntMap.Entry<PlantType> e : Object2IntMaps.fastIterable(entry.getValue())) {
+					int plantCount = e.getIntValue();
+					double ratio = (double) plantCount / target;
+					double percent = (double) plantCount / total;
+					biodiversity += Math.max(1, ratio);
+
+					int amountThatShouldCount = plantCount;
+					if (total > entry.getKey().getMinBeforeMonoculture()) {
+						if (percent > 0.5) {
+							// Monoculture detected, only count bottom half
+							amountThatShouldCount = plantCount / 2;
+						}
+					}
+
+					// Multiply the amount of plants by their value to get the total value for this type, add that to the family
+					values.addTo(entry.getKey(), amountThatShouldCount * valueByType.getDouble(e.getKey()));
+				}
+
+				diversity.put(entry.getKey(), biodiversity);
+			}
+
+			return new PlotMetrics(values, diversity);
 		}
+	}
 }

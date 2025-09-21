@@ -21,7 +21,7 @@ public class ConfigList {
 	public ConfigData getData(BehaviorConfig<?> key) {
 		return configs.get(key);
 	}
-	
+
 	public Set<BehaviorConfig<?>> keySet() {
 		return Collections.unmodifiableSet(configs.keySet());
 	}
@@ -29,7 +29,7 @@ public class ConfigList {
 	public <T> DataResult<Pair<T, ConfigData>> decode(BehaviorConfig<T> key) {
 		return key.getCodec().decode(ConfigDataOps.INSTANCE, getData(key));
 	}
-	
+
 	@Override
 	public String toString() {
 		return "ConfigList" + id + ":" + configs;

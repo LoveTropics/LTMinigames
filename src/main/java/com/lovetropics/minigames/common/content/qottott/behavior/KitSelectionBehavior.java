@@ -52,14 +52,14 @@ public record KitSelectionBehavior(List<Kit> kits) implements IGameBehavior {
 					continue;
 				}
 				for (final BlockBox region : regions) {
-                    final Entity entity = kit.entity().createEntity(game.level());
+					final Entity entity = kit.entity().createEntity(game.level());
 					if (entity == null) {
 						LOGGER.error("Unable to create entity for kit: {}", kit);
 						continue;
 					}
 					final Vec3 center = region.center();
 					entity.snapTo(center.x, region.min().getY(), center.z, kit.angle, 0.0f);
-                    game.level().addFreshEntity(entity);
+					game.level().addFreshEntity(entity);
 					kitEntities.put(entity.getUUID(), kit);
 				}
 			}

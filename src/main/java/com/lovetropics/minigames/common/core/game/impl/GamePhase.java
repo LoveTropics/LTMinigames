@@ -240,7 +240,9 @@ public class GamePhase implements IGamePhase {
 	@Override
 	public boolean setPlayerRole(ServerPlayer player, @Nullable PlayerRole role) {
 		PlayerRole lastRole = getRoleFor(player);
-		if (role == lastRole) return false;
+		if (role == lastRole) {
+			return false;
+		}
 
 		if (lastRole != null) {
 			roles.get(lastRole).remove(player);
@@ -352,7 +354,9 @@ public class GamePhase implements IGamePhase {
 	}
 
 	void destroy() {
-		if (destroyed) return;
+		if (destroyed) {
+			return;
+		}
 		destroyed = true;
 
 		requestStop(GameStopReason.canceled());

@@ -41,90 +41,90 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 public final class BbSendMobsToEnemyItemBehavior implements IGameBehavior {
-    public static final MapCodec<BbSendMobsToEnemyItemBehavior> CODEC = Codecs.ITEMS.fieldOf("item")
-            .xmap(BbSendMobsToEnemyItemBehavior::new, b -> b.items);
+	public static final MapCodec<BbSendMobsToEnemyItemBehavior> CODEC = Codecs.ITEMS.fieldOf("item")
+			.xmap(BbSendMobsToEnemyItemBehavior::new, b -> b.items);
 
-    private final HolderSet<Item> items;
+	private final HolderSet<Item> items;
 
-    public BbSendMobsToEnemyItemBehavior(HolderSet<Item> items) {
-        this.items = items;
-    }
+	public BbSendMobsToEnemyItemBehavior(HolderSet<Item> items) {
+		this.items = items;
+	}
 
-    private Multimap<Plot, Entity> sentEnemies = HashMultimap.create();
+	private Multimap<Plot, Entity> sentEnemies = HashMultimap.create();
 
-    @Override
-    public void register(IGamePhase game, EventRegistrar events) throws GameException {
-        TeamState teams = game.instanceState().getOrThrow(TeamState.KEY);
+	@Override
+	public void register(IGamePhase game, EventRegistrar events) throws GameException {
+		TeamState teams = game.instanceState().getOrThrow(TeamState.KEY);
 
-        events.listen(BbEvents.MODIFY_WAVE_MODS, (entities, random, world, plot, waveIndex) -> entities.addAll(sentEnemies.removeAll(plot)));
-        events.listen(GamePhaseEvents.START, () -> sentEnemies = Multimaps.synchronizedMultimap(Multimaps.newListMultimap(new HashMap<>(), LinkedList::new)));
-        events.listen(GamePhaseEvents.STOP, reason -> sentEnemies.clear());
+		events.listen(BbEvents.MODIFY_WAVE_MODS, (entities, random, world, plot, waveIndex) -> entities.addAll(sentEnemies.removeAll(plot)));
+		events.listen(GamePhaseEvents.START, () -> sentEnemies = Multimaps.synchronizedMultimap(Multimaps.newListMultimap(new HashMap<>(), LinkedList::new)));
+		events.listen(GamePhaseEvents.STOP, reason -> sentEnemies.clear());
 
-        final var plots = game.state().getOrThrow(PlotsState.KEY);
-        events.listen(GamePlayerEvents.USE_ITEM, (player, hand) -> {
-            final var item = player.getItemInHand(hand);
-            return tryUseMobItem(player, item, plots, teams) ? InteractionResult.CONSUME : InteractionResult.PASS;
-        });
+		final var plots = game.state().getOrThrow(PlotsState.KEY);
+		events.listen(GamePlayerEvents.USE_ITEM, (player, hand) -> {
+			final var item = player.getItemInHand(hand);
+			return tryUseMobItem(player, item, plots, teams) ? InteractionResult.CONSUME : InteractionResult.PASS;
+		});
 
-        events.listen(GamePlayerEvents.ATTACK, (player, target) -> tryUseMobItem(player, player.getMainHandItem(), plots, teams) ? TriState.TRUE : TriState.DEFAULT);
-    }
+		events.listen(GamePlayerEvents.ATTACK, (player, target) -> tryUseMobItem(player, player.getMainHandItem(), plots, teams) ? TriState.TRUE : TriState.DEFAULT);
+	}
 
-    private boolean tryUseMobItem(ServerPlayer player, ItemStack item, PlotsState plots, TeamState teams) {
+	private boolean tryUseMobItem(ServerPlayer player, ItemStack item, PlotsState plots, TeamState teams) {
 		if (!items.contains(item.getItemHolder())) {
 			return false;
 		}
 
 		final var playerPlot = plots.getPlotFor(player);
 
-        Map<BbEntityTypes, Integer> entities = item.get(BiodiversityBlitz.ENEMIES_TO_SEND);
-        if (entities != null) {
-            plots.stream().filter(p -> p != playerPlot)
-                    .forEach(targetPlot -> {
-                        final Component playerName = player.getName().copy().withStyle(ChatFormatting.AQUA);
-                        teams.getPlayersForTeam(targetPlot.team).sendMessage(BiodiversityBlitzTexts.SENT_MOBS_MESSAGE.apply(playerName, buildMessage(entities)));
+		Map<BbEntityTypes, Integer> entities = item.get(BiodiversityBlitz.ENEMIES_TO_SEND);
+		if (entities != null) {
+			plots.stream().filter(p -> p != playerPlot)
+					.forEach(targetPlot -> {
+						final Component playerName = player.getName().copy().withStyle(ChatFormatting.AQUA);
+						teams.getPlayersForTeam(targetPlot.team).sendMessage(BiodiversityBlitzTexts.SENT_MOBS_MESSAGE.apply(playerName, buildMessage(entities)));
 
-                        sentEnemies.putAll(targetPlot, entities.entrySet().stream()
-                                .flatMap(entry -> repeat(() -> entry.getKey().create(player.level(), targetPlot), entry.getValue()))
-                                .toList());
-                    });
-        }
+						sentEnemies.putAll(targetPlot, entities.entrySet().stream()
+								.flatMap(entry -> repeat(() -> entry.getKey().create(player.level(), targetPlot), entry.getValue()))
+								.toList());
+					});
+		}
 
 		item.shrink(1);
 		return true;
 	}
 
-    public Component buildMessage(Map<BbEntityTypes, Integer> entities) {
-        MutableComponent component = Component.empty();
-        final var itr = entities.entrySet().iterator();
-        while (itr.hasNext()) {
-            final var next = itr.next();
-            component.append(String.valueOf(next.getValue())).append("x ").append(next.getKey().getName().withStyle(ChatFormatting.GOLD));
+	public Component buildMessage(Map<BbEntityTypes, Integer> entities) {
+		MutableComponent component = Component.empty();
+		final var itr = entities.entrySet().iterator();
+		while (itr.hasNext()) {
+			final var next = itr.next();
+			component.append(String.valueOf(next.getValue())).append("x ").append(next.getKey().getName().withStyle(ChatFormatting.GOLD));
 
-            if (itr.hasNext()) {
-                component = component.append(", ");
-            }
-        }
+			if (itr.hasNext()) {
+				component = component.append(", ");
+			}
+		}
 
-        return component;
-    }
+		return component;
+	}
 
-    private static <T> Stream<T> repeat(Supplier<T> value, int amount) {
-        final var builder = Stream.<T>builder();
-        for (int i = 0; i < amount; i++) {
-            builder.accept(value.get());
-        }
-        return builder.build();
-    }
+	private static <T> Stream<T> repeat(Supplier<T> value, int amount) {
+		final var builder = Stream.<T>builder();
+		for (int i = 0; i < amount; i++) {
+			builder.accept(value.get());
+		}
+		return builder.build();
+	}
 
-    @EventBusSubscriber(Dist.CLIENT)
-    public static final class Client {
-        @SubscribeEvent
-        static void appendTooltips(final RenderTooltipEvent.GatherComponents event) {
-            Map<BbEntityTypes, Integer> entities = event.getItemStack().get(BiodiversityBlitz.ENEMIES_TO_SEND);
-            if (entities != null) {
-                entities.forEach((entity, count) ->
-                        event.getTooltipElements().add(Either.left(BiodiversityBlitzTexts.sendMobsTooltip(entity, count))));
-            }
-        }
-    }
+	@EventBusSubscriber(Dist.CLIENT)
+	public static final class Client {
+		@SubscribeEvent
+		static void appendTooltips(final RenderTooltipEvent.GatherComponents event) {
+			Map<BbEntityTypes, Integer> entities = event.getItemStack().get(BiodiversityBlitz.ENEMIES_TO_SEND);
+			if (entities != null) {
+				entities.forEach((entity, count) ->
+						event.getTooltipElements().add(Either.left(BiodiversityBlitzTexts.sendMobsTooltip(entity, count))));
+			}
+		}
+	}
 }

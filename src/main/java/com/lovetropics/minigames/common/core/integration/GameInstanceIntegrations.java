@@ -240,7 +240,7 @@ public final class GameInstanceIntegrations implements IGameState {
 	}
 
 	void tick(MinecraftServer server) {
-		if (!closed ) {
+		if (!closed) {
 			actions.pollGameActions(activeGame(), server.getTickCount());
 		}
 	}

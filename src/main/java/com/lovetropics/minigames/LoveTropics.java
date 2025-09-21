@@ -115,14 +115,14 @@ import java.util.regex.Pattern;
 
 @Mod(LoveTropics.ID)
 public class LoveTropics {
-    public static final Logger LOGGER = LogUtils.getLogger();
+	public static final Logger LOGGER = LogUtils.getLogger();
 
-    public static final String ID = "ltminigames";
+	public static final String ID = "ltminigames";
 
-    private static final ResourceLocation TAB_ID = LoveTropics.location("ltminigames");
-    public static final ResourceKey<CreativeModeTab> TAB_KEY = ResourceKey.create(Registries.CREATIVE_MODE_TAB, TAB_ID);
+	private static final ResourceLocation TAB_ID = LoveTropics.location("ltminigames");
+	public static final ResourceKey<CreativeModeTab> TAB_KEY = ResourceKey.create(Registries.CREATIVE_MODE_TAB, TAB_ID);
 
-    private static final Supplier<LoveTropicsRegistrate> REGISTRATE = Suppliers.memoize(() -> {
+	private static final Supplier<LoveTropicsRegistrate> REGISTRATE = Suppliers.memoize(() -> {
 		LoveTropicsRegistrate registrate = LoveTropicsRegistrate.create(ID)
 				.defaultCreativeTab(ResourceKey.create(Registries.CREATIVE_MODE_TAB, TAB_ID));
 
@@ -157,133 +157,135 @@ public class LoveTropics {
 		return registrate;
 	});
 
-    public LoveTropics(IEventBus modBus, ModContainer modContainer) {
-        NeoForge.EVENT_BUS.addListener(this::onServerAboutToStart);
-        NeoForge.EVENT_BUS.addListener(this::onServerStopping);
-        NeoForge.EVENT_BUS.addListener(this::registerCommands);
-        NeoForge.EVENT_BUS.addListener(this::onAttemptSpawn);
+	public LoveTropics(IEventBus modBus, ModContainer modContainer) {
+		NeoForge.EVENT_BUS.addListener(this::onServerAboutToStart);
+		NeoForge.EVENT_BUS.addListener(this::onServerStopping);
+		NeoForge.EVENT_BUS.addListener(this::registerCommands);
+		NeoForge.EVENT_BUS.addListener(this::onAttemptSpawn);
 
-        modBus.addListener(ConfigLT::onLoad);
-        modBus.addListener(ConfigLT::onFileChange);
+		modBus.addListener(ConfigLT::onLoad);
+		modBus.addListener(ConfigLT::onFileChange);
 
-        // Registry objects
-        LoveTropicsBlocks.init();
-        MinigameItems.init();
-        MinigameEntities.init();
+		// Registry objects
+		LoveTropicsBlocks.init();
+		MinigameItems.init();
+		MinigameEntities.init();
 
-        GameBehaviorTypes.init(modBus);
-        ActionTargetTypes.init(modBus);
-        EntityPredicates.init(modBus);
-        LootItemConditions.init();
-        GameClientStateTypes.init(modBus);
-        StreamHosts.init();
+		GameBehaviorTypes.init(modBus);
+		ActionTargetTypes.init(modBus);
+		EntityPredicates.init(modBus);
+		LootItemConditions.init();
+		GameClientStateTypes.init(modBus);
+		StreamHosts.init();
 
-        BuildCompetition.init();
-        HideAndSeek.init();
-        SurviveTheTide.init();
-        TrashDive.init();
-        BlockParty.init();
-        CraftingBee.init();
-        ConnectFour.init();
-        TurtleRace.init();
-        Qottott.init();
-        Spleef.init();
-        RiverRace.init();
-        DeACoudre.init();
-        TreasureDig.init();
-        ColumnsOfChaos.init();
-        PaintParty.init();
-        SpeedCarbGolf.init();
+		BuildCompetition.init();
+		HideAndSeek.init();
+		SurviveTheTide.init();
+		TrashDive.init();
+		BlockParty.init();
+		CraftingBee.init();
+		ConnectFour.init();
+		TurtleRace.init();
+		Qottott.init();
+		Spleef.init();
+		RiverRace.init();
+		DeACoudre.init();
+		TreasureDig.init();
+		ColumnsOfChaos.init();
+		PaintParty.init();
+		SpeedCarbGolf.init();
 
-        DriftwoodRider.ATTACHMENT_TYPES.register(modBus);
-        PlayerDisguise.ATTACHMENT_TYPES.register(modBus);
-        ChatChannelStore.ATTACHMENT_TYPES.register(modBus);
-        LimitedSpawnerAttachment.ATTACHMENT_TYPES.register(modBus);
-        SoundRegistry.REGISTER.register(modBus);
-        MinigameDataComponents.REGISTER.register(modBus);
-        BiodiversityBlitz.DATA_COMPONENTS.register(modBus);
-        RiverRace.DATA_COMPONENTS.register(modBus);
-        VoidChunkGenerator.REGISTER.register(modBus);
+		DriftwoodRider.ATTACHMENT_TYPES.register(modBus);
+		PlayerDisguise.ATTACHMENT_TYPES.register(modBus);
+		ChatChannelStore.ATTACHMENT_TYPES.register(modBus);
+		LimitedSpawnerAttachment.ATTACHMENT_TYPES.register(modBus);
+		SoundRegistry.REGISTER.register(modBus);
+		MinigameDataComponents.REGISTER.register(modBus);
+		BiodiversityBlitz.DATA_COMPONENTS.register(modBus);
+		RiverRace.DATA_COMPONENTS.register(modBus);
+		VoidChunkGenerator.REGISTER.register(modBus);
 
-        LoveTropicsEntityOptions.register();
+		LoveTropicsEntityOptions.register();
 
-        modContainer.registerConfig(ModConfig.Type.CLIENT, ConfigLT.CLIENT_CONFIG);
-        modContainer.registerConfig(ModConfig.Type.COMMON, ConfigLT.SERVER_CONFIG);
+		modContainer.registerConfig(ModConfig.Type.CLIENT, ConfigLT.CLIENT_CONFIG);
+		modContainer.registerConfig(ModConfig.Type.COMMON, ConfigLT.SERVER_CONFIG);
 
-        GameEventDispatcher eventDispatcher = new GameEventDispatcher(IGameManager.get());
-        NeoForge.EVENT_BUS.register(eventDispatcher);
+		GameEventDispatcher eventDispatcher = new GameEventDispatcher(IGameManager.get());
+		NeoForge.EVENT_BUS.register(eventDispatcher);
 
-        modBus.addListener((RegisterGuiLayersEvent event) -> {
-            LobbyStateGui.registerOverlays(event);
-            GameSidebarRenderer.registerOverlays(event);
-            SpectatingUi.registerOverlays(event);
-            BbClientRenderEffects.registerOverlays(event);
-            RiverRaceBarRenderer.registerOverlays(event);
-        });
-    }
+		modBus.addListener((RegisterGuiLayersEvent event) -> {
+			LobbyStateGui.registerOverlays(event);
+			GameSidebarRenderer.registerOverlays(event);
+			SpectatingUi.registerOverlays(event);
+			BbClientRenderEffects.registerOverlays(event);
+			RiverRaceBarRenderer.registerOverlays(event);
+		});
+	}
 
-    private static final Pattern QUALIFIER = Pattern.compile("-\\w+\\+\\d+");
-    public static String getCompatVersion() {
-    	return getCompatVersion(ModList.get().getModContainerById(ID).orElseThrow(IllegalStateException::new).getModInfo().getVersion().toString());
-    }
-    private static String getCompatVersion(String fullVersion) {
-    	return QUALIFIER.matcher(fullVersion).replaceAll("");
-    }
+	private static final Pattern QUALIFIER = Pattern.compile("-\\w+\\+\\d+");
 
-    public static LoveTropicsRegistrate registrate() {
-        return REGISTRATE.get();
-    }
+	public static String getCompatVersion() {
+		return getCompatVersion(ModList.get().getModContainerById(ID).orElseThrow(IllegalStateException::new).getModInfo().getVersion().toString());
+	}
 
-    public static ResourceLocation location(String location) {
-        return ResourceLocation.fromNamespaceAndPath(ID, location);
-    }
+	private static String getCompatVersion(String fullVersion) {
+		return QUALIFIER.matcher(fullVersion).replaceAll("");
+	}
 
-    private void registerCommands(RegisterCommandsEvent event) {
-        CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
-        JoinGameCommand.register(dispatcher);
-        StartGameCommand.register(dispatcher);
-        FinishGameCommand.register(dispatcher);
-        CancelGameCommand.register(dispatcher);
-        LeaveGameCommand.register(dispatcher);
-        GameControlCommand.register(dispatcher);
-        MapCommand.register(dispatcher);
-        TemporaryDimensionCommand.register(dispatcher);
-        GamePackageCommand.register(dispatcher);
-        ManageGameLobbyCommand.register(dispatcher);
-        ExtendedBossBarCommand.register(dispatcher);
-        ParticleLineCommand.register(event.getBuildContext(), dispatcher);
-        ChatCommand.register(dispatcher);
-        ExecuteAtRegionCommand.register(dispatcher);
-        GameActionCommand.register(dispatcher);
-    }
+	public static LoveTropicsRegistrate registrate() {
+		return REGISTRATE.get();
+	}
 
-    private void onServerAboutToStart(final ServerAboutToStartEvent event) {
-        BackendIntegrations.get().sendOpen();
-    }
+	public static ResourceLocation location(String location) {
+		return ResourceLocation.fromNamespaceAndPath(ID, location);
+	}
 
-    private void onServerStopping(final ServerStoppingEvent event) {
-        BackendIntegrations.get().sendClose();
-    }
+	private void registerCommands(RegisterCommandsEvent event) {
+		CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
+		JoinGameCommand.register(dispatcher);
+		StartGameCommand.register(dispatcher);
+		FinishGameCommand.register(dispatcher);
+		CancelGameCommand.register(dispatcher);
+		LeaveGameCommand.register(dispatcher);
+		GameControlCommand.register(dispatcher);
+		MapCommand.register(dispatcher);
+		TemporaryDimensionCommand.register(dispatcher);
+		GamePackageCommand.register(dispatcher);
+		ManageGameLobbyCommand.register(dispatcher);
+		ExtendedBossBarCommand.register(dispatcher);
+		ParticleLineCommand.register(event.getBuildContext(), dispatcher);
+		ChatCommand.register(dispatcher);
+		ExecuteAtRegionCommand.register(dispatcher);
+		GameActionCommand.register(dispatcher);
+	}
 
-    private void onAttemptSpawn(final MobSpawnEvent.PositionCheck event) {
-        if (event.getSpawnType() == EntitySpawnReason.SPAWNER) {
-            var workspace = MapWorkspaceManager.get(event.getLevel().getServer());
-            if (workspace.getWorkspace(event.getLevel().getLevel().dimension()) != null) {
-                event.setResult(MobSpawnEvent.PositionCheck.Result.FAIL);
-            }
-        }
-    }
+	private void onServerAboutToStart(final ServerAboutToStartEvent event) {
+		BackendIntegrations.get().sendOpen();
+	}
 
-    public static void onServerStoppingUnsafely(MinecraftServer server) {
-        RuntimeDimensions.onServerStoppingUnsafely(server);
-    }
+	private void onServerStopping(final ServerStoppingEvent event) {
+		BackendIntegrations.get().sendClose();
+	}
 
-    @EventBusSubscriber(modid = ID, value = Dist.CLIENT)
-    public static class ClientSetup {
-        @SubscribeEvent
-        public static void setupClient(final FMLClientSetupEvent event) {
-            LobbyKeybinds.init();
-            BlockEntityRenderers.register(RiverRace.TRIVIA_CHEST_BLOCK_ENTITY.get(), TriviaChestRenderer::new);
-        }
-    }
+	private void onAttemptSpawn(final MobSpawnEvent.PositionCheck event) {
+		if (event.getSpawnType() == EntitySpawnReason.SPAWNER) {
+			var workspace = MapWorkspaceManager.get(event.getLevel().getServer());
+			if (workspace.getWorkspace(event.getLevel().getLevel().dimension()) != null) {
+				event.setResult(MobSpawnEvent.PositionCheck.Result.FAIL);
+			}
+		}
+	}
+
+	public static void onServerStoppingUnsafely(MinecraftServer server) {
+		RuntimeDimensions.onServerStoppingUnsafely(server);
+	}
+
+	@EventBusSubscriber(modid = ID, value = Dist.CLIENT)
+	public static class ClientSetup {
+		@SubscribeEvent
+		public static void setupClient(final FMLClientSetupEvent event) {
+			LobbyKeybinds.init();
+			BlockEntityRenderers.register(RiverRace.TRIVIA_CHEST_BLOCK_ENTITY.get(), TriviaChestRenderer::new);
+		}
+	}
 }

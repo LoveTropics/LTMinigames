@@ -31,118 +31,118 @@ import net.minecraft.world.phys.Vec3;
 import java.util.Optional;
 
 public class BbCreeperEntity extends Creeper implements BbMobEntity {
-    private final BbMobBrain mobBrain;
-    private final Plot plot;
+	private final BbMobBrain mobBrain;
+	private final Plot plot;
 
 	private float explosionSizeOffset = 0;
 
-    public BbCreeperEntity(EntityType<? extends Creeper> type, Level world, Plot plot) {
-        super(type, world);
-        mobBrain = new BbMobBrain(plot.walls);
-        this.plot = plot;
+	public BbCreeperEntity(EntityType<? extends Creeper> type, Level world, Plot plot) {
+		super(type, world);
+		mobBrain = new BbMobBrain(plot.walls);
+		this.plot = plot;
 
-        setPathfindingMalus(PathType.DANGER_OTHER, BERRY_BUSH_MALUS);
-    }
+		setPathfindingMalus(PathType.DANGER_OTHER, BERRY_BUSH_MALUS);
+	}
 
-    @Override
-    protected void registerGoals() {
-        goalSelector.addGoal(1, new FloatGoal(this));
-        goalSelector.addGoal(2, new KaboomCropGoal(this));
-        goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, 0.8D));
-        goalSelector.addGoal(6, new RandomLookAroundGoal(this));
-    }
+	@Override
+	protected void registerGoals() {
+		goalSelector.addGoal(1, new FloatGoal(this));
+		goalSelector.addGoal(2, new KaboomCropGoal(this));
+		goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, 0.8D));
+		goalSelector.addGoal(6, new RandomLookAroundGoal(this));
+	}
 
-    public void setCreeperExplodeSizeOffset(float off) {
-        explosionSizeOffset = off;
-    }
+	public void setCreeperExplodeSizeOffset(float off) {
+		explosionSizeOffset = off;
+	}
 
-    @Override
-    public void aiStep() {
-        if (getHealth() < 8) {
-            setSwellDir(1);
-        }
+	@Override
+	public void aiStep() {
+		if (getHealth() < 8) {
+			setSwellDir(1);
+		}
 
-        super.aiStep();
-    }
+		super.aiStep();
+	}
 
-    @Override
-    public void explodeCreeper() {
-        if (level() instanceof ServerLevel level) {
+	@Override
+	public void explodeCreeper() {
+		if (level() instanceof ServerLevel level) {
 			Vec3 center = position();
 
 			float size = 2.5f + explosionSizeOffset;
-            ServerExplosion explosion = new PlantAffectingExplosion(level, null, null, null, center, size, false, Explosion.BlockInteraction.DESTROY, e -> true, plot);
-            explosion.explode();
+			ServerExplosion explosion = new PlantAffectingExplosion(level, null, null, null, center, size, false, Explosion.BlockInteraction.DESTROY, e -> true, plot);
+			explosion.explode();
 
-            float factor = isPowered() ? 2.0F : 1.0F;
-            for (ServerPlayer player : level.players()) {
-                if (player.distanceToSqr(center) < 4096.0) {
+			float factor = isPowered() ? 2.0F : 1.0F;
+			for (ServerPlayer player : level.players()) {
+				if (player.distanceToSqr(center) < 4096.0) {
 					Optional<Vec3> knockback = Optional.ofNullable(explosion.getHitPlayers().get(player));
-                    player.connection.send(new ClientboundExplodePacket(
+					player.connection.send(new ClientboundExplodePacket(
 							center,
 							knockback.map(k -> k.scale(size * factor)),
 							explosion.isSmall() ? ParticleTypes.EXPLOSION : ParticleTypes.EXPLOSION_EMITTER,
 							SoundEvents.GENERIC_EXPLODE
 					));
-                }
-            }
+				}
+			}
 
-            remove(RemovalReason.KILLED);
-        }
-    }
+			remove(RemovalReason.KILLED);
+		}
+	}
 
-    @Override
-    protected Vec3 maybeBackOffFromEdge(Vec3 offset, MoverType mover) {
-        return mobBrain.getPlotWalls().collide(getBoundingBox(), offset);
-    }
+	@Override
+	protected Vec3 maybeBackOffFromEdge(Vec3 offset, MoverType mover) {
+		return mobBrain.getPlotWalls().collide(getBoundingBox(), offset);
+	}
 
-    @Override
-    protected PathNavigation createNavigation(Level world) {
-        return new BbGroundNavigator(this);
-    }
+	@Override
+	protected PathNavigation createNavigation(Level world) {
+		return new BbGroundNavigator(this);
+	}
 
-    @Override
-    public BbMobBrain getMobBrain() {
-        return mobBrain;
-    }
+	@Override
+	public BbMobBrain getMobBrain() {
+		return mobBrain;
+	}
 
-    @Override
-    public Mob asMob() {
-        return this;
-    }
+	@Override
+	public Mob asMob() {
+		return this;
+	}
 
-    @Override
-    public Plot getPlot() {
-        return plot;
-    }
+	@Override
+	public Plot getPlot() {
+		return plot;
+	}
 
-    @Override
-    public float aiSpeed() {
-        return 0.8f;
-    }
+	@Override
+	public float aiSpeed() {
+		return 0.8f;
+	}
 
-    @Override
-    protected void pushEntities() {
-    }
+	@Override
+	protected void pushEntities() {
+	}
 
-    @Override
-    public void updateSwimming() {
-        // Just use the default navigator, we never need to swim
-    }
+	@Override
+	public void updateSwimming() {
+		// Just use the default navigator, we never need to swim
+	}
 
-    @Override
-    public boolean updateFluidHeightAndDoFluidPushing(TagKey<Fluid> fluid, double scale) {
-        if (fluid == FluidTags.WATER) {
-            return false;
-        }
-        return super.updateFluidHeightAndDoFluidPushing(fluid, scale);
-    }
+	@Override
+	public boolean updateFluidHeightAndDoFluidPushing(TagKey<Fluid> fluid, double scale) {
+		if (fluid == FluidTags.WATER) {
+			return false;
+		}
+		return super.updateFluidHeightAndDoFluidPushing(fluid, scale);
+	}
 
-    @Override
-    public boolean isEyeInFluid(TagKey<Fluid> fluid) {
-        if (fluid == FluidTags.WATER) {
-            return false;
-        }
-        return super.isEyeInFluid(fluid);
-    }
+	@Override
+	public boolean isEyeInFluid(TagKey<Fluid> fluid) {
+		if (fluid == FluidTags.WATER) {
+			return false;
+		}
+		return super.isEyeInFluid(fluid);
+	}
 }

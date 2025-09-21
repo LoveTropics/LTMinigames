@@ -14,7 +14,7 @@ public class EnumButton<E extends Enum<E>> extends Button {
 		value = def;
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	private static void toggle(Button button) {
 		EnumButton b = (EnumButton) button;
 		int ordinal = b.value.ordinal();

@@ -1,7 +1,7 @@
 package com.lovetropics.minigames.common.core.game.weather;
 
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 
 import javax.annotation.Nullable;
 

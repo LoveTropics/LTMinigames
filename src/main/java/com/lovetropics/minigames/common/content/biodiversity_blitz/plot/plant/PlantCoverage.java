@@ -44,7 +44,7 @@ public interface PlantCoverage extends Iterable<BlockPos> {
 	AABB asBounds();
 
 	BlockPos getOrigin();
-	
+
 	default void add(BlockPos pos) {
 		throw new UnsupportedOperationException("This coverage type cannot be added to");
 	}
@@ -171,19 +171,19 @@ public interface PlantCoverage extends Iterable<BlockPos> {
 			LongIterator blockIterator = blocks.iterator();
 
 			return new Iterator<>() {
-                private final BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
+				private final BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
 
-                @Override
-                public BlockPos next() {
-                    long pos = blockIterator.nextLong();
-                    return mutablePos.set(pos);
-                }
+				@Override
+				public BlockPos next() {
+					long pos = blockIterator.nextLong();
+					return mutablePos.set(pos);
+				}
 
-                @Override
-                public boolean hasNext() {
-                    return blockIterator.hasNext();
-                }
-            };
+				@Override
+				public boolean hasNext() {
+					return blockIterator.hasNext();
+				}
+			};
 		}
 	}
 

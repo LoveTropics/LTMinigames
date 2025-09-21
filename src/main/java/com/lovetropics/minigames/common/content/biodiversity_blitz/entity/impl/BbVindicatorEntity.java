@@ -23,36 +23,36 @@ import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.phys.Vec3;
 
 public class BbVindicatorEntity extends Vindicator implements BbMobEntity {
-    private final BbMobBrain mobBrain;
-    private final Plot plot;
+	private final BbMobBrain mobBrain;
+	private final Plot plot;
 
-    public BbVindicatorEntity(EntityType<? extends Vindicator> pEntityType, Level pLevel, Plot plot) {
-        super(pEntityType, pLevel);
+	public BbVindicatorEntity(EntityType<? extends Vindicator> pEntityType, Level pLevel, Plot plot) {
+		super(pEntityType, pLevel);
 
-        mobBrain = new BbMobBrain(plot.walls);
-        this.plot = plot;
+		mobBrain = new BbMobBrain(plot.walls);
+		this.plot = plot;
 
-        // Ignore sweet berry bushes and water
-        setPathfindingMalus(PathType.DANGER_OTHER, BERRY_BUSH_MALUS);
-        setPathfindingMalus(PathType.WATER, -1.0F);
-    }
+		// Ignore sweet berry bushes and water
+		setPathfindingMalus(PathType.DANGER_OTHER, BERRY_BUSH_MALUS);
+		setPathfindingMalus(PathType.WATER, -1.0F);
+	}
 
-    @Override
-    protected PathNavigation createNavigation(Level world) {
-        return new BbGroundNavigator(this);
-    }
+	@Override
+	protected PathNavigation createNavigation(Level world) {
+		return new BbGroundNavigator(this);
+	}
 
-    @Override
-    protected void registerGoals() {
-        goalSelector.addGoal(3, new DestroyCropGoal(this));
+	@Override
+	protected void registerGoals() {
+		goalSelector.addGoal(3, new DestroyCropGoal(this));
 
-        targetSelector.addGoal(1, new BbTargetPlayerGoal(this));
-    }
+		targetSelector.addGoal(1, new BbTargetPlayerGoal(this));
+	}
 
-    @Override
-    protected Vec3 maybeBackOffFromEdge(Vec3 offset, MoverType mover) {
-        return mobBrain.getPlotWalls().collide(getBoundingBox(), offset);
-    }
+	@Override
+	protected Vec3 maybeBackOffFromEdge(Vec3 offset, MoverType mover) {
+		return mobBrain.getPlotWalls().collide(getBoundingBox(), offset);
+	}
 
 	@Override
 	public boolean hurtServer(ServerLevel level, DamageSource source, float amount) {
@@ -62,53 +62,53 @@ public class BbVindicatorEntity extends Vindicator implements BbMobEntity {
 		return super.hurtServer(level, source, amount);
 	}
 
-    @Override
-    public BbMobBrain getMobBrain() {
-        return mobBrain;
-    }
+	@Override
+	public BbMobBrain getMobBrain() {
+		return mobBrain;
+	}
 
-    @Override
-    public Mob asMob() {
-        return this;
-    }
+	@Override
+	public Mob asMob() {
+		return this;
+	}
 
-    @Override
-    public Plot getPlot() {
-        return plot;
-    }
+	@Override
+	public Plot getPlot() {
+		return plot;
+	}
 
-    @Override
-    public float aiSpeed() {
-        return 1.0f;
-    }
+	@Override
+	public float aiSpeed() {
+		return 1.0f;
+	}
 
-    @Override
-    public int meleeDamage(RandomSource random) {
-        return 8 + BbMobEntity.super.meleeDamage(random);
-    }
+	@Override
+	public int meleeDamage(RandomSource random) {
+		return 8 + BbMobEntity.super.meleeDamage(random);
+	}
 
-    @Override
-    protected void pushEntities() {
-    }
+	@Override
+	protected void pushEntities() {
+	}
 
-    @Override
-    public void updateSwimming() {
-        // Just use the default navigator, we never need to swim
-    }
+	@Override
+	public void updateSwimming() {
+		// Just use the default navigator, we never need to swim
+	}
 
-    @Override
-    public boolean updateFluidHeightAndDoFluidPushing(TagKey<Fluid> fluid, double scale) {
-        if (fluid == FluidTags.WATER) {
-            return false;
-        }
-        return super.updateFluidHeightAndDoFluidPushing(fluid, scale);
-    }
+	@Override
+	public boolean updateFluidHeightAndDoFluidPushing(TagKey<Fluid> fluid, double scale) {
+		if (fluid == FluidTags.WATER) {
+			return false;
+		}
+		return super.updateFluidHeightAndDoFluidPushing(fluid, scale);
+	}
 
-    @Override
-    public boolean isEyeInFluid(TagKey<Fluid> fluid) {
-        if (fluid == FluidTags.WATER) {
-            return false;
-        }
-        return super.isEyeInFluid(fluid);
-    }
+	@Override
+	public boolean isEyeInFluid(TagKey<Fluid> fluid) {
+		if (fluid == FluidTags.WATER) {
+			return false;
+		}
+		return super.isEyeInFluid(fluid);
+	}
 }

@@ -439,7 +439,7 @@ public final class GameEventDispatcher {
 		IGamePhase game = gameLookup.getGamePhaseFor(entity);
 		if (game != null) {
 			try {
-                event.setKnockbackVelocity(game.invoker(GameLivingEntityEvents.MODIFY_EXPLOSION_KNOCKBACK).getKnockback(entity, event.getExplosion(), event.getKnockbackVelocity(), event.getKnockbackVelocity()));
+				event.setKnockbackVelocity(game.invoker(GameLivingEntityEvents.MODIFY_EXPLOSION_KNOCKBACK).getKnockback(entity, event.getExplosion(), event.getKnockbackVelocity(), event.getKnockbackVelocity()));
 			} catch (Exception e) {
 				LoveTropics.LOGGER.warn("Failed to dispatch explosion event", e);
 			}
@@ -533,17 +533,17 @@ public final class GameEventDispatcher {
 	}
 
 	@SubscribeEvent
-	public void onEntityAddedToLevel(EntityJoinLevelEvent event){
+	public void onEntityAddedToLevel(EntityJoinLevelEvent event) {
 		IGamePhase gamePhase = gameLookup.getGamePhaseInDimension(event.getLevel());
-		if(gamePhase != null){
+		if (gamePhase != null) {
 			gamePhase.invoker(GameWorldEvents.ENTITY_ADDED).onEntityAdded(event.getEntity());
 		}
 	}
 
 	@SubscribeEvent
-	public void onEntityRemovedFromLevel(EntityLeaveLevelEvent event){
+	public void onEntityRemovedFromLevel(EntityLeaveLevelEvent event) {
 		IGamePhase gamePhase = gameLookup.getGamePhaseInDimension(event.getLevel());
-		if(gamePhase != null){
+		if (gamePhase != null) {
 			gamePhase.invoker(GameWorldEvents.ENTITY_REMOVED).onEntityRemoved(event.getEntity());
 		}
 	}

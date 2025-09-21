@@ -1,11 +1,11 @@
 package com.lovetropics.minigames.common.content.biodiversity_blitz.merchant;
 
-import net.minecraft.world.item.trading.Merchant;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MerchantMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.trading.Merchant;
 
 public final class BbMerchantContainer extends MerchantMenu {
 	public BbMerchantContainer(Merchant merchant, int id, Inventory playerInventory) {

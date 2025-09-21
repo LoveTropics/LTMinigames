@@ -45,7 +45,7 @@ public class ListConfigWidget extends LayoutGui implements IConfigWidget {
 	}
 
 	private final List<GuiEventListener> children = new ArrayList<>();
-	
+
 	public static ListConfigWidget from(GameConfig parent, LayoutTree ltree, ListConfigData data) {
 		return new ListConfigWidget(parent, ltree, data);
 	}

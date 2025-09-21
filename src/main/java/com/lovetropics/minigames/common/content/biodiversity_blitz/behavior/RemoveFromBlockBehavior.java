@@ -22,44 +22,44 @@ import net.minecraft.world.phys.BlockHitResult;
 
 // Removes pianguas from mud blocks
 public final class RemoveFromBlockBehavior implements IGameBehavior {
-    public static final MapCodec<RemoveFromBlockBehavior> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            MoreCodecs.BLOCK_STATE.fieldOf("in").forGetter(b -> b.in),
-            MoreCodecs.BLOCK_STATE.fieldOf("out").forGetter(b -> b.out),
-            MoreCodecs.ITEM_STACK.fieldOf("drop").forGetter(b -> b.drop)
-    ).apply(instance, RemoveFromBlockBehavior::new));
+	public static final MapCodec<RemoveFromBlockBehavior> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+			MoreCodecs.BLOCK_STATE.fieldOf("in").forGetter(b -> b.in),
+			MoreCodecs.BLOCK_STATE.fieldOf("out").forGetter(b -> b.out),
+			MoreCodecs.ITEM_STACK.fieldOf("drop").forGetter(b -> b.drop)
+	).apply(instance, RemoveFromBlockBehavior::new));
 
-    private final BlockState in;
-    private final BlockState out;
-    private final ItemStack drop;
+	private final BlockState in;
+	private final BlockState out;
+	private final ItemStack drop;
 
-    private PlotsState plots;
+	private PlotsState plots;
 
-    public RemoveFromBlockBehavior(BlockState in, BlockState out, ItemStack drop) {
-        this.in = in;
-        this.out = out;
-        this.drop = drop;
-    }
+	public RemoveFromBlockBehavior(BlockState in, BlockState out, ItemStack drop) {
+		this.in = in;
+		this.out = out;
+		this.drop = drop;
+	}
 
-    @Override
-    public void register(IGamePhase game, EventRegistrar events) throws GameException {
-        plots = game.state().getOrThrow(PlotsState.KEY);
+	@Override
+	public void register(IGamePhase game, EventRegistrar events) throws GameException {
+		plots = game.state().getOrThrow(PlotsState.KEY);
 
-        events.listen(GamePlayerEvents.USE_BLOCK, this::onUseBlock);
-    }
+		events.listen(GamePlayerEvents.USE_BLOCK, this::onUseBlock);
+	}
 
-    private InteractionResult onUseBlock(ServerPlayer player, ServerLevel world, BlockPos pos, InteractionHand hand, BlockHitResult result) {
-        Plot plot = plots.getPlotFor(player);
-        if (plot != null && plot.bounds.contains(pos)) {
-            if (world.getBlockState(pos).getBlock() == in.getBlock()) {
-                world.setBlockAndUpdate(pos, out);
+	private InteractionResult onUseBlock(ServerPlayer player, ServerLevel world, BlockPos pos, InteractionHand hand, BlockHitResult result) {
+		Plot plot = plots.getPlotFor(player);
+		if (plot != null && plot.bounds.contains(pos)) {
+			if (world.getBlockState(pos).getBlock() == in.getBlock()) {
+				world.setBlockAndUpdate(pos, out);
 
-                BlockPos spawnPos = pos.relative(result.getDirection());
-                world.addFreshEntity(new ItemEntity(world, spawnPos.getX() + 0.5, spawnPos.getY() + 0.5, spawnPos.getZ() + 0.5, drop.copy()));
+				BlockPos spawnPos = pos.relative(result.getDirection());
+				world.addFreshEntity(new ItemEntity(world, spawnPos.getX() + 0.5, spawnPos.getY() + 0.5, spawnPos.getZ() + 0.5, drop.copy()));
 
-                return InteractionResult.SUCCESS;
-            }
-        }
+				return InteractionResult.SUCCESS;
+			}
+		}
 
-        return InteractionResult.PASS;
-    }
+		return InteractionResult.PASS;
+	}
 }

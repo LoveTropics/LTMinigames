@@ -14,24 +14,24 @@ import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(MouseHandler.class)
 public class MouseHandlerMixin {
-    @Shadow
-    @Final
-    private Minecraft minecraft;
+	@Shadow
+	@Final
+	private Minecraft minecraft;
 
-    @WrapOperation(method = "turnPlayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;turn(DD)V"))
-    private void respectControlModificationState(LocalPlayer player, double dx, double dy, Operation<Void> original) {
-        var state = ClientGameStateManager.getOrNull(GameClientStateTypes.INVERT_CONTROLS);
-        if (state != null) {
-            if (state.xAxis()) {
-                dx = dx * -1;
-            }
+	@WrapOperation(method = "turnPlayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;turn(DD)V"))
+	private void respectControlModificationState(LocalPlayer player, double dx, double dy, Operation<Void> original) {
+		var state = ClientGameStateManager.getOrNull(GameClientStateTypes.INVERT_CONTROLS);
+		if (state != null) {
+			if (state.xAxis()) {
+				dx = dx * -1;
+			}
 
-            // Avoid allowing the bypass of the setting by modifying the options
-            if (state.yAxis() && !minecraft.options.invertYMouse().get()) {
-                dy = dy * -1;
-            }
-        }
+			// Avoid allowing the bypass of the setting by modifying the options
+			if (state.yAxis() && !minecraft.options.invertYMouse().get()) {
+				dy = dy * -1;
+			}
+		}
 
-        original.call(player, dx, dy);
-    }
+		original.call(player, dx, dy);
+	}
 }

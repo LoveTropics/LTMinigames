@@ -9,6 +9,6 @@ import java.util.Collection;
 
 @Mixin(GameTestInfo.class)
 public interface GameTestInfoAccess {
-    @Accessor
-    Collection<GameTestListener> getListeners();
+	@Accessor
+	Collection<GameTestListener> getListeners();
 }

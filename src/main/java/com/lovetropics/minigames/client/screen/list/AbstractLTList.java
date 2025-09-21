@@ -21,7 +21,7 @@ public abstract class AbstractLTList<T extends LTListEntry<T>> extends ObjectSel
 	public interface Reorder {
 		void onReorder(int offset);
 	}
-	
+
 	public AbstractLTList(Screen screen, Layout layout, int entryHeight) {
 		super(
 				screen.getMinecraft(),
@@ -125,7 +125,7 @@ public abstract class AbstractLTList<T extends LTListEntry<T>> extends ObjectSel
 
 	private void startDragging(T entry, double mouseY) {
 		draggingEntry = entry;
-	
+
 		int index = children().indexOf(entry);
 		dragOffset = Mth.floor(getRowTop(index) - mouseY);
 	}
@@ -144,8 +144,11 @@ public abstract class AbstractLTList<T extends LTListEntry<T>> extends ObjectSel
 		T selected = getSelected();
 		if (selected != null && selected.reorder != null && Screen.hasShiftDown()) {
 			int offset = 0;
-			if (keyCode == GLFW.GLFW_KEY_UP) offset = -1;
-			else if (keyCode == GLFW.GLFW_KEY_DOWN) offset = 1;
+			if (keyCode == GLFW.GLFW_KEY_UP) {
+				offset = -1;
+			} else if (keyCode == GLFW.GLFW_KEY_DOWN) {
+				offset = 1;
+			}
 
 			if (offset != 0) {
 				int index = children().indexOf(selected);
@@ -173,7 +176,9 @@ public abstract class AbstractLTList<T extends LTListEntry<T>> extends ObjectSel
 	private boolean tryReorderTo(T entry, int insertIndex) {
 		List<T> entries = children();
 		int index = entries.indexOf(entry);
-		if (index == -1) return false;
+		if (index == -1) {
+			return false;
+		}
 
 		if (insertIndex != index && insertIndex >= 0 && insertIndex < entries.size()) {
 			T replaceEntry = entries.get(insertIndex);
@@ -207,22 +212,26 @@ public abstract class AbstractLTList<T extends LTListEntry<T>> extends ObjectSel
 	@Override
 	protected void renderListItems(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
 		boolean listHovered = isMouseOver(mouseX, mouseY);
-	
+
 		int count = getItemCount();
 		int left = getRowLeft();
 		int width = getRowWidth();
 		int height = itemHeight;
-	
+
 		boolean dragging = draggingEntry != null;
-	
+
 		for (int index = 0; index < count; index++) {
 			int top = getRowTop(index);
 			int bottom = top + height;
-			if (bottom < getY() || top > getY() + getHeight()) continue;
-	
+			if (bottom < getY() || top > getY() + getHeight()) {
+				continue;
+			}
+
 			T entry = getEntry(index);
-			if (draggingEntry == entry) continue;
-	
+			if (draggingEntry == entry) {
+				continue;
+			}
+
 			boolean entryHovered = !dragging && listHovered && mouseX >= left && mouseY >= top && mouseX < left + width && mouseY < bottom;
 			entry.render(graphics, index, top, left, width, height, mouseX, mouseY, entryHovered, partialTicks);
 		}

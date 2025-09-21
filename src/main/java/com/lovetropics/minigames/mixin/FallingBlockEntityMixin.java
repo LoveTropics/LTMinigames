@@ -18,20 +18,20 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(FallingBlockEntity.class)
 public abstract class FallingBlockEntityMixin extends Entity {
 
-    public FallingBlockEntityMixin(EntityType<?> entityType, Level level) {
-        super(entityType, level);
-    }
+	public FallingBlockEntityMixin(EntityType<?> entityType, Level level) {
+		super(entityType, level);
+	}
 
-    @Shadow
-    private BlockState blockState;
+	@Shadow
+	private BlockState blockState;
 
-    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/item/FallingBlockEntity;discard()V", ordinal = 1, shift = At.Shift.AFTER), method = "tick")
-    private void customFalling(CallbackInfo ci) {
-        if (level() instanceof ServerLevel serverLevel) {
+	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/item/FallingBlockEntity;discard()V", ordinal = 1, shift = At.Shift.AFTER), method = "tick")
+	private void customFalling(CallbackInfo ci) {
+		if (level() instanceof ServerLevel serverLevel) {
 			IGamePhase game = IGameManager.get().getGamePhaseAt(serverLevel, blockPosition());
-            if (game != null) {
-                game.invoker(GameWorldEvents.BLOCK_LANDED).onBlockLanded(serverLevel, blockPosition(), blockState);
-            }
-        }
-    }
+			if (game != null) {
+				game.invoker(GameWorldEvents.BLOCK_LANDED).onBlockLanded(serverLevel, blockPosition(), blockState);
+			}
+		}
+	}
 }

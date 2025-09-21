@@ -6,20 +6,20 @@ import javax.annotation.Nullable;
 
 public interface HasTrivia {
 
-    void setQuestion(TriviaBehaviour.TriviaQuestion question);
+	void setQuestion(TriviaBehaviour.TriviaQuestion question);
 
-    @Nullable
-    TriviaBehaviour.TriviaQuestion getQuestion();
+	@Nullable
+	TriviaBehaviour.TriviaQuestion getQuestion();
 
-    TriviaType getTriviaType();
+	TriviaType getTriviaType();
 
-    long lockout(int lockoutSeconds);
+	long lockout(int lockoutSeconds);
 
-    void unlock();
+	void unlock();
 
-    boolean markAsCorrect();
+	boolean markAsCorrect();
 
-    boolean isAnswered();
+	boolean isAnswered();
 
-    TriviaBlockEntity.TriviaBlockState getState();
+	TriviaBlockEntity.TriviaBlockState getState();
 }

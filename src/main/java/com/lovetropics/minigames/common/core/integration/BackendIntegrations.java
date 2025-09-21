@@ -95,10 +95,10 @@ public final class BackendIntegrations {
 	@SubscribeEvent
 	public static void tick(ServerTickEvent.Post event) {
 		final MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-        if (server != null) {
-            get().tick(server);
-        }
-    }
+		if (server != null) {
+			get().tick(server);
+		}
+	}
 
 	private void tick(MinecraftServer server) {
 		proxy.tick();
@@ -165,7 +165,9 @@ public final class BackendIntegrations {
 		GameInstanceIntegrations liveInstance = this.liveInstance;
 
 		// we can ignore the payload because we will request it again when a minigame starts
-		if (liveInstance == null) return;
+		if (liveInstance == null) {
+			return;
+		}
 
 		liveInstance.handlePayload(object, type, crud);
 	}

@@ -95,7 +95,9 @@ public class MultiGameManager implements IGameManager {
 	@Nullable
 	@Override
 	public GameLobby getLobbyFor(Player player) {
-		if (player.level().isClientSide) return null;
+		if (player.level().isClientSide) {
+			return null;
+		}
 
 		return lobbiesByPlayer.get(player.getUUID());
 	}
@@ -181,7 +183,9 @@ public class MultiGameManager implements IGameManager {
 
 	void removeGamePhaseFromDimension(ResourceKey<Level> dimension, GamePhase game) {
 		List<GamePhase> games = gamesByDimension.get(dimension);
-		if (games == null) return;
+		if (games == null) {
+			return;
+		}
 
 		if (games.remove(game) && games.isEmpty()) {
 			gamesByDimension.remove(dimension, games);
@@ -280,7 +284,7 @@ public class MultiGameManager implements IGameManager {
 	public static void onPlayerTryChangeDimension(EntityTravelToDimensionEvent event) {
 		Entity entity = event.getEntity();
 		if (entity instanceof ServerPlayer player) {
-            ServerLevel targetWorld = player.getServer().getLevel(event.getDimension());
+			ServerLevel targetWorld = player.getServer().getLevel(event.getDimension());
 			if (targetWorld == null) {
 				return;
 			}
@@ -308,7 +312,9 @@ public class MultiGameManager implements IGameManager {
 	public static void onPlayerChangedDimension(PlayerEvent.PlayerChangedDimensionEvent event) {
 		if (event.getEntity() instanceof ServerPlayer player) {
 			IGamePhase phase = INSTANCE.getGamePhaseFor(player);
-			if (phase == null) return;
+			if (phase == null) {
+				return;
+			}
 
 			ResourceKey<Level> dimension = phase.dimension();
 			if (event.getFrom() == dimension && event.getTo() != dimension) {

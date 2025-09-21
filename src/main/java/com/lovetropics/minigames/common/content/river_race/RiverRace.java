@@ -54,79 +54,79 @@ import static net.minecraft.client.data.models.BlockModelGenerators.createBoolea
 import static net.minecraft.client.data.models.BlockModelGenerators.plainVariant;
 
 public class RiverRace {
-    private static final LoveTropicsRegistrate REGISTRATE = LoveTropics.registrate();
+	private static final LoveTropicsRegistrate REGISTRATE = LoveTropics.registrate();
 
-    public static final DeferredRegister.DataComponents DATA_COMPONENTS = DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, LoveTropics.ID);
+	public static final DeferredRegister.DataComponents DATA_COMPONENTS = DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, LoveTropics.ID);
 
-    public static final GameBehaviorEntry<RiverRaceSetupBehavior> SETUP_BEHAVIOR = REGISTRATE.object("river_race/setup").behavior(RiverRaceSetupBehavior.CODEC).register();
-    public static final GameBehaviorEntry<RiverRaceZoneBehavior> ZONE_BEHAVIOR = REGISTRATE.object("river_race/zone").behavior(RiverRaceZoneBehavior.CODEC).register();
-    public static final GameBehaviorEntry<RiverRaceSpawnsBehavior> SPAWNS_BEHAVIOUR = REGISTRATE.object("river_race/spawns").behavior(RiverRaceSpawnsBehavior.CODEC).register();
-    public static final GameBehaviorEntry<ModifyMaxSpawnsAction> MODIFY_MAX_SPAWNS_ACTION = REGISTRATE.object("river_race/modify_max_spawns").behavior(ModifyMaxSpawnsAction.CODEC).register();
-    public static final GameBehaviorEntry<TriviaBehaviour> TRIVIA_BEHAVIOUR = REGISTRATE.object("trivia").behavior(TriviaBehaviour.CODEC).register();
-    public static final GameBehaviorEntry<StartMicrogamesAction> START_MICROGAMES_ACTION = REGISTRATE.object("start_microgames").behavior(StartMicrogamesAction.CODEC).register();
-    public static final GameBehaviorEntry<VictoryPointsBehavior> VICTORY_POINTS_BEHAVIOR = REGISTRATE.object("victory_points").behavior(VictoryPointsBehavior.CODEC).register();
-    public static final GameBehaviorEntry<RiverRaceMerchantBehavior> RIVER_RACE_MERCHANT_BEHAVIOR = REGISTRATE.object("river_race_merchant").behavior(RiverRaceMerchantBehavior.CODEC).register();
-    public static final GameBehaviorEntry<OverlordBehavior> OVERLORD_BEHAVIOR = REGISTRATE.object("river_race_overlord").behavior(OverlordBehavior.CODEC).register();
-    public static final GameBehaviorEntry<ProgressBehaviour> RIVER_RACE_PROGRESS_BEHAVIOUR = REGISTRATE.object("river_race_progress").behavior(ProgressBehaviour.CODEC).register();
-    public static final GameBehaviorEntry<CollectablesBehaviour> COLLECTABLES_BEHAVIOUR = REGISTRATE.object("river_race_collectables").behavior(CollectablesBehaviour.CODEC).register();
-    public static final GameBehaviorEntry<UnlockZoneAction> UNLOCK_ZONE_ACTION = REGISTRATE.object("unlock_zone").behavior(UnlockZoneAction.CODEC).register();
-    public static final GameBehaviorEntry<KillAboveVoidBehavior> KILL_ABOVE_VOID_BEHAVIOR = REGISTRATE.object("kill_above_void").behavior(KillAboveVoidBehavior.CODEC).register();
-    public static final GameBehaviorEntry<RewardsFromMicrogameBehavior> REWARDS_FROM_MICROGAME_BEHAVIOR = REGISTRATE.object("rewards_from_microgame").behavior(RewardsFromMicrogameBehavior.CODEC).register();
+	public static final GameBehaviorEntry<RiverRaceSetupBehavior> SETUP_BEHAVIOR = REGISTRATE.object("river_race/setup").behavior(RiverRaceSetupBehavior.CODEC).register();
+	public static final GameBehaviorEntry<RiverRaceZoneBehavior> ZONE_BEHAVIOR = REGISTRATE.object("river_race/zone").behavior(RiverRaceZoneBehavior.CODEC).register();
+	public static final GameBehaviorEntry<RiverRaceSpawnsBehavior> SPAWNS_BEHAVIOUR = REGISTRATE.object("river_race/spawns").behavior(RiverRaceSpawnsBehavior.CODEC).register();
+	public static final GameBehaviorEntry<ModifyMaxSpawnsAction> MODIFY_MAX_SPAWNS_ACTION = REGISTRATE.object("river_race/modify_max_spawns").behavior(ModifyMaxSpawnsAction.CODEC).register();
+	public static final GameBehaviorEntry<TriviaBehaviour> TRIVIA_BEHAVIOUR = REGISTRATE.object("trivia").behavior(TriviaBehaviour.CODEC).register();
+	public static final GameBehaviorEntry<StartMicrogamesAction> START_MICROGAMES_ACTION = REGISTRATE.object("start_microgames").behavior(StartMicrogamesAction.CODEC).register();
+	public static final GameBehaviorEntry<VictoryPointsBehavior> VICTORY_POINTS_BEHAVIOR = REGISTRATE.object("victory_points").behavior(VictoryPointsBehavior.CODEC).register();
+	public static final GameBehaviorEntry<RiverRaceMerchantBehavior> RIVER_RACE_MERCHANT_BEHAVIOR = REGISTRATE.object("river_race_merchant").behavior(RiverRaceMerchantBehavior.CODEC).register();
+	public static final GameBehaviorEntry<OverlordBehavior> OVERLORD_BEHAVIOR = REGISTRATE.object("river_race_overlord").behavior(OverlordBehavior.CODEC).register();
+	public static final GameBehaviorEntry<ProgressBehaviour> RIVER_RACE_PROGRESS_BEHAVIOUR = REGISTRATE.object("river_race_progress").behavior(ProgressBehaviour.CODEC).register();
+	public static final GameBehaviorEntry<CollectablesBehaviour> COLLECTABLES_BEHAVIOUR = REGISTRATE.object("river_race_collectables").behavior(CollectablesBehaviour.CODEC).register();
+	public static final GameBehaviorEntry<UnlockZoneAction> UNLOCK_ZONE_ACTION = REGISTRATE.object("unlock_zone").behavior(UnlockZoneAction.CODEC).register();
+	public static final GameBehaviorEntry<KillAboveVoidBehavior> KILL_ABOVE_VOID_BEHAVIOR = REGISTRATE.object("kill_above_void").behavior(KillAboveVoidBehavior.CODEC).register();
+	public static final GameBehaviorEntry<RewardsFromMicrogameBehavior> REWARDS_FROM_MICROGAME_BEHAVIOR = REGISTRATE.object("rewards_from_microgame").behavior(RewardsFromMicrogameBehavior.CODEC).register();
 
-    public static final GameClientTweakEntry<RiverRaceClientBarState> BAR_STATE = REGISTRATE.object("river_race_bar")
-            .clientState(RiverRaceClientBarState.CODEC).streamCodec(RiverRaceClientBarState.STREAM_CODEC)
-            .register();
+	public static final GameClientTweakEntry<RiverRaceClientBarState> BAR_STATE = REGISTRATE.object("river_race_bar")
+			.clientState(RiverRaceClientBarState.CODEC).streamCodec(RiverRaceClientBarState.STREAM_CODEC)
+			.register();
 
-    public static final BlockEntry<TriviaBlock.GateTriviaBlock> TRIVIA_GATE = REGISTRATE
-            .block("trivia_gate", TriviaBlock.GateTriviaBlock::new)
-            .initialProperties(() -> Blocks.BEDROCK)
-            .properties(BlockBehaviour.Properties::noLootTable)
+	public static final BlockEntry<TriviaBlock.GateTriviaBlock> TRIVIA_GATE = REGISTRATE
+			.block("trivia_gate", TriviaBlock.GateTriviaBlock::new)
+			.initialProperties(() -> Blocks.BEDROCK)
+			.properties(BlockBehaviour.Properties::noLootTable)
 			.blockstate(() -> (ctx, prov) -> Models.generateTriviaBlock(ctx, prov, true))
-            .simpleItem()
-            .register();
+			.simpleItem()
+			.register();
 
-    public static final BlockEntry<TriviaBlock.CollectableTriviaBlock> TRIVIA_COLLECTABLE = REGISTRATE
-            .block("trivia_collectable", TriviaBlock.CollectableTriviaBlock::new)
-            .initialProperties(() -> Blocks.BEDROCK)
-            .properties(BlockBehaviour.Properties::noLootTable)
+	public static final BlockEntry<TriviaBlock.CollectableTriviaBlock> TRIVIA_COLLECTABLE = REGISTRATE
+			.block("trivia_collectable", TriviaBlock.CollectableTriviaBlock::new)
+			.initialProperties(() -> Blocks.BEDROCK)
+			.properties(BlockBehaviour.Properties::noLootTable)
 			.blockstate(() -> (ctx, prov) -> Models.generateTriviaBlock(ctx, prov, false))
-            .simpleItem()
-            .register();
-    public static final BlockEntry<TriviaBlock.VictoryTriviaBlock> TRIVIA_VICTORY = REGISTRATE
-            .block("trivia_victory", TriviaBlock.VictoryTriviaBlock::new)
-            .initialProperties(() -> Blocks.BEDROCK)
-            .properties(BlockBehaviour.Properties::noLootTable)
+			.simpleItem()
+			.register();
+	public static final BlockEntry<TriviaBlock.VictoryTriviaBlock> TRIVIA_VICTORY = REGISTRATE
+			.block("trivia_victory", TriviaBlock.VictoryTriviaBlock::new)
+			.initialProperties(() -> Blocks.BEDROCK)
+			.properties(BlockBehaviour.Properties::noLootTable)
 			.blockstate(() -> (ctx, prov) -> Models.generateTriviaBlock(ctx, prov, true))
-            .simpleItem()
-            .register();
+			.simpleItem()
+			.register();
 
 	public static final BlockEntry<TriviaChestBlock> TRIVIA_CHEST = REGISTRATE
-            .block("trivia_chest", TriviaChestBlock::new)
-            .initialProperties(() -> Blocks.BEDROCK)
-            .properties(BlockBehaviour.Properties::noLootTable)
+			.block("trivia_chest", TriviaChestBlock::new)
+			.initialProperties(() -> Blocks.BEDROCK)
+			.properties(BlockBehaviour.Properties::noLootTable)
 			.blockstate(() -> (ctx, prov) -> prov.createParticleOnlyBlock(ctx.get(), TRIVIA_VICTORY.get()))
-            .blockEntity(TriviaChestBlockEntity::new)
-            .build()
-            .item()
+			.blockEntity(TriviaChestBlockEntity::new)
+			.build()
+			.item()
 			.model(() -> (ctx, prov) ->
 					Models.generateChestItem(ctx, prov, LoveTropics.location("trivia"), TextureMapping.getBlockTexture(TRIVIA_VICTORY.get()))
 			)
-            .build()
-            .addMiscData(ProviderType.LANG, prov -> prov.add(LoveTropics.ID + ".container.triviaChest", "Trivia Chest"))
-            .register();
+			.build()
+			.addMiscData(ProviderType.LANG, prov -> prov.add(LoveTropics.ID + ".container.triviaChest", "Trivia Chest"))
+			.register();
 
-    public static final BlockEntityEntry<TriviaBlockEntity> TRIVIA_BLOCK_ENTITY =
-            REGISTRATE.blockEntity("trivia_block_entity", TriviaBlockEntity::new)
-                    .validBlocks(TRIVIA_GATE, TRIVIA_COLLECTABLE, TRIVIA_VICTORY).register();
-    public static final BlockEntityEntry<TriviaChestBlockEntity> TRIVIA_CHEST_BLOCK_ENTITY = BlockEntityEntry.cast(REGISTRATE.get("trivia_chest", Registries.BLOCK_ENTITY_TYPE));
+	public static final BlockEntityEntry<TriviaBlockEntity> TRIVIA_BLOCK_ENTITY =
+			REGISTRATE.blockEntity("trivia_block_entity", TriviaBlockEntity::new)
+					.validBlocks(TRIVIA_GATE, TRIVIA_COLLECTABLE, TRIVIA_VICTORY).register();
+	public static final BlockEntityEntry<TriviaChestBlockEntity> TRIVIA_CHEST_BLOCK_ENTITY = BlockEntityEntry.cast(REGISTRATE.get("trivia_chest", Registries.BLOCK_ENTITY_TYPE));
 
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Unit>> COLLECTABLE_MARKER = DATA_COMPONENTS.registerComponentType(
-            "river_race_collectable_marker",
-            builder -> builder.persistent(Unit.CODEC)
-    );
+	public static final DeferredHolder<DataComponentType<?>, DataComponentType<Unit>> COLLECTABLE_MARKER = DATA_COMPONENTS.registerComponentType(
+			"river_race_collectable_marker",
+			builder -> builder.persistent(Unit.CODEC)
+	);
 
-    public static void init() {
-    }
+	public static void init() {
+	}
 
 	private static class Models {
 		private static final TextureSlot GLOW_SLOT = TextureSlot.create("glow");

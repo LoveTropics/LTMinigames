@@ -57,7 +57,7 @@ public final class EditRegionItem extends Item {
 			MapWorkspaceTracer.stopEditing();
 
 			if (entity instanceof Player player) {
-                Component message = Component.literal("Changed mode to: ")
+				Component message = Component.literal("Changed mode to: ")
 						.append(Component.literal(mode.key).withStyle(mode.color));
 				player.displayClientMessage(message, true);
 			}
@@ -89,12 +89,12 @@ public final class EditRegionItem extends Item {
 
 		@Nullable
 		RegionEditOperator createEdit(RegionTraceTarget target) {
-            return switch (this) {
-                case RESIZE -> new RegionEditOperator.Resize(target);
-                case MOVE -> new RegionEditOperator.Move(target);
-                case SELECT -> new RegionEditOperator.Select(target);
+			return switch (this) {
+				case RESIZE -> new RegionEditOperator.Resize(target);
+				case MOVE -> new RegionEditOperator.Move(target);
+				case SELECT -> new RegionEditOperator.Select(target);
 				case REMOVE -> null;
-            };
+			};
 		}
 
 		static Mode byIndex(int index) {

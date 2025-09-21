@@ -16,43 +16,56 @@ import java.util.Map;
 
 @Mixin(MappedRegistry.class)
 public class SimpleRegistryMixin<T> implements RegistryEntryRemover<T> {
-    @Shadow @Final private ObjectList<Holder.Reference<T>> byId;
-    @Shadow @Final private Reference2IntMap<T> toId;
-    @Shadow @Final private Map<ResourceLocation, Holder.Reference<T>> byLocation;
-    @Shadow @Final private Map<ResourceKey<T>, Holder.Reference<T>> byKey;
-    @Shadow @Final private Map<T, Holder.Reference<T>> byValue;
-    @Shadow @Final private Map<T, RegistrationInfo> registrationInfos;
-    @Shadow private Map<T, Holder.Reference<T>> unregisteredIntrusiveHolders;
+	@Shadow
+	@Final
+	private ObjectList<Holder.Reference<T>> byId;
+	@Shadow
+	@Final
+	private Reference2IntMap<T> toId;
+	@Shadow
+	@Final
+	private Map<ResourceLocation, Holder.Reference<T>> byLocation;
+	@Shadow
+	@Final
+	private Map<ResourceKey<T>, Holder.Reference<T>> byKey;
+	@Shadow
+	@Final
+	private Map<T, Holder.Reference<T>> byValue;
+	@Shadow
+	@Final
+	private Map<T, RegistrationInfo> registrationInfos;
+	@Shadow
+	private Map<T, Holder.Reference<T>> unregisteredIntrusiveHolders;
 
-    @Override
-    public boolean ltminigames$remove(T entry) {
-        int rawId = toId.removeInt(entry);
-        if (rawId == -1) {
-            return false;
-        }
+	@Override
+	public boolean ltminigames$remove(T entry) {
+		int rawId = toId.removeInt(entry);
+		if (rawId == -1) {
+			return false;
+		}
 
-        final Holder.Reference<T> reference = byId.remove(rawId);
-        final ResourceKey<T> key = reference.key();
+		final Holder.Reference<T> reference = byId.remove(rawId);
+		final ResourceKey<T> key = reference.key();
 
-        byLocation.remove(key.location());
-        byKey.remove(key);
-        byValue.remove(entry);
-        registrationInfos.remove(entry);
-        if (unregisteredIntrusiveHolders != null) {
-            unregisteredIntrusiveHolders.remove(entry);
-        }
+		byLocation.remove(key.location());
+		byKey.remove(key);
+		byValue.remove(entry);
+		registrationInfos.remove(entry);
+		if (unregisteredIntrusiveHolders != null) {
+			unregisteredIntrusiveHolders.remove(entry);
+		}
 
-        // This is an extreme hack that only works because the network IDs aren't used for dimensions
-        for (int id = rawId; id < byId.size(); id++) {
-            toId.put(byId.get(id).value(), id);
-        }
+		// This is an extreme hack that only works because the network IDs aren't used for dimensions
+		for (int id = rawId; id < byId.size(); id++) {
+			toId.put(byId.get(id).value(), id);
+		}
 
-        return true;
-    }
+		return true;
+	}
 
-    @Override
-    public boolean ltminigames$remove(ResourceLocation key) {
-        Holder.Reference<T> entry = byLocation.get(key);
-        return entry != null && ltminigames$remove(entry.value());
-    }
+	@Override
+	public boolean ltminigames$remove(ResourceLocation key) {
+		Holder.Reference<T> entry = byLocation.get(key);
+		return entry != null && ltminigames$remove(entry.value());
+	}
 }

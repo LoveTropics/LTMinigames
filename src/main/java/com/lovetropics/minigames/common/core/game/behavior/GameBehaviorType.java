@@ -14,8 +14,12 @@ public record GameBehaviorType<T extends IGameBehavior>(MapCodec<T> codec) {
 
 	@Override
 	public boolean equals(Object object) {
-		if (this == object) return true;
-		if (object == null || getClass() != object.getClass()) return false;
+		if (this == object) {
+			return true;
+		}
+		if (object == null || getClass() != object.getClass()) {
+			return false;
+		}
 		GameBehaviorType<?> that = (GameBehaviorType<?>) object;
 		return codec == that.codec;
 	}

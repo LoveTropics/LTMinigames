@@ -6,7 +6,6 @@ import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvents;
 import com.lovetropics.minigames.common.core.game.player.PlayerRole;
 import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 public record SetPlayerRoleAction(PlayerRole role) implements IGameBehavior {
 	public static final MapCodec<SetPlayerRoleAction> CODEC = PlayerRole.CODEC.fieldOf("role").xmap(SetPlayerRoleAction::new, SetPlayerRoleAction::role);

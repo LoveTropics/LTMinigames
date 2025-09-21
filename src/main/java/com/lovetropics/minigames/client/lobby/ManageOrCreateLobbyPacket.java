@@ -14,13 +14,13 @@ import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public record ManageOrCreateLobbyPacket() implements CustomPacketPayload {
-    public static final Type<ManageOrCreateLobbyPacket> TYPE = new Type<>(LoveTropics.location("lobby_manage"));
+	public static final Type<ManageOrCreateLobbyPacket> TYPE = new Type<>(LoveTropics.location("lobby_manage"));
 
 	public static final ManageOrCreateLobbyPacket INSTANCE = new ManageOrCreateLobbyPacket();
 
-    public static final StreamCodec<ByteBuf, ManageOrCreateLobbyPacket> STREAM_CODEC = StreamCodec.unit(INSTANCE);
+	public static final StreamCodec<ByteBuf, ManageOrCreateLobbyPacket> STREAM_CODEC = StreamCodec.unit(INSTANCE);
 
-    public static void handle(ManageOrCreateLobbyPacket message, IPayloadContext context) {
+	public static void handle(ManageOrCreateLobbyPacket message, IPayloadContext context) {
 		if (!(context.player() instanceof ServerPlayer player)) {
 			return;
 		}
@@ -41,8 +41,8 @@ public record ManageOrCreateLobbyPacket() implements CustomPacketPayload {
 		}
 	}
 
-    @Override
-    public Type<ManageOrCreateLobbyPacket> type() {
-        return TYPE;
-    }
+	@Override
+	public Type<ManageOrCreateLobbyPacket> type() {
+		return TYPE;
+	}
 }

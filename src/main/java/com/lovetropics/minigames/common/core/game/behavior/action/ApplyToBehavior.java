@@ -17,27 +17,27 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public record ApplyToBehavior<T, A extends ActionTarget<T>>(A target, GameActionList<T> actions, Supplier<GameBehaviorType<ApplyToBehavior<T, A>>> type) implements IGameBehavior {
-    public static final MapCodec<ApplyToBehavior<Plot, PlotActionTarget>> PLOT_CODEC = RecordCodecBuilder.mapCodec(in -> in.group(
-            PlotActionTarget.CODEC.optionalFieldOf("target", PlotActionTarget.ALL).forGetter(ApplyToBehavior::target),
-            GameActionList.codec(ActionTargetTypes.PLOT, new PlotActionTarget(PlotActionTarget.Target.SOURCE)).fieldOf("actions").forGetter(ApplyToBehavior::actions)
-    ).apply(in, (a, b) -> new ApplyToBehavior<>(a, b, GameBehaviorTypes.APPLY_TO_PLOT)));
-    public static final MapCodec<ApplyToBehavior<ServerPlayer, PlayerActionTarget>> PLAYER_CODEC = RecordCodecBuilder.mapCodec(in -> in.group(
-            PlayerActionTarget.CODEC.optionalFieldOf("target", PlayerActionTarget.ALL).forGetter(ApplyToBehavior::target),
-            GameActionList.codec(ActionTargetTypes.PLAYER, PlayerActionTarget.SOURCE).fieldOf("actions").forGetter(ApplyToBehavior::actions)
-    ).apply(in, (a, b) -> new ApplyToBehavior<>(a, b, GameBehaviorTypes.APPLY_TO_PLAYER)));
-    public static final MapCodec<ApplyToBehavior<GameTeam, TeamActionTarget>> TEAM_CODEC = RecordCodecBuilder.mapCodec(in -> in.group(
-            TeamActionTarget.CODEC.optionalFieldOf("target", TeamActionTarget.ALL).forGetter(ApplyToBehavior::target),
-            GameActionList.codec(ActionTargetTypes.TEAM, TeamActionTarget.SOURCE).fieldOf("actions").forGetter(ApplyToBehavior::actions)
-    ).apply(in, (a, b) -> new ApplyToBehavior<>(a, b, GameBehaviorTypes.APPLY_TO_TEAM)));
+	public static final MapCodec<ApplyToBehavior<Plot, PlotActionTarget>> PLOT_CODEC = RecordCodecBuilder.mapCodec(in -> in.group(
+			PlotActionTarget.CODEC.optionalFieldOf("target", PlotActionTarget.ALL).forGetter(ApplyToBehavior::target),
+			GameActionList.codec(ActionTargetTypes.PLOT, new PlotActionTarget(PlotActionTarget.Target.SOURCE)).fieldOf("actions").forGetter(ApplyToBehavior::actions)
+	).apply(in, (a, b) -> new ApplyToBehavior<>(a, b, GameBehaviorTypes.APPLY_TO_PLOT)));
+	public static final MapCodec<ApplyToBehavior<ServerPlayer, PlayerActionTarget>> PLAYER_CODEC = RecordCodecBuilder.mapCodec(in -> in.group(
+			PlayerActionTarget.CODEC.optionalFieldOf("target", PlayerActionTarget.ALL).forGetter(ApplyToBehavior::target),
+			GameActionList.codec(ActionTargetTypes.PLAYER, PlayerActionTarget.SOURCE).fieldOf("actions").forGetter(ApplyToBehavior::actions)
+	).apply(in, (a, b) -> new ApplyToBehavior<>(a, b, GameBehaviorTypes.APPLY_TO_PLAYER)));
+	public static final MapCodec<ApplyToBehavior<GameTeam, TeamActionTarget>> TEAM_CODEC = RecordCodecBuilder.mapCodec(in -> in.group(
+			TeamActionTarget.CODEC.optionalFieldOf("target", TeamActionTarget.ALL).forGetter(ApplyToBehavior::target),
+			GameActionList.codec(ActionTargetTypes.TEAM, TeamActionTarget.SOURCE).fieldOf("actions").forGetter(ApplyToBehavior::actions)
+	).apply(in, (a, b) -> new ApplyToBehavior<>(a, b, GameBehaviorTypes.APPLY_TO_TEAM)));
 
-    @Override
-    public void register(IGamePhase game, EventRegistrar events) throws GameException {
-        actions.register(game, events);
-        events.listen(GameActionEvents.APPLY, context -> actions.apply(game, context, target.resolve(game, List.of())));
-    }
+	@Override
+	public void register(IGamePhase game, EventRegistrar events) throws GameException {
+		actions.register(game, events);
+		events.listen(GameActionEvents.APPLY, context -> actions.apply(game, context, target.resolve(game, List.of())));
+	}
 
-    @Override
-    public Supplier<GameBehaviorType<?>> behaviorType() {
-        return type::get;
-    }
+	@Override
+	public Supplier<GameBehaviorType<?>> behaviorType() {
+		return type::get;
+	}
 }

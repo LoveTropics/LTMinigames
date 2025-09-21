@@ -12,20 +12,20 @@ import net.neoforged.neoforge.client.event.ViewportEvent;
 
 @EventBusSubscriber(Dist.CLIENT)
 public class GameFogModifier {
-    @SubscribeEvent(priority = EventPriority.HIGH)
-    static void onModifyFog(final ViewportEvent.ComputeFogColor event) {
-        FogClientState state = ClientGameStateManager.getOrNull(GameClientStateTypes.FOG);
-        if (state == null) {
-            return;
-        }
+	@SubscribeEvent(priority = EventPriority.HIGH)
+	static void onModifyFog(final ViewportEvent.ComputeFogColor event) {
+		FogClientState state = ClientGameStateManager.getOrNull(GameClientStateTypes.FOG);
+		if (state == null) {
+			return;
+		}
 
-        event.setRed(state.red());
-        event.setGreen(state.green());
-        event.setBlue(state.blue());
-    }
+		event.setRed(state.red());
+		event.setGreen(state.green());
+		event.setBlue(state.blue());
+	}
 
-    @SubscribeEvent(priority = EventPriority.HIGH)
-    static void onRenderFog(final ViewportEvent.RenderFog event) {
+	@SubscribeEvent(priority = EventPriority.HIGH)
+	static void onRenderFog(final ViewportEvent.RenderFog event) {
 		if (event.getType() != FogType.ATMOSPHERIC) {
 			return;
 		}
@@ -37,5 +37,5 @@ public class GameFogModifier {
 
 		event.setNearPlaneDistance(Math.min(state.nearDistance(), event.getNearPlaneDistance()));
 		event.setFarPlaneDistance(Math.min(state.farDistance(), event.getFarPlaneDistance()));
-    }
+	}
 }

@@ -72,18 +72,18 @@ public abstract class PartialUpdate<A> {
 
 		public static <B extends RegistryFriendlyByteBuf, S extends AbstractSet<?>> StreamCodec<B, S> createStreamCodec(Supplier<S> factory) {
 			return new StreamCodec<>() {
-                @Override
-                public S decode(B input) {
+				@Override
+				public S decode(B input) {
 					S set = factory.get();
 					set.decodeSelf(input);
 					return set;
-                }
+				}
 
-                @Override
-                public void encode(B output, S set) {
+				@Override
+				public void encode(B output, S set) {
 					set.encode(output);
-                }
-            };
+				}
+			};
 		}
 
 		protected void add(PartialUpdate<A> update) {
@@ -119,7 +119,9 @@ public abstract class PartialUpdate<A> {
 		protected void decodeSelf(RegistryFriendlyByteBuf buffer) {
 			int mask = buffer.readVarInt();
 			for (int id = 0; id < family.size(); id++) {
-				if ((mask & 1 << id) == 0) continue;
+				if ((mask & 1 << id) == 0) {
+					continue;
+				}
 
 				AbstractType<A> type = family.typeById(id);
 				if (type != null) {

@@ -47,12 +47,15 @@ public record Layout(Box content, Box padding, Box margin) {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
+		}
 		Layout other = (Layout) obj;
 		return Objects.equals(content, other.content) && Objects.equals(margin, other.margin)
 				&& Objects.equals(padding, other.padding);
@@ -61,7 +64,9 @@ public record Layout(Box content, Box padding, Box margin) {
 	private static final boolean inDev = !FMLEnvironment.production;
 
 	public void debugRender(GuiGraphics graphics) {
-		if (!inDev) return;
+		if (!inDev) {
+			return;
+		}
 		graphics.vLine(margin().left(), margin().top(), margin().bottom() - 1, 0xFFF9CC9D);
 		graphics.vLine(margin().right() - 1, margin().top(), margin().bottom() - 1, 0xFFF9CC9D);
 		graphics.hLine(margin().left(), margin().right() - 1, margin().top(), 0xFFF9CC9D);

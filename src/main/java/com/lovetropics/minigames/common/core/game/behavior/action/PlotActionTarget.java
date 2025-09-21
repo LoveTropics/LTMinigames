@@ -15,59 +15,59 @@ import org.apache.commons.lang3.function.ToBooleanBiFunction;
 import java.util.List;
 
 public record PlotActionTarget(Target target) implements ActionTarget<Plot> {
-    public static final PlotActionTarget ALL = new PlotActionTarget(Target.ALL);
-    public static final Codec<PlotActionTarget> CODEC = Target.CODEC.xmap(PlotActionTarget::new, PlotActionTarget::target);
+	public static final PlotActionTarget ALL = new PlotActionTarget(Target.ALL);
+	public static final Codec<PlotActionTarget> CODEC = Target.CODEC.xmap(PlotActionTarget::new, PlotActionTarget::target);
 
-    @Override
-    public List<Plot> resolve(IGamePhase phase, Iterable<Plot> sources) {
-        return target.resolve(phase, sources);
-    }
+	@Override
+	public List<Plot> resolve(IGamePhase phase, Iterable<Plot> sources) {
+		return target.resolve(phase, sources);
+	}
 
-    @Override
-    public boolean apply(IGamePhase game, GameEventListeners listeners, GameActionContext actionContext, Iterable<Plot> sources) {
-        boolean result = false;
-        for (Plot target : target.resolve(game, sources)) {
-            result |= listeners.invoker(GameActionEvents.APPLY_TO_PLOT).apply(actionContext, target);
-        }
-        return result;
-    }
+	@Override
+	public boolean apply(IGamePhase game, GameEventListeners listeners, GameActionContext actionContext, Iterable<Plot> sources) {
+		boolean result = false;
+		for (Plot target : target.resolve(game, sources)) {
+			result |= listeners.invoker(GameActionEvents.APPLY_TO_PLOT).apply(actionContext, target);
+		}
+		return result;
+	}
 
-    @Override
-    public void listenAndCaptureSource(EventRegistrar listeners, ToBooleanBiFunction<GameActionContext, Iterable<Plot>> listener) {
-        listeners.listen(GameActionEvents.APPLY_TO_PLOT, (context, plot) -> listener.applyAsBoolean(context, List.of(plot)));
-    }
+	@Override
+	public void listenAndCaptureSource(EventRegistrar listeners, ToBooleanBiFunction<GameActionContext, Iterable<Plot>> listener) {
+		listeners.listen(GameActionEvents.APPLY_TO_PLOT, (context, plot) -> listener.applyAsBoolean(context, List.of(plot)));
+	}
 
-    @Override
-    public Codec<? extends ActionTarget<Plot>> type() {
-        return ActionTargetTypes.PLOT.get();
-    }
+	@Override
+	public Codec<? extends ActionTarget<Plot>> type() {
+		return ActionTargetTypes.PLOT.get();
+	}
 
-    public enum Target implements StringRepresentable {
-        NONE("none"),
-        SOURCE("source"),
-        ALL("all"),
-        ;
+	public enum Target implements StringRepresentable {
+		NONE("none"),
+		SOURCE("source"),
+		ALL("all"),
+		;
 
-        public static final Codec<Target> CODEC = MoreCodecs.stringVariants(values(), Target::getSerializedName);
+		public static final Codec<Target> CODEC = MoreCodecs.stringVariants(values(), Target::getSerializedName);
 
-        private final String name;
+		private final String name;
 
-        Target(String name) {
-            this.name = name;
-        }
+		Target(String name) {
+			this.name = name;
+		}
 
-        public List<Plot> resolve(IGamePhase game, Iterable<Plot> sources) {
-            // Copy the lists because we might otherwise get concurrent modification from whatever the actions do!
-            return switch (this) {
-                case NONE -> List.of();
-                case SOURCE -> Lists.newArrayList(sources);
-                case ALL -> Lists.newArrayList(game.state().getOrThrow(PlotsState.KEY));
-            };
-        }
+		public List<Plot> resolve(IGamePhase game, Iterable<Plot> sources) {
+			// Copy the lists because we might otherwise get concurrent modification from whatever the actions do!
+			return switch (this) {
+				case NONE -> List.of();
+				case SOURCE -> Lists.newArrayList(sources);
+				case ALL -> Lists.newArrayList(game.state().getOrThrow(PlotsState.KEY));
+			};
+		}
 
-        @Override
-        public String getSerializedName() {
-            return name;
-        }
-    }
+		@Override
+		public String getSerializedName() {
+			return name;
+		}
+	}
 }

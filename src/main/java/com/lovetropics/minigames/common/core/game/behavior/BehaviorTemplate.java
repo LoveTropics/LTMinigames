@@ -27,9 +27,10 @@ public sealed interface BehaviorTemplate {
 		}
 
 		@Override
-        public IGameBehavior instantiate() {
+		public IGameBehavior instantiate() {
 			// Data has already been validated, something has gone wrong if we fail to parse again
-			return IGameBehavior.CODEC.parse(data).resultOrPartial(s -> {}).orElseThrow();
+			return IGameBehavior.CODEC.parse(data).resultOrPartial(s -> {
+			}).orElseThrow();
 		}
 	}
 

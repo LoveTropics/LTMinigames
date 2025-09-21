@@ -11,8 +11,8 @@ import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
 
 public class GameControlCommand {
-    public static void register(final CommandDispatcher<CommandSourceStack> dispatcher) {
-        // @formatter:off
+	public static void register(final CommandDispatcher<CommandSourceStack> dispatcher) {
+		// @formatter:off
         dispatcher.register(
             literal("game")
                 .then(argument("control", StringArgumentType.string())
@@ -31,5 +31,5 @@ public class GameControlCommand {
                 )
         );
         // @formatter:on
-    }
+	}
 }

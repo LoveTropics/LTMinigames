@@ -34,7 +34,7 @@ public class BehaviorConfigList extends LayoutGui {
 		}
 		mainLayout = ltree.pop();
 	}
-	
+
 	@Override
 	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
 		super.render(graphics, mouseX, mouseY, partialTicks);
@@ -46,10 +46,9 @@ public class BehaviorConfigList extends LayoutGui {
 	public int getHeight() {
 		return children.stream().mapToInt(ConfigDataUI::getHeight).sum();
 	}
-	
+
 	@Override
 	public List<? extends GuiEventListener> children() {
 		return children;
 	}
-	
 }

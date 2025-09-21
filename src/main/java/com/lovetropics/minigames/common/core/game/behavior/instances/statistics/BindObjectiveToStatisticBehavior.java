@@ -43,7 +43,7 @@ public record BindObjectiveToStatisticBehavior(Map<StatisticKey<Integer>, String
 
 		for (ServerPlayer player : game.allPlayers()) {
 			int score = scoreboard.getOrCreatePlayerScore(player, objective).get();
-            statistics.forPlayer(player).set(key, score);
+			statistics.forPlayer(player).set(key, score);
 		}
 	}
 }

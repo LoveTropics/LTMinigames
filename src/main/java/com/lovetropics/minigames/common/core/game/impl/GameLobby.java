@@ -31,6 +31,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import javax.annotation.Nullable;
 
 // TODO: do we want a different game lobby implementation for something like carnival games?
+
 /**
  * This is what is created when the command /game create is run - it is not the 'waiting room' lobby, it is a game lobby, as in
  * basically a 'party' of players that will play games together.
@@ -285,7 +286,9 @@ final class GameLobby implements IGameLobby {
 	}
 
 	void close(boolean serverStopping) {
-		if (closed) return;
+		if (closed) {
+			return;
+		}
 		closed = true;
 
 		try {

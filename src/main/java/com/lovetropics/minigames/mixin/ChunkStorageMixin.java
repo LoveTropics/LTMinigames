@@ -12,12 +12,12 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 // Let's pretend to be the overworld. (Handled by ChunkHeightAndBiomeFix)
 @Mixin(ChunkStorage.class)
 public class ChunkStorageMixin {
-    @Redirect(method = "injectDatafixingContext", at = @At(value = "INVOKE", target = "Lnet/minecraft/nbt/CompoundTag;putString(Ljava/lang/String;Ljava/lang/String;)V"))
-    private static void injectDimensionContext(CompoundTag instance, String key, String value) {
-        if (value.startsWith(LoveTropics.ID + ":")) {
-            instance.putString(key, "minecraft:overworld");
-        } else {
-            instance.putString(key, value);
-        }
-    }
+	@Redirect(method = "injectDatafixingContext", at = @At(value = "INVOKE", target = "Lnet/minecraft/nbt/CompoundTag;putString(Ljava/lang/String;Ljava/lang/String;)V"))
+	private static void injectDimensionContext(CompoundTag instance, String key, String value) {
+		if (value.startsWith(LoveTropics.ID + ":")) {
+			instance.putString(key, "minecraft:overworld");
+		} else {
+			instance.putString(key, value);
+		}
+	}
 }

@@ -50,13 +50,13 @@ import java.util.UUID;
 
 @EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
 public class GameCraftingBeeHandler {
-    private static int hintsRemaining;
-    @Nullable
-    private static UUID lastKnownGame;
-    @Nullable
-    private static Map<ResourceKey<Recipe<?>>, RecipeHintState> hintGrids;
+	private static int hintsRemaining;
+	@Nullable
+	private static UUID lastKnownGame;
+	@Nullable
+	private static Map<ResourceKey<Recipe<?>>, RecipeHintState> hintGrids;
 
-    static final ClientGameStateHandler<CraftingBeeCraftsClientState> HANDLER = new ClientGameStateHandler<>() {
+	static final ClientGameStateHandler<CraftingBeeCraftsClientState> HANDLER = new ClientGameStateHandler<>() {
 		@Override
 		public void accept(CraftingBeeCraftsClientState state) {
 			lastKnownGame = null;
@@ -68,134 +68,148 @@ public class GameCraftingBeeHandler {
 		}
 	};
 
-    private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath("ltminigames", "textures/gui/minigames/crafting_bee/items_bar.png");
-    private static final ResourceLocation GRID_TEXTURE = ResourceLocation.fromNamespaceAndPath("ltminigames", "textures/gui/minigames/crafting_bee/crafting_grid.png");
+	private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath("ltminigames", "textures/gui/minigames/crafting_bee/items_bar.png");
+	private static final ResourceLocation GRID_TEXTURE = ResourceLocation.fromNamespaceAndPath("ltminigames", "textures/gui/minigames/crafting_bee/crafting_grid.png");
 
-    @EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
-    public static class ModSubscriber {
-        @SubscribeEvent
-        static void onRegisterTooltips(final RegisterClientTooltipComponentFactoriesEvent event) {
-            event.register(RecipeHintState.class, recipeHintState -> new ClientTooltipComponent() {
+	@EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
+	public static class ModSubscriber {
+		@SubscribeEvent
+		static void onRegisterTooltips(final RegisterClientTooltipComponentFactoriesEvent event) {
+			event.register(RecipeHintState.class, recipeHintState -> new ClientTooltipComponent() {
 				@Override
 				public int getHeight(Font font) {
 					return 58;
 				}
 
 				@Override
-                public int getWidth(Font font) {
-                    return 54;
-                }
+				public int getWidth(Font font) {
+					return 54;
+				}
 
 				@Override
 				public void renderImage(Font font, int x, int y, int width, int height, GuiGraphics guiGraphics) {
-                    guiGraphics.blit(GRID_TEXTURE, x, y, 0, 0, 54, 54, 54, 54);
-                    for (int i = 0; i < recipeHintState.grid().size(); i++) {
-                        var ingredient = recipeHintState.grid.get(i);
-                        if (ingredient.isEmpty()) continue;
+					guiGraphics.blit(GRID_TEXTURE, x, y, 0, 0, 54, 54, 54, 54);
+					for (int i = 0; i < recipeHintState.grid().size(); i++) {
+						var ingredient = recipeHintState.grid.get(i);
+						if (ingredient.isEmpty()) {
+							continue;
+						}
 
-                        var hintWidth = recipeHintState.width();
+						var hintWidth = recipeHintState.width();
 
-                        guiGraphics.renderFakeItem(
-                                ingredient,
-                                x + 1 + 18 * (i % hintWidth),
-                                y + 1 + 18 * (i / hintWidth)
-                        );
-                    }
-                }
-            });
-        }
-    }
+						guiGraphics.renderFakeItem(
+								ingredient,
+								x + 1 + 18 * (i % hintWidth),
+								y + 1 + 18 * (i / hintWidth)
+						);
+					}
+				}
+			});
+		}
+	}
 
-    @SubscribeEvent
-    static void onGuiInit(ScreenEvent.Init.Post event) {
-        if (getState() == null || !(event.getScreen() instanceof CraftingScreen screen)) return;
+	@SubscribeEvent
+	static void onGuiInit(ScreenEvent.Init.Post event) {
+		if (getState() == null || !(event.getScreen() instanceof CraftingScreen screen)) {
+			return;
+		}
 
-        var state = getState();
-        if (!Objects.equals(state.gameId(), lastKnownGame)) {
-            lastKnownGame = state.gameId();
-            hintsRemaining = state.allowedHints();
-            hintGrids = new HashMap<>();
-        }
+		var state = getState();
+		if (!Objects.equals(state.gameId(), lastKnownGame)) {
+			lastKnownGame = state.gameId();
+			hintsRemaining = state.allowedHints();
+			hintGrids = new HashMap<>();
+		}
 
-        event.addListener(new AbstractWidget(screen.getGuiLeft() + 22, screen.getGuiTop() - 21, 132, 21, Component.empty()) {
-            @Override
-            protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-                guiGraphics.blit(TEXTURE, this.getX(), this.getY(), 0, 0, 132, 21, 132, 21);
-                var crafts = getState().crafts();
-                for (int i = 0; i < crafts.size(); i++) {
-                    var craft = crafts.get(i);
-                    var x = getX() + 4 + i * 18;
+		event.addListener(new AbstractWidget(screen.getGuiLeft() + 22, screen.getGuiTop() - 21, 132, 21, Component.empty()) {
+			@Override
+			protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+				guiGraphics.blit(TEXTURE, this.getX(), this.getY(), 0, 0, 132, 21, 132, 21);
+				var crafts = getState().crafts();
+				for (int i = 0; i < crafts.size(); i++) {
+					var craft = crafts.get(i);
+					var x = getX() + 4 + i * 18;
 					int y = getY() + 4;
 					guiGraphics.renderFakeItem(craft.output(), x, y, 0);
 					if (craft.done()) {
 						guiGraphics.fill(x, y, x + 16, y + 16, 0xe5c6c6c6);
 					}
 
-                    if (mouseX >= x && mouseX <= x + 16 && mouseY >= y && mouseY <= getY() + 20) {
-                        var hint = hintGrids.get(craft.recipeId());
+					if (mouseX >= x && mouseX <= x + 16 && mouseY >= y && mouseY <= getY() + 20) {
+						var hint = hintGrids.get(craft.recipeId());
 
-                        var tooltipLines = new ArrayList<>(Screen.getTooltipFromItem(Minecraft.getInstance(), craft.output()));
-                        if (craft.done()) {
-                            tooltipLines.set(0, tooltipLines.getFirst().copy().withStyle(ChatFormatting.GREEN));
-                        } else if (hint == null || hint.hiddenCount() > 0) {
-                            tooltipLines.add(CraftingBeeTexts.HINT);
-                            tooltipLines.add(CraftingBeeTexts.HINTS_LEFT.apply(hintsRemaining).withStyle(ChatFormatting.AQUA));
-                        }
-                        guiGraphics.setTooltipForNextFrame(Minecraft.getInstance().font, tooltipLines, Optional.<TooltipComponent>ofNullable(hint).filter($ -> !craft.done()), mouseX, mouseY);
-                    }
-                }
-            }
+						var tooltipLines = new ArrayList<>(Screen.getTooltipFromItem(Minecraft.getInstance(), craft.output()));
+						if (craft.done()) {
+							tooltipLines.set(0, tooltipLines.getFirst().copy().withStyle(ChatFormatting.GREEN));
+						} else if (hint == null || hint.hiddenCount() > 0) {
+							tooltipLines.add(CraftingBeeTexts.HINT);
+							tooltipLines.add(CraftingBeeTexts.HINTS_LEFT.apply(hintsRemaining).withStyle(ChatFormatting.AQUA));
+						}
+						guiGraphics.setTooltipForNextFrame(Minecraft.getInstance().font, tooltipLines, Optional.<TooltipComponent>ofNullable(hint).filter($ -> !craft.done()), mouseX, mouseY);
+					}
+				}
+			}
 
-            @Override
-            public void onClick(double mouseX, double mouseY, int button) {
-                if (hintsRemaining <= 0) return;
+			@Override
+			public void onClick(double mouseX, double mouseY, int button) {
+				if (hintsRemaining <= 0) {
+					return;
+				}
 
-                var crafts = getState().crafts();
+				var crafts = getState().crafts();
 
-                if (mouseY < getY() + 4 || mouseY > getY() + 4 + 16) return;
-                if (mouseX < getX() + 4 || mouseX > getX() + 4 + (18 * crafts.size() - 1)) return;
-                var index = (int)(mouseX - getX() - 4) / 18;
+				if (mouseY < getY() + 4 || mouseY > getY() + 4 + 16) {
+					return;
+				}
+				if (mouseX < getX() + 4 || mouseX > getX() + 4 + (18 * crafts.size() - 1)) {
+					return;
+				}
+				var index = (int) (mouseX - getX() - 4) / 18;
 
-                var craft = crafts.get(index);
-                if (craft.done()) return;
+				var craft = crafts.get(index);
+				if (craft.done()) {
+					return;
+				}
 
-                var grid = hintGrids.computeIfAbsent(craft.recipeId(), k ->
+				var grid = hintGrids.computeIfAbsent(craft.recipeId(), k ->
 						createHintState(craft.display(), SlotDisplayContext.fromLevel(Objects.requireNonNull(Minecraft.getInstance().level)))
 				);
 
-                if (grid.hiddenCount() == 0) return;
+				if (grid.hiddenCount() == 0) {
+					return;
+				}
 
-                IntList ingredientsToPick = new IntArrayList();
+				IntList ingredientsToPick = new IntArrayList();
 				for (int i = 0; i < grid.grid.size(); i++) {
 					if (!grid.grid.get(i).isEmpty() && grid.hiddenSlots.get(i)) {
 						ingredientsToPick.add(i);
 					}
-                }
+				}
 
 				int filledGridAmount = grid.ingredientCount() - grid.hiddenCount();
 
-                Collections.shuffle(ingredientsToPick);
-                // Make sure that we never show the full recipe in just one hint
-                var ingredientsToShow = new Random().nextInt(filledGridAmount == 0 ? Math.max(1, ingredientsToPick.size() - 1) : ingredientsToPick.size());
+				Collections.shuffle(ingredientsToPick);
+				// Make sure that we never show the full recipe in just one hint
+				var ingredientsToShow = new Random().nextInt(filledGridAmount == 0 ? Math.max(1, ingredientsToPick.size() - 1) : ingredientsToPick.size());
 
-                for (int i = 0; i <= ingredientsToShow; i++) {
+				for (int i = 0; i <= ingredientsToShow; i++) {
 					grid.hiddenSlots().clear(ingredientsToPick.getInt(i));
-                }
+				}
 
-                hintsRemaining--;
-            }
+				hintsRemaining--;
+			}
 
 			@Override
-            protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
+			protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
 
-            }
-        });
-    }
+			}
+		});
+	}
 
-    @Nullable
-    private static CraftingBeeCraftsClientState getState() {
-        return ClientGameStateManager.getOrNull(GameClientStateTypes.CRAFTING_BEE_CRAFTS);
-    }
+	@Nullable
+	private static CraftingBeeCraftsClientState getState() {
+		return ClientGameStateManager.getOrNull(GameClientStateTypes.CRAFTING_BEE_CRAFTS);
+	}
 
 	private static RecipeHintState createHintState(RecipeDisplay recipeDisplay, ContextMap contextMap) {
 		if (recipeDisplay instanceof ShapedCraftingRecipeDisplay shaped) {
@@ -222,19 +236,19 @@ public class GameCraftingBeeHandler {
 		throw new UnsupportedOperationException("Unsupported recipe display: " + recipeDisplay);
 	}
 
-    private static ItemStack resolveIngredient(SlotDisplay slot, ContextMap contextMap) {
+	private static ItemStack resolveIngredient(SlotDisplay slot, ContextMap contextMap) {
 		List<ItemStack> candidates = slot.resolveForStacks(contextMap);
 		if (candidates.isEmpty()) {
 			return ItemStack.EMPTY;
 		}
 		for (ItemStack item : candidates) {
-            // Prioritize vanilla items
-            if (item.getItem().builtInRegistryHolder().key().location().getNamespace().equals(ResourceLocation.DEFAULT_NAMESPACE)) {
-                return item;
-            }
-        }
-        return candidates.getFirst();
-    }
+			// Prioritize vanilla items
+			if (item.getItem().builtInRegistryHolder().key().location().getNamespace().equals(ResourceLocation.DEFAULT_NAMESPACE)) {
+				return item;
+			}
+		}
+		return candidates.getFirst();
+	}
 
 	public record TintedVertexConsumer(VertexConsumer wrapped, float red, float green, float blue, float alpha) implements VertexConsumer {
 		@Override
@@ -268,12 +282,12 @@ public class GameCraftingBeeHandler {
 		}
 	}
 
-    public record RecipeHintState(
-            List<ItemStack> grid,
+	public record RecipeHintState(
+			List<ItemStack> grid,
 			BitSet hiddenSlots,
-            int width,
-            int height
-    ) implements TooltipComponent {
+			int width,
+			int height
+	) implements TooltipComponent {
 		public int hiddenCount() {
 			return hiddenSlots.cardinality();
 		}
@@ -281,5 +295,5 @@ public class GameCraftingBeeHandler {
 		public int ingredientCount() {
 			return (int) grid.stream().filter(stack -> !stack.isEmpty()).count();
 		}
-    }
+	}
 }

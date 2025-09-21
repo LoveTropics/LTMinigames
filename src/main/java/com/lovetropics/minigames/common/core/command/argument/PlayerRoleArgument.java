@@ -16,15 +16,15 @@ public final class PlayerRoleArgument {
 		return Component.literal("'" + key + "' is not a valid role");
 	});
 
-    public static RequiredArgumentBuilder<CommandSourceStack, String> argument(String name) {
-        return Commands.argument(name, StringArgumentType.string())
-                .suggests((context, builder) -> {
-                    return SharedSuggestionProvider.suggest(
+	public static RequiredArgumentBuilder<CommandSourceStack, String> argument(String name) {
+		return Commands.argument(name, StringArgumentType.string())
+				.suggests((context, builder) -> {
+					return SharedSuggestionProvider.suggest(
 							PlayerRole.stream().map(PlayerRole::getKey),
-                            builder
-                    );
-                });
-    }
+							builder
+					);
+				});
+	}
 
 	public static PlayerRole get(CommandContext<CommandSourceStack> context, String name) throws CommandSyntaxException {
 		String key = StringArgumentType.getString(context, name);

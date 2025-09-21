@@ -12,8 +12,12 @@ public record GameLobbyId(UUID uuid, int networkId) {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj) return true;
-		if (obj == null || getClass() != obj.getClass()) return false;
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null || getClass() != obj.getClass()) {
+			return false;
+		}
 
 		return uuid.equals(((GameLobbyId) obj).uuid);
 	}

@@ -3,7 +3,7 @@ package com.lovetropics.minigames.common.core.game.state.statistics;
 import java.util.function.Function;
 
 public final class StatisticDisplays {
-	private static final String[] ORDINAL_SUFFIXES = new String[] { "th", "st", "nd", "rd", "th", "th", "th", "th", "th", "th" };
+	private static final String[] ORDINAL_SUFFIXES = new String[]{"th", "st", "nd", "rd", "th", "th", "th", "th", "th", "th"};
 
 	public static <T> Function<T, String> simple() {
 		return Object::toString;

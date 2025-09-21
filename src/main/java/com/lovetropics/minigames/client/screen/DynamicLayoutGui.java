@@ -9,10 +9,10 @@ import net.minecraft.client.gui.components.events.AbstractContainerEventHandler;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 
 public abstract class DynamicLayoutGui extends AbstractContainerEventHandler implements Renderable {
-	
+
 	private final Flex basis;
 	protected Layout mainLayout;
-	
+
 	public DynamicLayoutGui(Flex basis) {
 		this.basis = basis;
 	}
@@ -26,7 +26,7 @@ public abstract class DynamicLayoutGui extends AbstractContainerEventHandler imp
 	public boolean isMouseOver(double mouseX, double mouseY) {
 		return mainLayout.padding().contains(mouseX, mouseY);
 	}
-	
+
 	public void bake(FlexSolver.Results solve) {
 		mainLayout = solve.layout(basis);
 		for (GuiEventListener child : children()) {

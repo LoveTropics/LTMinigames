@@ -42,15 +42,15 @@ public final class BehaviorConfig<A> extends MapCodec<A> {
 	}
 
 	public BehaviorConfig<A> listTypeHint(String key, ConfigType type) {
-		return hint(key, data -> ((ConfigData.ListConfigData)data).setComponentType(type));
+		return hint(key, data -> ((ConfigData.ListConfigData) data).setComponentType(type));
 	}
 
 	public <B> BehaviorConfig<A> defaultValueHint(String key, B instance) {
-		return hint(key, data -> ((ConfigData.ListConfigData)data).setDefaultValue(ConfigType.COMPOSITE).setDefaultValue(instance));
+		return hint(key, data -> ((ConfigData.ListConfigData) data).setDefaultValue(ConfigType.COMPOSITE).setDefaultValue(instance));
 	}
 
 	public <B> BehaviorConfig<A> defaultInstanceHint(String key, B instance, Codec<B> codec) {
-		return hint(key, data -> ((ConfigData.ListConfigData)data).setDefaultValue(codec.encodeStart(ConfigDataOps.INSTANCE, instance).getOrThrow()));
+		return hint(key, data -> ((ConfigData.ListConfigData) data).setDefaultValue(codec.encodeStart(ConfigDataOps.INSTANCE, instance).getOrThrow()));
 	}
 
 	private BehaviorConfig<A> hint(String key, UnaryOperator<ConfigData> hint) {
@@ -64,11 +64,11 @@ public final class BehaviorConfig<A> extends MapCodec<A> {
 
 	private ConfigData postProcessRecursive(String path, ConfigData data) {
 		if (data instanceof CompositeConfigData composite) {
-            for (String key : composite.keys()) {
+			for (String key : composite.keys()) {
 				composite.put(key, postProcessRecursive(path.isEmpty() ? key : path + "." + key, composite.value(key)));
 			}
 		} else if (data instanceof ListConfigData list) {
-            if (list.componentType() == ConfigType.COMPOSITE) {
+			if (list.componentType() == ConfigType.COMPOSITE) {
 				List<Object> values = list.value();
 				for (int i = 0; i < values.size(); i++) {
 					values.set(i, postProcessRecursive(path.isEmpty() ? "[]" : path + ".[]", (ConfigData) values.get(i)));

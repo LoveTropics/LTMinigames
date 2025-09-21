@@ -9,11 +9,11 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(ServerPlayer.class)
 public class GTPlayerMixin {
-    @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/GameRules;getBoolean(Lnet/minecraft/world/level/GameRules$Key;)Z"), method = "tickRegeneration")
-    private boolean shouldRegenerate(GameRules instance, GameRules.Key<GameRules.BooleanValue> pKey) {
-        if (this instanceof LTGameTestFakePlayer player && pKey == GameRules.RULE_NATURAL_REGENERATION) {
-            return player.shouldRegenerateNaturally();
-        }
-        return instance.getBoolean(pKey);
-    }
+	@Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/GameRules;getBoolean(Lnet/minecraft/world/level/GameRules$Key;)Z"), method = "tickRegeneration")
+	private boolean shouldRegenerate(GameRules instance, GameRules.Key<GameRules.BooleanValue> pKey) {
+		if (this instanceof LTGameTestFakePlayer player && pKey == GameRules.RULE_NATURAL_REGENERATION) {
+			return player.shouldRegenerateNaturally();
+		}
+		return instance.getBoolean(pKey);
+	}
 }

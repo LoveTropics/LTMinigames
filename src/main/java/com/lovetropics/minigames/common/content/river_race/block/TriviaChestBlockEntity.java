@@ -15,27 +15,27 @@ import net.minecraft.world.level.storage.ValueOutput;
 import javax.annotation.Nullable;
 
 public class TriviaChestBlockEntity extends ChestBlockEntity implements HasTrivia {
-    @Nullable
-    private TriviaBehaviour.TriviaQuestion question;
-    private long unlocksAt;
+	@Nullable
+	private TriviaBehaviour.TriviaQuestion question;
+	private long unlocksAt;
 
-    public TriviaChestBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
-        super(type, pos, blockState);
-    }
+	public TriviaChestBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
+		super(type, pos, blockState);
+	}
 
-    public TriviaChestBlockEntity(BlockPos pos, BlockState blockState) {
-        this(RiverRace.TRIVIA_CHEST_BLOCK_ENTITY.get(), pos, blockState);
-    }
+	public TriviaChestBlockEntity(BlockPos pos, BlockState blockState) {
+		this(RiverRace.TRIVIA_CHEST_BLOCK_ENTITY.get(), pos, blockState);
+	}
 
-    @Override
-    public Component getName() {
-        return Component.translatable(LoveTropics.ID + ".container.triviaChest");
-    }
+	@Override
+	public Component getName() {
+		return Component.translatable(LoveTropics.ID + ".container.triviaChest");
+	}
 
-    @Override
-    protected Component getDefaultName() {
-        return getName();
-    }
+	@Override
+	protected Component getDefaultName() {
+		return getName();
+	}
 
 	@Override
 	protected void saveAdditional(ValueOutput output) {
@@ -53,58 +53,58 @@ public class TriviaChestBlockEntity extends ChestBlockEntity implements HasTrivi
 		unlocksAt = input.getLongOr(TriviaBlockEntity.TAG_UNLOCKS_AT, 0);
 	}
 
-    private void markUpdated() {
-        setChanged();
-        level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_ALL);
-    }
+	private void markUpdated() {
+		setChanged();
+		level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_ALL);
+	}
 
-    @Override
-    public void setQuestion(TriviaBehaviour.TriviaQuestion question) {
-        this.question = question;
-        markUpdated();
-    }
+	@Override
+	public void setQuestion(TriviaBehaviour.TriviaQuestion question) {
+		this.question = question;
+		markUpdated();
+	}
 
-    @Override
-    @Nullable
-    public TriviaBehaviour.TriviaQuestion getQuestion() {
-        return question;
-    }
+	@Override
+	@Nullable
+	public TriviaBehaviour.TriviaQuestion getQuestion() {
+		return question;
+	}
 
-    @Override
-    public TriviaType getTriviaType() {
-        return TriviaType.REWARD;
-    }
+	@Override
+	public TriviaType getTriviaType() {
+		return TriviaType.REWARD;
+	}
 
-    @Override
-    public long lockout(int lockoutSeconds) {
-        unlocksAt = level.getGameTime() + (lockoutSeconds * 20L);
-        markUpdated();
-        return unlocksAt;
-    }
+	@Override
+	public long lockout(int lockoutSeconds) {
+		unlocksAt = level.getGameTime() + (lockoutSeconds * 20L);
+		markUpdated();
+		return unlocksAt;
+	}
 
-    @Override
-    public void unlock() {
-        unlocksAt = 0;
-        markUpdated();
-    }
+	@Override
+	public void unlock() {
+		unlocksAt = 0;
+		markUpdated();
+	}
 
-    @Override
-    public boolean markAsCorrect() {
-        if (isAnswered()) {
-            return false;
-        }
-        level.setBlockAndUpdate(getBlockPos(), getBlockState().setValue(TriviaBlock.ANSWERED, true));
-        markUpdated();
-        return true;
-    }
+	@Override
+	public boolean markAsCorrect() {
+		if (isAnswered()) {
+			return false;
+		}
+		level.setBlockAndUpdate(getBlockPos(), getBlockState().setValue(TriviaBlock.ANSWERED, true));
+		markUpdated();
+		return true;
+	}
 
-    @Override
-    public boolean isAnswered() {
-        return getBlockState().getValue(TriviaBlock.ANSWERED);
-    }
+	@Override
+	public boolean isAnswered() {
+		return getBlockState().getValue(TriviaBlock.ANSWERED);
+	}
 
-    @Override
-    public TriviaBlockEntity.TriviaBlockState getState() {
-        return new TriviaBlockEntity.TriviaBlockState(isAnswered(), unlocksAt);
-    }
+	@Override
+	public TriviaBlockEntity.TriviaBlockState getState() {
+		return new TriviaBlockEntity.TriviaBlockState(isAnswered(), unlocksAt);
+	}
 }

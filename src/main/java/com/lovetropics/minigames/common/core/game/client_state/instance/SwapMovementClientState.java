@@ -6,10 +6,10 @@ import com.lovetropics.minigames.common.core.game.client_state.GameClientStateTy
 import com.mojang.serialization.MapCodec;
 
 public record SwapMovementClientState() implements GameClientState {
-    public static final MapCodec<SwapMovementClientState> CODEC = MapCodec.unit(SwapMovementClientState::new);
+	public static final MapCodec<SwapMovementClientState> CODEC = MapCodec.unit(SwapMovementClientState::new);
 
-    @Override
-    public GameClientStateType<?> getType() {
-        return GameClientStateTypes.SWAP_MOVEMENT.get();
-    }
+	@Override
+	public GameClientStateType<?> getType() {
+		return GameClientStateTypes.SWAP_MOVEMENT.get();
+	}
 }

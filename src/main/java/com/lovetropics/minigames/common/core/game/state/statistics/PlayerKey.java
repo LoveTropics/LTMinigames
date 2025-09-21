@@ -4,7 +4,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
-import com.lovetropics.minigames.common.core.game.state.team.GameTeam;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeamKey;
 import com.lovetropics.minigames.common.core.game.state.team.TeamState;
 import com.mojang.authlib.GameProfile;
@@ -56,7 +55,7 @@ public final class PlayerKey implements StatisticHolder {
 		root.addProperty("id", profile.getId().toString());
 		root.addProperty("name", profile.getName());
 
-        MinecraftProfileTexture skinTexture = SESSION_SERVICE.getTextures(profile).skin();
+		MinecraftProfileTexture skinTexture = SESSION_SERVICE.getTextures(profile).skin();
 		if (skinTexture != null) {
 			JsonObject skinRoot = new JsonObject();
 			skinRoot.addProperty("url", skinTexture.getUrl());
@@ -80,10 +79,12 @@ public final class PlayerKey implements StatisticHolder {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj) return true;
+		if (this == obj) {
+			return true;
+		}
 
 		if (obj instanceof PlayerKey key) {
-            return profile.getId().equals(key.profile.getId());
+			return profile.getId().equals(key.profile.getId());
 		}
 
 		return false;

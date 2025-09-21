@@ -56,7 +56,7 @@ public final class BbWaveSpawnerBehavior implements IGameBehavior {
 	private final boolean sizeCurveAlways;
 
 	private final Object2FloatMap<Difficulty> difficultyFactors;
-	
+
 	private final Component firstMessage;
 	private final List<IGameBehavior> children;
 
@@ -69,7 +69,6 @@ public final class BbWaveSpawnerBehavior implements IGameBehavior {
 	private final Map<UUID, List<WaveTracker>> waveTrackers = new HashMap<>();
 	private ServerBossEvent waveCharging;
 
-
 	public BbWaveSpawnerBehavior(long intervalSeconds, long warnSeconds, SizeCurve sizeCurve, boolean sizeCurveAlways, Object2FloatMap<Difficulty> difficultyFactors, Component firstMessage, List<IGameBehavior> children) {
 		intervalTicks = intervalSeconds * 20;
 		warnTicks = warnSeconds * 20;
@@ -79,7 +78,7 @@ public final class BbWaveSpawnerBehavior implements IGameBehavior {
 		this.difficultyFactors = difficultyFactors;
 		this.children = children;
 		this.difficultyFactors.defaultReturnValue(1.0F);
-		
+
 		this.firstMessage = firstMessage;
 	}
 

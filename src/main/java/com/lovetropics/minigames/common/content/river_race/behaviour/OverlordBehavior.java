@@ -10,19 +10,19 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.server.level.ServerPlayer;
 
 public class OverlordBehavior implements IGameBehavior {
-    // Yes i know this is janky
-    public static final MapCodec<OverlordBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-            GameActionList.PLAYER_CODEC.optionalFieldOf("powers", GameActionList.EMPTY).forGetter(c -> c.powers)
-    ).apply(i, OverlordBehavior::new));
+	// Yes i know this is janky
+	public static final MapCodec<OverlordBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+			GameActionList.PLAYER_CODEC.optionalFieldOf("powers", GameActionList.EMPTY).forGetter(c -> c.powers)
+	).apply(i, OverlordBehavior::new));
 
-    private final GameActionList<ServerPlayer> powers;
+	private final GameActionList<ServerPlayer> powers;
 
-    public OverlordBehavior(GameActionList<ServerPlayer> powers) {
-        this.powers = powers;
-    }
+	public OverlordBehavior(GameActionList<ServerPlayer> powers) {
+		this.powers = powers;
+	}
 
-    @Override
-    public void register(IGamePhase game, EventRegistrar events) throws GameException {
+	@Override
+	public void register(IGamePhase game, EventRegistrar events) throws GameException {
         /* THIS IS TEMPORARY LOL CHILL ANYBODY WHO READS THIS
         events.listen(GamePlayerEvents.CHAT, (player, message) -> {
 
@@ -45,5 +45,5 @@ public class OverlordBehavior implements IGameBehavior {
             return false;
         });
         */
-    }
+	}
 }

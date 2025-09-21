@@ -19,24 +19,24 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(AbstractRecipeBookScreen.class)
 public class AbstractRecipeBookScreenMixin {
-    @Inject(method = "init", at = @At("HEAD"))
-    private void hideBookIfOpen(CallbackInfo ci) {
-        if (ClientGameStateManager.getOrNull(GameClientStateTypes.HIDE_RECIPE_BOOK) != null) {
-            Minecraft.getInstance().player.getRecipeBook().setBookSetting(RecipeBookType.CRAFTING, false, false);
-        }
-    }
+	@Inject(method = "init", at = @At("HEAD"))
+	private void hideBookIfOpen(CallbackInfo ci) {
+		if (ClientGameStateManager.getOrNull(GameClientStateTypes.HIDE_RECIPE_BOOK) != null) {
+			Minecraft.getInstance().player.getRecipeBook().setBookSetting(RecipeBookType.CRAFTING, false, false);
+		}
+	}
 
-    @WrapOperation(method = "initButton", at = @At(value = "NEW", target = "net/minecraft/client/gui/components/ImageButton"))
-    private ImageButton respectHiddenBook(int x, int y, int width, int height, WidgetSprites sprites, Button.OnPress onPress, Operation<ImageButton> original) {
-        var disabled = ResourceLocation.fromNamespaceAndPath("ltminigames", "recipe_book/button_disabled");
-        var org = original.call(x, y, width, height, new WidgetSprites(
-                sprites.enabled(), disabled, sprites.enabledFocused(), disabled
-        ), onPress);
-        var hidden = ClientGameStateManager.getOrNull(GameClientStateTypes.HIDE_RECIPE_BOOK);
-        if (hidden != null) {
-            org.active = false;
-            org.setTooltip(Tooltip.create(hidden.message()));
-        }
-        return org;
-    }
+	@WrapOperation(method = "initButton", at = @At(value = "NEW", target = "net/minecraft/client/gui/components/ImageButton"))
+	private ImageButton respectHiddenBook(int x, int y, int width, int height, WidgetSprites sprites, Button.OnPress onPress, Operation<ImageButton> original) {
+		var disabled = ResourceLocation.fromNamespaceAndPath("ltminigames", "recipe_book/button_disabled");
+		var org = original.call(x, y, width, height, new WidgetSprites(
+				sprites.enabled(), disabled, sprites.enabledFocused(), disabled
+		), onPress);
+		var hidden = ClientGameStateManager.getOrNull(GameClientStateTypes.HIDE_RECIPE_BOOK);
+		if (hidden != null) {
+			org.active = false;
+			org.setTooltip(Tooltip.create(hidden.message()));
+		}
+		return org;
+	}
 }

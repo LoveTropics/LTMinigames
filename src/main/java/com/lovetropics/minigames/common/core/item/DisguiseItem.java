@@ -30,8 +30,8 @@ public class DisguiseItem extends Item {
 	@SubscribeEvent
 	public static void onEquipmentChange(final LivingEquipmentChangeEvent event) {
 		if (event.getSlot() == EquipmentSlot.HEAD && event.getEntity() instanceof final ServerPlayer player) {
-            final DisguiseType fromDisguise = event.getFrom().get(MinigameDataComponents.DISGUISE);
-            final DisguiseType toDisguise = event.getTo().get(MinigameDataComponents.DISGUISE);
+			final DisguiseType fromDisguise = event.getFrom().get(MinigameDataComponents.DISGUISE);
+			final DisguiseType toDisguise = event.getTo().get(MinigameDataComponents.DISGUISE);
 			if (fromDisguise != null || toDisguise != null) {
 				if (toDisguise != null) {
 					ServerPlayerDisguises.set(player, toDisguise);

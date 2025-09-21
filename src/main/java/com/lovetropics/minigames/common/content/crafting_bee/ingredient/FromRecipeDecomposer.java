@@ -19,28 +19,28 @@ import java.util.List;
 import java.util.Map;
 
 public class FromRecipeDecomposer implements IngredientDecomposer {
-    public static final MapCodec<FromRecipeDecomposer> CODEC = ResourceKey.codec(Registries.RECIPE).listOf()
-            .fieldOf("recipes").xmap(FromRecipeDecomposer::new, d -> d.recipes);
+	public static final MapCodec<FromRecipeDecomposer> CODEC = ResourceKey.codec(Registries.RECIPE).listOf()
+			.fieldOf("recipes").xmap(FromRecipeDecomposer::new, d -> d.recipes);
 
-    private final List<ResourceKey<Recipe<?>>> recipes;
+	private final List<ResourceKey<Recipe<?>>> recipes;
 
-    private final Map<Item, List<Ingredient>> cache = new IdentityHashMap<>();
+	private final Map<Item, List<Ingredient>> cache = new IdentityHashMap<>();
 
-    public FromRecipeDecomposer(List<ResourceKey<Recipe<?>>> recipes) {
-        this.recipes = recipes;
-    }
+	public FromRecipeDecomposer(List<ResourceKey<Recipe<?>>> recipes) {
+		this.recipes = recipes;
+	}
 
-    @Override
-    public @Nullable List<Ingredient> decompose(Ingredient ingredient) {
+	@Override
+	public @Nullable List<Ingredient> decompose(Ingredient ingredient) {
 		HolderSet<Item> values = ingredient.getValues();
 		if (values.size() == 1) {
-            return cache.get(ingredient.getValues().get(0).value());
-        }
-        return null;
-    }
+			return cache.get(ingredient.getValues().get(0).value());
+		}
+		return null;
+	}
 
-    @Override
-    public void prepareCache(ServerLevel level) {
+	@Override
+	public void prepareCache(ServerLevel level) {
 		cache.clear();
 
 		for (ResourceKey<Recipe<?>> recipeId : recipes) {
@@ -53,11 +53,11 @@ public class FromRecipeDecomposer implements IngredientDecomposer {
 					cache.put(result.getItem(), shapelessRecipe.placementInfo().ingredients());
 				}
 			});
-        }
-    }
+		}
+	}
 
-    @Override
-    public MapCodec<? extends IngredientDecomposer> codec() {
-        return CODEC;
-    }
+	@Override
+	public MapCodec<? extends IngredientDecomposer> codec() {
+		return CODEC;
+	}
 }

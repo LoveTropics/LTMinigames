@@ -8,22 +8,20 @@ import net.minecraft.server.level.ServerPlayer;
 
 public class TriviaEvents {
 
-    public static final GameEventType<AnswerQuestion> ANSWER_TRIVIA_BLOCK_QUESTION = GameEventType.create(AnswerQuestion.class,
-            listeners -> (player, pos, triviaBlockEntity, question, answer) -> {
-        for (AnswerQuestion listener : listeners) {
-            boolean isCorrect = listener.onAnswerQuestion(player, pos, triviaBlockEntity, question, answer);
-            if (isCorrect) {
-                return true;
-            }
-        }
-        return false;
-    });
+	public static final GameEventType<AnswerQuestion> ANSWER_TRIVIA_BLOCK_QUESTION = GameEventType.create(AnswerQuestion.class,
+			listeners -> (player, pos, triviaBlockEntity, question, answer) -> {
+				for (AnswerQuestion listener : listeners) {
+					boolean isCorrect = listener.onAnswerQuestion(player, pos, triviaBlockEntity, question, answer);
+					if (isCorrect) {
+						return true;
+					}
+				}
+				return false;
+			});
 
-
-    public interface AnswerQuestion {
-        boolean onAnswerQuestion(ServerPlayer player, BlockPos pos,
-                                 HasTrivia triviaBlockEntity,
-                                 TriviaBehaviour.TriviaQuestion question, TriviaBehaviour.TriviaQuestion.TriviaQuestionAnswer answer);
-    }
-
+	public interface AnswerQuestion {
+		boolean onAnswerQuestion(ServerPlayer player, BlockPos pos,
+								 HasTrivia triviaBlockEntity,
+								 TriviaBehaviour.TriviaQuestion question, TriviaBehaviour.TriviaQuestion.TriviaQuestionAnswer answer);
+	}
 }

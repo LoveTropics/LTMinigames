@@ -6,11 +6,11 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.ResourceLocation;
 
 public interface MinigameTest {
-    void generateGame(GameProvider.GameGenerator generator, BehaviorFactory behaviors, HolderLookup.Provider registries);
+	void generateGame(GameProvider.GameGenerator generator, BehaviorFactory behaviors, HolderLookup.Provider registries);
 
-    ResourceLocation id();
+	ResourceLocation id();
 
-    default ResourceLocation gameId(String... path) {
-        return id().withSuffix("/" + String.join("/", path));
-    }
+	default ResourceLocation gameId(String... path) {
+		return id().withSuffix("/" + String.join("/", path));
+	}
 }

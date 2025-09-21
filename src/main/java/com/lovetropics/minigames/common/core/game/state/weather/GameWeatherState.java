@@ -33,7 +33,9 @@ public final class GameWeatherState implements IGameState {
 	}
 
 	public void tick() {
-		if (weatherCooldown > 0) weatherCooldown--;
+		if (weatherCooldown > 0) {
+			weatherCooldown--;
+		}
 		WeatherEvent event = this.event;
 		if (event != null && event.tick() == WeatherEvent.TickResult.STOP) {
 			clearEvent();

@@ -13,9 +13,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(KeyboardInput.class)
 public class KeyboardInputMixin extends ClientInput {
-    @Inject(method = "tick", at = @At("TAIL"))
-    private void respectMovementRules(CallbackInfo ci) {
-        if (ClientGameStateManager.getOrNull(GameClientStateTypes.DISABLE_PLAYER_MOVEMENT) != null) {
+	@Inject(method = "tick", at = @At("TAIL"))
+	private void respectMovementRules(CallbackInfo ci) {
+		if (ClientGameStateManager.getOrNull(GameClientStateTypes.DISABLE_PLAYER_MOVEMENT) != null) {
 			keyPresses = new Input(
 					false,
 					false,
@@ -26,9 +26,9 @@ public class KeyboardInputMixin extends ClientInput {
 					false
 			);
 			moveVector = Vec2.ZERO;
-            return;
-        }
-        if (ClientGameStateManager.getOrNull(GameClientStateTypes.SWAP_MOVEMENT) != null) {
+			return;
+		}
+		if (ClientGameStateManager.getOrNull(GameClientStateTypes.SWAP_MOVEMENT) != null) {
 			keyPresses = new Input(
 					keyPresses.left(),
 					keyPresses.right(),
@@ -39,6 +39,6 @@ public class KeyboardInputMixin extends ClientInput {
 					keyPresses.sprint()
 			);
 			moveVector = new Vec2(moveVector.y, moveVector.x);
-        }
-    }
+		}
+	}
 }

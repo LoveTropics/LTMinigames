@@ -35,8 +35,8 @@ public record ServerManageLobbyMessage(int id, Optional<ServerLobbyUpdate.Set> u
 		IGameLobby lobby = IGameManager.get().getLobbyByNetworkId(message.id);
 		ServerPlayer player = (ServerPlayer) context.player();
 		if (lobby == null) {
-            return;
-        }
+			return;
+		}
 
 		ILobbyManagement management = lobby.getManagement();
 		if (message.updates.isPresent()) {

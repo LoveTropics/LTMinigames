@@ -104,7 +104,9 @@ public final class ScareTrapPlantBehavior implements IGameBehavior {
 
 	private void tick(PlayerSet players, Plot plot, List<Plant> plants) {
 		long ticks = game.ticks();
-		if (ticks % 10 != 0) return;
+		if (ticks % 10 != 0) {
+			return;
+		}
 
 		for (Plant plant : plants) {
 			Trap trap = plant.state(Trap.KEY);

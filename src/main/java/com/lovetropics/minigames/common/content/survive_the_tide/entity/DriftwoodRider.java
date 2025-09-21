@@ -33,7 +33,7 @@ public final class DriftwoodRider {
 
 	@SubscribeEvent
 	public static void onPlayerTick(PlayerTickEvent.Pre event) {
-        event.getEntity().getData(ATTACHMENT).tick();
+		event.getEntity().getData(ATTACHMENT).tick();
 	}
 
 	private void tick() {

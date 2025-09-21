@@ -31,10 +31,10 @@ public final class MapWorkspaceTracer {
 	@SubscribeEvent
 	public static void onClientTick(ClientTickEvent.Post event) {
 		LocalPlayer player = Minecraft.getInstance().player;
-        if (player != null && edit != null) {
-            edit.update(player);
-        }
-    }
+		if (player != null && edit != null) {
+			edit.update(player);
+		}
+	}
 
 	@Nullable
 	public static RegionTraceTarget trace(Player player) {

@@ -22,33 +22,33 @@ import javax.annotation.Nullable;
 
 public class TriviaBlockEntity extends BlockEntity implements HasTrivia {
 
-    public record TriviaBlockState(boolean isAnswered, long unlocksAt){
-        public static final StreamCodec<ByteBuf, TriviaBlockState> STREAM_CODEC = StreamCodec.composite(
-                ByteBufCodecs.BOOL, TriviaBlockState::isAnswered,
-                ByteBufCodecs.VAR_LONG, TriviaBlockState::unlocksAt,
-                TriviaBlockState::new
-        );
+	public record TriviaBlockState(boolean isAnswered, long unlocksAt) {
+		public static final StreamCodec<ByteBuf, TriviaBlockState> STREAM_CODEC = StreamCodec.composite(
+				ByteBufCodecs.BOOL, TriviaBlockState::isAnswered,
+				ByteBufCodecs.VAR_LONG, TriviaBlockState::unlocksAt,
+				TriviaBlockState::new
+		);
 
-        public boolean lockedOut() {
-            return unlocksAt > 0;
-        }
-    }
+		public boolean lockedOut() {
+			return unlocksAt > 0;
+		}
+	}
 
-    public static final String TAG_QUESTION = "question";
-    public static final String TAG_UNLOCKS_AT = "unlocksAt";
-    @Nullable
-    private TriviaBehaviour.TriviaQuestion question;
-    private long unlocksAt;
-    private final TriviaType triviaType;
+	public static final String TAG_QUESTION = "question";
+	public static final String TAG_UNLOCKS_AT = "unlocksAt";
+	@Nullable
+	private TriviaBehaviour.TriviaQuestion question;
+	private long unlocksAt;
+	private final TriviaType triviaType;
 
-    public TriviaBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
-        super(type, pos, blockState);
-        if (blockState.getBlock() instanceof TriviaBlock triviaBlock) {
-            triviaType = triviaBlock.getType();
-        } else {
-            throw new IllegalArgumentException("Cannot create TriviaBlockEntity for unrecognised block type: " + blockState);
-        }
-    }
+	public TriviaBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
+		super(type, pos, blockState);
+		if (blockState.getBlock() instanceof TriviaBlock triviaBlock) {
+			triviaType = triviaBlock.getType();
+		} else {
+			throw new IllegalArgumentException("Cannot create TriviaBlockEntity for unrecognised block type: " + blockState);
+		}
+	}
 
 	@Override
 	protected void saveAdditional(ValueOutput output) {
@@ -64,82 +64,82 @@ public class TriviaBlockEntity extends BlockEntity implements HasTrivia {
 		super.loadAdditional(input);
 		question = input.read(TAG_QUESTION, TriviaBehaviour.TriviaQuestion.CODEC).orElse(null);
 		unlocksAt = input.getLongOr(TAG_UNLOCKS_AT, 0);
-    }
+	}
 
-    @Override
-    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+	@Override
+	public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
 		CompoundTag tag = new CompoundTag();
 		tag.putLong(TAG_UNLOCKS_AT, unlocksAt);
 		return tag;
-    }
+	}
 
 	@Override
 	public void onDataPacket(Connection net, ValueInput input) {
 		handleUpdateTag(input);
-    }
+	}
 
 	@Override
 	public void handleUpdateTag(ValueInput input) {
 		unlocksAt = input.getLongOr(TAG_UNLOCKS_AT, 0);
-    }
+	}
 
-    @Override
-    public Packet<ClientGamePacketListener> getUpdatePacket() {
-        return ClientboundBlockEntityDataPacket.create(this);
-    }
+	@Override
+	public Packet<ClientGamePacketListener> getUpdatePacket() {
+		return ClientboundBlockEntityDataPacket.create(this);
+	}
 
-    private void markUpdated() {
-        setChanged();
-        level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_ALL);
-    }
+	private void markUpdated() {
+		setChanged();
+		level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_ALL);
+	}
 
-    @Override
+	@Override
 	public void setQuestion(TriviaBehaviour.TriviaQuestion question) {
-        this.question = question;
-        markUpdated();
-    }
+		this.question = question;
+		markUpdated();
+	}
 
-    @Override
-    @Nullable
+	@Override
+	@Nullable
 	public TriviaBehaviour.TriviaQuestion getQuestion() {
-        return question;
-    }
+		return question;
+	}
 
-    @Override
-    public TriviaType getTriviaType() {
-        return triviaType;
-    }
+	@Override
+	public TriviaType getTriviaType() {
+		return triviaType;
+	}
 
-    @Override
-	public long lockout(int lockoutSeconds){
-        unlocksAt = level.getGameTime() + (lockoutSeconds * 20L);
-        markUpdated();
-        return unlocksAt;
-    }
-    @Override
+	@Override
+	public long lockout(int lockoutSeconds) {
+		unlocksAt = level.getGameTime() + (lockoutSeconds * 20L);
+		markUpdated();
+		return unlocksAt;
+	}
+
+	@Override
 	public void unlock() {
-        unlocksAt = 0;
-        markUpdated();
-    }
+		unlocksAt = 0;
+		markUpdated();
+	}
 
-    @Override
+	@Override
 	public boolean markAsCorrect() {
 		if (isAnswered()) {
-            return false;
-        }
-        level.setBlockAndUpdate(getBlockPos(), getBlockState().setValue(TriviaBlock.ANSWERED, true));
-        markUpdated();
-        return true;
-    }
+			return false;
+		}
+		level.setBlockAndUpdate(getBlockPos(), getBlockState().setValue(TriviaBlock.ANSWERED, true));
+		markUpdated();
+		return true;
+	}
 
-    @Override
-    public boolean isAnswered() {
-        return getBlockState().getValue(TriviaBlock.ANSWERED);
-    }
+	@Override
+	public boolean isAnswered() {
+		return getBlockState().getValue(TriviaBlock.ANSWERED);
+	}
 
-    @Override
-    public TriviaBlockState getState() {
-        return new TriviaBlockState(isAnswered(), unlocksAt);
-    }
-
+	@Override
+	public TriviaBlockState getState() {
+		return new TriviaBlockState(isAnswered(), unlocksAt);
+	}
 }

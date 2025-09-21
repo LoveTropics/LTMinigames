@@ -30,7 +30,7 @@ public interface IGameBehavior {
 			"type",
 			TYPE_CODEC,
 			behavior -> behavior.behaviorType().get(),
-            GameBehaviorType::codec
+			GameBehaviorType::codec
 	);
 
 	// Using custom codec for better error reporting

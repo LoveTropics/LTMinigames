@@ -12,25 +12,25 @@ import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public record SelectRoleMessage(int lobbyId, boolean play) implements CustomPacketPayload {
-    public static final Type<SelectRoleMessage> TYPE = new Type<>(LoveTropics.location("select_role"));
+	public static final Type<SelectRoleMessage> TYPE = new Type<>(LoveTropics.location("select_role"));
 
-    public static final StreamCodec<ByteBuf, SelectRoleMessage> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.VAR_INT, SelectRoleMessage::lobbyId,
-            ByteBufCodecs.BOOL, SelectRoleMessage::play,
-            SelectRoleMessage::new
-    );
+	public static final StreamCodec<ByteBuf, SelectRoleMessage> STREAM_CODEC = StreamCodec.composite(
+			ByteBufCodecs.VAR_INT, SelectRoleMessage::lobbyId,
+			ByteBufCodecs.BOOL, SelectRoleMessage::play,
+			SelectRoleMessage::new
+	);
 
-    public static void handle(SelectRoleMessage message, IPayloadContext context) {
-        ServerPlayer player = (ServerPlayer) context.player();
-        IGameLobby lobby = IGameManager.get().getLobbyByNetworkId(message.lobbyId);
-        if (lobby != null) {
-            PlayerRole role = message.play ? PlayerRole.PARTICIPANT : PlayerRole.SPECTATOR;
-            lobby.getPlayers().getRoleSelections().acceptResponse(player, role);
-        }
-    }
+	public static void handle(SelectRoleMessage message, IPayloadContext context) {
+		ServerPlayer player = (ServerPlayer) context.player();
+		IGameLobby lobby = IGameManager.get().getLobbyByNetworkId(message.lobbyId);
+		if (lobby != null) {
+			PlayerRole role = message.play ? PlayerRole.PARTICIPANT : PlayerRole.SPECTATOR;
+			lobby.getPlayers().getRoleSelections().acceptResponse(player, role);
+		}
+	}
 
-    @Override
-    public Type<SelectRoleMessage> type() {
-        return TYPE;
-    }
+	@Override
+	public Type<SelectRoleMessage> type() {
+		return TYPE;
+	}
 }

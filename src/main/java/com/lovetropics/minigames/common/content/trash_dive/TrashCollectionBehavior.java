@@ -96,7 +96,9 @@ public final class TrashCollectionBehavior implements IGameBehavior {
 	}
 
 	private void triggerGameOver(IGamePhase game) {
-		if (gameOver) return;
+		if (gameOver) {
+			return;
+		}
 
 		gameOver = true;
 

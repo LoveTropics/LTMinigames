@@ -91,7 +91,7 @@ public final class GameScheduler implements Executor {
 		}
 
 		@Override
-        public boolean tick() {
+		public boolean tick() {
 			if (canceled) {
 				return true;
 			}

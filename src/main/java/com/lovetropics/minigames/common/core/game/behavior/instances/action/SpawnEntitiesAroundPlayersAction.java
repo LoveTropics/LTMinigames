@@ -86,7 +86,6 @@ public class SpawnEntitiesAroundPlayersAction implements IGameBehavior {
 						return;
 					}
 				}
-
 			}
 		}
 	}
@@ -123,6 +122,4 @@ public class SpawnEntitiesAroundPlayersAction implements IGameBehavior {
 				&& !world.getBlockState(pos.offset(0, 0, 0)).liquid()
 				&& !world.getBlockState(pos.offset(0, 1, 0)).liquid();
 	}
-
-
 }

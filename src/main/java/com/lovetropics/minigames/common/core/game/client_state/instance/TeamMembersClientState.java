@@ -10,11 +10,11 @@ import java.util.List;
 import java.util.UUID;
 
 public record TeamMembersClientState(List<UUID> teamMembers) implements GameClientState {
-    public static final MapCodec<TeamMembersClientState> CODEC = UUIDUtil.CODEC.listOf().fieldOf("members")
-            .xmap(TeamMembersClientState::new, TeamMembersClientState::teamMembers);
+	public static final MapCodec<TeamMembersClientState> CODEC = UUIDUtil.CODEC.listOf().fieldOf("members")
+			.xmap(TeamMembersClientState::new, TeamMembersClientState::teamMembers);
 
-    @Override
-    public GameClientStateType<?> getType() {
-        return GameClientStateTypes.TEAM_MEMBERS.get();
-    }
+	@Override
+	public GameClientStateType<?> getType() {
+		return GameClientStateTypes.TEAM_MEMBERS.get();
+	}
 }

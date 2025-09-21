@@ -27,10 +27,7 @@ import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -84,7 +81,7 @@ public class PositionPlayersBehavior implements IGameBehavior {
 		participantSpawner = new CycledSpawner(regions, participantSpawnKeys);
 		spectatorSpawner = new CycledSpawner(regions, spectatorSpawnKeys);
 		fallbackSpawner = new CycledSpawner(regions, allSpawnKeys);
-        LOGGER.debug("FOUND {} PARTICIPANT SPAWN REGIONS", participantSpawner.regions().size());
+		LOGGER.debug("FOUND {} PARTICIPANT SPAWN REGIONS", participantSpawner.regions().size());
 
 		TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
 		if (splitByTeam && teams != null) {

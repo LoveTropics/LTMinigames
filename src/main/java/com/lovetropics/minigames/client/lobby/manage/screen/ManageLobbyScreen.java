@@ -12,7 +12,6 @@ import com.lovetropics.minigames.client.screen.FlexUi;
 import com.lovetropics.minigames.client.screen.flex.Box;
 import com.lovetropics.minigames.client.screen.flex.Layout;
 import com.lovetropics.minigames.common.core.game.lobby.LobbyControls;
-import com.lovetropics.minigames.common.core.game.lobby.LobbyVisibility;
 import com.lovetropics.minigames.common.core.game.util.GameTexts;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
@@ -65,7 +64,9 @@ public final class ManageLobbyScreen extends Screen {
 		gameList = addWidget(new GameList(this, layout.gameList, layout.leftFooter, lobby, new GameList.Handlers() {
 			@Override
 			public void selectQueuedGame(int queuedGameId) {
-				if (queuedGameId == selectedGameId) return;
+				if (queuedGameId == selectedGameId) {
+					return;
+				}
 				selectedGameId = queuedGameId;
 				gameConfig.setGame(session.lobby().getQueue().byId(queuedGameId));
 			}

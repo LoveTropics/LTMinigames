@@ -1,10 +1,10 @@
 package com.lovetropics.minigames.common.core.game.util;
 
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerBossEvent;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.BossEvent;
-import net.minecraft.server.level.ServerBossEvent;
 
 public final class GameBossBar implements GameWidget {
 	private static final float UPDATE_PROGRESS_THRESHOLD = 0.001f;

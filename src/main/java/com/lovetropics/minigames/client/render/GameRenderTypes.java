@@ -23,8 +23,8 @@ public class GameRenderTypes extends RenderStateShard {
 			.withDepthBias(-1.0f, -10.0f)
 			.build();
 
-    public static final RenderType TRANSLUCENT_NO_TEX = create(
-            "translucent_broken_depth",
+	public static final RenderType TRANSLUCENT_NO_TEX = create(
+			"translucent_broken_depth",
 			2097152,
 			false,
 			true,
@@ -32,12 +32,12 @@ public class GameRenderTypes extends RenderStateShard {
 			RenderType.CompositeState.builder()
 					.setOutputState(TRANSLUCENT_TARGET)
 					.createCompositeState(false)
-    );
+	);
 
-    public GameRenderTypes(String pName, Runnable pSetupState, Runnable pClearState) {
-        super(pName, pSetupState, pClearState);
-        throw new IllegalStateException("Don't call this");
-    }
+	public GameRenderTypes(String pName, Runnable pSetupState, Runnable pClearState) {
+		super(pName, pSetupState, pClearState);
+		throw new IllegalStateException("Don't call this");
+	}
 
 	@SubscribeEvent
 	public static void registerPipelines(RegisterRenderPipelinesEvent event) {

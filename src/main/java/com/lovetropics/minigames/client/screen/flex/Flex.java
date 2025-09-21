@@ -141,7 +141,7 @@ public final class Flex {
 		this.padding = this.padding.bottom(padding);
 		return this;
 	}
-	
+
 	public Flex margin(int left, int top, int right, int bottom) {
 		margin = new Box(left, top, right, bottom);
 		return this;

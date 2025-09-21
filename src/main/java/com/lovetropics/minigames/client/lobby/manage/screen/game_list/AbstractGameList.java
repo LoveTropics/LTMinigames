@@ -33,7 +33,7 @@ public abstract class AbstractGameList extends AbstractLTList<AbstractGameList.E
 				CommonColors.WHITE
 		);
 	}
-	
+
 	@Override
 	public boolean isSelectedItem(int index) {
 		return index >= 0 && index < getItemCount() && super.isSelectedItem(index);
@@ -54,6 +54,7 @@ public abstract class AbstractGameList extends AbstractLTList<AbstractGameList.E
 		private int outlineColor = 0xFF808080;
 
 		boolean banner;
+
 		public Entry(AbstractLTList<Entry> list, int id) {
 			super(list, list.screen);
 			this.id = id;
@@ -73,19 +74,19 @@ public abstract class AbstractGameList extends AbstractLTList<AbstractGameList.E
 					.setTitle(game.name())
 					.setSubtitle(subtitle);
 		}
-		
+
 		@Override
 		public void render(GuiGraphics graphics, int index, int top, int left, int width, int height, int mouseX, int mouseY, boolean hovered, float partialTicks) {
 			Font font = screen.getMinecraft().font;
 			int fontHeight = font.lineHeight;
-		
-			boolean selected = ((AbstractGameList)list).isSelectedItem(index);
+
+			boolean selected = ((AbstractGameList) list).isSelectedItem(index);
 			boolean outline = banner || selected;
-		
+
 			fillEntry(graphics, left, top, width, height, hovered, selected, outline);
-		
+
 			int maxTextWidth = getMaxTextWidth(width);
-		
+
 			if (subtitle != null) {
 				graphics.drawString(font, title.forWidth(font, maxTextWidth), left + PADDING, top + PADDING + 1, CommonColors.WHITE);
 				graphics.drawString(font, subtitle.forWidth(font, maxTextWidth), left + PADDING, top + height - PADDING - fontHeight, 0xff555555);

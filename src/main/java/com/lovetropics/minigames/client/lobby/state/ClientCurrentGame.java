@@ -10,12 +10,12 @@ import net.minecraft.network.codec.StreamCodec;
 import java.util.Optional;
 
 public final class ClientCurrentGame {
-    public static final StreamCodec<RegistryFriendlyByteBuf, ClientCurrentGame> STREAM_CODEC = StreamCodec.composite(
-            ClientGameDefinition.STREAM_CODEC, ClientCurrentGame::definition,
-            GamePhaseType.STREAM_CODEC, ClientCurrentGame::phase,
-            ComponentSerialization.OPTIONAL_STREAM_CODEC, ClientCurrentGame::error,
-            ClientCurrentGame::new
-    );
+	public static final StreamCodec<RegistryFriendlyByteBuf, ClientCurrentGame> STREAM_CODEC = StreamCodec.composite(
+			ClientGameDefinition.STREAM_CODEC, ClientCurrentGame::definition,
+			GamePhaseType.STREAM_CODEC, ClientCurrentGame::phase,
+			ComponentSerialization.OPTIONAL_STREAM_CODEC, ClientCurrentGame::error,
+			ClientCurrentGame::new
+	);
 
 	private final ClientGameDefinition definition;
 	private final GamePhaseType phase;

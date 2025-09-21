@@ -22,7 +22,6 @@ import org.apache.logging.log4j.Logger;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.BiConsumer;
 
 public record AssignPlayerRolesBehavior(List<UUID> forcedParticipants) implements IGameBehavior {
 	private static final Logger LOGGER = LogManager.getLogger(AssignPlayerRolesBehavior.class);
@@ -48,20 +47,20 @@ public record AssignPlayerRolesBehavior(List<UUID> forcedParticipants) implement
 	}
 
 	private TeamAllocator<PlayerRole, ServerPlayer> createAllocator(IGamePhase game) {
-        LOGGER.info("SELECTED ROLES: {}", game.lobby().getPlayers().getRoleSelections());
+		LOGGER.info("SELECTED ROLES: {}", game.lobby().getPlayers().getRoleSelections());
 		TeamAllocator<PlayerRole, ServerPlayer> allocator = game.lobby().getPlayers().createRoleAllocator();
 		allocator.setSizeForTeam(PlayerRole.PARTICIPANT, game.definition().getMaximumParticipantCount());
-        LOGGER.info("TEAM SIZE: {}", game.definition().getMaximumParticipantCount());
+		LOGGER.info("TEAM SIZE: {}", game.definition().getMaximumParticipantCount());
 		applyForcedParticipants(game, allocator);
 
 		game.invoker(GamePlayerEvents.ALLOCATE_ROLES).onAllocateRoles(allocator);
-        LOGGER.info("SELECTED ROLES: {}", game.lobby().getPlayers().getRoleSelections());
+		LOGGER.info("SELECTED ROLES: {}", game.lobby().getPlayers().getRoleSelections());
 
 		return allocator;
 	}
 
 	private void applyForcedParticipants(IGamePhase game, TeamAllocator<PlayerRole, ServerPlayer> allocator) {
-        LOGGER.info("FORCING PARTICIPANTS: {}", forcedParticipants);
+		LOGGER.info("FORCING PARTICIPANTS: {}", forcedParticipants);
 		for (UUID uuid : forcedParticipants) {
 			ServerPlayer player = game.allPlayers().getPlayerBy(uuid);
 			if (player != null) {

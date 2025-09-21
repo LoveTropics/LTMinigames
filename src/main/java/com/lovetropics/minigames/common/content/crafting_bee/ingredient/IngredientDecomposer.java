@@ -11,15 +11,16 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public interface IngredientDecomposer {
-    BiMap<String, MapCodec<? extends IngredientDecomposer>> TYPES = ImmutableBiMap.of("prefer_from_tag", PreferItemFromTagDecomposer.CODEC,
-            "from_recipe", FromRecipeDecomposer.CODEC,
-            "simple_tag", SimpleTagToItemDecomposer.CODEC);
-    MapCodec<IngredientDecomposer> CODEC = Codec.STRING.dispatchMap(s -> TYPES.inverse().get(s.codec()), TYPES::get);
+	BiMap<String, MapCodec<? extends IngredientDecomposer>> TYPES = ImmutableBiMap.of("prefer_from_tag", PreferItemFromTagDecomposer.CODEC,
+			"from_recipe", FromRecipeDecomposer.CODEC,
+			"simple_tag", SimpleTagToItemDecomposer.CODEC);
+	MapCodec<IngredientDecomposer> CODEC = Codec.STRING.dispatchMap(s -> TYPES.inverse().get(s.codec()), TYPES::get);
 
-    @Nullable
-    List<Ingredient> decompose(Ingredient ingredient);
+	@Nullable
+	List<Ingredient> decompose(Ingredient ingredient);
 
-    default void prepareCache(ServerLevel level) {}
+	default void prepareCache(ServerLevel level) {
+	}
 
-    MapCodec<? extends IngredientDecomposer> codec();
+	MapCodec<? extends IngredientDecomposer> codec();
 }

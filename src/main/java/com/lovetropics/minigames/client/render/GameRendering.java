@@ -50,130 +50,130 @@ public class GameRendering {
 
 	@SubscribeEvent
 	public static void render(RenderLevelStageEvent.AfterWeather event) {
-        PoseStack matrices = event.getPoseStack();
-        Vec3 cameraPos = event.getCamera().getPosition();
-        RenderBuffers buffers = Minecraft.getInstance().renderBuffers();
-        VertexConsumer cons = buffers.bufferSource().getBuffer(GameRenderTypes.TRANSLUCENT_NO_TEX);
+		PoseStack matrices = event.getPoseStack();
+		Vec3 cameraPos = event.getCamera().getPosition();
+		RenderBuffers buffers = Minecraft.getInstance().renderBuffers();
+		VertexConsumer cons = buffers.bufferSource().getBuffer(GameRenderTypes.TRANSLUCENT_NO_TEX);
 
-        ClientBbMobSpawnState state = ClientGameStateManager.getOrNull(BiodiversityBlitz.MOB_SPAWN);
-        if (state != null) {
-            for (BlockBox box : state.spawns()) {
-                BlockPos min = box.min();
-                BlockPos max = box.max();
-                float x0 = (float) (min.getX() - cameraPos.x);
-                float x1 = (float) (max.getX() + 1.0 - cameraPos.x);
-                float y0 = (float) (min.getY() - cameraPos.y);
-                float y1 = (float) (max.getY() + 1.0 - cameraPos.y);
-                float z0 = (float) (min.getZ() - cameraPos.z);
-                float z1 = (float) (max.getZ() + 1.0 - cameraPos.z);
-                buildBox(cons, matrices, x0, x1, y0, y1, z0, z1, MOB_SPAWN_COLOR);
-            }
-        }
+		ClientBbMobSpawnState state = ClientGameStateManager.getOrNull(BiodiversityBlitz.MOB_SPAWN);
+		if (state != null) {
+			for (BlockBox box : state.spawns()) {
+				BlockPos min = box.min();
+				BlockPos max = box.max();
+				float x0 = (float) (min.getX() - cameraPos.x);
+				float x1 = (float) (max.getX() + 1.0 - cameraPos.x);
+				float y0 = (float) (min.getY() - cameraPos.y);
+				float y1 = (float) (max.getY() + 1.0 - cameraPos.y);
+				float z0 = (float) (min.getZ() - cameraPos.z);
+				float z1 = (float) (max.getZ() + 1.0 - cameraPos.z);
+				buildBox(cons, matrices, x0, x1, y0, y1, z0, z1, MOB_SPAWN_COLOR);
+			}
+		}
 
-        ClientBbScoreboardState scoreboardState = ClientGameStateManager.getOrNull(BiodiversityBlitz.SCOREBOARD);
-        if (scoreboardState != null) {
-            renderScoreboardState(scoreboardState, matrices, cameraPos, buffers.bufferSource(), cons);
-        }
+		ClientBbScoreboardState scoreboardState = ClientGameStateManager.getOrNull(BiodiversityBlitz.SCOREBOARD);
+		if (scoreboardState != null) {
+			renderScoreboardState(scoreboardState, matrices, cameraPos, buffers.bufferSource(), cons);
+		}
 
-        // Flush vertices
-        buffers.bufferSource().endBatch();
-    }
+		// Flush vertices
+		buffers.bufferSource().endBatch();
+	}
 
-    private static void renderScoreboardState(ClientBbScoreboardState state, PoseStack matrices, Vec3 camera, MultiBufferSource.BufferSource buffers, VertexConsumer cons) {
-        AABB b = new AABB(state.start(), state.end());
-        PoseStack.Pose entry = matrices.last();
+	private static void renderScoreboardState(ClientBbScoreboardState state, PoseStack matrices, Vec3 camera, MultiBufferSource.BufferSource buffers, VertexConsumer cons) {
+		AABB b = new AABB(state.start(), state.end());
+		PoseStack.Pose entry = matrices.last();
 
-        if (state.side()) {
-            buildEastFacing(cons, entry,  (float)(b.minY - camera.y), (float)(b.maxY - camera.y), (float)(b.minZ - camera.z), (float)(b.maxZ - camera.z), (float)(b.minX - camera.x), ARGB.color(30, CommonColors.BLACK), ARGB.color(60, CommonColors.BLACK));
+		if (state.side()) {
+			buildEastFacing(cons, entry, (float) (b.minY - camera.y), (float) (b.maxY - camera.y), (float) (b.minZ - camera.z), (float) (b.maxZ - camera.z), (float) (b.minX - camera.x), ARGB.color(30, CommonColors.BLACK), ARGB.color(60, CommonColors.BLACK));
 
-            int diff = (int) (b.maxZ - b.minZ) * 25;
+			int diff = (int) (b.maxZ - b.minZ) * 25;
 
-            matrices.pushPose();
+			matrices.pushPose();
 
-            matrices.translate(b.minX - camera.x(), b.maxY - camera.y(), b.maxZ - camera.z());
-            matrices.mulPose(Axis.XN.rotationDegrees(180));
-            // TODO: this must be -Y or +Y based on map. Make it configurable!
-            matrices.mulPose(Axis.YN.rotationDegrees(90));
-            matrices.scale(0.04f, 0.04f, 0.04f);
-            int voff = 1;
-            Component header = state.header();
-            drawComponent(matrices, buffers, (diff - Minecraft.getInstance().font.width(header)) / 2, voff, header.getStyle().getColor().getValue(), header);
+			matrices.translate(b.minX - camera.x(), b.maxY - camera.y(), b.maxZ - camera.z());
+			matrices.mulPose(Axis.XN.rotationDegrees(180));
+			// TODO: this must be -Y or +Y based on map. Make it configurable!
+			matrices.mulPose(Axis.YN.rotationDegrees(90));
+			matrices.scale(0.04f, 0.04f, 0.04f);
+			int voff = 1;
+			Component header = state.header();
+			drawComponent(matrices, buffers, (diff - Minecraft.getInstance().font.width(header)) / 2, voff, header.getStyle().getColor().getValue(), header);
 
-            List<Component> content = state.content();
-            for (int i = 0; i < content.size(); i++) {
-                Component comp = content.get(i);
-                int di = i + 2 >> 1; // di = (i + 2) / 2;
-                int mi = i & 1; // mi = i % 2;
+			List<Component> content = state.content();
+			for (int i = 0; i < content.size(); i++) {
+				Component comp = content.get(i);
+				int di = i + 2 >> 1; // di = (i + 2) / 2;
+				int mi = i & 1; // mi = i % 2;
 
-                voff = 10 * di + 1;
+				voff = 10 * di + 1;
 
-                int hoff = 1;
-                if (mi == 1) {
-                    hoff = diff - Minecraft.getInstance().font.width(comp) - 1;
-                }
+				int hoff = 1;
+				if (mi == 1) {
+					hoff = diff - Minecraft.getInstance().font.width(comp) - 1;
+				}
 
-                TextColor col = comp.getStyle().getColor();
-                drawComponent(matrices, buffers, hoff, voff, col == null ? CommonColors.WHITE : col.getValue(), comp);
-            }
+				TextColor col = comp.getStyle().getColor();
+				drawComponent(matrices, buffers, hoff, voff, col == null ? CommonColors.WHITE : col.getValue(), comp);
+			}
 
-            matrices.popPose();
-        } else {
-            buildNorthFacing(cons, entry, (float)(b.minX - camera.x), (float)(b.maxX - camera.x), (float)(b.minY - camera.y), (float)(b.maxY - camera.y), (float)(b.minZ - camera.z), ARGB.color(30, CommonColors.BLACK), ARGB.color(60, CommonColors.BLACK));
-        }
-    }
+			matrices.popPose();
+		} else {
+			buildNorthFacing(cons, entry, (float) (b.minX - camera.x), (float) (b.maxX - camera.x), (float) (b.minY - camera.y), (float) (b.maxY - camera.y), (float) (b.minZ - camera.z), ARGB.color(30, CommonColors.BLACK), ARGB.color(60, CommonColors.BLACK));
+		}
+	}
 
-    private static void drawComponent(PoseStack matrices, MultiBufferSource buffers, int hoff, int voff, int color, Component comp) {
-        Minecraft.getInstance().font.drawInBatch(
-                comp,
-                hoff,
-                voff,
-                color,
-                false,
-                matrices.last().pose(),
-                buffers,
-                Font.DisplayMode.POLYGON_OFFSET,
-                0,
-                LightTexture.FULL_BRIGHT
-        );
-    }
+	private static void drawComponent(PoseStack matrices, MultiBufferSource buffers, int hoff, int voff, int color, Component comp) {
+		Minecraft.getInstance().font.drawInBatch(
+				comp,
+				hoff,
+				voff,
+				color,
+				false,
+				matrices.last().pose(),
+				buffers,
+				Font.DisplayMode.POLYGON_OFFSET,
+				0,
+				LightTexture.FULL_BRIGHT
+		);
+	}
 
-    public static void buildBox(VertexConsumer buffer, PoseStack poseStack, float x1, float x2, float y1, float y2, float z1, float z2, int color) {
-        PoseStack.Pose pose = poseStack.last();
+	public static void buildBox(VertexConsumer buffer, PoseStack poseStack, float x1, float x2, float y1, float y2, float z1, float z2, int color) {
+		PoseStack.Pose pose = poseStack.last();
 
-        buildNorthFacing(buffer, pose, x1, x2, y1, y2, z1, color, ARGB.transparent(color));
-        buildNorthFacing(buffer, pose, x1, x2, y1, y2, z2, color, ARGB.transparent(color));
+		buildNorthFacing(buffer, pose, x1, x2, y1, y2, z1, color, ARGB.transparent(color));
+		buildNorthFacing(buffer, pose, x1, x2, y1, y2, z2, color, ARGB.transparent(color));
 
-        buildEastFacing(buffer, pose, y1, y2, z1, z2, x1, color, ARGB.transparent(color));
-        buildEastFacing(buffer, pose, y1, y2, z1, z2, x2, color, ARGB.transparent(color));
-    }
+		buildEastFacing(buffer, pose, y1, y2, z1, z2, x1, color, ARGB.transparent(color));
+		buildEastFacing(buffer, pose, y1, y2, z1, z2, x2, color, ARGB.transparent(color));
+	}
 
-    public static void buildNorthFacing(VertexConsumer buffer, PoseStack.Pose pose, float x1, float x2, float y1, float y2, float z, int colorBottom, int colorTop) {
-        buffer.addVertex(pose, x1, y2, z).setColor(colorTop);
-        buffer.addVertex(pose, x2, y2, z).setColor(colorTop);
-        buffer.addVertex(pose, x2, y1, z).setColor(colorBottom);
-        buffer.addVertex(pose, x1, y1, z).setColor(colorBottom);
+	public static void buildNorthFacing(VertexConsumer buffer, PoseStack.Pose pose, float x1, float x2, float y1, float y2, float z, int colorBottom, int colorTop) {
+		buffer.addVertex(pose, x1, y2, z).setColor(colorTop);
+		buffer.addVertex(pose, x2, y2, z).setColor(colorTop);
+		buffer.addVertex(pose, x2, y1, z).setColor(colorBottom);
+		buffer.addVertex(pose, x1, y1, z).setColor(colorBottom);
 
-        // Reverse - TODO: why? culling is disabled?
+		// Reverse - TODO: why? culling is disabled?
 
-        buffer.addVertex(pose, x1, y2, z).setColor(colorTop);
-        buffer.addVertex(pose, x1, y1, z).setColor(colorBottom);
-        buffer.addVertex(pose, x2, y1, z).setColor(colorBottom);
-        buffer.addVertex(pose, x2, y2, z).setColor(colorTop);
-    }
+		buffer.addVertex(pose, x1, y2, z).setColor(colorTop);
+		buffer.addVertex(pose, x1, y1, z).setColor(colorBottom);
+		buffer.addVertex(pose, x2, y1, z).setColor(colorBottom);
+		buffer.addVertex(pose, x2, y2, z).setColor(colorTop);
+	}
 
-    public static void buildEastFacing(VertexConsumer buffer, PoseStack.Pose pose, float y1, float y2, float z1, float z2, float x, int colorBottom, int colorTop) {
-        buffer.addVertex(pose, x, y1, z2).setColor(colorBottom);
-        buffer.addVertex(pose, x, y2, z2).setColor(colorTop);
-        buffer.addVertex(pose, x, y2, z1).setColor(colorTop);
-        buffer.addVertex(pose, x, y1, z1).setColor(colorBottom);
+	public static void buildEastFacing(VertexConsumer buffer, PoseStack.Pose pose, float y1, float y2, float z1, float z2, float x, int colorBottom, int colorTop) {
+		buffer.addVertex(pose, x, y1, z2).setColor(colorBottom);
+		buffer.addVertex(pose, x, y2, z2).setColor(colorTop);
+		buffer.addVertex(pose, x, y2, z1).setColor(colorTop);
+		buffer.addVertex(pose, x, y1, z1).setColor(colorBottom);
 
-        // Reverse
+		// Reverse
 
-        buffer.addVertex(pose, x, y1, z2).setColor(colorBottom);
-        buffer.addVertex(pose, x, y1, z1).setColor(colorBottom);
-        buffer.addVertex(pose, x, y2, z1).setColor(colorTop);
-        buffer.addVertex(pose, x, y2, z2).setColor(colorTop);
-    }
+		buffer.addVertex(pose, x, y1, z2).setColor(colorBottom);
+		buffer.addVertex(pose, x, y1, z1).setColor(colorBottom);
+		buffer.addVertex(pose, x, y2, z1).setColor(colorTop);
+		buffer.addVertex(pose, x, y2, z2).setColor(colorTop);
+	}
 
 	@SubscribeEvent
 	public static void onRegisterRenderStateModifiers(RegisterRenderStateModifiersEvent event) {
@@ -193,60 +193,60 @@ public class GameRendering {
 		}
 	}
 
-    @SubscribeEvent
+	@SubscribeEvent
 	public static void onRenderPlayerName(RenderNameTagEvent.DoRender event) {
 		if (event.getEntityRenderState() instanceof PlayerRenderState playerState) {
 			PointTag pointTag = playerState.getRenderData(POINT_TAG_KEY);
 			if (playerState.nameTagAttachment != null && pointTag != null) {
 				renderPlayerPoints(event, playerState, pointTag.icon, pointTag.points);
 			}
-        }
-    }
+		}
+	}
 
 	private static void renderPlayerPoints(RenderNameTagEvent.DoRender event, PlayerRenderState playerState, ItemStack icon, Component points) {
-        if (playerState.isDiscrete) {
+		if (playerState.isDiscrete) {
 			return;
 		}
 
 		final Minecraft client = Minecraft.getInstance();
 		final EntityRenderDispatcher renderDispatcher = client.getEntityRenderDispatcher();
 
-        final float itemSize = 16.0F;
-        final float spacing = 4.0f;
-        final float textScale = 1.0F / 2.5F;
+		final float itemSize = 16.0F;
+		final float spacing = 4.0f;
+		final float textScale = 1.0F / 2.5F;
 
-        PoseStack poseStack = event.getPoseStack();
+		PoseStack poseStack = event.getPoseStack();
 
-        poseStack.pushPose();
-        poseStack.translate(0.0, playerState.boundingBoxHeight + 0.75, 0.0);
-        poseStack.mulPose(renderDispatcher.cameraOrientation());
-        poseStack.scale(-0.0625F * textScale, 0.0625F * textScale, 0.0625F * textScale);
+		poseStack.pushPose();
+		poseStack.translate(0.0, playerState.boundingBoxHeight + 0.75, 0.0);
+		poseStack.mulPose(renderDispatcher.cameraOrientation());
+		poseStack.scale(-0.0625F * textScale, 0.0625F * textScale, 0.0625F * textScale);
 
-        MultiBufferSource buffer = event.getMultiBufferSource();
-        int packedLight = event.getPackedLight();
+		MultiBufferSource buffer = event.getMultiBufferSource();
+		int packedLight = event.getPackedLight();
 
-        Font font = event.getEntityRenderer().getFont();
-        ItemRenderer items = client.getItemRenderer();
+		Font font = event.getEntityRenderer().getFont();
+		ItemRenderer items = client.getItemRenderer();
 
-        float width = itemSize + spacing + font.width(points);
-        float left = -width / 2.0F;
+		float width = itemSize + spacing + font.width(points);
+		float left = -width / 2.0F;
 
-        poseStack.pushPose();
-        poseStack.scale(1.0F, -1.0F, 1.0F);
+		poseStack.pushPose();
+		poseStack.scale(1.0F, -1.0F, 1.0F);
 
-        float textX = left + itemSize + spacing;
-        float textY = -font.lineHeight / 2.0F;
-        font.drawInBatch(points, textX, textY, CommonColors.WHITE, false, poseStack.last().pose(), buffer, Font.DisplayMode.NORMAL, 0, packedLight);
-        poseStack.popPose();
+		float textX = left + itemSize + spacing;
+		float textY = -font.lineHeight / 2.0F;
+		font.drawInBatch(points, textX, textY, CommonColors.WHITE, false, poseStack.last().pose(), buffer, Font.DisplayMode.NORMAL, 0, packedLight);
+		poseStack.popPose();
 
-        poseStack.pushPose();
-        poseStack.translate(left + (itemSize / 2.0f), 0.0F, 0.0F);
-        poseStack.scale(itemSize, itemSize, -itemSize);
-        items.renderStatic(icon, ItemDisplayContext.GUI, packedLight, OverlayTexture.NO_OVERLAY, poseStack, buffer, client.level, 0);
-        poseStack.popPose();
+		poseStack.pushPose();
+		poseStack.translate(left + (itemSize / 2.0f), 0.0F, 0.0F);
+		poseStack.scale(itemSize, itemSize, -itemSize);
+		items.renderStatic(icon, ItemDisplayContext.GUI, packedLight, OverlayTexture.NO_OVERLAY, poseStack, buffer, client.level, 0);
+		poseStack.popPose();
 
-        poseStack.popPose();
-    }
+		poseStack.popPose();
+	}
 
 	private record PointTag(
 			Component points,

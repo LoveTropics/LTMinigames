@@ -108,9 +108,9 @@ public record PlaceTrashBehavior(ResourceLocation positionData, int centerY, int
 		if (chunk.getBlockState(pos).is(Blocks.WATER)) {
 			TrashType trashType = Util.getRandom(TRASH_TYPES, random);
 			chunk.setBlockState(pos, LoveTropicsBlocks.TRASH.get(trashType).getDefaultState()
-							.setValue(TrashBlock.WATERLOGGED, true)
-							.setValue(TrashBlock.ATTACHMENT, Block.canSupportRigidBlock(chunk, pos.below()) ? Attachment.FLOOR : Attachment.random(random))
-							.setValue(TrashBlock.FACING, Direction.Plane.HORIZONTAL.getRandomDirection(random))
+					.setValue(TrashBlock.WATERLOGGED, true)
+					.setValue(TrashBlock.ATTACHMENT, Block.canSupportRigidBlock(chunk, pos.below()) ? Attachment.FLOOR : Attachment.random(random))
+					.setValue(TrashBlock.FACING, Direction.Plane.HORIZONTAL.getRandomDirection(random))
 			);
 		}
 	}

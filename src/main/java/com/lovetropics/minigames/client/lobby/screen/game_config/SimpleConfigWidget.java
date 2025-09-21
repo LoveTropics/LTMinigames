@@ -18,38 +18,39 @@ import java.util.Collections;
 import java.util.List;
 
 public abstract class SimpleConfigWidget extends LayoutGui implements IConfigWidget {
-	
+
 	protected final SimpleConfigData config;
 	private final AbstractWidget control;
-	
+
 	public static SimpleConfigWidget from(LayoutTree ltree, SimpleConfigData data) {
 		return switch (data.type()) {
 			case BOOLEAN -> new BooleanConfigWidget(ltree, data);
 			case NUMBER -> new NumericConfigWidget(ltree, data);
 			case STRING -> new StringConfigWidget(ltree, data);
 			case ENUM -> new EnumConfigWidget(ltree, data);
-			default -> throw new IllegalArgumentException("Invalid config type " + data.type() + " for simple config widget");
+			default ->
+					throw new IllegalArgumentException("Invalid config type " + data.type() + " for simple config widget");
 		};
 	}
-	
+
 	protected SimpleConfigWidget(LayoutTree ltree, SimpleConfigData config) {
 		super();
 		this.config = config;
 		control = createControl(ltree.definiteChild(-1, getHeight()).pop());
 		mainLayout = ltree.pop();
 	}
-	
+
 	@Override
 	public List<? extends GuiEventListener> children() {
 		return Collections.singletonList(control);
 	}
-	
+
 	@Override
 	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
 		control.render(graphics, mouseX, mouseY, partialTicks);
 		super.render(graphics, mouseX, mouseY, partialTicks);
 	}
-	
+
 	protected abstract AbstractWidget createControl(Layout ltree);
 
 	@Override
@@ -62,14 +63,14 @@ public abstract class SimpleConfigWidget extends LayoutGui implements IConfigWid
 		BooleanConfigWidget(LayoutTree ltree, SimpleConfigData config) {
 			super(ltree, config);
 		}
-		
+
 		@Override
 		protected AbstractWidget createControl(Layout mainLayout) {
 			// TODO communicate changes to config object
 			return new BooleanButton(mainLayout, (Boolean) config.value());
 		}
 	}
-	
+
 	private static final class NumericConfigWidget extends SimpleConfigWidget {
 
 		NumericConfigWidget(LayoutTree ltree, SimpleConfigData config) {
@@ -85,13 +86,13 @@ public abstract class SimpleConfigWidget extends LayoutGui implements IConfigWid
 			});
 		}
 	}
-	
+
 	private static final class StringConfigWidget extends SimpleConfigWidget {
 
 		StringConfigWidget(LayoutTree ltree, SimpleConfigData config) {
 			super(ltree, config);
 		}
-		
+
 		@Override
 		protected AbstractWidget createControl(Layout mainLayout) {
 			// TODO communicate changes to config object
@@ -100,14 +101,14 @@ public abstract class SimpleConfigWidget extends LayoutGui implements IConfigWid
 			});
 		}
 	}
-	
+
 	private static final class EnumConfigWidget extends SimpleConfigWidget {
 
 		EnumConfigWidget(LayoutTree ltree, SimpleConfigData config) {
 			super(ltree, config);
 		}
-		
-		@SuppressWarnings({ "unchecked", "rawtypes" })
+
+		@SuppressWarnings({"unchecked", "rawtypes"})
 		@Override
 		protected AbstractWidget createControl(Layout mainLayout) {
 			// TODO communicate changes to config object

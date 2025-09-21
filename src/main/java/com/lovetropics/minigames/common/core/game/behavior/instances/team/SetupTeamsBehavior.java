@@ -78,23 +78,23 @@ public final class SetupTeamsBehavior implements IGameBehavior {
 		events.listen(GamePlayerEvents.ADD, player -> onPlayerWaiting(game, player));
 
 		SelectorItems.Handlers<GameTeam> handlers = new SelectorItems.Handlers<>() {
-            @Override
-            public void onPlayerSelected(ServerPlayer player, GameTeam team) {
-                onRequestJoinTeam(player, team);
-            }
+			@Override
+			public void onPlayerSelected(ServerPlayer player, GameTeam team) {
+				onRequestJoinTeam(player, team);
+			}
 
-            @Override
-            public String getIdFor(GameTeam team) {
-                return team.key().id();
-            }
+			@Override
+			public String getIdFor(GameTeam team) {
+				return team.key().id();
+			}
 
-            @Override
-            public Component getNameFor(GameTeam team) {
-                return MinigameTexts.JOIN_TEAM.apply(team.config().name()).withStyle(team.config().formatting());
-            }
+			@Override
+			public Component getNameFor(GameTeam team) {
+				return MinigameTexts.JOIN_TEAM.apply(team.config().name()).withStyle(team.config().formatting());
+			}
 
-            @Override
-            public Item getItemFor(GameTeam team) {
+			@Override
+			public Item getItemFor(GameTeam team) {
 				return switch (team.config().dye()) {
 					case WHITE -> Items.WHITE_WOOL;
 					case ORANGE -> Items.ORANGE_WOOL;
@@ -113,8 +113,8 @@ public final class SetupTeamsBehavior implements IGameBehavior {
 					case RED -> Items.RED_WOOL;
 					case BLACK -> Items.BLACK_WOOL;
 				};
-            }
-        };
+			}
+		};
 
 		selectors = new SelectorItems<>(handlers, teams.toArray(new GameTeam[0]));
 		selectors.applyTo(events);

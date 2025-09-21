@@ -14,20 +14,20 @@ import net.minecraft.util.TriState;
 import java.util.List;
 
 public record PreventBreakBehavior(List<BlockPredicate> predicates) implements IGameBehavior {
-    public static final MapCodec<PreventBreakBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-            BlockPredicate.CODEC.listOf().fieldOf("predicates").forGetter(c -> c.predicates)
-    ).apply(i, PreventBreakBehavior::new));
+	public static final MapCodec<PreventBreakBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+			BlockPredicate.CODEC.listOf().fieldOf("predicates").forGetter(c -> c.predicates)
+	).apply(i, PreventBreakBehavior::new));
 
-    @Override
-    public void register(IGamePhase game, EventRegistrar events) throws GameException {
-        events.listen(GamePlayerEvents.BREAK_BLOCK, (player, pos, state, hand) -> {
-            for (BlockPredicate predicate : predicates) {
+	@Override
+	public void register(IGamePhase game, EventRegistrar events) throws GameException {
+		events.listen(GamePlayerEvents.BREAK_BLOCK, (player, pos, state, hand) -> {
+			for (BlockPredicate predicate : predicates) {
 				if (predicate.matches(player.level(), pos)) {
 					return TriState.FALSE;
 				}
-            }
-            return TriState.DEFAULT;
-        });
+			}
+			return TriState.DEFAULT;
+		});
 		events.listen(GameWorldEvents.EXPLOSION_DETONATE, (explosion, affectedBlocks, affectedEntities) -> {
 			affectedBlocks.removeIf(pos -> {
 				for (BlockPredicate predicate : predicates) {
@@ -38,5 +38,5 @@ public record PreventBreakBehavior(List<BlockPredicate> predicates) implements I
 				return false;
 			});
 		});
-    }
+	}
 }

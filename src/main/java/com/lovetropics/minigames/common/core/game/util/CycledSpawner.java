@@ -1,7 +1,6 @@
 package com.lovetropics.minigames.common.core.game.util;
 
 import com.lovetropics.lib.BlockBox;
-import com.lovetropics.minigames.common.core.game.behavior.instances.PositionPlayersBehavior;
 import com.lovetropics.minigames.common.core.map.MapRegions;
 
 import javax.annotation.Nullable;
@@ -11,45 +10,45 @@ import java.util.List;
 
 public class CycledSpawner {
 
-    public static final CycledSpawner EMPTY = new CycledSpawner(List.of());
+	public static final CycledSpawner EMPTY = new CycledSpawner(List.of());
 
-    private final List<BlockBox> regions;
-    private int index;
+	private final List<BlockBox> regions;
+	private int index;
 
-    public CycledSpawner(List<BlockBox> regions) {
-        this.regions = new ArrayList<>(regions);
-        Collections.shuffle(this.regions);
-    }
+	public CycledSpawner(List<BlockBox> regions) {
+		this.regions = new ArrayList<>(regions);
+		Collections.shuffle(this.regions);
+	}
 
-    public CycledSpawner(MapRegions regions, String... keys) {
-        this(regions.getAll(keys));
-    }
+	public CycledSpawner(MapRegions regions, String... keys) {
+		this(regions.getAll(keys));
+	}
 
-    public List<BlockBox> regions() {
-        return regions;
-    }
+	public List<BlockBox> regions() {
+		return regions;
+	}
 
-    @Nullable
-    public BlockBox next() {
-        if (regions.isEmpty()) {
-            return null;
-        }
-        return regions.get(index++ % regions.size());
-    }
+	@Nullable
+	public BlockBox next() {
+		if (regions.isEmpty()) {
+			return null;
+		}
+		return regions.get(index++ % regions.size());
+	}
 
-    public CycledSpawner take(int count) {
-        List<BlockBox> result = new ArrayList<>(count);
-        for (int i = 0; i < count; i++) {
-            BlockBox region = next();
-            if (region == null) {
-                break;
-            }
-            result.add(region);
-        }
-        return new CycledSpawner(result);
-    }
+	public CycledSpawner take(int count) {
+		List<BlockBox> result = new ArrayList<>(count);
+		for (int i = 0; i < count; i++) {
+			BlockBox region = next();
+			if (region == null) {
+				break;
+			}
+			result.add(region);
+		}
+		return new CycledSpawner(result);
+	}
 
-    public int size() {
-        return regions.size();
-    }
+	public int size() {
+		return regions.size();
+	}
 }

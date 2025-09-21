@@ -2,7 +2,6 @@ package com.lovetropics.minigames.gametests.api;
 
 import com.lovetropics.minigames.common.util.LTGameTestFakePlayer;
 import com.mojang.authlib.GameProfile;
-import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketFlow;
@@ -23,69 +22,69 @@ import java.util.function.Consumer;
 
 @ParametersAreNonnullByDefault
 public class LTFakePlayer extends ServerPlayer implements LTGameTestFakePlayer {
-    public final List<Packet<?>> receivedPackets = new ArrayList<>();
-    private final FakePlayerBuilder builder;
+	public final List<Packet<?>> receivedPackets = new ArrayList<>();
+	private final FakePlayerBuilder builder;
 
-    public LTFakePlayer(ServerLevel level, FakePlayerBuilder builder, Consumer<LTFakePlayer> before, String name) {
-        super(level.getServer(), level, new GameProfile(UUID.randomUUID(), name), ClientInformation.createDefault());
-        this.builder = builder;
+	public LTFakePlayer(ServerLevel level, FakePlayerBuilder builder, Consumer<LTFakePlayer> before, String name) {
+		super(level.getServer(), level, new GameProfile(UUID.randomUUID(), name), ClientInformation.createDefault());
+		this.builder = builder;
 
-        before.accept(this);
-        level().getServer().getPlayerList().placeNewPlayer(new net.minecraft.network.Connection(PacketFlow.SERVERBOUND), this, CommonListenerCookie.createInitial(getGameProfile(), false));
-    }
+		before.accept(this);
+		level().getServer().getPlayerList().placeNewPlayer(new net.minecraft.network.Connection(PacketFlow.SERVERBOUND), this, CommonListenerCookie.createInitial(getGameProfile(), false));
+	}
 
-    @Override
-    public boolean isSpectator() {
-        return builder.gameMode == GameType.SPECTATOR;
-    }
+	@Override
+	public boolean isSpectator() {
+		return builder.gameMode == GameType.SPECTATOR;
+	}
 
-    @Override
-    public boolean isCreative() {
-        return builder.gameMode == GameType.SPECTATOR || builder.gameMode.isCreative();
-    }
+	@Override
+	public boolean isCreative() {
+		return builder.gameMode == GameType.SPECTATOR || builder.gameMode.isCreative();
+	}
 
-    void exitWorld() {
-        connection.disconnect(Component.literal("Test finished"));
-    }
+	void exitWorld() {
+		connection.disconnect(Component.literal("Test finished"));
+	}
 
-    @Override
-    public void displayClientMessage(Component chatComponent, boolean actionBar) {
+	@Override
+	public void displayClientMessage(Component chatComponent, boolean actionBar) {
 
-    }
+	}
 
-    @Override
-    public void awardStat(Stat stat, int amount) {
+	@Override
+	public void awardStat(Stat stat, int amount) {
 
-    }
+	}
 
-    @Override
+	@Override
 	public boolean isInvulnerableTo(ServerLevel level, DamageSource source) {
-        return builder.isInvulnerableTo.test(source);
-    }
+		return builder.isInvulnerableTo.test(source);
+	}
 
-    @Override
-    public boolean canHarmPlayer(Player player) {
-        return builder.canBeHarmedBy.test(player);
-    }
+	@Override
+	public boolean canHarmPlayer(Player player) {
+		return builder.canBeHarmedBy.test(player);
+	}
 
-    @Override
-    public void die(DamageSource source) {
+	@Override
+	public void die(DamageSource source) {
 
-    }
+	}
 
-    @Override
-    public void updateOptions(ClientInformation information) {
-    }
+	@Override
+	public void updateOptions(ClientInformation information) {
+	}
 
-    @Override
-    public void capturePacket(Packet<?> packet) {
-        if (builder.packetPredicate.test(packet)) {
-            receivedPackets.add(packet);
-        }
-    }
+	@Override
+	public void capturePacket(Packet<?> packet) {
+		if (builder.packetPredicate.test(packet)) {
+			receivedPackets.add(packet);
+		}
+	}
 
-    @Override
-    public boolean shouldRegenerateNaturally() {
-        return builder.shouldRegenerateNaturally;
-    }
+	@Override
+	public boolean shouldRegenerateNaturally() {
+		return builder.shouldRegenerateNaturally;
+	}
 }

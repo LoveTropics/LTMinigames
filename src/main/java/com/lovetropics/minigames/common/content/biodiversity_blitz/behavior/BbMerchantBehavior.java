@@ -78,14 +78,18 @@ public final class BbMerchantBehavior implements IGameBehavior {
 		ServerLevel world = game.level();
 
 		BlockBox region = plot.regionByName(plotRegion);
-		if (region == null) return;
+		if (region == null) {
+			return;
+		}
 
 		Vec3 center = region.center();
 		Direction direction = Util.getDirectionBetween(region, plot.spawn);
 		float yaw = direction.toYRot();
 
 		Entity merchant = createMerchant(world, center.x(), center.y() - 0.5, center.z(), yaw, 0.0f);
-		if (merchant == null) return;
+		if (merchant == null) {
+			return;
+		}
 
 		merchant.setYHeadRot(yaw);
 

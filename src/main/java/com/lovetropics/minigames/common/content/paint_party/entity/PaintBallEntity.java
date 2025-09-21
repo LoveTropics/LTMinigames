@@ -25,12 +25,12 @@ public class PaintBallEntity extends ThrowableProjectile implements ItemSupplier
 	private static final EntityDataAccessor<ItemStack> VISUAL_ITEM = SynchedEntityData.defineId(PaintBallEntity.class, EntityDataSerializers.ITEM_STACK);
 
 	public PaintBallEntity(EntityType<? extends ThrowableProjectile> entityType, Level level) {
-        super(entityType, level);
-    }
+		super(entityType, level);
+	}
 
-    public PaintBallEntity(Level level) {
-        this(PaintParty.PAINTBALL.get(), level);
-    }
+	public PaintBallEntity(Level level) {
+		this(PaintParty.PAINTBALL.get(), level);
+	}
 
 	@Override
 	protected void defineSynchedData(SynchedEntityData.Builder builder) {
@@ -50,19 +50,19 @@ public class PaintBallEntity extends ThrowableProjectile implements ItemSupplier
 	}
 
 	@Override
-    protected void onHitBlock(BlockHitResult result) {
-        super.onHitBlock(result);
+	protected void onHitBlock(BlockHitResult result) {
+		super.onHitBlock(result);
 
-        IGamePhase game = IGameManager.get().getGamePhaseAt(level(), result.getBlockPos());
-        if (game != null) {
-            game.invoker(PaintPartyEvents.PAINTBALL_HIT).onPaintBallHit(level(), this, result.getBlockPos());
-        }
+		IGamePhase game = IGameManager.get().getGamePhaseAt(level(), result.getBlockPos());
+		if (game != null) {
+			game.invoker(PaintPartyEvents.PAINTBALL_HIT).onPaintBallHit(level(), this, result.getBlockPos());
+		}
 
-        discard();
-    }
+		discard();
+	}
 
-    @Override
-    public void shootFromRotation(Entity shooter, float x, float y, float z, float velocity, float inaccuracy) {
+	@Override
+	public void shootFromRotation(Entity shooter, float x, float y, float z, float velocity, float inaccuracy) {
 		shoot(
 				-Mth.sin(y * Mth.DEG_TO_RAD) * Mth.cos(x * Mth.DEG_TO_RAD),
 				-Mth.sin((x + z) * Mth.DEG_TO_RAD),
@@ -70,7 +70,7 @@ public class PaintBallEntity extends ThrowableProjectile implements ItemSupplier
 				velocity,
 				inaccuracy
 		);
-    }
+	}
 
 	public void setVisualItem(ItemStack itemStack) {
 		getEntityData().set(VISUAL_ITEM, itemStack);

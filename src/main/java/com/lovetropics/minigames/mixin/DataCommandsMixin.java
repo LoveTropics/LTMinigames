@@ -16,12 +16,13 @@ import java.util.function.Function;
 
 @Mixin(DataCommands.class)
 public class DataCommandsMixin {
-    @Shadow
-    @Final
-    @Mutable
-    public static List<Function<String, DataCommands.DataProvider>> ALL_PROVIDERS;
-    @Inject(method = "<clinit>", at = @At(value = "FIELD", target = "Lnet/minecraft/server/commands/data/DataCommands;ALL_PROVIDERS:Ljava/util/List;", shift = At.Shift.AFTER))
-    private static void initializeProviders(CallbackInfo ci) {
-        ALL_PROVIDERS = Util.copyAndAdd(ALL_PROVIDERS, GameDataAccessor.PROVIDER);
-    }
+	@Shadow
+	@Final
+	@Mutable
+	public static List<Function<String, DataCommands.DataProvider>> ALL_PROVIDERS;
+
+	@Inject(method = "<clinit>", at = @At(value = "FIELD", target = "Lnet/minecraft/server/commands/data/DataCommands;ALL_PROVIDERS:Ljava/util/List;", shift = At.Shift.AFTER))
+	private static void initializeProviders(CallbackInfo ci) {
+		ALL_PROVIDERS = Util.copyAndAdd(ALL_PROVIDERS, GameDataAccessor.PROVIDER);
+	}
 }

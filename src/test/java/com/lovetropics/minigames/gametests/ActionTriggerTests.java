@@ -41,83 +41,83 @@ import java.util.Optional;
 
 @RegisterMinigameTest
 public class ActionTriggerTests implements MinigameTest {
-    @Override
-    public void generateGame(GameProvider.GameGenerator generator, BehaviorFactory behaviors, HolderLookup.Provider registries) {
-        generator.builder(gameId("start"))
-                .withPlayingPhase(new InlineMapProvider(Level.OVERWORLD), phaseBuilder -> phaseBuilder
-                        .withBehavior(new StartGameTrigger(behaviors.applyToAllPlayers(
-                                NoneActionTarget.INSTANCE,
-                                new SendMessageAction(new TemplatedText(Component.literal("hello world!")))
-                        )), new PlaySoundAction(SoundEvents.ALLAY_HURT, 0.5f, 0.5f, SoundSource.AMBIENT, false)));
+	@Override
+	public void generateGame(GameProvider.GameGenerator generator, BehaviorFactory behaviors, HolderLookup.Provider registries) {
+		generator.builder(gameId("start"))
+				.withPlayingPhase(new InlineMapProvider(Level.OVERWORLD), phaseBuilder -> phaseBuilder
+						.withBehavior(new StartGameTrigger(behaviors.applyToAllPlayers(
+								NoneActionTarget.INSTANCE,
+								new SendMessageAction(new TemplatedText(Component.literal("hello world!")))
+						)), new PlaySoundAction(SoundEvents.ALLAY_HURT, 0.5f, 0.5f, SoundSource.AMBIENT, false)));
 
-        generator.builder(gameId("stop"))
-                .withPlayingPhase(new InlineMapProvider(Level.OVERWORLD), phaseBuilder -> phaseBuilder
-                        .withBehavior(new StopGameTrigger(behaviors.applyToAllPlayers(
-                                NoneActionTarget.INSTANCE,
-                                new RunCommandsAction(List.of(), List.of("give @s minecraft:oak_planks 13"))
-                        ), Optional.empty(), Optional.empty())));
+		generator.builder(gameId("stop"))
+				.withPlayingPhase(new InlineMapProvider(Level.OVERWORLD), phaseBuilder -> phaseBuilder
+						.withBehavior(new StopGameTrigger(behaviors.applyToAllPlayers(
+								NoneActionTarget.INSTANCE,
+								new RunCommandsAction(List.of(), List.of("give @s minecraft:oak_planks 13"))
+						), Optional.empty(), Optional.empty())));
 
-        generator.builder(gameId("events"))
-                .withPlayingPhase(new InlineMapProvider(Level.OVERWORLD), phaseBuilder -> phaseBuilder
-                        .withBehavior(new GeneralEventsTrigger(Map.of(
-                                "player_hurt", behaviors.actions(PlayerActionTarget.SOURCE, new GiveEffectAction(
-                                        List.of(new MobEffectInstance(MobEffects.ABSORPTION, 23, 2))
-                                ))
-                        ))));
-    }
+		generator.builder(gameId("events"))
+				.withPlayingPhase(new InlineMapProvider(Level.OVERWORLD), phaseBuilder -> phaseBuilder
+						.withBehavior(new GeneralEventsTrigger(Map.of(
+								"player_hurt", behaviors.actions(PlayerActionTarget.SOURCE, new GiveEffectAction(
+										List.of(new MobEffectInstance(MobEffects.ABSORPTION, 23, 2))
+								))
+						))));
+	}
 
-    @GameTest
-    public void testEventsTrigger(final LTGameTestHelper helper) {
-        final var player = helper.playerBuilder()
-                .isVulnerableTo(source -> source.is(DamageTypes.FELL_OUT_OF_WORLD))
-                .build();
+	@GameTest
+	public void testEventsTrigger(final LTGameTestHelper helper) {
+		final var player = helper.playerBuilder()
+				.isVulnerableTo(source -> source.is(DamageTypes.FELL_OUT_OF_WORLD))
+				.build();
 
-        final var lobby = helper.createGame(player, PlayerRole.PARTICIPANT);
-        lobby.enqueue(gameId("events"));
+		final var lobby = helper.createGame(player, PlayerRole.PARTICIPANT);
+		lobby.enqueue(gameId("events"));
 
-        helper.startSequence()
-                .thenExecute(helper.startGame(lobby))
-                .thenIdle(5)
-                .thenExecute(() -> player.hurt(player.damageSources().fellOutOfWorld(), 1))
-                .thenIdle(5)
-                .thenExecute(() -> helper.assertTrue(player.getEffect(MobEffects.ABSORPTION) != null, "Effect could not be found on player!"))
-                .thenExecute(() -> helper.assertTrue(player.getEffect(MobEffects.ABSORPTION).getAmplifier() == 2 && player.getEffect(MobEffects.ABSORPTION).getDuration() == 23 - 5, "Effect was not as expected!"))
-                .thenSucceed();
-    }
+		helper.startSequence()
+				.thenExecute(helper.startGame(lobby))
+				.thenIdle(5)
+				.thenExecute(() -> player.hurt(player.damageSources().fellOutOfWorld(), 1))
+				.thenIdle(5)
+				.thenExecute(() -> helper.assertTrue(player.getEffect(MobEffects.ABSORPTION) != null, "Effect could not be found on player!"))
+				.thenExecute(() -> helper.assertTrue(player.getEffect(MobEffects.ABSORPTION).getAmplifier() == 2 && player.getEffect(MobEffects.ABSORPTION).getDuration() == 23 - 5, "Effect was not as expected!"))
+				.thenSucceed();
+	}
 
-    @GameTest
-    public void testStartTrigger(final LTGameTestHelper helper) {
-        final var player = helper.playerBuilder()
-                .packetFilter(packet -> packet instanceof ClientboundSystemChatPacket sc && sc.content().equals(Component.literal("hello world!")) || packet instanceof ClientboundSoundPacket it && it.getSound().value() == SoundEvents.ALLAY_HURT)
-                .build();
-        final var lobby = helper.createGame(player, PlayerRole.PARTICIPANT);
-        lobby.enqueue(gameId("start"));
+	@GameTest
+	public void testStartTrigger(final LTGameTestHelper helper) {
+		final var player = helper.playerBuilder()
+				.packetFilter(packet -> packet instanceof ClientboundSystemChatPacket sc && sc.content().equals(Component.literal("hello world!")) || packet instanceof ClientboundSoundPacket it && it.getSound().value() == SoundEvents.ALLAY_HURT)
+				.build();
+		final var lobby = helper.createGame(player, PlayerRole.PARTICIPANT);
+		lobby.enqueue(gameId("start"));
 
-        helper.startSequence()
-            .thenExecute(helper.startGame(lobby))
-            .thenIdle(20)
-            .thenExecute(() -> helper.assertReceivedPacket(player, 0, ClientboundSystemChatPacket.class, it -> it.content().equals(Component.literal("hello world!"))))
-            .thenExecute(() -> lobby.getActivePhase().invoker(GameActionEvents.APPLY_TO_PLAYER).apply(GameActionContext.EMPTY, player))
-            .thenExecute(() -> helper.assertReceivedPacket(player, 1, ClientboundSoundPacket.class, it -> it.getSound().value() == SoundEvents.ALLAY_HURT && it.getVolume() == 0.5f && it.getPitch() == 0.5f))
-            .thenSucceed();
-    }
+		helper.startSequence()
+				.thenExecute(helper.startGame(lobby))
+				.thenIdle(20)
+				.thenExecute(() -> helper.assertReceivedPacket(player, 0, ClientboundSystemChatPacket.class, it -> it.content().equals(Component.literal("hello world!"))))
+				.thenExecute(() -> lobby.getActivePhase().invoker(GameActionEvents.APPLY_TO_PLAYER).apply(GameActionContext.EMPTY, player))
+				.thenExecute(() -> helper.assertReceivedPacket(player, 1, ClientboundSoundPacket.class, it -> it.getSound().value() == SoundEvents.ALLAY_HURT && it.getVolume() == 0.5f && it.getPitch() == 0.5f))
+				.thenSucceed();
+	}
 
-    @GameTest
-    public void testStopTrigger(final LTGameTestHelper helper) {
-        final var player = helper.createFakePlayer();
-        final var lobby = helper.createGame(player, PlayerRole.PARTICIPANT);
-        lobby.enqueue(gameId("stop"));
+	@GameTest
+	public void testStopTrigger(final LTGameTestHelper helper) {
+		final var player = helper.createFakePlayer();
+		final var lobby = helper.createGame(player, PlayerRole.PARTICIPANT);
+		lobby.enqueue(gameId("stop"));
 
-        helper.startSequence()
-            .thenExecute(helper.startGame(lobby))
-            .thenIdle(20)
-            .thenExecute(() -> lobby.getActivePhase().requestStop(GameStopReason.finished()))
-            .thenExecute(() -> helper.assertPlayerInventoryContainsAt(player, 0, new ItemStack(Items.OAK_PLANKS, 13)))
-            .thenSucceed();
-    }
+		helper.startSequence()
+				.thenExecute(helper.startGame(lobby))
+				.thenIdle(20)
+				.thenExecute(() -> lobby.getActivePhase().requestStop(GameStopReason.finished()))
+				.thenExecute(() -> helper.assertPlayerInventoryContainsAt(player, 0, new ItemStack(Items.OAK_PLANKS, 13)))
+				.thenSucceed();
+	}
 
-    @Override
-    public ResourceLocation id() {
-        return ResourceLocation.fromNamespaceAndPath("lttest", "action_trigger_test");
-    }
+	@Override
+	public ResourceLocation id() {
+		return ResourceLocation.fromNamespaceAndPath("lttest", "action_trigger_test");
+	}
 }

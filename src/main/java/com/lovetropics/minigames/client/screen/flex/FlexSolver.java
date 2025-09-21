@@ -72,10 +72,14 @@ public final class FlexSolver {
 
 	private void solveGrow(Results results, Flex flex, FlexSolve solve, float totalGrow) {
 		int remainingSize = remainingSizeForGrow(results, flex, solve);
-		if (remainingSize <= 0) return;
+		if (remainingSize <= 0) {
+			return;
+		}
 
 		for (Flex child : flex.children) {
-			if (child.grow <= 0.0F) continue;
+			if (child.grow <= 0.0F) {
+				continue;
+			}
 
 			int growSize = Math.round(remainingSize * (child.grow / totalGrow));
 			remainingSize -= growSize;

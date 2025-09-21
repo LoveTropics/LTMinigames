@@ -5,7 +5,6 @@ import com.lovetropics.minigames.client.game.ClientGameStateManager;
 import com.lovetropics.minigames.common.core.game.client_state.GameClientState;
 import com.lovetropics.minigames.common.core.game.client_state.GameClientStateType;
 import com.lovetropics.minigames.common.core.game.client_state.GameClientStateTypes;
-import io.netty.buffer.ByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -19,19 +18,19 @@ public record SetGameClientStateMessage(GameClientStateType<?> stateType, Option
 	public static final Type<SetGameClientStateMessage> TYPE = new Type<>(LoveTropics.location("set_game_client_state"));
 
 	public static final StreamCodec<RegistryFriendlyByteBuf, SetGameClientStateMessage> STREAM_CODEC = new StreamCodec<>() {
-        private final StreamCodec<RegistryFriendlyByteBuf, GameClientStateType<?>> typeCodec = ByteBufCodecs.registry(GameClientStateTypes.REGISTRY_KEY);
+		private final StreamCodec<RegistryFriendlyByteBuf, GameClientStateType<?>> typeCodec = ByteBufCodecs.registry(GameClientStateTypes.REGISTRY_KEY);
 
-        @Override
-        public SetGameClientStateMessage decode(RegistryFriendlyByteBuf input) {
+		@Override
+		public SetGameClientStateMessage decode(RegistryFriendlyByteBuf input) {
 			GameClientStateType<?> type = typeCodec.decode(input);
-            return new SetGameClientStateMessage(type, valueCodec(type).decode(input).map(Function.identity()));
+			return new SetGameClientStateMessage(type, valueCodec(type).decode(input).map(Function.identity()));
 		}
 
 		@Override
-        public void encode(RegistryFriendlyByteBuf output, SetGameClientStateMessage message) {
+		public void encode(RegistryFriendlyByteBuf output, SetGameClientStateMessage message) {
 			typeCodec.encode(output, message.stateType);
 			encodeUnchecked(output, message.stateType, message.state);
-        }
+		}
 
 		@SuppressWarnings("unchecked")
 		private static <T extends GameClientState> void encodeUnchecked(RegistryFriendlyByteBuf output, GameClientStateType<T> type, Optional<GameClientState> state) {

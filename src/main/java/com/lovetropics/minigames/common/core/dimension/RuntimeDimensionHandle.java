@@ -2,8 +2,8 @@ package com.lovetropics.minigames.common.core.dimension;
 
 import com.google.common.base.Preconditions;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.level.Level;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 

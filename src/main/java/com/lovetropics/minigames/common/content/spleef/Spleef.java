@@ -5,12 +5,12 @@ import com.lovetropics.minigames.common.util.registry.GameBehaviorEntry;
 import com.lovetropics.minigames.common.util.registry.LoveTropicsRegistrate;
 
 public class Spleef {
-    private static final LoveTropicsRegistrate REGISTRATE = LoveTropics.registrate();
+	private static final LoveTropicsRegistrate REGISTRATE = LoveTropics.registrate();
 
-    public static final GameBehaviorEntry<SpleefBehavior> SPLEEF = REGISTRATE.object("spleef")
-            .behavior(SpleefBehavior.CODEC)
-            .register();
+	public static final GameBehaviorEntry<SpleefBehavior> SPLEEF = REGISTRATE.object("spleef")
+			.behavior(SpleefBehavior.CODEC)
+			.register();
 
-    public static void init() {
-    }
+	public static void init() {
+	}
 }

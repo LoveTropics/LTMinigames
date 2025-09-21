@@ -127,7 +127,8 @@ public class MobItemSpecialRenderer implements SpecialModelRenderer<MobItemSpeci
 
 	private float getScale(final Argument argument, final ItemDisplayContext context) {
 		final float targetSize = argument.targetSize() * switch (context) {
-			case THIRD_PERSON_LEFT_HAND, THIRD_PERSON_RIGHT_HAND, FIRST_PERSON_LEFT_HAND, FIRST_PERSON_RIGHT_HAND -> 0.8f;
+			case THIRD_PERSON_LEFT_HAND, THIRD_PERSON_RIGHT_HAND, FIRST_PERSON_LEFT_HAND, FIRST_PERSON_RIGHT_HAND ->
+					0.8f;
 			case HEAD -> 1.5f;
 			case GUI, FIXED -> 0.9f;
 			case GROUND -> 0.5f;

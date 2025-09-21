@@ -41,7 +41,7 @@ public class GrowCoconutsBehavior implements IGameBehavior {
 	private static final DeferredHolder<Block, Block> COCONUT = DeferredHolder.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath("tropicraft", "coconut"));
 	private final int interval;
 	private final WeakHashMap<Plant, List<Pair<BlockPos, Direction>>> candidatePositions = new WeakHashMap<>();
-	
+
 	private IGamePhase game;
 
 	public GrowCoconutsBehavior(int interval) {
@@ -61,21 +61,21 @@ public class GrowCoconutsBehavior implements IGameBehavior {
 		if (game.ticks() % interval == 0) {
 			for (Plant plant : plants) {
 				List<Pair<BlockPos, Direction>> candidates = candidatePositions.computeIfAbsent(plant, p -> p.functionalCoverage().stream()
-					.filter(bp -> level.getBlockState(bp).is(BlockTags.LOGS))
-					.filter(bp -> IntStream.range(0, 4)
-							.mapToObj(Direction::from2DDataValue)
-							.allMatch(d -> level.getBlockState(bp.relative(d).above()).is(BlockTags.LEAVES)))
-					.flatMap(bp -> {
-						List<Pair<BlockPos, Direction>> ret = new ArrayList<>();
-						for (int i = 0; i < 4; i++) {
-							Direction dir = Direction.from2DDataValue(i);
-							BlockPos pos = bp.relative(dir);
-							if (level.isEmptyBlock(pos) || level.getBlockState(pos).getBlock() == COCONUT.get()) {
-								ret.add(Pair.of(pos, dir));
+						.filter(bp -> level.getBlockState(bp).is(BlockTags.LOGS))
+						.filter(bp -> IntStream.range(0, 4)
+								.mapToObj(Direction::from2DDataValue)
+								.allMatch(d -> level.getBlockState(bp.relative(d).above()).is(BlockTags.LEAVES)))
+						.flatMap(bp -> {
+							List<Pair<BlockPos, Direction>> ret = new ArrayList<>();
+							for (int i = 0; i < 4; i++) {
+								Direction dir = Direction.from2DDataValue(i);
+								BlockPos pos = bp.relative(dir);
+								if (level.isEmptyBlock(pos) || level.getBlockState(pos).getBlock() == COCONUT.get()) {
+									ret.add(Pair.of(pos, dir));
+								}
 							}
-						}
-						return ret.stream();
-					}).collect(Collectors.toList()));
+							return ret.stream();
+						}).collect(Collectors.toList()));
 
 				Collections.shuffle(candidates);
 				for (Pair<BlockPos, Direction> candidate : candidates) {

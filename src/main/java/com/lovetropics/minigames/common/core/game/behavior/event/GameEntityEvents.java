@@ -1,4 +1,3 @@
-
 package com.lovetropics.minigames.common.core.game.behavior.event;
 
 import net.minecraft.util.TriState;

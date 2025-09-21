@@ -5,11 +5,13 @@ import com.lovetropics.minigames.common.core.game.client_state.GameClientStateTy
 import com.lovetropics.minigames.common.core.game.client_state.GameClientStateTypes;
 
 public class GlowTeamMembersState implements GameClientState {
-    public static final GlowTeamMembersState INSTANCE = new GlowTeamMembersState();
-    private GlowTeamMembersState() {}
+	public static final GlowTeamMembersState INSTANCE = new GlowTeamMembersState();
 
-    @Override
-    public GameClientStateType<?> getType() {
-        return GameClientStateTypes.GLOW_TEAM_MEMBERS.get();
-    }
+	private GlowTeamMembersState() {
+	}
+
+	@Override
+	public GameClientStateType<?> getType() {
+		return GameClientStateTypes.GLOW_TEAM_MEMBERS.get();
+	}
 }
