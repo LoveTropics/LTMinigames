@@ -11,25 +11,26 @@ on:
 
 jobs:
 
-  jdk21:
+  test:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Setup JDK 21
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
 
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Validate Gradle Wrapper Integrity
+        uses: gradle/actions/wrapper-validation@v4
+
       - name: Build with Gradle
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: build
+        run: ./gradlew build
 
       - name: Run game tests
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: runGameTestServer
+        run: ./gradlew runGameTestServer
