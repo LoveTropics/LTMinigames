@@ -1,6 +1,7 @@
 package com.lovetropics.minigames.common.core.network;
 
 import com.lovetropics.minigames.LoveTropics;
+import com.lovetropics.minigames.client.lobby.JoinLobbyPacket;
 import com.lovetropics.minigames.client.lobby.LeaveLobbyPacket;
 import com.lovetropics.minigames.client.lobby.ManageOrCreateLobbyPacket;
 import com.lovetropics.minigames.client.lobby.manage.ClientManageLobbyMessage;
@@ -53,7 +54,7 @@ public final class LoveTropicsNetwork {
 		registrar.playToClient(SelectRolePromptMessage.TYPE, SelectRolePromptMessage.STREAM_CODEC);
 		registrar.playToServer(SelectRoleMessage.TYPE, SelectRoleMessage.STREAM_CODEC, SelectRoleMessage::handle);
 		registrar.playToServer(ManageOrCreateLobbyPacket.TYPE, ManageOrCreateLobbyPacket.STREAM_CODEC, ManageOrCreateLobbyPacket::handle);
-		registrar.playToServer(JoinedLobbyMessage.TYPE, JoinedLobbyMessage.STREAM_CODEC, JoinedLobbyMessage::handle);
+		registrar.playToServer(JoinLobbyPacket.TYPE, JoinLobbyPacket.STREAM_CODEC, JoinLobbyPacket::handle);
 		registrar.playToServer(LeaveLobbyPacket.TYPE, LeaveLobbyPacket.STREAM_CODEC, LeaveLobbyPacket::handle);
 
 		registrar.playToClient(DrawParticleLineMessage.TYPE, DrawParticleLineMessage.STREAM_CODEC);
