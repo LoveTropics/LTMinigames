@@ -55,6 +55,11 @@ public final class GameQueueList extends AbstractGameList {
 	}
 
 	@Override
+	public boolean isMouseOver(double mouseX, double mouseY) {
+		return enqueueButton.isMouseOver(mouseX, mouseY) || removeButton.isMouseOver(mouseX, mouseY) || super.isMouseOver(mouseX, mouseY);
+	}
+
+	@Override
 	public void updateEntries() {
 		int selectedId = getSelected() != null ? getSelected().getId() : -1;
 

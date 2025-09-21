@@ -161,7 +161,10 @@ public final class GameList implements GuiEventListener, NarratableEntry {
 	}
 
 	public Optional<GuiEventListener> getChildAt(double mouseX, double mouseY) {
-		return active.getChildAt(mouseX, mouseY);
+		if (active.isMouseOver(mouseX, mouseY)) {
+			return Optional.of(active);
+		}
+		return Optional.empty();
 	}
 
 	public interface Handlers {

@@ -54,6 +54,11 @@ public final class InstalledGameList extends AbstractGameList {
 	}
 
 	@Override
+	public boolean isMouseOver(double mouseX, double mouseY) {
+		return enqueueButton.isMouseOver(mouseX, mouseY) || cancelButton.isMouseOver(mouseX, mouseY) || super.isMouseOver(mouseX, mouseY);
+	}
+
+	@Override
 	public void updateEntries() {
 		setSelected(null);
 
