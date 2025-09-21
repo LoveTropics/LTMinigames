@@ -110,13 +110,13 @@ configurations {
 
 repositories {
     maven { url = "https://maven.ithundxr.dev/snapshots/" }
-    maven { url = "https://maven.tterrag.com/" }
+    maven { url = "https://maven.gegy.dev/releases/" }
     maven { url = "https://api.modrinth.com/maven" }
     mavenLocal()
 }
 
 dependencies {
-    modRuntime 'org.lovetropics:Tropicraft:9.7.3-beta+2'
+    modRuntime 'maven.modrinth:tropicraft:9.8.1-1.21.1'
 
     // TODO: HACK - We get Registrate at runtime through JarJar from Tropicraft. We should rather prefer to depend on the slim jar.
     jarJar(modCompile("com.tterrag.registrate:Registrate:MC1.21-${registrate_version}")) {
@@ -128,7 +128,7 @@ dependencies {
 
     jarJar(modImpl("com.lovetropics.lib:LTLib:$ltlib_version"))
 
-    modRuntime "com.lovetropics.extras:LTExtras:$ltextras_version"
+    modRuntime "org.lovetropics:LTExtras:$ltextras_version"
 
     testImplementation platform("org.junit:junit-bom:5.7.0")
     testImplementation "org.junit.jupiter:junit-jupiter"
