@@ -139,19 +139,14 @@ public final class ClientPlayerDisguises {
 			event.setCanceled(true);
 		} else {
 			poseStack.pushPose();
-			if (scale != 1.0f) {
-				poseStack.scale(scale, scale, scale);
-			}
+			poseStack.scale(scale, scale, scale);
 		}
 	}
 
 	@SubscribeEvent
 	public static void onRenderPlayerPost(RenderLivingEvent.Post<?, ?, ?> event) {
 		DisguiseRenderState disguiseState = event.getRenderState().getRenderData(DISGUISE_KEY);
-		if (disguiseState == null) {
-			return;
-		}
-		if (disguiseState.entityRenderState() != null || disguiseState.scale() != 1.0f) {
+		if (disguiseState != null && disguiseState.entityRenderState() == null) {
 			event.getPoseStack().popPose();
 		}
 	}
