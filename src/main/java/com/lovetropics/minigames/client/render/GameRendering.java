@@ -113,7 +113,7 @@ public class GameRendering {
 				}
 
 				TextColor col = comp.getStyle().getColor();
-				drawComponent(matrices, buffers, hoff, voff, col == null ? CommonColors.WHITE : col.getValue(), comp);
+				drawComponent(matrices, buffers, hoff, voff, col == null ? CommonColors.WHITE : ARGB.opaque(col.getValue()), comp);
 			}
 
 			matrices.popPose();
