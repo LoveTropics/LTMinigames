@@ -25,7 +25,7 @@ public abstract class FallingBlockEntityMixin extends Entity {
 	@Shadow
 	private BlockState blockState;
 
-	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/item/FallingBlockEntity;discard()V", ordinal = 1, shift = At.Shift.AFTER), method = "tick")
+	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/item/FallingBlockEntity;discard()V", ordinal = 2, shift = At.Shift.AFTER), method = "tick")
 	private void customFalling(CallbackInfo ci) {
 		if (level() instanceof ServerLevel serverLevel) {
 			IGamePhase game = IGameManager.get().getGamePhaseAt(serverLevel, blockPosition());
