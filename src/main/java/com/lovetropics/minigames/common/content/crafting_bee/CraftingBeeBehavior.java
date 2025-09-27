@@ -168,7 +168,7 @@ public class CraftingBeeBehavior implements IGameBehavior {
 		for (GameTeam team : teams) {
 			var recipes = selectors.stream().map(selector -> selector.select(game.level()))
 					.map(recipe -> new CraftingTask(
-							((Recipe<CraftingInput>) recipe.value()).assemble(CraftingInput.EMPTY, game.registryAccess()),
+							CraftingBee.getCraftingRecipeResult(recipe.value(), game.registryAccess()),
 							recipe
 					))
 					.toList();

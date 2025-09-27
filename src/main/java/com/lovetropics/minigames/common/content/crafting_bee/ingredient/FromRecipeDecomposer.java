@@ -1,5 +1,6 @@
 package com.lovetropics.minigames.common.content.crafting_bee.ingredient;
 
+import com.lovetropics.minigames.common.content.crafting_bee.CraftingBee;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.Registries;
@@ -45,11 +46,13 @@ public class FromRecipeDecomposer implements IngredientDecomposer {
 
 		for (ResourceKey<Recipe<?>> recipeId : recipes) {
 			level.getServer().getRecipeManager().byKey(recipeId).ifPresent(holder -> {
+				ItemStack result = CraftingBee.getCraftingRecipeResult(holder.value(), level.registryAccess());
+				if (result.isEmpty()) {
+					return;
+				}
 				if (holder.value() instanceof ShapedRecipe shapedRecipe) {
-					ItemStack result = shapedRecipe.assemble(CraftingInput.EMPTY, level.registryAccess());
 					cache.put(result.getItem(), shapedRecipe.placementInfo().ingredients());
 				} else if (holder.value() instanceof ShapelessRecipe shapelessRecipe) {
-					ItemStack result = shapelessRecipe.assemble(CraftingInput.EMPTY, level.registryAccess());
 					cache.put(result.getItem(), shapelessRecipe.placementInfo().ingredients());
 				}
 			});

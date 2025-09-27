@@ -3,8 +3,15 @@ package com.lovetropics.minigames.common.content.crafting_bee;
 import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.util.registry.GameBehaviorEntry;
 import com.lovetropics.minigames.common.util.registry.LoveTropicsRegistrate;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingInput;
+import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.ShapedRecipe;
+import net.minecraft.world.item.crafting.ShapelessRecipe;
 
 import java.util.function.Supplier;
 
@@ -26,5 +33,15 @@ public class CraftingBee {
 	);
 
 	public static void init() {
+	}
+
+	public static ItemStack getCraftingRecipeResult(Recipe<?> recipe, HolderLookup.Provider registries) {
+		if (!(recipe instanceof CraftingRecipe craftingRecipe)) {
+			return ItemStack.EMPTY;
+		}
+		if (recipe instanceof ShapedRecipe || recipe instanceof ShapelessRecipe) {
+			return craftingRecipe.assemble(CraftingInput.EMPTY, registries);
+		}
+		return ItemStack.EMPTY;
 	}
 }

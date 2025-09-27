@@ -89,11 +89,8 @@ public interface RecipeSelector {
 			if (cache == null) {
 				cache = level.recipeAccess().getRecipes().stream()
 						.filter(h -> {
-							if (h.value() instanceof CraftingRecipe recipe) {
-								ItemStack result = recipe.assemble(CraftingInput.EMPTY, level.registryAccess());
-								return result.is(tag) && isVanilla(h);
-							}
-							return false;
+							ItemStack result = CraftingBee.getCraftingRecipeResult(h.value(), level.registryAccess());
+							return result.is(tag) && isVanilla(h);
 						})
 						.toList();
 			}
