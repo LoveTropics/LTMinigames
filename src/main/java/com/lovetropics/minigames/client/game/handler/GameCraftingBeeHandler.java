@@ -17,6 +17,7 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.CraftingScreen;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -68,8 +69,8 @@ public class GameCraftingBeeHandler {
 		}
 	};
 
-	private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath("ltminigames", "textures/gui/minigames/crafting_bee/items_bar.png");
-	private static final ResourceLocation GRID_TEXTURE = ResourceLocation.fromNamespaceAndPath("ltminigames", "textures/gui/minigames/crafting_bee/crafting_grid.png");
+	private static final ResourceLocation ITEMS_BAR_SPRITE = LoveTropics.location("minigames/crafting_bee/items_bar");
+	private static final ResourceLocation GRID_SPRITE = LoveTropics.location("minigames/crafting_bee/crafting_grid");
 
 	@EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
 	public static class ModSubscriber {
@@ -88,7 +89,7 @@ public class GameCraftingBeeHandler {
 
 				@Override
 				public void renderImage(Font font, int x, int y, int width, int height, GuiGraphics guiGraphics) {
-					guiGraphics.blit(GRID_TEXTURE, x, y, 0, 0, 54, 54, 54, 54);
+					guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, GRID_SPRITE, x, y, 54, 54);
 					for (int i = 0; i < recipeHintState.grid().size(); i++) {
 						var ingredient = recipeHintState.grid.get(i);
 						if (ingredient.isEmpty()) {
@@ -124,7 +125,7 @@ public class GameCraftingBeeHandler {
 		event.addListener(new AbstractWidget(screen.getGuiLeft() + 22, screen.getGuiTop() - 21, 132, 21, Component.empty()) {
 			@Override
 			protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-				guiGraphics.blit(TEXTURE, this.getX(), this.getY(), 0, 0, 132, 21, 132, 21);
+				guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, ITEMS_BAR_SPRITE, this.getX(), this.getY(), 132, 21);
 				var crafts = getState().crafts();
 				for (int i = 0; i < crafts.size(); i++) {
 					var craft = crafts.get(i);

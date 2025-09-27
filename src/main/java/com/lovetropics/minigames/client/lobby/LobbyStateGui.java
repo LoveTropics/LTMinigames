@@ -11,6 +11,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.CommonColors;
 import net.neoforged.api.distmarker.Dist;
@@ -90,7 +91,7 @@ public class LobbyStateGui {
 
 		ResourceLocation icon = getIcon(lobby);
 		if (icon != null) {
-			graphics.blit(icon, x, top, 0, 0, 32, 32, 32, 32);
+			graphics.blitSprite(RenderPipelines.GUI_TEXTURED, icon, x, top, 32, 32);
 			x += iconSize + PADDING * 2;
 		}
 
