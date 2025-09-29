@@ -83,7 +83,9 @@ public interface IntegrationSender {
 			return HttpRequest.newBuilder(URI.create(url.get() + "/" + endpoint))
 					.header(HttpHeaders.USER_AGENT, "LTMinigames 1.0 (lovetropics.org)")
 					.header(HttpHeaders.CONTENT_TYPE, "application/json")
-					.header(HttpHeaders.AUTHORIZATION, "Bearer " + authToken.get());
+					.header(HttpHeaders.AUTHORIZATION, "Bearer " + authToken.get())
+					.version(HttpClient.Version.HTTP_1_1)
+					;
 		}
 
 		private boolean isDisabled() {
