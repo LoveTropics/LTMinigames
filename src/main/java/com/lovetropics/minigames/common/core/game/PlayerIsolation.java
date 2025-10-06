@@ -42,6 +42,8 @@ public final class PlayerIsolation {
 	private static final Logger LOGGER = LogUtils.getLogger();
 
 	private static final String ISOLATED_TAG = LoveTropics.ID + ".isolated";
+	// Checked by JEDI to avoid incorrect join/leave messages
+	private static final String RELOADING_TAG = LoveTropics.ID + ".reloading";
 
 	private final Set<UUID> reloadingPlayers = new ObjectOpenHashSet<>();
 
@@ -125,6 +127,7 @@ public final class PlayerIsolation {
 			final PlayerList playerList = server.getPlayerList();
 
 			reloadingPlayers.add(oldPlayer.getUUID());
+			oldPlayer.addTag(RELOADING_TAG);
 			EventHooks.firePlayerLoggedOut(oldPlayer);
 
 			// Only called once - when player enters the first game phase they enter
@@ -138,6 +141,8 @@ public final class PlayerIsolation {
 			((PlayerListAccess) playerList).ltminigames$remove(oldPlayer);
 
 			final ServerPlayer newPlayer = recreatePlayer(oldPlayer);
+			newPlayer.addTag(RELOADING_TAG);
+
 			initializer.accept(newPlayer, reporter);
 			newPlayer.onUpdateAbilities();
 
@@ -177,7 +182,8 @@ public final class PlayerIsolation {
 				EventHooks.firePlayerChangedDimensionEvent(newPlayer, oldDimension, newDimension);
 			}
 
-			reloadingPlayers.remove(newPlayer.getUUID());
+			newPlayer.removeTag(RELOADING_TAG);
+			reloadingPlayers.remove(oldPlayer.getUUID());
 
 			return newPlayer;
 		}
