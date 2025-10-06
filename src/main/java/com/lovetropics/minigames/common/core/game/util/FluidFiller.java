@@ -72,6 +72,7 @@ public class FluidFiller {
 			// Don't actually trigger light updates, but make sure the light engine has the information it needs if a block update does happen
 			if (section.hasOnlyAir()) {
 				lightEngine.updateSectionStatus(SectionPos.of(chunkPos.x, sectionY, chunkPos.z), false);
+				level.getChunkSource().onSectionEmptinessChanged(chunkPos.x, sectionY, chunkPos.z, false);
 			}
 
 			boolean changed = false;
