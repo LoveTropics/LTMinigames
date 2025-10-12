@@ -2,8 +2,8 @@ package com.lovetropics.minigames.common.util.registry;
 
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.DynamicOps;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Registry;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceKey;
 
@@ -13,15 +13,11 @@ import java.util.stream.Collectors;
 
 // Replicates behavior of dynamic registries - won't be needed once we switch to use those
 public class RegistryLoadingOps {
-	private static <T> RegistryOps.RegistryInfo<T> createLoadingRegistryInfo(Registry<T> registry) {
-		return new RegistryOps.RegistryInfo<>(registry, registry, registry.registryLifecycle());
-	}
-
-	public static <T> DynamicOps<T> create(DynamicOps<T> ops, RegistryAccess registryAccess) {
-		Map<ResourceKey<? extends Registry<?>>, RegistryOps.RegistryInfo<?>> registryInfo = registryAccess.registries()
+	public static <T> DynamicOps<T> create(DynamicOps<T> ops, HolderLookup.Provider registryAccess) {
+		Map<ResourceKey<? extends Registry<?>>, RegistryOps.RegistryInfo<?>> registryInfo = registryAccess.listRegistries()
 				.map(registry -> Pair.of(
 						registry.key(),
-						createLoadingRegistryInfo(registry.value())
+						RegistryOps.RegistryInfo.fromRegistryLookup(registry)
 				))
 				.collect(Collectors.toMap(Pair::getFirst, Pair::getSecond));
 		return RegistryOps.create(ops, new RegistryOps.RegistryInfoLookup() {

@@ -15,7 +15,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.MapLike;
 import com.mojang.serialization.RecordBuilder;
 import net.minecraft.Util;
-import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
@@ -24,6 +24,7 @@ import net.minecraft.util.StrictJsonParser;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.AddServerReloadListenersEvent;
+import net.neoforged.neoforge.resource.ContextAwareReloadListener;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -53,20 +54,22 @@ public final class GameConfigs {
 
 	@SubscribeEvent
 	public static void addReloadListener(AddServerReloadListenersEvent event) {
-		RegistryAccess registryAccess = event.getRegistryAccess();
-		event.addListener(LoveTropics.location("game_configs"), (barrier, resourceManager, backgroundExecutor, gameExecutor) ->
-				load(resourceManager, backgroundExecutor, registryAccess)
+		event.addListener(LoveTropics.location("game_configs"), new ContextAwareReloadListener() {
+			@Override
+			public CompletableFuture<Void> reload(PreparationBarrier barrier, ResourceManager resourceManager, Executor backgroundExecutor, Executor gameExecutor) {
+				return load(resourceManager, backgroundExecutor, getRegistryLookup())
 						.thenCompose(barrier::wait)
 						.thenAcceptAsync(configs -> {
 							REGISTRY.clear();
 							configs.stream()
 									.sorted(Comparator.comparing(config -> config.name().getString()))
 									.forEach(config -> REGISTRY.register(config.id(), config));
-						}, gameExecutor)
-		);
+						}, gameExecutor);
+			}
+		});
 	}
 
-	private static CompletableFuture<List<GameConfig>> load(ResourceManager resourceManager, Executor backgroundExecutor, RegistryAccess registryAccess) {
+	private static CompletableFuture<List<GameConfig>> load(ResourceManager resourceManager, Executor backgroundExecutor, HolderLookup.Provider registryAccess) {
 		return CompletableFuture.supplyAsync(() -> listBehaviors(resourceManager, backgroundExecutor), backgroundExecutor)
 				.thenCompose(f -> f)
 				.thenAccept(behaviors -> {
@@ -76,7 +79,7 @@ public final class GameConfigs {
 				.thenComposeAsync(unused -> listConfigs(registryAccess, resourceManager, backgroundExecutor), backgroundExecutor);
 	}
 
-	private static CompletableFuture<List<GameConfig>> listConfigs(RegistryAccess registryAccess, ResourceManager resourceManager, Executor executor) {
+	private static CompletableFuture<List<GameConfig>> listConfigs(HolderLookup.Provider registryAccess, ResourceManager resourceManager, Executor executor) {
 		DynamicOps<JsonElement> ops = RegistryLoadingOps.create(JsonOps.INSTANCE, registryAccess);
 		List<CompletableFuture<GameConfig>> futures = GAME_LISTER.listMatchingResources(resourceManager).entrySet().stream()
 				.map(entry -> CompletableFuture.supplyAsync(() -> tryLoadConfig(ops, entry.getKey(), entry.getValue()), executor))
