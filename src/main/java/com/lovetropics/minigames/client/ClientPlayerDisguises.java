@@ -80,7 +80,7 @@ public final class ClientPlayerDisguises {
 	}
 
 	// Can be removed in 1.21.9+ where render states are never reused
-	private static <E extends Entity, S extends EntityRenderState> S createFreshRenderState(EntityRenderer<E, S> renderer, E entity, float partialTicks) {
+	public static <E extends Entity, S extends EntityRenderState> S createFreshRenderState(EntityRenderer<E, S> renderer, E entity, float partialTicks) {
 		S state = renderer.createRenderState();
 		renderer.extractRenderState(entity, state, partialTicks);
 		RenderStateExtensions.onUpdateEntityRenderState(renderer, entity, state);

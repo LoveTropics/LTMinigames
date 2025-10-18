@@ -1,5 +1,6 @@
 package com.lovetropics.minigames.client.render.special;
 
+import com.lovetropics.minigames.client.ClientPlayerDisguises;
 import com.lovetropics.minigames.common.core.diguise.DisguiseType;
 import com.lovetropics.minigames.common.core.item.MinigameDataComponents;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -201,7 +202,7 @@ public class MobItemSpecialRenderer implements SpecialModelRenderer<MobItemSpeci
 			}
 			EntityRenderer<? super T, ?> renderer = entityRenderDispatcher.getRenderer(entity);
 			return Optional.of(new EntityInfo(
-					renderer.createRenderState(entity, 1.0f),
+					ClientPlayerDisguises.createFreshRenderState(renderer, entity, 1.0f),
 					entity.getBbWidth(),
 					entity.getBbHeight(),
 					// Approximate size of the entity - overestimate width a bit because bounding boxes are usually too small
