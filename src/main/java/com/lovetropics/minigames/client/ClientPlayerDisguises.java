@@ -34,6 +34,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.CalculateDetachedCameraDistanceEvent;
 import net.neoforged.neoforge.client.event.RenderLivingEvent;
 import net.neoforged.neoforge.client.renderstate.RegisterRenderStateModifiersEvent;
+import net.neoforged.neoforge.client.renderstate.RenderStateExtensions;
 
 import javax.annotation.Nullable;
 import java.time.Duration;
@@ -78,6 +79,14 @@ public final class ClientPlayerDisguises {
 		return extractDisguiseState(entity, partialTicks, disguiseEntity, disguise);
 	}
 
+	// Can be removed in 1.21.9+ where render states are never reused
+	private static <E extends Entity, S extends EntityRenderState> S createFreshRenderState(EntityRenderer<E, S> renderer, E entity, float partialTicks) {
+		S state = renderer.createRenderState();
+		renderer.extractRenderState(entity, state, partialTicks);
+		RenderStateExtensions.onUpdateEntityRenderState(renderer, entity, state);
+		return state;
+	}
+
 	private static <E extends Entity> DisguiseRenderState extractDisguiseState(LivingEntity entity, float partialTicks, E disguiseEntity, PlayerDisguise disguise) {
 		EntityRenderDispatcher entityRenderDispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
 		EntityRenderer<? super E, ?> renderer = entityRenderDispatcher.getRenderer(disguiseEntity);
@@ -92,7 +101,7 @@ public final class ClientPlayerDisguises {
 			}
 
 			return new DisguiseRenderState(
-					renderer.createRenderState(disguiseEntity, partialTicks),
+					createFreshRenderState(renderer, disguiseEntity, partialTicks),
 					disguise.type().scale()
 			);
 		} catch (Exception e) {
