@@ -2,7 +2,6 @@ package com.lovetropics.minigames.common.core.game.behavior.instances;
 
 import com.lovetropics.lib.BlockBox;
 import com.lovetropics.minigames.common.content.MinigameTexts;
-import com.lovetropics.minigames.common.core.diguise.PlayerDisguise;
 import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.SpawnBuilder;
@@ -38,6 +37,8 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.mutable.MutableInt;
+import org.lovetropics.peekaboo.api.Disguise;
+import org.lovetropics.peekaboo.api.EntityDisguiseHolder;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -151,8 +152,8 @@ public record ScoreMobInGoalBehavior(
 			return true;
 		}
 		if (entity instanceof ServerPlayer player && !player.isSpectator()) {
-			PlayerDisguise disguise = PlayerDisguise.getOrNull(player);
-			return disguise != null && disguise.type().entityType() == scoringEntity.type();
+			Disguise disguise = EntityDisguiseHolder.getDisguise(player);
+			return disguise.entity().isPresent() && disguise.entity().get().type() == scoringEntity.type();
 		}
 		return false;
 	}
