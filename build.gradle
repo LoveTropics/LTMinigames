@@ -141,11 +141,6 @@ dependencies {
 
     modRuntime "org.lovetropics:LTExtras:$ltextras_version"
 
-    jarJar(modCompile("org.lovetropics:peekaboo-api:$peekaboo_version"))
-    modRuntime("org.lovetropics:peekaboo:$peekaboo_version") {
-        transitive = false
-    }
-
     testImplementation platform("org.junit:junit-bom:5.7.0")
     testImplementation "org.junit.jupiter:junit-jupiter"
 }

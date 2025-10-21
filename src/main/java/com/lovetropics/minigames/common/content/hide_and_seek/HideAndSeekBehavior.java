@@ -2,6 +2,9 @@ package com.lovetropics.minigames.common.content.hide_and_seek;
 
 import com.lovetropics.lib.BlockBox;
 import com.lovetropics.lib.codec.MoreCodecs;
+import com.lovetropics.minigames.common.core.diguise.DisguiseType;
+import com.lovetropics.minigames.common.core.diguise.PlayerDisguise;
+import com.lovetropics.minigames.common.core.diguise.ServerPlayerDisguises;
 import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.SpawnBuilder;
@@ -21,6 +24,7 @@ import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
@@ -31,10 +35,6 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.CustomData;
-import org.lovetropics.peekaboo.api.Disguise;
-import org.lovetropics.peekaboo.api.EntityDisguiseHolder;
-import org.lovetropics.peekaboo.api.TypedEntityData;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -44,13 +44,13 @@ public final class HideAndSeekBehavior implements IGameBehavior {
 	public static final MapCodec<HideAndSeekBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			Codec.STRING.fieldOf("spawn").forGetter(c -> c.spawnRegionKey),
 			Codec.INT.fieldOf("initial_hide_seconds").forGetter(c -> c.initialHideSeconds),
-			Disguise.CODEC.listOf().fieldOf("disguises").forGetter(c -> c.disguises),
+			DisguiseType.CODEC.listOf().fieldOf("disguises").forGetter(c -> c.disguises),
 			Creature.CODEC.listOf().fieldOf("creatures").forGetter(c -> c.creatures)
 	).apply(i, HideAndSeekBehavior::new));
 
 	private final String spawnRegionKey;
 	private final int initialHideSeconds;
-	private final List<Disguise> disguises;
+	private final List<DisguiseType> disguises;
 	private final List<Creature> creatures;
 
 	private IGamePhase game;
@@ -60,7 +60,7 @@ public final class HideAndSeekBehavior implements IGameBehavior {
 
 	private BlockBox spawnRegion;
 
-	public HideAndSeekBehavior(String spawnRegionKey, int initialHideSeconds, List<Disguise> disguises, List<Creature> creatures) {
+	public HideAndSeekBehavior(String spawnRegionKey, int initialHideSeconds, List<DisguiseType> disguises, List<Creature> creatures) {
 		this.spawnRegionKey = spawnRegionKey;
 		this.initialHideSeconds = initialHideSeconds;
 		this.disguises = disguises;
@@ -153,27 +153,33 @@ public final class HideAndSeekBehavior implements IGameBehavior {
 
 	private void removeParticipant(ServerPlayer player) {
 		if (teams.isOnTeam(player, hiders.key())) {
-			EntityDisguiseHolder.set(player, Disguise.NONE);
+			PlayerDisguise disguise = PlayerDisguise.getOrNull(player);
+			if (disguise != null) {
+				disguise.clear();
+			}
 		}
 	}
 
 	private void setHider(ServerPlayer player) {
-		Disguise disguise = nextDisguiseType(player.level().random);
-		EntityDisguiseHolder.set(player, disguise);
+		DisguiseType disguise = nextDisguiseType(player.level().random);
+		ServerPlayerDisguises.set(player, disguise);
 	}
 
 	private void setSeeker(ServerPlayer player) {
 		player.getInventory().clearContent();
-		EntityDisguiseHolder.set(player, Disguise.NONE);
+		ServerPlayerDisguises.clear(player);
 		player.getInventory().add(new ItemStack(HideAndSeek.NET.get()));
 	}
 
-	private Disguise nextDisguiseType(RandomSource random) {
-		Disguise disguise = Util.getRandom(disguises, random);
-		return disguise.withEntity(disguise.entity().map(entity -> {
-			CustomData data = entity.data().update(tag -> tag.putBoolean("CustomNameVisible", false));
-			return new TypedEntityData(data);
-		}));
+	private DisguiseType nextDisguiseType(RandomSource random) {
+		DisguiseType disguise = Util.getRandom(disguises, random);
+		DisguiseType.EntityConfig entity = disguise.entity();
+		if (entity == null) {
+			return disguise;
+		}
+		CompoundTag nbt = entity.nbt() != null ? entity.nbt().copy() : new CompoundTag();
+		nbt.putBoolean("CustomNameVisible", false);
+		return disguise.withEntity(entity.withNbt(nbt));
 	}
 
 	private void onHiderCaptured(ServerPlayer player) {

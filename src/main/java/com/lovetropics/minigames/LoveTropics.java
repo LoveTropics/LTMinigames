@@ -60,6 +60,7 @@ import com.lovetropics.minigames.common.core.command.game.JoinGameCommand;
 import com.lovetropics.minigames.common.core.command.game.LeaveGameCommand;
 import com.lovetropics.minigames.common.core.command.game.ManageGameLobbyCommand;
 import com.lovetropics.minigames.common.core.command.game.StartGameCommand;
+import com.lovetropics.minigames.common.core.diguise.PlayerDisguise;
 import com.lovetropics.minigames.common.core.dimension.RuntimeDimensions;
 import com.lovetropics.minigames.common.core.entity.MinigameEntities;
 import com.lovetropics.minigames.common.core.extension.LimitedSpawnerAttachment;
@@ -195,6 +196,7 @@ public class LoveTropics {
 		SpeedCarbGolf.init();
 
 		DriftwoodRider.ATTACHMENT_TYPES.register(modBus);
+		PlayerDisguise.ATTACHMENT_TYPES.register(modBus);
 		ChatChannelStore.ATTACHMENT_TYPES.register(modBus);
 		LimitedSpawnerAttachment.ATTACHMENT_TYPES.register(modBus);
 		SoundRegistry.REGISTER.register(modBus);

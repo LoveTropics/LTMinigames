@@ -43,6 +43,7 @@ public final class LoveTropicsNetwork {
 		registrar.playToClient(LeftLobbyMessage.TYPE, LeftLobbyMessage.STREAM_CODEC);
 		registrar.playToClient(LobbyPlayersMessage.TYPE, LobbyPlayersMessage.STREAM_CODEC);
 
+		registrar.playToClient(PlayerDisguiseMessage.TYPE, PlayerDisguiseMessage.STREAM_CODEC);
 		registrar.playToClient(ShowNotificationToastMessage.TYPE, ShowNotificationToastMessage.STREAM_CODEC);
 
 		registrar.playToClient(ClientManageLobbyMessage.TYPE, ClientManageLobbyMessage.STREAM_CODEC);
@@ -81,6 +82,7 @@ public final class LoveTropicsNetwork {
 		event.register(LeftLobbyMessage.TYPE, LeftLobbyMessage::handle);
 		event.register(LobbyPlayersMessage.TYPE, LobbyPlayersMessage::handle);
 
+		event.register(PlayerDisguiseMessage.TYPE, PlayerDisguiseMessage::handle);
 		event.register(ShowNotificationToastMessage.TYPE, ShowNotificationToastMessage::handle);
 
 		event.register(ClientManageLobbyMessage.TYPE, ClientManageLobbyMessage::handle);

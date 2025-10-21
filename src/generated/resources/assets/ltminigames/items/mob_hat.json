@@ -1,0 +1,11 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "ltminigames:item/mob_hat",
+    "model": {
+      "type": "ltminigames:mob_item",
+      "entity_source": "entity",
+      "inventory_sprite": "ltminigames:item/mob_hat"
+    }
+  }
+}

@@ -16,11 +16,13 @@
     "ItemStackMixin",
     "MinecraftServerMixin",
     "PlayerListMixin",
+    "PlayerMixin",
     "ServerLevelMixin",
     "ServerPlayerMixin",
     "SimpleRegistryMixin",
     "WorldGenSettingsMixin",
     "chat.ServerGamePacketListenerImplMixin",
+    "disguise.LivingEntityMixin",
     "gametest.GameTestHelperAccess",
     "gametest.GameTestInfoAccess",
     "gametest.GTNetworkFiltersMixin",
@@ -37,7 +39,9 @@
     "client.KeyboardInputMixin",
     "client.MinecraftMixin",
     "client.MouseHandlerMixin",
-    "client.PlayerTabOverlayGuiMixin"
+    "client.PlayerTabOverlayGuiMixin",
+    "client.PoseStackAccessor",
+    "client.disguise.AbstractClientPlayerMixin"
   ],
   "injectors": {
     "defaultRequire": 1
