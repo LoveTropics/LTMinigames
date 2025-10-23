@@ -129,7 +129,7 @@ public final class SurviveTheTide {
 			.register();
 
 	public static final RegistryEntry<EntityType<?>, EntityType<PlatformEntity>> PLATFORM = REGISTRATE.entity("platform", PlatformEntity::new, MobCategory.MISC)
-			.properties(properties -> properties.sized(0.0f, 0.0f).updateInterval(3).clientTrackingRange(1).noSave())
+			.properties(properties -> properties.sized(0.0f, 0.0f).updateInterval(3).clientTrackingRange(1))
 			.loot((loot, type) -> loot.add(type, lootTable()))
 			.renderer(() -> PlatformRenderer::new)
 			.register();

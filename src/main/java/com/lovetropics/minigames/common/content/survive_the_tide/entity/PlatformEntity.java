@@ -24,6 +24,7 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.EntityMountEvent;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -103,6 +104,12 @@ public class PlatformEntity extends Entity {
 	public void lerpTo(double x, double y, double z, int lerpLength) {
 		interpolation.setInterpolationLength(lerpLength);
 		interpolation.interpolateTo(new Vec3(x, y, z), 0.f, 0.0f);
+	}
+
+	@Override
+	@Nullable
+	public InterpolationHandler getInterpolation() {
+		return interpolation;
 	}
 
 	@Override
