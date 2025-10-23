@@ -23,7 +23,6 @@ import com.lovetropics.minigames.common.content.connect4.ConnectFourTexts;
 import com.lovetropics.minigames.common.content.crafting_bee.CraftingBee;
 import com.lovetropics.minigames.common.content.crafting_bee.CraftingBeeTexts;
 import com.lovetropics.minigames.common.content.de_a_coudre.DeACoudre;
-import com.lovetropics.minigames.common.content.hide_and_seek.HideAndSeek;
 import com.lovetropics.minigames.common.content.paint_party.PaintParty;
 import com.lovetropics.minigames.common.content.paint_party.PaintPartyTexts;
 import com.lovetropics.minigames.common.content.qottott.Qottott;
@@ -178,7 +177,6 @@ public class LoveTropics {
 		StreamHosts.init();
 
 		BuildCompetition.init();
-		HideAndSeek.init();
 		SurviveTheTide.init();
 		TrashDive.init();
 		BlockParty.init();

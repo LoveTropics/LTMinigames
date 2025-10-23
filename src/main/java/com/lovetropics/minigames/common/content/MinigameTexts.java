@@ -28,7 +28,6 @@ public final class MinigameTexts {
 	public static final Component ARCADE_TURTLE_RACE = KEYS.add("arcade_turtle_race", "Arcade Turtle Race");
 	public static final Component FLYING_TURTLE_RACE = KEYS.add("flying_turtle_race", "Flying Turtle Race");
 	public static final Component TURTLE_SPRINT = KEYS.add("turtle_sprint", "Turtle Sprint");
-	public static final Component HIDE_AND_SEEK = KEYS.add("hide_and_seek", "Hide & Seek");
 	public static final Component CALAMITY = KEYS.add("calamity", "Calamity");
 	public static final Component BLOCK_PARTY = KEYS.add("block_party", "Block Party");
 	public static final Component BLOCK_PARTY_TEAMS = KEYS.add("block_party_teams", "Block Party Teams");
