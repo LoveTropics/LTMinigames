@@ -1,7 +1,6 @@
 package com.lovetropics.minigames.common.content.qottott.behavior;
 
 import com.lovetropics.lib.BlockBox;
-import com.lovetropics.minigames.common.core.diguise.DisguiseType;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionContext;
@@ -21,6 +20,7 @@ import net.minecraft.util.TriState;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
+import org.lovetropics.peekaboo.api.TypedEntityData;
 import org.slf4j.Logger;
 
 import java.util.Collection;
@@ -89,11 +89,11 @@ public record KitSelectionBehavior(List<Kit> kits) implements IGameBehavior {
 		return false;
 	}
 
-	private record Kit(String region, float angle, DisguiseType.EntityConfig entity, GameActionList<ServerPlayer> apply) {
+	private record Kit(String region, float angle, TypedEntityData entity, GameActionList<ServerPlayer> apply) {
 		public static final Codec<Kit> CODEC = RecordCodecBuilder.create(i -> i.group(
 				Codec.STRING.fieldOf("region").forGetter(Kit::region),
 				Codec.FLOAT.optionalFieldOf("angle", 0.0f).forGetter(Kit::angle),
-				DisguiseType.EntityConfig.CODEC.fieldOf("entity").forGetter(Kit::entity),
+				TypedEntityData.CODEC.fieldOf("entity").forGetter(Kit::entity),
 				GameActionList.PLAYER_CODEC.fieldOf("apply").forGetter(Kit::apply)
 		).apply(i, Kit::new));
 	}
