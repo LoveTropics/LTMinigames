@@ -3,6 +3,7 @@ package com.lovetropics.minigames;
 import com.google.common.base.Suppliers;
 import com.lovetropics.minigames.client.game.handler.GameSidebarRenderer;
 import com.lovetropics.minigames.client.game.handler.spectate.SpectatingUi;
+import com.lovetropics.minigames.client.lobby.KeybindsTexts;
 import com.lovetropics.minigames.client.lobby.LobbyKeybinds;
 import com.lovetropics.minigames.client.lobby.LobbyStateGui;
 import com.lovetropics.minigames.client.render.block.TriviaChestRenderer;
@@ -145,6 +146,7 @@ public class LoveTropics {
 			QottottTexts.KEYS.forEach(consumer);
 			RiverRaceTexts.collectTranslations(consumer);
 			GameDataAccessor.KEYS.forEach(consumer);
+			KeybindsTexts.collectTranslations(consumer);
 		});
 
 		registrate.generic(TAB_ID.getPath(), Registries.CREATIVE_MODE_TAB, () -> CreativeModeTab.builder()
