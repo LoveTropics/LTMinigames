@@ -18,6 +18,7 @@
     "PlayerListMixin",
     "ServerLevelMixin",
     "ServerPlayerMixin",
+    "ServerwaypointManagerMixin",
     "SimpleRegistryMixin",
     "WorldGenSettingsMixin",
     "chat.ServerGamePacketListenerImplMixin",
