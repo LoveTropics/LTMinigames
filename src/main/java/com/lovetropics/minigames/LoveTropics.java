@@ -23,6 +23,7 @@ import com.lovetropics.minigames.common.content.connect4.ConnectFourTexts;
 import com.lovetropics.minigames.common.content.crafting_bee.CraftingBee;
 import com.lovetropics.minigames.common.content.crafting_bee.CraftingBeeTexts;
 import com.lovetropics.minigames.common.content.de_a_coudre.DeACoudre;
+import com.lovetropics.minigames.common.content.escape_race.EscapeRace;
 import com.lovetropics.minigames.common.content.paint_party.PaintParty;
 import com.lovetropics.minigames.common.content.paint_party.PaintPartyTexts;
 import com.lovetropics.minigames.common.content.qottott.Qottott;
@@ -191,6 +192,7 @@ public class LoveTropics {
 		ColumnsOfChaos.init();
 		PaintParty.init();
 		SpeedCarbGolf.init();
+		EscapeRace.init();
 
 		DriftwoodRider.ATTACHMENT_TYPES.register(modBus);
 		ChatChannelStore.ATTACHMENT_TYPES.register(modBus);

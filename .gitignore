@@ -36,3 +36,4 @@ forge*changelog.txt
 Thumbs.db
 
 /libs/
+.DS_Store
