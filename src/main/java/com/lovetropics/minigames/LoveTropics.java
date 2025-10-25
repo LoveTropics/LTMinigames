@@ -202,6 +202,7 @@ public class LoveTropics {
 		BiodiversityBlitz.DATA_COMPONENTS.register(modBus);
 		RiverRace.DATA_COMPONENTS.register(modBus);
 		VoidChunkGenerator.REGISTER.register(modBus);
+		EscapeRace.ENTITY_SERIALIZERS.register(modBus);
 
 		LoveTropicsEntityOptions.register();
 

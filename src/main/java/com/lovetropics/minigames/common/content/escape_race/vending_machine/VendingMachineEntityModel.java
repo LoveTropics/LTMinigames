@@ -14,6 +14,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.FrameGraphSetupEvent;
 
 @EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
 public class VendingMachineEntityModel extends EntityModel<VendingMachineRenderState> {
@@ -83,5 +84,6 @@ public class VendingMachineEntityModel extends EntityModel<VendingMachineRenderS
 	public static void onRegisterLayerDefinitions(final EntityRenderersEvent.RegisterLayerDefinitions event) {
 		event.registerLayerDefinition(LAYER_LOCATION, VendingMachineEntityModel::createBodyLayer);
 	}
+
 
 }
