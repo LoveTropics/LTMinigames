@@ -1,39 +1,23 @@
 package com.lovetropics.minigames.common.content.escape_race.vending_machine;
 
 import com.lovetropics.minigames.LoveTropics;
-import com.lovetropics.minigames.client.render.entity.DriftwoodRenderer;
+import com.lovetropics.minigames.common.content.escape_race.EscapeRace;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.OutlineBufferSource;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.debug.DebugRenderer;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.CommonColors;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
-import org.joml.Matrix4f;
-import org.joml.Vector3f;
 
 import java.util.Objects;
-import java.util.Optional;
 
 public class VendingMachineEntityRenderer extends EntityRenderer<VendingMachineEntity, VendingMachineRenderState> {
 	private static final ResourceLocation TEXTURE = LoveTropics.location("textures/entity/vending_machine.png");
@@ -65,6 +49,14 @@ public class VendingMachineEntityRenderer extends EntityRenderer<VendingMachineE
 		}
 		reusedState.isLookingAt = Minecraft.getInstance().crosshairPickEntity == entity;
 		reusedState.selectedIndex = entity.getSelected();
+		if(reusedState.selectedIndex != -1) {
+			ItemStack itemStack = entity.getItems().get(reusedState.selectedIndex);
+			if(itemStack.has(EscapeRace.VENDINGMACHINE_COMPONENT)){
+				reusedState.selectedCost = itemStack.get(EscapeRace.VENDINGMACHINE_COMPONENT);
+			}
+		} else {
+			reusedState.selectedCost = -1;
+		}
 	}
 
 	@Override

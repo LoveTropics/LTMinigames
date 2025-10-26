@@ -17,6 +17,7 @@ public class VendingMachineRenderState extends EntityRenderState {
 	public boolean isLookingAt = false;
 	public int selectedIndex = -1;
 	public int selectedTicks = -1;
+	public int selectedCost = -1;
 
 	public VendingMachineRenderState() {
 		super();

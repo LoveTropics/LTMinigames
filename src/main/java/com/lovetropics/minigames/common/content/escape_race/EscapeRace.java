@@ -4,8 +4,10 @@ import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.content.escape_race.vending_machine.VendingMachineEntity;
 import com.lovetropics.minigames.common.content.escape_race.vending_machine.VendingMachineEntityRenderer;
 import com.lovetropics.minigames.common.util.registry.LoveTropicsRegistrate;
+import com.mojang.serialization.Codec;
 import com.tterrag.registrate.util.entry.RegistryEntry;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -18,14 +20,13 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
-import java.util.List;
-
 import static net.minecraft.world.level.storage.loot.LootTable.lootTable;
 
 public class EscapeRace {
 	private static final LoveTropicsRegistrate REGISTRATE = LoveTropics.registrate();
 
 	public static final DeferredRegister<EntityDataSerializer<?>> ENTITY_SERIALIZERS = DeferredRegister.create(NeoForgeRegistries.ENTITY_DATA_SERIALIZERS, LoveTropics.ID);
+	public static final DeferredRegister.DataComponents DATA_COMPONENTS = DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, LoveTropics.ID);
 
 	public static final EntityDataSerializer<NonNullList<ItemStack>> ITEM_STACK_LIST = new EntityDataSerializer<>() {
 		@Override
@@ -49,6 +50,11 @@ public class EscapeRace {
 			.lang("Vending Machine")
 			.renderer(() -> VendingMachineEntityRenderer::new)
 			.register();
+
+	public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> VENDINGMACHINE_COMPONENT = DATA_COMPONENTS.registerComponentType(
+			"vending_machine_cost",
+			builder -> builder.persistent(Codec.INT)
+	);
 
 
 	public static void init() {

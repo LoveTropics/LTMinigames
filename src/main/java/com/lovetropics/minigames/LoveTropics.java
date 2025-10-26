@@ -205,6 +205,7 @@ public class LoveTropics {
 		RiverRace.DATA_COMPONENTS.register(modBus);
 		VoidChunkGenerator.REGISTER.register(modBus);
 		EscapeRace.ENTITY_SERIALIZERS.register(modBus);
+		EscapeRace.DATA_COMPONENTS.register(modBus);
 
 		LoveTropicsEntityOptions.register();
 

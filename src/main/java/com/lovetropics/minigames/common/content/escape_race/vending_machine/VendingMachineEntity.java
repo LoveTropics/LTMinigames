@@ -1,17 +1,11 @@
 package com.lovetropics.minigames.common.content.escape_race.vending_machine;
 
 import com.lovetropics.minigames.common.content.escape_race.EscapeRace;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import net.minecraft.core.BlockPos;
+import net.minecraft.commands.Commands;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
-import net.minecraft.core.particles.ParticleOptions;
-import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.syncher.EntityDataAccessor;
-import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceKey;
@@ -21,7 +15,6 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.ContainerEntity;
@@ -33,8 +26,8 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 import javax.annotation.Nullable;
@@ -86,7 +79,7 @@ public class VendingMachineEntity extends Entity implements ContainerEntity {
 			ServerLevel level = (ServerLevel) level();
 			//Server-side
 			var nearestPlayer = level.getNearestPlayer(this, 2f);
-			if(nearestPlayer != null) {
+			if(nearestPlayer != null && !nearestPlayer.isSpectator()) {
 				if(nearestPlayer.hasLineOfSight(this)){
 					double dot = getLookAngle().dot(nearestPlayer.getLookAngle());
 					if(dot > 0){
@@ -96,17 +89,16 @@ public class VendingMachineEntity extends Entity implements ContainerEntity {
 					lookAngle = lookAngle.scale(5f);
 					Vec3 target = nearestPlayer.getEyePosition().add(lookAngle);
 //					level.sendParticles(ParticleTypes.FLAME, target.x, target.y, target.z,1,0,0,0,0);
-					PoseStack poseStack = new PoseStack();
-					poseStack.translate(position().x, position().y, position().z);
-					poseStack.translate(0, 1.5, 0);
-					poseStack.mulPose(Axis.YP.rotationDegrees(180f - this.getYRot()));
+					Matrix4f pose = new Matrix4f();
+					pose.translate((float)position().x, (float)position().y, (float)position().z);
+					pose.translate(0, 1.5f, 0);
+					pose.rotate(Axis.YP.rotationDegrees(180f - this.getYRot()));
 					int lookingAtIndex = -1;
 					for (int i = 0; i < SLOTS.size(); i++) {
-						poseStack.pushPose();
 						VendingMachineSlot slot = SLOTS.get(i);
-						poseStack.translate(slot.x, slot.y, slot.z);
-						Vector3f vector3f = poseStack.last().pose().transformPosition(Vec3.ZERO.toVector3f(), new Vector3f());
-						poseStack.popPose();
+						pose.translate(slot.x, slot.y, slot.z);
+						Vector3f vector3f = pose.transformPosition(Vec3.ZERO.toVector3f(), new Vector3f());
+						pose.translate(-slot.x, -slot.y, -slot.z);
 						Vec3 slotPosition = new Vec3(vector3f);
 //						level.sendParticles(ParticleTypes.BUBBLE, slotPosition.x, slotPosition.y, slotPosition.z,1,0,0,0,0);
 						AABB aabb = AABB.ofSize(slotPosition, 0.2, 0.2, 0.2);
@@ -121,8 +113,20 @@ public class VendingMachineEntity extends Entity implements ContainerEntity {
 						getEntityData().set(DATA_SELECTED_TICKS, tickCount);
 					}
 				}
+			} else {
+				entityData.set(DATA_SELECTED, -1);
+				entityData.set(DATA_SELECTED_TICKS, -1);
 			}
 		}
+	}
+
+	@Override
+	public boolean hurtClient(DamageSource damageSource) {
+		if(damageSource.getEntity() instanceof Player player){
+			if(player.hasLineOfSight(this) && player.getLookAngle().dot(player.getLookAngle()) <= 0){
+			}
+		}
+		return super.hurtClient(damageSource);
 	}
 
 	@Override
@@ -267,10 +271,13 @@ public class VendingMachineEntity extends Entity implements ContainerEntity {
 
 	@Override
 	public InteractionResult interact(Player player, InteractionHand hand) {
-
-		player.openMenu(this);
+		if(player.isShiftKeyDown() && player.hasPermissions(Commands.LEVEL_GAMEMASTERS)) {
+			player.openMenu(this);
+		}
 		return InteractionResult.SUCCESS;
 	}
+
+
 
 	public NonNullList<ItemStack> getItems() {
 		return this.getEntityData().get(DATA_ITEMS);
