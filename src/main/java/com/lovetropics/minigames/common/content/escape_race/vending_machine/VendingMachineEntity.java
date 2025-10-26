@@ -45,7 +45,7 @@ public class VendingMachineEntity extends Entity implements ContainerEntity {
 	public static final List<VendingMachineSlot> SLOTS = List.of(
 			new VendingMachineSlot(0.56f, 0.55f, -0.15f),
 			new VendingMachineSlot(0.23f, 0.55f, -0.15f),
-			new VendingMachineSlot(-0.1f, 0.55f, -0.15f),
+			new VendingMachineSlot(-0.05f, 0.55f, -0.15f),
 			new VendingMachineSlot(-0.43f, 0.55f, -0.15f),
 			new VendingMachineSlot(0.56f, 0.17f, -0.15f),
 			new VendingMachineSlot(0.23f, 0.17f, -0.15f),
@@ -88,9 +88,14 @@ public class VendingMachineEntity extends Entity implements ContainerEntity {
 			var nearestPlayer = level.getNearestPlayer(this, 2f);
 			if(nearestPlayer != null) {
 				if(nearestPlayer.hasLineOfSight(this)){
+					double dot = getLookAngle().dot(nearestPlayer.getLookAngle());
+					if(dot > 0){
+						return;
+					}
 					Vec3 lookAngle = nearestPlayer.getLookAngle();
-					lookAngle = lookAngle.scale(nearestPlayer.distanceTo(this));
+					lookAngle = lookAngle.scale(5f);
 					Vec3 target = nearestPlayer.getEyePosition().add(lookAngle);
+//					level.sendParticles(ParticleTypes.FLAME, target.x, target.y, target.z,1,0,0,0,0);
 					PoseStack poseStack = new PoseStack();
 					poseStack.translate(position().x, position().y, position().z);
 					poseStack.translate(0, 1.5, 0);
@@ -103,8 +108,10 @@ public class VendingMachineEntity extends Entity implements ContainerEntity {
 						Vector3f vector3f = poseStack.last().pose().transformPosition(Vec3.ZERO.toVector3f(), new Vector3f());
 						poseStack.popPose();
 						Vec3 slotPosition = new Vec3(vector3f);
-						double v = target.distanceTo(slotPosition);
-						if(v <= 0.2){
+//						level.sendParticles(ParticleTypes.BUBBLE, slotPosition.x, slotPosition.y, slotPosition.z,1,0,0,0,0);
+						AABB aabb = AABB.ofSize(slotPosition, 0.2, 0.2, 0.2);
+						Optional<Vec3> clip = aabb.clip(nearestPlayer.getEyePosition(), target);
+						if (clip.isPresent()) {
 							lookingAtIndex = i;
 							break;
 						}
@@ -260,6 +267,7 @@ public class VendingMachineEntity extends Entity implements ContainerEntity {
 
 	@Override
 	public InteractionResult interact(Player player, InteractionHand hand) {
+
 		player.openMenu(this);
 		return InteractionResult.SUCCESS;
 	}

@@ -131,6 +131,20 @@ public class VendingMachineEntityRenderer extends EntityRenderer<VendingMachineE
 					poseStack.pushPose();
 					poseStack.scale(1.25f, 1.25f, 1.25f);
 					item.render(poseStack, Minecraft.getInstance().renderBuffers().outlineBufferSource(), packedLight, OverlayTexture.NO_OVERLAY);
+					String name = "Item Name";
+					Font font = Minecraft.getInstance().font;
+					float xOffset = -font.width(name) / 2f;
+					int j = (int)(Minecraft.getInstance().options.getBackgroundOpacity(0.25F) * 255.0F) << 24;
+					poseStack.popPose();
+					poseStack.pushPose();
+					poseStack.mulPose(Axis.ZP.rotationDegrees(-180f)); // Turn upsidedown
+					poseStack.scale(0.05f, 0.05f, 0.05f);
+					font.drawInBatch(
+							"Item Name",
+							xOffset,
+							-20f,
+							-2130706433, false, poseStack.last().pose(), bufferSource, Font.DisplayMode.SEE_THROUGH, j, packedLight
+					);
 					poseStack.popPose();
 				} else {
 					item.render(poseStack, bufferSource, packedLight, OverlayTexture.NO_OVERLAY);
