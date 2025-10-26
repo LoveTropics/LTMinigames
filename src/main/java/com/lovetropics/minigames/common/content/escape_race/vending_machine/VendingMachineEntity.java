@@ -1,6 +1,8 @@
 package com.lovetropics.minigames.common.content.escape_race.vending_machine;
 
 import com.lovetropics.minigames.common.content.escape_race.EscapeRace;
+import com.lovetropics.minigames.common.core.game.IGameManager;
+import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.mojang.math.Axis;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.Direction;
@@ -10,11 +12,14 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.ContainerEntity;
@@ -28,6 +33,7 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
+import org.joml.Vector3d;
 import org.joml.Vector3f;
 
 import javax.annotation.Nullable;
@@ -56,10 +62,20 @@ public class VendingMachineEntity extends Entity implements ContainerEntity {
 	private static final EntityDataAccessor<NonNullList<ItemStack>> DATA_ITEMS = SynchedEntityData.defineId(VendingMachineEntity.class, EscapeRace.ITEM_STACK_LIST);
 	private static final EntityDataAccessor<Integer> DATA_SELECTED = SynchedEntityData.defineId(VendingMachineEntity.class, EntityDataSerializers.INT);
 	private static final EntityDataAccessor<Integer> DATA_SELECTED_TICKS = SynchedEntityData.defineId(VendingMachineEntity.class, EntityDataSerializers.INT);
+	private static final EntityDataAccessor<ItemStack> DATA_DROPPING_ITEM = SynchedEntityData.defineId(VendingMachineEntity.class, EntityDataSerializers.ITEM_STACK);
+	private static final EntityDataAccessor<Vector3f> DATA_DROPPING_POSITION = SynchedEntityData.defineId(VendingMachineEntity.class, EntityDataSerializers.VECTOR3);
+	private static final EntityDataAccessor<Float> DATA_DROPPING_PROGRESS = SynchedEntityData.defineId(VendingMachineEntity.class, EntityDataSerializers.FLOAT);
 	private NonNullList<ItemStack> itemStacks;
 	@Nullable
 	private ResourceKey<LootTable> lootTable;
 	private long lootTableSeed;
+
+
+	//Client side
+	private ItemStack droppingItem = ItemStack.EMPTY;
+	private float droppingItemProgress = 0;
+	private Vector3f droppingItemStart = new Vector3f();
+
 	public VendingMachineEntity(EntityType<? extends Entity> entityType, Level level) {
 		super(entityType, level);
 		this.itemStacks = NonNullList.withSize(36, ItemStack.EMPTY);
@@ -70,6 +86,9 @@ public class VendingMachineEntity extends Entity implements ContainerEntity {
 		builder.define(DATA_ITEMS, NonNullList.withSize(36, ItemStack.EMPTY));
 		builder.define(DATA_SELECTED, -1);
 		builder.define(DATA_SELECTED_TICKS, -1);
+		builder.define(DATA_DROPPING_ITEM, ItemStack.EMPTY);
+		builder.define(DATA_DROPPING_POSITION, new Vector3f());
+		builder.define(DATA_DROPPING_PROGRESS, 0f);
 	}
 
 	@Override
@@ -117,6 +136,53 @@ public class VendingMachineEntity extends Entity implements ContainerEntity {
 				entityData.set(DATA_SELECTED, -1);
 				entityData.set(DATA_SELECTED_TICKS, -1);
 			}
+			if(!droppingItem.isEmpty()){
+				droppingItemProgress = Mth.clamp(droppingItemProgress + ((droppingItemProgress + 0.001f) * 0.5f), 0f, 1f);
+				entityData.set(DATA_DROPPING_PROGRESS, droppingItemProgress);
+			}
+			if(droppingItemProgress >= 1){
+				Vec3 add = position().add(getLookAngle().scale(1f));
+				level.addFreshEntity(new ItemEntity(level, add.x, add.y, add.z, droppingItem.copy()));
+				droppingItem = ItemStack.EMPTY;
+				droppingItemStart = new Vector3f();
+				droppingItemProgress = 0;
+				entityData.set(DATA_DROPPING_PROGRESS, droppingItemProgress);
+				entityData.set(DATA_DROPPING_POSITION, new Vector3f(), true);
+				entityData.set(DATA_DROPPING_ITEM, ItemStack.EMPTY, true);
+			}
+		}
+	}
+
+	public void tryPurchase(Player player, int itemIndex){
+		IGamePhase game = IGameManager.get().getGamePhaseFor(player);
+		if(game != null) {
+			if(game.invoker(VendingMachineEvents.PURCHASE_ITEM)
+					.onPurchaseItem(player, this, getItem(itemIndex))){
+				// Play sound, did purchase
+				VendingMachineSlot droppingItemStart1 = SLOTS.get(itemIndex);
+				entityData.set(DATA_DROPPING_POSITION, new Vector3f(droppingItemStart1.x, droppingItemStart1.y, droppingItemStart1.z - 0.15f), true);
+				entityData.set(DATA_DROPPING_ITEM, getItem(itemIndex), true);
+				droppingItem = getItem(itemIndex);
+			} else {
+				// Play sound, did not purchase
+			}
+		} else {
+			VendingMachineSlot droppingItemStart1 = SLOTS.get(itemIndex);
+			entityData.set(DATA_DROPPING_POSITION, new Vector3f(droppingItemStart1.x, droppingItemStart1.y, droppingItemStart1.z - 0.15f), true);
+			entityData.set(DATA_DROPPING_ITEM, getItem(itemIndex), true);
+			droppingItem = getItem(itemIndex);
+		}
+	}
+
+	@Override
+	public void onSyncedDataUpdated(EntityDataAccessor<?> key) {
+		super.onSyncedDataUpdated(key);
+		if (this.level().isClientSide() && DATA_DROPPING_ITEM.equals(key)) {
+			droppingItemProgress = 0;
+			droppingItem = entityData.get(DATA_DROPPING_ITEM);
+		} else if(this.level().isClientSide() && DATA_DROPPING_POSITION.equals(key)) {
+			droppingItemProgress = 0;
+			droppingItemStart = entityData.get(DATA_DROPPING_POSITION);
 		}
 	}
 
@@ -131,6 +197,11 @@ public class VendingMachineEntity extends Entity implements ContainerEntity {
 
 	@Override
 	public boolean hurtServer(ServerLevel serverLevel, DamageSource damageSource, float v) {
+		if(damageSource.getEntity() instanceof Player player){
+			if(player.hasLineOfSight(this) && player.getLookAngle().dot(player.getLookAngle()) < 1){
+				tryPurchase(player, entityData.get(DATA_SELECTED));
+			}
+		}
 		return false;
 	}
 
@@ -289,6 +360,18 @@ public class VendingMachineEntity extends Entity implements ContainerEntity {
 
 	public int getSelectedTicks(){
 		return this.getEntityData().get(DATA_SELECTED_TICKS);
+	}
+
+	public ItemStack getDroppingItem() {
+		return droppingItem;
+	}
+
+	public float getDroppingItemProgress() {
+		return getEntityData().get(DATA_DROPPING_PROGRESS);
+	}
+
+	public Vector3f getDroppingItemStart() {
+		return droppingItemStart;
 	}
 
 	public record VendingMachineSlot(float x, float y, float z) {}

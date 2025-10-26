@@ -6,6 +6,8 @@ import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -18,6 +20,10 @@ public class VendingMachineRenderState extends EntityRenderState {
 	public int selectedIndex = -1;
 	public int selectedTicks = -1;
 	public int selectedCost = -1;
+	public String selectedName = "";
+	public ItemStackRenderState droppingItem = new ItemStackRenderState();
+	public float droppingItemProgress = 0;
+	public Vector3f droppingItemStart = new Vector3f();
 
 	public VendingMachineRenderState() {
 		super();
