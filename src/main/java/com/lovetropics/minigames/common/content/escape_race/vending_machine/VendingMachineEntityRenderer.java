@@ -64,6 +64,7 @@ public class VendingMachineEntityRenderer extends EntityRenderer<VendingMachineE
 			}
 		}
 		reusedState.isLookingAt = Minecraft.getInstance().crosshairPickEntity == entity;
+		reusedState.selectedIndex = entity.getSelected();
 	}
 
 	@Override
@@ -77,8 +78,10 @@ public class VendingMachineEntityRenderer extends EntityRenderer<VendingMachineE
 ////			model.renderToBuffer(poseStack, builder, packedLight, OverlayTexture.NO_OVERLAY);
 //			poseStack.popPose();
 //		}
+//		DebugRenderer.renderVoxelShape(poseStack, bufferSource.getBuffer(RenderType.lines()), Shapes.box(-0.1,-0.1,-0.1,0.1,0.1,0.1), 0, 0,0, 1F, 1F, 1F, 1F, true);
 		poseStack.pushPose();
 		poseStack.translate(0.0, 1.5, 0.0); // Roughly get into the center of the place
+
 		poseStack.mulPose(Axis.YP.rotationDegrees(180 - renderState.yRot)); // Facing
 		poseStack.pushPose();
 		poseStack.mulPose(Axis.ZP.rotationDegrees(180f)); // Turn upsidedown
@@ -86,11 +89,12 @@ public class VendingMachineEntityRenderer extends EntityRenderer<VendingMachineE
 		VertexConsumer builder = bufferSource.getBuffer(model.renderType(TEXTURE));
 		model.renderToBuffer(poseStack, builder, packedLight, OverlayTexture.NO_OVERLAY); // Render the model
 		poseStack.popPose();
-		poseStack.translate(0.56, 0.55, -0.15); // Translate for first item within the machine
 		int i = 0;
-		for (ItemStackRenderState item : renderState.items) {
+		for (int renderStateIndex = 0; renderStateIndex < renderState.items.size(); renderStateIndex++) {
+			ItemStackRenderState item = renderState.items.get(renderStateIndex);
 			if(item.isEmpty())
 				continue;
+			VendingMachineEntity.VendingMachineSlot slot = VendingMachineEntity.SLOTS.get(renderStateIndex);
 			var size = item.getModelBoundingBox().getSize();
 			float scale = 0.4f;
 			if(size > 0.5){
@@ -98,25 +102,29 @@ public class VendingMachineEntityRenderer extends EntityRenderer<VendingMachineE
 				scale = scale - diffInSize;
 			}
 			poseStack.pushPose();
+			poseStack.translate(slot.x(), slot.y(), slot.z());
 			poseStack.scale(scale, scale, scale);
 			for(int x = 0; x < 4; x++){
 				poseStack.pushPose();
-				poseStack.translate(i * 0.08, 0, 0.5*x);
+				poseStack.translate(0, 0, 0.5*x);
 				// Invert the posestack last matrix
 				// subtract camera position and Apply to hitresult
 				boolean isHighlighted = false;
 				if(x == 0) {
 					if (renderState.isLookingAt) {
-						Matrix4f inverted = new Matrix4f();
-						poseStack.last().pose().invert(inverted);
-						Vector3f lookVector = Minecraft.getInstance().gameRenderer.getMainCamera().getLookVector();
-						Vec3 relativeWorldSpace = Vec3.ZERO;
-						Vector3f target = inverted.transformPosition(relativeWorldSpace.add(new Vec3(lookVector).scale(1.5f)).toVector3f(), new Vector3f());
-						Vector3f origin = inverted.transformPosition(relativeWorldSpace.toVector3f(), new Vector3f());
-						Optional<Vec3> clip = new AABB(-0.5, -0.5, -0.5, 0.5, 0.5, 0.5).clip(new Vec3(origin), new Vec3(target));
-						if (clip.isPresent()) {
+						if(renderStateIndex == renderState.selectedIndex){
 							isHighlighted = true;
 						}
+//						Matrix4f inverted = new Matrix4f();
+//						poseStack.last().pose().invert(inverted);
+//						Vector3f lookVector = Minecraft.getInstance().gameRenderer.getMainCamera().getLookVector();
+//						Vec3 relativeWorldSpace = Vec3.ZERO;
+//						Vector3f target = inverted.transformPosition(relativeWorldSpace.add(new Vec3(lookVector).scale(1.5f)).toVector3f(), new Vector3f());
+//						Vector3f origin = inverted.transformPosition(relativeWorldSpace.toVector3f(), new Vector3f());
+//						Optional<Vec3> clip = new AABB(-0.5, -0.5, -0.5, 0.5, 0.5, 0.5).clip(new Vec3(origin), new Vec3(target));
+//						if (clip.isPresent()) {
+//							isHighlighted = true;
+//						}
 					}
 				}
 				if(isHighlighted) {
@@ -131,12 +139,6 @@ public class VendingMachineEntityRenderer extends EntityRenderer<VendingMachineE
 			}
 			poseStack.popPose();
 			i++;
-			if(i > 3){
-				poseStack.translate((i-1)*0.33, -0.38, 0.0);
-				i = 0;
-			} else {
-				poseStack.translate(-0.33, 0, 0.0);
-			}
 		}
 		poseStack.popPose();
 	}

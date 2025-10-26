@@ -1,9 +1,13 @@
 package com.lovetropics.minigames.common.content.escape_race.vending_machine;
 
 import com.lovetropics.minigames.common.content.escape_race.EscapeRace;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -29,13 +33,36 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Optional;
 
 public class VendingMachineEntity extends Entity implements ContainerEntity {
+	public static final List<VendingMachineSlot> SLOTS = List.of(
+			new VendingMachineSlot(0.56f, 0.55f, -0.15f),
+			new VendingMachineSlot(0.23f, 0.55f, -0.15f),
+			new VendingMachineSlot(-0.1f, 0.55f, -0.15f),
+			new VendingMachineSlot(-0.43f, 0.55f, -0.15f),
+			new VendingMachineSlot(0.56f, 0.17f, -0.15f),
+			new VendingMachineSlot(0.23f, 0.17f, -0.15f),
+			new VendingMachineSlot(-0.1f, 0.17f, -0.15f),
+			new VendingMachineSlot(-0.43f, 0.17f, -0.15f),
+			new VendingMachineSlot(0.56f, -0.21f, -0.15f),
+			new VendingMachineSlot(0.23f, -0.21f, -0.15f),
+			new VendingMachineSlot(-0.1f, -0.21f, -0.15f),
+			new VendingMachineSlot(-0.43f, -0.21f, -0.15f),
+			new VendingMachineSlot(0.56f, -0.59f, -0.15f),
+			new VendingMachineSlot(0.23f, -0.59f, -0.15f),
+			new VendingMachineSlot(-0.1f, -0.59f, -0.15f),
+			new VendingMachineSlot(-0.43f, -0.59f, -0.15f)
+	);
 	private static final EntityDataAccessor<NonNullList<ItemStack>> DATA_ITEMS = SynchedEntityData.defineId(VendingMachineEntity.class, EscapeRace.ITEM_STACK_LIST);
+	private static final EntityDataAccessor<Integer> DATA_SELECTED = SynchedEntityData.defineId(VendingMachineEntity.class, EntityDataSerializers.INT);
+	private static final EntityDataAccessor<Integer> DATA_SELECTED_TICKS = SynchedEntityData.defineId(VendingMachineEntity.class, EntityDataSerializers.INT);
 	private NonNullList<ItemStack> itemStacks;
 	@Nullable
 	private ResourceKey<LootTable> lootTable;
@@ -48,6 +75,47 @@ public class VendingMachineEntity extends Entity implements ContainerEntity {
 	@Override
 	protected void defineSynchedData(SynchedEntityData.Builder builder) {
 		builder.define(DATA_ITEMS, NonNullList.withSize(36, ItemStack.EMPTY));
+		builder.define(DATA_SELECTED, -1);
+		builder.define(DATA_SELECTED_TICKS, -1);
+	}
+
+	@Override
+	public void tick() {
+		super.tick();
+		if(!level().isClientSide()){
+			ServerLevel level = (ServerLevel) level();
+			//Server-side
+			var nearestPlayer = level.getNearestPlayer(this, 2f);
+			if(nearestPlayer != null) {
+				if(nearestPlayer.hasLineOfSight(this)){
+					Vec3 lookAngle = nearestPlayer.getLookAngle();
+					lookAngle = lookAngle.scale(nearestPlayer.distanceTo(this));
+					Vec3 target = nearestPlayer.getEyePosition().add(lookAngle);
+					PoseStack poseStack = new PoseStack();
+					poseStack.translate(position().x, position().y, position().z);
+					poseStack.translate(0, 1.5, 0);
+					poseStack.mulPose(Axis.YP.rotationDegrees(180f - this.getYRot()));
+					int lookingAtIndex = -1;
+					for (int i = 0; i < SLOTS.size(); i++) {
+						poseStack.pushPose();
+						VendingMachineSlot slot = SLOTS.get(i);
+						poseStack.translate(slot.x, slot.y, slot.z);
+						Vector3f vector3f = poseStack.last().pose().transformPosition(Vec3.ZERO.toVector3f(), new Vector3f());
+						poseStack.popPose();
+						Vec3 slotPosition = new Vec3(vector3f);
+						double v = target.distanceTo(slotPosition);
+						if(v <= 0.2){
+							lookingAtIndex = i;
+							break;
+						}
+					}
+					if(lookingAtIndex != getEntityData().get(DATA_SELECTED)) {
+						getEntityData().set(DATA_SELECTED, lookingAtIndex);
+						getEntityData().set(DATA_SELECTED_TICKS, tickCount);
+					}
+				}
+			}
+		}
 	}
 
 	@Override
@@ -199,4 +267,14 @@ public class VendingMachineEntity extends Entity implements ContainerEntity {
 	public NonNullList<ItemStack> getItems() {
 		return this.getEntityData().get(DATA_ITEMS);
 	}
+
+	public int getSelected(){
+		return this.getEntityData().get(DATA_SELECTED);
+	}
+
+	public int getSelectedTicks(){
+		return this.getEntityData().get(DATA_SELECTED_TICKS);
+	}
+
+	public record VendingMachineSlot(float x, float y, float z) {}
 }
