@@ -7,19 +7,30 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.OutlineBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
+import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
 import java.util.Objects;
+import java.util.Optional;
 
 public class VendingMachineEntityRenderer extends EntityRenderer<VendingMachineEntity, VendingMachineRenderState> {
 	private static final ResourceLocation TEXTURE = LoveTropics.location("textures/entity/vending_machine.png");
@@ -47,6 +58,7 @@ public class VendingMachineEntityRenderer extends EntityRenderer<VendingMachineE
 			if(entity.getItems().size() >= i){
 				ItemStack itemStack = entity.getItems().get(i);
 				itemModelResolver.updateForNonLiving(stack, itemStack, ItemDisplayContext.FIXED, entity);
+				reusedState.itemStacks.set(i, itemStack.copy());
 			}
 		}
 		reusedState.isLookingAt = Minecraft.getInstance().crosshairPickEntity == entity;
@@ -106,16 +118,29 @@ public class VendingMachineEntityRenderer extends EntityRenderer<VendingMachineE
 				boolean isHighlighted = false;
 				if(x == 0) {
 					if (renderState.isLookingAt) {
-						if(renderStateIndex == renderState.selectedIndex){
+						Matrix4f inverted = new Matrix4f();
+						poseStack.last().pose().invert(inverted);
+						Vector3f lookVector = Minecraft.getInstance().gameRenderer.getMainCamera().getLookVector();
+						Vec3 relativeWorldSpace = Vec3.ZERO;
+						Vector3f target = inverted.transformPosition(relativeWorldSpace.add(new Vec3(lookVector).scale(1.5f)).toVector3f(), new Vector3f());
+						Vector3f origin = inverted.transformPosition(relativeWorldSpace.toVector3f(), new Vector3f());
+						Optional<Vec3> clip = new AABB(-0.5, -0.5, -0.5, 0.5, 0.5, 0.5).clip(new Vec3(origin), new Vec3(target));
+						if (clip.isPresent()) {
 							isHighlighted = true;
 						}
 					}
 				}
-				if(isHighlighted) {
+				if(x == 0 && (isHighlighted || renderStateIndex == renderState.selectedIndex)) {
 					poseStack.pushPose();
 					poseStack.scale(1.25f, 1.25f, 1.25f);
-					item.render(poseStack, Minecraft.getInstance().renderBuffers().outlineBufferSource(), packedLight, OverlayTexture.NO_OVERLAY);
-					String name = renderState.selectedName;
+					OutlineBufferSource bufferSource1 = Minecraft.getInstance().renderBuffers().outlineBufferSource();
+					if(renderStateIndex == renderState.selectedIndex){
+						bufferSource1.setColor(0,255, 0, 255);
+					} else {
+						bufferSource1.setColor(255, 255, 255, 255);
+					}
+					item.render(poseStack, bufferSource1, packedLight, OverlayTexture.NO_OVERLAY);
+					String name = renderState.itemStacks.get(renderStateIndex).getHoverName().getString();
 					Font font = Minecraft.getInstance().font;
 					float xOffset = -font.width(name) / 2f;
 					int j = (int)(Minecraft.getInstance().options.getBackgroundOpacity(0.25F) * 255.0F) << 24;
@@ -156,5 +181,51 @@ public class VendingMachineEntityRenderer extends EntityRenderer<VendingMachineE
 			poseStack.popPose();
 		}
 		poseStack.popPose();
+	}
+
+	public static void registerOverlays(RegisterGuiLayersEvent event) {
+		event.registerAbove(VanillaGuiLayers.EXPERIENCE_LEVEL, LoveTropics.location("vending_machine_info"), (graphics, deltaTracker) -> {
+			if (Minecraft.getInstance().options.hideGui) {
+				return;
+			}
+			renderOverlay(graphics);
+		});
+	}
+
+	private static void renderOverlay(GuiGraphics graphics) {
+		if(Minecraft.getInstance().hitResult != null && Minecraft.getInstance().hitResult.getType() == HitResult.Type.ENTITY) {
+			if(Minecraft.getInstance().hitResult instanceof EntityHitResult entityHitResult) {
+				if(entityHitResult.getEntity() instanceof VendingMachineEntity entity) {
+					if(entity.getLookAngle().dot(Minecraft.getInstance().player.getLookAngle()) < 1){
+						int lookingAt = entity.calculatePlayerLookingAtSlot(Minecraft.getInstance().player);
+						if(lookingAt != -1 && lookingAt < entity.getItems().size()){
+							ItemStack lookingAtItem = entity.getItems().get(lookingAt);
+							if(!lookingAtItem.isEmpty()) {
+								Font font = Minecraft.getInstance().font;
+
+								int width = font.width(lookingAtItem.getHoverName());
+								int x = (graphics.guiWidth() / 2) + (-width / 2);
+								int y = (graphics.guiHeight() - 80) + ((18 - font.lineHeight) / 2) + 8;
+
+//								String currency = .getString();
+
+								int i = ARGB.colorFromFloat(0.88f, 33 / 255f, 29/ 255f, 24/ 255f);
+								if (i != 0) {
+									int j = 2;
+									graphics.fill(x - 2, y - 2, x + width + 2, y + 9 + 2, ARGB.multiply(i, -1));
+								}
+								graphics.drawStringWithBackdrop(
+										font, lookingAtItem.getHoverName(),
+										x,
+										y,
+										width,
+										ARGB.color(1f, -1)
+								);
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 }

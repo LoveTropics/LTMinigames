@@ -26,6 +26,7 @@ import com.lovetropics.minigames.common.content.crafting_bee.CraftingBeeTexts;
 import com.lovetropics.minigames.common.content.de_a_coudre.DeACoudre;
 import com.lovetropics.minigames.common.content.escape_race.EscapeRace;
 import com.lovetropics.minigames.common.content.escape_race.client.EscapeRaceBucksRenderer;
+import com.lovetropics.minigames.common.content.escape_race.vending_machine.VendingMachineEntityRenderer;
 import com.lovetropics.minigames.common.content.paint_party.PaintParty;
 import com.lovetropics.minigames.common.content.paint_party.PaintPartyTexts;
 import com.lovetropics.minigames.common.content.qottott.Qottott;
@@ -223,6 +224,7 @@ public class LoveTropics {
 			BbClientRenderEffects.registerOverlays(event);
 			RiverRaceBarRenderer.registerOverlays(event);
 			EscapeRaceBucksRenderer.registerOverlays(event);
+			VendingMachineEntityRenderer.registerOverlays(event);
 		});
 	}
 

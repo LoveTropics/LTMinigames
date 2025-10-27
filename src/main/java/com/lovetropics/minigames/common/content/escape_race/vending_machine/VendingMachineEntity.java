@@ -3,6 +3,8 @@ package com.lovetropics.minigames.common.content.escape_race.vending_machine;
 import com.lovetropics.minigames.common.content.escape_race.EscapeRace;
 import com.lovetropics.minigames.common.core.game.IGameManager;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
+import com.lovetropics.minigames.common.core.network.vending.SelectVendingMachineItemMessage;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.Direction;
@@ -32,8 +34,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import org.joml.Matrix4f;
-import org.joml.Vector3d;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.joml.Vector3f;
 
 import javax.annotation.Nullable;
@@ -98,44 +99,14 @@ public class VendingMachineEntity extends Entity implements ContainerEntity {
 			ServerLevel level = (ServerLevel) level();
 			//Server-side
 			var nearestPlayer = level.getNearestPlayer(this, 2f);
-			if(nearestPlayer != null && !nearestPlayer.isSpectator()) {
-				if(nearestPlayer.hasLineOfSight(this)){
-					double dot = getLookAngle().dot(nearestPlayer.getLookAngle());
-					if(dot > 0){
-						return;
-					}
-					Vec3 lookAngle = nearestPlayer.getLookAngle();
-					lookAngle = lookAngle.scale(5f);
-					Vec3 target = nearestPlayer.getEyePosition().add(lookAngle);
-//					level.sendParticles(ParticleTypes.FLAME, target.x, target.y, target.z,1,0,0,0,0);
-					Matrix4f pose = new Matrix4f();
-					pose.translate((float)position().x, (float)position().y, (float)position().z);
-					pose.translate(0, 1.5f, 0);
-					pose.rotate(Axis.YP.rotationDegrees(180f - this.getYRot()));
-					int lookingAtIndex = -1;
-					for (int i = 0; i < SLOTS.size(); i++) {
-						VendingMachineSlot slot = SLOTS.get(i);
-						pose.translate(slot.x, slot.y, slot.z);
-						Vector3f vector3f = pose.transformPosition(Vec3.ZERO.toVector3f(), new Vector3f());
-						pose.translate(-slot.x, -slot.y, -slot.z);
-						Vec3 slotPosition = new Vec3(vector3f);
-//						level.sendParticles(ParticleTypes.BUBBLE, slotPosition.x, slotPosition.y, slotPosition.z,1,0,0,0,0);
-						AABB aabb = AABB.ofSize(slotPosition, 0.2, 0.2, 0.2);
-						Optional<Vec3> clip = aabb.clip(nearestPlayer.getEyePosition(), target);
-						if (clip.isPresent()) {
-							lookingAtIndex = i;
-							break;
-						}
-					}
-					if(lookingAtIndex != getEntityData().get(DATA_SELECTED)) {
-						getEntityData().set(DATA_SELECTED, lookingAtIndex);
-						getEntityData().set(DATA_SELECTED_TICKS, tickCount);
-					}
-				}
-			} else {
-				entityData.set(DATA_SELECTED, -1);
-				entityData.set(DATA_SELECTED_TICKS, -1);
-			}
+//			if(nearestPlayer != null && !nearestPlayer.isSpectator()) {
+//				if(nearestPlayer.hasLineOfSight(this)){
+//
+//				}
+//			} else {
+//				entityData.set(DATA_SELECTED, -1);
+//				entityData.set(DATA_SELECTED_TICKS, -1);
+//			}
 			if(!droppingItem.isEmpty()){
 				droppingItemProgress = Mth.clamp(droppingItemProgress + ((droppingItemProgress + 0.001f) * 0.5f), 0f, 1f);
 				entityData.set(DATA_DROPPING_PROGRESS, droppingItemProgress);
@@ -189,20 +160,55 @@ public class VendingMachineEntity extends Entity implements ContainerEntity {
 	@Override
 	public boolean hurtClient(DamageSource damageSource) {
 		if(damageSource.getEntity() instanceof Player player){
-			if(player.hasLineOfSight(this) && player.getLookAngle().dot(player.getLookAngle()) <= 0){
+			if(player.hasLineOfSight(this) && player.getLookAngle().dot(this.getLookAngle()) < 1){
+				int lookingAtIndex = calculatePlayerLookingAtSlot(player);
+				if(lookingAtIndex != -1){
+					ClientPacketDistributor.sendToServer(new SelectVendingMachineItemMessage(this.getId(), lookingAtIndex));
+				}
+//				tryPurchase(player, entityData.get(DATA_SELECTED));
 			}
 		}
 		return super.hurtClient(damageSource);
 	}
 
-	@Override
-	public boolean hurtServer(ServerLevel serverLevel, DamageSource damageSource, float v) {
-		if(damageSource.getEntity() instanceof Player player){
-			if(player.hasLineOfSight(this) && player.getLookAngle().dot(player.getLookAngle()) < 1){
-				tryPurchase(player, entityData.get(DATA_SELECTED));
+	public int calculatePlayerLookingAtSlot(Player player) {
+		Vec3 lookAngle = player.getLookAngle();
+		lookAngle = lookAngle.scale(5f);
+		Vec3 target = player.getEyePosition().add(lookAngle);
+		PoseStack poseStack = new PoseStack();
+		poseStack.translate(position().x, position().y, position().z);
+		poseStack.translate(0, 1.5, 0);
+		poseStack.mulPose(Axis.YP.rotationDegrees(180f - this.getYRot()));
+		int lookingAtIndex = -1;
+		for (int i = 0; i < SLOTS.size(); i++) {
+			poseStack.pushPose();
+			VendingMachineSlot slot = SLOTS.get(i);
+			poseStack.translate(slot.x, slot.y, slot.z);
+			Vector3f vector3f = poseStack.last().pose().transformPosition(Vec3.ZERO.toVector3f(), new Vector3f());
+			poseStack.popPose();
+			Vec3 slotPosition = new Vec3(vector3f);
+			AABB aabb = AABB.ofSize(slotPosition, 0.2, 0.2, 0.2);
+			Optional<Vec3> clip = aabb.clip(player.getEyePosition(), target);
+			if (clip.isPresent()) {
+				lookingAtIndex = i;
+				break;
 			}
 		}
+		return lookingAtIndex;
+	}
+
+	@Override
+	public boolean hurtServer(ServerLevel serverLevel, DamageSource damageSource, float v) {
 		return false;
+	}
+
+	public void setSelected(ServerPlayer player,int index){
+		if(index >= 0 && index < SLOTS.size()) {
+			if(index != getEntityData().get(DATA_SELECTED)) {
+				getEntityData().set(DATA_SELECTED, index);
+				getEntityData().set(DATA_SELECTED_TICKS, tickCount);
+			}
+		}
 	}
 
 	@Override

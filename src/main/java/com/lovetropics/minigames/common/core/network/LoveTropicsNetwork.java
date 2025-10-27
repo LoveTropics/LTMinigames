@@ -18,6 +18,7 @@ import com.lovetropics.minigames.common.core.network.trivia.RequestTriviaStateUp
 import com.lovetropics.minigames.common.core.network.trivia.SelectTriviaAnswerMessage;
 import com.lovetropics.minigames.common.core.network.trivia.ShowTriviaMessage;
 import com.lovetropics.minigames.common.core.network.trivia.TriviaAnswerResponseMessage;
+import com.lovetropics.minigames.common.core.network.vending.SelectVendingMachineItemMessage;
 import com.lovetropics.minigames.common.core.network.workspace.AddWorkspaceRegionMessage;
 import com.lovetropics.minigames.common.core.network.workspace.SetWorkspaceMessage;
 import com.lovetropics.minigames.common.core.network.workspace.UpdateWorkspaceRegionMessage;
@@ -68,6 +69,8 @@ public final class LoveTropicsNetwork {
 		registrar.playToClient(TriviaAnswerResponseMessage.TYPE, TriviaAnswerResponseMessage.STREAM_CODEC);
 
 		registrar.playToClient(SetForcedPoseMessage.TYPE, SetForcedPoseMessage.STREAM_CODEC);
+
+		registrar.playToServer(SelectVendingMachineItemMessage.TYPE, SelectVendingMachineItemMessage.STREAM_CODEC, SelectVendingMachineItemMessage::handle);
 	}
 
 	@SubscribeEvent
