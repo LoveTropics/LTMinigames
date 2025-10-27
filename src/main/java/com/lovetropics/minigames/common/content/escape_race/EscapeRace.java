@@ -60,17 +60,17 @@ public class EscapeRace {
 			.renderer(() -> VendingMachineEntityRenderer::new)
 			.register();
 
-//	public static final RegistryEntry<EntityType<?>, EntityType<DDRMachineEntity>> DDR_MACHINE = REGISTRATE.entity("ddr_machine", DDRMachineEntity::new, MobCategory.MISC)
-//			.properties(properties ->
-//					properties.sized(2.0F, 3.0F)
-//							.setShouldReceiveVelocityUpdates(true)
-//							.clientTrackingRange(8)
-//							.passengerAttachments(new Vec3(0.0f, 0.8f, 0.0f))
-//							.updateInterval(3))
-//			.loot((loot, type) -> loot.add(type, lootTable()))
-//			.lang("DDR Machine")
-//			.renderer(() -> DDRMachineEntityRenderer::new)
-//			.register();
+	public static final RegistryEntry<EntityType<?>, EntityType<DDRMachineEntity>> DDR_MACHINE = REGISTRATE.entity("ddr_machine", DDRMachineEntity::new, MobCategory.MISC)
+			.properties(properties ->
+					properties.sized(2.0F, 3.0F)
+							.setShouldReceiveVelocityUpdates(true)
+							.clientTrackingRange(8)
+							.passengerAttachments(new Vec3(0.0f, 0.8f, 0.0f))
+							.updateInterval(3))
+			.loot((loot, type) -> loot.add(type, lootTable()))
+			.lang("DDR Machine")
+			.renderer(() -> DDRMachineEntityRenderer::new)
+			.register();
 
 	public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> VENDINGMACHINE_COMPONENT = DATA_COMPONENTS.registerComponentType(
 			"vending_machine_cost",

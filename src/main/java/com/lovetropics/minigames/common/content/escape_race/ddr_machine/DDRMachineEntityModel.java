@@ -15,11 +15,13 @@ import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
-
+import net.neoforged.neoforge.client.renderstate.RegisterRenderStateModifiersEvent;
 
 @EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
 public class DDRMachineEntityModel extends EntityModel<DDRMachineRenderState> {
@@ -89,6 +91,11 @@ public class DDRMachineEntityModel extends EntityModel<DDRMachineRenderState> {
 	@SubscribeEvent
 	public static void onRegisterLayerDefinitions(final EntityRenderersEvent.RegisterLayerDefinitions event) {
 		event.registerLayerDefinition(LAYER_LOCATION, DDRMachineEntityModel::createBodyLayer);
+	}
+
+	@SubscribeEvent
+	public static void onRegisterRenderStateModifiers(RegisterRenderStateModifiersEvent event) {
+		event.registerEntityModifier(PlayerRenderer.class, DDRMachinePlayerHelper::updateLivingEntityRenderState);
 	}
 
 	@Override
