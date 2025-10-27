@@ -53,7 +53,7 @@ public class DDRMachineEntityRenderer extends EntityRenderer<DDRMachineEntity, D
 		poseStack.translate(0.0, 1.5, 0.0); // Roughly get into the center of the place
 		this.model.setupAnim(renderState);
 
-		poseStack.mulPose(Axis.YP.rotationDegrees(180 - renderState.yRot)); // Facing
+		poseStack.mulPose(Axis.YP.rotationDegrees(90 - renderState.yRot)); // Facing
 		poseStack.pushPose();
 		poseStack.mulPose(Axis.ZP.rotationDegrees(180f)); // Turn upsidedown
 

@@ -14,6 +14,7 @@ import com.lovetropics.minigames.client.lobby.state.message.LobbyPlayersMessage;
 import com.lovetropics.minigames.client.lobby.state.message.LobbyUpdateMessage;
 import com.lovetropics.minigames.client.particle_line.DrawParticleLineMessage;
 import com.lovetropics.minigames.client.toast.ShowNotificationToastMessage;
+import com.lovetropics.minigames.common.core.network.ddr.UpdateDDRMachinePlayerPositionMessage;
 import com.lovetropics.minigames.common.core.network.trivia.RequestTriviaStateUpdateMessage;
 import com.lovetropics.minigames.common.core.network.trivia.SelectTriviaAnswerMessage;
 import com.lovetropics.minigames.common.core.network.trivia.ShowTriviaMessage;
@@ -71,6 +72,8 @@ public final class LoveTropicsNetwork {
 		registrar.playToClient(SetForcedPoseMessage.TYPE, SetForcedPoseMessage.STREAM_CODEC);
 
 		registrar.playToServer(SelectVendingMachineItemMessage.TYPE, SelectVendingMachineItemMessage.STREAM_CODEC, SelectVendingMachineItemMessage::handle);
+
+		registrar.playToServer(UpdateDDRMachinePlayerPositionMessage.TYPE, UpdateDDRMachinePlayerPositionMessage.STREAM_CODEC, UpdateDDRMachinePlayerPositionMessage::handle);
 	}
 
 	@SubscribeEvent

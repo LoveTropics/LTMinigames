@@ -36,6 +36,7 @@
     "client.HotbarOverride",
     "client.IntegratedPlayerListMixin",
     "client.KeyboardInputMixin",
+    "client.LivingEntityRendererMixin",
     "client.MinecraftMixin",
     "client.MouseHandlerMixin",
     "client.PlayerTabOverlayGuiMixin"
