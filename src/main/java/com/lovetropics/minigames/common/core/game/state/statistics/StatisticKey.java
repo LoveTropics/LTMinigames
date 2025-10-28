@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import com.lovetropics.lib.codec.CodecRegistry;
+import com.lovetropics.minigames.common.content.block.TrashType;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeamKey;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
@@ -11,9 +12,12 @@ import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntListIterator;
 
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.lovetropics.minigames.common.core.game.state.statistics.StatisticDisplays.*;
 
@@ -80,6 +84,10 @@ public final class StatisticKey<T> {
 	// Treasure Dig X
 	public static final StatisticKey<Integer> CHESTS_OPENED = ofInt("chests_opened");
 	public static final StatisticKey<Integer> EXPLOSIONS_CAUSED = ofInt("explosions_caused");
+
+	// Terry Trash
+	public static final Map<TrashType, StatisticKey<Integer>> TRASH_TYPES = Arrays.stream(TrashType.values())
+			.collect(Collectors.toMap(Function.identity(), type -> ofInt(type.getId()).defaultValue(0)));
 
 	private final Class<T> type;
 	private final String key;

@@ -7,8 +7,6 @@ import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DDRMachi
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DDRMachineEntityRenderer;
 import com.lovetropics.minigames.common.content.escape_race.vending_machine.VendingMachineEntity;
 import com.lovetropics.minigames.common.content.escape_race.vending_machine.VendingMachineEntityRenderer;
-import com.lovetropics.minigames.common.content.river_race.behaviour.RiverRaceSetupBehavior;
-import com.lovetropics.minigames.common.content.river_race.client_state.RiverRaceClientBarState;
 import com.lovetropics.minigames.common.util.registry.GameBehaviorEntry;
 import com.lovetropics.minigames.common.util.registry.GameClientTweakEntry;
 import com.lovetropics.minigames.common.util.registry.LoveTropicsRegistrate;
@@ -88,7 +86,13 @@ public class EscapeRace {
 	public static final GameBehaviorEntry<BreakBucksBehaviour> BREAK_BUCKS_BEHAVIOUR = REGISTRATE.object("escape_race/break_bucks").behavior(BreakBucksBehaviour.CODEC).register();
 
 
+	public static final GameBehaviorEntry<TerryTrashBehavior> TERRY_TRASH = REGISTRATE.object("terry_trash")
+			.behavior(TerryTrashBehavior.CODEC)
+			.register();
+
 	public static void init() {
 		register("itemstack_list", ITEM_STACK_LIST);
 	}
+
+
 }

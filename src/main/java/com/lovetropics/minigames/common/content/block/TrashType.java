@@ -5,12 +5,13 @@ import com.tterrag.registrate.util.nullness.NonNullSupplier;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.core.Direction.AxisDirection;
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.Locale;
 
-public enum TrashType implements NonNullSupplier<Block> {
+public enum TrashType implements NonNullSupplier<Block>, StringRepresentable {
 
 	CAN(6, 7),
 	CHIP_BAG(14, 1),
@@ -24,6 +25,8 @@ public enum TrashType implements NonNullSupplier<Block> {
 
 	private final int w, h;
 	private final VoxelShape[] shape = new VoxelShape[6];
+
+	public static final StringRepresentable.EnumCodec<TrashType> CODEC = StringRepresentable.fromEnum(TrashType::values);
 
 	TrashType() {
 		this(7);
@@ -99,6 +102,11 @@ public enum TrashType implements NonNullSupplier<Block> {
 
 	public String getId() {
 		return name().toLowerCase(Locale.ROOT);
+	}
+
+	@Override
+	public String getSerializedName() {
+		return getId();
 	}
 
 	@Override
