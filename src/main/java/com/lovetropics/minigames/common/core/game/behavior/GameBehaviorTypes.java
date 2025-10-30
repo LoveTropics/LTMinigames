@@ -69,6 +69,7 @@ import com.lovetropics.minigames.common.core.game.behavior.instances.action.SetE
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.SetGlowingAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.SetPlayerRoleAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.SetStatisticAction;
+import com.lovetropics.minigames.common.core.game.behavior.instances.action.SetTabListOrderAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.SetTotalTimeAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.ShootProjectilesAroundPlayerAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.ShowTitleAction;
@@ -311,6 +312,7 @@ public class GameBehaviorTypes {
 	public static final GameBehaviorEntry<RemoveCollidersAction> REMOVE_COLLIDERS = register("remove_colliders", RemoveCollidersAction.CODEC);
 	public static final GameBehaviorEntry<IncrementStatisticAction> INCREMENT_STATISTIC = register("increment_statistic", IncrementStatisticAction.CODEC);
 	public static final GameBehaviorEntry<SetStatisticAction> SET_STATISTIC = register("set_statistic", SetStatisticAction.CODEC);
+	public static final GameBehaviorEntry<SetTabListOrderAction> SET_TAB_LIST_ORDER = register("set_tab_list_order", SetTabListOrderAction.CODEC);
 	public static final GameBehaviorEntry<SetTotalTimeAction> SET_TOTAL_TIME = register("set_total_time", SetTotalTimeAction.CODEC);
 	public static final GameBehaviorEntry<KillEntitiesAction> KILL_ENTITIES = register("kill_entities", KillEntitiesAction.CODEC);
 	public static final GameBehaviorEntry<StartProgressChannelAction> START_PROGRESS_CHANNEL = register("start_progress_channel", StartProgressChannelAction.CODEC);
