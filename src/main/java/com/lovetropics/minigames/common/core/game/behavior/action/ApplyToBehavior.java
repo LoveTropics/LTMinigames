@@ -33,7 +33,13 @@ public record ApplyToBehavior<T, A extends ActionTarget<T>>(A target, GameAction
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		actions.register(game, events);
-		events.listen(GameActionEvents.APPLY, context -> actions.apply(game, context, target.resolve(game, List.of())));
+
+		// TODO - this is super cursed, but if the target requires a source, this action will be a source transformation action, otherwise it will convert the given actions into a raw APPLY action
+		if (target.requiresSource()) {
+			target.listenAndCaptureSource(events, (context, source) -> actions.apply(game, context, target.resolve(game, source)));
+		} else {
+			events.listen(GameActionEvents.APPLY, context -> actions.apply(game, context, target.resolve(game, List.of())));
+		}
 	}
 
 	@Override

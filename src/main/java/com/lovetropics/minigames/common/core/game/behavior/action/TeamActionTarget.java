@@ -63,6 +63,11 @@ public record TeamActionTarget(Either<BuiltinType, GameTeamKey> team) implements
 		return ActionTargetTypes.TEAM.get();
 	}
 
+	@Override
+	public boolean requiresSource() {
+		return team.left().isPresent() && team.left().get() == BuiltinType.SOURCE;
+	}
+
 	public enum BuiltinType implements StringRepresentable {
 		NONE("none"),
 		SOURCE("source"),

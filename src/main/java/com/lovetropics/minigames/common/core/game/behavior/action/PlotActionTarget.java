@@ -42,6 +42,11 @@ public record PlotActionTarget(Target target) implements ActionTarget<Plot> {
 		return ActionTargetTypes.PLOT.get();
 	}
 
+	@Override
+	public boolean requiresSource() {
+		return target == Target.SOURCE;
+	}
+
 	public enum Target implements StringRepresentable {
 		NONE("none"),
 		SOURCE("source"),

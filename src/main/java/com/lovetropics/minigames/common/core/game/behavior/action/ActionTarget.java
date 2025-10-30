@@ -28,5 +28,9 @@ public interface ActionTarget<T> {
 
 	void listenAndCaptureSource(EventRegistrar listeners, ToBooleanBiFunction<GameActionContext, Iterable<T>> listener);
 
+	default boolean requiresSource() {
+		return false;
+	}
+
 	Codec<? extends ActionTarget<T>> type();
 }

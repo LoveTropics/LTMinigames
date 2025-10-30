@@ -42,6 +42,11 @@ public record PlayerActionTarget(Target target) implements ActionTarget<ServerPl
 		return ActionTargetTypes.PLAYER.get();
 	}
 
+	@Override
+	public boolean requiresSource() {
+		return target == Target.SOURCE || target == Target.PARTICIPANTS_EXCEPT_SOURCE;
+	}
+
 	public enum Target implements StringRepresentable {
 		NONE("none"),
 		SOURCE("source"),
