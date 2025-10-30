@@ -89,6 +89,8 @@ public final class StatisticKey<T> {
 	public static final Map<TrashType, StatisticKey<Integer>> TRASH_TYPES = Arrays.stream(TrashType.values())
 			.collect(Collectors.toMap(Function.identity(), type -> ofInt(type.getId()).defaultValue(0)));
 
+	public static final StatisticKey<Integer> PASSWORD_CORRECT = ofInt("password_correct").displays(unit("correct"));
+
 	private final Class<T> type;
 	private final String key;
 	private final Function<T, JsonElement> serializer;
