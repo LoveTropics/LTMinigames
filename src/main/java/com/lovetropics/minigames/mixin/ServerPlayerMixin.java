@@ -29,7 +29,7 @@ public abstract class ServerPlayerMixin extends Player implements ServerPlayerEx
 	@Unique
 	private int tabListOrder = 0;
 
-	@Inject(method = "getTabListOrder", at = @At("HEAD"))
+	@Inject(method = "getTabListOrder", at = @At("HEAD"), cancellable = true)
 	private void modifyTabListOrder(CallbackInfoReturnable<Integer> cir) {
 		if (tabListOrder != 0) {
 			cir.setReturnValue(tabListOrder);
