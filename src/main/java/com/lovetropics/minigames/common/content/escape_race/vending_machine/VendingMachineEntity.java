@@ -263,7 +263,10 @@ public class VendingMachineEntity extends Entity implements ContainerEntity {
 
 	@Override
 	public boolean hasCustomOutlineRendering(Player player) {
-		return true;
+		if(player.hasLineOfSight(this) && player.getLookAngle().dot(this.getLookAngle()) < 0) {
+			return true;
+		}
+		return false;
 	}
 
 	@Override
