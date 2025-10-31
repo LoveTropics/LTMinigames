@@ -33,8 +33,8 @@ public class DDRMachinePlayerHelper {
 			return;
 		}
 		if(humanoidRenderState.getRenderDataOrDefault(IS_PLAYING_DDR, false)) {
-			Boolean left = humanoidRenderState.getRenderDataOrDefault(IS_PLAYER_LEFT, false);
-			Boolean right = humanoidRenderState.getRenderDataOrDefault(IS_PLAYER_RIGHT, false);
+			boolean left = humanoidRenderState.getRenderDataOrDefault(IS_PLAYER_LEFT, false);
+			boolean right = humanoidRenderState.getRenderDataOrDefault(IS_PLAYER_RIGHT, false);
 			if(left) {
 				humanoidModel.leftLeg.zRot = -45f;
 				if(!right) {

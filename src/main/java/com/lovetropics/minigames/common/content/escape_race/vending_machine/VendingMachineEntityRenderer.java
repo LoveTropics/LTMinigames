@@ -10,6 +10,8 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.OutlineBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.debug.DebugRenderer;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.item.ItemModelResolver;
@@ -24,6 +26,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.Shapes;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import org.joml.Matrix4f;
@@ -61,7 +64,7 @@ public class VendingMachineEntityRenderer extends EntityRenderer<VendingMachineE
 				reusedState.itemStacks.set(i, itemStack.copy());
 			}
 		}
-		reusedState.isLookingAt = Minecraft.getInstance().crosshairPickEntity == entity;
+		reusedState.isLookingAt = Minecraft.getInstance().crosshairPickEntity == entity && Minecraft.getInstance().player.getLookAngle().dot(entity.getLookAngle()) < 0;
 		reusedState.selectedIndex = entity.getSelected();
 		if(reusedState.selectedIndex != -1) {
 			ItemStack itemStack = entity.getItems().get(reusedState.selectedIndex);
@@ -88,11 +91,13 @@ public class VendingMachineEntityRenderer extends EntityRenderer<VendingMachineE
 		poseStack.mulPose(Axis.YP.rotationDegrees(180 - renderState.yRot)); // Facing
 		poseStack.pushPose();
 		poseStack.mulPose(Axis.ZP.rotationDegrees(180f)); // Turn upsidedown
+		model.setupAnim(renderState);
 
 		VertexConsumer builder = bufferSource.getBuffer(model.renderType(TEXTURE));
 		model.renderToBuffer(poseStack, builder, packedLight, OverlayTexture.NO_OVERLAY); // Render the model
 		poseStack.popPose();
 		int i = 0;
+		Vector3f lookVector = Minecraft.getInstance().gameRenderer.getMainCamera().getLookVector();
 		for (int renderStateIndex = 0; renderStateIndex < renderState.items.size(); renderStateIndex++) {
 			ItemStackRenderState item = renderState.items.get(renderStateIndex);
 			if(item.isEmpty())
@@ -110,6 +115,10 @@ public class VendingMachineEntityRenderer extends EntityRenderer<VendingMachineE
 			poseStack.pushPose();
 			poseStack.translate(slot.x(), slot.y(), slot.z());
 			poseStack.scale(scale, scale, scale);
+			Matrix4f inverted = new Matrix4f();
+			poseStack.last().pose().invert(inverted);
+			Vec3 relativeWorldSpace = Vec3.ZERO;
+			Vector3f target = inverted.transformPosition(relativeWorldSpace.add(new Vec3(lookVector).scale(1.5f)).toVector3f(), new Vector3f());
 			for(int x = 0; x < 4; x++){
 				poseStack.pushPose();
 				poseStack.translate(0, 0, 0.5*x);
@@ -117,12 +126,7 @@ public class VendingMachineEntityRenderer extends EntityRenderer<VendingMachineE
 				// subtract camera position and Apply to hitresult
 				boolean isHighlighted = false;
 				if(x == 0) {
-					if (renderState.isLookingAt) {
-						Matrix4f inverted = new Matrix4f();
-						poseStack.last().pose().invert(inverted);
-						Vector3f lookVector = Minecraft.getInstance().gameRenderer.getMainCamera().getLookVector();
-						Vec3 relativeWorldSpace = Vec3.ZERO;
-						Vector3f target = inverted.transformPosition(relativeWorldSpace.add(new Vec3(lookVector).scale(1.5f)).toVector3f(), new Vector3f());
+					if (renderState.isLookingAt) {;
 						Vector3f origin = inverted.transformPosition(relativeWorldSpace.toVector3f(), new Vector3f());
 						Optional<Vec3> clip = new AABB(-0.5, -0.5, -0.5, 0.5, 0.5, 0.5).clip(new Vec3(origin), new Vec3(target));
 						if (clip.isPresent()) {
@@ -130,7 +134,7 @@ public class VendingMachineEntityRenderer extends EntityRenderer<VendingMachineE
 						}
 					}
 				}
-				if(x == 0 && (isHighlighted || renderStateIndex == renderState.selectedIndex)) {
+				if(x == 0 && (isHighlighted || renderStateIndex == renderState.selectedIndex) && renderState.isLookingAt) {
 					poseStack.pushPose();
 					poseStack.scale(1.25f, 1.25f, 1.25f);
 					OutlineBufferSource bufferSource1 = Minecraft.getInstance().renderBuffers().outlineBufferSource();
@@ -163,6 +167,88 @@ public class VendingMachineEntityRenderer extends EntityRenderer<VendingMachineE
 			poseStack.popPose();
 			i++;
 		}
+		poseStack.pushPose();
+		var z = renderState.selectedIndex != -1 ? 0.56f : -0.55f;
+		poseStack.translate(-0.71f, -0.19f, -0.56f);
+		Matrix4f inverted = new Matrix4f();
+		poseStack.last().pose().invert(inverted);
+		Vec3 relativeWorldSpace = Vec3.ZERO;
+		Vector3f target = inverted.transformPosition(relativeWorldSpace.add(new Vec3(lookVector).scale(1.5f)).toVector3f(), new Vector3f());
+		Vector3f origin = inverted.transformPosition(relativeWorldSpace.toVector3f(), new Vector3f());
+		Optional<Vec3> clip = new AABB(-0.15, -0.1, -0.1, 0.15, 0.1, 0.1).clip(new Vec3(origin), new Vec3(target));
+		if (clip.isPresent()) {
+			VertexConsumer buffer = bufferSource.getBuffer(RenderType.debugQuads());
+			PoseStack.Pose last = poseStack.last();
+			// TOP
+			buffer
+					.addVertex(last.pose(), -0.15f, -0.01f, -0.05f)
+					.setColor(255,255,255,128)
+					.setNormal(0, 0,0);
+			buffer
+					.addVertex(last.pose(),0.15f, -0.01f, -0.05f)
+					.setColor(255,255,255,128)
+					.setNormal(0, 0,0);
+			buffer
+					.addVertex(last.pose(),0.15f, 0.01f, -0.05f)
+					.setColor(255,255,255,128)
+					.setNormal(0, 0,0);
+			buffer
+					.addVertex(last.pose(),-0.15f, 0.01f, -0.05f)
+					.setColor(255,255,255,128)
+					.setNormal(0, 0,0);
+			//RIGHT
+			buffer
+					.addVertex(last.pose(), -0.15f, -0.0101f, -0.05f)
+					.setColor(255,255,255,128)
+					.setNormal(0, 0,0);
+			buffer
+					.addVertex(last.pose(),-0.15f, -0.18f, -0.05f)
+					.setColor(255,255,255,128)
+					.setNormal(0, 0,0);
+			buffer
+					.addVertex(last.pose(),-0.13f, -0.18f, -0.05f)
+					.setColor(255,255,255,128)
+					.setNormal(0, 0,0);
+			buffer
+					.addVertex(last.pose(),-0.13f, -0.0101f, -0.05f)
+					.setColor(255,255,255,128)
+					.setNormal(0, 0,0);
+			// BOTTOM
+			buffer
+					.addVertex(last.pose(), -0.13f, -0.18f, -0.05f)
+					.setColor(255,255,255,128)
+					.setNormal(0, 0,0);
+			buffer
+					.addVertex(last.pose(),0.15f, -0.18f, -0.05f)
+					.setColor(255,255,255,128)
+					.setNormal(0, 0,0);
+			buffer
+					.addVertex(last.pose(),0.15f, -0.16f, -0.05f)
+					.setColor(255,255,255,128)
+					.setNormal(0, 0,0);
+			buffer
+					.addVertex(last.pose(),-0.13f, -0.16f, -0.05f)
+					.setColor(255,255,255,128)
+					.setNormal(0, 0,0);
+			// LEFT
+			buffer
+					.addVertex(last.pose(), 0.15f, -0.01f, -0.05f)
+					.setColor(255,255,255,128)
+					.setNormal(0, 0,0);
+			buffer
+					.addVertex(last.pose(),0.15f, -0.16f, -0.05f)
+					.setColor(255,255,255,128)
+					.setNormal(0, 0,0);
+			buffer
+					.addVertex(last.pose(),0.13f, -0.16f, -0.05f)
+					.setColor(255,255,255,128)
+					.setNormal(0, 0,0);
+			buffer
+					.addVertex(last.pose(),0.13f, -0.01f, -0.05f)
+					.setColor(255,255,255,128)
+					.setNormal(0, 0,0);
+		}
+		poseStack.popPose();
 		if(!renderState.droppingItem.isEmpty()){
 			ItemStackRenderState item = renderState.droppingItem;
 			var size = item.getModelBoundingBox().getSize();
