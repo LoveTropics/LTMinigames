@@ -114,6 +114,7 @@ import com.lovetropics.minigames.common.core.game.behavior.instances.team.TeamsB
 import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.ApplyToPlayerWhileTrigger;
 import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.ApplyToPlayersAround;
 import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.BindControlsBehavior;
+import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.BlockInRegionTrigger;
 import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.GameFinishTrigger;
 import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.GeneralEventsTrigger;
 import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.ItemPickedUpTrigger;
@@ -241,6 +242,7 @@ public class GameBehaviorTypes {
 	public static final GameBehaviorEntry<DamageInWaterBehavior> DAMAGE_IN_WATER = register("damage_in_water", DamageInWaterBehavior.CODEC);
 	public static final GameBehaviorEntry<ApplyToPlayerWhileTrigger> APPLY_TO_PLAYER_WHILE = register("apply_to_player_while", ApplyToPlayerWhileTrigger.CODEC);
 	public static final GameBehaviorEntry<ApplyToPlayersAround> APPLY_TO_PLAYERS_AROUND = register("apply_to_players_around", ApplyToPlayersAround.CODEC);
+	public static final GameBehaviorEntry<BlockInRegionTrigger> BLOCK_IN_REGION = register("block_in_region", BlockInRegionTrigger.CODEC);
 
 	public static final GameBehaviorEntry<BindObjectiveToStatisticBehavior> BIND_OBJECTIVE_TO_STATISTIC = register("bind_objective_to_statistic", BindObjectiveToStatisticBehavior.CODEC);
 	public static final GameBehaviorEntry<PlaceByStatisticBehavior> PLACE_BY_STATISTIC = register("place_by_statistic", PlaceByStatisticBehavior.CODEC);
