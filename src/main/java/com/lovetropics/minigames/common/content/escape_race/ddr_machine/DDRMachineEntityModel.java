@@ -23,7 +23,6 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.renderstate.RegisterRenderStateModifiersEvent;
 
-@EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
 public class DDRMachineEntityModel extends EntityModel<DDRMachineRenderState> {
 
 	// This layer location should be baked with EntityRendererProvider.Context in the entity renderer and passed into this model's constructor
@@ -88,15 +87,7 @@ public class DDRMachineEntityModel extends EntityModel<DDRMachineRenderState> {
 
 		return LayerDefinition.create(meshdefinition, 512, 512);
 	}
-	@SubscribeEvent
-	public static void onRegisterLayerDefinitions(final EntityRenderersEvent.RegisterLayerDefinitions event) {
-		event.registerLayerDefinition(LAYER_LOCATION, DDRMachineEntityModel::createBodyLayer);
-	}
 
-	@SubscribeEvent
-	public static void onRegisterRenderStateModifiers(RegisterRenderStateModifiersEvent event) {
-		event.registerEntityModifier(PlayerRenderer.class, DDRMachinePlayerHelper::updateLivingEntityRenderState);
-	}
 
 	@Override
 	public void setupAnim(DDRMachineRenderState renderState) {

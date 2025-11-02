@@ -5,6 +5,8 @@ import com.lovetropics.minigames.common.content.escape_race.behaviours.BreakBuck
 import com.lovetropics.minigames.common.content.escape_race.client.EscapeRaceClientBucksState;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DDRMachineEntity;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DDRMachineEntityRenderer;
+import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DDRMachineLevelClient;
+import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DDRMachineLevelTick;
 import com.lovetropics.minigames.common.content.escape_race.vending_machine.VendingMachineEntity;
 import com.lovetropics.minigames.common.content.escape_race.vending_machine.VendingMachineEntityRenderer;
 import com.lovetropics.minigames.common.util.registry.GameBehaviorEntry;
@@ -13,6 +15,9 @@ import com.lovetropics.minigames.common.util.registry.LoveTropicsRegistrate;
 import com.mojang.serialization.Codec;
 import com.tterrag.registrate.util.entry.ItemEntry;
 import com.tterrag.registrate.util.entry.RegistryEntry;
+import it.unimi.dsi.fastutil.Hash;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
@@ -22,12 +27,17 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.animal.armadillo.Armadillo;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static net.minecraft.world.level.storage.loot.LootTable.lootTable;
 
@@ -50,6 +60,35 @@ public class EscapeRace {
 			return list;
 		}
 	};
+	public static final EntityDataSerializer<List<DDRMachineLevelClient>> DDR_LEVEL_LIST = new EntityDataSerializer<>() {
+		@Override
+		public StreamCodec<? super RegistryFriendlyByteBuf, List<DDRMachineLevelClient>> codec() {
+			return DDRMachineLevelClient.STREAM_CODEC.apply(ByteBufCodecs.collection(NonNullList::createWithCapacity));
+		}
+
+		@Override
+		public List<DDRMachineLevelClient> copy(List<DDRMachineLevelClient> value) {
+			NonNullList<DDRMachineLevelClient> list = NonNullList.create();
+			list.addAll(value);
+			return list;
+		}
+	};
+	public static final EntityDataSerializer<DDRMachineEntity.DDRMachineState> DDR_STATE = EntityDataSerializer.forValueType(
+			DDRMachineEntity.DDRMachineState.STREAM_CODEC
+	);
+
+	public static final EntityDataSerializer<Map<Integer, DDRMachineLevelTick>> DDR_LEVEL_TICK_MAP = new EntityDataSerializer<>() {
+		@Override
+		public StreamCodec<? super RegistryFriendlyByteBuf, Map<Integer, DDRMachineLevelTick>> codec() {
+			return ByteBufCodecs.map(HashMap::new, ByteBufCodecs.INT, DDRMachineLevelTick.STREAM_CODEC, 256);
+		}
+
+		@Override
+		public Map<Integer, DDRMachineLevelTick> copy(Map<Integer, DDRMachineLevelTick> value) {
+			return new HashMap<>(value);
+		}
+	};
+
 	public static DeferredHolder<EntityDataSerializer<?>, EntityDataSerializer<?>> register(String name, EntityDataSerializer<?> dataSerializerEntry) {
 		return ENTITY_SERIALIZERS.register(name, () -> dataSerializerEntry);
 	}
@@ -92,6 +131,9 @@ public class EscapeRace {
 
 	public static void init() {
 		register("itemstack_list", ITEM_STACK_LIST);
+		register("ddr_level_list", DDR_LEVEL_LIST);
+		register("ddr_state", DDR_STATE);
+		register("ddr_level_tick_map", DDR_LEVEL_TICK_MAP);
 	}
 
 

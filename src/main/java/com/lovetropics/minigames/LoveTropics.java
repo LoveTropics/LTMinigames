@@ -26,6 +26,9 @@ import com.lovetropics.minigames.common.content.crafting_bee.CraftingBeeTexts;
 import com.lovetropics.minigames.common.content.de_a_coudre.DeACoudre;
 import com.lovetropics.minigames.common.content.escape_race.EscapeRace;
 import com.lovetropics.minigames.common.content.escape_race.client.EscapeRaceBucksRenderer;
+import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DDRCommand;
+import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DDRMachineEntityRenderer;
+import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DDRMachineRenderState;
 import com.lovetropics.minigames.common.content.escape_race.vending_machine.VendingMachineEntityRenderer;
 import com.lovetropics.minigames.common.content.paint_party.PaintParty;
 import com.lovetropics.minigames.common.content.paint_party.PaintPartyTexts;
@@ -263,6 +266,7 @@ public class LoveTropics {
 		ChatCommand.register(dispatcher);
 		ExecuteAtRegionCommand.register(dispatcher);
 		GameActionCommand.register(dispatcher);
+		DDRCommand.register(dispatcher);
 	}
 
 	private void onServerAboutToStart(final ServerAboutToStartEvent event) {
