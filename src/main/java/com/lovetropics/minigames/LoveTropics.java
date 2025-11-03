@@ -153,7 +153,7 @@ public class LoveTropics {
 			RiverRaceTexts.collectTranslations(consumer);
 			GameDataAccessor.KEYS.forEach(consumer);
 			KeybindsTexts.collectTranslations(consumer);
-			EscapeRaceTexts.KEYS.forEach(consumer);
+			EscapeRaceTexts.collectTranslations(consumer);
 		});
 
 		registrate.generic(TAB_ID.getPath(), Registries.CREATIVE_MODE_TAB, () -> CreativeModeTab.builder()

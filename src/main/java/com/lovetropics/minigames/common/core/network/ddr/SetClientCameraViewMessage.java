@@ -1,17 +1,12 @@
 package com.lovetropics.minigames.common.core.network.ddr;
 
 import com.lovetropics.minigames.LoveTropics;
-import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DDRMachineEntity;
-import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DDRMachineLevel;
-import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DDRMachineLevels;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public record SetClientCameraViewMessage(int cameraType) implements CustomPacketPayload {

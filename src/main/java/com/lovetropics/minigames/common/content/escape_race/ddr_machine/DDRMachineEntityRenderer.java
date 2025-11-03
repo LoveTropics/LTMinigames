@@ -1,6 +1,9 @@
 package com.lovetropics.minigames.common.content.escape_race.ddr_machine;
 
 import com.lovetropics.minigames.LoveTropics;
+import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DDRMachineLevelClient;
+import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DDRMachineLevelClientRenderState;
+import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DDRMachineLevelTick;
 import com.lovetropics.minigames.common.content.escape_race.vending_machine.VendingMachineEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -8,6 +11,7 @@ import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiSpriteManager;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.OutlineBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -34,12 +38,14 @@ public class DDRMachineEntityRenderer extends EntityRenderer<DDRMachineEntity, D
 	private final DDRMachineEntityModel model;
 	private final GuiSpriteManager guiSpriteManager;
 	private final ItemModelResolver itemModelResolver;
+	private final Font font;
 
 	public DDRMachineEntityRenderer(EntityRendererProvider.Context context) {
 		super(context);
 		model = new DDRMachineEntityModel(context.bakeLayer(DDRMachineEntityModel.LAYER_LOCATION));
 		guiSpriteManager = Minecraft.getInstance().getGuiSprites();
 		itemModelResolver = context.getItemModelResolver();
+		font = context.getFont();
 	}
 
 	@Override
@@ -60,6 +66,7 @@ public class DDRMachineEntityRenderer extends EntityRenderer<DDRMachineEntity, D
 		reusedState.upcomingMoves.clear();
 		reusedState.upcomingMoves.putAll(entity.getUpcomingMoves());
 		reusedState.currentTick = entity.getCurrentTick();
+		reusedState.isRiding =  entity.getControllingPassenger() instanceof LocalPlayer;
 		for (int i = 0; i < entity.getAvailableLevels().size(); i++) {
 			if(reusedState.levels.size() <= i){
 				reusedState.levels.add(new DDRMachineLevelClientRenderState());
@@ -122,35 +129,38 @@ public class DDRMachineEntityRenderer extends EntityRenderer<DDRMachineEntity, D
 				VendingMachineEntity.VendingMachineSlot slot = testSlots.get(i);
 				poseStack.pushPose();
 				poseStack.translate(slot.x(), slot.y(), slot.z());
-				Matrix4f inverted = new Matrix4f();
-				poseStack.last().pose().invert(inverted);
-				Vec3 relativeWorldSpace = Vec3.ZERO;
-				Vector3f target = inverted.transformPosition(relativeWorldSpace.add(new Vec3(lookVector).scale(1.5f)).toVector3f(), new Vector3f());
-				Vector3f origin = inverted.transformPosition(relativeWorldSpace.toVector3f(), new Vector3f());
-				Optional<Vec3> clip = new AABB(-0.5, -0.5, -0.5, 0.5, 0.5, 0.5).clip(new Vec3(origin), new Vec3(target));
-				if (clip.isPresent()) {
-					poseStack.pushPose();
-					poseStack.scale(1.25f, 1.25f, 1.25f);
-					OutlineBufferSource bufferSource1 = Minecraft.getInstance().renderBuffers().outlineBufferSource();
-					bufferSource1.setColor(255, 255, 255, 255);
-					level.itemStackRenderState.render(poseStack, bufferSource1, packedLight, OverlayTexture.NO_OVERLAY);
-					Font font = Minecraft.getInstance().font;
-					float xOffset = -font.width(level.displayName) / 2f;
-					int j = (int)(Minecraft.getInstance().options.getBackgroundOpacity(0.25F) * 255.0F) << 24;
-					poseStack.popPose();
-					poseStack.pushPose();
-					poseStack.mulPose(Axis.ZP.rotationDegrees(-180f)); // Turn upsidedown
-					poseStack.scale(0.03f, 0.03f, 0.03f);
-					font.drawInBatch(
-							level.displayName,
-							xOffset,
-							-30f,
-							-2130706433, false, poseStack.last().pose(), bufferSource, Font.DisplayMode.SEE_THROUGH, j, packedLight
-					);
-					poseStack.popPose();
+				if(renderState.isRiding) {
+					Matrix4f inverted = new Matrix4f();
+					poseStack.last().pose().invert(inverted);
+					Vec3 relativeWorldSpace = Vec3.ZERO;
+					Vector3f target = inverted.transformPosition(relativeWorldSpace.add(new Vec3(lookVector).scale(1.5f)).toVector3f(), new Vector3f());
+					Vector3f origin = inverted.transformPosition(relativeWorldSpace.toVector3f(), new Vector3f());
+					Optional<Vec3> clip = new AABB(-0.5, -0.5, -0.5, 0.5, 0.5, 0.5).clip(new Vec3(origin), new Vec3(target));
+					if (clip.isPresent()) {
+						poseStack.pushPose();
+						poseStack.scale(1.25f, 1.25f, 1.25f);
+						OutlineBufferSource bufferSource1 = Minecraft.getInstance().renderBuffers().outlineBufferSource();
+						bufferSource1.setColor(255, 255, 255, 255);
+						level.itemStackRenderState.render(poseStack, bufferSource1, packedLight, OverlayTexture.NO_OVERLAY);
+						poseStack.popPose();
+					} else {
+						level.itemStackRenderState.render(poseStack, bufferSource, packedLight, OverlayTexture.NO_OVERLAY);
+					}
 				} else {
 					level.itemStackRenderState.render(poseStack, bufferSource, packedLight, OverlayTexture.NO_OVERLAY);
 				}
+				float xOffset = -font.width(level.displayName) / 2f;
+				int j = (int) (Minecraft.getInstance().options.getBackgroundOpacity(0.25F) * 255.0F) << 24;
+				poseStack.pushPose();
+				poseStack.mulPose(Axis.ZP.rotationDegrees(-180f)); // Turn upsidedown
+				poseStack.scale(0.03f, 0.03f, 0.03f);
+				font.drawInBatch(
+						level.displayName,
+						xOffset,
+						20f,
+						-1, false, poseStack.last().pose(), bufferSource, Font.DisplayMode.SEE_THROUGH, j, packedLight
+				);
+				poseStack.popPose();
 				poseStack.popPose();
 				i++;
 			}
@@ -173,7 +183,7 @@ public class DDRMachineEntityRenderer extends EntityRenderer<DDRMachineEntity, D
 					continue;
 				}
 				DDRMachineLevelTick levelTick = entry.getValue();
-				float yPos = Mth.lerp((tick - renderState.currentTick) / (20f * 4), -2f, 4f);
+				float yPos = Mth.lerp((tick - renderState.currentTick) / (20f * 4), -2f, 3f);
 				if(levelTick.left()){
 					poseStack.pushPose();
 					poseStack.scale(0.2f, 0.2f, 0.2f);

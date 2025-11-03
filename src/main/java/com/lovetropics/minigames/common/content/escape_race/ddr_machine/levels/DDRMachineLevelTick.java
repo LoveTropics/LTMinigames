@@ -1,4 +1,4 @@
-package com.lovetropics.minigames.common.content.escape_race.ddr_machine;
+package com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;

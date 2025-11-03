@@ -156,7 +156,7 @@ public class VendingMachineEntityRenderer extends EntityRenderer<VendingMachineE
 							name,
 							xOffset,
 							-30f,
-							-2130706433, false, poseStack.last().pose(), bufferSource, Font.DisplayMode.SEE_THROUGH, j, packedLight
+							-1, false, poseStack.last().pose(), bufferSource, Font.DisplayMode.SEE_THROUGH, j, packedLight
 					);
 					poseStack.popPose();
 				} else {

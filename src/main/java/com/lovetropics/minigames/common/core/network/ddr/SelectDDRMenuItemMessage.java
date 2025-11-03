@@ -2,9 +2,8 @@ package com.lovetropics.minigames.common.core.network.ddr;
 
 import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DDRMachineEntity;
-import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DDRMachineLevel;
-import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DDRMachineLevels;
-import com.lovetropics.minigames.common.content.escape_race.vending_machine.VendingMachineEntity;
+import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DDRMachineLevel;
+import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DDRMachineLevels;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;

@@ -2,6 +2,11 @@ package com.lovetropics.minigames.common.content.escape_race.ddr_machine;
 
 import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.content.escape_race.EscapeRace;
+import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DDRMachineLevel;
+import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DDRMachineLevelClient;
+import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DDRMachineLevelState;
+import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DDRMachineLevelTick;
+import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DDRMachineLevels;
 import com.lovetropics.minigames.common.content.escape_race.vending_machine.VendingMachineEntity;
 import com.lovetropics.minigames.common.core.network.ddr.SelectDDRMenuItemMessage;
 import com.lovetropics.minigames.common.core.network.ddr.SetClientCameraViewMessage;
@@ -10,7 +15,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import com.mojang.serialization.JsonOps;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
@@ -107,7 +111,7 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 
 	private int recordingStartTick = 0;
 
-	private DDRMachineLevel currentLevel = null;
+	private DDRMachineLevelState currentLevelState = null;
 	private int currentLevelLength = 0;
 
 	private int playingStartTick = 0;
@@ -269,7 +273,7 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 			return;
 		}
 		if(!level().isClientSide){
-			if(state == DDRMachineState.RECORDING && currentLevel != null) {
+			if(state == DDRMachineState.RECORDING && currentLevelState != null) {
 				int currentTick = tickCount - recordingStartTick;
 				boolean hasChanged = false;
 				boolean left= false, right= false, forward = false, back = false;
@@ -292,26 +296,43 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 				}
 				if(hasChanged) {
 					DDRMachineLevelTick tick = new DDRMachineLevelTick(forward, left, back, right);
-					currentLevel.ticks().put(currentTick + "", tick);
+					currentLevelState.getLevel().ticks().put(currentTick + "", tick);
 					this.updateLast();
 				}
 				if(currentTick >= currentLevelLength) {
 					stopRecording();
 				}
-			} else if(state == DDRMachineState.PLAYING && currentLevel != null) {
+			} else if(state == DDRMachineState.PLAYING && currentLevelState != null) {
 				int currentTick = tickCount - playingStartTick;
 				getEntityData().set(DATA_CURRENT_TICK, currentTick);
-				Map<Integer, DDRMachineLevelTick> collect = currentLevel.ticks().entrySet().stream()
+				Map<Integer, DDRMachineLevelTick> collect = currentLevelState.getTickStates().entrySet().stream()
 						.filter((entry) -> {
-							int tick = Integer.parseInt(entry.getKey());
-							return tick >= currentTick && tick - currentTick <= 20 * 4;
+							int tick = entry.getKey();
+							return (tick + 10) >= currentTick && tick - currentTick <= 20 * 4 && !entry.getValue().wasHit();
 						} )
-						.collect(Collectors.toMap((entry) -> Integer.parseInt(entry.getKey()), Map.Entry::getValue));
+						.collect(Collectors.toMap(Map.Entry::getKey, (entry) -> entry.getValue().getTick()));
 				getEntityData().set(DATA_UPCOMING_MOVES, collect);
-				if(currentLevel.ticks().containsKey(currentTick + "")) {
-					DDRMachineLevelTick tick = currentLevel.ticks().get(currentTick + "");
-					if(getControllingPassenger() instanceof ServerPlayer player){
-					}
+				boolean hasChanged = false;
+				boolean left = false, right = false, forward = false, back = false;
+				if(isPlayerLeft() && !isPlayerLeftLast){
+					hasChanged = true;
+					left = true;
+				}
+				if(isPlayerRight() && !isPlayerRightLast){
+					hasChanged = true;
+					right = true;
+				}
+				if(isPlayerForward() && !isPlayerForwardLast){
+					hasChanged = true;
+					forward = true;
+				}
+				if(isPlayerBack() && !isPlayerBackLast){
+					hasChanged = true;
+					back = true;
+				}
+				currentLevelState.checkIfHit(currentTick, hasChanged, new DDRMachineLevelState.PlayerMoveTickState(forward, back, left, right), (ServerPlayer) getControllingPassenger());
+				if(hasChanged) {
+					this.updateLast();
 				}
 				if(currentTick >= currentLevelLength) {
 					stopPlaying();
@@ -321,18 +342,18 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 	}
 
 	public void startPlaying(DDRMachineLevel level){
-		if(state == DDRMachineState.PLAYING && currentLevel != null) {
+		if(state == DDRMachineState.PLAYING && currentLevelState != null) {
 			return;
 		}
 		playingStartTick = tickCount;
-		currentLevel = level;
-		JukeboxSong value = level().registryAccess().get(currentLevel.track()).get().value();
+		currentLevelState = new DDRMachineLevelState(level);
+		JukeboxSong value = level().registryAccess().get(currentLevelState.getLevel().track()).get().value();
 		currentLevelLength = value.lengthInTicks();
 		if(getControllingPassenger() instanceof ServerPlayer player){
 			player.connection.send(new SetClientCameraViewMessage(1));
 			int i = level().registryAccess().lookupOrThrow(Registries.JUKEBOX_SONG).getId(value);
 			level().levelEvent(null, 1010, BlockPos.containing(this.position()), i);
-			player.sendSystemMessage(Component.literal("Starting track"));
+			player.sendSystemMessage(Component.literal("Starting track"), true);
 		}
 		setState(DDRMachineState.PLAYING);
 	}
@@ -344,24 +365,26 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 	}
 
 	public void stopPlaying(ServerPlayer player){
-		if(state != DDRMachineState.PLAYING || currentLevel == null) {
+		if(state != DDRMachineState.PLAYING || currentLevelState == null) {
 			return;
 		}
 		setState(DDRMachineState.MENU);
+		player.sendSystemMessage(Component.literal("Your Score: " + currentLevelState.getCurrentLevelScore()));
+		player.sendSystemMessage(Component.literal("Highest Streak: " + currentLevelState.getHighestStreak()));
 		playingStartTick = 0;
-		currentLevel = null;
+		currentLevelState = null;
 		level().levelEvent(1011, BlockPos.containing(this.position()), 0);
 		player.sendSystemMessage(Component.literal("Stopping track"));
 		player.connection.send(new SetClientCameraViewMessage(0));
 	}
 
 	public void startRecording(ResourceKey<JukeboxSong> track, String name){
-		if(state == DDRMachineState.RECORDING && currentLevel != null) {
+		if(state == DDRMachineState.RECORDING && currentLevelState != null) {
 			return;
 		}
 		recordingStartTick = tickCount;
-		currentLevel = new DDRMachineLevel(LoveTropics.location(name), track, name, Component.literal(name), new HashMap<>());
-		JukeboxSong value = level().registryAccess().get(currentLevel.track()).get().value();
+		currentLevelState = new DDRMachineLevelState(new DDRMachineLevel(LoveTropics.location(name), track, name, Component.literal(name), new HashMap<>()));
+		JukeboxSong value = level().registryAccess().get(currentLevelState.getLevel().track()).get().value();
 		currentLevelLength = value.lengthInTicks();
 		if(getControllingPassenger() instanceof ServerPlayer player){
 			int i = level().registryAccess().lookupOrThrow(Registries.JUKEBOX_SONG).getId(value);
@@ -372,7 +395,7 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 	}
 
 	public void stopRecording(){
-		if(state != DDRMachineState.RECORDING || currentLevel == null) {
+		if(state != DDRMachineState.RECORDING || currentLevelState == null) {
 			return;
 		}
 		setState(DDRMachineState.MENU);
@@ -381,14 +404,15 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 			level().levelEvent(1011, BlockPos.containing(this.position()), 0);
 			player.sendSystemMessage(Component.literal("Stopping track & recording..."));
 		}
+		DDRMachineLevel level = currentLevelState.getLevel();
 		getServer().submit(() -> {
-			DDRMachineLevel.codec(currentLevel.id())
-					.encodeStart(JsonOps.INSTANCE, currentLevel)
+			DDRMachineLevel.codec(level.id())
+					.encodeStart(JsonOps.INSTANCE, level)
 					.ifError((error) -> {
 						System.out.println(error.message());
 					}).ifSuccess((output) -> {
 						try {
-							Path path = DDRMachineLevel.pathFor(LoveTropics.location(currentLevel.track().location().getPath()));
+							Path path = DDRMachineLevel.pathFor(LoveTropics.location(level.track().location().getPath()));
 							Files.createDirectories(path.getParent());
 							Files.deleteIfExists(path);
 							Files.writeString(path, output.toString());
@@ -403,7 +427,11 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 	public void onPassengerTurned(Entity entityToUpdate) {
 		super.onPassengerTurned(entityToUpdate);
 		entityToUpdate.setYBodyRot(this.getYRot());
+		if (state == DDRMachineState.PLAYING) {
+			entityToUpdate.setYRot(this.getYRot());
+		}
 	}
+
 
 	private void updateLast(){
 		isPlayerLeftLast = isPlayerLeft();
@@ -445,6 +473,8 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 			}
 		}
 	}
+
+
 
 	private void handleControls(){
 		if (this.isVehicle() && getControllingPassenger() instanceof final LocalPlayer localPlayer) {
