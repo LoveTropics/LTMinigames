@@ -2,7 +2,6 @@ package com.lovetropics.minigames.common.content.escape_race;
 
 import com.lovetropics.lib.BlockBox;
 import com.lovetropics.minigames.common.content.block.LoveTropicsBlocks;
-import com.lovetropics.minigames.common.content.block.TrashBlock;
 import com.lovetropics.minigames.common.content.block.TrashType;
 import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.GameWinner;
@@ -28,13 +27,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.TriState;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.loot.LootParams;
@@ -69,10 +64,11 @@ public record TerryTrashBehavior (
 			Codec.STRING.fieldOf("bad_trash_location").forGetter(c -> c.badTrashLocation)
 	).apply(i, TerryTrashBehavior::new));
 
-	private record SpawnTimeData(int trashRate, ResourceKey<LootTable> table) {
+	private record SpawnTimeData(int trashRate, ResourceKey<LootTable> table, ProgressionPoint nextChannel) {
 		public static final Codec<SpawnTimeData> CODEC = RecordCodecBuilder.create(i -> i.group(
 				Codec.INT.fieldOf("trash_rate").forGetter(SpawnTimeData::trashRate),
-				ResourceKey.codec(Registries.LOOT_TABLE).fieldOf("table").forGetter(SpawnTimeData::table)
+				ResourceKey.codec(Registries.LOOT_TABLE).fieldOf("table").forGetter(SpawnTimeData::table),
+				ProgressionPoint.CODEC.fieldOf("next_channel").forGetter(SpawnTimeData::nextChannel)
 		).apply(i, SpawnTimeData::new));
 	}
 
@@ -96,16 +92,7 @@ public record TerryTrashBehavior (
 
 		GameSidebar sidebar = GlobalGameWidgets.registerTo(game, events).openSidebar(Component.literal("Terry Trash"));
 
-		events.listen(GamePhaseEvents.TICK, () -> onGameTick(game, itemSpawnBox, badTrashBox));
-
-		events.listen(GamePlayerEvents.ATTACK, (player, target) -> {
-			if (target instanceof ItemFrame itemFrame) {
-				if (itemFrame.getItem().isEmpty()) {
-					return TriState.FALSE;
-				}
-			}
-			return TriState.DEFAULT;
-		});
+		events.listen(GamePhaseEvents.TICK, () -> onGameTick(game, sidebar, itemSpawnBox, badTrashBox));
 
 		events.listen(GamePlayerEvents.USE_BLOCK, ((player, world, pos, hand, traceResult) -> {
 			ItemStack heldItem = player.getItemInHand(hand);
@@ -119,12 +106,11 @@ public record TerryTrashBehavior (
 					return InteractionResult.CONSUME;
 				}
 			}
-
-			return InteractionResult.SUCCESS;
+			return InteractionResult.PASS;
 		}));
 	}
 
-	private <T extends Entity> void onGameTick(IGamePhase game, BlockBox itemSpawnBox, BlockBox badTrashBox) {
+	private <T extends Entity> void onGameTick(IGamePhase game, GameSidebar sidebar, BlockBox itemSpawnBox, BlockBox badTrashBox) {
 		Map< BooleanSupplier, SpawnTimeData> spawnTimeDats = new HashMap<>();
 		spawnTimes.forEach((progressionPoint, spawnTimeData) ->
 				spawnTimeDats.put(progressionPoint.createPredicate(game, ProgressChannel.MAIN), spawnTimeData));
@@ -132,6 +118,9 @@ public record TerryTrashBehavior (
 			SpawnTimeData spawnTimeData = entry.getValue();
 			int spawnTime = spawnTimeData.trashRate();
 			if (entry.getKey().getAsBoolean() && game.ticks() % spawnTime == 0) {
+				if (entry.getValue().nextChannel.createPredicate(game, ProgressChannel.MAIN).getAsBoolean()) {
+					continue;
+				}
 				Vec3 center = itemSpawnBox.center();
 				BlockPos centerBlock = itemSpawnBox.centerBlock();
 				LootTable lootTable = getLootTable(game.server(), spawnTimeData.table());
@@ -158,6 +147,7 @@ public record TerryTrashBehavior (
 		for (ItemEntity entitiesOfClass : game.level().getEntitiesOfClass(ItemEntity.class, badTrashBox.asAabb())) {
 			game.statistics().global().incrementInt(StatisticKey.MISSED_TRASH, 1);
 			entitiesOfClass.discard();
+			sidebar.set(buildSidebar(game));
 		}
 
 	}
