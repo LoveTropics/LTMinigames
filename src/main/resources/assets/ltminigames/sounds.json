@@ -73,5 +73,50 @@
       }
     ],
     "subtitle": "subtitles.entity.generic.explode"
+  },
+  "escape_race.terry_trash.welcome": {
+    "sounds": [
+      "ltminigames:escape_race/terry_trash/welcome"
+    ]
+  },
+  "escape_race.terry_trash.code_unlock": {
+    "sounds": [
+      "ltminigames:escape_race/terry_trash/code_unlock"
+    ]
+  },
+  "escape_race.terry_trash.dirty_trash": {
+    "sounds": [
+      "ltminigames:escape_race/terry_trash/dirty_trash"
+    ]
+  },
+  "escape_race.terry_trash.food_contamination": {
+    "sounds": [
+      "ltminigames:escape_race/terry_trash/food_contamination"
+    ]
+  },
+  "escape_race.terry_trash.coconut_bombs": {
+    "sounds": [
+      "ltminigames:escape_race/terry_trash/coconut_bombs"
+    ]
+  },
+  "escape_race.terry_trash.chemical_contamination": {
+    "sounds": [
+      "ltminigames:escape_race/terry_trash/chemical_contamination"
+    ]
+  },
+  "escape_race.terry_trash.two_minutes": {
+    "sounds": [
+      "ltminigames:escape_race/terry_trash/two_minutes"
+    ]
+  },
+  "escape_race.terry_trash.thirty_seconds": {
+    "sounds": [
+      "ltminigames:escape_race/terry_trash/thirty_seconds_seconds"
+    ]
+  },
+  "escape_race.terry_trash.five_seconds": {
+    "sounds": [
+      "ltminigames:escape_race/terry_trash/five_seconds"
+    ]
   }
 }

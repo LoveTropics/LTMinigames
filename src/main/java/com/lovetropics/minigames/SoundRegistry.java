@@ -19,6 +19,16 @@ public class SoundRegistry {
 	public static final Holder<SoundEvent> INCORRECT = register("incorrect");
 	public static final Holder<SoundEvent> QUIET_EXPLOSION = register("quiet_explosion");
 
+	public static final Holder<SoundEvent> TERRY_TRASH_WELCOME = register("escape_race.terry_trash.welcome");
+	public static final Holder<SoundEvent> TERRY_TRASH_CODE_UNLOCK = register("escape_race.terry_trash.code_unlock");
+	public static final Holder<SoundEvent> TERRY_TRASH_DIRTY_TRASH = register("escape_race.terry_trash.dirty_trash");
+	public static final Holder<SoundEvent> TERRY_TRASH_FOOD_CONTAMINATION = register("escape_race.terry_trash.food_contamination");
+	public static final Holder<SoundEvent> TERRY_TRASH_COCONUT_BOMBS = register("escape_race.terry_trash.coconut_bombs");
+	public static final Holder<SoundEvent> TERRY_TRASH_CHEMICAL_CONTAMINATION = register("escape_race.terry_trash.chemical_contamination");
+	public static final Holder<SoundEvent> TERRY_TRASH_TWO_MINUTES = register("escape_race.terry_trash.two_minutes");
+	public static final Holder<SoundEvent> TERRY_TRASH_THIRTY_SECONDS = register("escape_race.terry_trash.thirty_seconds");
+	public static final Holder<SoundEvent> TERRY_TRASH_FIVE_SECONDS = register("escape_race.terry_trash.five_seconds");
+
 	private static Holder<SoundEvent> register(String name) {
 		return REGISTER.register(name, () -> SoundEvent.createVariableRangeEvent(LoveTropics.location(name)));
 	}

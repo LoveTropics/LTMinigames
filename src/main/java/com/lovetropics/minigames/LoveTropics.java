@@ -25,6 +25,7 @@ import com.lovetropics.minigames.common.content.crafting_bee.CraftingBee;
 import com.lovetropics.minigames.common.content.crafting_bee.CraftingBeeTexts;
 import com.lovetropics.minigames.common.content.de_a_coudre.DeACoudre;
 import com.lovetropics.minigames.common.content.escape_race.EscapeRace;
+import com.lovetropics.minigames.common.content.escape_race.EscapeRaceTexts;
 import com.lovetropics.minigames.common.content.escape_race.client.EscapeRaceBucksRenderer;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DDRCommand;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DDRMachineEntityRenderer;
@@ -152,6 +153,7 @@ public class LoveTropics {
 			RiverRaceTexts.collectTranslations(consumer);
 			GameDataAccessor.KEYS.forEach(consumer);
 			KeybindsTexts.collectTranslations(consumer);
+			EscapeRaceTexts.KEYS.forEach(consumer);
 		});
 
 		registrate.generic(TAB_ID.getPath(), Registries.CREATIVE_MODE_TAB, () -> CreativeModeTab.builder()
