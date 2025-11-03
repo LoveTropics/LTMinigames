@@ -265,7 +265,6 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 		if(isLocalInstanceAuthoritative()) {
 			if(level().isClientSide){
 				handleControls();
-				calculatePlayerLookingAtSlot(Minecraft.getInstance().player);
 			}
 			return;
 		}
@@ -446,8 +445,6 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 			}
 		}
 	}
-
-
 
 	private void handleControls(){
 		if (this.isVehicle() && getControllingPassenger() instanceof final LocalPlayer localPlayer) {
