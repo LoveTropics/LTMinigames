@@ -12,17 +12,17 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 
-public record SetBlockAtPlayerAction(BlockStateProvider block) implements IGameBehavior {
-	public static final MapCodec<SetBlockAtPlayerAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+public record SetBlockAtEntityAction(BlockStateProvider block) implements IGameBehavior {
+	public static final MapCodec<SetBlockAtEntityAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			MoreCodecs.BLOCK_STATE_PROVIDER.fieldOf("block").forGetter(c -> c.block)
-	).apply(i, SetBlockAtPlayerAction::new));
+	).apply(i, SetBlockAtEntityAction::new));
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		events.listen(GameActionEvents.APPLY_TO_PLAYER, (context, player) -> {
-			BlockPos pos = player.blockPosition();
-			BlockState state = block.getState(player.level().random, pos);
-			player.level().setBlockAndUpdate(pos, state);
+		events.listen(GameActionEvents.APPLY_TO_ENTITY, (context, entity) -> {
+			BlockPos pos = entity.blockPosition();
+			BlockState state = block.getState(entity.level().random, pos);
+			entity.level().setBlockAndUpdate(pos, state);
 			return true;
 		});
 	}

@@ -19,8 +19,8 @@ public record AddAttributeModifierAction(Holder<Attribute> attribute, AttributeM
 
 	@Override
 	public void register(final IGamePhase game, final EventRegistrar events) {
-		events.listen(GameActionEvents.APPLY_TO_PLAYER, (context, player) -> {
-			final AttributeInstance attribute = player.getAttribute(this.attribute);
+		events.listen(GameActionEvents.APPLY_TO_LIVING_ENTITY, (context, livingEntity) -> {
+			final AttributeInstance attribute = livingEntity.getAttribute(this.attribute);
 			if (attribute != null) {
 				if (!attribute.hasModifier(modifier.id())) {
 					attribute.addTransientModifier(modifier);

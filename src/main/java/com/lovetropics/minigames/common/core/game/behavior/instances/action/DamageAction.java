@@ -14,18 +14,18 @@ import net.minecraft.world.damagesource.DamageType;
 
 import java.util.Optional;
 
-public record DamagePlayerAction(Optional<Holder<DamageType>> source, float amount) implements IGameBehavior {
-	public static final MapCodec<DamagePlayerAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			DamageType.CODEC.optionalFieldOf("source").forGetter(DamagePlayerAction::source),
-			Codec.FLOAT.fieldOf("amount").forGetter(DamagePlayerAction::amount)
-	).apply(i, DamagePlayerAction::new));
+public record DamageAction(Optional<Holder<DamageType>> source, float amount) implements IGameBehavior {
+	public static final MapCodec<DamageAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+			DamageType.CODEC.optionalFieldOf("source").forGetter(DamageAction::source),
+			Codec.FLOAT.fieldOf("amount").forGetter(DamageAction::amount)
+	).apply(i, DamageAction::new));
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		events.listen(GameActionEvents.APPLY_TO_PLAYER, (context, player) -> {
-			player.hurt(
+		events.listen(GameActionEvents.APPLY_TO_ENTITY, (context, entity) -> {
+			entity.hurt(
 					source.map(DamageSource::new)
-							.orElseGet(player.damageSources()::generic),
+							.orElseGet(entity.damageSources()::generic),
 					amount
 			);
 			return true;

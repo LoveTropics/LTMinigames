@@ -22,9 +22,9 @@ public record GiveEffectAction(List<MobEffectInstance> effects) implements IGame
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		events.listen(GameActionEvents.APPLY_TO_PLAYER, (context, player) -> {
+		events.listen(GameActionEvents.APPLY_TO_LIVING_ENTITY, (context, livingEntity) -> {
 			for (MobEffectInstance effect : effects) {
-				player.addEffect(new MobEffectInstance(effect));
+				livingEntity.addEffect(new MobEffectInstance(effect));
 			}
 			return true;
 		});

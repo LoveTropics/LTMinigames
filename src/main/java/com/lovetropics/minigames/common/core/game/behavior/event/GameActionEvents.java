@@ -5,6 +5,7 @@ import com.lovetropics.minigames.common.core.game.behavior.action.GameActionCont
 import com.lovetropics.minigames.common.core.game.state.team.GameTeam;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 
 public final class GameActionEvents {
 	public static final GameEventType<Apply> APPLY = GameEventType.create(Apply.class, listeners -> context -> {
@@ -18,6 +19,14 @@ public final class GameActionEvents {
 	public static final GameEventType<ApplyToEntity> APPLY_TO_ENTITY = GameEventType.create(ApplyToEntity.class, listeners -> (context, target) -> {
 		boolean applied = false;
 		for (ApplyToEntity listener : listeners) {
+			applied |= listener.apply(context, target);
+		}
+		return applied;
+	});
+
+	public static final GameEventType<ApplyToLivingEntity> APPLY_TO_LIVING_ENTITY = GameEventType.create(ApplyToLivingEntity.class, listeners -> (context, target) -> {
+		boolean applied = false;
+		for (ApplyToLivingEntity listener : listeners) {
 			applied |= listener.apply(context, target);
 		}
 		return applied;
@@ -51,7 +60,7 @@ public final class GameActionEvents {
 	}
 
 	public static boolean matches(GameEventType<?> type) {
-		return type == APPLY || type == APPLY_TO_ENTITY || type == APPLY_TO_PLOT || type == APPLY_TO_PLAYER || type == APPLY_TO_TEAM;
+		return type == APPLY || type == APPLY_TO_ENTITY || type == APPLY_TO_LIVING_ENTITY || type == APPLY_TO_PLOT || type == APPLY_TO_PLAYER || type == APPLY_TO_TEAM;
 	}
 
 	public interface Apply {
@@ -60,6 +69,10 @@ public final class GameActionEvents {
 
 	public interface ApplyToEntity {
 		boolean apply(GameActionContext context, Entity target);
+	}
+
+	public interface ApplyToLivingEntity {
+		boolean apply(GameActionContext context, LivingEntity target);
 	}
 
 	public interface ApplyToPlayer {

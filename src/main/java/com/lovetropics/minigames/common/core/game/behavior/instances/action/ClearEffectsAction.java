@@ -12,11 +12,11 @@ public record ClearEffectsAction() implements IGameBehavior {
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		events.listen(GameActionEvents.APPLY_TO_PLAYER, (context, target) -> {
-			if (target.getActiveEffects().isEmpty()) {
+		events.listen(GameActionEvents.APPLY_TO_LIVING_ENTITY, (context, livingEntity) -> {
+			if (livingEntity.getActiveEffects().isEmpty()) {
 				return false;
 			}
-			target.removeAllEffects();
+			livingEntity.removeAllEffects();
 			return true;
 		});
 	}

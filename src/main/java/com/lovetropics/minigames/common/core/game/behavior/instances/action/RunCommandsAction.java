@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public record RunCommandsAction(List<String> globalCommands, List<String> playerCommands) implements IGameBehavior {
+public record RunCommandsAction(List<String> globalCommands, List<String> entityCommands) implements IGameBehavior {
 	private static final Logger LOGGER = LogManager.getLogger(RunCommandsAction.class);
 
 	private static final Codec<String> COMMAND_CODEC = Codec.STRING.xmap(
@@ -42,7 +42,7 @@ public record RunCommandsAction(List<String> globalCommands, List<String> player
 
 	public static final MapCodec<RunCommandsAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			ExtraCodecs.compactListCodec(COMMAND_CODEC).optionalFieldOf("global", List.of()).forGetter(RunCommandsAction::globalCommands),
-			ExtraCodecs.compactListCodec(COMMAND_CODEC).optionalFieldOf("player", List.of()).forGetter(RunCommandsAction::playerCommands)
+			ExtraCodecs.compactListCodec(COMMAND_CODEC).optionalFieldOf("player", List.of()).forGetter(RunCommandsAction::entityCommands) //TODO: rename field (affects any entity)
 	).apply(i, RunCommandsAction::new));
 
 	@Override
@@ -73,10 +73,10 @@ public record RunCommandsAction(List<String> globalCommands, List<String> player
 			});
 		}
 
-		if (!playerCommands.isEmpty()) {
-			events.listen(GameActionEvents.APPLY_TO_PLAYER, (context, target) -> {
-				CommandSourceStack targetSource = source.withEntity(target).withPosition(target.position());
-				for (String command : playerCommands) {
+		if (!entityCommands.isEmpty()) {
+			events.listen(GameActionEvents.APPLY_TO_ENTITY, (context, entity) -> {
+				CommandSourceStack targetSource = source.withEntity(entity).withPosition(entity.position());
+				for (String command : entityCommands) {
 					commands.performPrefixedCommand(targetSource, command);
 				}
 				return true;

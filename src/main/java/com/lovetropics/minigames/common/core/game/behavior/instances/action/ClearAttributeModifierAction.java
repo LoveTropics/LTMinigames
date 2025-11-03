@@ -19,8 +19,8 @@ public record ClearAttributeModifierAction(Holder<Attribute> attribute, Resource
 
 	@Override
 	public void register(final IGamePhase game, final EventRegistrar events) {
-		events.listen(GameActionEvents.APPLY_TO_PLAYER, (context, player) -> {
-			final AttributeInstance attribute = player.getAttribute(this.attribute);
+		events.listen(GameActionEvents.APPLY_TO_LIVING_ENTITY, (context, livingEntity) -> {
+			final AttributeInstance attribute = livingEntity.getAttribute(this.attribute);
 			if (attribute != null) {
 				attribute.removeModifier(id);
 				return true;
