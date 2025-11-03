@@ -14,6 +14,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.MapLike;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 
 import java.util.Arrays;
 import java.util.List;
@@ -21,7 +22,13 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 public class GameActionList<T> {
-	public static final GameActionList<ServerPlayer> EMPTY = new GameActionList<>(IGameBehavior.EMPTY, PlayerActionTarget.SOURCE);
+	public static final GameActionList<Entity> EMPTY_ENTITY = new GameActionList<>(IGameBehavior.EMPTY, EntityActionTarget.UNIT);
+	public static final GameActionList<ServerPlayer> EMPTY_PLAYER = new GameActionList<>(IGameBehavior.EMPTY, PlayerActionTarget.SOURCE);
+	/**
+	 * @deprecated Use {@link #EMPTY_PLAYER} instead
+	 */
+	@Deprecated
+	public static final GameActionList<ServerPlayer> EMPTY = EMPTY_PLAYER;
 	public static final GameActionList<GameTeam> EMPTY_TEAM = new GameActionList<>(IGameBehavior.EMPTY, TeamActionTarget.SOURCE);
 	public static final GameActionList<Void> EMPTY_VOID = new GameActionList<>(IGameBehavior.EMPTY, NoneActionTarget.INSTANCE);
 
@@ -32,6 +39,7 @@ public class GameActionList<T> {
 
 	public static final MapCodec<GameActionList<ServerPlayer>> PLAYER_MAP_CODEC = mapCodec(ActionTargetTypes.PLAYER, PlayerActionTarget.SOURCE);
 	public static final MapCodec<GameActionList<Void>> VOID_MAP_CODEC = mapCodec(ActionTargetTypes.NONE, NoneActionTarget.INSTANCE);
+	public static final Codec<GameActionList<Entity>> ENTITY_CODEC = codec(ActionTargetTypes.ENTITY, EntityActionTarget.UNIT);
 	public static final Codec<GameActionList<ServerPlayer>> PLAYER_CODEC = codec(ActionTargetTypes.PLAYER, PlayerActionTarget.SOURCE);
 	public static final Codec<GameActionList<GameTeam>> TEAM_CODEC = codec(ActionTargetTypes.TEAM, TeamActionTarget.SOURCE);
 	public static final Codec<GameActionList<Void>> VOID_CODEC = codec(ActionTargetTypes.NONE, NoneActionTarget.INSTANCE);
