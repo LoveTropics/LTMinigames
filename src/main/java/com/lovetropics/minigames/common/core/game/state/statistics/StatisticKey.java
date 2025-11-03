@@ -90,6 +90,7 @@ public final class StatisticKey<T> {
 			.collect(Collectors.toMap(Function.identity(), type -> ofInt(type.getId()).defaultValue(0)));
 
 	public static final StatisticKey<Integer> PASSWORD_CORRECT = ofInt("password_correct").displays(unit("correct"));
+	public static final StatisticKey<Integer> MISSED_TRASH = ofInt("missed_trash").displays(unit("missed"));
 
 	private final Class<T> type;
 	private final String key;

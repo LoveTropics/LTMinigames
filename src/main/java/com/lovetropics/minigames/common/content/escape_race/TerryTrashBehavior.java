@@ -30,7 +30,11 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.TriState;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.decoration.ItemFrame;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.loot.LootParams;
@@ -52,7 +56,8 @@ public record TerryTrashBehavior (
 		Map<ProgressionPoint, SpawnTimeData> spawnTimes,
 		Map<TrashType, TrashData> trashData,
 		String trashLocation,
-		String buttonLocation
+		String buttonLocation,
+		String badTrashLocation
 ) implements IGameBehavior {
 
 	public static final MapCodec<TerryTrashBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
@@ -60,7 +65,8 @@ public record TerryTrashBehavior (
 			Codec.unboundedMap(ProgressionPoint.CODEC, SpawnTimeData.CODEC).fieldOf("spawn_times").forGetter(c -> c.spawnTimes),
 			Codec.unboundedMap(TrashType.CODEC, TrashData.CODEC).fieldOf("trash_data").forGetter(c -> c.trashData),
 			Codec.STRING.fieldOf("trash_location").forGetter(c -> c.trashLocation),
-			Codec.STRING.fieldOf("button_location").forGetter(c -> c.buttonLocation)
+			Codec.STRING.fieldOf("button_location").forGetter(c -> c.buttonLocation),
+			Codec.STRING.fieldOf("bad_trash_location").forGetter(c -> c.badTrashLocation)
 	).apply(i, TerryTrashBehavior::new));
 
 	private record SpawnTimeData(int trashRate, ResourceKey<LootTable> table) {
@@ -82,6 +88,7 @@ public record TerryTrashBehavior (
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		BlockBox itemSpawnBox = game.mapRegions().getOrThrow(itemSpawnRegion);
+		BlockBox badTrashBox = game.mapRegions().getOrThrow(badTrashLocation);
 		Map<TrashType, BlockBox> boxRegions = new HashMap<>();
 		for (Map.Entry<TrashType, TrashData> trashType : trashData().entrySet()) {
 			boxRegions.put(trashType.getKey(), game.mapRegions().getOrThrow(trashType.getValue().processRegion));
@@ -89,7 +96,7 @@ public record TerryTrashBehavior (
 
 		GameSidebar sidebar = GlobalGameWidgets.registerTo(game, events).openSidebar(Component.literal("Terry Trash"));
 
-		events.listen(GamePhaseEvents.TICK, () -> onGameTick(game, itemSpawnBox));
+		events.listen(GamePhaseEvents.TICK, () -> onGameTick(game, itemSpawnBox, badTrashBox));
 
 		events.listen(GamePlayerEvents.ATTACK, (player, target) -> {
 			if (target instanceof ItemFrame itemFrame) {
@@ -117,7 +124,7 @@ public record TerryTrashBehavior (
 		}));
 	}
 
-	private void onGameTick(IGamePhase game, BlockBox itemSpawnBox) {
+	private <T extends Entity> void onGameTick(IGamePhase game, BlockBox itemSpawnBox, BlockBox badTrashBox) {
 		Map< BooleanSupplier, SpawnTimeData> spawnTimeDats = new HashMap<>();
 		spawnTimes.forEach((progressionPoint, spawnTimeData) ->
 				spawnTimeDats.put(progressionPoint.createPredicate(game, ProgressChannel.MAIN), spawnTimeData));
@@ -148,6 +155,10 @@ public record TerryTrashBehavior (
 			game.invoker(GameLogicEvents.GAME_OVER).onGameOver(new GameWinner.Nobody());
 		}
 
+		for (ItemEntity entitiesOfClass : game.level().getEntitiesOfClass(ItemEntity.class, badTrashBox.asAabb())) {
+			game.statistics().global().incrementInt(StatisticKey.MISSED_TRASH, 1);
+			entitiesOfClass.discard();
+		}
 
 	}
 
@@ -165,6 +176,7 @@ public record TerryTrashBehavior (
 					.append(Component.literal(trashData.requiredAmount() + ""));
 			lines.add(line);
 		}
+		lines.add(Component.literal("Missed Trash: " + game.statistics().global().getInt(StatisticKey.MISSED_TRASH)));
 		return lines.toArray(new Component[0]);
 	}
 
