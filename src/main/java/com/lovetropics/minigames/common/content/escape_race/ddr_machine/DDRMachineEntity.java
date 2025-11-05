@@ -369,6 +369,8 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 			return;
 		}
 		setState(DDRMachineState.MENU);
+		JukeboxSong value = level().registryAccess().get(currentLevelState.getLevel().track()).get().value();
+		DDRScoreHelper.onGameFinished(player,  value, currentLevelState.getCurrentLevelScore(), currentLevelState.getHighestStreak());
 		player.sendSystemMessage(Component.literal("Your Score: " + currentLevelState.getCurrentLevelScore()));
 		player.sendSystemMessage(Component.literal("Highest Streak: " + currentLevelState.getHighestStreak()));
 		playingStartTick = 0;
