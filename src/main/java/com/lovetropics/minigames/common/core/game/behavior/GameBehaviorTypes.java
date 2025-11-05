@@ -114,6 +114,7 @@ import com.lovetropics.minigames.common.core.game.behavior.instances.team.TeamsB
 import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.ApplyToPlayerWhileTrigger;
 import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.ApplyToPlayersAround;
 import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.BindControlsBehavior;
+import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.BlockBreakTrigger;
 import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.BlockInRegionTrigger;
 import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.GameFinishTrigger;
 import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.GeneralEventsTrigger;
@@ -327,6 +328,7 @@ public class GameBehaviorTypes {
 	public static final GameBehaviorEntry<AllowSingleFallAction> ALLOW_SINGLE_FALL = register("allow_single_fall", AllowSingleFallAction.CODEC);
 	public static final GameBehaviorEntry<QuietExplosionsBehavior> QUIET_EXPLOSIONS = register("quiet_explosions", QuietExplosionsBehavior.CODEC);
 	public static final GameBehaviorEntry<LimitedTimeLootAction> LIMITED_TIME_LOOT = register("limited_time_loot", LimitedTimeLootAction.CODEC);
+	public static final GameBehaviorEntry<BlockBreakTrigger> BLOCK_BREAK = register("block_break", BlockBreakTrigger.CODEC);
 
 	public static final GameBehaviorEntry<SetupIntegrationsBehavior> SETUP_INTEGRATIONS = register("setup_integrations", SetupIntegrationsBehavior.CODEC);
 	public static final GameBehaviorEntry<AssignPlayerRolesBehavior> ASSIGN_PLAYER_ROLES = register("assign_player_roles", AssignPlayerRolesBehavior.CODEC);

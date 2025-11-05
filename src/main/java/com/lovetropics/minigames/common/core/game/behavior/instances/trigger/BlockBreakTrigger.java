@@ -1,0 +1,58 @@
+package com.lovetropics.minigames.common.core.game.behavior.instances.trigger;
+
+import com.lovetropics.minigames.common.core.game.IGamePhase;
+import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorType;
+import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorTypes;
+import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
+import com.lovetropics.minigames.common.core.game.behavior.action.GameActionContext;
+import com.lovetropics.minigames.common.core.game.behavior.action.GameActionList;
+import com.lovetropics.minigames.common.core.game.behavior.action.GameActionParameter;
+import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
+import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
+import com.lovetropics.minigames.common.core.game.behavior.event.PickUpResult;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.advancements.critereon.BlockPredicate;
+import net.minecraft.advancements.critereon.EntityPredicate;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.TriState;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.level.block.state.BlockState;
+
+import java.util.Optional;
+import java.util.function.Supplier;
+
+public record BlockBreakTrigger(
+		Optional<EntityPredicate> predicate,
+		Optional<BlockPredicate> blockPredicate,
+		GameActionList<ServerPlayer> action) implements IGameBehavior {
+
+	public static final MapCodec<BlockBreakTrigger> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+			EntityPredicate.CODEC.optionalFieldOf("player_predicate").forGetter(BlockBreakTrigger::predicate),
+			BlockPredicate.CODEC.optionalFieldOf("block_predicate").forGetter(BlockBreakTrigger::blockPredicate),
+			GameActionList.PLAYER_CODEC.fieldOf("action").forGetter(BlockBreakTrigger::action)
+	).apply(i, BlockBreakTrigger::new));
+
+	@Override
+	public void register(final IGamePhase game, final EventRegistrar events) {
+		action.register(game, events);
+
+		events.listen(GamePlayerEvents.BREAK_BLOCK, (player, pos, state, hand) -> {
+			if (predicate.isPresent() && !predicate.get().matches(player, player)) {
+				return TriState.DEFAULT;
+			}
+			if (blockPredicate.isPresent() && !blockPredicate.get().matches(player.level(), pos)) {
+				return TriState.DEFAULT;
+			}
+			action.apply(game, GameActionContext.EMPTY, player);
+			return TriState.DEFAULT;
+		});
+	}
+
+	@Override
+	public Supplier<? extends GameBehaviorType<?>> behaviorType() {
+		return GameBehaviorTypes.BLOCK_BREAK;
+	}
+}
