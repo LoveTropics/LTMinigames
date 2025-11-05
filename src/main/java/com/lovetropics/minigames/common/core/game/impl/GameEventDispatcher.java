@@ -37,6 +37,7 @@ import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 import net.neoforged.neoforge.event.entity.EntityMountEvent;
 import net.neoforged.neoforge.event.entity.EntityTeleportEvent;
+import net.neoforged.neoforge.event.entity.ProjectileImpactEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
@@ -545,6 +546,14 @@ public final class GameEventDispatcher {
 		IGamePhase gamePhase = gameLookup.getGamePhaseInDimension(event.getLevel());
 		if (gamePhase != null) {
 			gamePhase.invoker(GameWorldEvents.ENTITY_REMOVED).onEntityRemoved(event.getEntity());
+		}
+	}
+
+	@SubscribeEvent
+	public void onEntityRemovedFromLevel(ProjectileImpactEvent event) {
+		IGamePhase gamePhase = gameLookup.getGamePhaseInDimension(event.getProjectile().level());
+		if (gamePhase != null) {
+			gamePhase.invoker(GameWorldEvents.PROJECTILE_IMPACT).onProjectileImpact(event.getProjectile(), event.getRayTraceResult());
 		}
 	}
 }

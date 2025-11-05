@@ -9,12 +9,14 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.TriState;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.phys.HitResult;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -80,6 +82,12 @@ public final class GameWorldEvents {
 		}
 	});
 
+	public static final GameEventType<ProjectileImpact> PROJECTILE_IMPACT = GameEventType.create(ProjectileImpact.class, listeners -> (projectile, hitResult) -> {
+		for (ProjectileImpact listener : listeners) {
+			listener.onProjectileImpact(projectile, hitResult);
+		}
+	});
+
 	private GameWorldEvents() {
 	}
 
@@ -117,5 +125,9 @@ public final class GameWorldEvents {
 
 	public interface EntityRemoved {
 		void onEntityRemoved(Entity entity);
+	}
+
+	public interface ProjectileImpact {
+		void onProjectileImpact(Projectile projectile, HitResult result);
 	}
 }
