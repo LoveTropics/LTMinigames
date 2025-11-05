@@ -86,11 +86,9 @@ public final class StatisticKey<T> {
 	public static final StatisticKey<Integer> EXPLOSIONS_CAUSED = ofInt("explosions_caused");
 
 	// Terry Trash
-	public static final Map<TrashType, StatisticKey<Integer>> TRASH_TYPES = Arrays.stream(TrashType.values())
-			.collect(Collectors.toMap(Function.identity(), type -> ofInt(type.getId()).defaultValue(0)));
-
-	public static final StatisticKey<Integer> PASSWORD_CORRECT = ofInt("password_correct").displays(unit("correct"));
+	public static final StatisticKey<Integer> RECYCLED_TRASH = ofInt("recycled_trash").displays(unit("recycled"));
 	public static final StatisticKey<Integer> MISSED_TRASH = ofInt("missed_trash").displays(unit("missed"));
+	public static final StatisticKey<Integer> WRONG_BIN = ofInt("wrong_bin").displays(unit("wrong bin"));
 
 	private final Class<T> type;
 	private final String key;

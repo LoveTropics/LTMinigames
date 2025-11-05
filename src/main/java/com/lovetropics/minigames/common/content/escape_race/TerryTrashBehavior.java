@@ -1,15 +1,11 @@
 package com.lovetropics.minigames.common.content.escape_race;
 
 import com.lovetropics.lib.BlockBox;
-import com.lovetropics.minigames.common.content.block.LoveTropicsBlocks;
-import com.lovetropics.minigames.common.content.block.TrashType;
 import com.lovetropics.minigames.common.core.game.GameException;
-import com.lovetropics.minigames.common.core.game.GameWinner;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorType;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
-import com.lovetropics.minigames.common.core.game.behavior.event.GameLogicEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
 import com.lovetropics.minigames.common.core.game.state.progress.ProgressChannel;
@@ -42,25 +38,20 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 public record TerryTrashBehavior (
 		String itemSpawnRegion,
 		Map<ProgressionPoint, SpawnTimeData> spawnTimes,
-		Map<TrashType, TrashData> trashData,
-		String trashLocation,
-		String buttonLocation,
+		List<RecylingLocations> recyclingLocations,
 		String badTrashLocation
 ) implements IGameBehavior {
 
 	public static final MapCodec<TerryTrashBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			Codec.STRING.fieldOf("item_spawn_region").forGetter(c -> c.itemSpawnRegion),
 			Codec.unboundedMap(ProgressionPoint.CODEC, SpawnTimeData.CODEC).fieldOf("spawn_times").forGetter(c -> c.spawnTimes),
-			Codec.unboundedMap(TrashType.CODEC, TrashData.CODEC).fieldOf("trash_data").forGetter(c -> c.trashData),
-			Codec.STRING.fieldOf("trash_location").forGetter(c -> c.trashLocation),
-			Codec.STRING.fieldOf("button_location").forGetter(c -> c.buttonLocation),
+			RecylingLocations.CODEC.listOf().fieldOf("recycling_locations").forGetter(c -> c.recyclingLocations),
 			Codec.STRING.fieldOf("bad_trash_location").forGetter(c -> c.badTrashLocation)
 	).apply(i, TerryTrashBehavior::new));
 
@@ -72,41 +63,44 @@ public record TerryTrashBehavior (
 		).apply(i, SpawnTimeData::new));
 	}
 
-	private record TrashData(String processRegion, int requiredAmount, Optional<ItemPredicate> itemPredicate) {
+	private record RecylingLocations(String processRegion, ItemPredicate itemPredicate) {
 
-		static final Codec<TrashData> CODEC = RecordCodecBuilder.create(i -> i.group(
-				Codec.STRING.fieldOf("process_region").forGetter(TrashData::processRegion),
-				Codec.INT.fieldOf("required_amount").forGetter(TrashData::requiredAmount),
-				ItemPredicate.CODEC.optionalFieldOf("item_predicate").forGetter(TrashData::itemPredicate)
-		).apply(i, TrashData::new));
+		static final Codec<RecylingLocations> CODEC = RecordCodecBuilder.create(i -> i.group(
+				Codec.STRING.fieldOf("process_region").forGetter(RecylingLocations::processRegion),
+				ItemPredicate.CODEC.fieldOf("item_predicate").forGetter(RecylingLocations::itemPredicate)
+		).apply(i, RecylingLocations::new));
 	}
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		BlockBox itemSpawnBox = game.mapRegions().getOrThrow(itemSpawnRegion);
 		BlockBox badTrashBox = game.mapRegions().getOrThrow(badTrashLocation);
-		Map<TrashType, BlockBox> boxRegions = new HashMap<>();
-		for (Map.Entry<TrashType, TrashData> trashType : trashData().entrySet()) {
-			boxRegions.put(trashType.getKey(), game.mapRegions().getOrThrow(trashType.getValue().processRegion));
+		for (RecylingLocations recyclingLocation : recyclingLocations) {
+			game.mapRegions().getOrThrow(recyclingLocation.processRegion);
 		}
 
-		GameSidebar sidebar = GlobalGameWidgets.registerTo(game, events).openSidebar(Component.literal("Terry Trash"));
+		GameSidebar sidebar = GlobalGameWidgets.registerTo(game, events).openSidebar(EscapeRaceTexts.TERRY_TRASH);
 
 		events.listen(GamePhaseEvents.TICK, () -> onGameTick(game, sidebar, itemSpawnBox, badTrashBox));
 
 		events.listen(GamePlayerEvents.USE_BLOCK, ((player, world, pos, hand, traceResult) -> {
 			ItemStack heldItem = player.getItemInHand(hand);
-			for (TrashType trashType : trashData.keySet()) {
-				StatisticKey<Integer> statsKey = StatisticKey.TRASH_TYPES.get(trashType);
-				BlockBox box = boxRegions.get(trashType);
-				if (box.contains(pos) && heldItem.is(LoveTropicsBlocks.TRASH.get(trashType).asItem())) {
-					heldItem.shrink(1);
-					game.statistics().global().incrementInt(statsKey, 1);
-					sidebar.set(buildSidebar(game));
-					return InteractionResult.CONSUME;
+			for (RecylingLocations recyclingLocation : recyclingLocations) {
+				BlockBox box = game.mapRegions().getOrThrow(recyclingLocation.processRegion);
+				if (box.contains(pos)) {
+					if (recyclingLocation.itemPredicate().test(heldItem)) {
+						heldItem.shrink(1);
+						game.statistics().global().incrementInt(StatisticKey.RECYCLED_TRASH, 1);
+						sidebar.set(buildSidebar(game));
+						return InteractionResult.CONSUME;
+					} else {
+						game.statistics().global().incrementInt(StatisticKey.WRONG_BIN, 1);
+						sidebar.set(buildSidebar(game));
+						return InteractionResult.FAIL;
+					}
 				}
 			}
-			return InteractionResult.PASS;
+			return InteractionResult.SUCCESS_SERVER;
 		}));
 	}
 
@@ -131,19 +125,6 @@ public record TerryTrashBehavior (
 			}
 		}
 
-		boolean hasAllTrash = trashData.entrySet().stream().allMatch(trashTypeTrashDataEntry -> {
-			TrashType trashType = trashTypeTrashDataEntry.getKey();
-			TrashData trashData = trashTypeTrashDataEntry.getValue();
-			StatisticKey<Integer> statsKey = StatisticKey.TRASH_TYPES.get(trashType);
-			int collected = game.statistics().global().getInt(statsKey);
-			return collected >= trashData.requiredAmount();
-		});
-
-		if (hasAllTrash) {
-			// Todo Fix this
-			game.invoker(GameLogicEvents.GAME_OVER).onGameOver(new GameWinner.Nobody());
-		}
-
 		for (ItemEntity entitiesOfClass : game.level().getEntitiesOfClass(ItemEntity.class, badTrashBox.asAabb())) {
 			game.statistics().global().incrementInt(StatisticKey.MISSED_TRASH, 1);
 			entitiesOfClass.discard();
@@ -154,18 +135,8 @@ public record TerryTrashBehavior (
 
 	private Component[] buildSidebar(IGamePhase game) {
 		List<Component> lines = new ArrayList<>();
-		for (Map.Entry<TrashType, TrashData> trashTypeTrashDataEntry : trashData.entrySet()) {
-			TrashType trashType = trashTypeTrashDataEntry.getKey();
-			TrashData trashData = trashTypeTrashDataEntry.getValue();
-			StatisticKey<Integer> statsKey = StatisticKey.TRASH_TYPES.get(trashType);
-			int collected = game.statistics().global().getInt(statsKey);
-			Component line = Component.empty()
-					.append(Component.literal(trashType.getId() + " "))
-					.append(Component.literal(collected + ""))
-					.append(Component.literal(" /"))
-					.append(Component.literal(trashData.requiredAmount() + ""));
-			lines.add(line);
-		}
+		lines.add(Component.literal("Recycled Trash: " + game.statistics().global().getInt(StatisticKey.RECYCLED_TRASH)));
+		lines.add(Component.literal("Wrong Bin: " + game.statistics().global().getInt(StatisticKey.WRONG_BIN)));
 		lines.add(Component.literal("Missed Trash: " + game.statistics().global().getInt(StatisticKey.MISSED_TRASH)));
 		return lines.toArray(new Component[0]);
 	}
