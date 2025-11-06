@@ -85,6 +85,9 @@ public record TerryTrashBehavior (
 
 		events.listen(GamePlayerEvents.USE_BLOCK, ((player, world, pos, hand, traceResult) -> {
 			ItemStack heldItem = player.getItemInHand(hand);
+			if (heldItem.isEmpty()) {
+				return InteractionResult.PASS;
+			}
 			for (RecylingLocations recyclingLocation : recyclingLocations) {
 				BlockBox box = game.mapRegions().getOrThrow(recyclingLocation.processRegion);
 				if (box.contains(pos)) {
@@ -94,6 +97,7 @@ public record TerryTrashBehavior (
 						sidebar.set(buildSidebar(game));
 						return InteractionResult.CONSUME;
 					} else {
+						heldItem.shrink(1);
 						game.statistics().global().incrementInt(StatisticKey.WRONG_BIN, 1);
 						sidebar.set(buildSidebar(game));
 						return InteractionResult.FAIL;
