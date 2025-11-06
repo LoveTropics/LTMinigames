@@ -100,7 +100,7 @@ public record TerryTrashBehavior (
 					}
 				}
 			}
-			return InteractionResult.SUCCESS_SERVER;
+			return InteractionResult.PASS;
 		}));
 	}
 
