@@ -7,6 +7,7 @@ import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvent
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Holder;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -19,7 +20,10 @@ public record AddAttributeModifierAction(Holder<Attribute> attribute, AttributeM
 
 	@Override
 	public void register(final IGamePhase game, final EventRegistrar events) {
-		events.listen(GameActionEvents.APPLY_TO_LIVING_ENTITY, (context, livingEntity) -> {
+		events.listen(GameActionEvents.APPLY_TO_ENTITY, (context, entity) -> {
+			if(!(entity instanceof LivingEntity livingEntity)) {
+				return false;
+			}
 			final AttributeInstance attribute = livingEntity.getAttribute(this.attribute);
 			if (attribute != null) {
 				if (!attribute.hasModifier(modifier.id())) {

@@ -18,7 +18,6 @@ public class ActionTargetTypes {
 	private static final LoveTropicsRegistrate REGISTRATE = LoveTropics.registrate();
 
 	public static final DeferredHolder<Codec<? extends ActionTarget<?>>, Codec<EntityActionTarget>> ENTITY = register("entity", EntityActionTarget.CODEC);
-	public static final DeferredHolder<Codec<? extends ActionTarget<?>>, Codec<LivingEntityActionTarget>> LIVING_ENTITY = register("living_entity", LivingEntityActionTarget.CODEC);
 	public static final DeferredHolder<Codec<? extends ActionTarget<?>>, Codec<PlayerActionTarget>> PLAYER = register("player", PlayerActionTarget.CODEC);
 	public static final DeferredHolder<Codec<? extends ActionTarget<?>>, Codec<PlotActionTarget>> PLOT = register("plot", PlotActionTarget.CODEC);
 	public static final DeferredHolder<Codec<? extends ActionTarget<?>>, Codec<TeamActionTarget>> TEAM = register("team", TeamActionTarget.CODEC);
