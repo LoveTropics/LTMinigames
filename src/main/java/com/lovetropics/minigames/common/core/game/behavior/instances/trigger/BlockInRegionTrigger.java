@@ -38,6 +38,7 @@ public record BlockInRegionTrigger(
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		BlockBox blockRegion = game.mapRegions().getOrThrow(region);
+		actions.register(game, events);
 
 		events.listen(GamePhaseEvents.TICK, () -> {
 			for (BlockPos pos : blockRegion) {
