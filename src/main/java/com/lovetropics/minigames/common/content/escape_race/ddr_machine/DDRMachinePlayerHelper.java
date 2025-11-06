@@ -3,6 +3,7 @@ package com.lovetropics.minigames.common.content.escape_race.ddr_machine;
 import com.lovetropics.minigames.LoveTropics;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.PlayerCapeModel;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import net.minecraft.util.context.ContextKey;
@@ -62,6 +63,12 @@ public class DDRMachinePlayerHelper {
 				}
 			}
 			if(humanoidRenderState.getRenderDataOrDefault(IS_PLAYER_BACK, false)) {
+				// Rotate the clip is it does not clip into the player model when leaning back
+				if (humanoidModel instanceof PlayerCapeModel<?> capeModel) {
+					if(capeModel.body.hasChild("cape")) {
+						capeModel.body.getChild("cape").xRot += 0.5f;
+					}
+				}
 				humanoidModel.root().xRot = -0.6f;
 				humanoidModel.root().z += 10f;
 				humanoidModel.root().y += 2f;
