@@ -39,9 +39,9 @@ public record ApplyForTimeAction(
 		int seconds
 ) implements IGameBehavior {
 	public static final MapCodec<ApplyForTimeAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			GameActionList.PLAYER_CODEC.optionalFieldOf("apply", GameActionList.EMPTY).forGetter(ApplyForTimeAction::apply),
-			GameActionList.PLAYER_CODEC.optionalFieldOf("clear", GameActionList.EMPTY).forGetter(ApplyForTimeAction::clear),
-			GameActionList.PLAYER_CODEC.optionalFieldOf("tick", GameActionList.EMPTY).forGetter(ApplyForTimeAction::tick),
+			GameActionList.PLAYER_CODEC.optionalFieldOf("apply", GameActionList.EMPTY_PLAYER).forGetter(ApplyForTimeAction::apply),
+			GameActionList.PLAYER_CODEC.optionalFieldOf("clear", GameActionList.EMPTY_PLAYER).forGetter(ApplyForTimeAction::clear),
+			GameActionList.PLAYER_CODEC.optionalFieldOf("tick", GameActionList.EMPTY_PLAYER).forGetter(ApplyForTimeAction::tick),
 			IGameBehavior.CODEC.optionalFieldOf("nested", IGameBehavior.EMPTY).forGetter(ApplyForTimeAction::nested),
 			TemplatedText.CODEC.optionalFieldOf("indicator").forGetter(ApplyForTimeAction::indicator),
 			Codec.INT.fieldOf("seconds").forGetter(ApplyForTimeAction::seconds)

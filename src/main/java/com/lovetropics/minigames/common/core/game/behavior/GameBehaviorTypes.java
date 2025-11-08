@@ -273,8 +273,6 @@ public class GameBehaviorTypes {
 	public static final GameBehaviorEntry<SetBlocksAction> SET_BLOCKS = register("set_blocks", SetBlocksAction.CODEC);
 	public static final GameBehaviorEntry<SetExtendingBlocksAction> SET_EXTENDING_BLOCKS = register("set_extending_blocks", SetExtendingBlocksAction.CODEC);
 	public static final GameBehaviorEntry<SetBlockAtEntityAction> SET_BLOCK_AT_ENTITY = register("set_block_at_player", SetBlockAtEntityAction.CODEC); //TODO: rename (affects any entity)
-	/** @deprecated Use {@link #SET_BLOCK_AT_ENTITY} instead.*/ @Deprecated
-	public static final GameBehaviorEntry<SetBlockAtEntityAction> SET_BLOCK_AT_PLAYER = SET_BLOCK_AT_ENTITY;
 	public static final GameBehaviorEntry<GivePlayerHeadPackageBehavior> GIVE_PLAYER_HEAD_PACKAGE = register("give_player_head_package", GivePlayerHeadPackageBehavior.CODEC);
 	public static final GameBehaviorEntry<ShootProjectilesAroundPlayerAction> SHOOT_PROJECTILES_AT_PLAYER = register("shoot_projectiles_at_player", ShootProjectilesAroundPlayerAction.CODEC);
 	public static final GameBehaviorEntry<ApplyForTimeAction> APPLY_FOR_TIME = register("apply_for_time", ApplyForTimeAction.CODEC);
@@ -294,15 +292,11 @@ public class GameBehaviorTypes {
 	public static final GameBehaviorEntry<ShowTitleAction> SHOW_TITLE = register("show_title", ShowTitleAction.CODEC);
 	public static final GameBehaviorEntry<PlaySoundAction> PLAY_SOUND = register("play_sound", PlaySoundAction.CODEC);
 	public static final GameBehaviorEntry<SpawnParticlesAroundEntityAction> SPAWN_PARTICLES_AROUND_ENTITY = register("spawn_particles_around_player", SpawnParticlesAroundEntityAction.CODEC); //TODO: rename (affects any entity)
-	/** @deprecated Use {@link #SPAWN_PARTICLES_AROUND_ENTITY} instead.*/ @Deprecated
-	public static final GameBehaviorEntry<SpawnParticlesAroundEntityAction> SPAWN_PARTICLES_AROUND_PLAYER = SPAWN_PARTICLES_AROUND_ENTITY;
 	public static final GameBehaviorEntry<NotificationToastAction> NOTIFICATION_TOAST = register("notification_toast", NotificationToastAction.CODEC);
 	public static final GameBehaviorEntry<TransformPlayerTornadoAction> TRANSFORM_PLAYER_TORNADO = register("transform_player_tornado", TransformPlayerTornadoAction.CODEC);
 	public static final GameBehaviorEntry<SpawnTornadoAction> SPAWN_TORNADO = register("spawn_tornado", SpawnTornadoAction.CODEC);
 	public static final GameBehaviorEntry<ChestDropAction> CHEST_DROP = register("chest_drop", ChestDropAction.CODEC);
 	public static final GameBehaviorEntry<DamageAction> DAMAGE = register("damage_player", DamageAction.CODEC); //TODO: rename (affects any entity)
-	/** @deprecated Use {@link #DAMAGE} instead.*/ @Deprecated
-	public static final GameBehaviorEntry<DamageAction> DAMAGE_PLAYER = DAMAGE;
 	public static final GameBehaviorEntry<SpectatorActivityAction> SPECTATOR_ACTIVITY = register("spectator_activity", SpectatorActivityAction.CODEC);
 	public static final GameBehaviorEntry<GiveRewardAction> GIVE_REWARD = register("give_reward", GiveRewardAction.CODEC);
 	public static final GameBehaviorEntry<TopPlayerTrigger> TOP_PLAYER_TRIGGER = register("top_player_trigger", TopPlayerTrigger.CODEC);

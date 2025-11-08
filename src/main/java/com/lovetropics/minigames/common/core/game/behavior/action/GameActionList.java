@@ -24,11 +24,6 @@ import java.util.function.Supplier;
 public class GameActionList<T> {
 	public static final GameActionList<Entity> EMPTY_ENTITY = new GameActionList<>(IGameBehavior.EMPTY, EntityActionTarget.UNIT);
 	public static final GameActionList<ServerPlayer> EMPTY_PLAYER = new GameActionList<>(IGameBehavior.EMPTY, PlayerActionTarget.SOURCE);
-	/**
-	 * @deprecated Use {@link #EMPTY_PLAYER} instead
-	 */
-	@Deprecated
-	public static final GameActionList<ServerPlayer> EMPTY = EMPTY_PLAYER;
 	public static final GameActionList<GameTeam> EMPTY_TEAM = new GameActionList<>(IGameBehavior.EMPTY, TeamActionTarget.SOURCE);
 	public static final GameActionList<Void> EMPTY_VOID = new GameActionList<>(IGameBehavior.EMPTY, NoneActionTarget.INSTANCE);
 

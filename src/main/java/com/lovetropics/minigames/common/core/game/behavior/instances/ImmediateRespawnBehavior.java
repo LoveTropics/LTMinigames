@@ -32,7 +32,7 @@ public record ImmediateRespawnBehavior(Optional<PlayerRole> role, Optional<Playe
 			PlayerRole.CODEC.optionalFieldOf("respawn_as").forGetter(c -> c.respawnAsRole),
 			TemplatedText.CODEC.optionalFieldOf("death_message").forGetter(c -> c.deathMessage),
 			Codec.BOOL.optionalFieldOf("drop_inventory", false).forGetter(c -> c.dropInventory),
-			GameActionList.PLAYER_CODEC.optionalFieldOf("respawn_action", GameActionList.EMPTY).forGetter(c -> c.respawnAction),
+			GameActionList.PLAYER_CODEC.optionalFieldOf("respawn_action", GameActionList.EMPTY_PLAYER).forGetter(c -> c.respawnAction),
 			Codec.BOOL.optionalFieldOf("spectate_killer", true).forGetter(c -> c.spectateKiller),
 			Codec.BOOL.optionalFieldOf("clear_kill_tracker", false).forGetter(c -> c.clearKillTracker)
 	).apply(i, ImmediateRespawnBehavior::new));

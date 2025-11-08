@@ -28,8 +28,8 @@ public record WhileInInventoryTrigger(
 ) implements IGameBehavior {
 	public static final MapCodec<WhileInInventoryTrigger> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			ItemPredicate.CODEC.fieldOf("item").forGetter(WhileInInventoryTrigger::itemPredicate),
-			GameActionList.PLAYER_CODEC.optionalFieldOf("apply", GameActionList.EMPTY).forGetter(WhileInInventoryTrigger::apply),
-			GameActionList.PLAYER_CODEC.optionalFieldOf("clear", GameActionList.EMPTY).forGetter(WhileInInventoryTrigger::clear),
+			GameActionList.PLAYER_CODEC.optionalFieldOf("apply", GameActionList.EMPTY_PLAYER).forGetter(WhileInInventoryTrigger::apply),
+			GameActionList.PLAYER_CODEC.optionalFieldOf("clear", GameActionList.EMPTY_PLAYER).forGetter(WhileInInventoryTrigger::clear),
 			Codec.BOOL.optionalFieldOf("stack", false).forGetter(WhileInInventoryTrigger::stack)
 	).apply(i, WhileInInventoryTrigger::new));
 
