@@ -92,7 +92,7 @@ public final class GameTexts {
 		private static final Component LOBBY_SELECTOR_HEADER = KEYS.add("lobby_selector_header", "There are multiple lobbies available to join! Select one from this list:");
 		private static final TranslationCollector.Fun3 LOBBY_SELECTOR_ENTRY = KEYS.add3("lobby_selector_entry", "- %s (%s players): %s to join");
 
-		private static final Component CANNOT_TELEPORT_INTO_GAME = KEYS.add("cannot_teleport_into_game", "You cannot teleport into a game without being apart of it!");
+		private static final Component CANNOT_TELEPORT_INTO_GAME = KEYS.add("cannot_teleport_into_game", "You cannot teleport into a game without being a part of it!");
 
 		public static final Component GLOBAL_CHAT_CHANNEL = KEYS.add("chat_channel.global", "Global Chat");
 		public static final Component TEAM_CHAT_CHANNEL = KEYS.add("chat_channel.team", "Team Chat");

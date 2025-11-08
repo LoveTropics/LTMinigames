@@ -189,7 +189,7 @@ public final class MinigameTexts {
 		KEYS.add("donation.forced_player_head_package.toast", "You are now wearing %sender%'s head, and you can't do anything about it!");
 		KEYS.add("donation.player_dummy_package", "Player Dummy Package");
 		KEYS.add("donation.player_dummy_package.description", "Turn every player in the game into a dummy-version of your Minecraft avatar!");
-		KEYS.add("donation.player_dummy_package.toast", "Everyone is %sender%'!");
+		KEYS.add("donation.player_dummy_package.toast", "Everyone is '%sender%'!");
 		KEYS.add("donation.puffer_package", "Puffer Package");
 		KEYS.add("donation.puffer_package.description", "Spawns a Pufferfish in a block of Water where someone is standing");
 		KEYS.add("donation.puffer_package.toast", "Where did that Pufferfish come from? %sender% may know.");
@@ -298,10 +298,10 @@ public final class MinigameTexts {
 		KEYS.add("donation.mute_team_vc.description", "How will your favorite team succeed at trivia if they cannot speak through voice for 1 minute? Let's find out!");
 		KEYS.add("donation.mute_team_vc.toast", "%sender% has MUTED YOUR TEAM VOICE CHANNEL for 1 minute!");
 		KEYS.add("donation.team_coins", "Gift Coins");
-		KEYS.add("donation.team_coins.description", "Give 20 Tropicoins to every player on the team of your choice!");
-		KEYS.add("donation.team_coins.toast", "%sender% has sent you 20 Tropicoins!");
+		KEYS.add("donation.team_coins.description", "Give 20 TropiCoins to every player on the team of your choice!");
+		KEYS.add("donation.team_coins.toast", "%sender% has sent you 20 TropiCoins!");
 		KEYS.add("donation.money_grows_on_trees", "Money Does Grow on Trees");
-		KEYS.add("donation.money_grows_on_trees.description", "For all players on the team of your choice, Leaves will drop Tropicoins for 45 seconds!");
+		KEYS.add("donation.money_grows_on_trees.description", "For all players on the team of your choice, Leaves will drop TropiCoins for 45 seconds!");
 		KEYS.add("donation.money_grows_on_trees.toast", "Thanks %sender%! LEAVES DROP TROPICOINS for 45 seconds!");
 		KEYS.add("donation.spawner_buff", "Buff Mob Spawners");
 		KEYS.add("donation.spawner_buff.description", "Double the maximum amount of mobs that spawn for the specified team!");
@@ -348,7 +348,7 @@ public final class MinigameTexts {
 		KEYS.add("position.1", "first");
 		KEYS.add("position.2", "second");
 		KEYS.add("position.3", "third");
-		KEYS.add("position.4", "forth");
+		KEYS.add("position.4", "fourth");
 		KEYS.add("position.5", "fifth");
 		KEYS.add("position.6", "sixth");
 		KEYS.add("position.7", "seventh");

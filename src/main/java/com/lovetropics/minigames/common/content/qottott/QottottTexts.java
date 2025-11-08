@@ -7,7 +7,7 @@ public class QottottTexts {
 	public static final TranslationCollector KEYS = new TranslationCollector(LoveTropics.ID + ".minigame.qottott.");
 
 	static {
-		KEYS.add("sidebar.title", "Qottot");
+		KEYS.add("sidebar.title", "Qottott");
 		KEYS.add("instruction", "Pick up coins \uE040!");
 		KEYS.add("sidebar.top_players", "Top Players:");
 		KEYS.add("waiting", "Pick a kit before the game starts!");

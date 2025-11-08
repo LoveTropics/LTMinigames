@@ -84,7 +84,7 @@ public final class BiodiversityBlitzTexts {
 		KEYS.add("plant.grass.tooltip", "Greatly slows down mobs walking through it.");
 		KEYS.add("plant.grass.tooltip.extra1", "When mobs walk through Grass, they will get the Slowness effect.");
 		KEYS.add("plant.grass.tooltip.extra2", "Mobs will not target this block: They will walk right through.");
-		KEYS.add("plant.iris.tooltip", "Applies a Glowing effect mobs to all nearby mobs.");
+		KEYS.add("plant.iris.tooltip", "Applies a Glowing effect to all nearby mobs.");
 		KEYS.add("plant.iris.tooltip.extra1", "Gives all nearby mobs on the field the Glowing effect.");
 		KEYS.add("plant.iris.tooltip.extra2", "Useful for detecting where the mobs are when hidden behind trees.");
 		KEYS.add("plant.bromeliad.tooltip", "Slowly kills mobs that walk nearby.");
