@@ -254,9 +254,7 @@ public final class GameInstanceIntegrations implements IGameState {
 		} else if (crud == Crud.CREATE) {
 			Optional<GameActionType> actionType = GameActionType.getFromId(type);
 			if (actionType.isPresent()) {
-				// TODO: Fallback because format is inconsistent
-				JsonObject payload = object.has("payload") ? object.getAsJsonObject("payload") : object;
-				actionType.get().getCodec().parse(JsonOps.INSTANCE, payload)
+				actionType.get().getCodec().parse(JsonOps.INSTANCE, object)
 						.ifSuccess(actions::enqueue)
 						.ifError(error -> LoveTropics.LOGGER.warn("Received invalid game action of type {}: {}", type, error.error()));
 			} else {
