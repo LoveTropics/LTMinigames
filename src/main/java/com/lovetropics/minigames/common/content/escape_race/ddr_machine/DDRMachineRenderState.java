@@ -11,7 +11,8 @@ import java.util.List;
 public class DDRMachineRenderState extends EntityRenderState {
 	public float yRot;
 
-	public final AnimationState foldAnimationState = new AnimationState();
+	public final AnimationState toBedState = new AnimationState();
+	public final AnimationState toDDRState = new AnimationState();
 
 	public final List<DDRMachineLevelClientRenderState> levels = new LinkedList<>();
 	public DDRMachineEntity.DDRMachineState ddrMachineState;

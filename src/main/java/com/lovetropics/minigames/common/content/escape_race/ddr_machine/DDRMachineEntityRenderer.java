@@ -58,7 +58,8 @@ public class DDRMachineEntityRenderer extends EntityRenderer<DDRMachineEntity, D
 	public void extractRenderState(DDRMachineEntity entity, DDRMachineRenderState reusedState, float partialTick) {
 		super.extractRenderState(entity, reusedState, partialTick);
 		reusedState.yRot = entity.getYRot();
-		reusedState.foldAnimationState.copyFrom(entity.foldIntoBedState);
+		reusedState.toBedState.copyFrom(entity.toBedState);
+		reusedState.toDDRState.copyFrom(entity.toDDRMachineState);
 		reusedState.ddrMachineState = entity.getState();
 		reusedState.input = entity.getPlayerInput();
 		reusedState.upcomingMoves = entity.getUpcomingMoves();
@@ -85,7 +86,7 @@ public class DDRMachineEntityRenderer extends EntityRenderer<DDRMachineEntity, D
 		poseStack.translate(0.0, 1.5, 0.0); // Roughly get into the center of the place
 		this.model.setupAnim(renderState);
 
-		poseStack.mulPose(Axis.YP.rotationDegrees(90 - renderState.yRot)); // Facing
+		poseStack.mulPose(Axis.YP.rotationDegrees(180 + renderState.yRot)); // Facing
 		poseStack.pushPose();
 		poseStack.mulPose(Axis.ZP.rotationDegrees(180f)); // Turn upsidedown
 
@@ -94,12 +95,14 @@ public class DDRMachineEntityRenderer extends EntityRenderer<DDRMachineEntity, D
 		VertexConsumer buffer = bufferSource.getBuffer(RenderType.text(DDRMachineSprites.bgSprite.atlasLocation()));
 		poseStack.popPose();
 		poseStack.pushPose();
-		poseStack.mulPose(Axis.YP.rotationDegrees(-90F));
-		poseStack.translate(-0.05, 0, 1.7f);
-		poseStack.pushPose();
-		poseStack.scale(1, 0.7f, 1f);
-		drawTexture(buffer, poseStack, DDRMachineSprites.bgSprite, packedLight);
-		poseStack.popPose();
+//		poseStack.mulPose(Axis.YP.rotationDegrees(-90F));
+		poseStack.translate(0, 0.56, 0.8f);
+		if(renderState.ddrMachineState != DDRMachineEntity.DDRMachineState.BEDS) {
+			poseStack.pushPose();
+			poseStack.scale(1.3f, 0.88f, 1.3f);
+			drawTexture(buffer, poseStack, DDRMachineSprites.bgSprite, packedLight);
+			poseStack.popPose();
+		}
 		if(renderState.ddrMachineState == DDRMachineEntity.DDRMachineState.MENU) {
 			poseStack.pushPose();
 			poseStack.scale(0.5f, 0.2f, 0.5f);

@@ -77,7 +77,8 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 		MENU(0),
 		PLAYING(1),
 		POST_PLAY(2),
-		RECORDING(3);
+		RECORDING(3),
+		BEDS(4);
 		private final int id;
 
 		DDRMachineState(int id) {
@@ -95,13 +96,15 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 	}
 
 	private static final int MAX_PASSENGERS = 1;
-	public final AnimationState foldIntoBedState = new AnimationState();
+	public final AnimationState toBedState = new AnimationState();
+	public final AnimationState toDDRMachineState = new AnimationState();
 
 	private static final EntityDataAccessor<DdrInput> DATA_PLAYER_INPUT = SynchedEntityData.defineId(DDRMachineEntity.class, EscapeRace.DDR_INPUT);
 
 	private static final EntityDataAccessor<DDRMachineState> DATA_STATE = SynchedEntityData.defineId(DDRMachineEntity.class, EscapeRace.DDR_STATE);
 	private static final EntityDataAccessor<List<TimedDdrInput>> DATA_UPCOMING_MOVES = SynchedEntityData.defineId(DDRMachineEntity.class, EscapeRace.DDR_LEVEL_TICK_MAP);
 	private static final EntityDataAccessor<Integer> DATA_CURRENT_TICK = SynchedEntityData.defineId(DDRMachineEntity.class, EntityDataSerializers.INT);
+	private static final EntityDataAccessor<Long> DATA_STATE_LAST_CHANGE_TICK = SynchedEntityData.defineId(DDRMachineEntity.class, EntityDataSerializers.LONG);
 
 	private final List<Holder<DdrLevel>> orderedLevels;
 
@@ -133,7 +136,8 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 		builder.define(DATA_PLAYER_INPUT, DdrInput.NONE)
 				.define(DATA_STATE, DDRMachineState.MENU)
 				.define(DATA_UPCOMING_MOVES, List.of())
-				.define(DATA_CURRENT_TICK, 0);
+				.define(DATA_CURRENT_TICK, 0)
+				.define(DATA_STATE_LAST_CHANGE_TICK, 0L);
 	}
 
 	@Override
@@ -175,6 +179,12 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 		if (!level().isClientSide && !player.isShiftKeyDown()) {
 			player.startRiding(this);
 			return InteractionResult.SUCCESS;
+		} else if(!level().isClientSide && player.isShiftKeyDown()) {
+			if(state == DDRMachineState.MENU) {
+				setState(DDRMachineState.BEDS);
+			} else if(state == DDRMachineState.BEDS) {
+				setState(DDRMachineState.MENU);
+			}
 		}
 
 		return !player.isPassengerOfSameVehicle(this) ? InteractionResult.SUCCESS : InteractionResult.PASS;
@@ -187,6 +197,25 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 
 	public void setState(DDRMachineState state) {
 		getEntityData().set(DATA_STATE, state);
+		getEntityData().set(DATA_STATE_LAST_CHANGE_TICK, this.level().getGameTime());
+	}
+
+	public long getStateTime() {
+		return this.level().getGameTime() - Math.abs(this.entityData.get(DATA_STATE_LAST_CHANGE_TICK));
+	}
+
+	private void setupAnimationStates() {
+		if(getState() == DDRMachineState.MENU) {
+			this.toBedState.stop();
+			if(getStateTime() == 0){
+				this.toDDRMachineState.start(this.tickCount);
+			}
+		} else if(getState() == DDRMachineState.BEDS) {
+			this.toDDRMachineState.stop();
+			if(getStateTime() == 0){
+				this.toBedState.start(this.tickCount);
+			}
+		}
 	}
 
 	@Override
@@ -205,7 +234,7 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 
 	@Override
 	protected Vec3 getPassengerAttachmentPoint(Entity entity, EntityDimensions dimensions, float partialTick) {
-		return new Vec3(0f, 0.6f, 0.25f);
+		return new Vec3(0f, 0.6f, 0.35f);
 //		return super.getPassengerAttachmentPoint(entity, dimensions, partialTick);
 	}
 
@@ -231,10 +260,10 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 		PoseStack poseStack = new PoseStack();
 		poseStack.translate(position().x, position().y, position().z);
 		poseStack.translate(0, 1.5, 0);
-		poseStack.mulPose(Axis.YP.rotationDegrees(180f - this.getYRot()));
+		poseStack.mulPose(Axis.YP.rotationDegrees(180f + this.getYRot()));
 //		poseStack.mulPose(Axis.YP.rotationDegrees(-90F));
-		poseStack.translate(-0.05, 0, -1.7f);
-		poseStack.translate(-0.7f, -0.4, 0f);
+		poseStack.translate(0, 0.56, 0.8f);
+		poseStack.translate(0.8f, -0.05, 0f);
 //		poseStack.scale(0.3f, 0.3f, 0.3f);
 		int lookingAtIndex = -1;
 		for (int i = 0; i < SLOTS.size(); i++) {
@@ -297,6 +326,8 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 					stopPlaying();
 				}
 			}
+		} else {
+			this.setupAnimationStates();
 		}
 	}
 
@@ -387,9 +418,9 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 	@Override
 	public void onPassengerTurned(Entity entityToUpdate) {
 		super.onPassengerTurned(entityToUpdate);
-		entityToUpdate.setYBodyRot(this.getYRot());
+		entityToUpdate.setYBodyRot(180 + this.getYRot());
 		if (getState() == DDRMachineState.PLAYING) {
-			entityToUpdate.setYRot(this.getYRot());
+			entityToUpdate.setYRot(180 + this.getYRot());
 		}
 	}
 
