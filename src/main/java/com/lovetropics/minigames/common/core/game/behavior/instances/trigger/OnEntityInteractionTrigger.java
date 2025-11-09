@@ -14,6 +14,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.advancements.critereon.EntityPredicate;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 
@@ -39,6 +40,10 @@ public record OnEntityInteractionTrigger(
 		targetActions.register(game, events);
 
 		events.listen(GamePlayerEvents.INTERACT_ENTITY, (player, target, hand) -> {
+			if (hand != InteractionHand.MAIN_HAND) {
+				return InteractionResult.PASS;
+			}
+
 			if (sourcePredicate.isPresent() && !sourcePredicate.get().matches(player, player)) {
 				return InteractionResult.PASS;
 			}
