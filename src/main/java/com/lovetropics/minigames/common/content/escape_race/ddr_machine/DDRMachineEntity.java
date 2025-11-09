@@ -261,14 +261,14 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 	@Override
 	public void tick() {
 		super.tick();
-		if (level().isClientSide()) {
-			poseState.tick(getPlayerInput());
-		}
 		if (isLocalInstanceAuthoritative()) {
 			if (level().isClientSide) {
 				handleControls();
+				poseState.tick(lastInput);
 			}
 			return;
+		} else if (level().isClientSide()) {
+			poseState.tick(getPlayerInput());
 		}
 		if (!level().isClientSide) {
 			if (getState() == DDRMachineState.RECORDING && currentLevelState != null) {
