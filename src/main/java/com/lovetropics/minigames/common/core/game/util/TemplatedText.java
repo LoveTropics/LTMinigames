@@ -31,7 +31,7 @@ public record TemplatedText(Component template) {
 		context.get(GameActionParameter.PACKAGE_SENDER).ifPresent(name -> values.put("sender", Component.literal(name)));
 		context.get(GameActionParameter.KILLER).ifPresent(player -> values.put("killer", player.getDisplayName()));
 		context.get(GameActionParameter.KILLED).ifPresent(player -> values.put("killed", player.getDisplayName()));
-		context.get(GameActionParameter.TARGET).ifPresent(player -> values.put("target", player.getDisplayName()));
+		context.get(GameActionParameter.TARGET).ifPresent(entity -> values.put("target", entity.getDisplayName()));
 		context.get(GameActionParameter.COUNT).ifPresent(count -> values.put("count", Component.literal(String.valueOf(count))));
 		context.get(GameActionParameter.ITEM).ifPresent(item -> values.put("item", item.getHoverName()));
 		context.get(GameActionParameter.TEAM).ifPresent(team -> values.put("team", team.config().styledName()));

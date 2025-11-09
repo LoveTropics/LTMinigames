@@ -11,44 +11,44 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.valueproviders.ConstantInt;
 import net.minecraft.util.valueproviders.IntProvider;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.Optional;
 import java.util.function.Function;
 
-public record SpawnParticlesAroundPlayerAction(ParticleOptions[] particles, IntProvider count, IntProvider repeats, double radius, Vec3 offset, float speed, Optional<Vec3> position) implements IGameBehavior {
-	public static final MapCodec<SpawnParticlesAroundPlayerAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+public record SpawnParticlesAroundEntityAction(ParticleOptions[] particles, IntProvider count, IntProvider repeats, double radius, Vec3 offset, float speed, Optional<Vec3> position) implements IGameBehavior {
+	public static final MapCodec<SpawnParticlesAroundEntityAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			MoreCodecs.arrayOrUnit(ParticleTypes.CODEC, ParticleOptions[]::new).fieldOf("particles").forGetter(c -> c.particles),
 			IntProvider.POSITIVE_CODEC.optionalFieldOf("count", ConstantInt.of(1)).forGetter(c -> c.count),
 			IntProvider.POSITIVE_CODEC.optionalFieldOf("repeats", ConstantInt.of(1)).forGetter(c -> c.repeats),
 			Codec.DOUBLE.optionalFieldOf("radius", 0.0).forGetter(c -> c.radius),
-			Vec3.CODEC.optionalFieldOf("offset", new Vec3(0.1, 0.1, 0.1)).forGetter(SpawnParticlesAroundPlayerAction::offset),
-			Codec.FLOAT.optionalFieldOf("speed", 0.0f).forGetter(SpawnParticlesAroundPlayerAction::speed),
-			Vec3.CODEC.optionalFieldOf("position").forGetter(SpawnParticlesAroundPlayerAction::position)
-	).apply(i, SpawnParticlesAroundPlayerAction::new));
+			Vec3.CODEC.optionalFieldOf("offset", new Vec3(0.1, 0.1, 0.1)).forGetter(SpawnParticlesAroundEntityAction::offset),
+			Codec.FLOAT.optionalFieldOf("speed", 0.0f).forGetter(SpawnParticlesAroundEntityAction::speed),
+			Vec3.CODEC.optionalFieldOf("position").forGetter(SpawnParticlesAroundEntityAction::position)
+	).apply(i, SpawnParticlesAroundEntityAction::new));
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		final RandomSource random = game.random();
-		final Function<ServerPlayer, Vec3> positionGenerator = createPositionGenerator(random);
-		events.listen(GameActionEvents.APPLY_TO_PLAYER, (context, player) -> {
+		final Function<Entity, Vec3> positionGenerator = createPositionGenerator(random);
+		events.listen(GameActionEvents.APPLY_TO_ENTITY, (context, entity) -> {
 			int count = this.count.sample(random);
 			for (int i = 0; i < count; i++) {
 				ParticleOptions particle = particles[random.nextInt(particles.length)];
 				int repeats = this.repeats.sample(random);
-				Vec3 pos = positionGenerator.apply(player);
+				Vec3 pos = positionGenerator.apply(entity);
 				game.level().sendParticles(particle, pos.x, pos.y, pos.z, repeats, offset.x, offset.y, offset.z, speed);
 			}
 			return true;
 		});
 	}
 
-	private Function<ServerPlayer, Vec3> createPositionGenerator(RandomSource random) {
+	private Function<Entity, Vec3> createPositionGenerator(RandomSource random) {
 		if (position.isPresent()) {
 			return player -> {
 				final double deltaX = random.triangle(-radius, radius);

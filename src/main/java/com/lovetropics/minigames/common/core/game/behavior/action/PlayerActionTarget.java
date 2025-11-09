@@ -28,6 +28,7 @@ public record PlayerActionTarget(Target target) implements ActionTarget<ServerPl
 		boolean result = false;
 		for (ServerPlayer target : target.resolve(game, sources)) {
 			result |= listeners.invoker(GameActionEvents.APPLY_TO_PLAYER).apply(actionContext, target);
+			result |= listeners.invoker(GameActionEvents.APPLY_TO_ENTITY).apply(actionContext, target);
 		}
 		return result;
 	}

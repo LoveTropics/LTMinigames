@@ -19,7 +19,7 @@ import java.util.Objects;
 public record TopPlayerTrigger(List<GameActionList<ServerPlayer>> actionsByPlace, GameActionList<ServerPlayer> fallbackActions) implements IGameBehavior {
 	public static final MapCodec<TopPlayerTrigger> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			GameActionList.PLAYER_CODEC.listOf().fieldOf("by_place").forGetter(TopPlayerTrigger::actionsByPlace),
-			GameActionList.PLAYER_CODEC.optionalFieldOf("fallback", GameActionList.EMPTY).forGetter(TopPlayerTrigger::fallbackActions)
+			GameActionList.PLAYER_CODEC.optionalFieldOf("fallback", GameActionList.EMPTY_PLAYER).forGetter(TopPlayerTrigger::fallbackActions)
 	).apply(i, TopPlayerTrigger::new));
 
 	@Override

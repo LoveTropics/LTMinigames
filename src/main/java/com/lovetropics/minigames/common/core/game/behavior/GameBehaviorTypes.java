@@ -46,7 +46,7 @@ import com.lovetropics.minigames.common.core.game.behavior.instances.action.Clea
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.ClearEffectsAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.CloseGameAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.CountdownAction;
-import com.lovetropics.minigames.common.core.game.behavior.instances.action.DamagePlayerAction;
+import com.lovetropics.minigames.common.core.game.behavior.instances.action.DamageAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.DelayedAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.EndGameAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.ExtinguishPlayerFireAction;
@@ -63,7 +63,7 @@ import com.lovetropics.minigames.common.core.game.behavior.instances.action.Remo
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.ResetHungerAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.RunCommandsAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.SendMessageAction;
-import com.lovetropics.minigames.common.core.game.behavior.instances.action.SetBlockAtPlayerAction;
+import com.lovetropics.minigames.common.core.game.behavior.instances.action.SetBlockAtEntityAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.SetBlocksAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.SetDisguiseAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.SetExtendingBlocksAction;
@@ -79,7 +79,7 @@ import com.lovetropics.minigames.common.core.game.behavior.instances.action.Spaw
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.SpawnEntityAtPlayerAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.SpawnEntityAtRegionsAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.SpawnFireworksAction;
-import com.lovetropics.minigames.common.core.game.behavior.instances.action.SpawnParticlesAroundPlayerAction;
+import com.lovetropics.minigames.common.core.game.behavior.instances.action.SpawnParticlesAroundEntityAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.SpawnTornadoAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.SpectatorActivityAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.StartProgressChannelAction;
@@ -122,6 +122,7 @@ import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.Gen
 import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.ItemPickedUpTrigger;
 import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.OnDamageTrigger;
 import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.OnDeathTrigger;
+import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.OnEntityInteractionTrigger;
 import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.PeriodicActionsTrigger;
 import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.PhaseChangeTrigger;
 import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.PlayerTickTrigger;
@@ -197,6 +198,7 @@ public class GameBehaviorTypes {
 
 	public static final GameBehaviorEntry<OnDeathTrigger> ON_DEATH = register("on_death", OnDeathTrigger.CODEC);
 	public static final GameBehaviorEntry<OnDamageTrigger> ON_DAMAGE = register("on_damage", OnDamageTrigger.CODEC);
+	public static final GameBehaviorEntry<OnEntityInteractionTrigger> ON_ENTITY_INTERACTION = register("on_entity_interaction", OnEntityInteractionTrigger.CODEC);
 	public static final GameBehaviorEntry<WhileInRegionTrigger> WHILE_IN_REGION = register("while_in_region", WhileInRegionTrigger.CODEC);
 	public static final GameBehaviorEntry<ScheduledActionsTrigger> SCHEDULED_ACTIONS = register("scheduled_actions", ScheduledActionsTrigger.CODEC);
 	public static final GameBehaviorEntry<PeriodicActionsTrigger> PERIODIC_ACTIONS = register("periodic_actions", PeriodicActionsTrigger.CODEC);
@@ -276,7 +278,7 @@ public class GameBehaviorTypes {
 	public static final GameBehaviorEntry<SpawnEntitiesAtRegionsOverTimeAction> SPAWN_ENTITIES_AT_REGIONS_OVER_TIME = register("spawn_entities_at_regions_over_time", SpawnEntitiesAtRegionsOverTimeAction.CODEC);
 	public static final GameBehaviorEntry<SetBlocksAction> SET_BLOCKS = register("set_blocks", SetBlocksAction.CODEC);
 	public static final GameBehaviorEntry<SetExtendingBlocksAction> SET_EXTENDING_BLOCKS = register("set_extending_blocks", SetExtendingBlocksAction.CODEC);
-	public static final GameBehaviorEntry<SetBlockAtPlayerAction> SET_BLOCK_AT_PLAYER = register("set_block_at_player", SetBlockAtPlayerAction.CODEC);
+	public static final GameBehaviorEntry<SetBlockAtEntityAction> SET_BLOCK_AT_ENTITY = register("set_block_at_player", SetBlockAtEntityAction.CODEC); //TODO: rename (affects any entity)
 	public static final GameBehaviorEntry<GivePlayerHeadPackageBehavior> GIVE_PLAYER_HEAD_PACKAGE = register("give_player_head_package", GivePlayerHeadPackageBehavior.CODEC);
 	public static final GameBehaviorEntry<ShootProjectilesAroundPlayerAction> SHOOT_PROJECTILES_AT_PLAYER = register("shoot_projectiles_at_player", ShootProjectilesAroundPlayerAction.CODEC);
 	public static final GameBehaviorEntry<ApplyForTimeAction> APPLY_FOR_TIME = register("apply_for_time", ApplyForTimeAction.CODEC);
@@ -295,12 +297,12 @@ public class GameBehaviorTypes {
 	public static final GameBehaviorEntry<SendMessageAction> SEND_MESSAGE = register("send_message", SendMessageAction.CODEC);
 	public static final GameBehaviorEntry<ShowTitleAction> SHOW_TITLE = register("show_title", ShowTitleAction.CODEC);
 	public static final GameBehaviorEntry<PlaySoundAction> PLAY_SOUND = register("play_sound", PlaySoundAction.CODEC);
-	public static final GameBehaviorEntry<SpawnParticlesAroundPlayerAction> SPAWN_PARTICLES_AROUND_PLAYER = register("spawn_particles_around_player", SpawnParticlesAroundPlayerAction.CODEC);
+	public static final GameBehaviorEntry<SpawnParticlesAroundEntityAction> SPAWN_PARTICLES_AROUND_ENTITY = register("spawn_particles_around_player", SpawnParticlesAroundEntityAction.CODEC); //TODO: rename (affects any entity)
 	public static final GameBehaviorEntry<NotificationToastAction> NOTIFICATION_TOAST = register("notification_toast", NotificationToastAction.CODEC);
 	public static final GameBehaviorEntry<TransformPlayerTornadoAction> TRANSFORM_PLAYER_TORNADO = register("transform_player_tornado", TransformPlayerTornadoAction.CODEC);
 	public static final GameBehaviorEntry<SpawnTornadoAction> SPAWN_TORNADO = register("spawn_tornado", SpawnTornadoAction.CODEC);
 	public static final GameBehaviorEntry<ChestDropAction> CHEST_DROP = register("chest_drop", ChestDropAction.CODEC);
-	public static final GameBehaviorEntry<DamagePlayerAction> DAMAGE_PLAYER = register("damage_player", DamagePlayerAction.CODEC);
+	public static final GameBehaviorEntry<DamageAction> DAMAGE = register("damage_player", DamageAction.CODEC); //TODO: rename (affects any entity)
 	public static final GameBehaviorEntry<SpectatorActivityAction> SPECTATOR_ACTIVITY = register("spectator_activity", SpectatorActivityAction.CODEC);
 	public static final GameBehaviorEntry<GiveRewardAction> GIVE_REWARD = register("give_reward", GiveRewardAction.CODEC);
 	public static final GameBehaviorEntry<TopPlayerTrigger> TOP_PLAYER_TRIGGER = register("top_player_trigger", TopPlayerTrigger.CODEC);

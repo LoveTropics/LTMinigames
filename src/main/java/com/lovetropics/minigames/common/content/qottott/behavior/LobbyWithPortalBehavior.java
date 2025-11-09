@@ -45,7 +45,7 @@ public record LobbyWithPortalBehavior(String portalRegion, String targetRegion, 
 			Codec.STRING.fieldOf("point_towards_region").forGetter(LobbyWithPortalBehavior::pointTowardsRegion),
 			ProgressChannel.CODEC.optionalFieldOf("channel", ProgressChannel.MAIN).forGetter(LobbyWithPortalBehavior::channel),
 			ProgressionPeriod.CODEC.fieldOf("open_at").forGetter(LobbyWithPortalBehavior::openAt),
-			GameActionList.PLAYER_CODEC.optionalFieldOf("on_teleport", GameActionList.EMPTY).forGetter(LobbyWithPortalBehavior::teleportAction)
+			GameActionList.PLAYER_CODEC.optionalFieldOf("on_teleport", GameActionList.EMPTY_PLAYER).forGetter(LobbyWithPortalBehavior::teleportAction)
 	).apply(i, LobbyWithPortalBehavior::new));
 
 	@Override

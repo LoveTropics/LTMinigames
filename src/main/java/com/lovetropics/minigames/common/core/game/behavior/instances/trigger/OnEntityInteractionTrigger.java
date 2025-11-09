@@ -1,0 +1,61 @@
+package com.lovetropics.minigames.common.core.game.behavior.instances.trigger;
+
+import com.lovetropics.minigames.common.core.game.GameException;
+import com.lovetropics.minigames.common.core.game.IGamePhase;
+import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorType;
+import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorTypes;
+import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
+import com.lovetropics.minigames.common.core.game.behavior.action.GameActionContext;
+import com.lovetropics.minigames.common.core.game.behavior.action.GameActionList;
+import com.lovetropics.minigames.common.core.game.behavior.action.GameActionParameter;
+import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
+import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.advancements.critereon.EntityPredicate;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
+
+import java.util.Optional;
+import java.util.function.Supplier;
+
+public record OnEntityInteractionTrigger(
+		GameActionList<ServerPlayer> sourceActions,
+		GameActionList<Entity> targetActions,
+		Optional<EntityPredicate> sourcePredicate,
+		Optional<EntityPredicate> targetPredicate
+) implements IGameBehavior {
+	public static final MapCodec<OnEntityInteractionTrigger> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+			GameActionList.PLAYER_CODEC.optionalFieldOf("source_actions", GameActionList.EMPTY_PLAYER).forGetter(OnEntityInteractionTrigger::sourceActions),
+			GameActionList.ENTITY_CODEC.optionalFieldOf("target_actions", GameActionList.EMPTY_ENTITY).forGetter(OnEntityInteractionTrigger::targetActions),
+			EntityPredicate.CODEC.optionalFieldOf("source_predicate").forGetter(OnEntityInteractionTrigger::sourcePredicate),
+			EntityPredicate.CODEC.optionalFieldOf("target_predicate").forGetter(OnEntityInteractionTrigger::targetPredicate)
+	).apply(instance, OnEntityInteractionTrigger::new));
+
+	@Override
+	public void register(IGamePhase game, EventRegistrar events) throws GameException {
+		sourceActions.register(game, events);
+		targetActions.register(game, events);
+
+		events.listen(GamePlayerEvents.INTERACT_ENTITY, (player, target, hand) -> {
+			if (sourcePredicate.isPresent() && !sourcePredicate.get().matches(player, player)) {
+				return InteractionResult.PASS;
+			}
+			if (targetPredicate.isPresent() && !targetPredicate.get().matches(player, target)) {
+				return InteractionResult.PASS;
+			}
+
+			final GameActionContext.Builder context = GameActionContext.builder().set(GameActionParameter.TARGET, target);
+			sourceActions.apply(game, context.build(), player);
+			targetActions.apply(game, context.build(), target);
+
+			return InteractionResult.CONSUME;
+		});
+	}
+
+	@Override
+	public Supplier<? extends GameBehaviorType<?>> behaviorType() {
+		return GameBehaviorTypes.ON_ENTITY_INTERACTION;
+	}
+}

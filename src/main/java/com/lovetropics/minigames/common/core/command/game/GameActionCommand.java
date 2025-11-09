@@ -29,8 +29,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 
-import javax.annotation.Nullable;
+import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 
 import static net.minecraft.commands.Commands.argument;
@@ -46,8 +47,8 @@ public class GameActionCommand {
 						.then(argument("id", ResourceLocationArgument.id()).suggests(GameActionCommand::suggestBehaviors)
 								.then(argument("data", NbtTagArgument.nbtTag())
 										.executes(ctx -> runAction(ctx, null))
-										.then(argument("target", EntityArgument.player())
-												.executes(ctx -> runAction(ctx, EntityArgument.getPlayer(ctx, "target"))))
+										.then(argument("targets", EntityArgument.entities())
+												.executes(ctx -> runAction(ctx, EntityArgument.getEntities(ctx, "targets"))))
 								)
 						)
 				)
@@ -61,17 +62,21 @@ public class GameActionCommand {
 		), builder);
 	}
 
-	private static int runAction(CommandContext<CommandSourceStack> ctx, @Nullable ServerPlayer target) throws CommandSyntaxException {
+	private static int runAction(CommandContext<CommandSourceStack> ctx, Collection<? extends Entity> targets) throws CommandSyntaxException {
 		IGamePhase game = IGameManager.get().getGamePhaseFor(ctx.getSource());
 		if (game != null) {
 			IGameBehavior behavior = parseBehavior(ctx);
 			GameEventListeners events = new GameEventListeners();
 			behavior.register(game, events);
-			boolean result;
-			if (target != null) {
-				result = events.invoker(GameActionEvents.APPLY_TO_PLAYER).apply(GameActionContext.EMPTY, target);
-			} else {
-				result = events.invoker(GameActionEvents.APPLY).apply(GameActionContext.EMPTY);
+			boolean result = false;
+			for (var target : targets) {
+				if (target instanceof ServerPlayer serverPlayer) {
+					result |= events.invoker(GameActionEvents.APPLY_TO_PLAYER).apply(GameActionContext.EMPTY, serverPlayer);
+				} else if (target != null) {
+					result |= events.invoker(GameActionEvents.APPLY_TO_ENTITY).apply(GameActionContext.EMPTY, target);
+				} else {
+					result |= events.invoker(GameActionEvents.APPLY).apply(GameActionContext.EMPTY);
+				}
 			}
 			if (result) {
 				ctx.getSource().sendSuccess(() -> Component.literal("Successfully applied action"), false);

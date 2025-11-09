@@ -12,7 +12,7 @@ import net.minecraft.server.level.ServerPlayer;
 public class OverlordBehavior implements IGameBehavior {
 	// Yes i know this is janky
 	public static final MapCodec<OverlordBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			GameActionList.PLAYER_CODEC.optionalFieldOf("powers", GameActionList.EMPTY).forGetter(c -> c.powers)
+			GameActionList.PLAYER_CODEC.optionalFieldOf("powers", GameActionList.EMPTY_PLAYER).forGetter(c -> c.powers)
 	).apply(i, OverlordBehavior::new));
 
 	private final GameActionList<ServerPlayer> powers;

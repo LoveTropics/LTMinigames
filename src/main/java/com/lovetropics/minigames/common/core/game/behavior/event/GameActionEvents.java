@@ -4,12 +4,21 @@ import com.lovetropics.minigames.common.content.biodiversity_blitz.plot.Plot;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionContext;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeam;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 
 public final class GameActionEvents {
 	public static final GameEventType<Apply> APPLY = GameEventType.create(Apply.class, listeners -> context -> {
 		boolean applied = false;
 		for (Apply listener : listeners) {
 			applied |= listener.apply(context);
+		}
+		return applied;
+	});
+
+	public static final GameEventType<ApplyToEntity> APPLY_TO_ENTITY = GameEventType.create(ApplyToEntity.class, listeners -> (context, target) -> {
+		boolean applied = false;
+		for (ApplyToEntity listener : listeners) {
+			applied |= listener.apply(context, target);
 		}
 		return applied;
 	});
@@ -42,11 +51,15 @@ public final class GameActionEvents {
 	}
 
 	public static boolean matches(GameEventType<?> type) {
-		return type == APPLY || type == APPLY_TO_PLOT || type == APPLY_TO_PLAYER || type == APPLY_TO_TEAM;
+		return type == APPLY || type == APPLY_TO_ENTITY || type == APPLY_TO_PLOT || type == APPLY_TO_PLAYER || type == APPLY_TO_TEAM;
 	}
 
 	public interface Apply {
 		boolean apply(GameActionContext context);
+	}
+
+	public interface ApplyToEntity {
+		boolean apply(GameActionContext context, Entity target);
 	}
 
 	public interface ApplyToPlayer {

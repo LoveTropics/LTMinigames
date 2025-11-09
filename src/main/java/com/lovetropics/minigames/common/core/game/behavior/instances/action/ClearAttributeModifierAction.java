@@ -8,6 +8,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 
@@ -19,8 +20,11 @@ public record ClearAttributeModifierAction(Holder<Attribute> attribute, Resource
 
 	@Override
 	public void register(final IGamePhase game, final EventRegistrar events) {
-		events.listen(GameActionEvents.APPLY_TO_PLAYER, (context, player) -> {
-			final AttributeInstance attribute = player.getAttribute(this.attribute);
+		events.listen(GameActionEvents.APPLY_TO_ENTITY, (context, entity) -> {
+			if (!(entity instanceof LivingEntity livingEntity)) {
+				return false;
+			}
+			final AttributeInstance attribute = livingEntity.getAttribute(this.attribute);
 			if (attribute != null) {
 				attribute.removeModifier(id);
 				return true;

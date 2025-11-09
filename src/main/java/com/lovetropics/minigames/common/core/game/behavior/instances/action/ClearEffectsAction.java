@@ -6,17 +6,21 @@ import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvents;
 import com.mojang.serialization.MapCodec;
+import net.minecraft.world.entity.LivingEntity;
 
 public record ClearEffectsAction() implements IGameBehavior {
 	public static final MapCodec<ClearEffectsAction> CODEC = MapCodec.unit(ClearEffectsAction::new);
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		events.listen(GameActionEvents.APPLY_TO_PLAYER, (context, target) -> {
-			if (target.getActiveEffects().isEmpty()) {
+		events.listen(GameActionEvents.APPLY_TO_ENTITY, (context, entity) -> {
+			if (!(entity instanceof LivingEntity livingEntity)) {
 				return false;
 			}
-			target.removeAllEffects();
+			if (livingEntity.getActiveEffects().isEmpty()) {
+				return false;
+			}
+			livingEntity.removeAllEffects();
 			return true;
 		});
 	}

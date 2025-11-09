@@ -20,9 +20,9 @@ public record SetGlowingAction(boolean glowing) implements IGameBehavior {
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		events.listen(GameActionEvents.APPLY_TO_PLAYER, (context, player) -> {
-			if (player.isCurrentlyGlowing() != glowing) {
-				player.setGlowingTag(glowing);
+		events.listen(GameActionEvents.APPLY_TO_ENTITY, (context, entity) -> {
+			if (entity.isCurrentlyGlowing() != glowing) {
+				entity.setGlowingTag(glowing);
 				return true;
 			}
 			return false;

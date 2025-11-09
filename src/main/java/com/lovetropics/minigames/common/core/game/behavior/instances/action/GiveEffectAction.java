@@ -11,6 +11,7 @@ import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvent
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.LivingEntity;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -22,9 +23,12 @@ public record GiveEffectAction(List<MobEffectInstance> effects) implements IGame
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		events.listen(GameActionEvents.APPLY_TO_PLAYER, (context, player) -> {
+		events.listen(GameActionEvents.APPLY_TO_ENTITY, (context, entity) -> {
+			if (!(entity instanceof LivingEntity livingEntity)) {
+				return false;
+			}
 			for (MobEffectInstance effect : effects) {
-				player.addEffect(new MobEffectInstance(effect));
+				livingEntity.addEffect(new MobEffectInstance(effect));
 			}
 			return true;
 		});

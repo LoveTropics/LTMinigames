@@ -22,8 +22,8 @@ import java.util.function.Supplier;
 
 public record OnDeathTrigger(GameActionList<ServerPlayer> killedAction, GameActionList<ServerPlayer> killerAction, Optional<EntityPredicate> killedPredicate, Optional<EntityPredicate> killerPredicate, boolean excludeSelf) implements IGameBehavior {
 	public static final MapCodec<OnDeathTrigger> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			GameActionList.PLAYER_CODEC.optionalFieldOf("killed_action", GameActionList.EMPTY).forGetter(OnDeathTrigger::killedAction),
-			GameActionList.PLAYER_CODEC.optionalFieldOf("killer_action", GameActionList.EMPTY).forGetter(OnDeathTrigger::killerAction),
+			GameActionList.PLAYER_CODEC.optionalFieldOf("killed_action", GameActionList.EMPTY_PLAYER).forGetter(OnDeathTrigger::killedAction),
+			GameActionList.PLAYER_CODEC.optionalFieldOf("killer_action", GameActionList.EMPTY_PLAYER).forGetter(OnDeathTrigger::killerAction),
 			EntityPredicate.CODEC.optionalFieldOf("killed_predicate").forGetter(OnDeathTrigger::killedPredicate),
 			EntityPredicate.CODEC.optionalFieldOf("killer_predicate").forGetter(OnDeathTrigger::killerPredicate),
 			Codec.BOOL.optionalFieldOf("exclude_self", false).forGetter(OnDeathTrigger::excludeSelf)

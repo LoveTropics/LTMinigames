@@ -12,6 +12,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.levelgen.Heightmap;
 
 public record SpawnFireworksAction(
@@ -23,16 +24,16 @@ public record SpawnFireworksAction(
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
-		events.listen(GameActionEvents.APPLY_TO_PLAYER, (context, player) -> {
-			BlockPos fireworkPos = player.level().getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, player.blockPosition());
-			FireworkPalette palette = selectPalette(game, player);
-			palette.spawn(fireworkPos, player.level());
+		events.listen(GameActionEvents.APPLY_TO_ENTITY, (context, entity) -> {
+			BlockPos fireworkPos = entity.level().getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, entity.blockPosition());
+			FireworkPalette palette = selectPalette(game, entity);
+			palette.spawn(fireworkPos, entity.level());
 			return true;
 		});
 	}
 
-	private FireworkPalette selectPalette(IGamePhase game, ServerPlayer player) {
-		if (useTeamColor) {
+	private FireworkPalette selectPalette(IGamePhase game, Entity entity) {
+		if (useTeamColor && entity instanceof ServerPlayer player) {
 			TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
 			GameTeamKey team = teams != null ? teams.getTeamForPlayer(player) : null;
 			if (team != null) {
