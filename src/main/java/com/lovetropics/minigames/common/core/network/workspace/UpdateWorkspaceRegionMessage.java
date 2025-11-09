@@ -5,6 +5,7 @@ import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.client.map.ClientMapWorkspace;
 import com.lovetropics.minigames.common.core.map.workspace.MapWorkspace;
 import com.lovetropics.minigames.common.core.map.workspace.MapWorkspaceManager;
+import com.lovetropics.minigames.common.core.map.workspace.WorkspaceRegions;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -26,9 +27,9 @@ public record UpdateWorkspaceRegionMessage(int id, Optional<BlockBox> region) im
 	public void handleServerbound(IPayloadContext context) {
 		ServerPlayer sender = (ServerPlayer) context.player();
 		MapWorkspaceManager workspaceManager = MapWorkspaceManager.get(sender.getServer());
-		MapWorkspace workspace = workspaceManager.getWorkspace(sender.level().dimension());
-		if (workspace != null) {
-			workspace.regions().set(sender.getServer(), id, region.orElse(null));
+		WorkspaceRegions regions = workspaceManager.getRegions(sender.getServer(), sender.level().dimension());
+		if (regions != null) {
+			regions.set(sender.level(), id, region.orElse(null));
 		}
 	}
 

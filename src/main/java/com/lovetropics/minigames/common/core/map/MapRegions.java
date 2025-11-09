@@ -25,7 +25,7 @@ public final class MapRegions {
 			Codec.INT.fieldOf("y").forGetter(Vec3i::getY),
 			Codec.INT.fieldOf("z").forGetter(Vec3i::getZ)
 	).apply(i, BlockPos::new));
-	private static final Codec<BlockBox> LEGACY_BOX_CODEC = RecordCodecBuilder.create(i -> i.group(
+	public static final Codec<BlockBox> LEGACY_BOX_CODEC = RecordCodecBuilder.create(i -> i.group(
 			LEGACY_POS_CODEC.fieldOf("min").forGetter(BlockBox::min),
 			LEGACY_POS_CODEC.fieldOf("max").forGetter(BlockBox::max)
 	).apply(i, BlockBox::new));

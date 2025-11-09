@@ -7,6 +7,8 @@ import com.lovetropics.minigames.common.core.map.MapRegions;
 import com.lovetropics.minigames.common.core.network.workspace.AddWorkspaceRegionMessage;
 import com.lovetropics.minigames.common.core.network.workspace.SetWorkspaceMessage;
 import com.lovetropics.minigames.common.core.network.workspace.UpdateWorkspaceRegionMessage;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.network.FriendlyByteBuf;
@@ -54,38 +56,37 @@ public final class WorkspaceRegions implements Iterable<WorkspaceRegions.Entry> 
 		PacketDistributor.sendToPlayer(player, message);
 	}
 
-	private <T extends CustomPacketPayload> void sendMessage(MinecraftServer server, T message) {
-		ServerLevel level = server.getLevel(dimension);
+	private <T extends CustomPacketPayload> void sendMessage(@Nullable ServerLevel level, T message) {
 		if (level != null) {
 			PacketDistributor.sendToPlayersInDimension(level, message);
 		}
 	}
 
-	public void add(@Nullable MinecraftServer server, String key, BlockBox region) {
-		add(server, nextId(), key, region);
+	public void add(@Nullable ServerLevel level, String key, BlockBox region) {
+		add(level, nextId(), key, region);
 	}
 
-	public void add(@Nullable MinecraftServer server, int id, String key, BlockBox region) {
-		add(server, new Entry(id, key, region));
+	public void add(@Nullable ServerLevel level, int id, String key, BlockBox region) {
+		add(level, new Entry(id, key, region));
 	}
 
-	void add(@Nullable MinecraftServer server, Entry entry) {
+	void add(@Nullable ServerLevel level, Entry entry) {
 		entries.put(entry.id, entry);
-		if (server != null) {
-			sendMessage(server, new AddWorkspaceRegionMessage(entry.id, entry.key, entry.region));
+		if (level != null) {
+			sendMessage(level, new AddWorkspaceRegionMessage(entry.id, entry.key, entry.region));
 		}
 	}
 
-	public void set(MinecraftServer server, int id, @Nullable BlockBox region) {
+	public void set(ServerLevel level, int id, @Nullable BlockBox region) {
 		if (region != null) {
 			WorkspaceRegions.Entry entry = entries.get(id);
 			if (entry != null) {
 				entry.region = region;
-				sendMessage(server, new UpdateWorkspaceRegionMessage(id, Optional.of(region)));
+				sendMessage(level, new UpdateWorkspaceRegionMessage(id, Optional.of(region)));
 			}
 		} else {
 			entries.remove(id);
-			sendMessage(server, new UpdateWorkspaceRegionMessage(id, Optional.empty()));
+			sendMessage(level, new UpdateWorkspaceRegionMessage(id, Optional.empty()));
 		}
 	}
 
@@ -144,11 +145,17 @@ public final class WorkspaceRegions implements Iterable<WorkspaceRegions.Entry> 
 	}
 
 	public static class Entry {
+		public static final Codec<Entry> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+		        Codec.INT.fieldOf("id").forGetter(e -> e.id),
+		        Codec.STRING.fieldOf("key").forGetter(e -> e.key),
+				MapRegions.LEGACY_BOX_CODEC.fieldOf("region").forGetter(e -> e.region)
+		).apply(instance, Entry::new));
+
 		public final int id;
 		public final String key;
 		public BlockBox region;
 
-		Entry(int id, String key, BlockBox region) {
+		public Entry(int id, String key, BlockBox region) {
 			this.id = id;
 			this.key = key;
 			this.region = region;

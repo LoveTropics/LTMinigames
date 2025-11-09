@@ -8,6 +8,9 @@ public final class GameStopReason {
 	private static final GameStopReason FINISHED = new GameStopReason(true, null);
 	private static final GameStopReason CANCELED = new GameStopReason(false, null);
 
+	private static final GameStopReason RELOADING = new GameStopReason(false, null);
+	private static final GameStopReason SERVER_STOPPING = new GameStopReason(false, null);
+
 	private final boolean finished;
 	@Nullable
 	private final Component error;
@@ -23,6 +26,14 @@ public final class GameStopReason {
 
 	public static GameStopReason canceled() {
 		return CANCELED;
+	}
+
+	public static GameStopReason reloading() {
+		return RELOADING;
+	}
+
+	public static GameStopReason serverStopping() {
+		return SERVER_STOPPING;
 	}
 
 	public static GameStopReason errored(Component error) {

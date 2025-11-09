@@ -5,12 +5,14 @@ import com.lovetropics.minigames.common.core.dimension.RuntimeDimensionHandle;
 import com.lovetropics.minigames.common.core.dimension.RuntimeDimensions;
 import com.lovetropics.minigames.common.core.map.MapWorldInfo;
 import com.lovetropics.minigames.common.core.map.MapWorldSettings;
+import com.lovetropics.minigames.common.core.map.SavedRegions;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
@@ -82,6 +84,21 @@ public final class MapWorkspaceManager extends SavedData {
 			return null;
 		}
 		return workspaces.get(name.getPath());
+	}
+
+	@Nullable
+	public WorkspaceRegions getRegions(MinecraftServer server, ResourceKey<Level> dimension) {
+		MapWorkspace workspace = getWorkspace(dimension);
+		if (workspace != null) {
+			return workspace.regions();
+		}
+
+		ServerLevel level = server.getLevel(dimension);
+		if (level != null) {
+			return SavedRegions.get(level).regions();
+		}
+
+		return null;
 	}
 
 	public Set<String> getWorkspaceIds() {

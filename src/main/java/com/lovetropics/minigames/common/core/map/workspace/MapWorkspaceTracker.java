@@ -32,10 +32,10 @@ public final class MapWorkspaceTracker {
 		MinecraftServer server = player.level().getServer();
 		MapWorkspaceManager workspaceManager = MapWorkspaceManager.get(server);
 
-		MapWorkspace workspace = workspaceManager.getWorkspace(dimension);
+		WorkspaceRegions regions = workspaceManager.getRegions(server, dimension);
 
-		if (workspace != null) {
-			SetWorkspaceMessage message = workspace.regions().createSetWorkspaceMessage();
+		if (regions != null) {
+			SetWorkspaceMessage message = regions.createSetWorkspaceMessage();
 			PacketDistributor.sendToPlayer(player, message);
 		}
 	}

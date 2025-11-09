@@ -38,6 +38,13 @@ public final class MapWorkspaceRenderer {
 			return;
 		}
 
+		if (!client.level.dimension().location().getNamespace().equals(LoveTropics.ID)) {
+			// Don't render for survival or adventure players in persistent worlds
+			if (!client.player.isCreative() && !client.player.isSpectator()) {
+				return;
+			}
+		}
+
 		Vec3 view = camera.getPosition();
 
 		PoseStack poseStack = event.getPoseStack();

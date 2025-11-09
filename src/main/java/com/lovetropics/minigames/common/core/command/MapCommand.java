@@ -9,11 +9,13 @@ import com.lovetropics.minigames.common.core.map.MapExportReader;
 import com.lovetropics.minigames.common.core.map.MapExportWriter;
 import com.lovetropics.minigames.common.core.map.MapMetadata;
 import com.lovetropics.minigames.common.core.map.MapRegions;
+import com.lovetropics.minigames.common.core.map.SavedRegions;
 import com.lovetropics.minigames.common.core.map.VoidChunkGenerator;
 import com.lovetropics.minigames.common.core.map.workspace.MapWorkspace;
 import com.lovetropics.minigames.common.core.map.workspace.MapWorkspaceManager;
 import com.lovetropics.minigames.common.core.map.workspace.WorkspaceDimensionConfig;
 import com.lovetropics.minigames.common.core.map.workspace.WorkspacePositionTracker;
+import com.lovetropics.minigames.common.core.map.workspace.WorkspaceRegions;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -202,24 +204,24 @@ public final class MapCommand {
 	}
 
 	private static int addRegion(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
-		MapWorkspace workspace = getCurrentWorkspace(context);
+		WorkspaceRegions regions = getCurrentRegions(context);
 
 		String key = StringArgumentType.getString(context, "key");
 		BlockPos min = BlockPosArgument.getSpawnablePos(context, "min");
 		BlockPos max = BlockPosArgument.getSpawnablePos(context, "max");
 
-		workspace.regions().add(context.getSource().getServer(), key, BlockBox.of(min, max));
+		regions.add(context.getSource().getLevel(), key, BlockBox.of(min, max));
 
 		return Command.SINGLE_SUCCESS;
 	}
 
 	private static int addRegionHere(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
-		MapWorkspace workspace = getCurrentWorkspace(context);
+		WorkspaceRegions regions = getCurrentRegions(context);
 		Vec3 pos = context.getSource().getPosition();
 
 		String key = StringArgumentType.getString(context, "key");
 
-		workspace.regions().add(context.getSource().getServer(), key, BlockBox.of(BlockPos.containing(pos)));
+		regions.add(context.getSource().getLevel(), key, BlockBox.of(BlockPos.containing(pos)));
 
 		return Command.SINGLE_SUCCESS;
 	}
@@ -282,6 +284,19 @@ public final class MapCommand {
 		}
 
 		return workspace;
+	}
+
+	private static WorkspaceRegions getCurrentRegions(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+		CommandSourceStack source = context.getSource();
+		MapWorkspaceManager workspaceManager = MapWorkspaceManager.get(source.getServer());
+
+		MapWorkspace workspace = workspaceManager.getWorkspace(source.getLevel().dimension());
+		if (workspace == null) {
+			// fallback to saved level regions
+			return SavedRegions.get(source.getLevel()).regions();
+		}
+
+		return workspace.regions();
 	}
 
 	private static int importMap(CommandContext<CommandSourceStack> context, LevelStem dimension) throws CommandSyntaxException {

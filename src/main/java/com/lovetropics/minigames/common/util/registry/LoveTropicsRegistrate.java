@@ -2,6 +2,7 @@ package com.lovetropics.minigames.common.util.registry;
 
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.client_state.GameClientState;
+import com.lovetropics.minigames.common.core.game.persistent.PersistentGameBehavior;
 import com.lovetropics.minigames.common.core.game.predicate.entity.EntityPredicate;
 import com.mojang.serialization.MapCodec;
 import com.tterrag.registrate.AbstractRegistrate;
@@ -32,6 +33,18 @@ public final class LoveTropicsRegistrate extends AbstractRegistrate<LoveTropicsR
 
 	public <T extends IGameBehavior, P> GameBehaviorBuilder<T, P> behavior(P parent, String name, MapCodec<T> codec) {
 		return entry(name, callback -> new GameBehaviorBuilder<>(this, parent, name, callback, codec));
+	}
+
+	public <T extends PersistentGameBehavior> PersistentGameBehaviorBuilder<T, LoveTropicsRegistrate> persistentBehavior(MapCodec<T> codec) {
+		return persistentBehavior(this, codec);
+	}
+
+	public <T extends PersistentGameBehavior, P> PersistentGameBehaviorBuilder<T, P> persistentBehavior(P parent, MapCodec<T> codec) {
+		return persistentBehavior(parent, currentName(), codec);
+	}
+
+	public <T extends PersistentGameBehavior, P> PersistentGameBehaviorBuilder<T, P> persistentBehavior(P parent, String name, MapCodec<T> codec) {
+		return entry(name, callback -> new PersistentGameBehaviorBuilder<>(this, parent, name, callback, codec));
 	}
 
 	public <T extends EntityPredicate> EntityPredicateBuilder<T, LoveTropicsRegistrate> entityPredicate(MapCodec<T> codec) {
