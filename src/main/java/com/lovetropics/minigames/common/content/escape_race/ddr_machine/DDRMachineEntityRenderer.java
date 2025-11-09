@@ -3,7 +3,6 @@ package com.lovetropics.minigames.common.content.escape_race.ddr_machine;
 import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DDRMachineLevelClient;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DDRMachineLevelClientRenderState;
-import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DDRMachineLevelTick;
 import com.lovetropics.minigames.common.content.escape_race.vending_machine.VendingMachineEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -59,10 +58,7 @@ public class DDRMachineEntityRenderer extends EntityRenderer<DDRMachineEntity, D
 		reusedState.yRot = entity.getYRot();
 		reusedState.foldAnimationState.copyFrom(entity.foldIntoBedState);
 		reusedState.ddrMachineState = entity.getState();
-		reusedState.leftPressed = entity.isPlayerLeft();
-		reusedState.upPressed = entity.isPlayerForward();
-		reusedState.downPressed = entity.isPlayerBack();
-		reusedState.rightPressed = entity.isPlayerRight();
+		reusedState.input = entity.getPlayerInput();
 		reusedState.upcomingMoves.clear();
 		reusedState.upcomingMoves.putAll(entity.getUpcomingMoves());
 		reusedState.currentTick = entity.getCurrentTick();
@@ -169,20 +165,20 @@ public class DDRMachineEntityRenderer extends EntityRenderer<DDRMachineEntity, D
 			poseStack.pushPose();
 			poseStack.scale(0.2f, 0.2f, 0.2f);
 			poseStack.translate(3.5, -2f,-0.1f);
-			drawTexture(buffer, poseStack, renderState.leftPressed ? DDRMachineSprites.leftFilledSprite : DDRMachineSprites.leftSprite, packedLight);
+			drawTexture(buffer, poseStack, renderState.input.left() ? DDRMachineSprites.leftFilledSprite : DDRMachineSprites.leftSprite, packedLight);
 			poseStack.translate(-2.29f, 0, 0);
-			drawTexture(buffer, poseStack, renderState.upPressed ? DDRMachineSprites.upFilledSprite :DDRMachineSprites.upSprite, packedLight);
+			drawTexture(buffer, poseStack, renderState.input.forward() ? DDRMachineSprites.upFilledSprite :DDRMachineSprites.upSprite, packedLight);
 			poseStack.translate(-2.29f, 0, 0);
-			drawTexture(buffer, poseStack, renderState.downPressed ? DDRMachineSprites.downFilledSprite :DDRMachineSprites.downSprite, packedLight);
+			drawTexture(buffer, poseStack, renderState.input.back() ? DDRMachineSprites.downFilledSprite :DDRMachineSprites.downSprite, packedLight);
 			poseStack.translate(-2.29f, 0, 0);
-			drawTexture(buffer, poseStack, renderState.rightPressed ? DDRMachineSprites.rightFilledSprite :DDRMachineSprites.rightSprite, packedLight);
+			drawTexture(buffer, poseStack, renderState.input.right() ? DDRMachineSprites.rightFilledSprite :DDRMachineSprites.rightSprite, packedLight);
 			poseStack.popPose();
-			for (Map.Entry<Integer, DDRMachineLevelTick> entry : renderState.upcomingMoves.entrySet()) {
+			for (Map.Entry<Integer, DdrInput> entry : renderState.upcomingMoves.entrySet()) {
 				int tick = entry.getKey();
 				if(tick - renderState.currentTick > 20 * 4){
 					continue;
 				}
-				DDRMachineLevelTick levelTick = entry.getValue();
+				DdrInput levelTick = entry.getValue();
 				float yPos = Mth.lerp((tick - renderState.currentTick) / (20f * 4), -2f, 3f);
 				if(levelTick.left()){
 					poseStack.pushPose();

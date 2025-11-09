@@ -1,21 +1,20 @@
 package com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels;
 
+import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DdrInput;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextColor;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -39,16 +38,15 @@ public class DDRMachineLevelState {
 
 
 	private final DDRMachineLevel level;
-	private final Map<Integer, DDRMachineLevelTickState> tickStates;
+	private final Long2ObjectMap<DDRMachineLevelTickState> tickStates = new Long2ObjectOpenHashMap<>();
 	private int currentLevelScore = 0;
 	private int highestStreak = 0;
 	private int currentLevelStreak = 0;
 
 	public DDRMachineLevelState(DDRMachineLevel level) {
 		this.level = level;
-		this.tickStates = new HashMap<>();
-		for (Map.Entry<String, DDRMachineLevelTick> entry : level.ticks().entrySet()) {
-			tickStates.put(Integer.parseInt(entry.getKey()), new DDRMachineLevelTickState(entry.getValue()));
+		for (Long2ObjectMap.Entry<DdrInput> entry : level.ticks().long2ObjectEntrySet()) {
+			tickStates.put(entry.getLongKey(), new DDRMachineLevelTickState(entry.getValue()));
 		}
 	}
 
@@ -56,7 +54,7 @@ public class DDRMachineLevelState {
 		return level;
 	}
 
-	public Map<Integer, DDRMachineLevelTickState> getTickStates() {
+	public Long2ObjectMap<DDRMachineLevelTickState> getTickStates() {
 		return tickStates;
 	}
 
@@ -81,18 +79,21 @@ public class DDRMachineLevelState {
 
 	private void sendSound(ServerPlayer player, SoundEvent sound) {
 		Vec3 pos = player.position();
-		player.connection.send(new ClientboundSoundPacket(Holder.direct(sound), SoundSource.MASTER, pos.x, pos.y, pos.z, 1f, 1.0f, 0));
+		player.connection.send(new ClientboundSoundPacket(BuiltInRegistries.SOUND_EVENT.wrapAsHolder(sound), SoundSource.MASTER, pos.x, pos.y, pos.z, 1f, 1.0f, 0));
 	}
 
-	public void checkIfHit(int currentTick, boolean hasChanged, PlayerMoveTickState playerState, ServerPlayer player) {
-		List<Map.Entry<Integer, DDRMachineLevelTickState>> withinRange = tickStates.entrySet().stream()
-				.filter((entry) -> entry.getKey() >= currentTick - TICK_RANGE_EITHER_SIDE && entry.getKey() <= currentTick + TICK_RANGE_EITHER_SIDE && !entry.getValue().wasHit()).toList();
+	public void checkIfHit(int currentTick, DdrInput newInput, ServerPlayer player) {
+		boolean hasChanged = !newInput.isEmpty();
+		List<Map.Entry<Integer, DDRMachineLevelTickState>> withinRange = tickStates.long2ObjectEntrySet().stream()
+				.filter((entry) -> entry.getLongKey() >= currentTick - TICK_RANGE_EITHER_SIDE && entry.getLongKey() <= currentTick + TICK_RANGE_EITHER_SIDE && !entry.getValue().wasHit())
+				.map(e -> Map.entry((int) e.getLongKey(), e.getValue()))
+				.toList();
 		for (Map.Entry<Integer, DDRMachineLevelTickState> entry : withinRange) {
 			int processingTick = entry.getKey();
 			if(processingTick == currentTick){
 				DDRMachineLevelTickState value = entry.getValue();
-				if(hasChanged && ((playerState.back && value.tick.back()) || (playerState.forward && value.tick.forward()) ||
-						(playerState.left && value.tick.left()) || (playerState.right && value.tick.right()))) {
+				if(hasChanged && ((newInput.back() && value.tick.back()) || (newInput.forward() && value.tick.forward()) ||
+						(newInput.left() && value.tick.left()) || (newInput.right() && value.tick.right()))) {
 					// Exactly on!
 					currentLevelScore += PERFECT_SCORE;
 					this.increaseStreak();
@@ -103,8 +104,8 @@ public class DDRMachineLevelState {
 			} else {
 				DDRMachineLevelTickState value = entry.getValue();
 				int diffInTicks = Mth.clamp(Mth.abs(currentTick - processingTick), 0, 5);
-				if(hasChanged &&(playerState.back && value.tick.back()) || (playerState.forward && value.tick.forward()) ||
-						(playerState.left && value.tick.left()) || (playerState.right && value.tick.right())) {
+				if(hasChanged &&(newInput.back() && value.tick.back()) || (newInput.forward() && value.tick.forward()) ||
+						(newInput.left() && value.tick.left()) || (newInput.right() && value.tick.right())) {
 					int score = Mth.clamp(PERFECT_SCORE - (diffInTicks * 10), 0, PERFECT_SCORE);
 					currentLevelScore += score;
 					this.increaseStreak();
@@ -123,14 +124,14 @@ public class DDRMachineLevelState {
 	}
 
 	public static class DDRMachineLevelTickState {
-		private final DDRMachineLevelTick tick;
+		private final DdrInput tick;
 		private boolean hit;
 
-		public DDRMachineLevelTickState(DDRMachineLevelTick tick) {
+		public DDRMachineLevelTickState(DdrInput tick) {
 			this.tick = tick;
 		}
 
-		public DDRMachineLevelTick getTick() {
+		public DdrInput getTick() {
 			return tick;
 		}
 
@@ -142,6 +143,4 @@ public class DDRMachineLevelState {
 			this.hit = hit;
 		}
 	}
-
-	public record PlayerMoveTickState(boolean forward, boolean back, boolean left, boolean right) {}
 }

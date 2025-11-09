@@ -14,9 +14,9 @@ import com.lovetropics.minigames.client.lobby.state.message.LobbyPlayersMessage;
 import com.lovetropics.minigames.client.lobby.state.message.LobbyUpdateMessage;
 import com.lovetropics.minigames.client.particle_line.DrawParticleLineMessage;
 import com.lovetropics.minigames.client.toast.ShowNotificationToastMessage;
-import com.lovetropics.minigames.common.core.network.ddr.SelectDDRMenuItemMessage;
+import com.lovetropics.minigames.common.core.network.ddr.ServerboundSelectDdrMenuItemPacket;
 import com.lovetropics.minigames.common.core.network.ddr.SetClientCameraViewMessage;
-import com.lovetropics.minigames.common.core.network.ddr.UpdateDDRMachinePlayerPositionMessage;
+import com.lovetropics.minigames.common.core.network.ddr.ServerboundUpdateDdrInputPacket;
 import com.lovetropics.minigames.common.core.network.trivia.RequestTriviaStateUpdateMessage;
 import com.lovetropics.minigames.common.core.network.trivia.SelectTriviaAnswerMessage;
 import com.lovetropics.minigames.common.core.network.trivia.ShowTriviaMessage;
@@ -75,8 +75,8 @@ public final class LoveTropicsNetwork {
 
 		registrar.playToServer(SelectVendingMachineItemMessage.TYPE, SelectVendingMachineItemMessage.STREAM_CODEC, SelectVendingMachineItemMessage::handle);
 
-		registrar.playToServer(UpdateDDRMachinePlayerPositionMessage.TYPE, UpdateDDRMachinePlayerPositionMessage.STREAM_CODEC, UpdateDDRMachinePlayerPositionMessage::handle);
-		registrar.playToServer(SelectDDRMenuItemMessage.TYPE, SelectDDRMenuItemMessage.STREAM_CODEC, SelectDDRMenuItemMessage::handle);
+		registrar.playToServer(ServerboundUpdateDdrInputPacket.TYPE, ServerboundUpdateDdrInputPacket.STREAM_CODEC, ServerboundUpdateDdrInputPacket::handle);
+		registrar.playToServer(ServerboundSelectDdrMenuItemPacket.TYPE, ServerboundSelectDdrMenuItemPacket.STREAM_CODEC, ServerboundSelectDdrMenuItemPacket::handle);
 		registrar.playToClient(SetClientCameraViewMessage.TYPE, SetClientCameraViewMessage.STREAM_CODEC, SetClientCameraViewMessage::handle);
 	}
 

@@ -5,8 +5,8 @@ import com.lovetropics.minigames.common.content.escape_race.behaviours.BreakBuck
 import com.lovetropics.minigames.common.content.escape_race.client.EscapeRaceClientBucksState;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DDRMachineEntity;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DDRMachineEntityRenderer;
+import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DdrInput;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DDRMachineLevelClient;
-import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DDRMachineLevelTick;
 import com.lovetropics.minigames.common.content.escape_race.vending_machine.VendingMachineEntity;
 import com.lovetropics.minigames.common.content.escape_race.vending_machine.VendingMachineEntityRenderer;
 import com.lovetropics.minigames.common.util.registry.GameBehaviorEntry;
@@ -73,17 +73,19 @@ public class EscapeRace {
 			DDRMachineEntity.DDRMachineState.STREAM_CODEC
 	);
 
-	public static final EntityDataSerializer<Map<Integer, DDRMachineLevelTick>> DDR_LEVEL_TICK_MAP = new EntityDataSerializer<>() {
+	public static final EntityDataSerializer<Map<Integer, DdrInput>> DDR_LEVEL_TICK_MAP = new EntityDataSerializer<>() {
 		@Override
-		public StreamCodec<? super RegistryFriendlyByteBuf, Map<Integer, DDRMachineLevelTick>> codec() {
-			return ByteBufCodecs.map(HashMap::new, ByteBufCodecs.INT, DDRMachineLevelTick.STREAM_CODEC, 256);
+		public StreamCodec<? super RegistryFriendlyByteBuf, Map<Integer, DdrInput>> codec() {
+			return ByteBufCodecs.map(HashMap::new, ByteBufCodecs.INT, DdrInput.STREAM_CODEC, 256);
 		}
 
 		@Override
-		public Map<Integer, DDRMachineLevelTick> copy(Map<Integer, DDRMachineLevelTick> value) {
+		public Map<Integer, DdrInput> copy(Map<Integer, DdrInput> value) {
 			return new HashMap<>(value);
 		}
 	};
+
+	public static final EntityDataSerializer<DdrInput> DDR_INPUT = EntityDataSerializer.forValueType(DdrInput.STREAM_CODEC);
 
 	public static DeferredHolder<EntityDataSerializer<?>, EntityDataSerializer<?>> register(String name, EntityDataSerializer<?> dataSerializerEntry) {
 		return ENTITY_SERIALIZERS.register(name, () -> dataSerializerEntry);
@@ -130,6 +132,7 @@ public class EscapeRace {
 		register("ddr_level_list", DDR_LEVEL_LIST);
 		register("ddr_state", DDR_STATE);
 		register("ddr_level_tick_map", DDR_LEVEL_TICK_MAP);
+		register("ddr_input", DDR_INPUT);
 	}
 
 

@@ -1,7 +1,6 @@
 package com.lovetropics.minigames.common.content.escape_race.ddr_machine;
 
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DDRMachineLevelClientRenderState;
-import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DDRMachineLevelTick;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.world.entity.AnimationState;
@@ -17,14 +16,11 @@ public class DDRMachineRenderState extends EntityRenderState {
 	public final List<DDRMachineLevelClientRenderState> levels = new LinkedList<>();
 	public DDRMachineEntity.DDRMachineState ddrMachineState;
 
-	public boolean leftPressed = false;
-	public boolean upPressed = false;
-	public boolean downPressed = false;
-	public boolean rightPressed = false;
+	public DdrInput input = DdrInput.NONE;
 
 	public boolean isRiding = false;
 
-	public final Map<Integer, DDRMachineLevelTick> upcomingMoves = new Int2ObjectOpenHashMap<>();
+	public final Map<Integer, DdrInput> upcomingMoves = new Int2ObjectOpenHashMap<>();
 
 	public int currentTick = 0;
 

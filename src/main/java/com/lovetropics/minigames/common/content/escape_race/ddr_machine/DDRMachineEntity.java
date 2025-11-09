@@ -5,16 +5,16 @@ import com.lovetropics.minigames.common.content.escape_race.EscapeRace;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DDRMachineLevel;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DDRMachineLevelClient;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DDRMachineLevelState;
-import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DDRMachineLevelTick;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DDRMachineLevels;
 import com.lovetropics.minigames.common.content.escape_race.vending_machine.VendingMachineEntity;
-import com.lovetropics.minigames.common.core.network.ddr.SelectDDRMenuItemMessage;
+import com.lovetropics.minigames.common.core.network.ddr.ServerboundSelectDdrMenuItemPacket;
 import com.lovetropics.minigames.common.core.network.ddr.SetClientCameraViewMessage;
-import com.lovetropics.minigames.common.core.network.ddr.UpdateDDRMachinePlayerPositionMessage;
+import com.lovetropics.minigames.common.core.network.ddr.ServerboundUpdateDdrInputPacket;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import com.mojang.serialization.JsonOps;
 import io.netty.buffer.ByteBuf;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
@@ -37,6 +37,7 @@ import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.PlayerRideable;
+import net.minecraft.world.entity.player.Input;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.JukeboxSong;
 import net.minecraft.world.level.Level;
@@ -69,6 +70,7 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 			new VendingMachineEntity.VendingMachineSlot(1f, 0f, 0f),
 			new VendingMachineEntity.VendingMachineSlot(1.5f, 0f, 0f)
 	);
+
 	public enum DDRMachineState {
 		MENU(0),
 		PLAYING(1),
@@ -80,7 +82,7 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 			this.id = id;
 		}
 
-		public int id(){
+		public int id() {
 			return this.id;
 		}
 
@@ -92,25 +94,19 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 
 	private static final int MAX_PASSENGERS = 1;
 	public final AnimationState foldIntoBedState = new AnimationState();
-	private static final EntityDataAccessor<Boolean> DATA_FORWARD = SynchedEntityData.defineId(DDRMachineEntity.class, EntityDataSerializers.BOOLEAN);
-	private static final EntityDataAccessor<Boolean> DATA_BACKWARD = SynchedEntityData.defineId(DDRMachineEntity.class, EntityDataSerializers.BOOLEAN);
-	private static final EntityDataAccessor<Boolean> DATA_LEFT = SynchedEntityData.defineId(DDRMachineEntity.class, EntityDataSerializers.BOOLEAN);
-	private static final EntityDataAccessor<Boolean> DATA_RIGHT = SynchedEntityData.defineId(DDRMachineEntity.class, EntityDataSerializers.BOOLEAN);
+
+	private static final EntityDataAccessor<DdrInput> DATA_PLAYER_INPUT = SynchedEntityData.defineId(DDRMachineEntity.class, EscapeRace.DDR_INPUT);
 
 	private static final EntityDataAccessor<List<DDRMachineLevelClient>> DATA_LEVELS = SynchedEntityData.defineId(DDRMachineEntity.class, EscapeRace.DDR_LEVEL_LIST);
 	private static final EntityDataAccessor<DDRMachineState> DATA_STATE = SynchedEntityData.defineId(DDRMachineEntity.class, EscapeRace.DDR_STATE);
-	private static final EntityDataAccessor<Map<Integer, DDRMachineLevelTick>> DATA_UPCOMING_MOVES = SynchedEntityData.defineId(DDRMachineEntity.class, EscapeRace.DDR_LEVEL_TICK_MAP);
+	private static final EntityDataAccessor<Map<Integer, DdrInput>> DATA_UPCOMING_MOVES = SynchedEntityData.defineId(DDRMachineEntity.class, EscapeRace.DDR_LEVEL_TICK_MAP);
 	private static final EntityDataAccessor<Integer> DATA_CURRENT_TICK = SynchedEntityData.defineId(DDRMachineEntity.class, EntityDataSerializers.INT);
 
-	private boolean isPlayerLeftLast = false;
-	private boolean isPlayerRightLast = false;
-	private boolean isPlayerForwardLast = false;
-	private boolean isPlayerBackLast = false;
-
-	private DDRMachineState state = DDRMachineState.MENU;
+	private DdrInput lastInput = DdrInput.NONE;
 
 	private int recordingStartTick = 0;
 
+	@Nullable
 	private DDRMachineLevelState currentLevelState = null;
 	private int currentLevelLength = 0;
 
@@ -122,10 +118,7 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 
 	@Override
 	protected void defineSynchedData(SynchedEntityData.Builder builder) {
-		builder.define(DATA_FORWARD, false)
-				.define(DATA_BACKWARD, false)
-				.define(DATA_LEFT, false)
-				.define(DATA_RIGHT, false)
+		builder.define(DATA_PLAYER_INPUT, DdrInput.NONE)
 				.define(DATA_LEVELS, DDRMachineLevels.REGISTRY.stream().map(DDRMachineLevel::toClient).toList())
 				.define(DATA_STATE, DDRMachineState.MENU)
 				.define(DATA_UPCOMING_MOVES, new HashMap<>())
@@ -177,17 +170,14 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 		return !player.isPassengerOfSameVehicle(this) ? InteractionResult.SUCCESS : InteractionResult.PASS;
 	}
 
-
 	@Override
 	public boolean hasCustomOutlineRendering(Player player) {
 		return true;
 	}
 
 	public void setState(DDRMachineState state) {
-		this.state = state;
 		getEntityData().set(DATA_STATE, state);
 	}
-
 
 	@Override
 	@Nullable
@@ -216,11 +206,11 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 
 	@Override
 	public boolean hurtClient(DamageSource damageSource) {
-		if(damageSource.getEntity() instanceof Player player){
-			if(player.hasLineOfSight(this) && player.getLookAngle().dot(this.getLookAngle()) < 1){
+		if (damageSource.getEntity() instanceof Player player) {
+			if (player.hasLineOfSight(this) && player.getLookAngle().dot(this.getLookAngle()) < 1) {
 				int lookingAtIndex = calculatePlayerLookingAtSlot(player);
-				if(lookingAtIndex != -1){
-					ClientPacketDistributor.sendToServer(new SelectDDRMenuItemMessage(this.getId(), lookingAtIndex));
+				if (lookingAtIndex != -1) {
+					ClientPacketDistributor.sendToServer(new ServerboundSelectDdrMenuItemPacket(this.getId(), lookingAtIndex));
 				}
 //				tryPurchase(player, entityData.get(DATA_SELECTED));
 			}
@@ -238,7 +228,7 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 		poseStack.mulPose(Axis.YP.rotationDegrees(180f - this.getYRot()));
 //		poseStack.mulPose(Axis.YP.rotationDegrees(-90F));
 		poseStack.translate(-0.05, 0, -1.7f);
-		poseStack.translate(-0.7f, -0.4,0f);
+		poseStack.translate(-0.7f, -0.4, 0f);
 //		poseStack.scale(0.3f, 0.3f, 0.3f);
 		int lookingAtIndex = -1;
 		for (int i = 0; i < SLOTS.size(); i++) {
@@ -266,90 +256,52 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 	@Override
 	public void tick() {
 		super.tick();
-		if(isLocalInstanceAuthoritative()) {
-			if(level().isClientSide){
+		if (isLocalInstanceAuthoritative()) {
+			if (level().isClientSide) {
 				handleControls();
 			}
 			return;
 		}
-		if(!level().isClientSide){
-			if(state == DDRMachineState.RECORDING && currentLevelState != null) {
+		if (!level().isClientSide) {
+			if (getState() == DDRMachineState.RECORDING && currentLevelState != null) {
 				int currentTick = tickCount - recordingStartTick;
-				boolean hasChanged = false;
-				boolean left= false, right= false, forward = false, back = false;
-				if(isPlayerLeft() && !isPlayerLeftLast){
-					hasChanged = true;
-					left = true;
-					// Record left;
+				DdrInput newInputs = getPlayerInput().subtract(lastInput);
+				if (!newInputs.isEmpty()) {
+					currentLevelState.getLevel().ticks().put(currentTick, newInputs);
+					lastInput = getPlayerInput();
 				}
-				if(isPlayerRight() && !isPlayerRightLast){
-					hasChanged = true;
-					right = true;
-				}
-				if(isPlayerForward() && !isPlayerForwardLast){
-					hasChanged = true;
-					forward = true;
-				}
-				if(isPlayerBack() && !isPlayerBackLast){
-					hasChanged = true;
-					back = true;
-				}
-				if(hasChanged) {
-					DDRMachineLevelTick tick = new DDRMachineLevelTick(forward, left, back, right);
-					currentLevelState.getLevel().ticks().put(currentTick + "", tick);
-					this.updateLast();
-				}
-				if(currentTick >= currentLevelLength) {
+				if (currentTick >= currentLevelLength) {
 					stopRecording();
 				}
-			} else if(state == DDRMachineState.PLAYING && currentLevelState != null) {
+			} else if (getState() == DDRMachineState.PLAYING && currentLevelState != null) {
 				int currentTick = tickCount - playingStartTick;
 				getEntityData().set(DATA_CURRENT_TICK, currentTick);
-				Map<Integer, DDRMachineLevelTick> collect = currentLevelState.getTickStates().entrySet().stream()
+				Map<Integer, DdrInput> collect = currentLevelState.getTickStates().long2ObjectEntrySet().stream()
 						.filter((entry) -> {
-							int tick = entry.getKey();
+							long tick = entry.getLongKey();
 							return (tick + 10) >= currentTick && tick - currentTick <= 20 * 4 && !entry.getValue().wasHit();
-						} )
-						.collect(Collectors.toMap(Map.Entry::getKey, (entry) -> entry.getValue().getTick()));
+						})
+						.collect(Collectors.toMap(e -> (int) e.getLongKey(), (entry) -> entry.getValue().getTick()));
 				getEntityData().set(DATA_UPCOMING_MOVES, collect);
-				boolean hasChanged = false;
-				boolean left = false, right = false, forward = false, back = false;
-				if(isPlayerLeft() && !isPlayerLeftLast){
-					hasChanged = true;
-					left = true;
-				}
-				if(isPlayerRight() && !isPlayerRightLast){
-					hasChanged = true;
-					right = true;
-				}
-				if(isPlayerForward() && !isPlayerForwardLast){
-					hasChanged = true;
-					forward = true;
-				}
-				if(isPlayerBack() && !isPlayerBackLast){
-					hasChanged = true;
-					back = true;
-				}
-				currentLevelState.checkIfHit(currentTick, hasChanged, new DDRMachineLevelState.PlayerMoveTickState(forward, back, left, right), (ServerPlayer) getControllingPassenger());
-				if(hasChanged) {
-					this.updateLast();
-				}
-				if(currentTick >= currentLevelLength) {
+				DdrInput newInputs = getPlayerInput().subtract(lastInput);
+				currentLevelState.checkIfHit(currentTick, newInputs, (ServerPlayer) getControllingPassenger());
+				lastInput = getPlayerInput();
+				if (currentTick >= currentLevelLength) {
 					stopPlaying();
 				}
 			}
 		}
 	}
 
-	public void startPlaying(DDRMachineLevel level){
-		if(state == DDRMachineState.PLAYING && currentLevelState != null) {
+	public void startPlaying(DDRMachineLevel level) {
+		if (getState() == DDRMachineState.PLAYING && currentLevelState != null) {
 			return;
 		}
 		playingStartTick = tickCount;
 		currentLevelState = new DDRMachineLevelState(level);
 		JukeboxSong value = level().registryAccess().get(currentLevelState.getLevel().track()).get().value();
 		currentLevelLength = value.lengthInTicks();
-		if(getControllingPassenger() instanceof ServerPlayer player){
+		if (getControllingPassenger() instanceof ServerPlayer player) {
 			player.connection.send(new SetClientCameraViewMessage(1));
 			int i = level().registryAccess().lookupOrThrow(Registries.JUKEBOX_SONG).getId(value);
 			level().levelEvent(null, 1010, BlockPos.containing(this.position()), i);
@@ -358,19 +310,19 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 		setState(DDRMachineState.PLAYING);
 	}
 
-	public void stopPlaying(){
-		if(getControllingPassenger() instanceof ServerPlayer player) {
+	public void stopPlaying() {
+		if (getControllingPassenger() instanceof ServerPlayer player) {
 			stopPlaying(player);
 		}
 	}
 
-	public void stopPlaying(ServerPlayer player){
-		if(state != DDRMachineState.PLAYING || currentLevelState == null) {
+	public void stopPlaying(ServerPlayer player) {
+		if (getState() != DDRMachineState.PLAYING || currentLevelState == null) {
 			return;
 		}
 		setState(DDRMachineState.MENU);
 		JukeboxSong value = level().registryAccess().get(currentLevelState.getLevel().track()).get().value();
-		DDRScoreHelper.onGameFinished(player,  value, currentLevelState.getCurrentLevelScore(), currentLevelState.getHighestStreak());
+		DDRScoreHelper.onGameFinished(player, value, currentLevelState.getCurrentLevelScore(), currentLevelState.getHighestStreak());
 		player.sendSystemMessage(Component.literal("Your Score: " + currentLevelState.getCurrentLevelScore()));
 		player.sendSystemMessage(Component.literal("Highest Streak: " + currentLevelState.getHighestStreak()));
 		playingStartTick = 0;
@@ -380,15 +332,15 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 		player.connection.send(new SetClientCameraViewMessage(0));
 	}
 
-	public void startRecording(ResourceKey<JukeboxSong> track, String name){
-		if(state == DDRMachineState.RECORDING && currentLevelState != null) {
+	public void startRecording(ResourceKey<JukeboxSong> track, String name) {
+		if (getState() == DDRMachineState.RECORDING && currentLevelState != null) {
 			return;
 		}
 		recordingStartTick = tickCount;
-		currentLevelState = new DDRMachineLevelState(new DDRMachineLevel(LoveTropics.location(name), track, name, Component.literal(name), new HashMap<>()));
+		currentLevelState = new DDRMachineLevelState(new DDRMachineLevel(LoveTropics.location(name), track, name, Component.literal(name), new Long2ObjectOpenHashMap<>()));
 		JukeboxSong value = level().registryAccess().get(currentLevelState.getLevel().track()).get().value();
 		currentLevelLength = value.lengthInTicks();
-		if(getControllingPassenger() instanceof ServerPlayer player){
+		if (getControllingPassenger() instanceof ServerPlayer player) {
 			int i = level().registryAccess().lookupOrThrow(Registries.JUKEBOX_SONG).getId(value);
 			level().levelEvent(null, 1010, BlockPos.containing(this.position()), i);
 			player.sendSystemMessage(Component.literal("Starting track & recording..."));
@@ -396,13 +348,13 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 		setState(DDRMachineState.RECORDING);
 	}
 
-	public void stopRecording(){
-		if(state != DDRMachineState.RECORDING || currentLevelState == null) {
+	public void stopRecording() {
+		if (getState() != DDRMachineState.RECORDING || currentLevelState == null) {
 			return;
 		}
 		setState(DDRMachineState.MENU);
 		recordingStartTick = 0;
-		if(getControllingPassenger() instanceof ServerPlayer player){
+		if (getControllingPassenger() instanceof ServerPlayer player) {
 			level().levelEvent(1011, BlockPos.containing(this.position()), 0);
 			player.sendSystemMessage(Component.literal("Stopping track & recording..."));
 		}
@@ -429,92 +381,53 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 	public void onPassengerTurned(Entity entityToUpdate) {
 		super.onPassengerTurned(entityToUpdate);
 		entityToUpdate.setYBodyRot(this.getYRot());
-		if (state == DDRMachineState.PLAYING) {
+		if (getState() == DDRMachineState.PLAYING) {
 			entityToUpdate.setYRot(this.getYRot());
 		}
 	}
 
-
-	private void updateLast(){
-		isPlayerLeftLast = isPlayerLeft();
-		isPlayerRightLast = isPlayerRight();
-		isPlayerForwardLast = isPlayerForward();
-		isPlayerBackLast = isPlayerBack();
+	public void updatePlayerInput(DdrInput pose) {
+		getEntityData().set(DATA_PLAYER_INPUT, pose);
 	}
 
-	public void updatePlayerPosition(boolean left, boolean right, boolean forward, boolean backward) {
-		getEntityData()
-				.set(DATA_FORWARD, forward);
-		getEntityData()
-				.set(DATA_BACKWARD, backward);
-		getEntityData()
-				.set(DATA_LEFT, left);
-		getEntityData()
-				.set(DATA_RIGHT, right);
-	}
-
-	public boolean isPlayerLeft(){
-		return getEntityData().get(DATA_LEFT);
-	}
-	public boolean isPlayerRight(){
-		return getEntityData().get(DATA_RIGHT);
-	}
-	public boolean isPlayerForward(){
-		return getEntityData().get(DATA_FORWARD);
-	}
-	public boolean isPlayerBack(){
-		return getEntityData().get(DATA_BACKWARD);
+	public DdrInput getPlayerInput() {
+		return getEntityData().get(DATA_PLAYER_INPUT);
 	}
 
 	@Override
 	protected void removePassenger(Entity passenger) {
 		super.removePassenger(passenger);
-		if(!level().isClientSide && passenger instanceof ServerPlayer serverPlayer) {
-			if(state == DDRMachineState.PLAYING) {
+		if (!level().isClientSide && passenger instanceof ServerPlayer serverPlayer) {
+			if (getState() == DDRMachineState.PLAYING) {
 				stopPlaying(serverPlayer);
 			}
 		}
 	}
 
-
-
-	private void handleControls(){
-		if (this.isVehicle() && getControllingPassenger() instanceof final LocalPlayer localPlayer) {
-			boolean inputLeft = localPlayer.input.keyPresses.left();
-			boolean inputRight = localPlayer.input.keyPresses.right();
-			boolean inputUp = localPlayer.input.keyPresses.forward();
-			boolean inputDown = localPlayer.input.keyPresses.backward();
-			if(inputLeft != isPlayerLeftLast || inputRight != isPlayerRightLast || inputUp != isPlayerForwardLast || inputDown != isPlayerBackLast) {
-				ClientPacketDistributor.sendToServer(
-						new UpdateDDRMachinePlayerPositionMessage(
-								inputLeft,
-								inputRight,
-								inputUp,
-								inputDown
-						)
-				);
-				isPlayerLeftLast = inputLeft;
-				isPlayerRightLast = inputRight;
-				isPlayerForwardLast = inputUp;
-				isPlayerBackLast = inputDown;
+	private void handleControls() {
+		if (isVehicle() && getControllingPassenger() instanceof final LocalPlayer player) {
+			Input keyPresses = player.input.keyPresses;
+			DdrInput input = DdrInput.fromKeyPresses(keyPresses);
+			if (!input.equals(lastInput)) {
+				ClientPacketDistributor.sendToServer(new ServerboundUpdateDdrInputPacket(input));
+				lastInput = input;
 			}
 		}
 	}
 
-	public List<DDRMachineLevelClient> getAvailableLevels(){
+	public List<DDRMachineLevelClient> getAvailableLevels() {
 		return this.getEntityData().get(DATA_LEVELS);
 	}
 
-	public DDRMachineState getState(){
+	public DDRMachineState getState() {
 		return getEntityData().get(DATA_STATE);
 	}
 
-	public Map<Integer, DDRMachineLevelTick> getUpcomingMoves(){
+	public Map<Integer, DdrInput> getUpcomingMoves() {
 		return getEntityData().get(DATA_UPCOMING_MOVES);
 	}
 
-	public int getCurrentTick(){
+	public int getCurrentTick() {
 		return getEntityData().get(DATA_CURRENT_TICK);
 	}
-
 }
