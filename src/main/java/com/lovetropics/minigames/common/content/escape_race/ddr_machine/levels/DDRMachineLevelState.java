@@ -1,9 +1,8 @@
 package com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels;
 
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DdrInput;
-import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
-import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -13,11 +12,11 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Stream;
 
 public class DDRMachineLevelState {
 
@@ -29,34 +28,39 @@ public class DDRMachineLevelState {
 			Component.translatable("ltminigames.minigame.escape_race.ddr.positive.poppingoff"),
 			Component.translatable("ltminigames.minigame.escape_race.ddr.positive.incredible")
 	);
+	private static final Component PERFECT_SCORE_MESSAGE = Component.translatable("ltminigames.minigame.escape_race.ddr.positive.perfect");
+	private static final Component STREAK_BROKEN_MESSAGE = Component.translatable("ltminigames.minigame.escape_race.ddr.negative.streak_broken").withStyle(ChatFormatting.RED);
 
-	private static final int PERFECT_SCORE = 50;
+	private static final int SCORE_PER_TICK = 10;
 	private static final int TICK_RANGE_EITHER_SIDE = 5;
-
-	public static MutableComponent pickRandom(){
-		return POSITIVE_PHRASES.get((int)(Math.random()*POSITIVE_PHRASES.size())).copy();
-	}
-
+	private static final int PERFECT_SCORE = TICK_RANGE_EITHER_SIDE * SCORE_PER_TICK;
 
 	private final Holder<DdrLevel> level;
-	private final Long2ObjectMap<DDRMachineLevelTickState> tickStates = new Long2ObjectOpenHashMap<>();
+	private final DdrLevelInputHandler inputHandler;
 	private int currentLevelScore = 0;
 	private int highestStreak = 0;
 	private int currentLevelStreak = 0;
 
+	private final RandomSource random = RandomSource.create();
+
 	public DDRMachineLevelState(Holder<DdrLevel> level) {
 		this.level = level;
-		for (Long2ObjectMap.Entry<DdrInput> entry : level.value().ticks().long2ObjectEntrySet()) {
-			tickStates.put(entry.getLongKey(), new DDRMachineLevelTickState(entry.getValue()));
+		inputHandler = new DdrLevelInputHandler(TICK_RANGE_EITHER_SIDE, level);
+	}
+
+	private Component pickMessage(int score) {
+		if (score == PERFECT_SCORE) {
+			return PERFECT_SCORE_MESSAGE;
 		}
+		return Util.getRandom(POSITIVE_PHRASES, random);
 	}
 
 	public Holder<DdrLevel> getLevel() {
 		return level;
 	}
 
-	public Long2ObjectMap<DDRMachineLevelTickState> getTickStates() {
-		return tickStates;
+	public Stream<TimedDdrInput> pendingInputs() {
+		return inputHandler.pendingInputs();
 	}
 
 	public int getCurrentLevelScore() {
@@ -84,65 +88,39 @@ public class DDRMachineLevelState {
 	}
 
 	public void checkIfHit(int currentTick, DdrInput newInput, ServerPlayer player) {
-		boolean hasChanged = !newInput.isEmpty();
-		List<Map.Entry<Integer, DDRMachineLevelTickState>> withinRange = tickStates.long2ObjectEntrySet().stream()
-				.filter((entry) -> entry.getLongKey() >= currentTick - TICK_RANGE_EITHER_SIDE && entry.getLongKey() <= currentTick + TICK_RANGE_EITHER_SIDE && !entry.getValue().wasHit())
-				// TODO
-				.map(e -> Map.entry((int) e.getLongKey(), e.getValue()))
-				.toList();
-		for (Map.Entry<Integer, DDRMachineLevelTickState> entry : withinRange) {
-			int processingTick = entry.getKey();
-			if(processingTick == currentTick){
-				DDRMachineLevelTickState value = entry.getValue();
-				if(hasChanged && ((newInput.back() && value.tick.back()) || (newInput.forward() && value.tick.forward()) ||
-						(newInput.left() && value.tick.left()) || (newInput.right() && value.tick.right()))) {
-					// Exactly on!
-					currentLevelScore += PERFECT_SCORE;
-					this.increaseStreak();
-					entry.getValue().setHit(true);
-					sendSound(player, SoundEvents.ARROW_HIT_PLAYER);
-					player.sendSystemMessage(Component.translatable("ltminigames.minigame.escape_race.ddr.positive.perfect").withStyle(ChatFormatting.GREEN).append(Component.literal(" +" + PERFECT_SCORE).withStyle(ChatFormatting.GOLD)), true);
-				}
-			} else {
-				DDRMachineLevelTickState value = entry.getValue();
-				int diffInTicks = Mth.clamp(Mth.abs(currentTick - processingTick), 0, 5);
-				if(hasChanged &&(newInput.back() && value.tick.back()) || (newInput.forward() && value.tick.forward()) ||
-						(newInput.left() && value.tick.left()) || (newInput.right() && value.tick.right())) {
-					int score = Mth.clamp(PERFECT_SCORE - (diffInTicks * 10), 0, PERFECT_SCORE);
-					currentLevelScore += score;
-					this.increaseStreak();
-					entry.getValue().setHit(true);
-					sendSound(player, SoundEvents.NOTE_BLOCK_BELL.value());
-					player.sendSystemMessage(pickRandom().withStyle(ChatFormatting.GREEN).append(Component.literal(" +" + score).withStyle(ChatFormatting.GOLD)), true);
-				} else if(currentTick - processingTick >= 5) {
-					if(currentLevelStreak > 0) {
-						currentLevelStreak = 0;
-						sendSound(player, SoundEvents.SHIELD_BREAK.value());
-						player.sendSystemMessage(Component.translatable("ltminigames.minigame.escape_race.ddr.negative.streak_broken").withStyle(ChatFormatting.RED), true);
-					}
-				}
+		DdrLevelInputHandler.Result result = inputHandler.handleInput(newInput, currentTick);
+		if (result.missedCount() > 0) {
+			if (currentLevelStreak > 0) {
+				currentLevelStreak = 0;
+				sendSound(player, SoundEvents.SHIELD_BREAK.value());
+				player.sendSystemMessage(STREAK_BROKEN_MESSAGE, true);
 			}
+		}
+
+		// TODO: Score based on whether all inputs matched?
+		DdrLevelInputHandler.Hit hit = result.hit();
+		if (hit != null) {
+			addScore(player, computeScore(hit));
 		}
 	}
 
-	public static class DDRMachineLevelTickState {
-		private final DdrInput tick;
-		private boolean hit;
+	private void addScore(ServerPlayer player, int score) {
+		currentLevelScore += score;
+		increaseStreak();
 
-		public DDRMachineLevelTickState(DdrInput tick) {
-			this.tick = tick;
-		}
+		notifyScore(player, score);
+	}
 
-		public DdrInput getTick() {
-			return tick;
+	private void notifyScore(ServerPlayer player, int score) {
+		if (score == PERFECT_SCORE) {
+			sendSound(player, SoundEvents.ARROW_HIT_PLAYER);
+		} else {
+			sendSound(player, SoundEvents.NOTE_BLOCK_BELL.value());
 		}
+		player.sendSystemMessage(pickMessage(score).copy().withStyle(ChatFormatting.GREEN).append(Component.literal(" +" + score).withStyle(ChatFormatting.GOLD)), true);
+	}
 
-		public boolean wasHit() {
-			return hit;
-		}
-
-		public void setHit(boolean hit) {
-			this.hit = hit;
-		}
+	private static int computeScore(DdrLevelInputHandler.Hit hit) {
+		return Math.max(PERFECT_SCORE - (hit.deviationTicks() * SCORE_PER_TICK), 0);
 	}
 }

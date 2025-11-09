@@ -1,12 +1,12 @@
 package com.lovetropics.minigames.common.content.escape_race.ddr_machine;
 
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DDRMachineLevelClientRenderState;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.TimedDdrInput;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.world.entity.AnimationState;
+
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 public class DDRMachineRenderState extends EntityRenderState {
 	public float yRot;
@@ -20,7 +20,7 @@ public class DDRMachineRenderState extends EntityRenderState {
 
 	public boolean isRiding = false;
 
-	public final Map<Integer, DdrInput> upcomingMoves = new Int2ObjectOpenHashMap<>();
+	public List<TimedDdrInput> upcomingMoves = List.of();
 
 	public int currentTick = 0;
 

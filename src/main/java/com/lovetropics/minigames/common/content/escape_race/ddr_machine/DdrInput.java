@@ -51,7 +51,14 @@ public record DdrInput(
 		);
 	}
 
-	public DdrInput subtract(final DdrInput other) {
+	public boolean overlaps(DdrInput other) {
+		return (forward && other.forward)
+				|| (back && other.back)
+				|| (left && other.left)
+				|| (right && other.right);
+	}
+
+	public DdrInput subtract(DdrInput other) {
 		return new DdrInput(
 				forward && !other.forward,
 				back && !other.back,

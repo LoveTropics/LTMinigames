@@ -7,6 +7,7 @@ import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DDRMachi
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DDRMachineEntityRenderer;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DdrInput;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DdrLevel;
+import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.TimedDdrInput;
 import com.lovetropics.minigames.common.content.escape_race.vending_machine.VendingMachineEntity;
 import com.lovetropics.minigames.common.content.escape_race.vending_machine.VendingMachineEntityRenderer;
 import com.lovetropics.minigames.common.util.registry.GameBehaviorEntry;
@@ -36,8 +37,7 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 import static net.minecraft.world.level.storage.loot.LootTable.lootTable;
 
@@ -65,17 +65,7 @@ public class EscapeRace {
 			DDRMachineEntity.DDRMachineState.STREAM_CODEC
 	);
 
-	public static final EntityDataSerializer<Map<Integer, DdrInput>> DDR_LEVEL_TICK_MAP = new EntityDataSerializer<>() {
-		@Override
-		public StreamCodec<? super RegistryFriendlyByteBuf, Map<Integer, DdrInput>> codec() {
-			return ByteBufCodecs.map(HashMap::new, ByteBufCodecs.INT, DdrInput.STREAM_CODEC, 256);
-		}
-
-		@Override
-		public Map<Integer, DdrInput> copy(Map<Integer, DdrInput> value) {
-			return new HashMap<>(value);
-		}
-	};
+	public static final EntityDataSerializer<List<TimedDdrInput>> DDR_LEVEL_TICK_MAP = EntityDataSerializer.forValueType(TimedDdrInput.STREAM_CODEC.apply(ByteBufCodecs.list()));
 
 	public static final EntityDataSerializer<DdrInput> DDR_INPUT = EntityDataSerializer.forValueType(DdrInput.STREAM_CODEC);
 

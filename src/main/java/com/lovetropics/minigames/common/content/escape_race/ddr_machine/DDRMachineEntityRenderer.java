@@ -3,6 +3,7 @@ package com.lovetropics.minigames.common.content.escape_race.ddr_machine;
 import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DDRMachineLevelClientRenderState;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DdrLevel;
+import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.TimedDdrInput;
 import com.lovetropics.minigames.common.content.escape_race.vending_machine.VendingMachineEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -60,8 +61,7 @@ public class DDRMachineEntityRenderer extends EntityRenderer<DDRMachineEntity, D
 		reusedState.foldAnimationState.copyFrom(entity.foldIntoBedState);
 		reusedState.ddrMachineState = entity.getState();
 		reusedState.input = entity.getPlayerInput();
-		reusedState.upcomingMoves.clear();
-		reusedState.upcomingMoves.putAll(entity.getUpcomingMoves());
+		reusedState.upcomingMoves = entity.getUpcomingMoves();
 		reusedState.currentTick = entity.getCurrentTick();
 		reusedState.isRiding =  entity.getControllingPassenger() instanceof LocalPlayer;
 		List<Holder<DdrLevel>> levels = entity.getOrderedLevels();
@@ -172,12 +172,12 @@ public class DDRMachineEntityRenderer extends EntityRenderer<DDRMachineEntity, D
 			poseStack.translate(-2.29f, 0, 0);
 			drawTexture(buffer, poseStack, renderState.input.right() ? DDRMachineSprites.rightFilledSprite :DDRMachineSprites.rightSprite, packedLight);
 			poseStack.popPose();
-			for (Map.Entry<Integer, DdrInput> entry : renderState.upcomingMoves.entrySet()) {
-				int tick = entry.getKey();
+			for (TimedDdrInput move : renderState.upcomingMoves) {
+				long tick = move.tick();
 				if(tick - renderState.currentTick > 20 * 4){
 					continue;
 				}
-				DdrInput levelTick = entry.getValue();
+				DdrInput levelTick = move.input();
 				float yPos = Mth.lerp((tick - renderState.currentTick) / (20f * 4), -2f, 3f);
 				if(levelTick.left()){
 					poseStack.pushPose();

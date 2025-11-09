@@ -2,8 +2,9 @@ package com.lovetropics.minigames.common.content.escape_race.ddr_machine;
 
 import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.content.escape_race.EscapeRace;
-import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DdrLevel;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DDRMachineLevelState;
+import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DdrLevel;
+import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.TimedDdrInput;
 import com.lovetropics.minigames.common.content.escape_race.vending_machine.VendingMachineEntity;
 import com.lovetropics.minigames.common.core.network.ddr.ServerboundSelectDdrLevelPacket;
 import com.lovetropics.minigames.common.core.network.ddr.ClientboundSetCameraViewPacket;
@@ -99,7 +100,7 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 	private static final EntityDataAccessor<DdrInput> DATA_PLAYER_INPUT = SynchedEntityData.defineId(DDRMachineEntity.class, EscapeRace.DDR_INPUT);
 
 	private static final EntityDataAccessor<DDRMachineState> DATA_STATE = SynchedEntityData.defineId(DDRMachineEntity.class, EscapeRace.DDR_STATE);
-	private static final EntityDataAccessor<Map<Integer, DdrInput>> DATA_UPCOMING_MOVES = SynchedEntityData.defineId(DDRMachineEntity.class, EscapeRace.DDR_LEVEL_TICK_MAP);
+	private static final EntityDataAccessor<List<TimedDdrInput>> DATA_UPCOMING_MOVES = SynchedEntityData.defineId(DDRMachineEntity.class, EscapeRace.DDR_LEVEL_TICK_MAP);
 	private static final EntityDataAccessor<Integer> DATA_CURRENT_TICK = SynchedEntityData.defineId(DDRMachineEntity.class, EntityDataSerializers.INT);
 
 	private final List<Holder<DdrLevel>> orderedLevels;
@@ -131,7 +132,7 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 	protected void defineSynchedData(SynchedEntityData.Builder builder) {
 		builder.define(DATA_PLAYER_INPUT, DdrInput.NONE)
 				.define(DATA_STATE, DDRMachineState.MENU)
-				.define(DATA_UPCOMING_MOVES, new HashMap<>())
+				.define(DATA_UPCOMING_MOVES, List.of())
 				.define(DATA_CURRENT_TICK, 0);
 	}
 
@@ -271,12 +272,13 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 			poseState.tick(getPlayerInput());
 		}
 		if (!level().isClientSide) {
+			DdrInput newInputs = getPlayerInput().subtract(lastInput);
+			lastInput = getPlayerInput();
+
 			if (getState() == DDRMachineState.RECORDING && currentLevelState != null) {
 				int currentTick = tickCount - recordingStartTick;
-				DdrInput newInputs = getPlayerInput().subtract(lastInput);
 				if (!newInputs.isEmpty()) {
 					currentLevelState.getLevel().value().ticks().put(currentTick, newInputs);
-					lastInput = getPlayerInput();
 				}
 				if (currentTick >= currentLevelLength) {
 					stopRecording();
@@ -284,16 +286,13 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 			} else if (getState() == DDRMachineState.PLAYING && currentLevelState != null) {
 				int currentTick = tickCount - playingStartTick;
 				getEntityData().set(DATA_CURRENT_TICK, currentTick);
-				Map<Integer, DdrInput> collect = currentLevelState.getTickStates().long2ObjectEntrySet().stream()
-						.filter((entry) -> {
-							long tick = entry.getLongKey();
-							return (tick + 10) >= currentTick && tick - currentTick <= 20 * 4 && !entry.getValue().wasHit();
+				getEntityData().set(DATA_UPCOMING_MOVES, currentLevelState.pendingInputs()
+						.filter(input -> {
+							long tick = input.tick();
+							return (tick + 10) >= currentTick && tick - currentTick <= 20 * 4;
 						})
-						.collect(Collectors.toMap(e -> (int) e.getLongKey(), (entry) -> entry.getValue().getTick()));
-				getEntityData().set(DATA_UPCOMING_MOVES, collect);
-				DdrInput newInputs = getPlayerInput().subtract(lastInput);
+						.toList());
 				currentLevelState.checkIfHit(currentTick, newInputs, (ServerPlayer) getControllingPassenger());
-				lastInput = getPlayerInput();
 				if (currentTick >= currentLevelLength) {
 					stopPlaying();
 				}
@@ -427,7 +426,7 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 		return getEntityData().get(DATA_STATE);
 	}
 
-	public Map<Integer, DdrInput> getUpcomingMoves() {
+	public List<TimedDdrInput> getUpcomingMoves() {
 		return getEntityData().get(DATA_UPCOMING_MOVES);
 	}
 
