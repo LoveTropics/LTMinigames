@@ -4,8 +4,10 @@ import com.lovetropics.minigames.LoveTropics;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerCapeModel;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
+import net.minecraft.util.Mth;
 import net.minecraft.util.context.ContextKey;
 import net.minecraft.world.entity.LivingEntity;
 
@@ -15,7 +17,14 @@ public class DDRMachinePlayerHelper {
 
 	public static <T extends LivingEntity, S extends LivingEntityRenderState> void updateLivingEntityRenderState(T entity, S renderState) {
 		if (entity.getVehicle() instanceof DDRMachineEntity ddrMachineEntity) {
-			renderState.setRenderData(KEY_POSE, new DdrPose(ddrMachineEntity.getPlayerInput()));
+			DdrPlayerPoseState poseState = ddrMachineEntity.getPoseState();
+			float partialTicks = renderState.partialTick;
+			renderState.setRenderData(KEY_POSE, new DdrPose(
+					poseState.forward(partialTicks),
+					poseState.back(partialTicks),
+					poseState.left(partialTicks),
+					poseState.right(partialTicks)
+			));
 		} else {
 			renderState.setRenderData(KEY_POSE, null);
 		}
@@ -29,50 +38,56 @@ public class DDRMachinePlayerHelper {
 		if (pose == null) {
 			return;
 		}
-		if (pose.input.left()) {
-			humanoidModel.leftLeg.zRot = -45f;
-			if (!pose.input.right()) {
-				humanoidModel.root().zRot = 0.6f;
-				humanoidModel.root().x += 10f;
-				humanoidModel.root().y += 2f;
+
+		ModelPart root = humanoidModel.root();
+		ModelPart rightLeg = humanoidModel.rightLeg;
+		ModelPart leftLeg = humanoidModel.leftLeg;
+
+		float forward = pose.forward();
+		float back = pose.back();
+		float left = pose.left();
+		float right = pose.right();
+		float leftAndNotRight = left * (1.0f - right);
+		float rightAndNotLeft = right * (1.0f - left);
+
+		leftLeg.zRot += -58.31f * Mth.DEG_TO_RAD * remapLegAnimation(left);
+		root.zRot = 0.6f * left;
+		root.x += 10f * left;
+		root.y += 2f * left;
+
+		rightLeg.zRot += 58.31f * Mth.DEG_TO_RAD * remapLegAnimation(right);
+		root.zRot += -0.6f * right;
+		root.x -= 10f * right;
+		root.y += 2f * right;
+
+		root.xRot += 0.6f * forward;
+		root.z -= 10f * forward;
+		root.y += 2f * forward;
+		rightLeg.xRot += -58.31f * Mth.DEG_TO_RAD * remapLegAnimation(leftAndNotRight * forward);
+		leftLeg.xRot += -58.31f * Mth.DEG_TO_RAD * remapLegAnimation(rightAndNotLeft * forward);
+
+		// Rotate the clip is it does not clip into the player model when leaning back
+		if (humanoidModel instanceof PlayerCapeModel<?> capeModel) {
+			if (capeModel.body.hasChild("cape")) {
+				capeModel.body.getChild("cape").xRot -= 0.5f * back;
 			}
 		}
-		if (pose.input.right()) {
-			humanoidModel.rightLeg.zRot = 45f;
-			if (!pose.input.left()) {
-				humanoidModel.root().zRot = -0.6f;
-				humanoidModel.root().x -= 10f;
-				humanoidModel.root().y += 2f;
-			}
-		}
-		if (pose.input.forward()) {
-			humanoidModel.root().xRot = 0.6f;
-			humanoidModel.root().z -= 10f;
-			humanoidModel.root().y += 2f;
-			if (pose.input.left() && !pose.input.right()) {
-				humanoidModel.rightLeg.xRot = -45f;
-			} else if (!pose.input.left()) {
-				humanoidModel.leftLeg.xRot = -45f;
-			}
-		}
-		if (pose.input.back()) {
-			// Rotate the clip is it does not clip into the player model when leaning back
-			if (humanoidModel instanceof PlayerCapeModel<?> capeModel) {
-				if (capeModel.body.hasChild("cape")) {
-					capeModel.body.getChild("cape").xRot -= 0.5f;
-				}
-			}
-			humanoidModel.root().xRot = -0.6f;
-			humanoidModel.root().z += 10f;
-			humanoidModel.root().y += 2f;
-			if (pose.input.left() && !pose.input.right()) {
-				humanoidModel.rightLeg.xRot = 45f;
-			} else if (!pose.input.left()) {
-				humanoidModel.leftLeg.xRot = 45f;
-			}
-		}
+		root.xRot += -0.6f * back;
+		root.z += 10f * back;
+		root.y += 2f * back;
+		rightLeg.xRot += 58.31f * Mth.DEG_TO_RAD * remapLegAnimation(leftAndNotRight * back);
+		leftLeg.xRot += 58.31f * Mth.DEG_TO_RAD * remapLegAnimation(rightAndNotLeft * back);
 	}
 
-	private record DdrPose(DdrInput input) {
+	private static float remapLegAnimation(float factor) {
+		return Math.min(1.0f, factor * 2.0f);
+	}
+
+	private record DdrPose(
+			float forward,
+			float back,
+			float left,
+			float right
+	) {
 	}
 }

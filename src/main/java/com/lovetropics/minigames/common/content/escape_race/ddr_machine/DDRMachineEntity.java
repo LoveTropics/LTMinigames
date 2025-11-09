@@ -105,6 +105,7 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 	private final List<Holder<DdrLevel>> orderedLevels;
 
 	private DdrInput lastInput = DdrInput.NONE;
+	private final DdrPlayerPoseState poseState = new DdrPlayerPoseState();
 
 	private int recordingStartTick = 0;
 
@@ -260,6 +261,9 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 	@Override
 	public void tick() {
 		super.tick();
+		if (level().isClientSide()) {
+			poseState.tick(getPlayerInput());
+		}
 		if (isLocalInstanceAuthoritative()) {
 			if (level().isClientSide) {
 				handleControls();
@@ -429,5 +433,9 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 
 	public int getCurrentTick() {
 		return getEntityData().get(DATA_CURRENT_TICK);
+	}
+
+	public DdrPlayerPoseState getPoseState() {
+		return poseState;
 	}
 }
