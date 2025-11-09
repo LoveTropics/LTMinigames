@@ -5,18 +5,19 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.lovetropics.lib.backend.BackendConnection;
+import com.lovetropics.lib.backend.BackendConnectionConfig;
 import com.lovetropics.lib.backend.BackendProxy;
 import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.config.ConfigLT;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.state.GameStateMap;
+import com.mojang.logging.LogUtils;
 import net.minecraft.server.MinecraftServer;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
 import java.net.URI;
@@ -32,7 +33,7 @@ public final class BackendIntegrations {
 
 	private static final Supplier<BackendIntegrations> INSTANCE = Suppliers.memoize(BackendIntegrations::new);
 
-	private static final Logger LOGGER = LogManager.getLogger(BackendIntegrations.class);
+	private static final Logger LOGGER = LogUtils.getLogger();
 
 	private static final int RETRY_DELAY_SECONDS = 30;
 	private static final int MAX_RETRIES = 5;
@@ -53,20 +54,7 @@ public final class BackendIntegrations {
 	private GameInstanceIntegrations liveInstance;
 
 	private BackendIntegrations() {
-		Supplier<URI> address = () -> {
-			ConfigLT.CategoryIntegrations integrations = ConfigLT.INTEGRATIONS;
-			if (integrations.isEnabled()) {
-				try {
-					return new URI(integrations.webSocketUrl.get());
-				} catch (URISyntaxException e) {
-					LOGGER.warn("Malformed URI", e);
-				}
-			}
-
-			return null;
-		};
-
-		proxy = new BackendProxy(address, new BackendConnection.Handler() {
+		proxy = new BackendProxy(new BackendConnection.Handler() {
 			@Override
 			public void acceptOpened() {
 			}
@@ -92,6 +80,27 @@ public final class BackendIntegrations {
 		return INSTANCE.get();
 	}
 
+	@Nullable
+	private static BackendConnectionConfig connectionConfig() {
+		ConfigLT.CategoryIntegrations integrations = ConfigLT.INTEGRATIONS;
+		if (!integrations.isEnabled()) {
+			return null;
+		}
+
+		try {
+			BackendConnectionConfig config = BackendConnectionConfig.of(new URI(integrations.webSocketUrl.get()));
+			String token = integrations.authToken.get();
+			if (!token.isBlank()) {
+				config = config.withToken(token);
+			}
+			return config.withSubscriptions(GameInstanceIntegrations.SUBSCRIPTIONS);
+		} catch (URISyntaxException e) {
+			LOGGER.warn("Malformed URI", e);
+		}
+
+		return null;
+	}
+
 	@SubscribeEvent
 	public static void tick(ServerTickEvent.Post event) {
 		final MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
@@ -101,6 +110,7 @@ public final class BackendIntegrations {
 	}
 
 	private void tick(MinecraftServer server) {
+		proxy.connectWith(connectionConfig());
 		proxy.tick();
 
 		GameInstanceIntegrations instance = liveInstance;

@@ -1,5 +1,6 @@
 package com.lovetropics.minigames.common.core.integration;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.lovetropics.minigames.LoveTropics;
@@ -34,7 +35,7 @@ import java.time.Instant;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 public final class GameInstanceIntegrations implements IGameState {
@@ -43,6 +44,12 @@ public final class GameInstanceIntegrations implements IGameState {
 	private static final Codec<List<DonationPackageData>> PACKAGES_CODEC = DonationPackageData.Payload.CODEC.codec()
 			.xmap(DonationPackageData.Payload::data, DonationPackageData::asPayload)
 			.listOf();
+
+	// TODO: Do something better than this? :(
+	public static final Set<String> SUBSCRIPTIONS = ImmutableSet.<String>builder()
+			.addAll(GameActionType.SUBSCRIPTIONS)
+			.add("create_poll", "update_poll", "delete_poll")
+			.build();
 
 	private final IGamePhase topLevelGame;
 	private final Deque<IGamePhase> gameStack = new ArrayDeque<>();
@@ -252,14 +259,9 @@ public final class GameInstanceIntegrations implements IGameState {
 		if ("poll".equals(type)) {
 			activeGame().invoker(GamePackageEvents.RECEIVE_POLL_EVENT).onReceivePollEvent(object, crud);
 		} else if (crud == Crud.CREATE) {
-			Optional<GameActionType> actionType = GameActionType.getFromId(type);
-			if (actionType.isPresent()) {
-				actionType.get().getCodec().parse(JsonOps.INSTANCE, object)
-						.ifSuccess(actions::enqueue)
-						.ifError(error -> LoveTropics.LOGGER.warn("Received invalid game action of type {}: {}", type, error.error()));
-			} else {
-				LoveTropics.LOGGER.debug("Received create event with unrecognised action type: {}", type);
-			}
+			GameActionType.REQUEST_CODEC.parse(JsonOps.INSTANCE, object)
+					.ifSuccess(actions::enqueue)
+					.ifError(error -> LoveTropics.LOGGER.warn("Received invalid game action of type {}: {}", type, error.error()));
 		}
 	}
 }
