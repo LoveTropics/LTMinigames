@@ -48,6 +48,7 @@ public record TeamActionTarget(Either<BuiltinType, GameTeamKey> team) implements
 			PlayerSet players = teams != null ? teams.getPlayersForTeam(team.key()) : PlayerSet.EMPTY;
 			for (ServerPlayer player : players) {
 				result |= listeners.invoker(GameActionEvents.APPLY_TO_PLAYER).apply(actionContext, player);
+				result |= listeners.invoker(GameActionEvents.APPLY_TO_ENTITY).apply(actionContext, player);
 			}
 		}
 		return result;
