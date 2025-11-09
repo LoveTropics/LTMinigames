@@ -66,7 +66,7 @@ public class DDRMachinePlayerHelper {
 				// Rotate the clip is it does not clip into the player model when leaning back
 				if (humanoidModel instanceof PlayerCapeModel<?> capeModel) {
 					if(capeModel.body.hasChild("cape")) {
-						capeModel.body.getChild("cape").xRot += 0.5f;
+						capeModel.body.getChild("cape").xRot -= 0.5f;
 					}
 				}
 				humanoidModel.root().xRot = -0.6f;
