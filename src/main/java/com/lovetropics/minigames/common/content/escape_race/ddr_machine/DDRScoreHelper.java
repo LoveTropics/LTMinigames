@@ -15,18 +15,14 @@ import net.minecraft.world.scores.criteria.ObjectiveCriteria;
 
 public class DDRScoreHelper {
 
-	public static void onGameFinished(ServerPlayer serverPlayer, JukeboxSong song, int score, int heightStreak) {
-		if (song == null) {
-			return;
-		}
+	public static void onGameFinished(ServerPlayer serverPlayer, Holder<JukeboxSong> song, int score, int heightStreak) {
 		MinecraftServer server = serverPlayer.getServer();
-		Registry<JukeboxSong> registry = server.registryAccess().lookupOrThrow(Registries.JUKEBOX_SONG);
-		String key = registry.getKey(song).toString();
+		String key = song.getRegisteredName();
 		String objectiveName = LoveTropics.ID + ".ddr." + key.replace(":", "_");
 		ServerScoreboard scoreboard = server.getScoreboard();
 		Objective objective = scoreboard.getObjective(objectiveName);
 		if (objective == null) {
-			objective = scoreboard.addObjective(objectiveName, ObjectiveCriteria.DUMMY, Component.literal(key), ObjectiveCriteria.RenderType.INTEGER, true, null);
+			objective = scoreboard.addObjective(objectiveName, ObjectiveCriteria.DUMMY, song.value().description(), ObjectiveCriteria.RenderType.INTEGER, true, null);
 		}
 		ScoreAccess scoreAccess = scoreboard.getOrCreatePlayerScore(serverPlayer, objective);
 		if (scoreAccess.get() < score) {

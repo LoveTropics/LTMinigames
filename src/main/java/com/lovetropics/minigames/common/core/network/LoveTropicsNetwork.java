@@ -14,8 +14,8 @@ import com.lovetropics.minigames.client.lobby.state.message.LobbyPlayersMessage;
 import com.lovetropics.minigames.client.lobby.state.message.LobbyUpdateMessage;
 import com.lovetropics.minigames.client.particle_line.DrawParticleLineMessage;
 import com.lovetropics.minigames.client.toast.ShowNotificationToastMessage;
-import com.lovetropics.minigames.common.core.network.ddr.ServerboundSelectDdrMenuItemPacket;
-import com.lovetropics.minigames.common.core.network.ddr.SetClientCameraViewMessage;
+import com.lovetropics.minigames.common.core.network.ddr.ClientboundSetCameraViewPacket;
+import com.lovetropics.minigames.common.core.network.ddr.ServerboundSelectDdrLevelPacket;
 import com.lovetropics.minigames.common.core.network.ddr.ServerboundUpdateDdrInputPacket;
 import com.lovetropics.minigames.common.core.network.trivia.RequestTriviaStateUpdateMessage;
 import com.lovetropics.minigames.common.core.network.trivia.SelectTriviaAnswerMessage;
@@ -76,8 +76,8 @@ public final class LoveTropicsNetwork {
 		registrar.playToServer(SelectVendingMachineItemMessage.TYPE, SelectVendingMachineItemMessage.STREAM_CODEC, SelectVendingMachineItemMessage::handle);
 
 		registrar.playToServer(ServerboundUpdateDdrInputPacket.TYPE, ServerboundUpdateDdrInputPacket.STREAM_CODEC, ServerboundUpdateDdrInputPacket::handle);
-		registrar.playToServer(ServerboundSelectDdrMenuItemPacket.TYPE, ServerboundSelectDdrMenuItemPacket.STREAM_CODEC, ServerboundSelectDdrMenuItemPacket::handle);
-		registrar.playToClient(SetClientCameraViewMessage.TYPE, SetClientCameraViewMessage.STREAM_CODEC, SetClientCameraViewMessage::handle);
+		registrar.playToServer(ServerboundSelectDdrLevelPacket.TYPE, ServerboundSelectDdrLevelPacket.STREAM_CODEC, ServerboundSelectDdrLevelPacket::handle);
+		registrar.playToClient(ClientboundSetCameraViewPacket.TYPE, ClientboundSetCameraViewPacket.STREAM_CODEC);
 	}
 
 	@SubscribeEvent
@@ -109,5 +109,7 @@ public final class LoveTropicsNetwork {
 		event.register(TriviaAnswerResponseMessage.TYPE, TriviaAnswerResponseMessage::handle);
 
 		event.register(SetForcedPoseMessage.TYPE, SetForcedPoseMessage::handle);
+
+		event.register(ClientboundSetCameraViewPacket.TYPE, ClientboundSetCameraViewPacket::handle);
 	}
 }

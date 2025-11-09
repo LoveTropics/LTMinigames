@@ -6,7 +6,7 @@ import com.lovetropics.minigames.common.content.escape_race.client.EscapeRaceCli
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DDRMachineEntity;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DDRMachineEntityRenderer;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DdrInput;
-import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DDRMachineLevelClient;
+import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DdrLevel;
 import com.lovetropics.minigames.common.content.escape_race.vending_machine.VendingMachineEntity;
 import com.lovetropics.minigames.common.content.escape_race.vending_machine.VendingMachineEntityRenderer;
 import com.lovetropics.minigames.common.util.registry.GameBehaviorEntry;
@@ -16,27 +16,32 @@ import com.mojang.serialization.Codec;
 import com.tterrag.registrate.util.entry.ItemEntry;
 import com.tterrag.registrate.util.entry.RegistryEntry;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.syncher.EntityDataSerializer;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.registries.DataPackRegistryEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static net.minecraft.world.level.storage.loot.LootTable.lootTable;
 
+@EventBusSubscriber(modid = LoveTropics.ID)
 public class EscapeRace {
 	private static final LoveTropicsRegistrate REGISTRATE = LoveTropics.registrate();
 
@@ -53,19 +58,6 @@ public class EscapeRace {
 		public NonNullList<ItemStack> copy(NonNullList<ItemStack> value) {
 			NonNullList<ItemStack> list = NonNullList.create();
 			value.forEach((stack) -> list.add(stack.copy()));
-			return list;
-		}
-	};
-	public static final EntityDataSerializer<List<DDRMachineLevelClient>> DDR_LEVEL_LIST = new EntityDataSerializer<>() {
-		@Override
-		public StreamCodec<? super RegistryFriendlyByteBuf, List<DDRMachineLevelClient>> codec() {
-			return DDRMachineLevelClient.STREAM_CODEC.apply(ByteBufCodecs.collection(NonNullList::createWithCapacity));
-		}
-
-		@Override
-		public List<DDRMachineLevelClient> copy(List<DDRMachineLevelClient> value) {
-			NonNullList<DDRMachineLevelClient> list = NonNullList.create();
-			list.addAll(value);
 			return list;
 		}
 	};
@@ -90,6 +82,14 @@ public class EscapeRace {
 	public static DeferredHolder<EntityDataSerializer<?>, EntityDataSerializer<?>> register(String name, EntityDataSerializer<?> dataSerializerEntry) {
 		return ENTITY_SERIALIZERS.register(name, () -> dataSerializerEntry);
 	}
+
+	public static final ResourceKey<Registry<DdrLevel>> DDR_LEVEL = ResourceKey.createRegistryKey(LoveTropics.location("ddr_level"));
+
+	@SubscribeEvent
+	public static void registerDatapackRegistries(DataPackRegistryEvent.NewRegistry event) {
+		event.dataPackRegistry(DDR_LEVEL, DdrLevel.DIRECT_CODEC, DdrLevel.DIRECT_CODEC);
+	}
+
 	public static final RegistryEntry<EntityType<?>, EntityType<VendingMachineEntity>> VENDING_MACHINE = REGISTRATE.entity("vending_machine", VendingMachineEntity::new, MobCategory.MISC)
 			.properties(properties -> properties.sized(2.0F, 3.0F).setShouldReceiveVelocityUpdates(true).setUpdateInterval(3))
 			.loot((loot, type) -> loot.add(type, lootTable()))
@@ -129,7 +129,6 @@ public class EscapeRace {
 
 	public static void init() {
 		register("itemstack_list", ITEM_STACK_LIST);
-		register("ddr_level_list", DDR_LEVEL_LIST);
 		register("ddr_state", DDR_STATE);
 		register("ddr_level_tick_map", DDR_LEVEL_TICK_MAP);
 		register("ddr_input", DDR_INPUT);

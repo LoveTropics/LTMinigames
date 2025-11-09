@@ -270,7 +270,7 @@ public class LoveTropics {
 		ChatCommand.register(dispatcher);
 		ExecuteAtRegionCommand.register(dispatcher);
 		GameActionCommand.register(dispatcher);
-		DDRCommand.register(dispatcher);
+		DDRCommand.register(dispatcher, event.getBuildContext());
 	}
 
 	private void onServerAboutToStart(final ServerAboutToStartEvent event) {

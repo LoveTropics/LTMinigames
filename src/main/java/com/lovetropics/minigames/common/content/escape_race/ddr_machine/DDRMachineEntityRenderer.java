@@ -1,8 +1,8 @@
 package com.lovetropics.minigames.common.content.escape_race.ddr_machine;
 
 import com.lovetropics.minigames.LoveTropics;
-import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DDRMachineLevelClient;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DDRMachineLevelClientRenderState;
+import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DdrLevel;
 import com.lovetropics.minigames.common.content.escape_race.vending_machine.VendingMachineEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -20,6 +20,7 @@ import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -63,18 +64,16 @@ public class DDRMachineEntityRenderer extends EntityRenderer<DDRMachineEntity, D
 		reusedState.upcomingMoves.putAll(entity.getUpcomingMoves());
 		reusedState.currentTick = entity.getCurrentTick();
 		reusedState.isRiding =  entity.getControllingPassenger() instanceof LocalPlayer;
-		for (int i = 0; i < entity.getAvailableLevels().size(); i++) {
+		List<Holder<DdrLevel>> levels = entity.getOrderedLevels();
+		for (int i = 0; i < levels.size(); i++) {
 			if(reusedState.levels.size() <= i){
 				reusedState.levels.add(new DDRMachineLevelClientRenderState());
 			}
-			DDRMachineLevelClient ddrMachineLevelClient = entity.getAvailableLevels().get(i);
-			if(ddrMachineLevelClient.icon().isEmpty()){
-				continue;
-			}
+			DdrLevel level = levels.get(i).value();
 			DDRMachineLevelClientRenderState ddrMachineLevelClientRenderState = reusedState.levels.get(i);
 			ItemStackRenderState itemStackRenderState = ddrMachineLevelClientRenderState.itemStackRenderState;
-			itemModelResolver.updateForNonLiving(itemStackRenderState, ddrMachineLevelClient.icon(), ItemDisplayContext.FIXED, entity);
-			ddrMachineLevelClientRenderState.displayName = ddrMachineLevelClient.displayName();
+			itemModelResolver.updateForNonLiving(itemStackRenderState, level.icon(), ItemDisplayContext.FIXED, entity);
+			ddrMachineLevelClientRenderState.displayName = level.displayName();
 		}
 	}
 

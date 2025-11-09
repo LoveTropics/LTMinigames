@@ -4,6 +4,7 @@ import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DdrInput
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -37,20 +38,20 @@ public class DDRMachineLevelState {
 	}
 
 
-	private final DDRMachineLevel level;
+	private final Holder<DdrLevel> level;
 	private final Long2ObjectMap<DDRMachineLevelTickState> tickStates = new Long2ObjectOpenHashMap<>();
 	private int currentLevelScore = 0;
 	private int highestStreak = 0;
 	private int currentLevelStreak = 0;
 
-	public DDRMachineLevelState(DDRMachineLevel level) {
+	public DDRMachineLevelState(Holder<DdrLevel> level) {
 		this.level = level;
-		for (Long2ObjectMap.Entry<DdrInput> entry : level.ticks().long2ObjectEntrySet()) {
+		for (Long2ObjectMap.Entry<DdrInput> entry : level.value().ticks().long2ObjectEntrySet()) {
 			tickStates.put(entry.getLongKey(), new DDRMachineLevelTickState(entry.getValue()));
 		}
 	}
 
-	public DDRMachineLevel getLevel() {
+	public Holder<DdrLevel> getLevel() {
 		return level;
 	}
 
@@ -86,6 +87,7 @@ public class DDRMachineLevelState {
 		boolean hasChanged = !newInput.isEmpty();
 		List<Map.Entry<Integer, DDRMachineLevelTickState>> withinRange = tickStates.long2ObjectEntrySet().stream()
 				.filter((entry) -> entry.getLongKey() >= currentTick - TICK_RANGE_EITHER_SIDE && entry.getLongKey() <= currentTick + TICK_RANGE_EITHER_SIDE && !entry.getValue().wasHit())
+				// TODO
 				.map(e -> Map.entry((int) e.getLongKey(), e.getValue()))
 				.toList();
 		for (Map.Entry<Integer, DDRMachineLevelTickState> entry : withinRange) {

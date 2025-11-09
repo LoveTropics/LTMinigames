@@ -9,14 +9,14 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-public record SetClientCameraViewMessage(int cameraType) implements CustomPacketPayload {
-	public static final Type<SetClientCameraViewMessage> TYPE = new Type<>(LoveTropics.location("set_client_camera_view_message"));
-	public static final StreamCodec<ByteBuf, SetClientCameraViewMessage> STREAM_CODEC = StreamCodec.composite(
-			ByteBufCodecs.VAR_INT, SetClientCameraViewMessage::cameraType,
-			SetClientCameraViewMessage::new
+public record ClientboundSetCameraViewPacket(int cameraType) implements CustomPacketPayload {
+	public static final Type<ClientboundSetCameraViewPacket> TYPE = new Type<>(LoveTropics.location("set_client_camera_view_message"));
+	public static final StreamCodec<ByteBuf, ClientboundSetCameraViewPacket> STREAM_CODEC = StreamCodec.composite(
+			ByteBufCodecs.VAR_INT, ClientboundSetCameraViewPacket::cameraType,
+			ClientboundSetCameraViewPacket::new
 	);
 
-	public static void handle(final SetClientCameraViewMessage message, final IPayloadContext context) {
+	public static void handle(final ClientboundSetCameraViewPacket message, final IPayloadContext context) {
 		if(message.cameraType > 2 || message.cameraType < 0) {
 			return;
 		}
