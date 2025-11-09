@@ -69,13 +69,12 @@ public class GameActionCommand {
 			GameEventListeners events = new GameEventListeners();
 			behavior.register(game, events);
 			boolean result = false;
-			for(var target : targets) {
+			for (var target : targets) {
 				if (target instanceof ServerPlayer serverPlayer) {
 					result |= events.invoker(GameActionEvents.APPLY_TO_PLAYER).apply(GameActionContext.EMPTY, serverPlayer);
 				} else if (target != null) {
 					result |= events.invoker(GameActionEvents.APPLY_TO_ENTITY).apply(GameActionContext.EMPTY, target);
-				}
-				else {
+				} else {
 					result |= events.invoker(GameActionEvents.APPLY).apply(GameActionContext.EMPTY);
 				}
 			}

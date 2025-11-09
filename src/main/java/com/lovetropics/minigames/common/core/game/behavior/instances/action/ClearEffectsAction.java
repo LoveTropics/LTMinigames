@@ -14,7 +14,7 @@ public record ClearEffectsAction() implements IGameBehavior {
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		events.listen(GameActionEvents.APPLY_TO_ENTITY, (context, entity) -> {
-			if(!(entity instanceof LivingEntity livingEntity)) {
+			if (!(entity instanceof LivingEntity livingEntity)) {
 				return false;
 			}
 			if (livingEntity.getActiveEffects().isEmpty()) {

@@ -39,10 +39,10 @@ public record OnEntityInteractionTrigger(
 		targetActions.register(game, events);
 
 		events.listen(GamePlayerEvents.INTERACT_ENTITY, (player, target, hand) -> {
-			if(sourcePredicate.isPresent() && !sourcePredicate.get().matches(player, player)) {
+			if (sourcePredicate.isPresent() && !sourcePredicate.get().matches(player, player)) {
 				return InteractionResult.PASS;
 			}
-			if(targetPredicate.isPresent() && !targetPredicate.get().matches(player, target)) {
+			if (targetPredicate.isPresent() && !targetPredicate.get().matches(player, target)) {
 				return InteractionResult.PASS;
 			}
 

@@ -21,7 +21,7 @@ public record AddAttributeModifierAction(Holder<Attribute> attribute, AttributeM
 	@Override
 	public void register(final IGamePhase game, final EventRegistrar events) {
 		events.listen(GameActionEvents.APPLY_TO_ENTITY, (context, entity) -> {
-			if(!(entity instanceof LivingEntity livingEntity)) {
+			if (!(entity instanceof LivingEntity livingEntity)) {
 				return false;
 			}
 			final AttributeInstance attribute = livingEntity.getAttribute(this.attribute);
