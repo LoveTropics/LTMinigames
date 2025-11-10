@@ -1,7 +1,9 @@
 package com.lovetropics.minigames.mixin.client;
 
 import com.lovetropics.minigames.client.game.ClientGameStateManager;
+import com.lovetropics.minigames.common.content.turtle_race.RiderBehavior;
 import com.lovetropics.minigames.common.core.game.client_state.GameClientStateTypes;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.ClientInput;
 import net.minecraft.client.player.KeyboardInput;
 import net.minecraft.world.entity.player.Input;
@@ -39,6 +41,17 @@ public class KeyboardInputMixin extends ClientInput {
 					keyPresses.sprint()
 			);
 			moveVector = new Vec2(moveVector.y, moveVector.x);
+		}
+		if (Minecraft.getInstance().player.getExistingData(RiderBehavior.FORCE_RIDER).orElse(false)) {
+			keyPresses = new Input(
+					keyPresses.forward(),
+					keyPresses.backward(),
+					keyPresses.left(),
+					keyPresses.right(),
+					keyPresses.jump(),
+					false,
+					keyPresses.sprint()
+			);
 		}
 	}
 }

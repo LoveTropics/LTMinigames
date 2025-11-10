@@ -33,6 +33,7 @@
     "client.AbstractRecipeBookScreenMixin",
     "client.BiomeColorsMixin",
     "client.CapeLayerMixin",
+    "client.ClientPacketListenerMixin",
     "client.GameRendererMixin",
     "client.HotbarOverride",
     "client.IntegratedPlayerListMixin",

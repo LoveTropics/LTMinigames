@@ -1,5 +1,6 @@
 package com.lovetropics.minigames.common.content.turtle_race;
 
+import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
@@ -8,25 +9,37 @@ import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvent
 import com.lovetropics.minigames.common.core.game.player.PlayerRole;
 import com.lovetropics.minigames.common.util.EntityTemplate;
 import com.mojang.logging.LogUtils;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
-import net.minecraft.server.level.ServerChunkCache;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.attachment.AttachmentType;
+import net.neoforged.neoforge.event.entity.EntityMountEvent;
+import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Supplier;
 
-public record RiderBehavior(EntityTemplate entity) implements IGameBehavior {
+@EventBusSubscriber
+public record RiderBehavior(EntityTemplate entity, boolean force) implements IGameBehavior {
 	private static final Logger LOGGER = LogUtils.getLogger();
 
 	public static final MapCodec<RiderBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			EntityTemplate.CODEC.fieldOf("entity").forGetter(RiderBehavior::entity)
+			EntityTemplate.CODEC.fieldOf("entity").forGetter(RiderBehavior::entity),
+			Codec.BOOL.optionalFieldOf("force", true).forGetter(RiderBehavior::force)
 	).apply(i, RiderBehavior::new));
+
+	public static final DeferredRegister<AttachmentType<?>> ATTACHMENT_TYPES = DeferredRegister.create(NeoForgeRegistries.ATTACHMENT_TYPES, LoveTropics.ID);
+	public static final Supplier<AttachmentType<Boolean>> FORCE_RIDER = ATTACHMENT_TYPES.register("force_rider", () -> AttachmentType.builder(() -> true).sync(ByteBufCodecs.BOOL).build());
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
@@ -43,6 +56,7 @@ public record RiderBehavior(EntityTemplate entity) implements IGameBehavior {
 					return;
 				}
 				player.startRiding(entity);
+				player.setData(FORCE_RIDER, force);
 				riddenEntities.put(player.getUUID(), entity);
 			});
 		});
@@ -54,21 +68,11 @@ public record RiderBehavior(EntityTemplate entity) implements IGameBehavior {
 		});
 
 		events.listen(GamePlayerEvents.REMOVE, player -> removeEntity(riddenEntities, player));
-
-		events.listen(GamePlayerEvents.TICK, player -> {
-			Entity entity = riddenEntities.get(player.getUUID());
-			if (entity == null) {
-				return;
-			}
-
-			if (player.getVehicle() != entity) {
-				fixEntity(riddenEntities, player, entity);
-			}
-		});
 	}
 
 	private static void removeEntity(Map<UUID, Entity> riddenEntities, ServerPlayer player) {
 		player.stopRiding();
+		player.removeData(FORCE_RIDER);
 
 		Entity entity = riddenEntities.remove(player.getUUID());
 		if (entity != null) {
@@ -76,20 +80,11 @@ public record RiderBehavior(EntityTemplate entity) implements IGameBehavior {
 		}
 	}
 
-	private void fixEntity(Map<UUID, Entity> riddenEntities, ServerPlayer player, Entity entity) {
-		if (!entity.isAlive()) {
-			entity = spawnEntity(player);
-			if (entity == null) {
-				riddenEntities.remove(player.getUUID());
-				return;
-			}
-			riddenEntities.put(player.getUUID(), entity);
+	@SubscribeEvent
+	public static void onDismount(EntityMountEvent event) {
+		if (event.isDismounting() && event.getEntityMounting().getExistingData(FORCE_RIDER).orElse(false)) {
+			event.setCanceled(true);
 		}
-
-		player.startRiding(entity, true);
-
-		ServerChunkCache chunkSource = player.level().getChunkSource();
-		chunkSource.chunkMap.broadcast(entity, new ClientboundSetPassengersPacket(entity));
 	}
 
 	@Nullable

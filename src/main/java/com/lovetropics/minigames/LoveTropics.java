@@ -46,6 +46,7 @@ import com.lovetropics.minigames.common.content.survive_the_tide.entity.Driftwoo
 import com.lovetropics.minigames.common.content.trash_dive.TrashDive;
 import com.lovetropics.minigames.common.content.trash_dive.TrashDiveTexts;
 import com.lovetropics.minigames.common.content.treasure_dig.TreasureDig;
+import com.lovetropics.minigames.common.content.turtle_race.RiderBehavior;
 import com.lovetropics.minigames.common.content.turtle_race.TurtleRace;
 import com.lovetropics.minigames.common.content.turtle_race.TurtleRaceTexts;
 import com.lovetropics.minigames.common.core.chat.ChatChannelStore;
@@ -205,6 +206,7 @@ public class LoveTropics {
 
 		DriftwoodRider.ATTACHMENT_TYPES.register(modBus);
 		ChatChannelStore.ATTACHMENT_TYPES.register(modBus);
+		RiderBehavior.ATTACHMENT_TYPES.register(modBus);
 		LimitedSpawnerAttachment.ATTACHMENT_TYPES.register(modBus);
 		SoundRegistry.REGISTER.register(modBus);
 		MinigameDataComponents.REGISTER.register(modBus);
