@@ -1,7 +1,7 @@
 package com.lovetropics.minigames.common.core.game.behavior.event;
 
 import com.google.gson.JsonObject;
-import com.lovetropics.minigames.common.core.integration.Crud;
+import com.lovetropics.lib.techstack.Crud;
 import com.lovetropics.minigames.common.core.integration.game_actions.Donation;
 import com.lovetropics.minigames.common.core.integration.game_actions.GamePackage;
 import net.minecraft.util.TriState;

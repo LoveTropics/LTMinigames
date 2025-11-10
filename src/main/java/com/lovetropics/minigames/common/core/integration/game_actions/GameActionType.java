@@ -6,10 +6,7 @@ import com.mojang.serialization.MapCodec;
 import net.minecraft.SharedConstants;
 import net.minecraft.util.StringRepresentable;
 
-import java.util.Set;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public enum GameActionType implements StringRepresentable {
 	DONATION("donation", "payment_time", DonationGameAction.CODEC, ConfigLT.GENERAL.donationPackageDelay, false),
@@ -18,13 +15,10 @@ public enum GameActionType implements StringRepresentable {
 	;
 
 	public static final Codec<GameActionType> CODEC = StringRepresentable.fromEnum(GameActionType::values);
-	public static final Codec<GameActionRequest> REQUEST_CODEC = CODEC.dispatch(GameActionRequest::type, t -> t.codec);
-
-	public static final Set<String> SUBSCRIPTIONS = Stream.of(values()).map(t -> "create_" + t.getId()).collect(Collectors.toSet());
 
 	private final String id;
 	private final String timeFieldName;
-	private final MapCodec<? extends GameActionRequest> codec;
+	private final Codec<GameActionRequest> codec;
 	private final Supplier<Integer> pollingIntervalSeconds;
 	private final boolean sendsAcknowledgement;
 
@@ -35,6 +29,10 @@ public enum GameActionType implements StringRepresentable {
 		this.codec = GameActionRequest.codec(this, (MapCodec<GameAction>) codec);
 		pollingIntervalSeconds = pollingIntervalTicks;
 		this.sendsAcknowledgement = sendsAcknowledgement;
+	}
+
+	public Codec<GameActionRequest> codec() {
+		return codec;
 	}
 
 	public String getId() {

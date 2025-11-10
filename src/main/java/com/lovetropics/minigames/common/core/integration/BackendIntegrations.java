@@ -3,16 +3,16 @@ package com.lovetropics.minigames.common.core.integration;
 import com.google.common.base.Suppliers;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.lovetropics.lib.backend.BackendConnection;
-import com.lovetropics.lib.backend.BackendConnectionConfig;
-import com.lovetropics.lib.backend.BackendProxy;
+import com.lovetropics.lib.techstack.Crud;
+import com.lovetropics.lib.techstack.TechstackEventSubscriber;
 import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.config.ConfigLT;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.state.GameStateMap;
+import com.lovetropics.minigames.common.core.integration.game_actions.GameActionType;
 import com.mojang.logging.LogUtils;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.ExtraCodecs;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
@@ -48,32 +48,12 @@ public final class BackendIntegrations {
 	private final IntegrationSender sender = DEBUG_LOGGING_BACKEND ? IntegrationSender.LOGGING : IntegrationSender.open();
 	private final IntegrationSender pollSender = DEBUG_LOGGING_BACKEND ? IntegrationSender.LOGGING : IntegrationSender.openPoll();
 
-	private final BackendProxy proxy;
-
+	@Nullable
+	private TechstackEventSubscriber subscriber;
 	@Nullable
 	private GameInstanceIntegrations liveInstance;
 
 	private BackendIntegrations() {
-		proxy = new BackendProxy(new BackendConnection.Handler() {
-			@Override
-			public void acceptOpened() {
-			}
-
-			@Override
-			public void acceptMessage(JsonObject payload) {
-				handlePayload(payload);
-			}
-
-			@Override
-			public void acceptError(Throwable cause) {
-				LOGGER.error("Integrations websocket closed with error: {}", cause.getMessage());
-			}
-
-			@Override
-			public void acceptClosed(int code, @Nullable String reason) {
-				LOGGER.error("Integrations websocket closed with code: {} and reason: {}", code, reason);
-			}
-		});
 	}
 
 	public static BackendIntegrations get() {
@@ -81,24 +61,51 @@ public final class BackendIntegrations {
 	}
 
 	@Nullable
-	private static BackendConnectionConfig connectionConfig() {
-		ConfigLT.CategoryIntegrations integrations = ConfigLT.INTEGRATIONS;
-		if (!integrations.isEnabled()) {
+	private TechstackEventSubscriber buildSubscriber(String uriString, String token) {
+		if (uriString.isBlank() || token.isBlank()) {
 			return null;
 		}
 
+		URI uri;
 		try {
-			BackendConnectionConfig config = BackendConnectionConfig.of(new URI(integrations.webSocketUrl.get()));
-			String token = integrations.authToken.get();
-			if (!token.isBlank()) {
-				config = config.withToken(token);
-			}
-			return config.withSubscriptions(GameInstanceIntegrations.SUBSCRIPTIONS);
+			uri = new URI(uriString);
 		} catch (URISyntaxException e) {
 			LOGGER.warn("Malformed URI", e);
+			return null;
 		}
 
-		return null;
+		TechstackEventSubscriber.Builder subscriber = TechstackEventSubscriber.builder(uri)
+				.authenticate(token);
+
+		addEventSubscriptions(subscriber);
+
+		return subscriber.build();
+	}
+
+	private void addEventSubscriptions(TechstackEventSubscriber.Builder subscriber) {
+		for (GameActionType type : GameActionType.values()) {
+			subscriber.subscribe(Crud.CREATE, type.getId(), type.codec(), action -> {
+				if (liveInstance != null) {
+					liveInstance.handleActionRequest(action);
+				}
+			});
+		}
+
+		// TODO: Do something better than this
+		for (Crud crud : Crud.values()) {
+			subscriber.subscribe(crud, "poll", ExtraCodecs.JSON, payload -> {
+				if (liveInstance != null) {
+					liveInstance.handlePoll(payload.getAsJsonObject(), crud);
+				}
+			});
+		}
+	}
+
+	public void updateConfig(String uri, String token) {
+		if (subscriber != null) {
+			subscriber.close();
+		}
+		subscriber = buildSubscriber(uri, token);
 	}
 
 	@SubscribeEvent
@@ -110,9 +117,6 @@ public final class BackendIntegrations {
 	}
 
 	private void tick(MinecraftServer server) {
-		proxy.connectWith(connectionConfig());
-		proxy.tick();
-
 		GameInstanceIntegrations instance = liveInstance;
 		if (instance != null) {
 			instance.tick(server);
@@ -154,36 +158,8 @@ public final class BackendIntegrations {
 		EXECUTOR.submit(() -> pollSender.post(endpoint, body));
 	}
 
-	private void handlePayload(JsonObject object) {
-		LOGGER.debug("Receive payload over websocket: {}", object);
-
-		try {
-			final String type = object.get("type").getAsString();
-			final Crud crud = Crud.parse(object.get("crud"));
-			if (crud == null) {
-				LOGGER.error("Encountered unrecognized crud: '{}'", object.get("crud"));
-				return;
-			}
-
-			handlePayload(object.getAsJsonObject("payload"), type, crud);
-		} catch (Exception e) {
-			LOGGER.error("An unexpected error occurred while trying to handle payload: {}", object, e);
-		}
-	}
-
-	private void handlePayload(JsonObject object, String type, Crud crud) {
-		GameInstanceIntegrations liveInstance = this.liveInstance;
-
-		// we can ignore the payload because we will request it again when a minigame starts
-		if (liveInstance == null) {
-			return;
-		}
-
-		liveInstance.handlePayload(object, type, crud);
-	}
-
 	public boolean isConnected() {
-		return DEBUG_LOGGING_BACKEND || proxy.isConnected();
+		return DEBUG_LOGGING_BACKEND || (subscriber != null && subscriber.isConnected());
 	}
 
 	void closeInstance(GameInstanceIntegrations instance) {
@@ -198,5 +174,9 @@ public final class BackendIntegrations {
 
 	public void sendClose() {
 		post(ConfigLT.INTEGRATIONS.worldUnloadEndpoint.get(), "");
+		if (subscriber != null) {
+			subscriber.close();
+			subscriber = null;
+		}
 	}
 }

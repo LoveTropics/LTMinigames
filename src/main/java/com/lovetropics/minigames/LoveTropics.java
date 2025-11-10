@@ -28,8 +28,6 @@ import com.lovetropics.minigames.common.content.escape_race.EscapeRace;
 import com.lovetropics.minigames.common.content.escape_race.EscapeRaceTexts;
 import com.lovetropics.minigames.common.content.escape_race.client.EscapeRaceBucksRenderer;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DDRCommand;
-import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DDRMachineEntityRenderer;
-import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DDRMachineRenderState;
 import com.lovetropics.minigames.common.content.escape_race.vending_machine.VendingMachineEntityRenderer;
 import com.lovetropics.minigames.common.content.paint_party.PaintParty;
 import com.lovetropics.minigames.common.content.paint_party.PaintPartyTexts;
@@ -173,7 +171,7 @@ public class LoveTropics {
 		NeoForge.EVENT_BUS.addListener(this::onAttemptSpawn);
 
 		modBus.addListener(ConfigLT::onLoad);
-		modBus.addListener(ConfigLT::onFileChange);
+		modBus.addListener(ConfigLT::onReload);
 
 		// Registry objects
 		LoveTropicsBlocks.init();

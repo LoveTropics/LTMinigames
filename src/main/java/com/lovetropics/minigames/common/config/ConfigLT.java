@@ -1,6 +1,6 @@
 package com.lovetropics.minigames.common.config;
 
-import com.google.common.base.Strings;
+import com.lovetropics.minigames.common.core.integration.BackendIntegrations;
 import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.neoforge.common.ModConfigSpec;
 import net.neoforged.neoforge.common.ModConfigSpec.BooleanValue;
@@ -114,22 +114,27 @@ public class ConfigLT {
 					.define("addPollEndpoint", "polls/add");
 			COMMON_BUILDER.pop();
 		}
-
-		public boolean isEnabled() {
-			return !Strings.isNullOrEmpty(authToken.get());
-		}
 	}
 
 	public static final ModConfigSpec CLIENT_CONFIG = CLIENT_BUILDER.build();
 	public static final ModConfigSpec SERVER_CONFIG = COMMON_BUILDER.build();
 
-	public static void onLoad(final ModConfigEvent.Loading configEvent) {
+	public static void onLoad(final ModConfigEvent.Loading event) {
+		if (event.getConfig().getSpec() == SERVER_CONFIG) {
+			onServerConfigLoad();
+		}
 	}
 
 	/**
 	 * values used during runtime that require processing from disk
 	 */
-	public static void onFileChange(final ModConfigEvent.Reloading configEvent) {
-		//System.out.println("file changed!" + configEvent.toString());
+	public static void onReload(final ModConfigEvent.Reloading event) {
+		if (event.getConfig().getSpec() == SERVER_CONFIG) {
+			onServerConfigLoad();
+		}
+	}
+
+	private static void onServerConfigLoad() {
+		BackendIntegrations.get().updateConfig(INTEGRATIONS.webSocketUrl.get(), INTEGRATIONS.authToken.get());
 	}
 }
