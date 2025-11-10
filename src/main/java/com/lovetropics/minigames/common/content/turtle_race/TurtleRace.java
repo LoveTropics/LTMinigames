@@ -7,8 +7,8 @@ import com.lovetropics.minigames.common.util.registry.LoveTropicsRegistrate;
 public final class TurtleRace {
 	private static final LoveTropicsRegistrate REGISTRATE = LoveTropics.registrate();
 
-	public static final GameBehaviorEntry<TurtleRiderBehavior> TURTLE_RIDER = REGISTRATE.object("turtle_rider")
-			.behavior(TurtleRiderBehavior.CODEC)
+	public static final GameBehaviorEntry<RiderBehavior> RIDER = REGISTRATE.object("rider")
+			.behavior(RiderBehavior.CODEC)
 			.register();
 
 	public static final GameBehaviorEntry<TurtleBoostBehavior> TURTLE_BOOST = REGISTRATE.object("turtle_boost")

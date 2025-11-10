@@ -21,79 +21,79 @@ import org.slf4j.Logger;
 import java.util.Map;
 import java.util.UUID;
 
-public record TurtleRiderBehavior(EntityTemplate turtle) implements IGameBehavior {
+public record RiderBehavior(EntityTemplate entity) implements IGameBehavior {
 	private static final Logger LOGGER = LogUtils.getLogger();
 
-	public static final MapCodec<TurtleRiderBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			EntityTemplate.CODEC.fieldOf("turtle").forGetter(TurtleRiderBehavior::turtle)
-	).apply(i, TurtleRiderBehavior::new));
+	public static final MapCodec<RiderBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+			EntityTemplate.CODEC.fieldOf("entity").forGetter(RiderBehavior::entity)
+	).apply(i, RiderBehavior::new));
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		Map<UUID, Entity> turtles = new Object2ObjectOpenHashMap<>();
+		Map<UUID, Entity> riddenEntities = new Object2ObjectOpenHashMap<>();
 
 		events.listen(GamePlayerEvents.SPAWN, (playerId, spawn, role) -> {
 			if (role != PlayerRole.PARTICIPANT) {
 				return;
 			}
 			spawn.run(player -> {
-				Entity entity = spawnTurtle(player);
+				Entity entity = spawnEntity(player);
 				if (entity == null) {
-					LOGGER.error("Failed to spawn turtle entity of type: {}", turtle.type());
+					LOGGER.error("Failed to spawn entity of type: {}", entity.getType());
 					return;
 				}
 				player.startRiding(entity);
-				turtles.put(player.getUUID(), entity);
+				riddenEntities.put(player.getUUID(), entity);
 			});
 		});
 
 		events.listen(GamePlayerEvents.SET_ROLE, (player, role, lastRole) -> {
 			if (lastRole == PlayerRole.PARTICIPANT) {
-				removeTurtle(turtles, player);
+				removeEntity(riddenEntities, player);
 			}
 		});
 
-		events.listen(GamePlayerEvents.REMOVE, player -> removeTurtle(turtles, player));
+		events.listen(GamePlayerEvents.REMOVE, player -> removeEntity(riddenEntities, player));
 
 		events.listen(GamePlayerEvents.TICK, player -> {
-			Entity turtle = turtles.get(player.getUUID());
-			if (turtle == null) {
+			Entity entity = riddenEntities.get(player.getUUID());
+			if (entity == null) {
 				return;
 			}
 
-			if (player.getVehicle() != turtle) {
-				fixTurtle(turtles, player, turtle);
+			if (player.getVehicle() != entity) {
+				fixEntity(riddenEntities, player, entity);
 			}
 		});
 	}
 
-	private static void removeTurtle(Map<UUID, Entity> turtles, ServerPlayer player) {
+	private static void removeEntity(Map<UUID, Entity> riddenEntities, ServerPlayer player) {
 		player.stopRiding();
 
-		Entity turtle = turtles.remove(player.getUUID());
-		if (turtle != null) {
-			turtle.kill(player.level());
+		Entity entity = riddenEntities.remove(player.getUUID());
+		if (entity != null) {
+			entity.kill(player.level());
 		}
 	}
 
-	private void fixTurtle(Map<UUID, Entity> turtles, ServerPlayer player, Entity turtle) {
-		if (!turtle.isAlive()) {
-			turtle = spawnTurtle(player);
-			if (turtle == null) {
-				turtles.remove(player.getUUID());
+	private void fixEntity(Map<UUID, Entity> riddenEntities, ServerPlayer player, Entity entity) {
+		if (!entity.isAlive()) {
+			entity = spawnEntity(player);
+			if (entity == null) {
+				riddenEntities.remove(player.getUUID());
 				return;
 			}
-			turtles.put(player.getUUID(), turtle);
+			riddenEntities.put(player.getUUID(), entity);
 		}
 
-		player.startRiding(turtle, true);
+		player.startRiding(entity, true);
 
 		ServerChunkCache chunkSource = player.level().getChunkSource();
-		chunkSource.chunkMap.broadcast(turtle, new ClientboundSetPassengersPacket(turtle));
+		chunkSource.chunkMap.broadcast(entity, new ClientboundSetPassengersPacket(entity));
 	}
 
 	@Nullable
-	private Entity spawnTurtle(ServerPlayer player) {
-		return turtle.spawn(player.level(), player.getX(), player.getY(), player.getZ(), player.getYRot(), player.getXRot());
+	private Entity spawnEntity(ServerPlayer player) {
+		return entity.spawn(player.level(), player.getX(), player.getY(), player.getZ(), player.getYRot(), player.getXRot());
 	}
 }
