@@ -5,6 +5,7 @@ import com.lovetropics.minigames.client.game.ClientGameStateManager;
 import com.lovetropics.minigames.common.core.game.client_state.GameClientState;
 import com.lovetropics.minigames.common.core.game.client_state.GameClientStateType;
 import com.lovetropics.minigames.common.core.game.client_state.GameClientStateTypes;
+import com.lovetropics.minigames.common.core.game.persistent.behavior.MakeSpeedyBehavior;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.neoforged.api.distmarker.Dist;
@@ -32,10 +33,6 @@ public class BeSpeedyState implements GameClientState {
 			return;
 		}
 
-		double movementY = Math.abs(player.getDeltaMovement().y);
-		if (movementY < 0.1 && !player.isSteppingCarefully()) {
-			double factor = 1.35 - movementY * 0.2; // TODO config
-			player.setDeltaMovement(player.getDeltaMovement().multiply(factor, 1.0, factor));
-		}
+		MakeSpeedyBehavior.applySpeed(player);
 	}
 }
