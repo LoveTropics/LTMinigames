@@ -17,7 +17,9 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.advancements.critereon.BlockPredicate;
 import net.minecraft.core.BlockPos;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
 
@@ -49,11 +51,17 @@ public final class BlockInRegionTrigger implements IGameBehavior {
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		BlockBox blockRegion = game.mapRegions().getOrThrow(region);
+		List<BlockBox> blockRegions = game.mapRegions().getAll(region);
 		actions.register(game, events);
+		List<BlockPos> blocks = new ArrayList<>();
+		for (BlockBox box : blockRegions) {
+			for (BlockPos blockPos : box) {
+				blocks.add(blockPos);
+			}
+		}
 
 		events.listen(GamePhaseEvents.TICK, () -> {
-			for (BlockPos pos : blockRegion) {
+			for (BlockPos pos : blocks) {
 				boolean matches = predicate.matches(game.level(), pos);
 				if (allMatch && !matches) {
 					return;
