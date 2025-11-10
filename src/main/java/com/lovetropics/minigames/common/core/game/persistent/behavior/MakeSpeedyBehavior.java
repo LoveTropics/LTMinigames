@@ -13,7 +13,6 @@ import com.lovetropics.minigames.common.core.game.persistent.PersistentGameBehav
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Player;
 
 import java.util.function.Supplier;
 
@@ -29,21 +28,10 @@ public class MakeSpeedyBehavior implements PersistentGameBehavior {
 		events.listen(GamePlayerEvents.REMOVE, player -> {
 			GameClientState.removeFromPlayer(GameClientStateTypes.BE_SPEEDY.get(), player);
 		});
-
-		events.listen(GamePlayerEvents.TICK, MakeSpeedyBehavior::applySpeed);
 	}
 
 	@Override
 	public Supplier<? extends PersistentGameBehaviorType<?>> type() {
 		return PersistentGameBehaviors.MAKE_SPEEDY;
-	}
-
-
-	public static void applySpeed(Player player) {
-		double movementY = Math.abs(player.getDeltaMovement().y);
-		if (movementY < 0.1 && !player.isSteppingCarefully()) {
-			double factor = 1.35 - movementY * 0.2; // TODO config
-			player.setDeltaMovement(player.getDeltaMovement().multiply(factor, 1.0, factor));
-		}
 	}
 }
