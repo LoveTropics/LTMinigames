@@ -146,6 +146,7 @@ import com.lovetropics.minigames.common.core.game.behavior.instances.tweak.Damag
 import com.lovetropics.minigames.common.core.game.behavior.instances.tweak.DisableHungerBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.tweak.DisableThrowingItemsBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.tweak.DisableTntDestructionBehavior;
+import com.lovetropics.minigames.common.core.game.behavior.instances.tweak.ForceHandsBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.tweak.PreventBreakBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.tweak.QuietExplosionsBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.tweak.ScaleDamageBehavior;
@@ -324,6 +325,7 @@ public class GameBehaviorTypes {
 	public static final GameBehaviorEntry<KillEntitiesAction> KILL_ENTITIES = register("kill_entities", KillEntitiesAction.CODEC);
 	public static final GameBehaviorEntry<StartProgressChannelAction> START_PROGRESS_CHANNEL = register("start_progress_channel", StartProgressChannelAction.CODEC);
 	public static final GameBehaviorEntry<PreventBreakBehavior> PREVENT_BREAK = register("prevent_break", PreventBreakBehavior.CODEC);
+	public static final GameBehaviorEntry<ForceHandsBehavior> FORCE_HANDS = register("force_hands", ForceHandsBehavior.CODEC);
 	public static final GameBehaviorEntry<RisingFluidBehavior> RISING_FLUID = register("rising_fluid", RisingFluidBehavior.CODEC);
 	public static final GameBehaviorEntry<EndGameAction> END_GAME = register("end_game", EndGameAction.CODEC);
 	public static final GameBehaviorEntry<CloseGameAction> CLOSE_GAME = register("close_game", CloseGameAction.CODEC);
