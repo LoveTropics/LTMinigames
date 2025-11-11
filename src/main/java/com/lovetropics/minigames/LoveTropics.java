@@ -83,6 +83,7 @@ import com.lovetropics.minigames.common.core.item.MinigameDataComponents;
 import com.lovetropics.minigames.common.core.item.MinigameItems;
 import com.lovetropics.minigames.common.core.map.VoidChunkGenerator;
 import com.lovetropics.minigames.common.core.map.workspace.MapWorkspaceManager;
+import com.lovetropics.minigames.common.dev.DevPackSource;
 import com.lovetropics.minigames.common.role.StreamHosts;
 import com.lovetropics.minigames.common.util.registry.LoveTropicsRegistrate;
 import com.lovetropics.minigames.common.util.world.gamedata.GameDataAccessor;
@@ -93,9 +94,12 @@ import com.tterrag.registrate.providers.ProviderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.packs.PackType;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.item.CreativeModeTab;
 import net.neoforged.api.distmarker.Dist;
@@ -107,14 +111,19 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.AddPackFindersEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.living.MobSpawnEvent;
 import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import org.slf4j.Logger;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
@@ -232,6 +241,23 @@ public class LoveTropics {
 			RiverRaceBarRenderer.registerOverlays(event);
 			EscapeRaceBucksRenderer.registerOverlays(event);
 			VendingMachineEntityRenderer.registerOverlays(event);
+		});
+
+		if (!FMLEnvironment.production) {
+			loadDevPacks(modBus);
+		}
+	}
+
+	private void loadDevPacks(IEventBus modBus) {
+		Path repositoryRoot = FMLPaths.GAMEDIR.get().getParent();
+		Path datapackRoot = repositoryRoot.getParent().resolve("LTDatapack");
+		if (!Files.exists(datapackRoot)) {
+			LOGGER.warn("Couldn't find LTDatapack repository at {}, not loading", datapackRoot.toAbsolutePath());
+			return;
+		}
+		modBus.addListener((AddPackFindersEvent event) -> {
+			MutableComponent name = event.getPackType() == PackType.CLIENT_RESOURCES ? Component.literal("LTDatapack - Assets") : Component.literal("LTDatapack");
+			event.addRepositorySource(new DevPackSource(datapackRoot, event.getPackType(), "lt", name));
 		});
 	}
 
