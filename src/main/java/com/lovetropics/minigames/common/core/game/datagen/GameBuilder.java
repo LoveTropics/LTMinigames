@@ -32,6 +32,8 @@ public class GameBuilder {
 	private int minimumParticipants = 1;
 	private int maximumParticipants = 50;
 	@Nullable
+	private ResourceLocation introSlideshow;
+	@Nullable
 	private GamePhaseConfig waiting;
 	@Nullable
 	private GamePhaseConfig playing;
@@ -80,6 +82,11 @@ public class GameBuilder {
 		return this;
 	}
 
+	public GameBuilder setIntroSlideshow(@Nullable ResourceLocation introSlideshow) {
+		this.introSlideshow = introSlideshow;
+		return this;
+	}
+
 	public GameBuilder withWaitingPhase(IGameMapProvider map, UnaryOperator<PhaseBuilder> builderConsumer) {
 		waiting = builderConsumer.apply(new PhaseBuilder(map)).create();
 		return this;
@@ -102,7 +109,7 @@ public class GameBuilder {
 
 	public GameConfig build() {
 		Objects.requireNonNull(playing, "Playing phase must be initialized");
-		return new GameConfig(id, backendId, statisticsKey, name, subtitle, icon, minimumParticipants, maximumParticipants, waiting, playing, hasMultiGame, hideFromList);
+		return new GameConfig(id, backendId, statisticsKey, name, subtitle, icon, minimumParticipants, maximumParticipants, introSlideshow, waiting, playing, hasMultiGame, hideFromList);
 	}
 
 	public static final class PhaseBuilder {

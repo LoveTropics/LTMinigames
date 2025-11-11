@@ -1,5 +1,7 @@
 package com.lovetropics.minigames.common.core.game.impl;
 
+import com.lovetropics.lib.slideshow.SlideshowApi;
+import com.lovetropics.lib.slideshow.SlideshowInstanceHandle;
 import com.lovetropics.minigames.client.lobby.state.ClientCurrentGame;
 import com.lovetropics.minigames.client.lobby.state.ClientGameDefinition;
 import com.lovetropics.minigames.common.core.game.GamePhaseType;
@@ -11,9 +13,11 @@ import com.lovetropics.minigames.common.core.game.lobby.LobbyControls;
 import com.lovetropics.minigames.common.core.game.lobby.QueuedGame;
 import com.lovetropics.minigames.common.core.game.rewards.GameRewardsMap;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nullable;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
@@ -98,7 +102,7 @@ abstract class LobbyState {
 		private LobbyState nextGameState(GameLobby lobby, @Nullable GamePhase phase) {
 			QueuedGame game = lobby.gameQueue.next();
 			if (game != null) {
-				Pending pending = new Pending(phase, createGame(lobby, game.definition()));
+				Pending pending = createGame(lobby, phase, game.definition());
 				pending.pendingGame = ClientCurrentGame.create(
 						ClientGameDefinition.from(game.definition()),
 						GamePhaseType.WAITING
@@ -109,14 +113,19 @@ abstract class LobbyState {
 			}
 		}
 
-		private CompletableFuture<GameResult<LobbyState>> createGame(GameLobby lobby, IGameDefinition definition) {
+		private Pending createGame(GameLobby lobby, @Nullable GamePhase lastPhase, IGameDefinition definition) {
 			GameInstance game = new GameInstance(lobby, definition);
 			game.stateMap.register(GameRewardsMap.STATE, lobby.getRewardsMap());
 
-			final IGamePhaseDefinition playing = definition.getPlayingPhase();
-			return definition.getWaitingPhase()
-					.map(ph -> createWaiting(game, ph, playing))
-					.orElseGet(() -> createPlaying(game, playing));
+			final IGamePhaseDefinition playingDefinition = definition.getPlayingPhase();
+			Optional<IGamePhaseDefinition> waitingDefinition = definition.getWaitingPhase();
+			if (waitingDefinition.isPresent()) {
+				CompletableFuture<GameResult<LobbyState>> waiting = createWaiting(game, waitingDefinition.get(), playingDefinition);
+				return new Pending(lastPhase, waiting, null);
+			} else {
+				CompletableFuture<GameResult<LobbyState>> playing = createPlaying(game, playingDefinition);
+				return new Pending(lastPhase, playing, openIntroSlideshow(game));
+			}
 		}
 
 		private CompletableFuture<GameResult<LobbyState>> createPlaying(GameInstance game, IGamePhaseDefinition definition) {
@@ -129,10 +138,20 @@ abstract class LobbyState {
 					.thenApply(result -> result.map(waiting -> {
 						Supplier<LobbyState> start = () -> {
 							CompletableFuture<GameResult<LobbyState>> next = createPlaying(waiting.game, playing);
-							return new LobbyState.Pending(waiting, next);
+							return new LobbyState.Pending(waiting, next, openIntroSlideshow(game));
 						};
 						return new LobbyState.Waiting(waiting, start);
 					}));
+		}
+
+		private @Nullable SlideshowInstanceHandle openIntroSlideshow(GameInstance game) {
+			ResourceLocation slideshowId = game.definition.introSlideshow();
+			SlideshowInstanceHandle slideshow = slideshowId != null ? SlideshowApi.open(slideshowId) : null;
+			if (slideshow != null) {
+				slideshow.play();
+				game.allPlayers().forEach(slideshow::addPlayer);
+			}
+			return slideshow;
 		}
 	}
 
@@ -198,19 +217,27 @@ abstract class LobbyState {
 	}
 
 	static final class Pending extends LobbyState {
+		private static final double SLIDESHOW_BUFFER_TIME = 0.5;
+
 		final CompletableFuture<GameResult<LobbyState>> next;
+		@Nullable
+		final SlideshowInstanceHandle slideshow;
 		@Nullable
 		ClientCurrentGame pendingGame;
 
-		Pending(@Nullable GamePhase phase, CompletableFuture<GameResult<LobbyState>> next) {
+		Pending(@Nullable GamePhase phase, CompletableFuture<GameResult<LobbyState>> next, @Nullable SlideshowInstanceHandle slideshow) {
 			super(phase);
 			this.next = next;
+			this.slideshow = slideshow;
 		}
 
 		@Override
 		protected GameResult<LobbyState> tick(GameLobby lobby) {
 			if (phase != null) {
 				phase.tick();
+			}
+			if (slideshow != null && slideshow.currentTime() < slideshow.totalTime() - SLIDESHOW_BUFFER_TIME) {
+				return GameResult.ok(this);
 			}
 			return next.getNow(GameResult.ok(this));
 		}

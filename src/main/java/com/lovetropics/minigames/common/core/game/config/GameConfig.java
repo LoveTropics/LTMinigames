@@ -23,6 +23,7 @@ public record GameConfig(
 		@Nullable ResourceLocation icon,
 		int minimumParticipants,
 		int maximumParticipants,
+		@Nullable ResourceLocation introSlideshow,
 		@Nullable GamePhaseConfig waiting,
 		GamePhaseConfig playing,
 		boolean isMultiGame,
@@ -37,18 +38,20 @@ public record GameConfig(
 				ResourceLocation.CODEC.optionalFieldOf("icon").forGetter(c -> Optional.ofNullable(c.icon)),
 				Codec.INT.optionalFieldOf("minimum_participants", 1).forGetter(c -> c.minimumParticipants),
 				Codec.INT.optionalFieldOf("maximum_participants", 100).forGetter(c -> c.maximumParticipants),
+				ResourceLocation.CODEC.optionalFieldOf("intro_slideshow").forGetter(c -> Optional.ofNullable(c.introSlideshow)),
 				GamePhaseConfig.CODEC.optionalFieldOf("waiting").forGetter(c -> Optional.ofNullable(c.waiting)),
 				Codec.BOOL.optionalFieldOf("is_multi_game").forGetter(c -> Optional.of(c.isMultiGame)),
 				GamePhaseConfig.MAP_CODEC.forGetter(c -> c.playing),
 				Codec.BOOL.optionalFieldOf("hide_from_list", false).forGetter(c -> c.hideFromList)
-		).apply(i, (backendIdOpt, statisticsKeyOpt, name, subtitleOpt, iconOpt, minimumParticipants, maximumParticipants, waitingOpt, is_multi_game, active, hideFromList) -> {
+		).apply(i, (backendIdOpt, statisticsKeyOpt, name, subtitleOpt, iconOpt, minimumParticipants, maximumParticipants, introSlideshowOpt, waitingOpt, is_multi_game, active, hideFromList) -> {
 			ResourceLocation backendId = backendIdOpt.orElse(id);
 			String statisticsKey = statisticsKeyOpt.orElse(id.getPath());
 			Component subtitle = subtitleOpt.orElse(null);
 			boolean isMultiGame = is_multi_game.orElse(false);
 			ResourceLocation icon = iconOpt.orElse(null);
+			ResourceLocation introSlideshow = introSlideshowOpt.orElse(null);
 			GamePhaseConfig waiting = waitingOpt.orElse(null);
-			return new GameConfig(id, backendId, statisticsKey, name, subtitle, icon, minimumParticipants, maximumParticipants, waiting, active, isMultiGame, hideFromList);
+			return new GameConfig(id, backendId, statisticsKey, name, subtitle, icon, minimumParticipants, maximumParticipants, introSlideshow, waiting, active, isMultiGame, hideFromList);
 		}));
 	}
 

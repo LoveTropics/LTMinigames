@@ -1,6 +1,7 @@
 package com.lovetropics.minigames.common.core.game.impl;
 
 import com.google.common.collect.Lists;
+import com.lovetropics.lib.slideshow.SlideshowApi;
 import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.GamePhaseType;
@@ -33,6 +34,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -150,6 +152,11 @@ public class GamePhase implements IGamePhase {
 	}
 
 	protected ServerPlayer addAndSpawnPlayer(ServerPlayer player, @Nullable PlayerRole role, final boolean savePlayerDataToMemory) {
+		ResourceLocation introSlideshow = definition().introSlideshow();
+		if (phaseType == GamePhaseType.WAITING && introSlideshow != null) {
+			SlideshowApi.preload(player, introSlideshow);
+		}
+
 		SpawnBuilder spawn = new SpawnBuilder(player);
 		invoker(GamePlayerEvents.SPAWN).onSpawn(player.getUUID(), spawn, role);
 

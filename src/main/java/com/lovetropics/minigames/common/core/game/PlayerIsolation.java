@@ -1,5 +1,6 @@
 package com.lovetropics.minigames.common.core.game;
 
+import com.lovetropics.lib.slideshow.SlideshowApi;
 import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.core.game.impl.GameInstance;
 import com.lovetropics.minigames.common.util.LTGameTestFakePlayer;
@@ -128,6 +129,11 @@ public final class PlayerIsolation {
 
 			reloadingPlayers.add(oldPlayer.getUUID());
 			oldPlayer.addTag(RELOADING_TAG);
+
+			final ServerPlayer newPlayer = recreatePlayer(oldPlayer);
+			newPlayer.addTag(RELOADING_TAG);
+			SlideshowApi.replacePlayer(oldPlayer, newPlayer);
+
 			EventHooks.firePlayerLoggedOut(oldPlayer);
 
 			// Only called once - when player enters the first game phase they enter
@@ -139,9 +145,6 @@ public final class PlayerIsolation {
 			oldPlayer.unRide();
 			oldPlayer.level().removePlayerImmediately(oldPlayer, Entity.RemovalReason.DISCARDED);
 			((PlayerListAccess) playerList).ltminigames$remove(oldPlayer);
-
-			final ServerPlayer newPlayer = recreatePlayer(oldPlayer);
-			newPlayer.addTag(RELOADING_TAG);
 
 			initializer.accept(newPlayer, reporter);
 			newPlayer.onUpdateAbilities();

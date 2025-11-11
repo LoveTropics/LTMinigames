@@ -47,6 +47,11 @@ public interface IGameDefinition {
 		return null;
 	}
 
+	@Nullable
+	default ResourceLocation introSlideshow() {
+		return null;
+	}
+
 	/**
 	 * Will not let you start the minigame without at least this amount of
 	 * players registered for the polling minigame.
