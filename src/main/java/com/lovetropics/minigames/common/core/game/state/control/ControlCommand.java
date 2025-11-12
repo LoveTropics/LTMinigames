@@ -10,26 +10,14 @@ import net.minecraft.util.StringRepresentable;
 
 import java.util.function.Predicate;
 
-public record ControlCommand(Scope scope, Handler handler) {
+public record ControlCommand(Scope scope, Action action) {
 	private static final SimpleCommandExceptionType NO_PERMISSION = new SimpleCommandExceptionType(new LiteralMessage("You do not have permission to use this command!"));
 
-	public static ControlCommand forEveryone(Handler handler) {
-		return new ControlCommand(Scope.EVERYONE, handler);
-	}
-
-	public static ControlCommand forAdmins(Handler handler) {
-		return new ControlCommand(Scope.ADMINS, handler);
-	}
-
 	public void invoke(CommandSourceStack source) throws CommandSyntaxException {
-		if (!canUse(source)) {
+		if (!scope.canUse(source)) {
 			throw NO_PERMISSION.create();
 		}
-		handler.run(source);
-	}
-
-	public boolean canUse(CommandSourceStack source) {
-		return scope.permissionCheck.test(source);
+		action.run(source);
 	}
 
 	public enum Scope implements StringRepresentable {
@@ -47,13 +35,17 @@ public record ControlCommand(Scope scope, Handler handler) {
 			this.permissionCheck = permissionCheck;
 		}
 
+		public boolean canUse(CommandSourceStack source) {
+			return permissionCheck.test(source);
+		}
+
 		@Override
 		public String getSerializedName() {
 			return name;
 		}
 	}
 
-	public interface Handler {
+	public interface Action {
 		void run(CommandSourceStack source);
 	}
 }

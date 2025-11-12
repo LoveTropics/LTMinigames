@@ -166,12 +166,8 @@ public class GameManager implements IGameLookup {
 	}
 
 	public ControlCommandInvoker getControlInvoker(CommandSourceStack source) {
-		IGamePhase phase = getGamePhaseFor(source);
-		return phase != null ? getControlInvoker(phase) : ControlCommandInvoker.EMPTY;
-	}
-
-	private ControlCommandInvoker getControlInvoker(IGamePhase phase) {
-		return ControlCommandInvoker.create(phase.controlCommands());
+		GamePhase phase = (GamePhase) getGamePhaseFor(source);
+		return phase != null ? phase.controlCommands() : ControlCommandInvoker.EMPTY;
 	}
 
 	void addGamePhaseToDimension(ResourceKey<Level> dimension, GamePhase game) {

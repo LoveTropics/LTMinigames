@@ -1,6 +1,7 @@
 package com.lovetropics.minigames.common.core.game.behavior.event;
 
 import com.lovetropics.minigames.common.core.game.GameStopReason;
+import com.lovetropics.minigames.common.core.game.state.control.ControlCommandRegistrar;
 import com.lovetropics.minigames.common.core.game.state.statistics.PlayerKey;
 
 import javax.annotation.Nullable;
@@ -42,6 +43,12 @@ public final class GamePhaseEvents {
 		}
 	});
 
+	public static final GameEventType<RegisterCommands> REGISTER_COMMANDS = GameEventType.create(RegisterCommands.class, listeners -> commands -> {
+		for (RegisterCommands listener : listeners) {
+			listener.register(commands);
+		}
+	});
+
 	private GamePhaseEvents() {
 	}
 
@@ -67,5 +74,9 @@ public final class GamePhaseEvents {
 
 	public interface Tick {
 		void tick();
+	}
+
+	public interface RegisterCommands {
+		void register(ControlCommandRegistrar commands);
 	}
 }

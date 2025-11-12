@@ -4,7 +4,6 @@ import com.lovetropics.minigames.common.core.game.behavior.event.GameEventType;
 import com.lovetropics.minigames.common.core.game.player.PlayerRole;
 import com.lovetropics.minigames.common.core.game.player.PlayerSet;
 import com.lovetropics.minigames.common.core.game.state.GameStateMap;
-import com.lovetropics.minigames.common.core.game.state.control.ControlCommands;
 import com.lovetropics.minigames.common.core.game.state.statistics.GameStatistics;
 import com.lovetropics.minigames.common.core.game.util.GameScheduler;
 import com.lovetropics.minigames.common.core.integration.GameInstanceIntegrations;
@@ -104,10 +103,6 @@ public interface IGamePhase {
 	 * @return the tick counter since the game started
 	 */
 	long ticks();
-
-	default ControlCommands controlCommands() {
-		return state().get(ControlCommands.KEY);
-	}
 
 	default GameStatistics statistics() {
 		return state().get(GameStatistics.KEY);

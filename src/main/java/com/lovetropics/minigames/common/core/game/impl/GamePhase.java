@@ -25,6 +25,8 @@ import com.lovetropics.minigames.common.core.game.player.MutablePlayerSet;
 import com.lovetropics.minigames.common.core.game.player.PlayerRole;
 import com.lovetropics.minigames.common.core.game.player.PlayerSet;
 import com.lovetropics.minigames.common.core.game.state.GameStateMap;
+import com.lovetropics.minigames.common.core.game.state.control.ControlCommandInvoker;
+import com.lovetropics.minigames.common.core.game.state.control.ControlCommands;
 import com.lovetropics.minigames.common.core.game.state.statistics.PlayerKey;
 import com.lovetropics.minigames.common.core.game.state.statistics.StatisticKey;
 import com.lovetropics.minigames.common.core.game.util.GameScheduler;
@@ -84,6 +86,8 @@ public class GamePhase implements IGamePhase {
 	@Nullable
 	GameStopReason stopped;
 	boolean destroyed;
+
+	private ControlCommandInvoker controlCommands = ControlCommandInvoker.EMPTY;
 
 	private final GameScheduler scheduler = new GameScheduler();
 
@@ -159,7 +163,15 @@ public class GamePhase implements IGamePhase {
 			return GameResult.fromException("Failed to start game", e);
 		}
 
+		controlCommands = buildControlCommandInvoker();
+
 		return GameResult.ok();
+	}
+
+	private ControlCommandInvoker buildControlCommandInvoker() {
+		ControlCommands commands = new ControlCommands();
+		invoker(GamePhaseEvents.REGISTER_COMMANDS).register(commands);
+		return commands;
 	}
 
 	protected ServerPlayer addAndSpawnPlayer(ServerPlayer player, @Nullable PlayerRole role, final boolean savePlayerDataToMemory) {
@@ -565,5 +577,9 @@ public class GamePhase implements IGamePhase {
 			LOGGER.error("Failed to start micro-game {} - {}", nextGame.id().toString(), result.getError().getString());
 			return false;
 		});
+	}
+
+	public ControlCommandInvoker controlCommands() {
+		return controlCommands;
 	}
 }

@@ -8,7 +8,7 @@ import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePackageEvents;
-import com.lovetropics.minigames.common.core.game.state.control.ControlCommand;
+import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents;
 import com.lovetropics.minigames.common.core.integration.GameInstanceIntegrations;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
@@ -51,20 +51,22 @@ public record PollFinalistsBehavior(String finalistsTag, String winnerTag, Strin
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		GameInstanceIntegrations integrations = game.getIntegrationsOrThrow();
-		game.controlCommands().add("start_runoff", ControlCommand.forAdmins(source -> {
-			try {
-				PlayerList players = source.getServer().getPlayerList();
-				players.getPlayers().forEach(p -> p.removeTag(winnerTag));
-				ObjectArrayList<String> finalists = players.getPlayers().stream()
-						.filter(p -> p.getTags().contains(finalistsTag))
-						.map(p -> p.getGameProfile().getName())
-						.collect(ObjectArrayList.toList());
-				Util.shuffle(finalists, RANDOM);
-				integrations.createPoll("Choose the best build!", pollDuration, finalists.toArray(String[]::new));
-			} catch (Exception e) {
-				LOGGER.error("Failed to start runoff:", e);
-			}
-		}));
+		events.listen(GamePhaseEvents.REGISTER_COMMANDS, commands -> {
+			commands.registerAdmin("start_runoff", source -> {
+				try {
+					PlayerList players = source.getServer().getPlayerList();
+					players.getPlayers().forEach(p -> p.removeTag(winnerTag));
+					ObjectArrayList<String> finalists = players.getPlayers().stream()
+							.filter(p -> p.getTags().contains(finalistsTag))
+							.map(p -> p.getGameProfile().getName())
+							.collect(ObjectArrayList.toList());
+					Util.shuffle(finalists, RANDOM);
+					integrations.createPoll("Choose the best build!", pollDuration, finalists.toArray(String[]::new));
+				} catch (Exception e) {
+					LOGGER.error("Failed to start runoff:", e);
+				}
+			});
+		});
 
 		events.listen(GamePackageEvents.RECEIVE_POLL_EVENT, (object, crud) -> handlePollEvent(game, object, crud));
 	}

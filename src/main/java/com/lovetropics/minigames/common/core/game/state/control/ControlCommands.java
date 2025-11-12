@@ -1,7 +1,5 @@
 package com.lovetropics.minigames.common.core.game.state.control;
 
-import com.lovetropics.minigames.common.core.game.state.GameStateKey;
-import com.lovetropics.minigames.common.core.game.state.IGameState;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.commands.CommandSourceStack;
@@ -9,15 +7,15 @@ import net.minecraft.commands.CommandSourceStack;
 import java.util.Map;
 import java.util.stream.Stream;
 
-public final class ControlCommands implements IGameState {
-	public static final GameStateKey.Defaulted<ControlCommands> KEY = GameStateKey.create("Control Commands", ControlCommands::new);
-
+public final class ControlCommands implements ControlCommandInvoker, ControlCommandRegistrar {
 	private final Map<String, ControlCommand> commands = new Object2ObjectOpenHashMap<>();
 
-	public void add(String name, ControlCommand command) {
-		commands.put(name, command);
+	@Override
+	public void register(String name, ControlCommand.Scope scope, ControlCommand.Action action) {
+		commands.put(name, new ControlCommand(scope, action));
 	}
 
+	@Override
 	public void invoke(String name, CommandSourceStack source) throws CommandSyntaxException {
 		ControlCommand command = commands.get(name);
 		if (command != null) {
@@ -25,9 +23,10 @@ public final class ControlCommands implements IGameState {
 		}
 	}
 
+	@Override
 	public Stream<String> list(CommandSourceStack source) {
 		return commands.entrySet().stream()
-				.filter(entry -> entry.getValue().canUse(source))
+				.filter(entry -> entry.getValue().scope().canUse(source))
 				.map(Map.Entry::getKey);
 	}
 }

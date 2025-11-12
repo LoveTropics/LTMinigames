@@ -17,20 +17,6 @@ public interface ControlCommandInvoker {
 		}
 	};
 
-	static ControlCommandInvoker create(ControlCommands commands) {
-		return new ControlCommandInvoker() {
-			@Override
-			public void invoke(String name, CommandSourceStack source) throws CommandSyntaxException {
-				commands.invoke(name, source);
-			}
-
-			@Override
-			public Stream<String> list(CommandSourceStack source) {
-				return commands.list(source);
-			}
-		};
-	}
-
 	void invoke(String name, CommandSourceStack source) throws CommandSyntaxException;
 
 	Stream<String> list(CommandSourceStack source);

@@ -6,6 +6,7 @@ import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionContext;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionList;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
+import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents;
 import com.lovetropics.minigames.common.core.game.state.control.ControlCommand;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -21,17 +22,21 @@ public record BindControlsBehavior(Map<ControlCommand.Scope, Map<String, GameAct
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		scopedActions.forEach((scope, scopedActions) -> scopedActions.forEach((control, actions) -> {
-			actions.register(game, events);
+		scopedActions.forEach((scope, scopedActions) ->
+				scopedActions.values().forEach(actions -> actions.register(game, events))
+		);
 
-			game.controlCommands().add(control, new ControlCommand(scope, source -> {
-				Entity entity = source.getEntity();
-				if (entity instanceof ServerPlayer player) {
-					actions.apply(game, GameActionContext.EMPTY, player);
-				} else {
-					actions.apply(game, GameActionContext.EMPTY);
-				}
+		events.listen(GamePhaseEvents.REGISTER_COMMANDS, commands -> {
+			scopedActions.forEach((scope, scopedActions) -> scopedActions.forEach((control, actions) -> {
+				commands.register(control, scope, source -> {
+					Entity entity = source.getEntity();
+					if (entity instanceof ServerPlayer player) {
+						actions.apply(game, GameActionContext.EMPTY, player);
+					} else {
+						actions.apply(game, GameActionContext.EMPTY);
+					}
+				});
 			}));
-		}));
+		});
 	}
 }

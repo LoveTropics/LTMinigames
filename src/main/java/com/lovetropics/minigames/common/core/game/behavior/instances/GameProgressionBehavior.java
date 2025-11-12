@@ -79,9 +79,11 @@ public class GameProgressionBehavior implements IGameBehavior {
 			progressHolder.set(newTime);
 		});
 
-		game.controlCommands().add("pause", ControlCommand.forAdmins(source -> debugTimeMultiplier = 0));
-		game.controlCommands().add("resume", ControlCommand.forAdmins(source -> debugTimeMultiplier = 1));
-		game.controlCommands().add("fastForward", ControlCommand.forAdmins(source -> debugTimeMultiplier *= 2));
+		events.listen(GamePhaseEvents.REGISTER_COMMANDS, commands -> {
+			commands.registerAdmin("pause", source -> debugTimeMultiplier = 0);
+			commands.registerAdmin("resume", source -> debugTimeMultiplier = 1);
+			commands.registerAdmin("fastForward", source -> debugTimeMultiplier *= 2);
+		});
 	}
 
 	private int tickTime(IGamePhase game, int time) {

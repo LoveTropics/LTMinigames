@@ -24,21 +24,22 @@ public class WeatherControlsBehavior implements IGameBehavior {
 	public void register(IGamePhase game, EventRegistrar events) {
 		controller = WeatherControllerManager.forWorld(game.level());
 
-		ControlCommands commands = game.controlCommands();
-		commands.add("start_heatwave", ControlCommand.forAdmins(source -> controller.setHeatwave(true)));
-		commands.add("stop_heatwave", ControlCommand.forAdmins(source -> controller.setHeatwave(false)));
+		events.listen(GamePhaseEvents.REGISTER_COMMANDS, commands -> {
+			commands.registerAdmin("start_heatwave", source -> controller.setHeatwave(true));
+			commands.registerAdmin("stop_heatwave", source -> controller.setHeatwave(false));
 
-		commands.add("start_rain", ControlCommand.forAdmins(source -> controller.setRain(1.0F, PrecipitationType.NORMAL)));
-		commands.add("stop_rain", ControlCommand.forAdmins(source -> controller.setRain(0.0F, PrecipitationType.NORMAL)));
+			commands.registerAdmin("start_rain", source -> controller.setRain(1.0F, PrecipitationType.NORMAL));
+			commands.registerAdmin("stop_rain", source -> controller.setRain(0.0F, PrecipitationType.NORMAL));
 
-		commands.add("start_acid_rain", ControlCommand.forAdmins(source -> controller.setRain(1.0F, PrecipitationType.ACID)));
-		commands.add("stop_acid_rain", ControlCommand.forAdmins(source -> controller.setRain(0.0F, PrecipitationType.ACID)));
+			commands.registerAdmin("start_acid_rain", source -> controller.setRain(1.0F, PrecipitationType.ACID));
+			commands.registerAdmin("stop_acid_rain", source -> controller.setRain(0.0F, PrecipitationType.ACID));
 
-		commands.add("start_hail", ControlCommand.forAdmins(source -> controller.setRain(1.0F, PrecipitationType.HAIL)));
-		commands.add("stop_hail", ControlCommand.forAdmins(source -> controller.setRain(0.0F, PrecipitationType.HAIL)));
+			commands.registerAdmin("start_hail", source -> controller.setRain(1.0F, PrecipitationType.HAIL));
+			commands.registerAdmin("stop_hail", source -> controller.setRain(0.0F, PrecipitationType.HAIL));
 
-		commands.add("start_wind", ControlCommand.forAdmins(source -> controller.setWind(0.5F)));
-		commands.add("stop_wind", ControlCommand.forAdmins(source -> controller.setWind(0.0F)));
+			commands.registerAdmin("start_wind", source -> controller.setWind(0.5F));
+			commands.registerAdmin("stop_wind", source -> controller.setWind(0.0F));
+		});
 
 		events.listen(GamePhaseEvents.STOP, reason -> controller.reset());
 	}
