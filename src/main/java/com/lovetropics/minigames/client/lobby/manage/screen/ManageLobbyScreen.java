@@ -202,9 +202,6 @@ public final class ManageLobbyScreen extends Screen {
 	public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
 		super.renderBackground(graphics, mouseX, mouseY, partialTicks);
 
-		FlexUi.fill(layout.leftColumn, graphics, 0x80101010);
-		FlexUi.fill(layout.rightColumn, graphics, 0x80101010);
-
 		for (Layout marginal : layout.marginals) {
 			FlexUi.fill(marginal, graphics, 0xFF101010);
 		}
@@ -227,27 +224,12 @@ public final class ManageLobbyScreen extends Screen {
 		Box header = layout.header.content();
 		graphics.drawCenteredString(font, title, header.centerX(), header.centerY(), CommonColors.WHITE);
 
-		ClientLobbyQueue queue = session.lobby().getQueue();
-		ClientLobbyQueuedGame selectedEntry = queue.byId(selectedGameId);
-		if (selectedEntry != null) {
-			renderSelectedGame(selectedEntry, graphics, mouseX, mouseY, partialTicks);
-		}
-
 		playerList.renderTooltip(graphics, mouseX, mouseY);
 	}
 
 	@Override
 	public Optional<GuiEventListener> getChildAt(double mouseX, double mouseY) {
 		return gameList.getChildAt(mouseX, mouseY).or(() -> super.getChildAt(mouseX, mouseY));
-	}
-
-	private void renderSelectedGame(ClientLobbyQueuedGame game, GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-		FlexUi.fill(layout.centerHeader, graphics, 0x80101010);
-
-		Component title = GameTexts.Ui.managingGame(game.definition());
-
-		Box header = layout.centerHeader.content();
-		graphics.drawCenteredString(font, title, header.centerX(), header.centerY() - font.lineHeight / 2, CommonColors.WHITE);
 	}
 
 	@Override

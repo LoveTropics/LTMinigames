@@ -12,17 +12,12 @@ final class ManageLobbyLayout {
 	static final int FOOTER_HEIGHT = 20;
 
 	final Layout header;
+	final Layout footer;
 
 	final Layout leftColumn;
 	final Layout leftFooter;
 
 	final Layout gameList;
-
-	final Layout centerColumn;
-	final Layout centerFooter;
-
-	final Layout centerHeader;
-	final Layout edit;
 
 	final Layout play;
 	final Layout skip;
@@ -30,7 +25,6 @@ final class ManageLobbyLayout {
 	final Layout restart;
 
 	final Layout rightColumn;
-	final Layout rightFooter;
 
 	final Layout properties;
 	final Layout name;
@@ -54,31 +48,29 @@ final class ManageLobbyLayout {
 		Flex body = root.child().row()
 				.width(1.0F, Flex.Unit.PERCENT).grow(1.0F);
 
+		Flex footer = root.child().row()
+				.width(1.0F, Flex.Unit.PERCENT).height(FOOTER_HEIGHT).padding(PADDING)
+				.alignMain(Align.Main.END);
+
+		Flex leftFooter = footer.child().row()
+				.height(1.0F, Flex.Unit.PERCENT).grow(1.0f)
+				.alignCross(Align.Cross.START);
+
+		Flex centerFooter = footer.child().row()
+				.height(1.0F, Flex.Unit.PERCENT).grow(1.0f)
+				.alignCross(Align.Cross.CENTER);
+
+		Flex rightFooter = footer.child().row()
+				.height(1.0F, Flex.Unit.PERCENT).grow(1.0f)
+				.alignCross(Align.Cross.END);
+
 		Flex leftColumn = body.child()
-				.size(0.25F, 1.0F, Flex.Unit.PERCENT)
+				.height(1.0f, Flex.Unit.PERCENT).grow(1.0f)
 				.alignMain(Align.Main.START);
 
 		Flex gameList = leftColumn.child()
-				.width(1.0F, Flex.Unit.PERCENT).grow(1.0F)
+				.size(1.0f, 1.0f, Flex.Unit.PERCENT)
 				.alignMain(Align.Main.START);
-
-		Flex leftFooter = leftColumn.child()
-				.width(1.0F, Flex.Unit.PERCENT).height(FOOTER_HEIGHT).padding(PADDING)
-				.alignMain(Align.Main.END);
-
-		Flex centerColumn = body.child().column()
-				.height(1.0F, Flex.Unit.PERCENT).grow(1.0F);
-
-		Flex centerHeader = centerColumn.child()
-				.width(1.0F, Flex.Unit.PERCENT).height(fontHeight).padding(3)
-				.alignMain(Align.Main.START);
-
-		Flex edit = centerColumn.child()
-				.width(1.0F, Flex.Unit.PERCENT).grow(1.0F);
-
-		Flex centerFooter = centerColumn.child().column()
-				.width(1.0F, Flex.Unit.PERCENT).height(FOOTER_HEIGHT).padding(PADDING)
-				.alignMain(Align.Main.END);
 
 		Flex controls = centerFooter.child().row()
 				.alignCross(Align.Cross.CENTER);
@@ -88,7 +80,7 @@ final class ManageLobbyLayout {
 		Flex restart = controls.child().size(20, 20).margin(2, 0);
 
 		Flex rightColumn = body.child().column()
-				.size(0.25F, 1.0F, Flex.Unit.PERCENT)
+				.size(0.4f, 1.0F, Flex.Unit.PERCENT)
 				.alignMain(Align.Main.END);
 
 		Flex properties = rightColumn.child().column()
@@ -106,38 +98,28 @@ final class ManageLobbyLayout {
 				.width(1.0F, Flex.Unit.PERCENT).grow(1.0F)
 				.marginTop(PADDING);
 
-		Flex rightFooter = rightColumn.child().row()
-				.width(1.0F, Flex.Unit.PERCENT)
-				.padding(PADDING / 2)
-				.alignMain(Align.Main.END);
-
 		Flex close = rightFooter.child()
 				.grow(1.0F).height(20)
-				.margin(PADDING / 2);
+				.margin(2, 0);
 
 		Flex done = rightFooter.child()
 				.grow(1.0F).height(20)
-				.margin(PADDING / 2);
+				.margin(2, 0);
 
 		FlexSolver.Results solve = new FlexSolver(new Box(screen)).apply(root);
 
 		this.header = solve.layout(header);
+		this.footer = solve.layout(footer);
 
 		this.leftColumn = solve.layout(leftColumn);
 		this.leftFooter = solve.layout(leftFooter);
 		this.gameList = solve.layout(gameList);
-
-		this.centerColumn = solve.layout(centerColumn);
-		this.centerHeader = solve.layout(centerHeader);
-		this.centerFooter = solve.layout(centerFooter);
-		this.edit = solve.layout(edit);
 
 		this.play = solve.layout(play);
 		skip = solve.layout(stop);
 		this.restart = solve.layout(restart);
 
 		this.rightColumn = solve.layout(rightColumn);
-		this.rightFooter = solve.layout(rightFooter);
 		this.properties = solve.layout(properties);
 		this.name = solve.layout(name);
 		this.publish = solve.layout(publish);
@@ -145,6 +127,6 @@ final class ManageLobbyLayout {
 		this.close = solve.layout(close);
 		this.done = solve.layout(done);
 
-		marginals = new Layout[]{this.header, this.leftFooter, this.centerFooter, this.rightFooter};
+		marginals = new Layout[]{this.header, this.footer};
 	}
 }

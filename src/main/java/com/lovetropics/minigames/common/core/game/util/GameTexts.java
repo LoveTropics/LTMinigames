@@ -193,7 +193,6 @@ public final class GameTexts {
 		private static final TranslationCollector KEYS = new TranslationCollector(LoveTropics.ID + ".ui.");
 
 		public static final Component MANAGE_GAME_LOBBY = KEYS.add("manage_game_lobby", "Manage Game Lobby");
-		private static final TranslationCollector.Fun1 MANAGING_GAME = KEYS.add1("managing_game", "Managing Game: %s");
 		public static final Component LOBBY_NAME = KEYS.add("lobby_name", "Lobby Name");
 		public static final Component PUBLISH = KEYS.add("publish", "Publish");
 		public static final Component FOCUS_LIVE = KEYS.add("focus_live", "Focus Live");
@@ -221,11 +220,6 @@ public final class GameTexts {
 		public static final Component LOBBY_PUBLIC = KEYS.add("visibility.public", "Public");
 		public static final Component LOBBY_PUBLIC_LIVE = KEYS.add("visibility.public_live", "Public (Live)");
 		public static final Component LOBBY_PRIVATE = KEYS.add("visibility.private", "Private");
-
-		public static MutableComponent managingGame(ClientGameDefinition game) {
-			Component name = game.name().copy().withStyle(ChatFormatting.RESET);
-			return MANAGING_GAME.apply(name).withStyle(ChatFormatting.BOLD);
-		}
 
 		public static MutableComponent playerRange(int min, int max) {
 			if (min == max) {

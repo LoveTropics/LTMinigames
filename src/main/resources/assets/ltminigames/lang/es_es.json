@@ -651,7 +651,6 @@
   "ltminigames.ui.installed_games": "Instalado",
   "ltminigames.ui.lobby_name": "Nombre del Lobby",
   "ltminigames.ui.manage_game_lobby": "Administrar Lobby",
-  "ltminigames.ui.managing_game": "Administrar Juego: %s",
   "ltminigames.ui.overlording": "Overlording",
   "ltminigames.ui.participating": "Participantes",
   "ltminigames.ui.publish": "Publica",
