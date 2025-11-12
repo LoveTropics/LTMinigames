@@ -1,4 +1,4 @@
-package com.lovetropics.minigames.mixin;
+package com.lovetropics.minigames.mixin.dimension;
 
 import com.lovetropics.minigames.LoveTropics;
 import net.minecraft.nbt.CompoundTag;

@@ -1,4 +1,4 @@
-package com.lovetropics.minigames.mixin;
+package com.lovetropics.minigames.mixin.dimension;
 
 import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.core.dimension.RuntimeDimensions;

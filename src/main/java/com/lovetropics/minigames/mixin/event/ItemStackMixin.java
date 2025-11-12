@@ -1,4 +1,4 @@
-package com.lovetropics.minigames.mixin;
+package com.lovetropics.minigames.mixin.event;
 
 import com.lovetropics.minigames.common.core.game.impl.GameEventDispatcher;
 import net.minecraft.world.InteractionResult;

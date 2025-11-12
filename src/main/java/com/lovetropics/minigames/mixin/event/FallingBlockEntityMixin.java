@@ -1,4 +1,4 @@
-package com.lovetropics.minigames.mixin;
+package com.lovetropics.minigames.mixin.event;
 
 import com.lovetropics.minigames.common.core.game.IGameManager;
 import com.lovetropics.minigames.common.core.game.IGamePhase;

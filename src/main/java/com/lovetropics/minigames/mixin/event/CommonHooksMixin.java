@@ -1,4 +1,4 @@
-package com.lovetropics.minigames.mixin;
+package com.lovetropics.minigames.mixin.event;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import com.lovetropics.minigames.common.core.game.impl.GameEventDispatcher;
