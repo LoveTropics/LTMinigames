@@ -35,7 +35,7 @@ public final class TipsAndTricksBehavior implements IGameBehavior {
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		events.listen(GamePhaseEvents.START, () -> {
+		events.listen(GamePhaseEvents.START, initiator -> {
 			// Copy and randomize tips&tricks
 			remainingTexts = new ArrayList<>(texts);
 			Collections.shuffle(remainingTexts);

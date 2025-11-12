@@ -16,7 +16,7 @@ public record SetDifficultyBehavior(Difficulty difficulty) implements IGameBehav
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
-		events.listen(GamePhaseEvents.START, () -> {
+		events.listen(GamePhaseEvents.START, initiator -> {
 			if (game.level().getLevelData() instanceof MapWorldInfo worldInfo) {
 				worldInfo.setDifficulty(difficulty);
 			}

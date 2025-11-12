@@ -110,7 +110,7 @@ public final class ColumnsOfChaosBehavior implements IGameBehavior {
 				spawn.teleportTo(game.level(), game.mapRegions().getOrThrow("spectator_spawn").centerBlock());
 			}
 		});
-		events.listen(GamePhaseEvents.START, () -> {
+		events.listen(GamePhaseEvents.START, initiator -> {
 			state = startCountingDown(game, 0);
 		});
 		filteredItems = new ArrayList<>();

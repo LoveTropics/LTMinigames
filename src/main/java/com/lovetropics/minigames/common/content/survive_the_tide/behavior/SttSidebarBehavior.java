@@ -63,7 +63,7 @@ public class SttSidebarBehavior implements IGameBehavior {
 		progression = ProgressChannel.MAIN.getOrThrow(game);
 		weather = game.state().getOrThrow(GameWeatherState.KEY);
 
-		events.listen(GamePhaseEvents.START, () -> {
+		events.listen(GamePhaseEvents.START, initiator -> {
 			sidebar = widgets.openSidebar(game.definition().name().copy().withStyle(ChatFormatting.YELLOW, ChatFormatting.BOLD));
 			initialPlayerCount = game.participants().size();
 		});

@@ -47,7 +47,7 @@ public final class TrashCollectionBehavior implements IGameBehavior {
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		events.listen(GamePhaseEvents.START, () -> onStart(game));
+		events.listen(GamePhaseEvents.START, initiator -> onStart(game));
 		events.listen(GamePhaseEvents.FINISH, () -> triggerGameOver(game));
 		events.listen(GamePlayerEvents.SET_ROLE, (player, role, lastRole) -> {
 			if (role == PlayerRole.PARTICIPANT) {

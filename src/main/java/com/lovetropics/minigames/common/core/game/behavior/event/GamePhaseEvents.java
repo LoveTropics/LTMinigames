@@ -1,11 +1,14 @@
 package com.lovetropics.minigames.common.core.game.behavior.event;
 
 import com.lovetropics.minigames.common.core.game.GameStopReason;
+import com.lovetropics.minigames.common.core.game.state.statistics.PlayerKey;
+
+import javax.annotation.Nullable;
 
 public final class GamePhaseEvents {
-	public static final GameEventType<Start> CREATE = GameEventType.create(Start.class, listeners -> () -> {
-		for (Start listener : listeners) {
-			listener.start();
+	public static final GameEventType<Create> CREATE = GameEventType.create(Create.class, listeners -> () -> {
+		for (Create listener : listeners) {
+			listener.create();
 		}
 	});
 
@@ -15,9 +18,9 @@ public final class GamePhaseEvents {
 		}
 	});
 
-	public static final GameEventType<Start> START = GameEventType.create(Start.class, listeners -> () -> {
+	public static final GameEventType<Start> START = GameEventType.create(Start.class, listeners -> initiator -> {
 		for (Start listener : listeners) {
-			listener.start();
+			listener.start(initiator);
 		}
 	});
 
@@ -42,8 +45,12 @@ public final class GamePhaseEvents {
 	private GamePhaseEvents() {
 	}
 
+	public interface Create {
+		void create();
+	}
+
 	public interface Start {
-		void start();
+		void start(@Nullable PlayerKey initiator);
 	}
 
 	public interface Stop {

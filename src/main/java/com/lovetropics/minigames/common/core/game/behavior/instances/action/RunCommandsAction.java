@@ -88,8 +88,8 @@ public record RunCommandsAction(List<String> globalCommands, List<String> entity
 		boolean debugMode = game.state().getOrNull(DebugModeState.KEY) != null;
 		CommandSource source = debugMode ? game.server() : CommandSource.NULL;
 
-		String name = game.lobby().getMetadata().name();
-		return new CommandSourceStack(source, Vec3.ZERO, Vec2.ZERO, game.level(), Commands.LEVEL_OWNERS, name, Component.literal(name), game.server(), null);
+		Component name = game.definition().name();
+		return new CommandSourceStack(source, Vec3.ZERO, Vec2.ZERO, game.level(), Commands.LEVEL_OWNERS, name.getString(), name, game.server(), null);
 	}
 
 	@Override

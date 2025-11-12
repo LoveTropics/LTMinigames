@@ -38,8 +38,8 @@ public class PersistentGames {
 				behavior.instantiate().register(game, game.events());
 			}
 
-			game.invoker(GamePhaseEvents.CREATE).start();
-			game.invoker(GamePhaseEvents.START).start();
+			game.invoker(GamePhaseEvents.CREATE).create();
+			game.invoker(GamePhaseEvents.START).start(null);
 
 			RUNNING_GAMES.add(game);
 		}

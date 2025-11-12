@@ -82,7 +82,7 @@ public class RisingFluidBehavior implements IGameBehavior {
 		ProgressHolder progression = ProgressChannel.MAIN.getOrThrow(game);
 		targetFluidLevel = fluidLevels.resolve(progression);
 
-		events.listen(GamePhaseEvents.START, () -> {
+		events.listen(GamePhaseEvents.START, initiator -> {
 			fluidLevel = Mth.floor(targetFluidLevel.getAsDouble());
 			fluidLevelByChunk.defaultReturnValue(fluidLevel);
 		});

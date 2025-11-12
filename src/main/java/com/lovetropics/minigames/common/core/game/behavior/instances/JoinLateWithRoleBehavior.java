@@ -47,7 +47,7 @@ public record JoinLateWithRoleBehavior(PlayerRole role, boolean allowRejoin) imp
 			if (allowRejoin && oldParticipant != null) {
 				// Yes, ok - we're not supposed to fetch the player before they join.
 				// But this whole player setup process is jank, and it's 5 days to the event. I made this mess, I can make it worse!
-				final ServerPlayer playerEntity = game.lobby().getPlayers().getPlayerBy(player.id());
+				final ServerPlayer playerEntity = game.allPlayers().getPlayerBy(player.id());
 				if (playerEntity != null && teams != null && oldParticipant.team != null) {
 					teams.addPlayerTo(playerEntity, oldParticipant.team);
 				}

@@ -35,7 +35,7 @@ public record RisingPlatformBehavior(
 		Vec3 center = platformRegion.center();
 		double startY = platformRegion.min().getY();
 
-		events.listen(GamePhaseEvents.START, () -> {
+		events.listen(GamePhaseEvents.START, initiator -> {
 			PlatformEntity platform = new PlatformEntity(SurviveTheTide.PLATFORM.get(), game.level());
 			platform.absSnapTo(center.x(), startY, center.z());
 			platform.setWidth(platformRegion.size().getX());

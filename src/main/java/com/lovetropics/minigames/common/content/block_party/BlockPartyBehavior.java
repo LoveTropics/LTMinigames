@@ -99,7 +99,7 @@ public final class BlockPartyBehavior implements IGameBehavior {
 		quadCountX = floorSize.getX() / quadSize;
 		quadCountZ = floorSize.getZ() / quadSize;
 
-		events.listen(GamePhaseEvents.START, () -> {
+		events.listen(GamePhaseEvents.START, initiator -> {
 			state = startCountingDown(0);
 		});
 

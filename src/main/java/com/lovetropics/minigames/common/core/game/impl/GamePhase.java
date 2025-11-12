@@ -134,7 +134,7 @@ public class GamePhase implements IGamePhase {
 		startTime = level().getGameTime();
 
 		try {
-			invoker(GamePhaseEvents.CREATE).start();
+			invoker(GamePhaseEvents.CREATE).create();
 
 			List<ServerPlayer> shuffledPlayers = Lists.newArrayList(allPlayers());
 			Collections.shuffle(shuffledPlayers);
@@ -143,7 +143,7 @@ public class GamePhase implements IGamePhase {
 				addAndSpawnPlayer(player, getRoleFor(player), savePlayerDataToMemory);
 			}
 
-			invoker(GamePhaseEvents.START).start();
+			invoker(GamePhaseEvents.START).start(lobby().getMetadata().initiator());
 		} catch (Exception e) {
 			return GameResult.fromException("Failed to start game", e);
 		}
@@ -212,14 +212,8 @@ public class GamePhase implements IGamePhase {
 		return gameDefinition;
 	}
 
-	@Override
 	public IGamePhaseDefinition phaseDefinition() {
 		return phaseDefinition;
-	}
-
-	@Override
-	public GameEventListeners events() {
-		return events;
 	}
 
 	@Override

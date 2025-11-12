@@ -38,7 +38,7 @@ public final class GlobalGameWidgets {
 	}
 
 	public <T extends GameWidget> T registerWidget(T widget) {
-		game.lobby().getPlayers().forEach(widget::addPlayer);
+		game.allPlayers().forEach(widget::addPlayer);
 		widgets.add(widget);
 		return widget;
 	}

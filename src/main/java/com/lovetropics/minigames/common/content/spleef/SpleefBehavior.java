@@ -117,7 +117,7 @@ public class SpleefBehavior implements IGameBehavior {
 			BlockPlacer.replace(game.level(), floor, floorMaterial, BlockPlacer.Mode.REPLACE, Blocks.WHITE_STAINED_GLASS);
 		}
 
-		events.listen(GamePhaseEvents.START, () -> {
+		events.listen(GamePhaseEvents.START, initiator -> {
 
 			// Shouldn't affect a typical game but has a bug in dev with 1 player.
 			lastTickPlayers = this.game.participants().stream().toList();

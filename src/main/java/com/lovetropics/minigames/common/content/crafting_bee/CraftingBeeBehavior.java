@@ -60,7 +60,6 @@ import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -142,7 +141,7 @@ public class CraftingBeeBehavior implements IGameBehavior {
 		teamsWithoutTime = new HashSet<>();
 
 		GlobalGameWidgets widgets = GlobalGameWidgets.registerTo(game, events);
-		events.listen(GamePhaseEvents.START, () -> start(widgets));
+		events.listen(GamePhaseEvents.START, initiator -> start(widgets));
 		events.listen(GamePhaseEvents.TICK, () -> tickRunning(game));
 		events.listen(GamePhaseEvents.DESTROY, () -> teamStates.values().forEach(b -> b.timerBar().close()));
 		events.listen(GamePhaseEvents.STOP, reason -> teamStates.values().forEach(b -> b.timerBar().close()));
@@ -469,8 +468,7 @@ public class CraftingBeeBehavior implements IGameBehavior {
 
 	private void sync(Player player) {
 		if (player instanceof ServerPlayer sp) {
-			GameClientState.sendToPlayer(new CraftingBeeCraftsClientState(tasks.get(teams.getTeamForPlayer(player)).stream().map(CraftingTask::toCraft).toList(),
-					game.gameUuid(), allowedHints), sp);
+			GameClientState.sendToPlayer(new CraftingBeeCraftsClientState(tasks.get(teams.getTeamForPlayer(player)).stream().map(CraftingTask::toCraft).toList(), allowedHints), sp);
 		}
 	}
 

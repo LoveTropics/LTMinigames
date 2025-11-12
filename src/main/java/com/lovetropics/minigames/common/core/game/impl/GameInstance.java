@@ -7,8 +7,6 @@ import com.lovetropics.minigames.common.core.game.player.PlayerStorage;
 import com.lovetropics.minigames.common.core.game.state.GameStateMap;
 import net.minecraft.server.MinecraftServer;
 
-import java.util.UUID;
-
 /**
  * A unique instance of a specific minigame, stored in a GameLobby
  */
@@ -18,8 +16,6 @@ public final class GameInstance implements IGame {
 	final IGameDefinition definition;
 
 	final GameStateMap stateMap = new GameStateMap();
-
-	final UUID uuid = UUID.randomUUID();
 
 	final PlayerStorage playerStorage = new PlayerStorage();
 
@@ -32,11 +28,6 @@ public final class GameInstance implements IGame {
 	@Override
 	public IGameLobby lobby() {
 		return lobby;
-	}
-
-	@Override
-	public UUID gameUuid() {
-		return uuid;
 	}
 
 	@Override

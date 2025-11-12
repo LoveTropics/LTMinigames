@@ -32,7 +32,7 @@ public class GameRegionBehavior implements PersistentGameBehavior {
 
 	@Override
 	public void register(PersistentGame game, EventRegistrar events) {
-		events.listen(GamePhaseEvents.START, () -> {
+		events.listen(GamePhaseEvents.START, initiator -> {
 			regions.addAll(SavedRegions.get(game.level()).regions().compile().get(region));
 		});
 

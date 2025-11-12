@@ -98,7 +98,7 @@ public class ConnectFourBehavior implements IGameBehavior {
 		pieces = new PlacedPiece[width][height];
 		placedPieces = 0;
 
-		events.listen(GamePhaseEvents.START, this::onStart);
+		events.listen(GamePhaseEvents.START, initiator -> onStart());
 
 		events.listen(GamePlayerEvents.PLACE_BLOCK, this::onPlaceBlock);
 		events.listen(GamePlayerEvents.BREAK_BLOCK, (player, pos, state, hand) -> player.isCreative() ? TriState.DEFAULT : TriState.FALSE);

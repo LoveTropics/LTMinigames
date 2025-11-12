@@ -1,8 +1,6 @@
 package com.lovetropics.minigames.common.core.game;
 
-import com.lovetropics.minigames.common.core.game.behavior.event.GameEventListeners;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameEventType;
-import com.lovetropics.minigames.common.core.game.lobby.GameLobbyMetadata;
 import com.lovetropics.minigames.common.core.game.lobby.IGameLobby;
 import com.lovetropics.minigames.common.core.game.player.PlayerRole;
 import com.lovetropics.minigames.common.core.game.player.PlayerSet;
@@ -10,7 +8,6 @@ import com.lovetropics.minigames.common.core.game.state.GameStateMap;
 import com.lovetropics.minigames.common.core.game.state.control.ControlCommandInvoker;
 import com.lovetropics.minigames.common.core.game.state.control.ControlCommands;
 import com.lovetropics.minigames.common.core.game.state.statistics.GameStatistics;
-import com.lovetropics.minigames.common.core.game.state.statistics.PlayerKey;
 import com.lovetropics.minigames.common.core.game.util.GameScheduler;
 import com.lovetropics.minigames.common.core.game.util.TeamAllocator;
 import com.lovetropics.minigames.common.core.map.MapRegions;
@@ -24,7 +21,6 @@ import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;
 import java.util.Objects;
-import java.util.UUID;
 
 public interface IGamePhase extends IGame {
 	IGame game();
@@ -35,18 +31,8 @@ public interface IGamePhase extends IGame {
 	}
 
 	@Override
-	default UUID gameUuid() {
-		return game().gameUuid();
-	}
-
-	@Override
 	default MinecraftServer server() {
 		return game().server();
-	}
-
-	@Override
-	default PlayerKey initiator() {
-		return game().initiator();
 	}
 
 	@Override
@@ -67,10 +53,6 @@ public interface IGamePhase extends IGame {
 	GameStateMap state();
 
 	GamePhaseType phaseType();
-
-	IGamePhaseDefinition phaseDefinition();
-
-	GameEventListeners events();
 
 	<T> T invoker(GameEventType<T> type);
 
@@ -161,5 +143,9 @@ public interface IGamePhase extends IGame {
 
 	default IGamePhase getTopPhase() {
 		return Objects.requireNonNullElse(lobby().getTopPhase(), this);
+	}
+
+	default boolean isFocusedLive() {
+		return lobby().getMetadata().visibility().isFocusedLive();
 	}
 }

@@ -20,7 +20,7 @@ public record StartGameTrigger(GameActionList<Void> actions) implements IGameBeh
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		actions.register(game, events);
-		events.listen(GamePhaseEvents.START, () -> actions.apply(game, GameActionContext.EMPTY));
+		events.listen(GamePhaseEvents.START, initiator -> actions.apply(game, GameActionContext.EMPTY));
 	}
 
 	@Override

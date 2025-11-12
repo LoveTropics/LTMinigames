@@ -29,6 +29,7 @@ import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 
+import javax.annotation.Nullable;
 import java.time.Instant;
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -41,6 +42,8 @@ public final class GameInstanceIntegrations implements IGameState {
 	private static final Codec<List<DonationPackageData>> PACKAGES_CODEC = DonationPackageData.Payload.CODEC.codec()
 			.xmap(DonationPackageData.Payload::data, DonationPackageData::asPayload)
 			.listOf();
+
+	private final UUID gameUuid = UUID.randomUUID();
 
 	private final IGamePhase topLevelGame;
 	private final Deque<IGamePhase> gameStack = new ArrayDeque<>();
@@ -76,26 +79,24 @@ public final class GameInstanceIntegrations implements IGameState {
 		});
 	}
 
-	public UUID getUuid() {
-		return topLevelGame.gameUuid();
-	}
-
-	public void start(IGamePhase phase, EventRegistrar events) {
+	public void start(IGamePhase phase, EventRegistrar events, @Nullable PlayerKey initiator) {
 		if (phase != gameStack.peekLast()) {
 			throw new IllegalStateException("Tried to send start event for game that was not active");
 		}
 
 		if (phase == topLevelGame) {
-			sendMinigameStart();
+			sendMinigameStart(initiator);
 			requestQueuedActions();
 		}
 
 		events.addAll(phaseListeners);
 	}
 
-	private void sendMinigameStart() {
+	private void sendMinigameStart(@Nullable PlayerKey initiator) {
 		JsonObject payload = new JsonObject();
-		payload.add("initiator", topLevelGame.initiator().serializeProfile());
+		if (initiator != null) {
+			payload.add("initiator", initiator.serializeProfile());
+		}
 		payload.add("participants", serializeParticipantsArray());
 		payload.add("teams", serializeTeamsArray());
 		addGameDefinitionData(payload);
@@ -216,7 +217,7 @@ public final class GameInstanceIntegrations implements IGameState {
 			return;
 		}
 
-		payload.addProperty("id", topLevelGame.gameUuid().toString());
+		payload.addProperty("id", gameUuid.toString());
 
 		IGameDefinition definition = topLevelGame.definition();
 		JsonObject game = new JsonObject();

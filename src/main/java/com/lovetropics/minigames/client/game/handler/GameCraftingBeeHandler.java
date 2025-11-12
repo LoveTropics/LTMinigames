@@ -53,19 +53,19 @@ import java.util.UUID;
 public class GameCraftingBeeHandler {
 	private static int hintsRemaining;
 	@Nullable
-	private static UUID lastKnownGame;
-	@Nullable
 	private static Map<ResourceKey<Recipe<?>>, RecipeHintState> hintGrids;
 
 	static final ClientGameStateHandler<CraftingBeeCraftsClientState> HANDLER = new ClientGameStateHandler<>() {
 		@Override
 		public void accept(CraftingBeeCraftsClientState state) {
-			lastKnownGame = null;
+			hintsRemaining = state.allowedHints();
+			hintGrids = new HashMap<>();
 		}
 
 		@Override
 		public void disable(CraftingBeeCraftsClientState state) {
-
+			hintsRemaining = 0;
+			hintGrids = null;
 		}
 	};
 
@@ -113,13 +113,6 @@ public class GameCraftingBeeHandler {
 	static void onGuiInit(ScreenEvent.Init.Post event) {
 		if (getState() == null || !(event.getScreen() instanceof CraftingScreen screen)) {
 			return;
-		}
-
-		var state = getState();
-		if (!Objects.equals(state.gameId(), lastKnownGame)) {
-			lastKnownGame = state.gameId();
-			hintsRemaining = state.allowedHints();
-			hintGrids = new HashMap<>();
 		}
 
 		event.addListener(new AbstractWidget(screen.getGuiLeft() + 22, screen.getGuiTop() - 21, 132, 21, Component.empty()) {
@@ -249,38 +242,6 @@ public class GameCraftingBeeHandler {
 			}
 		}
 		return candidates.getFirst();
-	}
-
-	public record TintedVertexConsumer(VertexConsumer wrapped, float red, float green, float blue, float alpha) implements VertexConsumer {
-		@Override
-		public VertexConsumer addVertex(float x, float y, float z) {
-			return wrapped.addVertex(x, y, z);
-		}
-
-		@Override
-		public VertexConsumer setColor(int red, int green, int blue, int alpha) {
-			return wrapped.setColor((int) (red * this.red), (int) (green * this.green), (int) (blue * this.blue), (int) (alpha * this.alpha));
-		}
-
-		@Override
-		public VertexConsumer setUv(float u, float v) {
-			return wrapped.setUv(u, v);
-		}
-
-		@Override
-		public VertexConsumer setUv1(int u, int v) {
-			return wrapped.setUv1(u, v);
-		}
-
-		@Override
-		public VertexConsumer setUv2(int u, int v) {
-			return wrapped.setUv2(u, v);
-		}
-
-		@Override
-		public VertexConsumer setNormal(float normalX, float normalY, float normalZ) {
-			return wrapped.setNormal(normalX, normalY, normalZ);
-		}
 	}
 
 	public record RecipeHintState(

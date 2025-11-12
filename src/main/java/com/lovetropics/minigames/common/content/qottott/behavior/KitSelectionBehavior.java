@@ -44,7 +44,7 @@ public record KitSelectionBehavior(List<Kit> kits) implements IGameBehavior {
 		final Map<UUID, Kit> kitEntities = new Object2ObjectOpenHashMap<>();
 		final Kit defaultKit = kits.getFirst();
 
-		events.listen(GamePhaseEvents.START, () -> {
+		events.listen(GamePhaseEvents.START, initiator -> {
 			for (final Kit kit : kits) {
 				final Collection<BlockBox> regions = game.mapRegions().get(kit.region());
 				if (regions.isEmpty()) {
