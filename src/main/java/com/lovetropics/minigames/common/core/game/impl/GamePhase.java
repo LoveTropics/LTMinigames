@@ -134,6 +134,8 @@ public class GamePhase implements IGamePhase {
 		startTime = level().getGameTime();
 
 		try {
+			allocateRoles();
+
 			invoker(GamePhaseEvents.CREATE).create();
 
 			List<ServerPlayer> shuffledPlayers = Lists.newArrayList(allPlayers());
@@ -221,12 +223,20 @@ public class GamePhase implements IGamePhase {
 		return events.invoker(type);
 	}
 
-	@Override
-	public void allocateRoles(TeamAllocator<PlayerRole, ServerPlayer> allocator) {
-		if (!assignedRoles) {
-			allocator.allocate(this::setPlayerRole);
-			assignedRoles = true;
+	private void allocateRoles() {
+		// TODO: somehow if a player is in a lobby and then leaves they can get in such a state as to join late and be joined as a participant when clicking 'play'
+		if (assignedRoles) {
+			return;
 		}
+
+		LOGGER.debug("Allocating players to roles based on selections: {}", lobby().getPlayers().getRoleSelections());
+		TeamAllocator<PlayerRole, ServerPlayer> allocator = lobby().getPlayers().createRoleAllocator();
+		allocator.setSizeForTeam(PlayerRole.PARTICIPANT, definition().getMaximumParticipantCount());
+		invoker(GamePlayerEvents.ALLOCATE_ROLES).onAllocateRoles(allocator);
+
+		allocator.allocate(this::setPlayerRole);
+
+		assignedRoles = true;
 	}
 
 	public void assignRolesFrom(IGamePhase topLevelGame) {
@@ -279,7 +289,8 @@ public class GamePhase implements IGamePhase {
 			PlayerRole role = getRoleFor(player);
 			if (role == null) {
 				// The player hasn't joined the game yet, so don't expose the player instance
-				role = invoker(GamePlayerEvents.SELECT_ROLE_ON_JOIN).selectRole(PlayerKey.from(player));
+				PlayerRole selectedRole = game.lobby.getPlayers().getRoleSelections().getSelectedRoleFor(player.getUUID());
+				role = invoker(GamePlayerEvents.SELECT_ROLE_ON_JOIN).selectRole(PlayerKey.from(player), selectedRole);
 				setPlayerRole(player, role);
 			}
 			ServerPlayer newPlayer = addAndSpawnPlayer(player, role, savePlayerDataToMemory);

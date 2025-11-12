@@ -8,7 +8,6 @@ import com.lovetropics.minigames.common.core.game.behavior.action.PlayerActionTa
 import com.lovetropics.minigames.common.core.game.behavior.action.PlotActionTarget;
 import com.lovetropics.minigames.common.core.game.behavior.action.TeamActionTarget;
 import com.lovetropics.minigames.common.core.game.behavior.instances.AddWeatherBehavior;
-import com.lovetropics.minigames.common.core.game.behavior.instances.AssignPlayerRolesBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.CheckpointsBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.CompositeBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.CountdownEffectsBehavior;
@@ -337,7 +336,6 @@ public class GameBehaviorTypes {
 	public static final GameBehaviorEntry<BlockBreakTrigger> BLOCK_BREAK = register("block_break", BlockBreakTrigger.CODEC);
 
 	public static final GameBehaviorEntry<SetupIntegrationsBehavior> SETUP_INTEGRATIONS = register("setup_integrations", SetupIntegrationsBehavior.CODEC);
-	public static final GameBehaviorEntry<AssignPlayerRolesBehavior> ASSIGN_PLAYER_ROLES = register("assign_player_roles", AssignPlayerRolesBehavior.CODEC);
 	public static final GameBehaviorEntry<JoinLateWithRoleBehavior> JOIN_LATE_WITH_ROLE = register("join_late_with_role", JoinLateWithRoleBehavior.CODEC);
 	public static final GameBehaviorEntry<DebugModeBehavior> DEBUG_MODE = register("debug_mode", DebugModeBehavior.CODEC);
 

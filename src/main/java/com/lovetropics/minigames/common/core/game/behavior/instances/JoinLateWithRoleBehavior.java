@@ -36,10 +36,9 @@ public record JoinLateWithRoleBehavior(PlayerRole role, boolean allowRejoin) imp
 		final TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
 		final Map<PlayerKey, OldParticipant> oldParticipants = new Object2ObjectOpenHashMap<>();
 
-		events.listen(GamePlayerEvents.SELECT_ROLE_ON_JOIN, player -> {
+		events.listen(GamePlayerEvents.SELECT_ROLE_ON_JOIN, (player, selectedRole) -> {
 			// Let the player be a spectator if they really want to
-			final PlayerRoleSelections roleSelections = game.lobby().getPlayers().getRoleSelections();
-			if (roleSelections.getSelectedRoleFor(player.id()) == PlayerRole.SPECTATOR) {
+			if (selectedRole == PlayerRole.SPECTATOR) {
 				return PlayerRole.SPECTATOR;
 			}
 

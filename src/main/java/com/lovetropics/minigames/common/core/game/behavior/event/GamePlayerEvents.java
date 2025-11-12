@@ -57,9 +57,9 @@ public final class GamePlayerEvents {
 		}
 	});
 
-	public static final GameEventType<SelectRole> SELECT_ROLE_ON_JOIN = GameEventType.create(SelectRole.class, listeners -> player -> {
+	public static final GameEventType<SelectRole> SELECT_ROLE_ON_JOIN = GameEventType.create(SelectRole.class, listeners -> (player, selectedRole) -> {
 		for (SelectRole listener : listeners) {
-			PlayerRole role = listener.selectRole(player);
+			PlayerRole role = listener.selectRole(player, selectedRole);
 			if (role != null) {
 				return role;
 			}
@@ -265,7 +265,7 @@ public final class GamePlayerEvents {
 
 	public interface SelectRole {
 		@Nullable
-		PlayerRole selectRole(PlayerKey player);
+		PlayerRole selectRole(PlayerKey player, @Nullable PlayerRole selectedRole);
 	}
 
 	public interface Spawn {

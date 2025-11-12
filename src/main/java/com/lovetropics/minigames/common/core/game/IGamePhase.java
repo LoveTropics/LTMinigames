@@ -60,8 +60,6 @@ public interface IGamePhase extends IGame {
 
 	GameScheduler scheduler();
 
-	void allocateRoles(TeamAllocator<PlayerRole, ServerPlayer> allocator);
-
 	/**
 	 * Adds the player to this game instance with the given role, or if already in the change, changes their role.
 	 * The given player will be removed from their former role, if any.
