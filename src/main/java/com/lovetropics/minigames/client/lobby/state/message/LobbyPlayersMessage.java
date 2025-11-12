@@ -2,8 +2,8 @@ package com.lovetropics.minigames.client.lobby.state.message;
 
 import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.client.lobby.state.ClientLobbyManager;
-import com.lovetropics.minigames.common.core.game.lobby.IGameLobby;
-import com.lovetropics.minigames.common.core.game.lobby.IGameLobbyPlayers;
+import com.lovetropics.minigames.common.core.game.impl.GameLobby;
+import com.lovetropics.minigames.common.core.game.impl.LobbyPlayerManager;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.core.UUIDUtil;
@@ -25,8 +25,8 @@ public record LobbyPlayersMessage(int id, Set<UUID> players) implements CustomPa
 			LobbyPlayersMessage::new
 	);
 
-	public static LobbyPlayersMessage update(IGameLobby lobby) {
-		IGameLobbyPlayers players = lobby.getPlayers();
+	public static LobbyPlayersMessage update(GameLobby lobby) {
+		LobbyPlayerManager players = lobby.getPlayers();
 		Set<UUID> playerIds = new ObjectOpenHashSet<>(players.size());
 		for (ServerPlayer player : players) {
 			playerIds.add(player.getUUID());

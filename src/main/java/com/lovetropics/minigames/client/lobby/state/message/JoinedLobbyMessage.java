@@ -2,7 +2,7 @@ package com.lovetropics.minigames.client.lobby.state.message;
 
 import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.client.lobby.state.ClientLobbyManager;
-import com.lovetropics.minigames.common.core.game.lobby.IGameLobby;
+import com.lovetropics.minigames.common.core.game.impl.GameLobby;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -17,7 +17,7 @@ public record JoinedLobbyMessage(int id) implements CustomPacketPayload {
 			JoinedLobbyMessage::new
 	);
 
-	public static JoinedLobbyMessage create(IGameLobby lobby) {
+	public static JoinedLobbyMessage create(GameLobby lobby) {
 		return new JoinedLobbyMessage(lobby.getMetadata().id().networkId());
 	}
 

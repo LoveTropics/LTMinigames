@@ -204,7 +204,6 @@ public class GamePhase implements IGamePhase {
 		return game.instanceState();
 	}
 
-	@Override
 	public GamePhaseType phaseType() {
 		return phaseType;
 	}

@@ -1,8 +1,7 @@
 package com.lovetropics.minigames.common.core.game.impl;
 
-import com.lovetropics.minigames.common.core.game.IGame;
 import com.lovetropics.minigames.common.core.game.IGameDefinition;
-import com.lovetropics.minigames.common.core.game.lobby.IGameLobby;
+import com.lovetropics.minigames.common.core.game.player.PlayerSet;
 import com.lovetropics.minigames.common.core.game.player.PlayerStorage;
 import com.lovetropics.minigames.common.core.game.state.GameStateMap;
 import net.minecraft.server.MinecraftServer;
@@ -10,7 +9,7 @@ import net.minecraft.server.MinecraftServer;
 /**
  * A unique instance of a specific minigame, stored in a GameLobby
  */
-public final class GameInstance implements IGame {
+public final class GameInstance {
 	final GameLobby lobby;
 	final MinecraftServer server;
 	final IGameDefinition definition;
@@ -25,22 +24,27 @@ public final class GameInstance implements IGame {
 		this.definition = definition;
 	}
 
-	@Override
-	public IGameLobby lobby() {
+	public GameLobby lobby() {
 		return lobby;
 	}
 
-	@Override
 	public IGameDefinition definition() {
 		return definition;
 	}
 
-	@Override
 	public GameStateMap instanceState() {
 		return stateMap;
 	}
 
 	public PlayerStorage getPlayerStorage() {
 		return playerStorage;
+	}
+
+	public MinecraftServer server() {
+		return lobby.getServer();
+	}
+
+	public PlayerSet allPlayers() {
+		return lobby.getPlayers();
 	}
 }

@@ -1,7 +1,7 @@
 package com.lovetropics.minigames.client.lobby.manage.state;
 
 import com.lovetropics.minigames.common.core.game.IGamePhase;
-import com.lovetropics.minigames.common.core.game.lobby.IGameLobby;
+import com.lovetropics.minigames.common.core.game.impl.GameLobby;
 import com.lovetropics.minigames.common.core.game.player.PlayerRole;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
@@ -19,7 +19,7 @@ public final class ClientLobbyPlayer {
 		this.playingRole = playingRole;
 	}
 
-	public static ClientLobbyPlayer from(IGameLobby lobby, ServerPlayer player) {
+	public static ClientLobbyPlayer from(GameLobby lobby, ServerPlayer player) {
 		IGamePhase currentPhase = lobby.getActivePhase();
 		PlayerRole playingRole = currentPhase != null ? currentPhase.getRoleFor(player) : null;
 		return new ClientLobbyPlayer(player.getUUID(), playingRole);

@@ -3,9 +3,9 @@ package com.lovetropics.minigames.common.core.game.impl;
 import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.core.game.GameResult;
 import com.lovetropics.minigames.common.core.game.LobbyRegistrations;
-import com.lovetropics.minigames.common.core.game.lobby.IGameLobbyPlayers;
 import com.lovetropics.minigames.common.core.game.player.PlayerRole;
 import com.lovetropics.minigames.common.core.game.player.PlayerRoleSelections;
+import com.lovetropics.minigames.common.core.game.player.PlayerSet;
 import com.lovetropics.minigames.common.core.game.util.GameTexts;
 import com.lovetropics.minigames.common.core.game.util.TeamAllocator;
 import com.lovetropics.minigames.common.role.StreamHosts;
@@ -17,7 +17,7 @@ import java.util.Iterator;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-final class LobbyPlayerManager implements IGameLobbyPlayers {
+public final class LobbyPlayerManager implements PlayerSet {
 	private final GameLobby lobby;
 	private final LobbyRegistrations registrations;
 	private final PlayerRoleSelections roleSelections;
@@ -28,7 +28,6 @@ final class LobbyPlayerManager implements IGameLobbyPlayers {
 		roleSelections = new PlayerRoleSelections(lobby.getMetadata().id());
 	}
 
-	@Override
 	public TeamAllocator<PlayerRole, ServerPlayer> createRoleAllocator() {
 		TeamAllocator<PlayerRole, ServerPlayer> allocator = registrations.createAllocator();
 		for (ServerPlayer player : registrations) {
@@ -45,7 +44,6 @@ final class LobbyPlayerManager implements IGameLobbyPlayers {
 		return allocator;
 	}
 
-	@Override
 	public CompletableFuture<GameResult<Unit>> joinAndPrompt(ServerPlayer player) {
 		if (isAlreadyInLobby(player)) {
 			return CompletableFuture.completedFuture(GameResult.error(GameTexts.Commands.ALREADY_IN_LOBBY));
@@ -54,7 +52,6 @@ final class LobbyPlayerManager implements IGameLobbyPlayers {
 		return future.thenApplyAsync(role -> doJoin(player), lobby.getServer());
 	}
 
-	@Override
 	public GameResult<Unit> join(ServerPlayer player, PlayerRole role) {
 		if (isAlreadyInLobby(player)) {
 			return GameResult.error(GameTexts.Commands.ALREADY_IN_LOBBY);
@@ -78,7 +75,6 @@ final class LobbyPlayerManager implements IGameLobbyPlayers {
 		return lobby.manager.getLobbyFor(player) != null || registrations.contains(player.getUUID());
 	}
 
-	@Override
 	public boolean remove(ServerPlayer player, boolean loggingOut) {
 		if (registrations.remove(player.getUUID())) {
 			lobby.onPlayerLeave(player, loggingOut);
@@ -96,12 +92,10 @@ final class LobbyPlayerManager implements IGameLobbyPlayers {
 		return player;
 	}
 
-	@Override
 	public boolean forceRole(ServerPlayer player, @Nullable PlayerRole role) {
 		return registrations.forceRole(player.getUUID(), role);
 	}
 
-	@Override
 	public PlayerRoleSelections getRoleSelections() {
 		return roleSelections;
 	}

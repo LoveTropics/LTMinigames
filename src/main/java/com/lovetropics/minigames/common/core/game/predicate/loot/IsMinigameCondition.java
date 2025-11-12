@@ -1,7 +1,7 @@
 package com.lovetropics.minigames.common.core.game.predicate.loot;
 
 import com.lovetropics.minigames.common.core.game.IGamePhase;
-import com.lovetropics.minigames.common.core.game.impl.MultiGameManager;
+import com.lovetropics.minigames.common.core.game.impl.GameManager;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.resources.ResourceLocation;
@@ -28,7 +28,7 @@ public class IsMinigameCondition implements LootItemCondition {
 
 	@Override
 	public boolean test(LootContext lootContext) {
-		IGamePhase phase = MultiGameManager.INSTANCE.getGamePhaseInDimension(lootContext.getLevel());
+		IGamePhase phase = GameManager.INSTANCE.getGamePhaseInDimension(lootContext.getLevel());
 		if (phase == null) {
 			return false;
 		}

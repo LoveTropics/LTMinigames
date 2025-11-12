@@ -2,8 +2,8 @@ package com.lovetropics.minigames.common.core.extension;
 
 import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.content.river_race.event.RiverRaceEvents;
-import com.lovetropics.minigames.common.core.game.IGameManager;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
+import com.lovetropics.minigames.common.core.game.impl.GameManager;
 import com.lovetropics.minigames.mixin.BaseSpawnerAccessor;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
@@ -113,7 +113,7 @@ public class LimitedSpawnerAttachment {
 	}
 
 	private int getMaxCount(ServerLevel level, BlockPos pos) {
-		IGamePhase game = IGameManager.get().getGamePhaseAt(level, pos);
+		IGamePhase game = GameManager.get().getGamePhaseAt(level, pos);
 		if (game != null) {
 			return game.invoker(RiverRaceEvents.MODIFY_MAX_SPAWN_COUNT).modifyMaxSpawnCount(pos, maxCount);
 		}

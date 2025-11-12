@@ -4,7 +4,7 @@ import com.lovetropics.minigames.client.lobby.manage.ServerManageLobbyMessage;
 import com.lovetropics.minigames.client.lobby.state.ClientGameDefinition;
 import com.lovetropics.minigames.common.core.game.config.GameConfig;
 import com.lovetropics.minigames.common.core.game.config.GameConfigs;
-import com.lovetropics.minigames.common.core.game.lobby.ILobbyManagement;
+import com.lovetropics.minigames.common.core.game.impl.LobbyManagement;
 import com.lovetropics.minigames.common.core.game.lobby.LobbyControls;
 import com.lovetropics.minigames.common.core.game.lobby.LobbyVisibility;
 import com.lovetropics.minigames.common.util.PartialUpdate;
@@ -14,8 +14,8 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.codec.StreamDecoder;
 import net.minecraft.resources.ResourceLocation;
 
-public abstract class ServerLobbyUpdate extends PartialUpdate<ILobbyManagement> {
-	public static final class Set extends AbstractSet<ILobbyManagement> {
+public abstract class ServerLobbyUpdate extends PartialUpdate<LobbyManagement> {
+	public static final class Set extends AbstractSet<LobbyManagement> {
 		public static final StreamCodec<RegistryFriendlyByteBuf, Set> STREAM_CODEC = createStreamCodec(Set::new);
 
 		private Set() {
@@ -66,7 +66,7 @@ public abstract class ServerLobbyUpdate extends PartialUpdate<ILobbyManagement> 
 		}
 	}
 
-	public enum Type implements AbstractType<ILobbyManagement> {
+	public enum Type implements AbstractType<LobbyManagement> {
 		SET_NAME(SetName::decode),
 		ENQUEUE(Enqueue::decode),
 		REMOVE_QUEUED_GAME(RemoveQueuedGame::decode),
@@ -101,7 +101,7 @@ public abstract class ServerLobbyUpdate extends PartialUpdate<ILobbyManagement> 
 		}
 
 		@Override
-		public void applyTo(ILobbyManagement lobby) {
+		public void applyTo(LobbyManagement lobby) {
 			lobby.setName(name);
 		}
 
@@ -124,7 +124,7 @@ public abstract class ServerLobbyUpdate extends PartialUpdate<ILobbyManagement> 
 		}
 
 		@Override
-		public void applyTo(ILobbyManagement lobby) {
+		public void applyTo(LobbyManagement lobby) {
 			GameConfig config = GameConfigs.REGISTRY.get(definition);
 			if (config != null) {
 				lobby.enqueueGame(config);
@@ -150,7 +150,7 @@ public abstract class ServerLobbyUpdate extends PartialUpdate<ILobbyManagement> 
 		}
 
 		@Override
-		public void applyTo(ILobbyManagement lobby) {
+		public void applyTo(LobbyManagement lobby) {
 			lobby.removeQueuedGame(id);
 		}
 
@@ -175,7 +175,7 @@ public abstract class ServerLobbyUpdate extends PartialUpdate<ILobbyManagement> 
 		}
 
 		@Override
-		public void applyTo(ILobbyManagement lobby) {
+		public void applyTo(LobbyManagement lobby) {
 			lobby.reorderQueuedGame(id, newIndex);
 		}
 
@@ -199,7 +199,7 @@ public abstract class ServerLobbyUpdate extends PartialUpdate<ILobbyManagement> 
 		}
 
 		@Override
-		public void applyTo(ILobbyManagement lobby) {
+		public void applyTo(LobbyManagement lobby) {
 			lobby.selectControl(control);
 		}
 
@@ -224,7 +224,7 @@ public abstract class ServerLobbyUpdate extends PartialUpdate<ILobbyManagement> 
 		}
 
 		@Override
-		public void applyTo(ILobbyManagement lobby) {
+		public void applyTo(LobbyManagement lobby) {
 			lobby.setVisibility(visibility);
 		}
 
@@ -244,7 +244,7 @@ public abstract class ServerLobbyUpdate extends PartialUpdate<ILobbyManagement> 
 		}
 
 		@Override
-		public void applyTo(ILobbyManagement lobby) {
+		public void applyTo(LobbyManagement lobby) {
 			lobby.close();
 		}
 

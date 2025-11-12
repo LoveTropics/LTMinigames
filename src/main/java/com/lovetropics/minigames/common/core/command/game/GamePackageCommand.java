@@ -1,8 +1,8 @@
 package com.lovetropics.minigames.common.core.command.game;
 
-import com.lovetropics.minigames.common.core.game.IGameManager;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePackageEvents;
+import com.lovetropics.minigames.common.core.game.impl.GameManager;
 import com.lovetropics.minigames.common.core.game.state.GamePackageState;
 import com.lovetropics.minigames.common.core.integration.game_actions.GamePackage;
 import com.mojang.brigadier.Command;
@@ -41,7 +41,7 @@ public class GamePackageCommand {
 	}
 
 	private static CompletableFuture<Suggestions> suggestPackages(final CommandContext<CommandSourceStack> ctx, final SuggestionsBuilder builder) {
-		IGamePhase game = IGameManager.get().getGamePhaseFor(ctx.getSource());
+		IGamePhase game = GameManager.get().getGamePhaseFor(ctx.getSource());
 		if (game != null) {
 			GamePackageState packages = game.state().get(GamePackageState.KEY);
 			return SharedSuggestionProvider.suggest(packages.keys(), builder);
@@ -50,7 +50,7 @@ public class GamePackageCommand {
 	}
 
 	private static int spawnPackage(CommandContext<CommandSourceStack> ctx, @Nullable ServerPlayer target) {
-		IGamePhase game = IGameManager.get().getGamePhaseFor(ctx.getSource());
+		IGamePhase game = GameManager.get().getGamePhaseFor(ctx.getSource());
 		if (game != null) {
 			String type = StringArgumentType.getString(ctx, "id");
 			GamePackage gamePackage = new GamePackage(type, "LoveTropics", Optional.ofNullable(target).map(Entity::getUUID), Optional.empty());

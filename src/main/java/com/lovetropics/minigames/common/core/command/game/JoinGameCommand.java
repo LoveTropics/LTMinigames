@@ -3,9 +3,9 @@ package com.lovetropics.minigames.common.core.command.game;
 import com.lovetropics.minigames.common.core.command.argument.GameLobbyArgument;
 import com.lovetropics.minigames.common.core.command.argument.PlayerRoleArgument;
 import com.lovetropics.minigames.common.core.game.GameResult;
-import com.lovetropics.minigames.common.core.game.IGameManager;
-import com.lovetropics.minigames.common.core.game.lobby.IGameLobby;
-import com.lovetropics.minigames.common.core.game.lobby.IGameLobbyPlayers;
+import com.lovetropics.minigames.common.core.game.impl.GameLobby;
+import com.lovetropics.minigames.common.core.game.impl.LobbyPlayerManager;
+import com.lovetropics.minigames.common.core.game.impl.GameManager;
 import com.lovetropics.minigames.common.core.game.player.PlayerRole;
 import com.lovetropics.minigames.common.core.game.util.GameTexts;
 import com.mojang.brigadier.Command;
@@ -59,13 +59,13 @@ public class JoinGameCommand {
 		// @formatter:on
 	}
 
-	private static int joinAsRole(CommandContext<CommandSourceStack> ctx, @Nullable IGameLobby givenLobby, @Nullable PlayerRole forcedRole) throws CommandSyntaxException {
+	private static int joinAsRole(CommandContext<CommandSourceStack> ctx, @Nullable GameLobby givenLobby, @Nullable PlayerRole forcedRole) throws CommandSyntaxException {
 		return joinAsRole(givenLobby, forcedRole, ctx.getSource().getPlayerOrException(), ctx.getSource());
 	}
 
-	public static int joinAsRole(@Nullable IGameLobby givenLobby, @Nullable PlayerRole forcedRole, ServerPlayer player, CommandSourceStack source) throws CommandSyntaxException{
-		IGameLobby lobby = resolveLobby(source, givenLobby, forcedRole).orElseThrow();
-		IGameLobbyPlayers players = lobby.getPlayers();
+	public static int joinAsRole(@Nullable GameLobby givenLobby, @Nullable PlayerRole forcedRole, ServerPlayer player, CommandSourceStack source) throws CommandSyntaxException{
+		GameLobby lobby = resolveLobby(source, givenLobby, forcedRole).orElseThrow();
+		LobbyPlayerManager players = lobby.getPlayers();
 
 		CompletableFuture<GameResult<Unit>> joinFuture;
 		if (forcedRole == null) {
@@ -85,11 +85,11 @@ public class JoinGameCommand {
 		return Command.SINGLE_SUCCESS;
 	}
 
-	private static GameResult<IGameLobby> resolveLobby(CommandSourceStack source, @Nullable IGameLobby givenLobby, @Nullable PlayerRole forcedRole) {
+	private static GameResult<GameLobby> resolveLobby(CommandSourceStack source, @Nullable GameLobby givenLobby, @Nullable PlayerRole forcedRole) {
 		if (givenLobby != null) {
 			return GameResult.ok(givenLobby);
 		} else {
-			List<? extends IGameLobby> lobbies = IGameManager.get().getVisibleLobbies(source).collect(Collectors.toList());
+			List<? extends GameLobby> lobbies = GameManager.get().getVisibleLobbies(source).collect(Collectors.toList());
 			if (lobbies.size() == 1) {
 				return GameResult.ok(lobbies.getFirst());
 			} else if (lobbies.isEmpty()) {
@@ -102,7 +102,7 @@ public class JoinGameCommand {
 
 	private static int forcePlayerJoin(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
 		ServerPlayer player = EntityArgument.getPlayer(context, "player");
-		IGameLobby lobby = IGameManager.get().getLobbyFor(player);
+		GameLobby lobby = GameManager.get().getLobbyFor(player);
 		if (lobby == null) {
 			throw new SimpleCommandExceptionType(GameTexts.Commands.NOT_IN_LOBBY).create();
 		}

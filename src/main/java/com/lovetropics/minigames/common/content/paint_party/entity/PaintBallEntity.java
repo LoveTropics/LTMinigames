@@ -2,8 +2,8 @@ package com.lovetropics.minigames.common.content.paint_party.entity;
 
 import com.lovetropics.minigames.common.content.paint_party.PaintParty;
 import com.lovetropics.minigames.common.content.paint_party.PaintPartyEvents;
-import com.lovetropics.minigames.common.core.game.IGameManager;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
+import com.lovetropics.minigames.common.core.game.impl.GameManager;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -53,7 +53,7 @@ public class PaintBallEntity extends ThrowableProjectile implements ItemSupplier
 	protected void onHitBlock(BlockHitResult result) {
 		super.onHitBlock(result);
 
-		IGamePhase game = IGameManager.get().getGamePhaseAt(level(), result.getBlockPos());
+		IGamePhase game = GameManager.get().getGamePhaseAt(level(), result.getBlockPos());
 		if (game != null) {
 			game.invoker(PaintPartyEvents.PAINTBALL_HIT).onPaintBallHit(level(), this, result.getBlockPos());
 		}

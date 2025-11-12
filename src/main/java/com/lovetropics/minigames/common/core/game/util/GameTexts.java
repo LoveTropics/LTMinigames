@@ -2,7 +2,7 @@ package com.lovetropics.minigames.common.core.game.util;
 
 import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.core.game.IGameDefinition;
-import com.lovetropics.minigames.common.core.game.lobby.IGameLobby;
+import com.lovetropics.minigames.common.core.game.impl.GameLobby;
 import com.lovetropics.minigames.common.core.game.player.PlayerRole;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.ClickEvent;
@@ -57,7 +57,7 @@ public final class GameTexts {
 		return formatLink(CLICK_HERE, command);
 	}
 
-	public static MutableComponent lobbyName(IGameLobby lobby) {
+	public static MutableComponent lobbyName(GameLobby lobby) {
 		return formatName(Component.literal(lobby.getMetadata().name()));
 	}
 
@@ -98,11 +98,11 @@ public final class GameTexts {
 		public static final TranslationCollector.Fun1 SET_CHAT_CHANNEL = KEYS.add1("set_chat_channel", "You are now chatting in %s");
 		public static final Component TEAM_CHAT_INTRO = KEYS.add("team_chat_intro", "You are using team chat. Use /shout or /chat global to chat with everyone.");
 
-		public static MutableComponent joinedLobby(IGameLobby lobby) {
+		public static MutableComponent joinedLobby(GameLobby lobby) {
 			return formatPositive(JOINED_LOBBY.apply(lobbyName(lobby)));
 		}
 
-		public static MutableComponent leftLobby(IGameLobby lobby) {
+		public static MutableComponent leftLobby(GameLobby lobby) {
 			return formatNegative(LEFT_LOBBY.apply(lobbyName(lobby)));
 		}
 
@@ -114,11 +114,11 @@ public final class GameTexts {
 			return formatNegative(STOPPED_GAME.apply(gameName(game)));
 		}
 
-		public static MutableComponent lobbySelector(Collection<? extends IGameLobby> lobbies, @Nullable PlayerRole role) {
+		public static MutableComponent lobbySelector(Collection<? extends GameLobby> lobbies, @Nullable PlayerRole role) {
 			MutableComponent selector = LOBBY_SELECTOR_HEADER.copy().append("\n")
 					.withStyle(ChatFormatting.GOLD);
 
-			for (IGameLobby lobby : lobbies) {
+			for (GameLobby lobby : lobbies) {
 				Component lobbyName = lobbyName(lobby);
 				int players = lobby.getPlayers().size();
 				Component link = clickHere(lobby.getMetadata().joinCommand(role));
@@ -153,12 +153,12 @@ public final class GameTexts {
 
 		private static final Component INTEGRATIONS_NOT_CONNECTED = KEYS.add("integrations_not_connected", "Integrations socket is not connected!");
 
-		public static MutableComponent lobbyOpened(IGameLobby lobby) {
+		public static MutableComponent lobbyOpened(GameLobby lobby) {
 			Component link = clickHere(lobby.getMetadata().joinCommand(null));
 			return formatStatus(LOBBY_OPENED.apply(lobbyName(lobby), link));
 		}
 
-		public static MutableComponent playerJoined(IGameLobby lobby, ServerPlayer player, @Nullable PlayerRole role) {
+		public static MutableComponent playerJoined(GameLobby lobby, ServerPlayer player, @Nullable PlayerRole role) {
 			TranslationCollector.Fun2 message = role != PlayerRole.SPECTATOR ? PLAYER_JOINED : SPECTATOR_JOINED;
 			return formatPositive(message.apply(playerName(player), lobbyName(lobby)));
 		}

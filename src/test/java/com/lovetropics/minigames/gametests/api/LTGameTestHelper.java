@@ -2,8 +2,8 @@ package com.lovetropics.minigames.gametests.api;
 
 import com.lovetropics.minigames.common.core.game.GameResult;
 import com.lovetropics.minigames.common.core.game.GameStopReason;
-import com.lovetropics.minigames.common.core.game.IGameManager;
-import com.lovetropics.minigames.common.core.game.lobby.IGameLobby;
+import com.lovetropics.minigames.common.core.game.impl.GameLobby;
+import com.lovetropics.minigames.common.core.game.impl.GameManager;
 import com.lovetropics.minigames.common.core.game.lobby.LobbyControls;
 import com.lovetropics.minigames.common.core.game.player.PlayerRole;
 import com.lovetropics.minigames.mixin.gametest.GameTestHelperAccess;
@@ -768,10 +768,10 @@ public class LTGameTestHelper extends GameTestHelper {
 	public TestGameLobby createGame(ServerPlayer player, PlayerRole initiatorRole) {
 		String name = player.getScoreboardName() + "'s Lobby";
 
-		GameResult<IGameLobby> result = IGameManager.get().createGameLobby(name, player);
+		GameResult<GameLobby> result = GameManager.get().createGameLobby(name, player);
 		assertTrue(result.isOk(), () -> "Game could not be created: " + result.getError().getString());
 
-		IGameLobby lobby = result.getOk();
+		GameLobby lobby = result.getOk();
 		lobby.getPlayers().join(player, initiatorRole);
 
 		((List<GameTestListener>) ((GameTestInfoAccess) info).getListeners()).addFirst(new GameTestListener() {
@@ -805,9 +805,9 @@ public class LTGameTestHelper extends GameTestHelper {
 		return new TestGameLobby(lobby);
 	}
 
-	public Runnable startGame(IGameLobby game) {
+	public Runnable startGame(TestGameLobby game) {
 		return () -> {
-			final var result = game.getControls().get(LobbyControls.Type.PLAY).run();
+			final var result = game.lobby().getControls().get(LobbyControls.Type.PLAY).run();
 			assertTrue(result.isOk(), () -> "Game could not start: " + result.getError().getString());
 		};
 	}

@@ -1,8 +1,8 @@
 package com.lovetropics.minigames.common.core.command.game;
 
 import com.lovetropics.lib.BlockBox;
-import com.lovetropics.minigames.common.core.game.IGameManager;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
+import com.lovetropics.minigames.common.core.game.impl.GameManager;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.tree.LiteralCommandNode;
@@ -24,7 +24,7 @@ public class ExecuteAtRegionCommand {
 						.then(argument("region", string())
 								.fork(executeRoot, context -> {
 									String regionKey = StringArgumentType.getString(context, "region");
-									IGamePhase game = IGameManager.get().getGamePhaseFor(context.getSource());
+									IGamePhase game = GameManager.get().getGamePhaseFor(context.getSource());
 									if (game == null) {
 										return List.of();
 									}

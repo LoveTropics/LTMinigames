@@ -4,7 +4,6 @@ import com.lovetropics.minigames.common.core.game.behavior.event.GameEventType;
 import com.lovetropics.minigames.common.core.game.player.PlayerRole;
 import com.lovetropics.minigames.common.core.game.player.PlayerSet;
 import com.lovetropics.minigames.common.core.game.state.GameStateMap;
-import com.lovetropics.minigames.common.core.game.state.control.ControlCommandInvoker;
 import com.lovetropics.minigames.common.core.game.state.control.ControlCommands;
 import com.lovetropics.minigames.common.core.game.state.statistics.GameStatistics;
 import com.lovetropics.minigames.common.core.game.util.GameScheduler;
@@ -22,6 +21,24 @@ import net.minecraft.world.level.Level;
 import javax.annotation.Nullable;
 
 public interface IGamePhase {
+	/**
+	 * @return the world that this game takes place within
+	 */
+	ServerLevel level();
+
+	MapRegions mapRegions();
+
+	/**
+	 * @return the dimension that this game takes places within
+	 */
+	default ResourceKey<Level> dimension() {
+		return level().dimension();
+	}
+
+	default RandomSource random() {
+		return level().getRandom();
+	}
+
 	default MinecraftServer server() {
 		return level().getServer();
 	}
@@ -37,8 +54,6 @@ public interface IGamePhase {
 	GameStateMap state();
 
 	GameStateMap instanceState();
-
-	GamePhaseType phaseType();
 
 	<T> T invoker(GameEventType<T> type);
 
@@ -86,27 +101,9 @@ public interface IGamePhase {
 	}
 
 	/**
-	 * @return the world that this game takes place within
-	 */
-	ServerLevel level();
-
-	/**
-	 * @return the dimension that this game takes places within
-	 */
-	default ResourceKey<Level> dimension() {
-		return level().dimension();
-	}
-
-	MapRegions mapRegions();
-
-	/**
 	 * @return the tick counter since the game started
 	 */
 	long ticks();
-
-	default RandomSource random() {
-		return level().getRandom();
-	}
 
 	default ControlCommands controlCommands() {
 		return state().get(ControlCommands.KEY);
@@ -114,11 +111,6 @@ public interface IGamePhase {
 
 	default GameStatistics statistics() {
 		return state().get(GameStatistics.KEY);
-	}
-
-	default ControlCommandInvoker getControlInvoker() {
-		ControlCommands commands = controlCommands();
-		return ControlCommandInvoker.create(commands);
 	}
 
 	default GameInstanceIntegrations getIntegrationsOrThrow() {

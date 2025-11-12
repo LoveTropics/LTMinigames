@@ -1,9 +1,7 @@
 package com.lovetropics.minigames.common.core.game.impl;
 
 import com.lovetropics.minigames.common.core.game.IGameDefinition;
-import com.lovetropics.minigames.common.core.game.lobby.ILobbyGameQueue;
 import com.lovetropics.minigames.common.core.game.lobby.QueuedGame;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Mth;
 
 import javax.annotation.Nullable;
@@ -11,27 +9,20 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-final class LobbyGameQueue implements ILobbyGameQueue {
-	private final MinecraftServer server;
+public final class LobbyGameQueue implements Iterable<QueuedGame> {
 	private final List<QueuedGame> entries = new ArrayList<>();
-
-	LobbyGameQueue(MinecraftServer server) {
-		this.server = server;
-	}
 
 	@Nullable
 	QueuedGame next() {
 		return !entries.isEmpty() ? entries.removeFirst() : null;
 	}
 
-	@Override
 	public QueuedGame enqueue(IGameDefinition game) {
 		QueuedGame entry = QueuedGame.create(game);
 		entries.add(entry);
 		return entry;
 	}
 
-	@Override
 	public void clear() {
 		entries.clear();
 	}
@@ -41,7 +32,6 @@ final class LobbyGameQueue implements ILobbyGameQueue {
 		return entries.iterator();
 	}
 
-	@Override
 	public int size() {
 		return entries.size();
 	}

@@ -1,8 +1,8 @@
 package com.lovetropics.minigames.mixin.event;
 
-import com.lovetropics.minigames.common.core.game.IGameManager;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameWorldEvents;
+import com.lovetropics.minigames.common.core.game.impl.GameManager;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -28,7 +28,7 @@ public abstract class FallingBlockEntityMixin extends Entity {
 	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/item/FallingBlockEntity;discard()V", ordinal = 2, shift = At.Shift.AFTER), method = "tick")
 	private void customFalling(CallbackInfo ci) {
 		if (level() instanceof ServerLevel serverLevel) {
-			IGamePhase game = IGameManager.get().getGamePhaseAt(serverLevel, blockPosition());
+			IGamePhase game = GameManager.get().getGamePhaseAt(serverLevel, blockPosition());
 			if (game != null) {
 				game.invoker(GameWorldEvents.BLOCK_LANDED).onBlockLanded(serverLevel, blockPosition(), blockState);
 			}

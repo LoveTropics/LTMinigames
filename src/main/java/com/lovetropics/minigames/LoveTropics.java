@@ -69,11 +69,11 @@ import com.lovetropics.minigames.common.core.command.game.StartGameCommand;
 import com.lovetropics.minigames.common.core.dimension.RuntimeDimensions;
 import com.lovetropics.minigames.common.core.entity.MinigameEntities;
 import com.lovetropics.minigames.common.core.extension.LimitedSpawnerAttachment;
-import com.lovetropics.minigames.common.core.game.IGameManager;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorTypes;
 import com.lovetropics.minigames.common.core.game.behavior.action.ActionTargetTypes;
 import com.lovetropics.minigames.common.core.game.client_state.GameClientStateTypes;
 import com.lovetropics.minigames.common.core.game.impl.GameEventDispatcher;
+import com.lovetropics.minigames.common.core.game.impl.GameManager;
 import com.lovetropics.minigames.common.core.game.persistent.PersistentGameBehaviors;
 import com.lovetropics.minigames.common.core.game.predicate.entity.EntityPredicates;
 import com.lovetropics.minigames.common.core.game.predicate.loot.LootItemConditions;
@@ -230,7 +230,7 @@ public class LoveTropics {
 		modContainer.registerConfig(ModConfig.Type.CLIENT, ConfigLT.CLIENT_CONFIG);
 		modContainer.registerConfig(ModConfig.Type.COMMON, ConfigLT.SERVER_CONFIG);
 
-		GameEventDispatcher eventDispatcher = new GameEventDispatcher(IGameManager.get());
+		GameEventDispatcher eventDispatcher = new GameEventDispatcher(GameManager.get());
 		NeoForge.EVENT_BUS.register(eventDispatcher);
 
 		modBus.addListener((RegisterGuiLayersEvent event) -> {

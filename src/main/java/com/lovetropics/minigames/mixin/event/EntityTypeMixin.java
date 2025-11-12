@@ -1,8 +1,8 @@
 package com.lovetropics.minigames.mixin.event;
 
-import com.lovetropics.minigames.common.core.game.IGameManager;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameLivingEntityEvents;
+import com.lovetropics.minigames.common.core.game.impl.GameManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -25,7 +25,7 @@ public class EntityTypeMixin<T extends Entity> {
 	private void spawnEntity(ServerLevel level, ItemStack stack, LivingEntity source, BlockPos pos, EntitySpawnReason spawnType, boolean shouldOffsetY, boolean shouldOffsetYMore, CallbackInfoReturnable<T> ci) {
 		T entity = ci.getReturnValue();
 		if (entity instanceof LivingEntity livingEntity && source instanceof ServerPlayer serverPlayer) {
-			IGamePhase game = IGameManager.get().getGamePhaseFor(entity);
+			IGamePhase game = GameManager.get().getGamePhaseFor(entity);
 			if (game != null) {
 				game.invoker(GameLivingEntityEvents.SPAWNED).onSpawn(livingEntity, spawnType, serverPlayer);
 			}

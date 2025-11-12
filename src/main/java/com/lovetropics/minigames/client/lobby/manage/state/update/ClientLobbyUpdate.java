@@ -7,8 +7,8 @@ import com.lovetropics.minigames.client.lobby.manage.state.ClientLobbyQueue;
 import com.lovetropics.minigames.client.lobby.manage.state.ClientLobbyQueuedGame;
 import com.lovetropics.minigames.client.lobby.state.ClientCurrentGame;
 import com.lovetropics.minigames.client.lobby.state.ClientGameDefinition;
-import com.lovetropics.minigames.common.core.game.lobby.IGameLobby;
-import com.lovetropics.minigames.common.core.game.lobby.ILobbyGameQueue;
+import com.lovetropics.minigames.common.core.game.impl.GameLobby;
+import com.lovetropics.minigames.common.core.game.impl.LobbyGameQueue;
 import com.lovetropics.minigames.common.core.game.lobby.LobbyControls;
 import com.lovetropics.minigames.common.core.game.lobby.LobbyVisibility;
 import com.lovetropics.minigames.common.core.game.lobby.QueuedGame;
@@ -47,7 +47,7 @@ public abstract class ClientLobbyUpdate extends PartialUpdate<ClientLobbyManagem
 
 		public Set initialize(
 				List<ClientGameDefinition> installedGames,
-				ILobbyGameQueue queue
+				LobbyGameQueue queue
 		) {
 			ClientLobbyQueue clientQueue = new ClientLobbyQueue();
 			for (QueuedGame game : queue) {
@@ -58,7 +58,7 @@ public abstract class ClientLobbyUpdate extends PartialUpdate<ClientLobbyManagem
 			return this;
 		}
 
-		public Set setPlayersFrom(IGameLobby lobby) {
+		public Set setPlayersFrom(GameLobby lobby) {
 			List<ClientLobbyPlayer> players = lobby.getPlayers().stream()
 					.map(player -> ClientLobbyPlayer.from(lobby, player))
 					.collect(Collectors.toList());
@@ -76,7 +76,7 @@ public abstract class ClientLobbyUpdate extends PartialUpdate<ClientLobbyManagem
 			return this;
 		}
 
-		public Set updateQueue(ILobbyGameQueue queue, int... updatedIds) {
+		public Set updateQueue(LobbyGameQueue queue, int... updatedIds) {
 			IntList order = new IntArrayList(queue.size());
 			Int2ObjectMap<ClientLobbyQueuedGame> updated = new Int2ObjectArrayMap<>();
 

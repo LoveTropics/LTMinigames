@@ -1,8 +1,8 @@
 package com.lovetropics.minigames.client.lobby.select_role;
 
 import com.lovetropics.minigames.LoveTropics;
-import com.lovetropics.minigames.common.core.game.IGameManager;
-import com.lovetropics.minigames.common.core.game.lobby.IGameLobby;
+import com.lovetropics.minigames.common.core.game.impl.GameLobby;
+import com.lovetropics.minigames.common.core.game.impl.GameManager;
 import com.lovetropics.minigames.common.core.game.player.PlayerRole;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -22,7 +22,7 @@ public record SelectRoleMessage(int lobbyId, boolean play) implements CustomPack
 
 	public static void handle(SelectRoleMessage message, IPayloadContext context) {
 		ServerPlayer player = (ServerPlayer) context.player();
-		IGameLobby lobby = IGameManager.get().getLobbyByNetworkId(message.lobbyId);
+		GameLobby lobby = GameManager.get().getLobbyByNetworkId(message.lobbyId);
 		if (lobby != null) {
 			PlayerRole role = message.play ? PlayerRole.PARTICIPANT : PlayerRole.SPECTATOR;
 			lobby.getPlayers().getRoleSelections().acceptResponse(player, role);

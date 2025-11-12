@@ -1,7 +1,6 @@
 package com.lovetropics.minigames.common.core.command.game;
 
 import com.google.common.collect.Streams;
-import com.lovetropics.minigames.common.core.game.IGameManager;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorType;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorTypes;
@@ -10,6 +9,7 @@ import com.lovetropics.minigames.common.core.game.behavior.action.GameActionCont
 import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameEventListeners;
 import com.lovetropics.minigames.common.core.game.config.GameConfigs;
+import com.lovetropics.minigames.common.core.game.impl.GameManager;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
@@ -63,7 +63,7 @@ public class GameActionCommand {
 	}
 
 	private static int runAction(CommandContext<CommandSourceStack> ctx, Collection<? extends Entity> targets) throws CommandSyntaxException {
-		IGamePhase game = IGameManager.get().getGamePhaseFor(ctx.getSource());
+		IGamePhase game = GameManager.get().getGamePhaseFor(ctx.getSource());
 		if (game != null) {
 			IGameBehavior behavior = parseBehavior(ctx);
 			GameEventListeners events = new GameEventListeners();

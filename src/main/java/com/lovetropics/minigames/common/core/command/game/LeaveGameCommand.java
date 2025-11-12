@@ -1,8 +1,8 @@
 package com.lovetropics.minigames.common.core.command.game;
 
 import com.lovetropics.minigames.common.core.game.GameResult;
-import com.lovetropics.minigames.common.core.game.IGameManager;
-import com.lovetropics.minigames.common.core.game.lobby.IGameLobby;
+import com.lovetropics.minigames.common.core.game.impl.GameLobby;
+import com.lovetropics.minigames.common.core.game.impl.GameManager;
 import com.lovetropics.minigames.common.core.game.util.GameTexts;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -24,7 +24,7 @@ public class LeaveGameCommand {
 		return literal(name).requires(s -> s.getEntity() instanceof ServerPlayer)
 				.executes(c -> GameCommand.executeGameAction(() -> {
 					CommandSourceStack source = c.getSource();
-					IGameLobby lobby = IGameManager.get().getLobbyFor(source);
+					GameLobby lobby = GameManager.get().getLobbyFor(source);
 					if (lobby != null && lobby.getPlayers().remove(source.getPlayerOrException(), false)) {
 						return GameResult.ok(GameTexts.Commands.leftLobby(lobby));
 					}

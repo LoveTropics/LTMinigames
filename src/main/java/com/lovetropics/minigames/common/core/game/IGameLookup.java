@@ -1,6 +1,6 @@
 package com.lovetropics.minigames.common.core.game;
 
-import com.lovetropics.minigames.common.core.game.lobby.IGameLobby;
+import com.lovetropics.minigames.common.core.game.impl.GameLobby;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
@@ -12,10 +12,10 @@ import javax.annotation.Nullable;
 
 public interface IGameLookup {
 	@Nullable
-	IGameLobby getLobbyFor(Player player);
+	GameLobby getLobbyFor(Player player);
 
 	@Nullable
-	default IGameLobby getLobbyFor(CommandSourceStack source) {
+	default GameLobby getLobbyFor(CommandSourceStack source) {
 		if (source.getEntity() instanceof Player player) {
 			return getLobbyFor(player);
 		}

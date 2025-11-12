@@ -2,9 +2,9 @@ package com.lovetropics.minigames.common.core.command.game;
 
 import com.lovetropics.minigames.common.core.command.argument.GameLobbyArgument;
 import com.lovetropics.minigames.common.core.game.GameResult;
-import com.lovetropics.minigames.common.core.game.IGameManager;
-import com.lovetropics.minigames.common.core.game.lobby.IGameLobby;
-import com.lovetropics.minigames.common.core.game.lobby.ILobbyManagement;
+import com.lovetropics.minigames.common.core.game.impl.GameLobby;
+import com.lovetropics.minigames.common.core.game.impl.GameManager;
+import com.lovetropics.minigames.common.core.game.impl.LobbyManagement;
 import com.lovetropics.minigames.common.core.game.util.GameTexts;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
@@ -47,13 +47,13 @@ public class ManageGameLobbyCommand {
 		// @formatter:on
 	}
 
-	public static GameResult<IGameLobby> createAndJoinLobby(ServerPlayer player) {
+	public static GameResult<GameLobby> createAndJoinLobby(ServerPlayer player) {
 		String name = player.getScoreboardName() + "'s Lobby";
-		GameResult<IGameLobby> result = IGameManager.get().createGameLobby(name, player);
+		GameResult<GameLobby> result = GameManager.get().createGameLobby(name, player);
 		if (result.isError()) {
 			return result.castError();
 		}
-		IGameLobby lobby = result.getOk();
+		GameLobby lobby = result.getOk();
 		lobby.getPlayers().joinAndPrompt(player).thenAcceptAsync($ -> {
 			lobby.getManagement().startManaging(player);
 		}, lobby.getServer());
@@ -68,7 +68,7 @@ public class ManageGameLobbyCommand {
 
 	private static int manageCurrentLobby(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
 		ServerPlayer player = context.getSource().getPlayerOrException();
-		IGameLobby lobby = IGameManager.get().getLobbyFor(player);
+		GameLobby lobby = GameManager.get().getLobbyFor(player);
 		if (lobby == null) {
 			throw NOT_IN_LOBBY.create();
 		}
@@ -82,7 +82,7 @@ public class ManageGameLobbyCommand {
 
 	private static int manageLobby(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
 		ServerPlayer player = context.getSource().getPlayerOrException();
-		IGameLobby lobby = GameLobbyArgument.get(context, "lobby");
+		GameLobby lobby = GameLobbyArgument.get(context, "lobby");
 
 		if (!lobby.getManagement().startManaging(player)) {
 			throw NO_MANAGE_PERMISSION.create();
@@ -92,9 +92,9 @@ public class ManageGameLobbyCommand {
 	}
 
 	private static int closeLobby(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
-		IGameLobby lobby = GameLobbyArgument.get(context, "lobby");
+		GameLobby lobby = GameLobbyArgument.get(context, "lobby");
 
-		ILobbyManagement management = lobby.getManagement();
+		LobbyManagement management = lobby.getManagement();
 		if (management.canManage(context.getSource())) {
 			management.close();
 		} else {

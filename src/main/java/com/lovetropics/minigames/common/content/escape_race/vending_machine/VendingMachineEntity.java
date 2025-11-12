@@ -1,8 +1,8 @@
 package com.lovetropics.minigames.common.content.escape_race.vending_machine;
 
 import com.lovetropics.minigames.common.content.escape_race.EscapeRace;
-import com.lovetropics.minigames.common.core.game.IGameManager;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
+import com.lovetropics.minigames.common.core.game.impl.GameManager;
 import com.lovetropics.minigames.common.core.network.vending.SelectVendingMachineItemMessage;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
@@ -125,7 +125,7 @@ public class VendingMachineEntity extends Entity implements ContainerEntity {
 	}
 
 	public void tryPurchase(Player player, int itemIndex){
-		IGamePhase game = IGameManager.get().getGamePhaseFor(player);
+		IGamePhase game = GameManager.get().getGamePhaseFor(player);
 		if(game != null) {
 			if(game.invoker(VendingMachineEvents.PURCHASE_ITEM)
 					.onPurchaseItem(player, this, getItem(itemIndex))){

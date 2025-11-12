@@ -3,10 +3,10 @@ package com.lovetropics.minigames.mixin;
 import com.google.common.collect.ImmutableList;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.lovetropics.minigames.client.game.ClientGameStateManager;
-import com.lovetropics.minigames.common.core.game.IGameManager;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.client_state.GameClientStateTypes;
 import com.lovetropics.minigames.common.core.game.client_state.instance.CollidersClientState;
+import com.lovetropics.minigames.common.core.game.impl.GameManager;
 import com.lovetropics.minigames.common.core.game.state.ColliderState;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -34,7 +34,7 @@ public class EntityMixin {
 				colliders.addTo(boundingBox, output);
 			}
 		} else {
-			IGamePhase game = IGameManager.get().getGamePhaseFor(player);
+			IGamePhase game = GameManager.get().getGamePhaseFor(player);
 			if (game != null) {
 				ColliderState colliderState = game.state().getOrNull(ColliderState.KEY);
 				if (colliderState != null) {

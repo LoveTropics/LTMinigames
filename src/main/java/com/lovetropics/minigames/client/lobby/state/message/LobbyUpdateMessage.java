@@ -3,7 +3,7 @@ package com.lovetropics.minigames.client.lobby.state.message;
 import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.client.lobby.state.ClientCurrentGame;
 import com.lovetropics.minigames.client.lobby.state.ClientLobbyManager;
-import com.lovetropics.minigames.common.core.game.lobby.IGameLobby;
+import com.lovetropics.minigames.common.core.game.impl.GameLobby;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -21,14 +21,14 @@ public record LobbyUpdateMessage(int id, Optional<Update> update) implements Cus
 			LobbyUpdateMessage::new
 	);
 
-	public static LobbyUpdateMessage update(IGameLobby lobby) {
+	public static LobbyUpdateMessage update(GameLobby lobby) {
 		int id = lobby.getMetadata().id().networkId();
 		String name = lobby.getMetadata().name();
 		ClientCurrentGame currentGame = lobby.getClientCurrentGame();
 		return new LobbyUpdateMessage(id, Optional.of(new Update(name, Optional.ofNullable(currentGame))));
 	}
 
-	public static LobbyUpdateMessage remove(IGameLobby lobby) {
+	public static LobbyUpdateMessage remove(GameLobby lobby) {
 		return new LobbyUpdateMessage(lobby.getMetadata().id().networkId(), Optional.empty());
 	}
 

@@ -8,13 +8,10 @@ import com.lovetropics.minigames.client.lobby.state.message.LobbyPlayersMessage;
 import com.lovetropics.minigames.client.lobby.state.message.LobbyUpdateMessage;
 import com.lovetropics.minigames.common.core.game.GamePhaseType;
 import com.lovetropics.minigames.common.core.game.GameResult;
-import com.lovetropics.minigames.common.core.game.IGame;
 import com.lovetropics.minigames.common.core.game.IGameDefinition;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.PlayerIsolation;
 import com.lovetropics.minigames.common.core.game.lobby.GameLobbyMetadata;
-import com.lovetropics.minigames.common.core.game.lobby.IGameLobby;
-import com.lovetropics.minigames.common.core.game.lobby.ILobbyManagement;
 import com.lovetropics.minigames.common.core.game.lobby.LobbyControls;
 import com.lovetropics.minigames.common.core.game.lobby.LobbyStateListener;
 import com.lovetropics.minigames.common.core.game.lobby.LobbyVisibility;
@@ -31,16 +28,14 @@ import net.neoforged.neoforge.network.PacketDistributor;
 
 import javax.annotation.Nullable;
 
-// TODO: do we want a different game lobby implementation for something like carnival games?
-
 /**
  * This is what is created when the command /game create is run - it is not the 'waiting room' lobby, it is a game lobby, as in
  * basically a 'party' of players that will play games together.
  * <p>
  * A game lobby can have many games in its queue, each will be given a GameInstance.
  */
-final class GameLobby implements IGameLobby {
-	final MultiGameManager manager;
+public final class GameLobby {
+	final GameManager manager;
 	final MinecraftServer server;
 	GameLobbyMetadata metadata;
 
@@ -59,86 +54,78 @@ final class GameLobby implements IGameLobby {
 	private boolean needsRolePrompt = false;
 	private boolean closed;
 
-	GameLobby(MultiGameManager manager, MinecraftServer server, GameLobbyMetadata metadata) {
+	GameLobby(GameManager manager, MinecraftServer server, GameLobbyMetadata metadata) {
 		this.manager = manager;
 		this.server = server;
 		this.metadata = metadata;
 
-		gameQueue = new LobbyGameQueue(server);
+		gameQueue = new LobbyGameQueue();
 		state = new LobbyStateManager(this);
 		players = new LobbyPlayerManager(this);
 		management = new LobbyManagement(this);
 		trackingPlayers = new LobbyTrackingPlayers(this);
 	}
 
-	@Override
 	public MinecraftServer getServer() {
 		return server;
 	}
 
-	@Override
 	public GameLobbyMetadata getMetadata() {
 		return metadata;
 	}
 
-	@Override
 	public LobbyPlayerManager getPlayers() {
 		return players;
 	}
 
-	@Override
 	public LobbyGameQueue getGameQueue() {
 		return gameQueue;
 	}
 
-	@Override
 	@Nullable
-	public IGame getCurrentGame() {
+	public GameInstance getCurrentGame() {
 		GamePhase phase = getActivePhase();
 		return phase != null ? phase.game : null;
 	}
 
 	@Nullable
-	@Override
 	public IGamePhase getTopPhase() {
 		return state.getTopPhase();
 	}
 
 	@Nullable
-	@Override
 	public GamePhase getActivePhase() {
 		GamePhase phase = state.getTopPhase();
 		return phase != null ? phase.getActivePhase() : null;
 	}
 
 	@Nullable
-	@Override
 	public ClientCurrentGame getClientCurrentGame() {
 		return state.getClientCurrentGame();
 	}
 
-	@Override
 	public LobbyControls getControls() {
 		return state.controls();
 	}
 
-	@Override
-	public ILobbyManagement getManagement() {
+	public LobbyManagement getManagement() {
 		return management;
 	}
 
-	@Override
 	public PlayerIterable getTrackingPlayers() {
 		return trackingPlayers;
 	}
 
-	@Override
 	public boolean isVisibleTo(CommandSourceStack source) {
 		if (management.canManage(source)) {
 			return true;
 		}
 
 		return metadata.visibility().isPublic();
+	}
+
+	public boolean isVisibleTo(ServerPlayer player) {
+		return isVisibleTo(player.createCommandSourceStack());
 	}
 
 	void setName(String name) {
@@ -318,29 +305,35 @@ final class GameLobby implements IGameLobby {
 		}
 	}
 
+	@Nullable
+	public IGameDefinition getCurrentGameDefinition() {
+		IGamePhase phase = getActivePhase();
+		return phase != null ? phase.definition() : null;
+	}
+
 	static final class ChatNotifyListener implements LobbyStateListener {
 		@Override
-		public void onPlayerJoin(IGameLobby lobby, ServerPlayer player) {
-			IGamePhase currentPhase = lobby.getActivePhase();
+		public void onPlayerJoin(GameLobby lobby, ServerPlayer player) {
+			GamePhase currentPhase = lobby.getActivePhase();
 			if (currentPhase != null && currentPhase.phaseType() == GamePhaseType.WAITING) {
 				onPlayerJoinGame(lobby, currentPhase);
 			}
 		}
 
 		@Override
-		public void onPlayerLeave(IGameLobby lobby, ServerPlayer player) {
-			IGamePhase currentPhase = lobby.getActivePhase();
+		public void onPlayerLeave(GameLobby lobby, ServerPlayer player) {
+			GamePhase currentPhase = lobby.getActivePhase();
 			if (currentPhase != null && currentPhase.phaseType() == GamePhaseType.WAITING) {
 				onPlayerLeaveGame(lobby, currentPhase);
 			}
 		}
 
 		@Override
-		public void onPlayerStartTracking(IGameLobby lobby, ServerPlayer player) {
+		public void onPlayerStartTracking(GameLobby lobby, ServerPlayer player) {
 			player.displayClientMessage(GameTexts.Status.lobbyOpened(lobby), false);
 		}
 
-		private void onPlayerJoinGame(IGameLobby lobby, IGamePhase currentPhase) {
+		private void onPlayerJoinGame(GameLobby lobby, IGamePhase currentPhase) {
 			int minimumParticipants = currentPhase.definition().getMinimumParticipantCount();
 			if (lobby.getPlayers().size() == minimumParticipants) {
 				Component enoughPlayers = GameTexts.Status.enoughPlayers();
@@ -348,7 +341,7 @@ final class GameLobby implements IGameLobby {
 			}
 		}
 
-		private void onPlayerLeaveGame(IGameLobby lobby, IGamePhase currentPhase) {
+		private void onPlayerLeaveGame(GameLobby lobby, IGamePhase currentPhase) {
 			int minimumParticipants = currentPhase.definition().getMinimumParticipantCount();
 			if (lobby.getPlayers().size() == minimumParticipants - 1) {
 				Component noLongerEnoughPlayers = GameTexts.Status.noLongerEnoughPlayers();
@@ -357,57 +350,57 @@ final class GameLobby implements IGameLobby {
 		}
 
 		@Override
-		public void onLobbyPaused(IGameLobby lobby) {
+		public void onLobbyPaused(GameLobby lobby) {
 			lobby.getPlayers().sendMessage(GameTexts.Status.lobbyPaused());
 		}
 
 		@Override
-		public void onLobbyStop(IGameLobby lobby) {
+		public void onLobbyStop(GameLobby lobby) {
 			lobby.getPlayers().sendMessage(GameTexts.Status.lobbyStopped());
 		}
 	}
 
 	static final class NetworkUpdateListener implements LobbyStateListener {
 		@Override
-		public void onPlayerJoin(IGameLobby lobby, ServerPlayer player) {
+		public void onPlayerJoin(GameLobby lobby, ServerPlayer player) {
 			PacketDistributor.sendToPlayer(player, JoinedLobbyMessage.create(lobby));
 			lobby.getTrackingPlayers().sendPacket(LobbyPlayersMessage.update(lobby));
 		}
 
 		@Override
-		public void onPlayerLeave(IGameLobby lobby, ServerPlayer player) {
+		public void onPlayerLeave(GameLobby lobby, ServerPlayer player) {
 			PacketDistributor.sendToPlayer(player, new LeftLobbyMessage());
 			lobby.getTrackingPlayers().sendPacket(LobbyPlayersMessage.update(lobby));
 		}
 
 		@Override
-		public void onPlayerStartTracking(IGameLobby lobby, ServerPlayer player) {
+		public void onPlayerStartTracking(GameLobby lobby, ServerPlayer player) {
 			PacketDistributor.sendToPlayer(player, LobbyUpdateMessage.update(lobby));
 			PacketDistributor.sendToPlayer(player, LobbyPlayersMessage.update(lobby));
 		}
 
 		@Override
-		public void onPlayerStopTracking(IGameLobby lobby, ServerPlayer player) {
+		public void onPlayerStopTracking(GameLobby lobby, ServerPlayer player) {
 			PacketDistributor.sendToPlayer(player, LobbyUpdateMessage.remove(lobby));
 		}
 
 		@Override
-		public void onLobbyStateChange(IGameLobby lobby) {
+		public void onLobbyStateChange(GameLobby lobby) {
 			lobby.getTrackingPlayers().sendPacket(LobbyUpdateMessage.update(lobby));
 		}
 
 		@Override
-		public void onLobbyNameChange(IGameLobby lobby) {
+		public void onLobbyNameChange(GameLobby lobby) {
 			lobby.getTrackingPlayers().sendPacket(LobbyUpdateMessage.update(lobby));
 		}
 
 		@Override
-		public void onLobbyStop(IGameLobby lobby) {
+		public void onLobbyStop(GameLobby lobby) {
 			lobby.getTrackingPlayers().sendPacket(LobbyUpdateMessage.remove(lobby));
 		}
 
 		@Override
-		public void onGamePhaseChange(IGameLobby lobby) {
+		public void onGamePhaseChange(GameLobby lobby) {
 			lobby.getTrackingPlayers().sendPacket(LobbyUpdateMessage.update(lobby));
 		}
 	}

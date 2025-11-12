@@ -2,13 +2,12 @@ package com.lovetropics.minigames.common.core.game.impl;
 
 import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.core.game.GameResult;
-import com.lovetropics.minigames.common.core.game.IGameManager;
+import com.lovetropics.minigames.common.core.game.IGameLookup;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.IGamePhaseDefinition;
 import com.lovetropics.minigames.common.core.game.PlayerIsolation;
 import com.lovetropics.minigames.common.core.game.lobby.GameLobbyId;
 import com.lovetropics.minigames.common.core.game.lobby.GameLobbyMetadata;
-import com.lovetropics.minigames.common.core.game.lobby.IGameLobby;
 import com.lovetropics.minigames.common.core.game.lobby.LobbyVisibility;
 import com.lovetropics.minigames.common.core.game.map.IGameMapProvider;
 import com.lovetropics.minigames.common.core.game.state.control.ControlCommandInvoker;
@@ -41,15 +40,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
-/**
- * Standard implementation of a game manager. Would prefer to do something other
- * than singleton-style implementation to allow for multiple managers to run multiple
- * games at once.
- */
 @EventBusSubscriber(modid = LoveTropics.ID)
-public class MultiGameManager implements IGameManager {
-	public static final MultiGameManager INSTANCE = new MultiGameManager();
+public class GameManager implements IGameLookup {
+	public static final GameManager INSTANCE = new GameManager();
 
 	private final List<GameLobby> lobbies = new ArrayList<>();
 
@@ -59,8 +54,11 @@ public class MultiGameManager implements IGameManager {
 	@Nullable
 	private GameLobby focusedLiveLobby;
 
-	@Override
-	public GameResult<IGameLobby> createGameLobby(String name, ServerPlayer initiator) {
+	public static GameManager get() {
+		return GameManager.INSTANCE;
+	}
+
+	public GameResult<GameLobby> createGameLobby(String name, ServerPlayer initiator) {
 		GameLobby currentLobby = lobbiesByPlayer.get(initiator.getUUID());
 		if (currentLobby != null) {
 			return GameResult.error(GameTexts.Commands.ALREADY_IN_LOBBY);
@@ -143,14 +141,12 @@ public class MultiGameManager implements IGameManager {
 		return lobbies.stream().filter(pred).findFirst().orElse(null);
 	}
 
-	@Override
-	public Collection<? extends IGameLobby> getAllLobbies() {
+	public Collection<? extends GameLobby> getAllLobbies() {
 		return lobbies;
 	}
 
 	@Nullable
-	@Override
-	public IGameLobby getLobbyByNetworkId(int id) {
+	public GameLobby getLobbyByNetworkId(int id) {
 		for (GameLobby lobby : lobbies) {
 			if (lobby.getMetadata().id().networkId() == id) {
 				return lobby;
@@ -160,7 +156,6 @@ public class MultiGameManager implements IGameManager {
 	}
 
 	@Nullable
-	@Override
 	public GameLobby getLobbyById(UUID id) {
 		for (GameLobby lobby : lobbies) {
 			if (lobby.getMetadata().id().uuid().equals(id)) {
@@ -170,10 +165,13 @@ public class MultiGameManager implements IGameManager {
 		return null;
 	}
 
-	@Override
 	public ControlCommandInvoker getControlInvoker(CommandSourceStack source) {
 		IGamePhase phase = getGamePhaseFor(source);
-		return phase != null ? phase.getControlInvoker() : ControlCommandInvoker.EMPTY;
+		return phase != null ? getControlInvoker(phase) : ControlCommandInvoker.EMPTY;
+	}
+
+	private ControlCommandInvoker getControlInvoker(IGamePhase phase) {
+		return ControlCommandInvoker.create(phase.controlCommands());
 	}
 
 	void addGamePhaseToDimension(ResourceKey<Level> dimension, GamePhase game) {
@@ -323,5 +321,10 @@ public class MultiGameManager implements IGameManager {
 				}
 			}
 		}
+	}
+
+	public Stream<? extends GameLobby> getVisibleLobbies(CommandSourceStack source) {
+		return getAllLobbies().stream()
+				.filter(lobby -> lobby.isVisibleTo(source));
 	}
 }

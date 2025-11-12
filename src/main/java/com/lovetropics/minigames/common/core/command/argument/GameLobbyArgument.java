@@ -1,7 +1,7 @@
 package com.lovetropics.minigames.common.core.command.argument;
 
-import com.lovetropics.minigames.common.core.game.IGameManager;
-import com.lovetropics.minigames.common.core.game.lobby.IGameLobby;
+import com.lovetropics.minigames.common.core.game.impl.GameLobby;
+import com.lovetropics.minigames.common.core.game.impl.GameManager;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -22,15 +22,15 @@ public final class GameLobbyArgument {
 	public static RequiredArgumentBuilder<CommandSourceStack, UUID> argument(String name) {
 		return Commands.argument(name, UuidArgument.uuid())
 				.suggests((context, builder) -> SharedSuggestionProvider.suggest(
-						IGameManager.get().getVisibleLobbies(context.getSource()).map(lobby -> lobby.getMetadata().id().uuid().toString()),
+						GameManager.get().getVisibleLobbies(context.getSource()).map(lobby -> lobby.getMetadata().id().uuid().toString()),
 						builder
 				));
 	}
 
-	public static IGameLobby get(CommandContext<CommandSourceStack> context, String name) throws CommandSyntaxException {
+	public static GameLobby get(CommandContext<CommandSourceStack> context, String name) throws CommandSyntaxException {
 		UUID id = UuidArgument.getUuid(context, name);
 
-		IGameLobby lobby = IGameManager.get().getLobbyById(id);
+		GameLobby lobby = GameManager.get().getLobbyById(id);
 		if (lobby == null || !lobby.isVisibleTo(context.getSource())) {
 			throw GAME_LOBBY_NOT_FOUND.create(id);
 		}

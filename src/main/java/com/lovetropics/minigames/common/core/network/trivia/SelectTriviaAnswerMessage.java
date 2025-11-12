@@ -4,8 +4,8 @@ import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.content.river_race.TriviaEvents;
 import com.lovetropics.minigames.common.content.river_race.behaviour.TriviaBehaviour;
 import com.lovetropics.minigames.common.content.river_race.block.HasTrivia;
-import com.lovetropics.minigames.common.core.game.IGameManager;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
+import com.lovetropics.minigames.common.core.game.impl.GameManager;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -27,7 +27,7 @@ public record SelectTriviaAnswerMessage(BlockPos triviaBlock, int selectedAnswer
 		if (!player.canInteractWithBlock(message.triviaBlock(), ServerPlayer.BLOCK_INTERACTION_DISTANCE_VERIFICATION_BUFFER)) {
 			return;
 		}
-		IGamePhase game = IGameManager.get().getGamePhaseFor(player);
+		IGamePhase game = GameManager.get().getGamePhaseFor(player);
 		if (game != null && player.level().getBlockEntity(message.triviaBlock) instanceof final HasTrivia triviaBlock) {
 			TriviaBehaviour.TriviaQuestion question = triviaBlock.getQuestion();
 			if (question == null) {

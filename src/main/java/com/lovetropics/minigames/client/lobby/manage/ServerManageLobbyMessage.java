@@ -2,9 +2,9 @@ package com.lovetropics.minigames.client.lobby.manage;
 
 import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.client.lobby.manage.state.update.ServerLobbyUpdate;
-import com.lovetropics.minigames.common.core.game.IGameManager;
-import com.lovetropics.minigames.common.core.game.lobby.IGameLobby;
-import com.lovetropics.minigames.common.core.game.lobby.ILobbyManagement;
+import com.lovetropics.minigames.common.core.game.impl.GameLobby;
+import com.lovetropics.minigames.common.core.game.impl.GameManager;
+import com.lovetropics.minigames.common.core.game.impl.LobbyManagement;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -32,13 +32,13 @@ public record ServerManageLobbyMessage(int id, Optional<ServerLobbyUpdate.Set> u
 	}
 
 	public static void handle(ServerManageLobbyMessage message, IPayloadContext context) {
-		IGameLobby lobby = IGameManager.get().getLobbyByNetworkId(message.id);
+		GameLobby lobby = GameManager.get().getLobbyByNetworkId(message.id);
 		ServerPlayer player = (ServerPlayer) context.player();
 		if (lobby == null) {
 			return;
 		}
 
-		ILobbyManagement management = lobby.getManagement();
+		LobbyManagement management = lobby.getManagement();
 		if (message.updates.isPresent()) {
 			if (management.canManage(player.createCommandSourceStack())) {
 				message.updates.get().applyTo(management);

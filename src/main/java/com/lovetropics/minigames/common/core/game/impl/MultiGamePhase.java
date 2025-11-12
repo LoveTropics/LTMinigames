@@ -6,7 +6,6 @@ import com.lovetropics.minigames.common.content.river_race.event.RiverRaceEvents
 import com.lovetropics.minigames.common.core.game.GamePhaseType;
 import com.lovetropics.minigames.common.core.game.GameStopReason;
 import com.lovetropics.minigames.common.core.game.IGameDefinition;
-import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.IGamePhaseDefinition;
 import com.lovetropics.minigames.common.core.game.PlayerIsolation;
 import com.lovetropics.minigames.common.core.game.behavior.BehaviorList;
@@ -49,7 +48,7 @@ public class MultiGamePhase extends GamePhase {
 
 	public void startSubPhase(GamePhase subPhase, final boolean saveInventory) {
 		this.subPhase = subPhase;
-		MultiGameManager.INSTANCE.addGamePhaseToDimension(subPhase.dimension(), subPhase);
+		GameManager.INSTANCE.addGamePhaseToDimension(subPhase.dimension(), subPhase);
 		subPhase.assignRolesFrom(this);
 		hideRoles = true;
 		for (ServerPlayer player : allPlayers()) {
@@ -147,7 +146,7 @@ public class MultiGamePhase extends GamePhase {
 	private void destroySubGame() {
 		if (subPhase != null) {
 			subPhase.destroy();
-			MultiGameManager.INSTANCE.removeGamePhaseFromDimension(subPhase.dimension(), subPhase);
+			GameManager.INSTANCE.removeGamePhaseFromDimension(subPhase.dimension(), subPhase);
 			subPhase = null;
 		}
 	}

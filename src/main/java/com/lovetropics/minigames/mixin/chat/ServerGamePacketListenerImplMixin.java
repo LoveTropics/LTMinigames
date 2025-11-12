@@ -1,8 +1,8 @@
 package com.lovetropics.minigames.mixin.chat;
 
-import com.lovetropics.minigames.common.core.game.IGameManager;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
+import com.lovetropics.minigames.common.core.game.impl.GameManager;
 import net.minecraft.network.chat.PlayerChatMessage;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
@@ -19,7 +19,7 @@ public class ServerGamePacketListenerImplMixin {
 
 	@Inject(method = "broadcastChatMessage", at = @At("HEAD"), cancellable = true)
 	private void broadcastChatMessage(PlayerChatMessage message, CallbackInfo ci) {
-		IGamePhase game = IGameManager.get().getGamePhaseFor(player);
+		IGamePhase game = GameManager.get().getGamePhaseFor(player);
 		if (game != null && game.invoker(GamePlayerEvents.CHAT).onChat(player, message)) {
 			ci.cancel();
 		}
