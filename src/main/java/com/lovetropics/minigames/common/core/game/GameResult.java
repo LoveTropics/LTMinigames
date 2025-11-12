@@ -1,5 +1,7 @@
 package com.lovetropics.minigames.common.core.game;
 
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Unit;
 
@@ -58,6 +60,17 @@ public final class GameResult<T> {
 	@Nullable
 	public Component getError() {
 		return error;
+	}
+
+	public T orElseThrow() throws CommandSyntaxException {
+		if (ok == null) {
+			throw asCommandSyntaxException();
+		}
+		return ok;
+	}
+
+	public CommandSyntaxException asCommandSyntaxException() {
+		return new SimpleCommandExceptionType(error).create();
 	}
 
 	public boolean isOk() {

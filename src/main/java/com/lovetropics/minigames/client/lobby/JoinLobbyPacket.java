@@ -2,7 +2,9 @@ package com.lovetropics.minigames.client.lobby;
 
 import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.core.command.game.JoinGameCommand;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
@@ -17,7 +19,11 @@ public record JoinLobbyPacket() implements CustomPacketPayload {
 
 	public static void handle(JoinLobbyPacket message, IPayloadContext context) {
 		if (context.player() instanceof ServerPlayer player) {
-			JoinGameCommand.joinAsRole(null, null, player, player.createCommandSourceStack());
+			try {
+				JoinGameCommand.joinAsRole(null, null, player, player.createCommandSourceStack());
+			} catch (CommandSyntaxException e) {
+				player.sendSystemMessage(e.getRawMessage() instanceof Component component ? component : Component.literal(e.getMessage()));
+			}
 		}
 	}
 

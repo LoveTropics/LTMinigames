@@ -19,9 +19,9 @@ public class GameCommand {
 	 * @return The result of the execution (0 == fail, 1 == success)
 	 */
 	public static int executeGameAction(CommandAction action, CommandSourceStack source) throws CommandSyntaxException {
-		GameResult<Component> result;
+		Component message;
 		try {
-			result = action.run();
+			message = action.run().orElseThrow();
 		} catch (CommandSyntaxException e) {
 			throw e;
 		} catch (Exception e) {
@@ -30,13 +30,7 @@ public class GameCommand {
 			return 0;
 		}
 
-		if (result.isError()) {
-			source.sendFailure(result.getError());
-			return 0;
-		} else {
-			source.sendSuccess(result::getOk, false);
-		}
-
+		source.sendSuccess(() -> message, false);
 		return Command.SINGLE_SUCCESS;
 	}
 

@@ -62,12 +62,7 @@ public class ManageGameLobbyCommand {
 
 	private static int createLobby(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
 		ServerPlayer player = context.getSource().getPlayerOrException();
-
-		GameResult<IGameLobby> result = createAndJoinLobby(player);
-		if (result.isError()) {
-			throw new SimpleCommandExceptionType(result.getError()).create();
-		}
-
+		createAndJoinLobby(player).orElseThrow();
 		return Command.SINGLE_SUCCESS;
 	}
 

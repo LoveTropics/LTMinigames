@@ -1,7 +1,6 @@
 package com.lovetropics.minigames.common.core.command.game;
 
 import com.lovetropics.minigames.common.core.command.argument.GameConfigArgument;
-import com.lovetropics.minigames.common.core.game.GameResult;
 import com.lovetropics.minigames.common.core.game.IGameDefinition;
 import com.lovetropics.minigames.common.core.game.IGameManager;
 import com.lovetropics.minigames.common.core.game.lobby.IGameLobby;
@@ -14,7 +13,6 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.util.Unit;
 
 import static net.minecraft.commands.Commands.literal;
 
@@ -56,14 +54,10 @@ public class StartGameCommand {
 			throw CANNOT_START_LOBBY.create();
 		}
 
-		GameResult<Unit> result = action.run();
-		if (result.isOk()) {
-			IGameDefinition game = lobby.getCurrentGameDefinition();
-			if (game != null) {
-				context.getSource().sendSuccess(() -> GameTexts.Commands.startedGame(game), false);
-			}
-		} else {
-			context.getSource().sendFailure(result.getError());
+		action.run().orElseThrow();
+		IGameDefinition game = lobby.getCurrentGameDefinition();
+		if (game != null) {
+			context.getSource().sendSuccess(() -> GameTexts.Commands.startedGame(game), false);
 		}
 
 		return Command.SINGLE_SUCCESS;

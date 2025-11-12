@@ -63,14 +63,8 @@ public class JoinGameCommand {
 		return joinAsRole(givenLobby, forcedRole, ctx.getSource().getPlayerOrException(), ctx.getSource());
 	}
 
-	public static int joinAsRole(@Nullable IGameLobby givenLobby, @Nullable PlayerRole forcedRole, ServerPlayer player, CommandSourceStack source) {
-		GameResult<IGameLobby> lobbyResult = resolveLobby(source, givenLobby, forcedRole);
-		if (lobbyResult.isError()) {
-			source.sendFailure(lobbyResult.getError());
-			return Command.SINGLE_SUCCESS;
-		}
-
-		IGameLobby lobby = lobbyResult.getOk();
+	public static int joinAsRole(@Nullable IGameLobby givenLobby, @Nullable PlayerRole forcedRole, ServerPlayer player, CommandSourceStack source) throws CommandSyntaxException{
+		IGameLobby lobby = resolveLobby(source, givenLobby, forcedRole).orElseThrow();
 		IGameLobbyPlayers players = lobby.getPlayers();
 
 		CompletableFuture<GameResult<Unit>> joinFuture;
