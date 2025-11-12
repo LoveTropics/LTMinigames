@@ -2,12 +2,16 @@ package com.lovetropics.minigames.common.content.escape_race;
 
 import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.content.escape_race.behaviours.BreakBucksBehaviour;
+import com.lovetropics.minigames.common.content.escape_race.behaviours.WarehouseSetupBehaviour;
 import com.lovetropics.minigames.common.content.escape_race.client.EscapeRaceClientBucksState;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DDRMachineEntity;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DDRMachineEntityRenderer;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DdrInput;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DdrLevel;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.TimedDdrInput;
+import com.lovetropics.minigames.common.content.escape_race.misc.RoomEntrancePadEntity;
+import com.lovetropics.minigames.common.content.escape_race.misc.RoomEntrancePadEntityRenderer;
+import com.lovetropics.minigames.common.content.escape_race.rooms.RoomStatus;
 import com.lovetropics.minigames.common.content.escape_race.vending_machine.VendingMachineEntity;
 import com.lovetropics.minigames.common.content.escape_race.vending_machine.VendingMachineEntityRenderer;
 import com.lovetropics.minigames.common.util.registry.GameBehaviorEntry;
@@ -68,6 +72,7 @@ public class EscapeRace {
 	public static final EntityDataSerializer<List<TimedDdrInput>> DDR_LEVEL_TICK_MAP = EntityDataSerializer.forValueType(TimedDdrInput.STREAM_CODEC.apply(ByteBufCodecs.list()));
 
 	public static final EntityDataSerializer<DdrInput> DDR_INPUT = EntityDataSerializer.forValueType(DdrInput.STREAM_CODEC);
+	public static final EntityDataSerializer<RoomStatus> ROOM_STATUS = EntityDataSerializer.forValueType(RoomStatus.STREAM_CODEC);
 
 	public static DeferredHolder<EntityDataSerializer<?>, EntityDataSerializer<?>> register(String name, EntityDataSerializer<?> dataSerializerEntry) {
 		return ENTITY_SERIALIZERS.register(name, () -> dataSerializerEntry);
@@ -107,6 +112,17 @@ public class EscapeRace {
 			.lang("Break Buck")
 			.register();
 
+	public static final RegistryEntry<EntityType<?>, EntityType<RoomEntrancePadEntity>> ROOM_ENTRANCE_PAD = REGISTRATE.entity("room_entrance_pad", RoomEntrancePadEntity::new, MobCategory.MISC)
+			.properties(properties ->
+					properties.sized(1F, 1F)
+							.setShouldReceiveVelocityUpdates(true)
+							.clientTrackingRange(32)
+							.updateInterval(3))
+			.loot((loot, type) -> loot.add(type, lootTable()))
+			.lang("Room Entrance Pad")
+			.renderer(() -> RoomEntrancePadEntityRenderer::new)
+			.register();
+
 	public static final GameClientTweakEntry<EscapeRaceClientBucksState> BREAK_BUCK_STATE = REGISTRATE.object("break_buck_count")
 			.clientState(EscapeRaceClientBucksState.CODEC)
 			.register();
@@ -117,11 +133,15 @@ public class EscapeRace {
 			.behavior(TerryTrashBehavior.CODEC)
 			.register();
 
+	public static final GameBehaviorEntry<WarehouseSetupBehaviour> WAREHOUSE_SETUP_BEHAVIOUR = REGISTRATE.object("escape_race/warehouse_setup").behavior(WarehouseSetupBehaviour.CODEC).register();
+
+
 	public static void init() {
 		register("itemstack_list", ITEM_STACK_LIST);
 		register("ddr_state", DDR_STATE);
 		register("ddr_level_tick_map", DDR_LEVEL_TICK_MAP);
 		register("ddr_input", DDR_INPUT);
+		register("room_status", ROOM_STATUS);
 	}
 
 
