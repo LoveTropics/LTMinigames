@@ -2,7 +2,6 @@ package com.lovetropics.minigames.common.core.game.behavior;
 
 import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
-import com.lovetropics.minigames.common.core.game.behavior.config.ConfigList;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.instances.CompositeBehavior;
 import com.lovetropics.minigames.common.core.game.config.GameConfigs;
@@ -13,11 +12,8 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
-import net.minecraft.resources.ResourceLocation;
 
-import javax.annotation.Nullable;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -56,19 +52,6 @@ public interface IGameBehavior {
 	};
 
 	IGameBehavior EMPTY = new CompositeBehavior(List.of());
-
-	@Nullable
-	default ConfigList getConfigurables() {
-		return null;
-	}
-
-	default IGameBehavior configure(Map<ResourceLocation, ConfigList> configs) {
-		return this;
-	}
-
-//	default IGameBehavior withConfig(ConfigList config) {
-//		return this;
-//	}
 
 	default void registerState(IGamePhase game, GameStateMap phaseState, GameStateMap instanceState) {
 	}

@@ -6,7 +6,6 @@ import com.lovetropics.minigames.client.lobby.manage.screen.player_list.LobbyPla
 import com.lovetropics.minigames.client.lobby.manage.state.ClientLobbyManageState;
 import com.lovetropics.minigames.client.lobby.manage.state.ClientLobbyQueue;
 import com.lovetropics.minigames.client.lobby.manage.state.ClientLobbyQueuedGame;
-import com.lovetropics.minigames.client.lobby.screen.game_config.GameConfig;
 import com.lovetropics.minigames.client.lobby.state.ClientGameDefinition;
 import com.lovetropics.minigames.client.screen.FlexUi;
 import com.lovetropics.minigames.client.screen.flex.Box;
@@ -37,7 +36,6 @@ public final class ManageLobbyScreen extends Screen {
 	private Button publishButton;
 
 	private GameList gameList;
-	private GameConfig gameConfig;
 	private LobbyPlayerList playerList;
 
 	private Button closeButton;
@@ -68,7 +66,6 @@ public final class ManageLobbyScreen extends Screen {
 					return;
 				}
 				selectedGameId = queuedGameId;
-				gameConfig.setGame(session.lobby().getQueue().byId(queuedGameId));
 			}
 
 			@Override
@@ -92,14 +89,6 @@ public final class ManageLobbyScreen extends Screen {
 					int newIndex = Mth.clamp(index + offset, 0, queue.size() - 1);
 					session.reorderQueuedGame(queuedGameId, newIndex);
 				}
-			}
-		}));
-
-		// TODO actually save config data
-		gameConfig = addWidget(new GameConfig(this, layout.edit, () -> {
-			int selectedId = selectedGameId;
-			if (selectedId != -1) {
-				session.configure(selectedId);
 			}
 		}));
 
@@ -226,7 +215,6 @@ public final class ManageLobbyScreen extends Screen {
 		super.render(graphics, mouseX, mouseY, partialTicks);
 
 		gameList.render(graphics, mouseX, mouseY, partialTicks);
-		gameConfig.render(graphics, mouseX, mouseY, partialTicks);
 
 		gameList.renderOverlays(graphics, mouseX, mouseY, partialTicks);
 

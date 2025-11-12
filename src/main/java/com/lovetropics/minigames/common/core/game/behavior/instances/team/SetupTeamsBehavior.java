@@ -1,50 +1,29 @@
 package com.lovetropics.minigames.common.core.game.behavior.instances.team;
 
-import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.content.MinigameTexts;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
-import com.lovetropics.minigames.common.core.game.behavior.config.BehaviorConfig;
-import com.lovetropics.minigames.common.core.game.behavior.config.ConfigList;
-import com.lovetropics.minigames.common.core.game.behavior.config.ConfigType;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
 import com.lovetropics.minigames.common.core.game.player.PlayerRole;
 import com.lovetropics.minigames.common.core.game.state.GameStateMap;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeam;
-import com.lovetropics.minigames.common.core.game.state.team.GameTeamConfig;
-import com.lovetropics.minigames.common.core.game.state.team.GameTeamKey;
 import com.lovetropics.minigames.common.core.game.state.team.TeamState;
 import com.lovetropics.minigames.common.core.game.util.SelectorItems;
 import com.lovetropics.minigames.common.util.Scheduler;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 
 import java.util.List;
-import java.util.Map;
 
 public final class SetupTeamsBehavior implements IGameBehavior {
-	private static final ResourceLocation CONFIG_ID = LoveTropics.location("team_list");
-	private static final GameTeam DEFAULT_TEAM = new GameTeam(
-			new GameTeamKey(""),
-			new GameTeamConfig(CommonComponents.EMPTY, DyeColor.BLACK, ChatFormatting.BLACK, List.of(), 1)
-	);
-	private static final BehaviorConfig<List<GameTeam>> CFG_TEAMS = BehaviorConfig.fieldOf("teams", GameTeam.CODEC.listOf())
-			.defaultInstanceHint("", DEFAULT_TEAM, GameTeam.CODEC)
-			.listTypeHint("", ConfigType.COMPOSITE)
-			.enumHint("[].dye", s -> DyeColor.byName(s, null))
-			.enumHint("[].text", ChatFormatting::getByName);
-
 	public static final MapCodec<SetupTeamsBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			CFG_TEAMS.forGetter(c -> c.teams)
+			GameTeam.CODEC.listOf().fieldOf("teams").forGetter(c -> c.teams)
 	).apply(i, SetupTeamsBehavior::new));
 
 	private final List<GameTeam> teams;
@@ -54,18 +33,6 @@ public final class SetupTeamsBehavior implements IGameBehavior {
 
 	public SetupTeamsBehavior(List<GameTeam> teams) {
 		this.teams = teams;
-	}
-
-	@Override
-	public ConfigList getConfigurables() {
-		return ConfigList.builder(CONFIG_ID)
-				.with(CFG_TEAMS, teams)
-				.build();
-	}
-
-	@Override
-	public IGameBehavior configure(Map<ResourceLocation, ConfigList> configs) {
-		return new SetupTeamsBehavior(CFG_TEAMS.getValue(configs.get(CONFIG_ID)));
 	}
 
 	@Override

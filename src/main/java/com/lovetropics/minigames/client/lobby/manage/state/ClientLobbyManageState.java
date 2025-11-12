@@ -1,6 +1,5 @@
 package com.lovetropics.minigames.client.lobby.manage.state;
 
-import com.google.common.collect.ImmutableList;
 import com.lovetropics.minigames.client.lobby.state.ClientCurrentGame;
 import com.lovetropics.minigames.client.lobby.state.ClientGameDefinition;
 import com.lovetropics.minigames.common.core.game.lobby.LobbyControls;
@@ -16,12 +15,12 @@ public final class ClientLobbyManageState {
 	@Nullable
 	private ClientCurrentGame currentGame;
 	private ClientLobbyQueue queue = new ClientLobbyQueue();
-	private List<ClientLobbyPlayer> players = ImmutableList.of();
+	private List<ClientLobbyPlayer> players = List.of();
 	private LobbyControls.State controlsState = LobbyControls.State.disabled();
 	private LobbyVisibility visibility = LobbyVisibility.PRIVATE;
 	private boolean canFocusLive;
 
-	private List<ClientGameDefinition> installedGames = ImmutableList.of();
+	private List<ClientGameDefinition> installedGames = List.of();
 
 	public String getName() {
 		return name;

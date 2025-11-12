@@ -6,6 +6,7 @@ import com.lovetropics.minigames.common.core.game.state.team.GameTeam;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 
+// TODO: Enable any of these action targets to be reinterpreted in another context
 public final class GameActionEvents {
 	public static final GameEventType<Apply> APPLY = GameEventType.create(Apply.class, listeners -> context -> {
 		boolean applied = false;
