@@ -13,29 +13,20 @@ public sealed interface BehaviorTemplate {
 				BehaviorTemplate template = new Decoding(dynamic);
 				return IGameBehavior.CODEC.parse(dynamic).map(behavior -> template);
 			},
-			template -> new Dynamic<>(JsonOps.INSTANCE, IGameBehavior.CODEC.encodeStart(JsonOps.INSTANCE, template.instantiate())
-					.result().orElseThrow())
+			template -> new Dynamic<>(JsonOps.INSTANCE, IGameBehavior.CODEC.encodeStart(JsonOps.INSTANCE, template.instantiate()).getOrThrow())
 	);
 
 	IGameBehavior instantiate();
 
-	final class Decoding implements BehaviorTemplate {
-		private final Dynamic<?> data;
-
-		private Decoding(Dynamic<?> data) {
-			this.data = data;
-		}
-
+	record Decoding(Dynamic<?> data) implements BehaviorTemplate {
 		@Override
 		public IGameBehavior instantiate() {
 			// Data has already been validated, something has gone wrong if we fail to parse again
-			return IGameBehavior.CODEC.parse(data).resultOrPartial(s -> {
-			}).orElseThrow();
+			return IGameBehavior.CODEC.parse(data).getPartialOrThrow();
 		}
 	}
 
 	record Direct(Supplier<IGameBehavior> behavior) implements BehaviorTemplate {
-
 		@Override
 		public IGameBehavior instantiate() {
 			return behavior.get();

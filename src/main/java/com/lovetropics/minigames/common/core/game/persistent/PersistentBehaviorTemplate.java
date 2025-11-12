@@ -13,29 +13,20 @@ public sealed interface PersistentBehaviorTemplate {
 				PersistentBehaviorTemplate template = new Decoding(dynamic);
 				return PersistentGameBehavior.CODEC.parse(dynamic).map(behavior -> template);
 			},
-			template -> new Dynamic<>(JsonOps.INSTANCE, PersistentGameBehavior.CODEC.encodeStart(JsonOps.INSTANCE, template.instantiate())
-					.result().orElseThrow())
+			template -> new Dynamic<>(JsonOps.INSTANCE, PersistentGameBehavior.CODEC.encodeStart(JsonOps.INSTANCE, template.instantiate()).getOrThrow())
 	);
 
 	PersistentGameBehavior instantiate();
 
-	final class Decoding implements PersistentBehaviorTemplate {
-		private final Dynamic<?> data;
-
-		private Decoding(Dynamic<?> data) {
-			this.data = data;
-		}
-
+	record Decoding(Dynamic<?> data) implements PersistentBehaviorTemplate {
 		@Override
 		public PersistentGameBehavior instantiate() {
 			// Data has already been validated, something has gone wrong if we fail to parse again
-			return PersistentGameBehavior.CODEC.parse(data).resultOrPartial(s -> {
-			}).orElseThrow();
+			return PersistentGameBehavior.CODEC.parse(data).getPartialOrThrow();
 		}
 	}
 
 	record Direct(Supplier<PersistentGameBehavior> behavior) implements PersistentBehaviorTemplate {
-
 		@Override
 		public PersistentGameBehavior instantiate() {
 			return behavior.get();

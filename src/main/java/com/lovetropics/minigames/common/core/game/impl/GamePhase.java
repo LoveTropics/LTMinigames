@@ -3,6 +3,7 @@ package com.lovetropics.minigames.common.core.game.impl;
 import com.google.common.collect.Lists;
 import com.lovetropics.lib.slideshow.SlideshowApi;
 import com.lovetropics.minigames.LoveTropics;
+import com.lovetropics.minigames.common.content.river_race.event.RiverRaceEvents;
 import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.GamePhaseType;
 import com.lovetropics.minigames.common.core.game.GameResult;
@@ -17,6 +18,8 @@ import com.lovetropics.minigames.common.core.game.behavior.event.GameEventListen
 import com.lovetropics.minigames.common.core.game.behavior.event.GameEventType;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
+import com.lovetropics.minigames.common.core.game.behavior.event.SubGameEvents;
+import com.lovetropics.minigames.common.core.game.config.GameConfig;
 import com.lovetropics.minigames.common.core.game.map.GameMap;
 import com.lovetropics.minigames.common.core.game.player.MutablePlayerSet;
 import com.lovetropics.minigames.common.core.game.player.PlayerRole;
@@ -30,6 +33,7 @@ import com.lovetropics.minigames.common.core.game.util.TeamAllocator;
 import com.lovetropics.minigames.common.core.map.MapRegions;
 import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
+import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -44,10 +48,12 @@ import net.minecraft.world.level.storage.TagValueOutput;
 import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
+import java.util.ArrayDeque;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -81,6 +87,14 @@ public class GamePhase implements IGamePhase {
 
 	private final GameScheduler scheduler = new GameScheduler();
 
+	private final Queue<GameConfig> subPhaseQueue = new ArrayDeque<>();
+	@Nullable
+	private GamePhase subPhase;
+
+	// TODO: Big hack - can we do something better by splitting what we expose to game impls vs what we expose to the outside?
+	//       Some behaviors such as spectator_chase check the spectator list when the player is removed - but that spectator list didn't get the player removed
+	private boolean hideRoles;
+
 	protected GamePhase(GameInstance game, IGameDefinition gameDefinition, IGamePhaseDefinition phaseDefinition, GamePhaseType phaseType, GameMap map, BehaviorList behaviors) {
 		this.game = game;
 		server = game.server();
@@ -92,8 +106,7 @@ public class GamePhase implements IGamePhase {
 		this.behaviors = behaviors;
 
 		for (PlayerRole role : PlayerRole.ROLES) {
-			MutablePlayerSet rolePlayers = new MutablePlayerSet(server);
-			roles.put(role, rolePlayers);
+			roles.put(role, new MutablePlayerSet(server));
 		}
 	}
 
@@ -105,14 +118,10 @@ public class GamePhase implements IGamePhase {
 			return CompletableFuture.completedFuture(result.castError());
 		}
 
+		BehaviorList behaviors = phaseDefinition.createBehaviors();
+
 		CompletableFuture<GameResult<GamePhase>> future = phaseDefinition.getMap().open(server)
-				.thenApplyAsync(r -> r.map(map -> {
-					BehaviorList behaviors = phaseDefinition.createBehaviors();
-					if (gameDefinition.isMultiGamePhase()) {
-						return new MultiGamePhase(game, gameDefinition, phaseDefinition, phaseType, map, behaviors);
-					}
-					return new GamePhase(game, gameDefinition, phaseDefinition, phaseType, map, behaviors);
-				}), server);
+				.thenApply(r -> r.map(map -> new GamePhase(game, gameDefinition, phaseDefinition, phaseType, map, behaviors)));
 
 		return GameResult.handleException("Unknown exception starting game phase", future);
 	}
@@ -185,12 +194,28 @@ public class GamePhase implements IGamePhase {
 
 	@Nullable
 	GameStopReason tick() {
-		try {
-			scheduler.tick();
-			invoker(GamePhaseEvents.TICK).tick();
-		} catch (Exception e) {
-			cancelWithError(e);
+		if (subPhase != null) {
+			if (subPhase.tick() != null) {
+				GamePhase lastPhase = subPhase;
+				startNextQueuedMicrogame(false).whenComplete((newGame, throwable) -> {
+					if (throwable != null || !newGame) {
+						returnHere(lastPhase);
+					}
+					if (throwable != null) {
+						LOGGER.error("Failed to start next queued micro-game", throwable);
+					}
+				});
+				return null;
+			}
+		} else {
+			try {
+				scheduler.tick();
+				invoker(GamePhaseEvents.TICK).tick();
+			} catch (Exception e) {
+				cancelWithError(e);
+			}
 		}
+
 		return stopped;
 	}
 
@@ -299,6 +324,14 @@ public class GamePhase implements IGamePhase {
 			}
 			ServerPlayer newPlayer = addAndSpawnPlayer(player, role, savePlayerDataToMemory);
 			invoker(GamePlayerEvents.JOIN).onAdd(newPlayer);
+
+			if (subPhase != null) {
+				// Let the top-level game decide how the player can join, and then just pass them along
+				subPhase.assignRolesFrom(this);
+				movePlayerToSubPhase(player);
+				return subPhase.onPlayerJoin(newPlayer, true);
+			}
+
 			return newPlayer;
 		} catch (Exception e) {
 			LoveTropics.LOGGER.warn("Failed to dispatch player join event", e);
@@ -307,6 +340,16 @@ public class GamePhase implements IGamePhase {
 	}
 
 	ServerPlayer onPlayerLeave(ServerPlayer player, boolean loggingOut) {
+		if (subPhase != null) {
+			// To ensure that the top-level game gets notified properly, we need to pull the player out step-by-step
+			try {
+				subPhase.invoker(GamePlayerEvents.LEAVE).onRemove(player);
+			} catch (Exception e) {
+				LoveTropics.LOGGER.warn("Failed to dispatch player leave event", e);
+			}
+			player = returnPlayerToParentPhase(subPhase, player);
+		}
+
 		try {
 			invoker(GamePlayerEvents.LEAVE).onRemove(player);
 		} catch (Exception e) {
@@ -375,6 +418,7 @@ public class GamePhase implements IGamePhase {
 		}
 		destroyed = true;
 
+		destroySubGame();
 		requestStop(GameStopReason.canceled());
 
 		try {
@@ -393,6 +437,9 @@ public class GamePhase implements IGamePhase {
 
 	@Override
 	public PlayerSet getPlayersWithRole(PlayerRole role) {
+		if (hideRoles) {
+			return PlayerSet.EMPTY;
+		}
 		return roles.get(role);
 	}
 
@@ -435,6 +482,88 @@ public class GamePhase implements IGamePhase {
 	}
 
 	public GamePhase getActivePhase() {
-		return this;
+		return Objects.requireNonNullElse(subPhase, this);
+	}
+
+	public void startSubPhase(GamePhase subPhase, final boolean saveInventory) {
+		this.subPhase = subPhase;
+		GameManager.INSTANCE.addGamePhaseToDimension(subPhase.dimension(), subPhase);
+		subPhase.assignRolesFrom(this);
+		hideRoles = true;
+		for (ServerPlayer player : allPlayers()) {
+			movePlayerToSubPhase(player);
+		}
+		hideRoles = false;
+
+		subPhase.events.listen(GamePhaseEvents.CREATE, () ->
+				invoker(SubGameEvents.CREATE).onCreateSubGame(subPhase, subPhase.events)
+		);
+		subPhase.start(saveInventory);
+	}
+
+	private void movePlayerToSubPhase(ServerPlayer player) {
+		invoker(GamePlayerEvents.REMOVE).onRemove(player);
+		addedPlayers.remove(player.getUUID());
+	}
+
+	private void returnHere(GamePhase fromSubPhase) {
+		List<ServerPlayer> shuffledPlayers = Lists.newArrayList(allPlayers());
+		Collections.shuffle(shuffledPlayers);
+		for (ServerPlayer player : shuffledPlayers) {
+			returnPlayerToParentPhase(fromSubPhase, player);
+		}
+		invoker(SubGameEvents.RETURN_TO_TOP).onReturnToTopGame();
+	}
+
+	private ServerPlayer returnPlayerToParentPhase(GamePhase fromSubPhase, ServerPlayer player) {
+		fromSubPhase.removePlayer(player);
+		addedPlayers.add(player.getUUID());
+
+		PlayerRole role = getRoleFor(player);
+		invoker(GamePlayerEvents.RETURN).onReturn(player.getUUID(), role);
+
+		ServerPlayer newPlayer = PlayerIsolation.INSTANCE.reloadPlayerFromMemory(game, player);
+
+		invoker(GamePlayerEvents.ADD).onAdd(newPlayer);
+		invoker(GamePlayerEvents.SET_ROLE).onSetRole(newPlayer, role, null);
+
+		return newPlayer;
+	}
+
+	private void destroySubGame() {
+		if (subPhase != null) {
+			subPhase.destroy();
+			GameManager.INSTANCE.removeGamePhaseFromDimension(subPhase.dimension(), subPhase);
+			subPhase = null;
+		}
+	}
+
+	public void clearQueuedGames() {
+		subPhaseQueue.clear();
+	}
+
+	public void queueGames(List<GameConfig> games) {
+		subPhaseQueue.addAll(games);
+	}
+
+	public CompletableFuture<Boolean> startNextQueuedMicrogame(final boolean saveInventory) {
+		destroySubGame();
+		// No queued games left
+		if (subPhaseQueue.isEmpty()) {
+			return CompletableFuture.completedFuture(false);
+		}
+		final GameConfig nextGame = subPhaseQueue.remove();
+		return GamePhase.create(game, nextGame, nextGame.getPlayingPhase(), GamePhaseType.PLAYING).thenApply(result -> {
+			if (result.isOk()) {
+				startSubPhase(result.getOk(), saveInventory);
+				invoker(RiverRaceEvents.MICROGAME_STARTED).onMicrogameStarted(this);
+				game.allPlayers().sendMessage(Component.literal("Now Playing: ").append(nextGame.name()).withStyle(ChatFormatting.GREEN));
+				game.allPlayers().showTitle(Component.empty().append(nextGame.name()).withStyle(ChatFormatting.GREEN),
+						nextGame.subtitle(), 10, 40, 10);
+				return true;
+			}
+			LOGGER.error("Failed to start micro-game {} - {}", nextGame.id().toString(), result.getError().getString());
+			return false;
+		});
 	}
 }

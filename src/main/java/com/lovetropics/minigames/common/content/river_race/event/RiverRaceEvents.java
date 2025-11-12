@@ -1,8 +1,8 @@
 package com.lovetropics.minigames.common.content.river_race.event;
 
 import com.lovetropics.minigames.common.content.river_race.block.TriviaType;
+import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameEventType;
-import com.lovetropics.minigames.common.core.game.impl.MultiGamePhase;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeam;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeamKey;
 import net.minecraft.core.BlockPos;
@@ -60,7 +60,7 @@ public class RiverRaceEvents {
 	}
 
 	public interface MicrogameStarted {
-		void onMicrogameStarted(MultiGamePhase game);
+		void onMicrogameStarted(IGamePhase game);
 	}
 
 	public interface UnlockZone {

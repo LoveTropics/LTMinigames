@@ -10,7 +10,7 @@ import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvent
 import com.lovetropics.minigames.common.core.game.behavior.event.SubGameEvents;
 import com.lovetropics.minigames.common.core.game.config.GameConfig;
 import com.lovetropics.minigames.common.core.game.config.GameConfigs;
-import com.lovetropics.minigames.common.core.game.impl.MultiGamePhase;
+import com.lovetropics.minigames.common.core.game.impl.GamePhase;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -65,7 +65,8 @@ public record StartMicrogamesAction(
 	}
 
 	public void queueMicrogames(IGamePhase game, List<GameConfig> gameConfigs) {
-		if (game.getTopPhase() instanceof MultiGamePhase multiGamePhase) {
+		// TODO: Don't do that!
+		if (game.getTopPhase() instanceof GamePhase multiGamePhase) {
 			multiGamePhase.clearQueuedGames();
 
 			final List<GameConfig> configs = new ArrayList<>(gameConfigs);
@@ -75,7 +76,8 @@ public record StartMicrogamesAction(
 	}
 
 	public void startQueuedMicrogame(final IGamePhase game) {
-		if (game.getTopPhase() instanceof MultiGamePhase multiGamePhase) {
+		// TODO: Don't do that!
+		if (game.getTopPhase() instanceof GamePhase multiGamePhase) {
 			multiGamePhase.startNextQueuedMicrogame(true);
 		}
 	}

@@ -1,12 +1,7 @@
 package com.lovetropics.minigames.common.content.escape_race.event;
 
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DdrLevel;
-import com.lovetropics.minigames.common.content.river_race.block.TriviaType;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameEventType;
-import com.lovetropics.minigames.common.core.game.impl.MultiGamePhase;
-import com.lovetropics.minigames.common.core.game.state.team.GameTeam;
-import com.lovetropics.minigames.common.core.game.state.team.GameTeamKey;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerPlayer;
 
