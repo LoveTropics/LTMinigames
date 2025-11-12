@@ -6,6 +6,8 @@ import com.lovetropics.minigames.common.content.escape_race.EscapeRace;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.CommonColors;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -16,17 +18,17 @@ import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 public class EscapeRaceBucksRenderer {
 	private static final int PADDING = 2;
 	private static final int ITEM_SIZE = 16;
+	private static final ResourceLocation HOTBAR_SPRITE = LoveTropics.location("break_bucks_holder");
 
 	public static void registerOverlays(RegisterGuiLayersEvent event) {
-		event.registerAbove(VanillaGuiLayers.EXPERIENCE_LEVEL, LoveTropics.location("escape_race_bucks"), (graphics, deltaTracker) -> {
-			if (Minecraft.getInstance().options.hideGui) {
-				return;
-			}
+		event.wrapLayer(VanillaGuiLayers.CONTEXTUAL_INFO_BAR_BACKGROUND, (layer) -> ((guiGraphics, deltaTracker) -> {
 			EscapeRaceClientBucksState escapeRaceClientBucksState = ClientGameStateManager.getOrNull(EscapeRace.BREAK_BUCK_STATE);
-			if (escapeRaceClientBucksState != null) {
-				renderOverlay(graphics, escapeRaceClientBucksState);
+			if (escapeRaceClientBucksState == null) {
+				layer.render(guiGraphics, deltaTracker);
+			} else {
+				renderOverlay(guiGraphics, escapeRaceClientBucksState);
 			}
-		});
+		}));
 	}
 
 	private static void renderOverlay(GuiGraphics graphics, EscapeRaceClientBucksState selfState) {
@@ -38,15 +40,24 @@ public class EscapeRaceBucksRenderer {
 		int x = (graphics.guiWidth() / 2) - 8;
 		int y = graphics.guiHeight() - 40;
 
-		graphics.renderItem(EscapeRace.BREAK_BUCK.asStack(), x, y);
+		graphics.blitSprite(RenderPipelines.GUI_TEXTURED, HOTBAR_SPRITE, x - 21, graphics.guiHeight() - 30, 60, 9);
+		graphics.pose().pushMatrix();
+		graphics.pose().translate(x , y + 12.5f);
+		graphics.pose().scale(0.4f,0.4f);
+		graphics.renderItem(EscapeRace.BREAK_BUCK.asStack(), 0, 0);
+		graphics.pose().popMatrix();
 
 		String currency = String.valueOf(selfState.amount());
 
+		graphics.pose().pushMatrix();
+		graphics.pose().translate(x + 10, y + 12.5f);
+		graphics.pose().scale(0.7f,0.7f);
 		graphics.drawString(
 				font, currency,
-				x + (ITEM_SIZE / 2) - 2,
-				y + ((18 - font.lineHeight) / 2) + 8,
+				0,
+				0,
 				CommonColors.WHITE
 		);
+		graphics.pose().popMatrix();
 	}
 }
