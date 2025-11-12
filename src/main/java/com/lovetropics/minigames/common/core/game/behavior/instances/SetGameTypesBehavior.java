@@ -12,11 +12,10 @@ import net.minecraft.world.level.GameType;
 
 import javax.annotation.Nullable;
 
-public record SetGameTypesBehavior(GameType participantGameType, GameType spectatorGameType, GameType overlordGameType, GameType allGameType) implements IGameBehavior {
+public record SetGameTypesBehavior(GameType participantGameType, GameType spectatorGameType, GameType allGameType) implements IGameBehavior {
 	public static final MapCodec<SetGameTypesBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			GameType.CODEC.optionalFieldOf("participant", GameType.SURVIVAL).forGetter(c -> c.participantGameType),
 			GameType.CODEC.optionalFieldOf("spectator", GameType.SPECTATOR).forGetter(c -> c.spectatorGameType),
-			GameType.CODEC.optionalFieldOf("overlord", GameType.SPECTATOR).forGetter(c -> c.overlordGameType),
 			GameType.CODEC.optionalFieldOf("all", GameType.ADVENTURE).forGetter(c -> c.allGameType)
 	).apply(i, SetGameTypesBehavior::new));
 
@@ -31,8 +30,6 @@ public record SetGameTypesBehavior(GameType participantGameType, GameType specta
 			gameType = participantGameType;
 		} else if (role == PlayerRole.SPECTATOR) {
 			gameType = spectatorGameType;
-		} else if (role == PlayerRole.OVERLORD) {
-			gameType = overlordGameType;
 		}
 		player.setGameMode(gameType);
 	}

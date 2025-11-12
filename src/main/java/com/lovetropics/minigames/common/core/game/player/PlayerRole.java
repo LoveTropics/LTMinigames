@@ -11,7 +11,6 @@ import java.util.stream.Stream;
 
 public enum PlayerRole {
 	PARTICIPANT("participant"),
-	OVERLORD("overlord"),
 	SPECTATOR("spectator");
 
 	public static final PlayerRole[] ROLES = values();

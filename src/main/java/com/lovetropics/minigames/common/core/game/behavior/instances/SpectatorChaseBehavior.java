@@ -40,7 +40,7 @@ public final class SpectatorChaseBehavior implements IGameBehavior {
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
 		events.listen(GamePlayerEvents.SET_ROLE, (player, role, lastRole) -> {
-			if (role == PlayerRole.SPECTATOR || role == PlayerRole.OVERLORD) {
+			if (role == PlayerRole.SPECTATOR) {
 				PacketDistributor.sendToPlayer(
 						player,
 						new ShowNotificationToastMessage(MinigameTexts.SPECTATING_NOTIFICATION, SPECTATING_NOTIFICATION_STYLE)

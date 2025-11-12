@@ -9,7 +9,6 @@ import com.lovetropics.minigames.common.core.game.state.control.ControlCommandIn
 import com.lovetropics.minigames.common.core.game.state.control.ControlCommands;
 import com.lovetropics.minigames.common.core.game.state.statistics.GameStatistics;
 import com.lovetropics.minigames.common.core.game.util.GameScheduler;
-import com.lovetropics.minigames.common.core.game.util.TeamAllocator;
 import com.lovetropics.minigames.common.core.map.MapRegions;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
@@ -87,10 +86,6 @@ public interface IGamePhase extends IGame {
 	 */
 	default PlayerSet spectators() {
 		return getPlayersWithRole(PlayerRole.SPECTATOR);
-	}
-
-	default PlayerSet overlords() {
-		return getPlayersWithRole(PlayerRole.OVERLORD);
 	}
 
 	@Nullable

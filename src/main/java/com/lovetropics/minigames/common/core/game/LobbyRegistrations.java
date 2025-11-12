@@ -34,7 +34,6 @@ public final class LobbyRegistrations implements PlayerSet {
 	public TeamAllocator<PlayerRole, ServerPlayer> createAllocator() {
 		TeamAllocator<PlayerRole, ServerPlayer> allocator = new TeamAllocator<>(Lists.newArrayList(PlayerRole.ROLES));
 		allocator.setOverflowTeam(PlayerRole.SPECTATOR);
-		allocator.addLockedTeam(PlayerRole.OVERLORD);
 
 		for (ServerPlayer player : this) {
 			PlayerRole role = forcedRoles.get(player.getUUID());

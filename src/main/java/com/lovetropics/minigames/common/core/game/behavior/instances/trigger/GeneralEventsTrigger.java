@@ -66,16 +66,12 @@ public record GeneralEventsTrigger(Map<String, GameActionList<ServerPlayer>> eve
 			invoke(game, "player_stop_participate", player);
 		} else if (lastRole == PlayerRole.SPECTATOR) {
 			invoke(game, "player_stop_spectate", player);
-		} else if (lastRole == PlayerRole.OVERLORD) {
-			invoke(game, "player_stop_overlord", player);
 		}
 
 		if (role == PlayerRole.PARTICIPANT) {
 			invoke(game, "player_participate", player);
 		} else if (role == PlayerRole.SPECTATOR) {
 			invoke(game, "player_spectate", player);
-		} else if (role == PlayerRole.OVERLORD) {
-			invoke(game, "player_overlord", player);
 		}
 	}
 
