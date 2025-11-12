@@ -5,7 +5,6 @@ import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
-import com.lovetropics.minigames.common.core.game.player.PlayerRole;
 import com.lovetropics.minigames.common.core.game.state.GameStateMap;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeam;
 import com.lovetropics.minigames.common.core.game.state.team.TeamState;
@@ -42,7 +41,7 @@ public final class SetupTeamsBehavior implements IGameBehavior {
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
-		events.listen(GamePlayerEvents.ADD, player -> onPlayerWaiting(game, player));
+		events.listen(GamePlayerEvents.ADD, this::onPlayerWaiting);
 
 		SelectorItems.Handlers<GameTeam> handlers = new SelectorItems.Handlers<>() {
 			@Override
@@ -87,9 +86,8 @@ public final class SetupTeamsBehavior implements IGameBehavior {
 		selectors.applyTo(events);
 	}
 
-	private void onPlayerWaiting(IGamePhase game, ServerPlayer player) {
-		PlayerRole forcedRole = game.lobby().getPlayers().getForcedRoleFor(player);
-		if (forcedRole != PlayerRole.SPECTATOR && teamState.getPollingTeams().size() > 1) {
+	private void onPlayerWaiting(ServerPlayer player) {
+		if (teamState.getPollingTeams().size() > 1) {
 			for (Component message : MinigameTexts.TEAMS_INTRO) {
 				player.displayClientMessage(message, false);
 			}

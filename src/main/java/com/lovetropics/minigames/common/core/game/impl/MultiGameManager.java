@@ -104,14 +104,14 @@ public class MultiGameManager implements IGameManager {
 
 	@Nullable
 	@Override
-	public IGamePhase getGamePhaseFor(Player player) {
+	public GamePhase getGamePhaseFor(Player player) {
 		GameLobby lobby = getLobbyFor(player);
 		return lobby != null ? lobby.getActivePhase() : null;
 	}
 
 	@Nullable
 	@Override
-	public IGamePhase getGamePhaseAt(Level level, Vec3 pos) {
+	public GamePhase getGamePhaseAt(Level level, Vec3 pos) {
 		return getGamePhaseForWorld(level, phase -> phase.phaseDefinition().getGameArea().contains(pos));
 	}
 
@@ -289,8 +289,8 @@ public class MultiGameManager implements IGameManager {
 				return;
 			}
 
-			IGamePhase playerPhase = INSTANCE.getGamePhaseFor(player);
-			IGamePhase targetPhase = INSTANCE.getGamePhaseAt(targetWorld, player.blockPosition());
+			GamePhase playerPhase = INSTANCE.getGamePhaseFor(player);
+			GamePhase targetPhase = (GamePhase) INSTANCE.getGamePhaseAt(targetWorld, player.blockPosition());
 			if (!canTravelBetweenPhases(playerPhase, targetPhase)) {
 				player.displayClientMessage(GameTexts.Commands.cannotTeleportIntoGame(), true);
 
@@ -299,26 +299,26 @@ public class MultiGameManager implements IGameManager {
 		}
 	}
 
-	private static boolean canTravelBetweenPhases(@Nullable IGamePhase from, @Nullable IGamePhase to) {
+	private static boolean canTravelBetweenPhases(@Nullable GamePhase from, @Nullable GamePhase to) {
 		if (to == null) {
 			return true;
 		} else if (from == null) {
 			return false;
 		}
-		return from.lobby() == to.lobby();
+		return from.game.lobby == to.game.lobby;
 	}
 
 	@SubscribeEvent
 	public static void onPlayerChangedDimension(PlayerEvent.PlayerChangedDimensionEvent event) {
 		if (event.getEntity() instanceof ServerPlayer player) {
-			IGamePhase phase = INSTANCE.getGamePhaseFor(player);
+			GamePhase phase = INSTANCE.getGamePhaseFor(player);
 			if (phase == null) {
 				return;
 			}
 
 			ResourceKey<Level> dimension = phase.dimension();
 			if (event.getFrom() == dimension && event.getTo() != dimension) {
-				if (phase.lobby().getPlayers().remove(player, false)) {
+				if (phase.game.lobby.getPlayers().remove(player, false)) {
 					player.displayClientMessage(GameTexts.Status.leftGameDimension(), false);
 				}
 			}

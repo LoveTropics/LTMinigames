@@ -101,12 +101,6 @@ final class LobbyPlayerManager implements IGameLobbyPlayers {
 		return registrations.forceRole(player.getUUID(), role);
 	}
 
-	@Nullable
-	@Override
-	public PlayerRole getForcedRoleFor(ServerPlayer player) {
-		return registrations.getForcedRoleFor(player.getUUID());
-	}
-
 	@Override
 	public PlayerRoleSelections getRoleSelections() {
 		return roleSelections;

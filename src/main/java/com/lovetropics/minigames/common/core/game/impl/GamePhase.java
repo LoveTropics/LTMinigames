@@ -7,7 +7,6 @@ import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.GamePhaseType;
 import com.lovetropics.minigames.common.core.game.GameResult;
 import com.lovetropics.minigames.common.core.game.GameStopReason;
-import com.lovetropics.minigames.common.core.game.IGame;
 import com.lovetropics.minigames.common.core.game.IGameDefinition;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.IGamePhaseDefinition;
@@ -48,6 +47,7 @@ import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -145,7 +145,7 @@ public class GamePhase implements IGamePhase {
 				addAndSpawnPlayer(player, getRoleFor(player), savePlayerDataToMemory);
 			}
 
-			invoker(GamePhaseEvents.START).start(lobby().getMetadata().initiator());
+			invoker(GamePhaseEvents.START).start(game.lobby.getMetadata().initiator());
 		} catch (Exception e) {
 			return GameResult.fromException("Failed to start game", e);
 		}
@@ -195,18 +195,23 @@ public class GamePhase implements IGamePhase {
 	}
 
 	@Override
-	public IGame game() {
-		return game;
-	}
-
-	@Override
 	public GameStateMap state() {
 		return phaseState;
 	}
 
 	@Override
+	public GameStateMap instanceState() {
+		return game.instanceState();
+	}
+
+	@Override
 	public GamePhaseType phaseType() {
 		return phaseType;
+	}
+
+	@Override
+	public PlayerSet allPlayers() {
+		return game.allPlayers();
 	}
 
 	@Override
@@ -229,8 +234,8 @@ public class GamePhase implements IGamePhase {
 			return;
 		}
 
-		LOGGER.debug("Allocating players to roles based on selections: {}", lobby().getPlayers().getRoleSelections());
-		TeamAllocator<PlayerRole, ServerPlayer> allocator = lobby().getPlayers().createRoleAllocator();
+		LOGGER.debug("Allocating players to roles based on selections: {}", game.lobby.getPlayers().getRoleSelections());
+		TeamAllocator<PlayerRole, ServerPlayer> allocator = game.lobby.getPlayers().createRoleAllocator();
 		allocator.setSizeForTeam(PlayerRole.PARTICIPANT, definition().getMaximumParticipantCount());
 		invoker(GamePlayerEvents.ALLOCATE_ROLES).onAllocateRoles(allocator);
 
@@ -420,7 +425,17 @@ public class GamePhase implements IGamePhase {
 		return level().getGameTime() - startTime;
 	}
 
-	public IGamePhase getActivePhase() {
+	@Override
+	public IGamePhase getTopPhase() {
+		return Objects.requireNonNullElse(game.lobby.getTopPhase(), this);
+	}
+
+	@Override
+	public boolean isFocusedLive() {
+		return game.lobby.metadata.visibility().isFocusedLive();
+	}
+
+	public GamePhase getActivePhase() {
 		return this;
 	}
 }

@@ -1,7 +1,7 @@
 package com.lovetropics.minigames.client.lobby.state;
 
 import com.lovetropics.minigames.common.core.game.GamePhaseType;
-import com.lovetropics.minigames.common.core.game.IGamePhase;
+import com.lovetropics.minigames.common.core.game.impl.GamePhase;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
@@ -31,8 +31,8 @@ public final class ClientCurrentGame {
 		return new ClientCurrentGame(definition, phaseType, Optional.empty());
 	}
 
-	public static ClientCurrentGame create(IGamePhase phase) {
-		ClientGameDefinition definition = ClientGameDefinition.from(phase.game().definition());
+	public static ClientCurrentGame create(GamePhase phase) {
+		ClientGameDefinition definition = ClientGameDefinition.from(phase.definition());
 		GamePhaseType phaseType = phase.phaseType();
 		return ClientCurrentGame.create(definition, phaseType);
 	}

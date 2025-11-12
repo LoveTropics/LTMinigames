@@ -22,10 +22,7 @@ public interface IGameLobby {
 	ILobbyGameQueue getGameQueue();
 
 	@Nullable
-	default IGame getCurrentGame() {
-		IGamePhase phase = getActivePhase();
-		return phase != null ? phase.game() : null;
-	}
+	IGame getCurrentGame();
 
 	@Nullable
 	default IGameDefinition getCurrentGameDefinition() {
@@ -40,10 +37,7 @@ public interface IGameLobby {
 	IGamePhase getActivePhase();
 
 	@Nullable
-	default ClientCurrentGame getClientCurrentGame() {
-		IGamePhase phase = getActivePhase();
-		return phase != null ? ClientCurrentGame.create(phase) : null;
-	}
+	ClientCurrentGame getClientCurrentGame();
 
 	LobbyControls getControls();
 

@@ -1,7 +1,6 @@
 package com.lovetropics.minigames.common.core.game;
 
 import com.lovetropics.minigames.common.core.game.behavior.event.GameEventType;
-import com.lovetropics.minigames.common.core.game.lobby.IGameLobby;
 import com.lovetropics.minigames.common.core.game.player.PlayerRole;
 import com.lovetropics.minigames.common.core.game.player.PlayerSet;
 import com.lovetropics.minigames.common.core.game.state.GameStateMap;
@@ -9,7 +8,9 @@ import com.lovetropics.minigames.common.core.game.state.control.ControlCommandIn
 import com.lovetropics.minigames.common.core.game.state.control.ControlCommands;
 import com.lovetropics.minigames.common.core.game.state.statistics.GameStatistics;
 import com.lovetropics.minigames.common.core.game.util.GameScheduler;
+import com.lovetropics.minigames.common.core.integration.GameInstanceIntegrations;
 import com.lovetropics.minigames.common.core.map.MapRegions;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -19,37 +20,23 @@ import net.minecraft.util.Unit;
 import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;
-import java.util.Objects;
 
-public interface IGamePhase extends IGame {
-	IGame game();
-
-	@Override
-	default IGameLobby lobby() {
-		return game().lobby();
-	}
-
-	@Override
+public interface IGamePhase {
 	default MinecraftServer server() {
-		return game().server();
+		return level().getServer();
 	}
 
-	@Override
-	default PlayerSet allPlayers() {
-		return game().allPlayers();
+	default RegistryAccess registryAccess() {
+		return level().registryAccess();
 	}
 
-	@Override
-	default IGameDefinition definition() {
-		return game().definition();
-	}
+	PlayerSet allPlayers();
 
-	@Override
-	default GameStateMap instanceState() {
-		return game().instanceState();
-	}
+	IGameDefinition definition();
 
 	GameStateMap state();
+
+	GameStateMap instanceState();
 
 	GamePhaseType phaseType();
 
@@ -134,11 +121,11 @@ public interface IGamePhase extends IGame {
 		return ControlCommandInvoker.create(commands);
 	}
 
-	default IGamePhase getTopPhase() {
-		return Objects.requireNonNullElse(lobby().getTopPhase(), this);
+	default GameInstanceIntegrations getIntegrationsOrThrow() {
+		return instanceState().getOrThrow(GameInstanceIntegrations.KEY);
 	}
 
-	default boolean isFocusedLive() {
-		return lobby().getMetadata().visibility().isFocusedLive();
-	}
+	IGamePhase getTopPhase();
+
+	boolean isFocusedLive();
 }

@@ -93,12 +93,7 @@ public class MultiGamePhase extends GamePhase {
 	}
 
 	@Override
-	public GameInstance game() {
-		return game;
-	}
-
-	@Override
-	public IGamePhase getActivePhase() {
+	public GamePhase getActivePhase() {
 		return Objects.requireNonNullElse(subPhase, this);
 	}
 
@@ -186,7 +181,7 @@ public class MultiGamePhase extends GamePhase {
 			return CompletableFuture.completedFuture(false);
 		}
 		final GameConfig nextGame = subPhaseQueue.remove();
-		return GamePhase.create(game(), nextGame, nextGame.getPlayingPhase(), GamePhaseType.PLAYING).thenApply(result -> {
+		return GamePhase.create(game, nextGame, nextGame.getPlayingPhase(), GamePhaseType.PLAYING).thenApply(result -> {
 			if (result.isOk()) {
 				startSubPhase(result.getOk(), saveInventory);
 				invoker(RiverRaceEvents.MICROGAME_STARTED).onMicrogameStarted(this);

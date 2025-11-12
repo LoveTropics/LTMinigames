@@ -22,8 +22,5 @@ public interface IGameLobbyPlayers extends PlayerSet {
 
 	boolean forceRole(ServerPlayer player, @Nullable PlayerRole role);
 
-	@Nullable
-	PlayerRole getForcedRoleFor(ServerPlayer player);
-
 	PlayerRoleSelections getRoleSelections();
 }
