@@ -1,6 +1,5 @@
 package com.lovetropics.minigames.common.core.game.state.control;
 
-import com.lovetropics.minigames.common.core.game.lobby.GameLobbyMetadata;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.CommandSourceStack;
 
@@ -18,16 +17,16 @@ public interface ControlCommandInvoker {
 		}
 	};
 
-	static ControlCommandInvoker create(ControlCommands commands, GameLobbyMetadata lobby) {
+	static ControlCommandInvoker create(ControlCommands commands) {
 		return new ControlCommandInvoker() {
 			@Override
 			public void invoke(String name, CommandSourceStack source) throws CommandSyntaxException {
-				commands.invoke(lobby, name, source);
+				commands.invoke(name, source);
 			}
 
 			@Override
 			public Stream<String> list(CommandSourceStack source) {
-				return commands.list(lobby, source);
+				return commands.list(source);
 			}
 		};
 	}

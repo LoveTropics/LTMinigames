@@ -1,6 +1,5 @@
 package com.lovetropics.minigames.common.core.game.state.control;
 
-import com.lovetropics.minigames.common.core.game.lobby.GameLobbyMetadata;
 import com.lovetropics.minigames.common.core.game.state.GameStateKey;
 import com.lovetropics.minigames.common.core.game.state.IGameState;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -19,16 +18,16 @@ public final class ControlCommands implements IGameState {
 		commands.put(name, command);
 	}
 
-	public void invoke(GameLobbyMetadata lobby, String name, CommandSourceStack source) throws CommandSyntaxException {
+	public void invoke(String name, CommandSourceStack source) throws CommandSyntaxException {
 		ControlCommand command = commands.get(name);
 		if (command != null) {
-			command.invoke(source, lobby.initiator());
+			command.invoke(source);
 		}
 	}
 
-	public Stream<String> list(GameLobbyMetadata lobby, CommandSourceStack source) {
+	public Stream<String> list(CommandSourceStack source) {
 		return commands.entrySet().stream()
-				.filter(entry -> entry.getValue().canUse(source, lobby.initiator()))
+				.filter(entry -> entry.getValue().canUse(source))
 				.map(Map.Entry::getKey);
 	}
 }

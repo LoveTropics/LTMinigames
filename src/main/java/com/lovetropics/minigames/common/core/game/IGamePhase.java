@@ -156,8 +156,7 @@ public interface IGamePhase extends IGame {
 
 	default ControlCommandInvoker getControlInvoker() {
 		ControlCommands commands = controlCommands();
-		GameLobbyMetadata lobby = lobby().getMetadata();
-		return ControlCommandInvoker.create(commands, lobby);
+		return ControlCommandInvoker.create(commands);
 	}
 
 	default IGamePhase getTopPhase() {

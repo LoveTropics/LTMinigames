@@ -1,17 +1,14 @@
 package com.lovetropics.minigames.common.core.game.state.control;
 
-import com.lovetropics.lib.codec.MoreCodecs;
-import com.lovetropics.minigames.common.core.game.state.statistics.PlayerKey;
 import com.mojang.brigadier.LiteralMessage;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.serialization.Codec;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.Entity;
+import net.minecraft.util.StringRepresentable;
 
-import javax.annotation.Nullable;
+import java.util.function.Predicate;
 
 public record ControlCommand(Scope scope, Handler handler) {
 	private static final SimpleCommandExceptionType NO_PERMISSION = new SimpleCommandExceptionType(new LiteralMessage("You do not have permission to use this command!"));
@@ -24,60 +21,36 @@ public record ControlCommand(Scope scope, Handler handler) {
 		return new ControlCommand(Scope.ADMINS, handler);
 	}
 
-	public static ControlCommand forInitiator(Handler handler) {
-		return new ControlCommand(Scope.INITIATOR, handler);
-	}
-
-	public void invoke(CommandSourceStack source, @Nullable PlayerKey initiator) throws CommandSyntaxException {
-		if (!canUse(source, initiator)) {
+	public void invoke(CommandSourceStack source) throws CommandSyntaxException {
+		if (!canUse(source)) {
 			throw NO_PERMISSION.create();
 		}
-
 		handler.run(source);
 	}
 
-	public boolean canUse(CommandSourceStack source, @Nullable PlayerKey initiator) {
-		return scope.testSource(source, initiator);
+	public boolean canUse(CommandSourceStack source) {
+		return scope.permissionCheck.test(source);
 	}
 
-	public enum Scope {
-		EVERYONE("everyone") {
-			@Override
-			public boolean testSource(CommandSourceStack source, @Nullable PlayerKey initiator) {
-				return true;
-			}
-		},
-		ADMINS("admins") {
-			@Override
-			public boolean testSource(CommandSourceStack source, @Nullable PlayerKey initiator) {
-				return source.hasPermission(Commands.LEVEL_GAMEMASTERS);
-			}
-		},
-		INITIATOR("initiator") {
-			@Override
-			public boolean testSource(CommandSourceStack source, @Nullable PlayerKey initiator) {
-				if (source.hasPermission(Commands.LEVEL_GAMEMASTERS)) {
-					return true;
-				}
+	public enum Scope implements StringRepresentable {
+		EVERYONE("everyone", Commands.hasPermission(Commands.LEVEL_ALL)),
+		ADMINS("admins", Commands.hasPermission(Commands.LEVEL_GAMEMASTERS)),
+		;
 
-				Entity entity = source.getEntity();
-				if (entity instanceof ServerPlayer) {
-					return initiator != null && initiator.matches(entity);
-				}
+		public static final Codec<Scope> CODEC = StringRepresentable.fromEnum(Scope::values);
 
-				return false;
-			}
-		};
+		private final String name;
+		private final Predicate<CommandSourceStack> permissionCheck;
 
-		public static final Codec<Scope> CODEC = MoreCodecs.stringVariants(Scope.values(), s -> s.key);
-
-		public final String key;
-
-		Scope(String key) {
-			this.key = key;
+		Scope(String name, Predicate<CommandSourceStack> permissionCheck) {
+			this.name = name;
+			this.permissionCheck = permissionCheck;
 		}
 
-		public abstract boolean testSource(CommandSourceStack source, @Nullable PlayerKey initiator);
+		@Override
+		public String getSerializedName() {
+			return name;
+		}
 	}
 
 	public interface Handler {
