@@ -134,4 +134,5 @@ public class RoomEntrancePadEntity extends Entity {
 	public void setRoomName(Component name) {
 		getEntityData().set(ROOM_NAME, name);
 	}
+
 }

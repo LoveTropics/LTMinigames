@@ -83,6 +83,7 @@ public class RoomEntrancePadEntityRenderer extends EntityRenderer<RoomEntrancePa
 		renderFace(packedLight, buffer, last, renderState.color, maxX, minY, maxZ, minX, maxY, maxZ, renderState.ticks);
 		renderFace(packedLight, buffer, last, renderState.color, maxX, minY, maxZ, maxX, maxY, minZ, renderState.ticks);
 		poseStack.popPose();
+		int j = (int)(Minecraft.getInstance().options.getBackgroundOpacity(0.25F) * 255.0F) << 24;
 		if(renderState.roomStatus == RoomStatus.LOCKED){
 			poseStack.mulPose(Axis.YP.rotationDegrees(180)); // Facing
 			poseStack.mulPose(this.calculateOrientation(new Quaternionf()));
@@ -93,7 +94,6 @@ public class RoomEntrancePadEntityRenderer extends EntityRenderer<RoomEntrancePa
 			poseStack.popPose();
 			String text = renderState.cost + "x";
 			float xOffset = -font.width(text) / 2f;
-			int j = (int)(Minecraft.getInstance().options.getBackgroundOpacity(0.25F) * 255.0F) << 24;
 			poseStack.pushPose();
 			poseStack.translate(0.8f,  .3, 0f);
 			poseStack.mulPose(Axis.ZP.rotationDegrees(-180f)); // Turn upsidedown
@@ -105,19 +105,19 @@ public class RoomEntrancePadEntityRenderer extends EntityRenderer<RoomEntrancePa
 					-1, false, poseStack.last().pose(), bufferSource, Font.DisplayMode.SEE_THROUGH, j, packedLight
 			);
 			poseStack.popPose();
-			poseStack.pushPose();
-			poseStack.translate(0.4f,  1.5, 0f);
-			poseStack.mulPose(Axis.ZP.rotationDegrees(-180f)); // Turn upsidedown
-			poseStack.scale(0.08f, 0.08f, 0.08f);
-			float nameXOffset = -font.width(renderState.roomName) / 2f;
-			font.drawInBatch(
-					renderState.roomName,
-					nameXOffset,
-					0f,
-					-1, false, poseStack.last().pose(), bufferSource, Font.DisplayMode.SEE_THROUGH, j, packedLight
-			);
-			poseStack.popPose();
 		}
+		poseStack.pushPose();
+		poseStack.translate(0.4f,  1.5, 0f);
+		poseStack.mulPose(Axis.ZP.rotationDegrees(-180f)); // Turn upsidedown
+		poseStack.scale(0.08f, 0.08f, 0.08f);
+		float nameXOffset = -font.width(renderState.roomName) / 2f;
+		font.drawInBatch(
+				renderState.roomName,
+				nameXOffset,
+				0f,
+				-1, false, poseStack.last().pose(), bufferSource, Font.DisplayMode.SEE_THROUGH, j, packedLight
+		);
+		poseStack.popPose();
 		poseStack.popPose();
 	}
 

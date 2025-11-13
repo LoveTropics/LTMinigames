@@ -21,6 +21,7 @@ public class EscapeRaceTexts {
 		KEYS.add("ddr.positive.incredible", "Incredible!");
 		KEYS.add("ddr.positive.perfect", "Perfect!");
 		KEYS.add("ddr.negative.streak_broken", "Streak Broken!");
+		KEYS.add("ddr.score.added", "+%s Break Bucks");
 
 		KEYS.forEach(consumer);
 		consumer.accept(LoveTropics.ID + ".minigame.escape_race", "Escape Race");

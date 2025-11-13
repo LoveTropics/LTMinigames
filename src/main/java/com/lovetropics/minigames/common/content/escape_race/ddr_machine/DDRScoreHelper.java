@@ -1,6 +1,10 @@
 package com.lovetropics.minigames.common.content.escape_race.ddr_machine;
 
 import com.lovetropics.minigames.LoveTropics;
+import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DdrLevel;
+import com.lovetropics.minigames.common.content.escape_race.event.EscapeRaceEvents;
+import com.lovetropics.minigames.common.core.game.IGamePhase;
+import com.lovetropics.minigames.common.core.game.impl.GameManager;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
@@ -15,8 +19,9 @@ import net.minecraft.world.scores.criteria.ObjectiveCriteria;
 
 public class DDRScoreHelper {
 
-	public static void onGameFinished(ServerPlayer serverPlayer, Holder<JukeboxSong> song, int score, int heightStreak) {
+	public static void onGameFinished(ServerPlayer serverPlayer, Holder<DdrLevel> level, int score, int bestStreak) {
 		MinecraftServer server = serverPlayer.getServer();
+		Holder<JukeboxSong> song = level.value().track();
 		String key = song.getRegisteredName();
 		String objectiveName = LoveTropics.ID + ".ddr." + key.replace(":", "_");
 		ServerScoreboard scoreboard = server.getScoreboard();
@@ -27,6 +32,11 @@ public class DDRScoreHelper {
 		ScoreAccess scoreAccess = scoreboard.getOrCreatePlayerScore(serverPlayer, objective);
 		if (scoreAccess.get() < score) {
 			scoreAccess.set(score);
+		}
+		IGamePhase game = GameManager.get().getGamePhaseFor(serverPlayer);
+		if(game != null){
+			game.invoker(EscapeRaceEvents.DDR_LEVEL_COMPLETED)
+					.onComplete(serverPlayer, level, score, bestStreak);
 		}
 	}
 }

@@ -42,15 +42,15 @@ public class EscapeRaceBucksRenderer {
 
 		graphics.blitSprite(RenderPipelines.GUI_TEXTURED, HOTBAR_SPRITE, x - 21, graphics.guiHeight() - 30, 60, 9);
 		graphics.pose().pushMatrix();
-		graphics.pose().translate(x , y + 12.5f);
-		graphics.pose().scale(0.4f,0.4f);
-		graphics.renderItem(EscapeRace.BREAK_BUCK.asStack(), 0, 0);
+//		graphics.pose().translate(x , y + 12.5f);
+//		graphics.pose().scale(0.4f,0.4f);
+		graphics.renderItem(EscapeRace.BREAK_BUCK.asStack(), x, y - 5);
 		graphics.pose().popMatrix();
 
-		String currency = String.valueOf(selfState.amount());
+		String currency = String.format("%04d", selfState.amount());
 
 		graphics.pose().pushMatrix();
-		graphics.pose().translate(x + 10, y + 12.5f);
+		graphics.pose().translate(x, y + 12.5f);
 		graphics.pose().scale(0.7f,0.7f);
 		graphics.drawString(
 				font, currency,

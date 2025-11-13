@@ -25,13 +25,15 @@ public record DdrLevel(
 		Holder<JukeboxSong> track,
 		ItemStack icon,
 		Component displayName,
-		Long2ObjectMap<DdrInput> ticks
+		Long2ObjectMap<DdrInput> ticks,
+		DdrLevelDifficulty difficulty
 ) {
 	public static final Codec<DdrLevel> DIRECT_CODEC = RecordCodecBuilder.create(i -> i.group(
 			JukeboxSong.CODEC.fieldOf("track").forGetter(DdrLevel::track),
 			ItemStack.CODEC.fieldOf("icon").forGetter(DdrLevel::icon),
 			ComponentSerialization.CODEC.fieldOf("display_name").forGetter(DdrLevel::displayName),
-			MoreCodecs.long2Object(DdrInput.CODEC).fieldOf("ticks").forGetter(DdrLevel::ticks)
+			MoreCodecs.long2Object(DdrInput.CODEC).fieldOf("ticks").forGetter(DdrLevel::ticks),
+			DdrLevelDifficulty.CODEC.fieldOf("difficulty").forGetter(DdrLevel::difficulty)
 	).apply(i, DdrLevel::new));
 	public static final Codec<Holder<DdrLevel>> CODEC = RegistryFileCodec.create(EscapeRace.DDR_LEVEL, DIRECT_CODEC);
 
@@ -40,6 +42,7 @@ public record DdrLevel(
 			ItemStack.STREAM_CODEC, DdrLevel::icon,
 			ComponentSerialization.STREAM_CODEC, DdrLevel::displayName,
 			ByteBufCodecs.map(Long2ObjectOpenHashMap::new, ByteBufCodecs.VAR_LONG, DdrInput.STREAM_CODEC), DdrLevel::ticks,
+			DdrLevelDifficulty.STREAM_CODEC, DdrLevel::difficulty,
 			DdrLevel::new
 	);
 	public static final StreamCodec<RegistryFriendlyByteBuf, Holder<DdrLevel>> STREAM_CODEC = ByteBufCodecs.holder(EscapeRace.DDR_LEVEL, DIRECT_STREAM_CODEC);

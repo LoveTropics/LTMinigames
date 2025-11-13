@@ -4,6 +4,7 @@ import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.content.escape_race.EscapeRace;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DDRMachineLevelState;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DdrLevel;
+import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DdrLevelDifficulty;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.TimedDdrInput;
 import com.lovetropics.minigames.common.core.network.ddr.ClientboundSetCameraViewPacket;
 import com.lovetropics.minigames.common.core.network.ddr.ServerboundSelectDdrLevelPacket;
@@ -335,7 +336,7 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 			return;
 		}
 		setState(DDRMachineState.MENU);
-		DDRScoreHelper.onGameFinished(player, currentLevelState.getLevel().value().track(), currentLevelState.getCurrentLevelScore(), currentLevelState.getHighestStreak());
+		DDRScoreHelper.onGameFinished(player, currentLevelState.getLevel(), currentLevelState.getCurrentLevelScore(), currentLevelState.getHighestStreak());
 		player.sendSystemMessage(Component.literal("Your Score: " + currentLevelState.getCurrentLevelScore()));
 		player.sendSystemMessage(Component.literal("Highest Streak: " + currentLevelState.getHighestStreak()));
 		playingStartTick = 0;
@@ -350,7 +351,7 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 			return;
 		}
 		recordingStartTick = tickCount;
-		currentLevelState = new DDRMachineLevelState(Holder.direct(new DdrLevel(track, new ItemStack(Items.MUSIC_DISC_PIGSTEP), Component.literal(name), new Long2ObjectOpenHashMap<>())));
+		currentLevelState = new DDRMachineLevelState(Holder.direct(new DdrLevel(track, new ItemStack(Items.MUSIC_DISC_PIGSTEP), Component.literal(name), new Long2ObjectOpenHashMap<>(), DdrLevelDifficulty.EASY)));
 		currentLevelLength = track.value().lengthInTicks();
 		if (getControllingPassenger() instanceof ServerPlayer player) {
 			playSong(track);

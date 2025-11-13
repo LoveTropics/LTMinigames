@@ -10,9 +10,12 @@ import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorType;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents;
+import com.lovetropics.minigames.common.core.game.state.team.GameTeamKey;
+import com.lovetropics.minigames.common.core.game.state.team.TeamState;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
@@ -20,6 +23,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntitySpawnReason;
 
 import javax.annotation.Nullable;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +37,32 @@ public record WarehouseSetupBehaviour(
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		State state = new State();
+		TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
 		events.listen(GamePhaseEvents.CREATE, () -> this.onGameStarted(game, state));
+		events.listen(GamePhaseEvents.TICK, () -> {
+			for (String roomEntranceRegion : state.rooms.keySet()) {
+				RoomState roomState = state.rooms.get(roomEntranceRegion);
+					BlockBox region = game.mapRegions().getOrThrow(roomEntranceRegion);
+					for (GameTeamKey teamKey : teams.getTeamKeys()) {
+						if(roomState.getStatus(teamKey) == RoomStatus.LOCKED) {
+							boolean allInArea = teams.getPlayersForTeam(teamKey)
+									.stream().allMatch(t -> t.isCrouching() && region.contains(t.position()));
+							if (allInArea) {
+								int newTicks = roomState.unlockingTicks.getOrDefault(teamKey, 0)  + 1;
+								roomState.unlockingTicks.put(teamKey, newTicks);
+								if(newTicks == SharedConstants.TICKS_PER_SECOND * 5){
+									roomState.unlockingTicks.remove(teamKey);
+									roomState.setStatus(teamKey, RoomStatus.UNLOCKED);
+								}
+								break;
+							} else if(roomState.unlockingTicks.getOrDefault(teamKey, 0) > 0){
+								int newTicks = roomState.unlockingTicks.getOrDefault(teamKey, 0) - 1;
+								roomState.unlockingTicks.put(teamKey, newTicks);
+							}
+						}
+					}
+			}
+		});
 	}
 
 	private void onGameStarted(IGamePhase game, State state) {
@@ -53,7 +82,7 @@ public record WarehouseSetupBehaviour(
 					pad.setDepth(size.getZ() - 0.01f);
 					roomState.setPadEntity(pad);
 					pad.setCost(room.cost);
-					pad.setRoomStatus(roomState.status);
+//					pad.setRoomStatus(roomState.status);
 					pad.setRoomName(room.displayName);
 				}
 			} catch (Exception ignored){}
@@ -89,20 +118,22 @@ public record WarehouseSetupBehaviour(
 
 	public static class RoomState {
 		public RoomConfig config;
-		public RoomStatus status = RoomStatus.LOCKED;
+		public Map<GameTeamKey, RoomStatus> teamStatuses = new HashMap<>();
 		@Nullable
 		public RoomEntrancePadEntity padEntity;
+
+		public Map<GameTeamKey, Integer> unlockingTicks = new HashMap<>();
 
 		public RoomState(RoomConfig roomConfig) {
 			this.config = roomConfig;
 		}
 
-		public RoomStatus getStatus() {
-			return status;
+		public RoomStatus getStatus(GameTeamKey teamKey) {
+			return teamStatuses.computeIfAbsent(teamKey, (ignored) -> RoomStatus.LOCKED);
 		}
 
-		public void setStatus(RoomStatus status) {
-			this.status = status;
+		public void setStatus(GameTeamKey teamkey, RoomStatus status) {
+			teamStatuses.put(teamkey, status);
 			if(padEntity != null) {
 				padEntity.setRoomStatus(status);
 			}
