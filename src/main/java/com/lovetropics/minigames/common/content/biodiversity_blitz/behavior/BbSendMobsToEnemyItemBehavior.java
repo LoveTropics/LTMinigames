@@ -63,13 +63,13 @@ public final class BbSendMobsToEnemyItemBehavior implements IGameBehavior {
 		final var plots = game.state().getOrThrow(PlotsState.KEY);
 		events.listen(GamePlayerEvents.USE_ITEM, (player, hand) -> {
 			final var item = player.getItemInHand(hand);
-			return tryUseMobItem(player, item, plots, teams) ? InteractionResult.CONSUME : InteractionResult.PASS;
+			return tryUseMobItem(player, item, game, plots, teams) ? InteractionResult.CONSUME : InteractionResult.PASS;
 		});
 
-		events.listen(GamePlayerEvents.ATTACK, (player, target) -> tryUseMobItem(player, player.getMainHandItem(), plots, teams) ? TriState.TRUE : TriState.DEFAULT);
+		events.listen(GamePlayerEvents.ATTACK, (player, target) -> tryUseMobItem(player, player.getMainHandItem(), game, plots, teams) ? TriState.TRUE : TriState.DEFAULT);
 	}
 
-	private boolean tryUseMobItem(ServerPlayer player, ItemStack item, PlotsState plots, TeamState teams) {
+	private boolean tryUseMobItem(ServerPlayer player, ItemStack item, IGamePhase game, PlotsState plots, TeamState teams) {
 		if (!items.contains(item.getItemHolder())) {
 			return false;
 		}
@@ -81,7 +81,7 @@ public final class BbSendMobsToEnemyItemBehavior implements IGameBehavior {
 			plots.stream().filter(p -> p != playerPlot)
 					.forEach(targetPlot -> {
 						final Component playerName = player.getName().copy().withStyle(ChatFormatting.AQUA);
-						teams.getPlayersForTeam(targetPlot.team).sendMessage(BiodiversityBlitzTexts.SENT_MOBS_MESSAGE.apply(playerName, buildMessage(entities)));
+						teams.getPlayersForTeam(game, targetPlot.team).sendMessage(BiodiversityBlitzTexts.SENT_MOBS_MESSAGE.apply(playerName, buildMessage(entities)));
 
 						sentEnemies.putAll(targetPlot, entities.entrySet().stream()
 								.flatMap(entry -> repeat(() -> entry.getKey().create(player.level(), targetPlot), entry.getValue()))

@@ -5,11 +5,12 @@ import com.lovetropics.minigames.common.core.game.state.control.ControlCommandRe
 import com.lovetropics.minigames.common.core.game.state.statistics.PlayerKey;
 
 import javax.annotation.Nullable;
+import java.util.Set;
 
 public final class GamePhaseEvents {
-	public static final GameEventType<Create> CREATE = GameEventType.create(Create.class, listeners -> () -> {
+	public static final GameEventType<Create> CREATE = GameEventType.create(Create.class, listeners -> participants -> {
 		for (Create listener : listeners) {
-			listener.create();
+			listener.create(participants);
 		}
 	});
 
@@ -53,7 +54,7 @@ public final class GamePhaseEvents {
 	}
 
 	public interface Create {
-		void create();
+		void create(Set<PlayerKey> participants);
 	}
 
 	public interface Start {

@@ -84,7 +84,7 @@ public final class CurrencyManager implements IGameState {
 		int newValue = lastValue + amount;
 
 		TeamState teams = game.instanceState().getOrThrow(TeamState.KEY);
-		for (ServerPlayer player : teams.getPlayersForTeam(team)) {
+		for (ServerPlayer player : teams.getPlayersForTeam(game, team)) {
 			game.statistics().forPlayer(player)
 					.set(StatisticKey.POINTS, newValue);
 		}

@@ -86,16 +86,15 @@ public class PositionPlayersBehavior implements IGameBehavior {
 		TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
 		if (splitByTeam && teams != null) {
 			if (!teamSpawnKeys.isEmpty()) {
-				events.listen(GamePhaseEvents.CREATE, () -> teamSpawners = teamSpawnKeys.entrySet().stream()
+				events.listen(GamePhaseEvents.CREATE, participants -> teamSpawners = teamSpawnKeys.entrySet().stream()
 						.collect(Collectors.toMap(
 								Map.Entry::getKey,
 								entry -> new CycledSpawner(regions, entry.getValue())
 						)));
 			} else if (!participantSpawner.regions().isEmpty()) {
-				events.listen(GamePhaseEvents.CREATE, () -> {
-					int participantCount = game.participants().size();
-					teamSpawners = createTeamSpawners(game, teams, participantSpawner, participantCount);
-				});
+				events.listen(GamePhaseEvents.CREATE, participants ->
+						teamSpawners = createTeamSpawners(game, teams, participantSpawner, participants.size())
+				);
 			}
 		}
 

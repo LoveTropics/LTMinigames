@@ -6,6 +6,7 @@ import com.lovetropics.minigames.common.core.game.LobbyRegistrations;
 import com.lovetropics.minigames.common.core.game.player.PlayerRole;
 import com.lovetropics.minigames.common.core.game.player.PlayerRoleSelections;
 import com.lovetropics.minigames.common.core.game.player.PlayerSet;
+import com.lovetropics.minigames.common.core.game.state.statistics.PlayerKey;
 import com.lovetropics.minigames.common.core.game.util.GameTexts;
 import com.lovetropics.minigames.common.core.game.util.TeamAllocator;
 import com.lovetropics.minigames.common.role.StreamHosts;
@@ -28,16 +29,17 @@ public final class LobbyPlayerManager implements PlayerSet {
 		roleSelections = new PlayerRoleSelections(lobby.getMetadata().id());
 	}
 
-	public TeamAllocator<PlayerRole, ServerPlayer> createRoleAllocator() {
-		TeamAllocator<PlayerRole, ServerPlayer> allocator = registrations.createAllocator();
+	public TeamAllocator<PlayerRole, PlayerKey> createRoleAllocator() {
+		TeamAllocator<PlayerRole, PlayerKey> allocator = registrations.createAllocator();
 		for (ServerPlayer player : registrations) {
-			if (allocator.hasPreference(player)) {
+			PlayerKey playerKey = PlayerKey.from(player);
+			if (allocator.hasPreference(playerKey)) {
 				continue;
 			}
 
 			PlayerRole role = roleSelections.getSelectedRoleFor(player.getUUID());
 			if (StreamHosts.isHost(player) || role != PlayerRole.PARTICIPANT) {
-				allocator.addPlayer(player, role);
+				allocator.addPlayer(playerKey, role);
 			}
 		}
 

@@ -56,18 +56,18 @@ public final class BbCurrencyWinTrigger implements IGameBehavior {
 
 		events.listen(GamePhaseEvents.TICK, () -> {
 			if (!gameOver && !winnerCandidates.isEmpty()) {
-				GameTeamKey teamKey = selectWinningTeam(teams, plots, currency, winnerCandidates);
+				GameTeamKey teamKey = selectWinningTeam(game, teams, plots, currency, winnerCandidates);
 				triggerWin(game, teams.getTeamByKey(teamKey));
 			}
 		});
 	}
 
-	private GameTeamKey selectWinningTeam(TeamState teams, PlotsState plots, CurrencyManager currency, List<GameTeamKey> candidates) {
+	private GameTeamKey selectWinningTeam(IGamePhase game, TeamState teams, PlotsState plots, CurrencyManager currency, List<GameTeamKey> candidates) {
 		if (candidates.size() == 1) {
 			return candidates.getFirst();
 		}
 
-		Comparator<GameTeamKey> comparator = Comparator.<GameTeamKey>comparingInt(team -> getTeamCurrencyItems(teams, currency, team))
+		Comparator<GameTeamKey> comparator = Comparator.<GameTeamKey>comparingInt(team -> getTeamCurrencyItems(game, teams, currency, team))
 				.thenComparingInt(team -> {
 					Plot plot = plots.getPlotFor(team);
 					return plot != null ? plot.nextCurrencyIncrement : 0;
@@ -76,8 +76,8 @@ public final class BbCurrencyWinTrigger implements IGameBehavior {
 		return candidates.stream().max(comparator).orElseThrow();
 	}
 
-	private static int getTeamCurrencyItems(TeamState teams, CurrencyManager currency, GameTeamKey team) {
-		return teams.getPlayersForTeam(team).stream()
+	private static int getTeamCurrencyItems(IGamePhase game, TeamState teams, CurrencyManager currency, GameTeamKey team) {
+		return teams.getPlayersForTeam(game, team).stream()
 				.mapToInt(currency::get)
 				.sum();
 	}

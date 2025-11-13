@@ -234,7 +234,7 @@ public final class TriviaBehaviour implements IGameBehavior {
 		if (teams == null) {
 			return null;
 		}
-		for (ServerPlayer otherPlayer : teams.getPlayersOnSameTeam(player)) {
+		for (ServerPlayer otherPlayer : teams.getPlayersOnSameTeam(game, player)) {
 			if (otherPlayer.getInventory().contains(collectable)) {
 				return otherPlayer;
 			}

@@ -6,7 +6,6 @@ import com.lovetropics.lib.permission.role.Role;
 import com.lovetropics.lib.permission.role.RoleReader;
 import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
-import com.lovetropics.minigames.common.core.game.player.MutablePlayerSet;
 import com.lovetropics.minigames.common.core.game.player.PlayerSet;
 import com.lovetropics.minigames.common.core.game.state.GameStateKey;
 import com.lovetropics.minigames.common.core.game.state.IGameState;
@@ -16,7 +15,6 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMaps;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -41,7 +39,7 @@ public final class TeamState implements IGameState, Iterable<GameTeam> {
 	private final List<GameTeam> teams;
 
 	private final Object2ObjectMap<GameTeamKey, GameTeam> teamsByKey = new Object2ObjectOpenHashMap<>();
-	private final Object2ObjectMap<GameTeamKey, MutablePlayerSet> playersByKey = new Object2ObjectOpenHashMap<>();
+	private final Object2ObjectMap<GameTeamKey, Set<UUID>> playersByKey = new Object2ObjectOpenHashMap<>();
 
 	private final Collection<GameTeam> pollingTeams;
 
@@ -67,7 +65,7 @@ public final class TeamState implements IGameState, Iterable<GameTeam> {
 		}
 	}
 
-	public void allocatePlayers(PlayerSet participants) {
+	public void allocatePlayers(Set<PlayerKey> participants) {
 		// We might end up here in a microgame, so don't reassign teams if they were already decided
 		if (allocations == null) {
 			return;
@@ -81,17 +79,22 @@ public final class TeamState implements IGameState, Iterable<GameTeam> {
 		allocations = null;
 	}
 
-	public void addPlayerTo(ServerPlayer player, GameTeamKey team) {
-		removePlayer(player);
+	public void addPlayerTo(PlayerKey player, GameTeamKey team) {
+		removePlayer(player.id());
 
-		MutablePlayerSet players = getPlayersForTeamMutable(player.getServer(), team);
-		players.add(player);
+		Set<UUID> players = playersByKey.get(team);
+		if (players == null) {
+			Preconditions.checkState(teams.contains(getTeamByKey(team)), "invalid team " + team);
+			players = new ObjectOpenHashSet<>();
+			playersByKey.put(team, players);
+		}
+		players.add(player.id());
 	}
 
 	@Nullable
-	public GameTeamKey removePlayer(ServerPlayer player) {
-		for (Map.Entry<GameTeamKey, MutablePlayerSet> entry : Object2ObjectMaps.fastIterable(playersByKey)) {
-			if (entry.getValue().remove(player)) {
+	public GameTeamKey removePlayer(UUID playerId) {
+		for (Map.Entry<GameTeamKey, Set<UUID>> entry : Object2ObjectMaps.fastIterable(playersByKey)) {
+			if (entry.getValue().remove(playerId)) {
 				return entry.getKey();
 			}
 		}
@@ -100,34 +103,27 @@ public final class TeamState implements IGameState, Iterable<GameTeam> {
 	}
 
 	public PlayerSet getParticipantsForTeam(IGamePhase game, GameTeamKey team) {
-		PlayerSet players = playersByKey.get(team);
+		Set<UUID> players = playersByKey.get(team);
 		if (players == null) {
 			return PlayerSet.EMPTY;
 		}
-		return PlayerSet.intersection(players, game.participants());
+		return game.participants().filter(player -> players.contains(player.getUUID()));
 	}
 
-	public PlayerSet getPlayersForTeam(GameTeamKey team) {
-		PlayerSet players = playersByKey.get(team);
-		return players != null ? players : PlayerSet.EMPTY;
+	public PlayerSet getPlayersForTeam(IGamePhase game, GameTeamKey team) {
+		Set<UUID> players = playersByKey.get(team);
+		if (players == null) {
+			return PlayerSet.EMPTY;
+		}
+		return game.allPlayers().filter(player -> players.contains(player.getUUID()));
 	}
 
-	public PlayerSet getPlayersOnSameTeam(ServerPlayer player) {
+	public PlayerSet getPlayersOnSameTeam(IGamePhase game, ServerPlayer player) {
 		GameTeamKey team = getTeamForPlayer(player);
 		if (team == null) {
 			return PlayerSet.of(player);
 		}
-		return getPlayersForTeam(team);
-	}
-
-	private MutablePlayerSet getPlayersForTeamMutable(MinecraftServer server, GameTeamKey team) {
-		MutablePlayerSet players = playersByKey.get(team);
-		if (players == null) {
-			Preconditions.checkState(teams.contains(getTeamByKey(team)), "invalid team " + team);
-			players = new MutablePlayerSet(server);
-			playersByKey.put(team, players);
-		}
-		return players;
+		return getPlayersForTeam(game, team);
 	}
 
 	@Nullable
@@ -142,7 +138,7 @@ public final class TeamState implements IGameState, Iterable<GameTeam> {
 
 	@Nullable
 	public GameTeamKey getTeamForPlayer(UUID playerId) {
-		for (Map.Entry<GameTeamKey, MutablePlayerSet> entry : Object2ObjectMaps.fastIterable(playersByKey)) {
+		for (Map.Entry<GameTeamKey, Set<UUID>> entry : Object2ObjectMaps.fastIterable(playersByKey)) {
 			if (entry.getValue().contains(playerId)) {
 				return entry.getKey();
 			}
@@ -151,8 +147,8 @@ public final class TeamState implements IGameState, Iterable<GameTeam> {
 	}
 
 	public boolean isOnTeam(Player player, GameTeamKey team) {
-		MutablePlayerSet players = playersByKey.get(team);
-		return players != null && players.contains(player);
+		Set<UUID> players = playersByKey.get(team);
+		return players != null && players.contains(player.getUUID());
 	}
 
 	public Collection<GameTeamKey> getTeamKeys() {
@@ -163,8 +159,8 @@ public final class TeamState implements IGameState, Iterable<GameTeam> {
 		return pollingTeams;
 	}
 
-	public Stream<ServerPlayer> getPlayersWithAssignments(PlayerSet players) {
-		return teams.stream().flatMap(team -> getPlayersAssignedTo(players, team));
+	public List<Role> assignedRoles() {
+		return teams.stream().flatMap(TeamState::assignedRoles).distinct().toList();
 	}
 
 	@Nullable
@@ -207,22 +203,27 @@ public final class TeamState implements IGameState, Iterable<GameTeam> {
 	public final class Allocations {
 		private final Map<UUID, GameTeamKey> preferences = new Object2ObjectOpenHashMap<>();
 
-		public void allocate(PlayerSet participants, BiConsumer<ServerPlayer, GameTeamKey> apply) {
+		public void allocate(Set<PlayerKey> participants, BiConsumer<PlayerKey, GameTeamKey> apply) {
 			// apply all direct team assignments first
 			Set<UUID> assignedPlayers = new ObjectOpenHashSet<>();
 			for (GameTeam team : teams) {
-				getPlayersAssignedTo(participants, team).forEach(player -> {
-					LoveTropics.LOGGER.debug("Assigning {} to {} based on role assignments", player.getScoreboardName(), team);
+				List<Role> assignedRoles = assignedRoles(team).toList();
+				for (PlayerKey player : participants) {
+					RoleReader roles = PermissionsApi.lookup().byPlayerId(player.id());
+					if (assignedRoles.stream().noneMatch(roles::has)) {
+						continue;
+					}
+					LoveTropics.LOGGER.debug("Assigning {} to {} based on role assignments", player.name(), team);
 					apply.accept(player, team.key());
-					assignedPlayers.add(player.getUUID());
-				});
+					assignedPlayers.add(player.id());
+				}
 			}
 
 			if (!pollingTeams.isEmpty()) {
-				TeamAllocator<GameTeamKey, ServerPlayer> teamAllocator = createAllocator();
+				TeamAllocator<GameTeamKey, PlayerKey> teamAllocator = createAllocator();
 
-				for (ServerPlayer player : participants) {
-					UUID playerId = player.getUUID();
+				for (PlayerKey player : participants) {
+					UUID playerId = player.id();
 					if (!assignedPlayers.contains(playerId)) {
 						teamAllocator.addPlayer(player, preferences.get(playerId));
 					}
@@ -232,9 +233,9 @@ public final class TeamState implements IGameState, Iterable<GameTeam> {
 			}
 		}
 
-		private TeamAllocator<GameTeamKey, ServerPlayer> createAllocator() {
+		private TeamAllocator<GameTeamKey, PlayerKey> createAllocator() {
 			List<GameTeamKey> pollingTeamKeys = pollingTeams.stream().map(GameTeam::key).collect(Collectors.toList());
-			TeamAllocator<GameTeamKey, ServerPlayer> teamAllocator = new TeamAllocator<>(pollingTeamKeys);
+			TeamAllocator<GameTeamKey, PlayerKey> teamAllocator = new TeamAllocator<>(pollingTeamKeys);
 
 			for (GameTeam team : pollingTeams) {
 				teamAllocator.setSizeForTeam(team.key(), team.config().maxSize());
@@ -248,18 +249,9 @@ public final class TeamState implements IGameState, Iterable<GameTeam> {
 		}
 	}
 
-	private static Stream<ServerPlayer> getPlayersAssignedTo(PlayerSet players, GameTeam team) {
-		List<Role> assignedRoles = team.config().assignedRoles().stream()
+	private static Stream<Role> assignedRoles(GameTeam team) {
+		return team.config().assignedRoles().stream()
 				.map(PermissionsApi.provider()::get)
-				.filter(Objects::nonNull)
-				.toList();
-		LoveTropics.LOGGER.debug("Assigning {} roles ({}) to team: {}", assignedRoles.size(), team.config().assignedRoles(), team);
-		if (assignedRoles.isEmpty()) {
-			return Stream.empty();
-		}
-		return players.stream().filter(player -> {
-			RoleReader roles = PermissionsApi.lookup().byPlayer(player);
-			return assignedRoles.stream().anyMatch(roles::has);
-		});
+				.filter(Objects::nonNull);
 	}
 }

@@ -23,7 +23,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntitySpawnReason;
 
 import javax.annotation.Nullable;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,14 +37,14 @@ public record WarehouseSetupBehaviour(
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		State state = new State();
 		TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
-		events.listen(GamePhaseEvents.CREATE, () -> this.onGameStarted(game, state));
+		events.listen(GamePhaseEvents.CREATE, participants -> this.onGameStarted(game, state));
 		events.listen(GamePhaseEvents.TICK, () -> {
 			for (String roomEntranceRegion : state.rooms.keySet()) {
 					RoomState roomState = state.rooms.get(roomEntranceRegion);
 					BlockBox region = game.mapRegions().getOrThrow(roomEntranceRegion);
 					for (GameTeamKey teamKey : teams.getTeamKeys()) {
 						if(roomState.getStatus(teamKey) == RoomStatus.LOCKED) {
-							boolean allInArea = teams.getPlayersForTeam(teamKey)
+							boolean allInArea = teams.getPlayersForTeam(game, teamKey)
 									.stream().allMatch(t -> t.isCrouching() && region.contains(t.position()));
 							if (allInArea) {
 								int newTicks = roomState.unlockingTicks.getOrDefault(teamKey, 0)  + 1;

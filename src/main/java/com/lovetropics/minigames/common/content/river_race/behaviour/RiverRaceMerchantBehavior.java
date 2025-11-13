@@ -71,7 +71,7 @@ public class RiverRaceMerchantBehavior implements IGameBehavior {
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		this.game = game;
 
-		events.listen(GamePhaseEvents.CREATE, this::onGameStarted);
+		events.listen(GamePhaseEvents.CREATE, participants -> onGameStarted());
 		events.listen(GamePlayerEvents.INTERACT_ENTITY, this::interactWithEntity);
 	}
 

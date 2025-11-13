@@ -63,7 +63,7 @@ public record ProgressBehaviour(
 			progress.lockedZones.put(lockedZone.id, new RiverRaceClientBarState.Zone(start, end - start, lockedZone.color));
 		}
 
-		events.listen(GamePhaseEvents.TICK, () -> progress.update(mapSpace, teams));
+		events.listen(GamePhaseEvents.TICK, () -> progress.update(game, mapSpace, teams));
 		events.listen(RiverRaceEvents.UNLOCK_ZONE, progress::unlockZone);
 
 		GameClientState.applyGlobally(game, events, SharedConstants.TICKS_PER_SECOND, RiverRace.BAR_STATE.get(), player -> {
@@ -87,9 +87,9 @@ public record ProgressBehaviour(
 			lockedZones.remove(id);
 		}
 
-		public void update(MapSpace mapSpace, TeamState teams) {
-			topTeam.update(mapSpace, teams);
-			bottomTeam.update(mapSpace, teams);
+		public void update(IGamePhase game, MapSpace mapSpace, TeamState teams) {
+			topTeam.update(game, mapSpace, teams);
+			bottomTeam.update(game, mapSpace, teams);
 		}
 
 		// Not using per-team localisation, but keeping as we might want to use it
@@ -112,9 +112,9 @@ public record ProgressBehaviour(
 			this.team = team;
 		}
 
-		public void update(MapSpace mapSpace, TeamState teams) {
+		public void update(IGamePhase game, MapSpace mapSpace, TeamState teams) {
 			playerPositions.clear();
-			for (ServerPlayer player : teams.getPlayersForTeam(team.key())) {
+			for (ServerPlayer player : teams.getPlayersForTeam(game, team.key())) {
 				int playerPos = mapSpace.getPos(player.blockPosition());
 				playerPositions.add(playerPos);
 				progress = Math.max(playerPos, progress);

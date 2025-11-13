@@ -78,7 +78,7 @@ public final class DonationPackageBehavior implements IGameBehavior {
 				LOGGER.warn("Could not find a team receiver for package: {}", gamePackage);
 				return TriState.FALSE;
 			}
-			return applyToTeams(game, gamePackage, List.of(receivingTeam), teams.getPlayersForTeam(receivingTeam.key()));
+			return applyToTeams(game, gamePackage, List.of(receivingTeam), teams.getPlayersForTeam(game, receivingTeam.key()));
 		}
 
 		if (gamePackage.receivingPlayer().isEmpty()) {
@@ -111,7 +111,7 @@ public final class DonationPackageBehavior implements IGameBehavior {
 				return applyToTeams(game, gamePackage, List.of(), PlayerSet.EMPTY);
 			}
 			GameTeam randomTeam = Util.getRandom(allTeams, game.random());
-			return applyToTeams(game, gamePackage, List.of(randomTeam), teams.getPlayersForTeam(randomTeam.key()));
+			return applyToTeams(game, gamePackage, List.of(randomTeam), teams.getPlayersForTeam(game, randomTeam.key()));
 		} else {
 			final ServerPlayer randomPlayer = Util.getRandom(Lists.newArrayList(game.participants()), game.random());
 			return applyToPlayers(game, gamePackage, List.of(randomPlayer));

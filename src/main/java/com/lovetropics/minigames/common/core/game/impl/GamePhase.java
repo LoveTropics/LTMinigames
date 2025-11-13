@@ -59,6 +59,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 /**
  * Think of a GamePhase like an act in a play, where the play is a GameInstance
@@ -149,7 +150,7 @@ public class GamePhase implements IGamePhase {
 		try {
 			allocateRoles();
 
-			invoker(GamePhaseEvents.CREATE).create();
+			invoker(GamePhaseEvents.CREATE).create(participants().stream().map(PlayerKey::from).collect(Collectors.toSet()));
 
 			List<ServerPlayer> shuffledPlayers = Lists.newArrayList(allPlayers());
 			Collections.shuffle(shuffledPlayers);
@@ -271,11 +272,16 @@ public class GamePhase implements IGamePhase {
 		}
 
 		LOGGER.debug("Allocating players to roles based on selections: {}", game.lobby.getPlayers().getRoleSelections());
-		TeamAllocator<PlayerRole, ServerPlayer> allocator = game.lobby.getPlayers().createRoleAllocator();
+		TeamAllocator<PlayerRole, PlayerKey> allocator = game.lobby.getPlayers().createRoleAllocator();
 		allocator.setSizeForTeam(PlayerRole.PARTICIPANT, definition().getMaximumParticipantCount());
 		invoker(GamePlayerEvents.ALLOCATE_ROLES).onAllocateRoles(allocator);
 
-		allocator.allocate(this::setPlayerRole);
+		allocator.allocate((playerKey, role) -> {
+			ServerPlayer player = allPlayers().getPlayerBy(playerKey);
+			if (player != null) {
+				setPlayerRole(player, role);
+			}
+		});
 
 		assignedRoles = true;
 	}
@@ -507,7 +513,7 @@ public class GamePhase implements IGamePhase {
 		}
 		hideRoles = false;
 
-		subPhase.events.listen(GamePhaseEvents.CREATE, () ->
+		subPhase.events.listen(GamePhaseEvents.CREATE, participants ->
 				invoker(SubGameEvents.CREATE).onCreateSubGame(subPhase, subPhase.events)
 		);
 		subPhase.start(saveInventory);

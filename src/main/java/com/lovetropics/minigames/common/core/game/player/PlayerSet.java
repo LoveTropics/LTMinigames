@@ -1,5 +1,6 @@
 package com.lovetropics.minigames.common.core.game.player;
 
+import com.google.common.base.Predicate;
 import com.google.common.collect.Iterators;
 import com.lovetropics.minigames.common.core.game.state.statistics.PlayerKey;
 import net.minecraft.server.MinecraftServer;
@@ -140,11 +141,6 @@ public interface PlayerSet extends PlayerIterable {
 			}
 
 			@Override
-			public int size() {
-				return Iterators.size(iterator());
-			}
-
-			@Override
 			public Iterator<ServerPlayer> iterator() {
 				return Iterators.filter(left.iterator(), right::contains);
 			}
@@ -165,13 +161,31 @@ public interface PlayerSet extends PlayerIterable {
 			}
 
 			@Override
-			public int size() {
-				return Iterators.size(iterator());
+			public Iterator<ServerPlayer> iterator() {
+				return Iterators.filter(first.iterator(), player -> !second.contains(player));
+			}
+		};
+	}
+
+	@Override
+	default PlayerSet filter(Predicate<? super ServerPlayer> predicate) {
+		return new PlayerSet() {
+			@Override
+			public boolean contains(UUID id) {
+				ServerPlayer player = PlayerSet.this.getPlayerBy(id);
+				return player != null && predicate.test(player);
+			}
+
+			@Override
+			@Nullable
+			public ServerPlayer getPlayerBy(UUID id) {
+				ServerPlayer player = PlayerSet.this.getPlayerBy(id);
+				return player != null && predicate.test(player) ? player : null;
 			}
 
 			@Override
 			public Iterator<ServerPlayer> iterator() {
-				return Iterators.filter(first.iterator(), player -> !second.contains(player));
+				return Iterators.filter(PlayerSet.this.iterator(), predicate);
 			}
 		};
 	}
@@ -190,7 +204,9 @@ public interface PlayerSet extends PlayerIterable {
 		return getPlayerBy(key.id());
 	}
 
-	int size();
+	default int size() {
+		return Iterators.size(iterator());
+	}
 
 	default boolean isEmpty() {
 		return size() == 0;

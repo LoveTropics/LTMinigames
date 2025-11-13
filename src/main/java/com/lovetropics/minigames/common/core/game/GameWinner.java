@@ -57,7 +57,7 @@ public sealed interface GameWinner {
 
 		@Override
 		public PlayerSet resolvePlayers(IGamePhase game) {
-			return game.instanceState().getOrThrow(TeamState.KEY).getPlayersForTeam(team.key());
+			return game.instanceState().getOrThrow(TeamState.KEY).getPlayersForTeam(game, team.key());
 		}
 	}
 }

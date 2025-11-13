@@ -107,7 +107,7 @@ public class VictoryPointsBehavior implements IGameBehavior {
 		events.listen(RiverRaceEvents.QUESTION_COMPLETED, this::onQuestionAnswered);
 		events.listen(RiverRaceEvents.COLLECTABLE_PLACED, this::onCollectablePlaced);
 		events.listen(RiverRaceEvents.VICTORY_POINTS_CHANGED, (team, value, lastValue) -> {
-			PlayerSet playersForTeam = teams.getPlayersForTeam(team);
+			PlayerSet playersForTeam = teams.getPlayersForTeam(game, team);
 			int increase = value - lastValue;
 			playersForTeam.sendMessage(RiverRaceTexts.VICTORY_POINT_CHANGE.apply(increase), true);
 

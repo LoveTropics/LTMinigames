@@ -29,11 +29,11 @@ public final class BbClientStateBehavior implements IGameBehavior {
 		events.listen(GamePlayerEvents.REMOVE, this::removePlayer);
 
 		events.listen(BbEvents.CURRENCY_ACCUMULATE, (team, value, lastValue) -> {
-			updateState(teams, team, currency -> currency.value = value);
+			updateState(game, teams, team, currency -> currency.value = value);
 		});
 
 		events.listen(BbEvents.CURRENCY_INCREMENT_CHANGED, (team, value, lastValue) -> {
-			updateState(teams, team, currency -> currency.nextIncrement = value);
+			updateState(game, teams, team, currency -> currency.nextIncrement = value);
 		});
 	}
 
@@ -42,12 +42,12 @@ public final class BbClientStateBehavior implements IGameBehavior {
 		GameClientState.removeFromPlayer(BiodiversityBlitz.MOB_SPAWN.get(), player);
 	}
 
-	private void updateState(TeamState teams, GameTeamKey team, Consumer<Currency> update) {
+	private void updateState(IGamePhase game, TeamState teams, GameTeamKey team, Consumer<Currency> update) {
 		Currency currency = trackedCurrency.computeIfAbsent(team, k -> new Currency());
 		update.accept(currency);
 
 		ClientBbSelfState state = new ClientBbSelfState(currency.value, currency.nextIncrement);
-		for (ServerPlayer player : teams.getPlayersForTeam(team)) {
+		for (ServerPlayer player : teams.getPlayersForTeam(game, team)) {
 			GameClientState.sendToPlayer(state, player);
 		}
 	}

@@ -329,7 +329,7 @@ public final class GamePlayerEvents {
 	}
 
 	public interface AllocateRoles {
-		void onAllocateRoles(TeamAllocator<PlayerRole, ServerPlayer> allocator);
+		void onAllocateRoles(TeamAllocator<PlayerRole, PlayerKey> allocator);
 	}
 
 	public interface Chat {

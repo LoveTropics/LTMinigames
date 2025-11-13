@@ -111,7 +111,7 @@ public class ConnectFourBehavior implements IGameBehavior {
 	private void onStart() {
 		var teams = new ArrayList<PlayingTeam>(this.teams.getTeamKeys().size());
 		this.teams.getTeamKeys().forEach(key -> {
-			var players = this.teams.getPlayersForTeam(key).stream().map(PlayerKey::from).toList();
+			var players = this.teams.getPlayersForTeam(game, key).stream().map(PlayerKey::from).toList();
 			if (!players.isEmpty()) {
 				var timer = teamTimers.get(key).getOrThrow(game);
 				timer.pause();

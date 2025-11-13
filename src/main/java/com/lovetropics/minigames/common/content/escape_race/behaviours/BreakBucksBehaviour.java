@@ -37,7 +37,7 @@ public class BreakBucksBehaviour implements IGameBehavior {
 				int breakBucks = Math.round(difficulty.getScoreMultiplier() * score);
 				breakBucks += (int) ((bestStreak * 2) * difficulty.getScoreMultiplier());
 				game.statistics().forTeam(teamForPlayer).incrementInt(StatisticKey.BREAK_BUCKS, breakBucks);
-				teams.getPlayersForTeam(teamForPlayer)
+				teams.getPlayersForTeam(game, teamForPlayer)
 						.sendMessage(Component.translatable("ltminigames.minigame.escape_race.ddr.score.added", breakBucks)
 								.withStyle(ChatFormatting.GOLD));
 			}

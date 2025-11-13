@@ -81,7 +81,7 @@ public record TreasureDigBehaviour(
 
 	private int sumTeamScore(IGamePhase game, TeamState teams, GameTeamKey team) {
 		int teamScore = 0;
-		for (ServerPlayer player : teams.getPlayersForTeam(team)) {
+		for (ServerPlayer player : teams.getPlayersForTeam(game, team)) {
 			teamScore += game.statistics().forPlayer(player).getInt(StatisticKey.POINTS);
 		}
 		return teamScore;

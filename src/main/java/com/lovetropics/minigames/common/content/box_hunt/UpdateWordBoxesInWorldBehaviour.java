@@ -37,7 +37,7 @@ public record UpdateWordBoxesInWorldBehaviour(
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		TeamState teams = game.instanceState().getOrThrow(TeamState.KEY);
 		events.listen(GameWorldEvents.CHUNK_LOAD, (chunk) -> {
-			PlayerSet hiders = teams.getPlayersForTeam(teams.getTeamByKey("hiders").key());
+			PlayerSet hiders = teams.getPlayersForTeam(game, teams.getTeamByKey("hiders").key());
 			chunk.getBlockEntitiesPos().forEach((pos) -> {
 				Optional<? extends BlockEntity> blockEntity = chunk.getBlockEntity(pos, blockEntityTypeHolder.value());
 				blockEntity.ifPresent(entity -> {

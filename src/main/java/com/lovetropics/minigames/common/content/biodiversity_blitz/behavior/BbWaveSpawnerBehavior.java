@@ -143,7 +143,7 @@ public final class BbWaveSpawnerBehavior implements IGameBehavior {
 			waveCharging.setVisible(false);
 
 			for (Plot plot : plots) {
-				PlayerSet players = teams.getPlayersForTeam(plot.team);
+				PlayerSet players = teams.getPlayersForTeam(game, plot.team);
 				spawnWave(world, random, players, plot, sentWaves);
 			}
 

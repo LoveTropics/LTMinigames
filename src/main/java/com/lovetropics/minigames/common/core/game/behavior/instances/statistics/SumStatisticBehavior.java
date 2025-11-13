@@ -41,7 +41,7 @@ public record SumStatisticBehavior(StatisticKey<Integer> statistic, boolean forT
 			events.listen(GamePhaseEvents.TICK, () -> {
 				for (GameTeam team : teams) {
 					int total = 0;
-					for (ServerPlayer player : teams.getPlayersForTeam(team.key())) {
+					for (ServerPlayer player : teams.getPlayersForTeam(game, team.key())) {
 						total += statistics.forPlayer(player).getInt(statistic);
 					}
 					statistics.forTeam(team.key()).set(statistic, total);

@@ -173,12 +173,12 @@ public class CraftingBeeBehavior implements IGameBehavior {
 					.toList();
 			tasks.putAll(team.key(), recipes);
 			sync(team.key());
-			distributeIngredients(recipes, teams.getPlayersForTeam(team.key()));
+			distributeIngredients(recipes, teams.getPlayersForTeam(game, team.key()));
 
 			List<TaskDisplay> taskDisplays = setupTaskDisplays(Objects.requireNonNull(teamRegions.get(team.key())), recipes);
 
 			GameBossBar timerBar = new GameBossBar(CommonComponents.EMPTY, BossEvent.BossBarColor.WHITE, BossEvent.BossBarOverlay.NOTCHED_10);
-			teams.getPlayersForTeam(team.key()).forEach(timerBar::addPlayer);
+			teams.getPlayersForTeam(game, team.key()).forEach(timerBar::addPlayer);
 
 			GameBossBar taskBar = new GameBossBar(team.config().styledName(), team.config().bossBarColor(), BossEvent.BossBarOverlay.PROGRESS);
 			taskBar.setProgress(0.0f);
@@ -328,7 +328,7 @@ public class CraftingBeeBehavior implements IGameBehavior {
 
 		setTeamTaskProgress(teamConfig, team, (int) completed, teamTasks.size(), teamTasks.indexOf(task));
 
-		PlayerSet teamPlayers = teams.getPlayersForTeam(team);
+		PlayerSet teamPlayers = teams.getPlayersForTeam(game, team);
 		teamPlayers.playSound(SoundEvents.FIREWORK_ROCKET_LAUNCH, SoundSource.PLAYERS, 1.0f, 1.0f);
 		game.spectators().playSound(SoundEvents.FIREWORK_ROCKET_LAUNCH, SoundSource.PLAYERS, 1.0f, 1.0f);
 
@@ -387,7 +387,7 @@ public class CraftingBeeBehavior implements IGameBehavior {
 
 					teamsWithoutTime.add(team);
 
-					PlayerSet playersInTeam = teams.getPlayersForTeam(team);
+					PlayerSet playersInTeam = teams.getPlayersForTeam(game, team);
 					playersInTeam.forEach(ServerPlayer::closeContainer);
 					playersInTeam.playSound(SoundEvents.END_PORTAL_SPAWN, SoundSource.PLAYERS, 0.5f, 0.25f);
 					playersInTeam.showTitle(CraftingBeeTexts.TIME_UP, null, 10, SharedConstants.TICKS_PER_SECOND * 2, 10);
@@ -459,11 +459,11 @@ public class CraftingBeeBehavior implements IGameBehavior {
 				.state().increaseRemaining(-penalty);
 
 		Component subtitle = CraftingBeeTexts.TIME_PENALTY.apply(Mth.positiveCeilDiv(penalty, SharedConstants.TICKS_PER_SECOND));
-		teams.getPlayersOnSameTeam(player).showTitle(null, subtitle, 10, 20, 10);
+		teams.getPlayersOnSameTeam(game, player).showTitle(null, subtitle, 10, 20, 10);
 	}
 
 	private void sync(GameTeamKey team) {
-		teams.getPlayersForTeam(team).forEach(this::sync);
+		teams.getPlayersForTeam(game, team).forEach(this::sync);
 	}
 
 	private void sync(Player player) {

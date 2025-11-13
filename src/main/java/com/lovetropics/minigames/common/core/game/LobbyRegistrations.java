@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.lovetropics.minigames.common.core.game.player.PlayerIterable;
 import com.lovetropics.minigames.common.core.game.player.PlayerRole;
 import com.lovetropics.minigames.common.core.game.player.PlayerSet;
+import com.lovetropics.minigames.common.core.game.state.statistics.PlayerKey;
 import com.lovetropics.minigames.common.core.game.util.TeamAllocator;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
@@ -31,13 +32,13 @@ public final class LobbyRegistrations implements PlayerSet {
 		forcedRoles.clear();
 	}
 
-	public TeamAllocator<PlayerRole, ServerPlayer> createAllocator() {
-		TeamAllocator<PlayerRole, ServerPlayer> allocator = new TeamAllocator<>(Lists.newArrayList(PlayerRole.ROLES));
+	public TeamAllocator<PlayerRole, PlayerKey> createAllocator() {
+		TeamAllocator<PlayerRole, PlayerKey> allocator = new TeamAllocator<>(Lists.newArrayList(PlayerRole.ROLES));
 		allocator.setOverflowTeam(PlayerRole.SPECTATOR);
 
 		for (ServerPlayer player : this) {
 			PlayerRole role = forcedRoles.get(player.getUUID());
-			allocator.addPlayer(player, role);
+			allocator.addPlayer(PlayerKey.from(player), role);
 		}
 
 		return allocator;

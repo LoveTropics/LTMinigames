@@ -166,7 +166,7 @@ public record SpeedCarbGolfBehaviour(Map<ResourceLocation, String> potentialHole
 												break;
 											}
 										}
-										teams.getPlayersForTeam(teamKey)
+										teams.getPlayersForTeam(game, teamKey)
 												.showTitle(SpeedCarbGolfTexts.ALL_HOLES_COMPLETE.withStyle(ChatFormatting.GREEN), null, 20, 40, 20);
 										if (areAllTeamsEmpty) {
 											game.scheduler().runAfterSeconds(2, () -> {
@@ -177,7 +177,7 @@ public record SpeedCarbGolfBehaviour(Map<ResourceLocation, String> potentialHole
 										}
 										return;
 									} else {
-										teams.getPlayersForTeam(teamKey)
+										teams.getPlayersForTeam(game, teamKey)
 												.showTitle(SpeedCarbGolfTexts.HOLE_COMPLETE.withStyle(ChatFormatting.GREEN), SpeedCarbGolfTexts.MOVE_ON.withStyle(ChatFormatting.BLUE), 20, 40, 20);
 									}
 									String nextHole = teamProgress.get(teamKey).getFirst();
@@ -188,7 +188,7 @@ public record SpeedCarbGolfBehaviour(Map<ResourceLocation, String> potentialHole
 										startHoleForPlayer(game, nextPlayerP, nextHole, level, startHole);
 										nextPlayerP.sendSystemMessage(SpeedCarbGolfTexts.YOUR_TURN.withStyle(ChatFormatting.GREEN));
 										MutableComponent component = SpeedCarbGolfTexts.PLAYERS_TURN.apply(nextPlayerP.getDisplayName()).withStyle(ChatFormatting.GREEN);
-										teams.getPlayersForTeam(teamKey).forEach(serverPlayer -> {
+										teams.getPlayersForTeam(game, teamKey).forEach(serverPlayer -> {
 											if (serverPlayer != nextPlayerP) {
 												serverPlayer.sendSystemMessage(component);
 											}
@@ -234,7 +234,7 @@ public record SpeedCarbGolfBehaviour(Map<ResourceLocation, String> potentialHole
 		events.listen(GameTeamEvents.TEAMS_ALLOCATED, () -> {
 			int x = 1;
 			for (GameTeam team : teams) {
-				PlayerSet playersForTeam = teams.getPlayersForTeam(team.key());
+				PlayerSet playersForTeam = teams.getPlayersForTeam(game, team.key());
 				Iterator<ServerPlayer> players = playersForTeam.iterator();
 				List<String> holes = new ArrayList<>();
 				for (int i = 0; i < pickedHoles.size(); i++) {
@@ -269,7 +269,7 @@ public record SpeedCarbGolfBehaviour(Map<ResourceLocation, String> potentialHole
 					startHoleForPlayer(game, serverPlayer, currentTeamHole, level, startHole);
 					serverPlayer.sendSystemMessage(SpeedCarbGolfTexts.YOUR_TURN.withStyle(ChatFormatting.GREEN));
 					MutableComponent component = SpeedCarbGolfTexts.PLAYERS_TURN.apply(serverPlayer.getDisplayName()).withStyle(ChatFormatting.GREEN);
-					teams.getPlayersForTeam(playerTeam).forEach(otherPlayer -> {
+					teams.getPlayersForTeam(game, playerTeam).forEach(otherPlayer -> {
 						if (otherPlayer.getUUID() != targetPlayer) {
 							otherPlayer.sendSystemMessage(component);
 						}

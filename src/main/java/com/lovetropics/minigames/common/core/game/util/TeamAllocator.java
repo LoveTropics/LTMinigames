@@ -49,6 +49,10 @@ public final class TeamAllocator<T, V> {
 		lockedTeams.add(team);
 	}
 
+	public Collection<V> getKnownPlayers() {
+		return Collections.unmodifiableCollection(players);
+	}
+
 	public void addPlayer(V player, @Nullable T preference) {
 		if (!players.contains(player)) {
 			players.add(player);

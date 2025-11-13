@@ -86,7 +86,7 @@ public final class ColumnsOfChaosBehavior implements IGameBehavior {
 		Map<GameTeamKey, CycledSpawner> teamSpawners = new HashMap<>();
 		events.listen(GameTeamEvents.TEAMS_ALLOCATED, () -> {
 			for (GameTeam team : teams) {
-				PlayerSet teamPlayers = teams.getPlayersForTeam(team.key());
+				PlayerSet teamPlayers = teams.getPlayersForTeam(game, team.key());
 				List<BlockBox> spawnRegions = new ArrayList<>();
 				for (int i = 1; i <= teamPlayers.size(); i++) {
 					String regionKey = team.key().id() + "_" + i;

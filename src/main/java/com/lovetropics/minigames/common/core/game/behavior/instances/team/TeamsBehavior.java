@@ -1,5 +1,8 @@
 package com.lovetropics.minigames.common.core.game.behavior.instances.team;
 
+import com.lovetropics.lib.permission.PermissionsApi;
+import com.lovetropics.lib.permission.role.Role;
+import com.lovetropics.lib.permission.role.RoleReader;
 import com.lovetropics.minigames.common.content.MinigameTexts;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
@@ -8,6 +11,7 @@ import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameTeamEvents;
 import com.lovetropics.minigames.common.core.game.player.PlayerRole;
+import com.lovetropics.minigames.common.core.game.state.statistics.PlayerKey;
 import com.lovetropics.minigames.common.core.game.state.statistics.StatisticKey;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeam;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeamKey;
@@ -29,6 +33,7 @@ import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Team;
 import org.apache.commons.lang3.RandomStringUtils;
 
+import java.util.List;
 import java.util.Map;
 
 public final class TeamsBehavior implements IGameBehavior {
@@ -58,8 +63,8 @@ public final class TeamsBehavior implements IGameBehavior {
 
 		addTeamsToScoreboard(game);
 
-		events.listen(GamePhaseEvents.CREATE, () -> {
-			teams.allocatePlayers(game.participants());
+		events.listen(GamePhaseEvents.CREATE, participants -> {
+			teams.allocatePlayers(participants);
 			game.invoker(GameTeamEvents.TEAMS_ALLOCATED).onTeamsAllocated();
 		});
 
@@ -74,7 +79,7 @@ public final class TeamsBehavior implements IGameBehavior {
 		});
 
 		events.listen(GamePhaseEvents.DESTROY, () -> onDestroy(game));
-		events.listen(GamePlayerEvents.ALLOCATE_ROLES, allocator -> reassignPlayerRoles(game, allocator));
+		events.listen(GamePlayerEvents.ALLOCATE_ROLES, this::reassignPlayerRoles);
 
 		events.listen(GamePlayerEvents.LEAVE, player -> removePlayerFromTeams(game, player));
 		events.listen(GamePlayerEvents.DAMAGE, this::onPlayerHurt);
@@ -116,11 +121,15 @@ public final class TeamsBehavior implements IGameBehavior {
 		}
 	}
 
-	private void reassignPlayerRoles(IGamePhase game, TeamAllocator<PlayerRole, ServerPlayer> allocator) {
-		// force all assigned players to be a participant
-		teams.getPlayersWithAssignments(game.allPlayers()).forEach(player ->
-				allocator.addPlayer(player, PlayerRole.PARTICIPANT)
-		);
+	private void reassignPlayerRoles(TeamAllocator<PlayerRole, PlayerKey> allocator) {
+		// All players that are assigned to a team should also be forced to be participating
+		List<Role> assignedRoles = teams.assignedRoles();
+		for (PlayerKey player : allocator.getKnownPlayers()) {
+			RoleReader roles = PermissionsApi.lookup().byPlayerId(player.id());
+			if (assignedRoles.stream().anyMatch(roles::has)) {
+				allocator.addPlayer(player, PlayerRole.PARTICIPANT);
+			}
+		}
 	}
 
 	private void onDestroy(IGamePhase game) {
@@ -146,7 +155,7 @@ public final class TeamsBehavior implements IGameBehavior {
 	}
 
 	private void removePlayerFromTeams(IGamePhase game, ServerPlayer player) {
-		final var teamKey = teams.removePlayer(player);
+		final var teamKey = teams.removePlayer(player.getUUID());
 		if (teamKey != null) {
 			game.invoker(GameTeamEvents.REMOVE_FROM_TEAM).onRemoveFromTeam(player, teams, teamKey);
 		}
