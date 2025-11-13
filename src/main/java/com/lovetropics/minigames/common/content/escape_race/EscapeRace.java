@@ -94,7 +94,7 @@ public class EscapeRace {
 
 	public static final RegistryEntry<EntityType<?>, EntityType<DDRMachineEntity>> DDR_MACHINE = REGISTRATE.entity("ddr_machine", DDRMachineEntity::new, MobCategory.MISC)
 			.properties(properties ->
-					properties.sized(2.0F, 3.0F)
+					properties.sized(3.0F, 3.0F)
 							.setShouldReceiveVelocityUpdates(true)
 							.clientTrackingRange(8)
 							.passengerAttachments(new Vec3(0.0f, 0.8f, 0.0f))

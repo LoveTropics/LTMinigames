@@ -50,7 +50,7 @@ public record WarehouseSetupBehaviour(
 							if (allInArea) {
 								int newTicks = roomState.unlockingTicks.getOrDefault(teamKey, 0)  + 1;
 								roomState.unlockingTicks.put(teamKey, newTicks);
-								if(newTicks == SharedConstants.TICKS_PER_SECOND * 5){
+								if(newTicks >= SharedConstants.TICKS_PER_SECOND * 5){
 									roomState.unlockingTicks.remove(teamKey);
 									roomState.setStatus(teamKey, RoomStatus.UNLOCKED);
 								}

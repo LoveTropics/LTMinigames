@@ -44,6 +44,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.LevelEvent;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
@@ -152,6 +153,12 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 	}
 
 	@Override
+	protected AABB makeBoundingBox(Vec3 position) {
+		return new AABB(position.x - 1.5f, position.y, position.z - 2f, position.x + 1.5f, position.y + 3f, position.z + 1.5f);
+//		return AABB.ofSize(position, 3f, 3f, 4f);
+	}
+
+	@Override
 	public boolean isPickable() {
 		return true;
 	}
@@ -180,8 +187,13 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 	}
 
 	public void setState(DDRMachineState state) {
-		getEntityData().set(DATA_STATE, state);
-		getEntityData().set(DATA_STATE_LAST_CHANGE_TICK, this.level().getGameTime());
+		if(getState() != state) {
+			DDRMachineState oldState = getState();
+			getEntityData().set(DATA_STATE, state);
+			if((oldState == DDRMachineState.BEDS && state != DDRMachineState.BEDS) || (oldState != DDRMachineState.BEDS && state == DDRMachineState.BEDS)) {
+				getEntityData().set(DATA_STATE_LAST_CHANGE_TICK, this.level().getGameTime());
+			}
+		}
 	}
 
 	public long getStateTime() {
@@ -440,5 +452,11 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 
 	public DdrPlayerPoseState getPoseState() {
 		return poseState;
+	}
+
+	@Override
+	public void onSyncedDataUpdated(EntityDataAccessor<?> key) {
+		super.onSyncedDataUpdated(key);
+
 	}
 }
