@@ -2,6 +2,8 @@ package com.lovetropics.minigames.common.core.game.behavior;
 
 import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.content.biodiversity_blitz.plot.Plot;
+import com.lovetropics.minigames.common.content.box_hunt.DisguiseAsPlayerBoxBehaviour;
+import com.lovetropics.minigames.common.content.box_hunt.UpdateWordBoxesInWorldBehaviour;
 import com.lovetropics.minigames.common.content.river_race.behaviour.KillInVoidBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.action.ApplyToBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.action.PlayerActionTarget;
@@ -127,6 +129,7 @@ import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.Pha
 import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.PlayerTickTrigger;
 import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.ScheduledActionsTrigger;
 import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.SetRoleTrigger;
+import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.SpawnTeamsTrigger;
 import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.SpawnTrigger;
 import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.TopPlayerTrigger;
 import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.WeatherChangeTrigger;
@@ -334,6 +337,10 @@ public class GameBehaviorTypes {
 	public static final GameBehaviorEntry<QuietExplosionsBehavior> QUIET_EXPLOSIONS = register("quiet_explosions", QuietExplosionsBehavior.CODEC);
 	public static final GameBehaviorEntry<LimitedTimeLootAction> LIMITED_TIME_LOOT = register("limited_time_loot", LimitedTimeLootAction.CODEC);
 	public static final GameBehaviorEntry<BlockBreakTrigger> BLOCK_BREAK = register("block_break", BlockBreakTrigger.CODEC);
+	public static final GameBehaviorEntry<SpawnTeamsTrigger> SPAWN_TEAMS_TRIGGER = register("on_spawn_teams", SpawnTeamsTrigger.CODEC);
+	public static final GameBehaviorEntry<DisguiseAsPlayerBoxBehaviour> DISGUISE_AS_PLAYER_BOX = register("disguise_as_player_box", DisguiseAsPlayerBoxBehaviour.CODEC);
+	public static final GameBehaviorEntry<UpdateWordBoxesInWorldBehaviour> UPDATE_WORD_BOXES_IN_WORLD = register("update_word_boxes_in_world", UpdateWordBoxesInWorldBehaviour.CODEC);
+
 
 	public static final GameBehaviorEntry<SetupIntegrationsBehavior> SETUP_INTEGRATIONS = register("setup_integrations", SetupIntegrationsBehavior.CODEC);
 	public static final GameBehaviorEntry<JoinLateWithRoleBehavior> JOIN_LATE_WITH_ROLE = register("join_late_with_role", JoinLateWithRoleBehavior.CODEC);

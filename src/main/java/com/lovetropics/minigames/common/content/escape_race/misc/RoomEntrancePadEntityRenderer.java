@@ -59,6 +59,11 @@ public class RoomEntrancePadEntityRenderer extends EntityRenderer<RoomEntrancePa
 		reusedState.roomStatus = entity.getRoomStatus();
 		reusedState.cost = entity.getCost();
 		reusedState.roomName = entity.getRoomName();
+		reusedState.color = switch(entity.getRoomStatus()){
+			case LOCKED -> 0xFFFF0000;
+			case UNLOCKED -> 0xFF0000FF;
+			case COMPLETED -> 0xFF00FF00;
+		};
 		itemModelResolver.updateForNonLiving(reusedState.breakBuck, breakBuck, ItemDisplayContext.FIXED, entity);
 	}
 

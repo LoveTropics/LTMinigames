@@ -41,7 +41,7 @@ public record WarehouseSetupBehaviour(
 		events.listen(GamePhaseEvents.CREATE, () -> this.onGameStarted(game, state));
 		events.listen(GamePhaseEvents.TICK, () -> {
 			for (String roomEntranceRegion : state.rooms.keySet()) {
-				RoomState roomState = state.rooms.get(roomEntranceRegion);
+					RoomState roomState = state.rooms.get(roomEntranceRegion);
 					BlockBox region = game.mapRegions().getOrThrow(roomEntranceRegion);
 					for (GameTeamKey teamKey : teams.getTeamKeys()) {
 						if(roomState.getStatus(teamKey) == RoomStatus.LOCKED) {
