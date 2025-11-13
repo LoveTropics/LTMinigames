@@ -49,6 +49,10 @@ public class DDRMachineEntityRenderer extends EntityRenderer<DDRMachineEntity, D
 		font = context.getFont();
 	}
 
+	public DDRMachineEntityModel getModel() {
+		return model;
+	}
+
 	@Override
 	public DDRMachineRenderState createRenderState() {
 		return new DDRMachineRenderState();
@@ -96,13 +100,14 @@ public class DDRMachineEntityRenderer extends EntityRenderer<DDRMachineEntity, D
 		poseStack.popPose();
 		poseStack.pushPose();
 //		poseStack.mulPose(Axis.YP.rotationDegrees(-90F));
-		poseStack.translate(0, 0.56, 0.8f);
-		if(renderState.ddrMachineState != DDRMachineEntity.DDRMachineState.BEDS) {
+		poseStack.translate(0, 1.11, -0.01f);
+		this.model.getScreen().translateAndRotate(poseStack);
+//		if(renderState.ddrMachineState != DDRMachineEntity.DDRMachineState.BEDS) {
 			poseStack.pushPose();
-			poseStack.scale(1.3f, 0.88f, 1.3f);
+			poseStack.scale(1.31f, 0.89f, 1.31f);
 			drawTexture(buffer, poseStack, DDRMachineSprites.bgSprite, packedLight);
 			poseStack.popPose();
-		}
+//		}
 		if(renderState.ddrMachineState == DDRMachineEntity.DDRMachineState.MENU) {
 			poseStack.pushPose();
 			poseStack.scale(0.5f, 0.2f, 0.5f);

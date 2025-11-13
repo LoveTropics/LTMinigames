@@ -23,6 +23,11 @@ public class DDRMachineEntityModel extends EntityModel<DDRMachineRenderState> {
 	private final ModelPart hologram2;
 	private final ModelPart decor;
 	private final ModelPart screen;
+	private final ModelPart buttons;
+	private final ModelPart up;
+	private final ModelPart right;
+	private final ModelPart left;
+	private final ModelPart down;
 	private final ModelPart bed_bottom1;
 	private final ModelPart bed_bottom2;
 	private final ModelPart bed_top1;
@@ -40,6 +45,11 @@ public class DDRMachineEntityModel extends EntityModel<DDRMachineRenderState> {
 		this.hologram2 = root.getChild("hologram2");
 		this.decor = root.getChild("decor");
 		this.screen = root.getChild("screen");
+		this.buttons = root.getChild("buttons");
+		this.up = this.buttons.getChild("up");
+		this.right = this.buttons.getChild("right");
+		this.left = this.buttons.getChild("left");
+		this.down = this.buttons.getChild("down");
 		this.bed_bottom1 = root.getChild("bed_bottom1");
 		this.bed_bottom2 = root.getChild("bed_bottom2");
 		this.bed_top1 = root.getChild("bed_top1");
@@ -73,8 +83,8 @@ public class DDRMachineEntityModel extends EntityModel<DDRMachineRenderState> {
 
 		PartDefinition hologram_r2 = hologram2.addOrReplaceChild("hologram_r2", CubeListBuilder.create().texOffs(110, 69).addBox(-23.0F, -11.0F, 0.0F, 46.0F, 14.0F, 0.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 3.8149F, 1.2028F, 0.3054F, 0.0F, 0.0F));
 
-		PartDefinition decor = partdefinition.addOrReplaceChild("decor", CubeListBuilder.create().texOffs(0, 108).addBox(-18.0F, -29.0F, -2.0F, 35.0F, 29.0F, 10.0F, new CubeDeformation(0.0F))
-				.texOffs(118, 87).addBox(-15.0F, -37.0F, -2.0F, 29.0F, 8.0F, 8.0F, new CubeDeformation(0.0F))
+		PartDefinition decor = partdefinition.addOrReplaceChild("decor", CubeListBuilder.create().texOffs(0, 108).addBox(-18.0F, -29.0F, -2.0F, 36.0F, 29.0F, 10.0F, new CubeDeformation(0.0F))
+				.texOffs(118, 87).addBox(-15.0F, -37.0F, -2.0F, 30.0F, 8.0F, 8.0F, new CubeDeformation(0.0F))
 				.texOffs(136, 155).addBox(-2.0F, -45.0F, 1.0F, 4.0F, 8.0F, 4.0F, new CubeDeformation(0.0F))
 				.texOffs(14, 165).addBox(20.0F, -56.0F, -7.0F, 2.0F, 7.0F, 2.0F, new CubeDeformation(0.0F))
 				.texOffs(164, 26).addBox(20.0F, -56.0F, -12.0F, 2.0F, 2.0F, 5.0F, new CubeDeformation(0.0F))
@@ -88,7 +98,17 @@ public class DDRMachineEntityModel extends EntityModel<DDRMachineRenderState> {
 				.texOffs(132, 155).addBox(21.0F, -14.0F, -0.6F, 1.0F, 28.0F, 1.0F, new CubeDeformation(0.0F))
 				.texOffs(128, 155).addBox(-22.0F, -14.0F, -0.6F, 1.0F, 28.0F, 1.0F, new CubeDeformation(0.0F))
 				.texOffs(118, 83).addBox(-22.0F, 14.0F, -0.6F, 44.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
-				.texOffs(90, 108).addBox(-21.0F, -14.0F, -0.1F, 42.0F, 28.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, -9.0F, 13.6F));
+				.texOffs(92, 108).addBox(-21.0F, -14.0F, -0.1F, 42.0F, 28.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, -9.0F, 13.6F));
+
+		PartDefinition buttons = partdefinition.addOrReplaceChild("buttons", CubeListBuilder.create(), PartPose.offset(0.0F, 24.0F, 6.0F));
+
+		PartDefinition up = buttons.addOrReplaceChild("up", CubeListBuilder.create().texOffs(2, 182).addBox(-7.0F, -1.0F, -10.0F, 8.0F, 2.0F, 8.0F, new CubeDeformation(0.0F)), PartPose.offset(3.0F, -3.0F, 5.0F));
+
+		PartDefinition right = buttons.addOrReplaceChild("right", CubeListBuilder.create().texOffs(2, 192).addBox(-6.0F, -1.0F, -8.0F, 8.0F, 2.0F, 8.0F, new CubeDeformation(0.0F)), PartPose.offset(11.0F, -3.0F, -6.0F));
+
+		PartDefinition left = buttons.addOrReplaceChild("left", CubeListBuilder.create().texOffs(2, 212).addBox(-7.0F, -1.0F, -8.0F, 8.0F, 2.0F, 8.0F, new CubeDeformation(0.0F)), PartPose.offset(-6.0F, -3.0F, -6.0F));
+
+		PartDefinition down = buttons.addOrReplaceChild("down", CubeListBuilder.create().texOffs(2, 202).addBox(-7.0F, -1.0F, -7.0F, 8.0F, 2.0F, 8.0F, new CubeDeformation(0.0F)), PartPose.offset(3.0F, -3.0F, -16.0F));
 
 		PartDefinition bed_bottom1 = partdefinition.addOrReplaceChild("bed_bottom1", CubeListBuilder.create().texOffs(90, 137).addBox(-8.0F, -1.0F, -8.0F, 16.0F, 2.0F, 16.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 13.0F, 23.0F));
 
@@ -107,7 +127,23 @@ public class DDRMachineEntityModel extends EntityModel<DDRMachineRenderState> {
 	@Override
 	public void setupAnim(DDRMachineRenderState renderState) {
 		super.setupAnim(renderState);
-		foldIntoBedAnim.apply(renderState.toBedState, renderState.ageInTicks, 0.5f);
-		bedToDDRAnim.apply(renderState.toDDRState, renderState.ageInTicks, 0.5f);
+		foldIntoBedAnim.apply(renderState.toBedState, renderState.ageInTicks, 1f);
+		bedToDDRAnim.apply(renderState.toDDRState, renderState.ageInTicks, 1f);
+		if(renderState.input.back()){
+			down.y += .5f;
+		}
+		if(renderState.input.left()){
+			left.y += .5f;
+		}
+		if(renderState.input.right()){
+			right.y += .5f;
+		}
+		if(renderState.input.forward()){
+			up.y += .5f;
+		}
+	}
+
+	public ModelPart getScreen() {
+		return screen;
 	}
 }

@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import net.minecraft.util.Mth;
 import net.minecraft.util.context.ContextKey;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Pose;
 
 public class DDRMachinePlayerHelper {
 
@@ -23,8 +24,13 @@ public class DDRMachinePlayerHelper {
 					poseState.forward(partialTicks),
 					poseState.back(partialTicks),
 					poseState.left(partialTicks),
-					poseState.right(partialTicks)
+					poseState.right(partialTicks),
+					ddrMachineEntity.getState() == DDRMachineEntity.DDRMachineState.BEDS
 			));
+			if(ddrMachineEntity.getState() == DDRMachineEntity.DDRMachineState.BEDS){
+				renderState.pose = Pose.SLEEPING;
+				renderState.bedOrientation = ddrMachineEntity.getDirection();
+			}
 		} else {
 			renderState.setRenderData(KEY_POSE, null);
 		}
@@ -42,6 +48,12 @@ public class DDRMachinePlayerHelper {
 		ModelPart root = humanoidModel.root();
 		ModelPart rightLeg = humanoidModel.rightLeg;
 		ModelPart leftLeg = humanoidModel.leftLeg;
+
+		if(pose.sleeping()){
+			root.z = -16;
+			root.y = -7;
+			return;
+		}
 
 		float forward = pose.forward();
 		float back = pose.back();
@@ -87,7 +99,8 @@ public class DDRMachinePlayerHelper {
 			float forward,
 			float back,
 			float left,
-			float right
+			float right,
+			boolean sleeping
 	) {
 	}
 }

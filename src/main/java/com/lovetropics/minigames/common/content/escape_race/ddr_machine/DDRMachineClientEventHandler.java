@@ -43,7 +43,7 @@ public class DDRMachineClientEventHandler {
 	public static void onCalculateCameraDistance(CalculateDetachedCameraDistanceEvent event) {
 		if(event.getCamera().getEntity() instanceof LocalPlayer localPlayer && localPlayer.getVehicle() != null && localPlayer.getVehicle() instanceof DDRMachineEntity ddrMachineEntity) {
 			if(ddrMachineEntity.getState() == DDRMachineEntity.DDRMachineState.PLAYING) {
-				event.setDistance(3f);
+				event.setDistance(4.5f);
 			}
 		}
 	}

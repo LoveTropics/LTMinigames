@@ -14,8 +14,12 @@ import com.mojang.math.Axis;
 import com.mojang.serialization.JsonOps;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.core.Holder;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -35,6 +39,7 @@ import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.PlayerRideable;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Input;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -180,9 +185,10 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 			player.startRiding(this);
 			return InteractionResult.SUCCESS;
 		} else if(!level().isClientSide && player.isShiftKeyDown()) {
-			if(state == DDRMachineState.MENU) {
+			ejectPassengers();
+			if(getState() == DDRMachineState.MENU) {
 				setState(DDRMachineState.BEDS);
-			} else if(state == DDRMachineState.BEDS) {
+			} else if(getState() == DDRMachineState.BEDS) {
 				setState(DDRMachineState.MENU);
 			}
 		}
@@ -229,11 +235,19 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 
 	@Override
 	protected boolean canAddPassenger(Entity passenger) {
-		return getPassengers().size() < MAX_PASSENGERS;
+		if(getState() == DDRMachineState.BEDS){
+			return getPassengers().size() < 2;
+		}
+		return getPassengers().isEmpty();
 	}
 
 	@Override
 	protected Vec3 getPassengerAttachmentPoint(Entity entity, EntityDimensions dimensions, float partialTick) {
+		if(getState() == DDRMachineState.BEDS){
+			if(this.getControllingPassenger() == entity) {
+				return new Vec3(0f, 0.6f, 0.35f);
+			}
+		}
 		return new Vec3(0f, 0.6f, 0.35f);
 //		return super.getPassengerAttachmentPoint(entity, dimensions, partialTick);
 	}
@@ -262,7 +276,9 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 		poseStack.translate(0, 1.5, 0);
 		poseStack.mulPose(Axis.YP.rotationDegrees(180f + this.getYRot()));
 //		poseStack.mulPose(Axis.YP.rotationDegrees(-90F));
-		poseStack.translate(0, 0.56, 0.8f);
+		poseStack.translate(0, 1.11, -0.01f);
+		EntityRenderer<? super DDRMachineEntity, ?> renderer = Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(this);
+		((DDRMachineEntityRenderer)renderer).getModel().getScreen().translateAndRotate(poseStack);
 		poseStack.translate(0.8f, -0.05, 0f);
 //		poseStack.scale(0.3f, 0.3f, 0.3f);
 		int lookingAtIndex = -1;
@@ -273,6 +289,7 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 			Vector3f vector3f = poseStack.last().pose().transformPosition(Vec3.ZERO.toVector3f(), new Vector3f());
 			poseStack.popPose();
 			Vec3 slotPosition = new Vec3(vector3f);
+			level().addParticle(ParticleTypes.FLAME, slotPosition.x(), slotPosition.y(), slotPosition.z(), 0,0,0);
 			AABB aabb = AABB.ofSize(slotPosition, 0.2, 0.2, 0.2);
 			Optional<Vec3> clip = aabb.clip(player.getEyePosition(), target);
 			if (clip.isPresent()) {
