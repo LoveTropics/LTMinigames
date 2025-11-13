@@ -5,7 +5,7 @@ import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.T
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.world.entity.AnimationState;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 public class DDRMachineRenderState extends EntityRenderState {
@@ -14,7 +14,7 @@ public class DDRMachineRenderState extends EntityRenderState {
 	public final AnimationState toBedState = new AnimationState();
 	public final AnimationState toDDRState = new AnimationState();
 
-	public final List<DDRMachineLevelClientRenderState> levels = new LinkedList<>();
+	public List<DDRMachineLevelClientRenderState> levels = new ArrayList<>();
 	public DDRMachineEntity.DDRMachineState ddrMachineState;
 
 	public DdrInput input = DdrInput.NONE;

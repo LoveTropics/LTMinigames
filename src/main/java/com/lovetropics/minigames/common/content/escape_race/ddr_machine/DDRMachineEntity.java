@@ -5,20 +5,16 @@ import com.lovetropics.minigames.common.content.escape_race.EscapeRace;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DDRMachineLevelState;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DdrLevel;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.TimedDdrInput;
-import com.lovetropics.minigames.common.content.escape_race.vending_machine.VendingMachineEntity;
-import com.lovetropics.minigames.common.core.network.ddr.ServerboundSelectDdrLevelPacket;
 import com.lovetropics.minigames.common.core.network.ddr.ClientboundSetCameraViewPacket;
+import com.lovetropics.minigames.common.core.network.ddr.ServerboundSelectDdrLevelPacket;
 import com.lovetropics.minigames.common.core.network.ddr.ServerboundUpdateDdrInputPacket;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
 import com.mojang.serialization.JsonOps;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.core.Holder;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -38,7 +34,6 @@ import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.PlayerRideable;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Input;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -48,35 +43,18 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.LevelEvent;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
-import org.joml.Vector3f;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.function.IntFunction;
-import java.util.stream.Collectors;
 
 public class DDRMachineEntity extends Entity implements PlayerRideable {
-	public static final List<VendingMachineEntity.VendingMachineSlot> SLOTS = List.of(
-			new VendingMachineEntity.VendingMachineSlot(0f, 0.5f, 0f),
-			new VendingMachineEntity.VendingMachineSlot(0.5f, 0.5f, 0.5f),
-			new VendingMachineEntity.VendingMachineSlot(1f, 0.5f, 0f),
-			new VendingMachineEntity.VendingMachineSlot(1.5f, 0.5f, 0f),
-			new VendingMachineEntity.VendingMachineSlot(0f, 0f, 0f),
-			new VendingMachineEntity.VendingMachineSlot(0.5f, 0f, 0f),
-			new VendingMachineEntity.VendingMachineSlot(1f, 0f, 0f),
-			new VendingMachineEntity.VendingMachineSlot(1.5f, 0f, 0f)
-	);
-
 	public enum DDRMachineState {
 		MENU(0),
 		PLAYING(1),
@@ -254,49 +232,27 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 	@Override
 	public boolean hurtClient(DamageSource damageSource) {
 		if (damageSource.getEntity() instanceof Player player) {
-			if (player.hasLineOfSight(this) && player.getLookAngle().dot(this.getLookAngle()) < 1) {
-				List<Holder<DdrLevel>> levels = getOrderedLevels();
-				int lookingAtIndex = calculatePlayerLookingAtSlot(player);
-				if (lookingAtIndex >= 0 && lookingAtIndex < levels.size()) {
-					ClientPacketDistributor.sendToServer(new ServerboundSelectDdrLevelPacket(this.getId(), levels.get(lookingAtIndex)));
-				}
-//				tryPurchase(player, entityData.get(DATA_SELECTED));
+			Holder<DdrLevel> pickedLevel = pickLevel(player);
+			if (pickedLevel != null) {
+				ClientPacketDistributor.sendToServer(new ServerboundSelectDdrLevelPacket(getId(), pickedLevel));
 			}
 		}
 		return super.hurtClient(damageSource);
 	}
 
-	public int calculatePlayerLookingAtSlot(Player player) {
-		Vec3 lookAngle = player.getLookAngle();
-		lookAngle = lookAngle.scale(5f);
-		Vec3 target = player.getEyePosition().add(lookAngle);
-		PoseStack poseStack = new PoseStack();
-		poseStack.translate(position().x, position().y, position().z);
-		poseStack.translate(0, 1.5, 0);
-		poseStack.mulPose(Axis.YP.rotationDegrees(180f + this.getYRot()));
-//		poseStack.mulPose(Axis.YP.rotationDegrees(-90F));
-		poseStack.translate(0, 1.11, -0.01f);
-		EntityRenderer<? super DDRMachineEntity, ?> renderer = Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(this);
-		((DDRMachineEntityRenderer)renderer).getModel().getScreen().translateAndRotate(poseStack);
-		poseStack.translate(0.8f, -0.05, 0f);
-//		poseStack.scale(0.3f, 0.3f, 0.3f);
-		int lookingAtIndex = -1;
-		for (int i = 0; i < SLOTS.size(); i++) {
-			poseStack.pushPose();
-			VendingMachineEntity.VendingMachineSlot slot = SLOTS.get(i);
-			poseStack.translate(slot.x(), slot.y(), slot.z());
-			Vector3f vector3f = poseStack.last().pose().transformPosition(Vec3.ZERO.toVector3f(), new Vector3f());
-			poseStack.popPose();
-			Vec3 slotPosition = new Vec3(vector3f);
-			level().addParticle(ParticleTypes.FLAME, slotPosition.x(), slotPosition.y(), slotPosition.z(), 0,0,0);
-			AABB aabb = AABB.ofSize(slotPosition, 0.2, 0.2, 0.2);
-			Optional<Vec3> clip = aabb.clip(player.getEyePosition(), target);
-			if (clip.isPresent()) {
-				lookingAtIndex = i;
-				break;
-			}
+	@Nullable
+	private Holder<DdrLevel> pickLevel(Player player) {
+		if (!(player instanceof LocalPlayer)) {
+			return null;
 		}
-		return lookingAtIndex;
+		Minecraft minecraft = Minecraft.getInstance();
+		EntityRenderDispatcher entityRenderDispatcher = minecraft.getEntityRenderDispatcher();
+		if (!(entityRenderDispatcher.getRenderer(this) instanceof DDRMachineEntityRenderer renderer)) {
+			return null;
+		}
+		DdrScreen screen = renderer.getScreen();
+		int index = screen.pickLevelIndex(minecraft.gameRenderer.getMainCamera(), position(), getYRot(), orderedLevels.size());
+		return index != DdrScreen.NO_LEVEL_PICKED ? orderedLevels.get(index) : null;
 	}
 
 	@Override
