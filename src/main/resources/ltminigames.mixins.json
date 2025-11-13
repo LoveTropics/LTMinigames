@@ -42,7 +42,8 @@
     "client.LivingEntityRendererMixin",
     "client.MinecraftMixin",
     "client.MouseHandlerMixin",
-    "client.PlayerTabOverlayGuiMixin"
+    "client.PlayerTabOverlayGuiMixin",
+    "client.LevelRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

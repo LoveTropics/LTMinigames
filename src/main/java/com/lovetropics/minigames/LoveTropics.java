@@ -66,6 +66,7 @@ import com.lovetropics.minigames.common.core.command.game.JoinGameCommand;
 import com.lovetropics.minigames.common.core.command.game.LeaveGameCommand;
 import com.lovetropics.minigames.common.core.command.game.ManageGameLobbyCommand;
 import com.lovetropics.minigames.common.core.command.game.StartGameCommand;
+import com.lovetropics.minigames.common.core.data.LoveTropicsAttachments;
 import com.lovetropics.minigames.common.core.dimension.RuntimeDimensions;
 import com.lovetropics.minigames.common.core.entity.MinigameEntities;
 import com.lovetropics.minigames.common.core.extension.LimitedSpawnerAttachment;
@@ -217,6 +218,7 @@ public class LoveTropics {
 		ChatChannelStore.ATTACHMENT_TYPES.register(modBus);
 		RiderBehavior.ATTACHMENT_TYPES.register(modBus);
 		LimitedSpawnerAttachment.ATTACHMENT_TYPES.register(modBus);
+		LoveTropicsAttachments.ATTACHMENT_TYPES.register(modBus);
 		SoundRegistry.REGISTER.register(modBus);
 		MinigameDataComponents.REGISTER.register(modBus);
 		BiodiversityBlitz.DATA_COMPONENTS.register(modBus);

@@ -1,6 +1,7 @@
 package com.lovetropics.minigames.mixin.client;
 
 import com.lovetropics.minigames.client.game.ClientGameStateManager;
+import com.lovetropics.minigames.common.core.data.LoveTropicsAttachments;
 import com.lovetropics.minigames.common.core.game.client_state.GameClientStateTypes;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -28,6 +29,9 @@ public class MinecraftMixin {
 			if (team != null && (team.teamMembers().contains(entity.getUUID()) || player == entity)) {
 				cir.setReturnValue(true);
 			}
+		}
+		if (entity.hasData(LoveTropicsAttachments.HIGHLIGHT_COLOR)) {
+			cir.setReturnValue(true);
 		}
 	}
 }
