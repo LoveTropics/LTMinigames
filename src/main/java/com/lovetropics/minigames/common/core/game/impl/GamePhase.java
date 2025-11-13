@@ -43,10 +43,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.ProblemReporter;
 import net.minecraft.util.Unit;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.storage.TagValueOutput;
 import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
@@ -59,6 +57,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -131,7 +130,7 @@ public class GamePhase implements IGamePhase {
 		return GameResult.handleException("Unknown exception starting game phase", future);
 	}
 
-	GameResult<Unit> start(final boolean savePlayerDataToMemory) {
+	GameResult<Unit> start() {
 		try {
 			behaviors.registerTo(this, events);
 		} catch (GameException e) {
@@ -156,7 +155,7 @@ public class GamePhase implements IGamePhase {
 			Collections.shuffle(shuffledPlayers);
 
 			for (ServerPlayer player : shuffledPlayers) {
-				addAndSpawnPlayer(player, getRoleFor(player), savePlayerDataToMemory);
+				addAndSpawnPlayer(player, getRoleFor(player));
 			}
 
 			invoker(GamePhaseEvents.START).start(game.lobby.getMetadata().initiator());
@@ -175,32 +174,36 @@ public class GamePhase implements IGamePhase {
 		return commands;
 	}
 
-	protected ServerPlayer addAndSpawnPlayer(ServerPlayer player, @Nullable PlayerRole role, final boolean savePlayerDataToMemory) {
+	private ServerPlayer addAndSpawnPlayer(ServerPlayer player, @Nullable PlayerRole role) {
 		ResourceLocation introSlideshow = definition().introSlideshow();
 		if (phaseType == GamePhaseType.WAITING && introSlideshow != null) {
 			SlideshowApi.preload(player, introSlideshow);
 		}
 
-		SpawnBuilder spawn = new SpawnBuilder(player);
-		invoker(GamePlayerEvents.SPAWN).onSpawn(player.getUUID(), spawn, role);
+		ServerPlayer newPlayer;
+		Consumer<ServerPlayer> initializer;
 
-		ServerPlayer newPlayer = PlayerIsolation.INSTANCE.teleportTo(player, spawn.level(), spawn.position(), spawn.yRot(), spawn.xRot(), spawn::loadInto);
+		CompoundTag playerTag = invoker(GamePlayerEvents.LOAD).tryLoad(PlayerKey.from(player), role);
+		if (playerTag != null) {
+			newPlayer = PlayerIsolation.INSTANCE.reloadPlayerFromTag(playerTag, player);
+			initializer = p -> {};
+		} else {
+			SpawnBuilder spawn = new SpawnBuilder(player);
+			try {
+				invoker(GamePlayerEvents.SPAWN).onSpawn(player.getUUID(), spawn, role);
+			} catch (Exception e) {
+				LoveTropics.LOGGER.error("Failed to dispatch player spawn event", e);
+			}
+			newPlayer = PlayerIsolation.INSTANCE.teleportTo(player, spawn.level(), spawn.position(), spawn.yRot(), spawn.xRot());
+			initializer = spawn::applyInitializers;
+		}
+
 		invoker(GamePlayerEvents.ADD).onAdd(newPlayer);
-		spawn.applyInitializers(newPlayer);
+		initializer.accept(newPlayer);
 
 		invoker(GamePlayerEvents.SET_ROLE).onSetRole(newPlayer, role, null);
 
 		addedPlayers.add(player.getUUID());
-
-		if (savePlayerDataToMemory) {
-			CompoundTag tag;
-			try (ProblemReporter.ScopedCollector reporter = new ProblemReporter.ScopedCollector(player.problemPath(), LOGGER)) {
-				TagValueOutput output = TagValueOutput.createWithContext(reporter, player.registryAccess());
-				player.saveWithoutId(output);
-				tag = output.buildResult();
-			}
-			game.playerStorage.setPlayerData(player, tag);
-		}
 
 		return newPlayer;
 	}
@@ -210,7 +213,7 @@ public class GamePhase implements IGamePhase {
 		if (subPhase != null) {
 			if (subPhase.tick() != null) {
 				GamePhase lastPhase = subPhase;
-				startNextQueuedMicrogame(false).whenComplete((newGame, throwable) -> {
+				startNextQueuedMicrogame().whenComplete((newGame, throwable) -> {
 					if (throwable != null || !newGame) {
 						returnHere(lastPhase);
 					}
@@ -330,7 +333,7 @@ public class GamePhase implements IGamePhase {
 		}
 	}
 
-	ServerPlayer onPlayerJoin(ServerPlayer player, boolean savePlayerDataToMemory) {
+	ServerPlayer onPlayerJoin(ServerPlayer player) {
 		try {
 			// Bit of a hack - might already have been assigned a role from the top-level game
 			PlayerRole role = getRoleFor(player);
@@ -340,14 +343,14 @@ public class GamePhase implements IGamePhase {
 				role = invoker(GamePlayerEvents.SELECT_ROLE_ON_JOIN).selectRole(PlayerKey.from(player), selectedRole);
 				setPlayerRole(player, role);
 			}
-			ServerPlayer newPlayer = addAndSpawnPlayer(player, role, savePlayerDataToMemory);
+			ServerPlayer newPlayer = addAndSpawnPlayer(player, role);
 			invoker(GamePlayerEvents.JOIN).onAdd(newPlayer);
 
 			if (subPhase != null) {
 				// Let the top-level game decide how the player can join, and then just pass them along
 				subPhase.assignRolesFrom(this);
 				movePlayerToSubPhase(player);
-				return subPhase.onPlayerJoin(newPlayer, true);
+				return subPhase.onPlayerJoin(newPlayer);
 			}
 
 			return newPlayer;
@@ -503,7 +506,7 @@ public class GamePhase implements IGamePhase {
 		return Objects.requireNonNullElse(subPhase, this);
 	}
 
-	public void startSubPhase(GamePhase subPhase, final boolean saveInventory) {
+	public void startSubPhase(GamePhase subPhase) {
 		this.subPhase = subPhase;
 		GameManager.INSTANCE.addGamePhaseToDimension(subPhase.dimension(), subPhase);
 		subPhase.assignRolesFrom(this);
@@ -516,12 +519,13 @@ public class GamePhase implements IGamePhase {
 		subPhase.events.listen(GamePhaseEvents.CREATE, participants ->
 				invoker(SubGameEvents.CREATE).onCreateSubGame(subPhase, subPhase.events)
 		);
-		subPhase.start(saveInventory);
+		subPhase.start();
 	}
 
 	private void movePlayerToSubPhase(ServerPlayer player) {
-		invoker(GamePlayerEvents.REMOVE).onRemove(player);
-		addedPlayers.remove(player.getUUID());
+		if (addedPlayers.remove(player.getUUID())) {
+			invoker(GamePlayerEvents.REMOVE).onRemove(player);
+		}
 	}
 
 	private void returnHere(GamePhase fromSubPhase) {
@@ -535,17 +539,7 @@ public class GamePhase implements IGamePhase {
 
 	private ServerPlayer returnPlayerToParentPhase(GamePhase fromSubPhase, ServerPlayer player) {
 		fromSubPhase.removePlayer(player);
-		addedPlayers.add(player.getUUID());
-
-		PlayerRole role = getRoleFor(player);
-		invoker(GamePlayerEvents.RETURN).onReturn(player.getUUID(), role);
-
-		ServerPlayer newPlayer = PlayerIsolation.INSTANCE.reloadPlayerFromMemory(game, player);
-
-		invoker(GamePlayerEvents.ADD).onAdd(newPlayer);
-		invoker(GamePlayerEvents.SET_ROLE).onSetRole(newPlayer, role, null);
-
-		return newPlayer;
+		return addAndSpawnPlayer(player, getRoleFor(player));
 	}
 
 	private void destroySubGame() {
@@ -564,7 +558,7 @@ public class GamePhase implements IGamePhase {
 		subPhaseQueue.addAll(games);
 	}
 
-	public CompletableFuture<Boolean> startNextQueuedMicrogame(final boolean saveInventory) {
+	public CompletableFuture<Boolean> startNextQueuedMicrogame() {
 		destroySubGame();
 		// No queued games left
 		if (subPhaseQueue.isEmpty()) {
@@ -573,7 +567,7 @@ public class GamePhase implements IGamePhase {
 		final GameConfig nextGame = subPhaseQueue.remove();
 		return GamePhase.create(game, nextGame, nextGame.getPlayingPhase(), GamePhaseType.PLAYING).thenApply(result -> {
 			if (result.isOk()) {
-				startSubPhase(result.getOk(), saveInventory);
+				startSubPhase(result.getOk());
 				invoker(RiverRaceEvents.MICROGAME_STARTED).onMicrogameStarted(this);
 				game.allPlayers().sendMessage(Component.literal("Now Playing: ").append(nextGame.name()).withStyle(ChatFormatting.GREEN));
 				game.allPlayers().showTitle(Component.empty().append(nextGame.name()).withStyle(ChatFormatting.GREEN),

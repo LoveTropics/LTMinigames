@@ -5,6 +5,7 @@ import com.lovetropics.minigames.common.core.game.player.PlayerRole;
 import com.lovetropics.minigames.common.core.game.state.statistics.PlayerKey;
 import com.lovetropics.minigames.common.core.game.util.TeamAllocator;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.PlayerChatMessage;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -57,9 +58,9 @@ public final class GamePlayerEvents {
 		}
 	});
 
-	public static final GameEventType<SelectRole> SELECT_ROLE_ON_JOIN = GameEventType.create(SelectRole.class, listeners -> (player, selectedRole) -> {
+	public static final GameEventType<SelectRole> SELECT_ROLE_ON_JOIN = GameEventType.create(SelectRole.class, listeners -> (player, requestedRole) -> {
 		for (SelectRole listener : listeners) {
-			PlayerRole role = listener.selectRole(player, selectedRole);
+			PlayerRole role = listener.selectRole(player, requestedRole);
 			if (role != null) {
 				return role;
 			}
@@ -71,6 +72,16 @@ public final class GamePlayerEvents {
 		for (Spawn listener : listeners) {
 			listener.onSpawn(playerId, spawn, role);
 		}
+	});
+
+	public static final GameEventType<Load> LOAD = GameEventType.create(Load.class, listeners -> (player, role) -> {
+		for (Load listener : listeners) {
+			CompoundTag tag = listener.tryLoad(player, role);
+			if (tag != null) {
+				return tag;
+			}
+		}
+		return null;
 	});
 
 	public static final GameEventType<Tick> TICK = GameEventType.create(Tick.class, listeners -> (player) -> {
@@ -223,12 +234,6 @@ public final class GamePlayerEvents {
 		return false;
 	});
 
-	public static final GameEventType<Return> RETURN = GameEventType.create(Return.class, listeners -> (playerId, role) -> {
-		for (Return listener : listeners) {
-			listener.onReturn(playerId, role);
-		}
-	});
-
 	public static final GameEventType<Craft> CRAFT = GameEventType.create(Craft.class, listeners -> (player, item, container) -> {
 		for (Craft listener : listeners) {
 			listener.onCraft(player, item, container);
@@ -265,11 +270,16 @@ public final class GamePlayerEvents {
 
 	public interface SelectRole {
 		@Nullable
-		PlayerRole selectRole(PlayerKey player, @Nullable PlayerRole selectedRole);
+		PlayerRole selectRole(PlayerKey player, @Nullable PlayerRole requestedRole);
 	}
 
 	public interface Spawn {
 		void onSpawn(UUID playerId, SpawnBuilder spawn, @Nullable PlayerRole role);
+	}
+
+	public interface Load {
+		@Nullable
+		CompoundTag tryLoad(PlayerKey player, @Nullable PlayerRole role);
 	}
 
 	public interface Tick {
@@ -334,10 +344,6 @@ public final class GamePlayerEvents {
 
 	public interface Chat {
 		boolean onChat(ServerPlayer player, PlayerChatMessage message);
-	}
-
-	public interface Return {
-		void onReturn(UUID playerId, @Nullable PlayerRole role);
 	}
 
 	public interface Craft {

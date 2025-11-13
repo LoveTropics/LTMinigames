@@ -198,7 +198,7 @@ public final class GameLobby {
 	}
 
 	private GameResult<Unit> startPhase(GamePhase phase) {
-		return phase.start(false);
+		return phase.start();
 	}
 
 	private void onGameInstanceChange(@Nullable GameInstance oldGame, @Nullable GameInstance newGame) {
@@ -243,7 +243,7 @@ public final class GameLobby {
 
 		GamePhase phase = state.getTopPhase();
 		if (phase != null) {
-			phase.onPlayerJoin(player, false);
+			phase.onPlayerJoin(player);
 		}
 
 		management.onPlayersChanged();

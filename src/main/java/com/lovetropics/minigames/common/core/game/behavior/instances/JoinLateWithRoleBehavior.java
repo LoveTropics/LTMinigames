@@ -9,14 +9,10 @@ import com.lovetropics.minigames.common.core.game.player.PlayerStorage;
 import com.lovetropics.minigames.common.core.game.state.statistics.PlayerKey;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeamKey;
 import com.lovetropics.minigames.common.core.game.state.team.TeamState;
-import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import net.minecraft.util.ProblemReporter;
-import net.minecraft.world.level.storage.TagValueOutput;
-import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
 import java.util.Map;
@@ -26,8 +22,6 @@ public record JoinLateWithRoleBehavior(PlayerRole role, boolean allowRejoin) imp
 			PlayerRole.CODEC.fieldOf("role").forGetter(c -> c.role),
 			Codec.BOOL.optionalFieldOf("allow_rejoin", false).forGetter(c -> c.allowRejoin)
 	).apply(i, JoinLateWithRoleBehavior::new));
-
-	private static final Logger LOGGER = LogUtils.getLogger();
 
 	@Override
 	public void register(final IGamePhase game, final EventRegistrar events) {
@@ -64,20 +58,17 @@ public record JoinLateWithRoleBehavior(PlayerRole role, boolean allowRejoin) imp
 
 			// TODO: We would ideally have much more clearly defined flow for a player that rejoins - e.g. a game with death should have the player effectively die
 			final PlayerStorage playerStorage = new PlayerStorage();
-			events.listen(GamePlayerEvents.LEAVE, player -> {
+			events.listen(GamePlayerEvents.REMOVE, player -> {
 				if (game.getRoleFor(player) == PlayerRole.PARTICIPANT) {
-					try (ProblemReporter.ScopedCollector reporter = new ProblemReporter.ScopedCollector(player.problemPath(), LOGGER)) {
-						TagValueOutput output = TagValueOutput.createWithContext(reporter, player.registryAccess());
-						player.saveWithoutId(output);
-						playerStorage.setPlayerData(player, output.buildResult());
-					}
+					playerStorage.store(player);
 				}
 			});
 
-			events.listen(GamePlayerEvents.SPAWN, (playerId, spawn, role) -> {
+			events.listen(GamePlayerEvents.LOAD, (player, role) -> {
 				if (role == PlayerRole.PARTICIPANT) {
-					playerStorage.fetchAndRemovePlayerData(playerId).ifPresent(spawn::loadFromTag);
+					return playerStorage.takePlayerData(player.id()).orElse(null);
 				}
+				return null;
 			});
 		}
 	}

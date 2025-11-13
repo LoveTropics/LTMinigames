@@ -2,10 +2,10 @@ package com.lovetropics.minigames.common.core.game;
 
 import com.lovetropics.lib.slideshow.SlideshowApi;
 import com.lovetropics.minigames.LoveTropics;
-import com.lovetropics.minigames.common.core.game.impl.GameInstance;
 import com.lovetropics.minigames.common.util.LTGameTestFakePlayer;
 import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundChangeDifficultyPacket;
 import net.minecraft.network.protocol.game.ClientboundGameEventPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
@@ -55,12 +55,10 @@ public final class PlayerIsolation {
 	 * Player going into a GamePhase
 	 * Saves player data and then teleports them
 	 */
-	public ServerPlayer teleportTo(final ServerPlayer player, final ServerLevel newLevel, final Vec3 position, final float yRot, final float xRot, final Consumer<ServerPlayer> load) {
+	public ServerPlayer teleportTo(final ServerPlayer player, final ServerLevel newLevel, final Vec3 position, final float yRot, final float xRot) {
 		final TransferableState transferableState = TransferableState.copyOf(player);
 		return reloadPlayer(player, (newPlayer, reporter) -> {
-			((PlayerListAccess) newPlayer.getServer().getPlayerList()).ltminigames$firePlayerLoading(newPlayer);
 			newPlayer.setServerLevel(newLevel);
-			load.accept(newPlayer);
 			newPlayer.snapTo(position.x, position.y, position.z, yRot, xRot);
 			newPlayer.addTag(ISOLATED_TAG);
 			transferableState.restore(newPlayer);
@@ -95,25 +93,20 @@ public final class PlayerIsolation {
 		});
 	}
 
-	public ServerPlayer reloadPlayerFromMemory(final GameInstance game, final ServerPlayer player) {
+	public ServerPlayer reloadPlayerFromTag(final CompoundTag tag, final ServerPlayer player) {
 		return reloadPlayer(player, (newPlayer, reporter) -> {
-			final Optional<ValueInput> playerTag = game.getPlayerStorage().fetchAndRemovePlayerData(player.getUUID())
-					.map(tag -> TagValueInput.create(reporter, player.level().registryAccess(), tag));
+			final ValueInput input = TagValueInput.create(reporter, player.level().registryAccess(), tag);
 
 			final MinecraftServer server = player.getServer();
-			final ServerLevel newLevel = playerTag
-					.flatMap(input -> input.read("Dimension", Level.RESOURCE_KEY_CODEC))
+			final ServerLevel newLevel = input.read("Dimension", Level.RESOURCE_KEY_CODEC)
 					.map(server::getLevel)
 					.orElse(server.overworld());
 
 			newPlayer.setServerLevel(newLevel);
 
-			if (playerTag.isPresent()) {
-				final ValueInput playerData = playerTag.get();
-				newPlayer.load(playerData);
-				newPlayer.loadGameTypes(playerData);
-				newPlayer.addTag(ISOLATED_TAG);
-			}
+			newPlayer.load(input);
+			newPlayer.loadGameTypes(input);
+			newPlayer.addTag(ISOLATED_TAG);
 		});
 	}
 
@@ -145,6 +138,7 @@ public final class PlayerIsolation {
 			oldPlayer.unRide();
 			oldPlayer.level().removePlayerImmediately(oldPlayer, Entity.RemovalReason.DISCARDED);
 			((PlayerListAccess) playerList).ltminigames$remove(oldPlayer);
+			((PlayerListAccess) playerList).ltminigames$firePlayerLoading(newPlayer);
 
 			initializer.accept(newPlayer, reporter);
 			newPlayer.onUpdateAbilities();

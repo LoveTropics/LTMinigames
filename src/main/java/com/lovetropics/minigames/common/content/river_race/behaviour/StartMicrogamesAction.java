@@ -78,7 +78,7 @@ public record StartMicrogamesAction(
 	public void startQueuedMicrogame(final IGamePhase game) {
 		// TODO: Don't do that!
 		if (game.getTopPhase() instanceof GamePhase multiGamePhase) {
-			multiGamePhase.startNextQueuedMicrogame(true);
+			multiGamePhase.startNextQueuedMicrogame();
 		}
 	}
 }
