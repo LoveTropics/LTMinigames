@@ -31,10 +31,7 @@ public class DisguiseAsPlayerBoxBehaviour implements IGameBehavior {
 			CompoundTag blockState = new CompoundTag();
 			blockState.putString("Name", "ltextras:word_box");
 			CompoundTag components = new CompoundTag();
-			Component name = player.getTabListDisplayName();
-			if(name == null){
-				name = player.getName();
-			}
+			Component name = player.getName();
 			components.put("minecraft:custom_name", ComponentSerialization.CODEC.encodeStart(NbtOps.INSTANCE, name).getOrThrow());
 			entityData.put("BlockState", blockState);
 			CompoundTag tileData = new CompoundTag();

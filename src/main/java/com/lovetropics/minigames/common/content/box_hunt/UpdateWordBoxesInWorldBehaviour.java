@@ -47,10 +47,7 @@ public record UpdateWordBoxesInWorldBehaviour(
 					Component name;
 					if(!hiders.isEmpty()){
 						ServerPlayer selectedPlayer = Util.getRandom(Lists.newArrayList(hiders), game.random());
-						name = selectedPlayer.getTabListDisplayName();
-						if(name == null){
-							name = selectedPlayer.getName();
-						}
+						name = selectedPlayer.getName();
 					} else {
 						name = Component.literal("BOX");
 					}
