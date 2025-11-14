@@ -9,7 +9,6 @@ import com.lovetropics.minigames.common.core.game.state.GameStateMap;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeam;
 import com.lovetropics.minigames.common.core.game.state.team.TeamState;
 import com.lovetropics.minigames.common.core.game.util.SelectorItems;
-import com.lovetropics.minigames.common.util.Scheduler;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.ChatFormatting;
@@ -41,8 +40,6 @@ public final class SetupTeamsBehavior implements IGameBehavior {
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
-		events.listen(GamePlayerEvents.ADD, this::onPlayerWaiting);
-
 		SelectorItems.Handlers<GameTeam> handlers = new SelectorItems.Handlers<>() {
 			@Override
 			public void onPlayerSelected(ServerPlayer player, GameTeam team) {
@@ -84,6 +81,10 @@ public final class SetupTeamsBehavior implements IGameBehavior {
 
 		selectors = new SelectorItems<>(handlers, teams.toArray(new GameTeam[0]));
 		selectors.applyTo(events);
+
+		events.listen(GamePlayerEvents.SPAWN, (playerId, spawn, role) ->
+				spawn.run(this::onPlayerWaiting)
+		);
 	}
 
 	private void onPlayerWaiting(ServerPlayer player) {
@@ -91,10 +92,7 @@ public final class SetupTeamsBehavior implements IGameBehavior {
 			for (Component message : MinigameTexts.TEAMS_INTRO) {
 				player.displayClientMessage(message, false);
 			}
-
-			Scheduler.nextTick().run(server -> {
-				selectors.giveSelectorsTo(player);
-			});
+			selectors.giveSelectorsTo(player);
 		}
 	}
 
