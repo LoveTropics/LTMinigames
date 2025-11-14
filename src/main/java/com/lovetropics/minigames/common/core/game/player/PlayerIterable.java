@@ -29,7 +29,12 @@ import java.util.UUID;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+@FunctionalInterface
 public interface PlayerIterable extends PlayerOps, Iterable<ServerPlayer> {
+	static PlayerIterable from(Iterable<ServerPlayer> players) {
+		return players::iterator;
+	}
+
 	default PlayerIterable filter(Predicate<? super ServerPlayer> predicate) {
 		return () -> Iterators.filter(iterator(), predicate);
 	}

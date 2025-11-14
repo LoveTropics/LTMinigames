@@ -10,10 +10,14 @@ import com.lovetropics.minigames.common.core.game.state.statistics.PlayerKey;
 import com.lovetropics.minigames.common.core.game.util.GameTexts;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.EntityTravelToDimensionEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
@@ -193,5 +197,53 @@ public class GameLobbyManager {
 	public Stream<? extends GameLobby> getVisibleLobbies(CommandSourceStack source) {
 		return getAllLobbies().stream()
 				.filter(lobby -> lobby.isVisibleTo(source));
+	}
+
+	@SubscribeEvent
+	public static void onPlayerTryChangeDimension(EntityTravelToDimensionEvent event) {
+		if (!(event.getEntity() instanceof ServerPlayer player)) {
+			return;
+		}
+
+		ServerLevel targetLevel = player.level().getServer().getLevel(event.getDimension());
+		if (targetLevel == null) {
+			return;
+		}
+
+		GamePhase playerPhase = GamePhaseManager.get().getGamePhaseFor(player);
+		GamePhase targetPhase = GamePhaseManager.get().getGamePhaseAt(targetLevel, player.position());
+		if (!canTravelBetweenPhases(playerPhase, targetPhase)) {
+			player.displayClientMessage(GameTexts.Commands.cannotTeleportIntoGame(), true);
+
+			event.setCanceled(true);
+		}
+	}
+
+	private static boolean canTravelBetweenPhases(@Nullable GamePhase from, @Nullable GamePhase to) {
+		if (to == null) {
+			return true;
+		} else if (from == null) {
+			return false;
+		}
+		return from.game.lobby == to.game.lobby;
+	}
+
+	@SubscribeEvent
+	public static void onPlayerChangedDimension(PlayerEvent.PlayerChangedDimensionEvent event) {
+		if (!(event.getEntity() instanceof ServerPlayer player)) {
+			return;
+		}
+
+		GamePhase phase = GamePhaseManager.get().getGamePhaseFor(player);
+		if (phase == null) {
+			return;
+		}
+
+		ResourceKey<Level> dimension = phase.dimension();
+		if (event.getFrom() == dimension && event.getTo() != dimension) {
+			if (phase.game.lobby.getPlayers().remove(player, false)) {
+				player.displayClientMessage(GameTexts.Status.leftGameDimension(), false);
+			}
+		}
 	}
 }

@@ -31,9 +31,8 @@ public final class ClientCurrentGame {
 		return new ClientCurrentGame(definition, phaseType, Optional.empty());
 	}
 
-	public static ClientCurrentGame create(GamePhase phase) {
+	public static ClientCurrentGame create(GamePhase phase, GamePhaseType phaseType) {
 		ClientGameDefinition definition = ClientGameDefinition.from(phase.definition());
-		GamePhaseType phaseType = phase.phaseType();
 		return ClientCurrentGame.create(definition, phaseType);
 	}
 

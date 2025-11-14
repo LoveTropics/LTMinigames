@@ -1,0 +1,26 @@
+{
+  "backend_id": "lttest:action_trigger_test/stop",
+  "behaviors": [
+    {
+      "type": "ltminigames:phase_triggers/stop",
+      "actions": {
+        "actions": {
+          "type": "ltminigames:apply_to_player",
+          "actions": {
+            "actions": {
+              "type": "ltminigames:run_commands",
+              "player": "give @s minecraft:oak_planks 13"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "map": {
+    "type": "ltminigames:inline",
+    "dimension": "minecraft:overworld"
+  },
+  "maximum_participants": 50,
+  "name": "lttest:action_trigger_test/stop",
+  "statistics_key": "action_trigger_test/stop"
+}

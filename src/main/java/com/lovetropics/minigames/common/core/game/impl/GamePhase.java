@@ -1,14 +1,11 @@
 package com.lovetropics.minigames.common.core.game.impl;
 
+import com.google.common.collect.Lists;
 import com.lovetropics.lib.slideshow.SlideshowApi;
-import com.lovetropics.minigames.LoveTropics;
-import com.lovetropics.minigames.common.core.game.GameException;
-import com.lovetropics.minigames.common.core.game.GamePhaseType;
 import com.lovetropics.minigames.common.core.game.GameResult;
 import com.lovetropics.minigames.common.core.game.GameStopReason;
 import com.lovetropics.minigames.common.core.game.IGameDefinition;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
-import com.lovetropics.minigames.common.core.game.IGamePhaseDefinition;
 import com.lovetropics.minigames.common.core.game.PlayerIsolation;
 import com.lovetropics.minigames.common.core.game.SpawnBuilder;
 import com.lovetropics.minigames.common.core.game.behavior.BehaviorList;
@@ -20,6 +17,7 @@ import com.lovetropics.minigames.common.core.game.behavior.event.SubGameEvents;
 import com.lovetropics.minigames.common.core.game.config.GameConfig;
 import com.lovetropics.minigames.common.core.game.map.GameMap;
 import com.lovetropics.minigames.common.core.game.player.MutablePlayerSet;
+import com.lovetropics.minigames.common.core.game.player.PlayerIterable;
 import com.lovetropics.minigames.common.core.game.player.PlayerRole;
 import com.lovetropics.minigames.common.core.game.player.PlayerSet;
 import com.lovetropics.minigames.common.core.game.state.GameStateMap;
@@ -32,12 +30,10 @@ import com.lovetropics.minigames.common.core.game.util.GameTexts;
 import com.lovetropics.minigames.common.core.game.util.TeamAllocator;
 import com.lovetropics.minigames.common.core.map.MapRegions;
 import com.mojang.logging.LogUtils;
-import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Unit;
@@ -45,11 +41,11 @@ import net.minecraft.world.level.Level;
 import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
-import java.util.ArrayDeque;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
-import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -62,107 +58,64 @@ import java.util.stream.Collectors;
 public class GamePhase implements IGamePhase {
 	private static final Logger LOGGER = LogUtils.getLogger();
 
-	final GameInstance game;
-	final MinecraftServer server;
-	final IGameDefinition gameDefinition;
-	final IGamePhaseDefinition phaseDefinition;
-	final GamePhaseType phaseType;
+	private static final long NOT_STARTED = -1;
 
-	final GameMap map;
-	final BehaviorList behaviors;
-	final GameStateMap phaseState = new GameStateMap();
+	/* package-private */ final GameInstance game;
+	private final IGameDefinition gameDefinition;
 
-	final EnumMap<PlayerRole, MutablePlayerSet> roles = new EnumMap<>(PlayerRole.class);
-	protected final Set<UUID> addedPlayers = new ObjectArraySet<>();
-	private boolean assignedRoles;
+	private final ServerLevel level;
+	private final GameMap map;
+	private final GameStateMap phaseState = new GameStateMap();
 
-	final GameEventListeners events = new GameEventListeners();
+	private final MutablePlayerSet allPlayers;
+	private final Map<UUID, PlayerRole> roles = new HashMap<>();
+	private final Map<PlayerRole, PlayerSet> playersByRole = new EnumMap<>(PlayerRole.class);
 
-	long startTime;
-	@Nullable
-	GameStopReason stopped;
-	boolean destroyed;
+	private final GameEventListeners events = new GameEventListeners();
 
-	private ControlCommandInvoker controlCommands = ControlCommandInvoker.EMPTY;
+	private long startTime = NOT_STARTED;
+	private boolean focusedLive;
 
 	private final GameScheduler scheduler = new GameScheduler();
+	private ControlCommandInvoker controlCommands = ControlCommandInvoker.EMPTY;
 
-	private final Queue<GameConfig> subPhaseQueue = new ArrayDeque<>();
 	@Nullable
 	private GamePhase subPhase;
+	@Nullable
+	private CompletableFuture<GamePhase> queuedSubPhase;
 
-	// TODO: Big hack - can we do something better by splitting what we expose to game impls vs what we expose to the outside?
-	//       Some behaviors such as spectator_chase check the spectator list when the player is removed - but that spectator list didn't get the player removed
-	private boolean hideRoles;
+	@Nullable
+	private GameStopReason stopReason;
+	private boolean destroyed;
 
-	protected GamePhase(GameInstance game, IGameDefinition gameDefinition, IGamePhaseDefinition phaseDefinition, GamePhaseType phaseType, GameMap map, BehaviorList behaviors) {
+	/* package-private */ GamePhase(GameInstance game, IGameDefinition gameDefinition, GameMap map, BehaviorList behaviors) {
 		this.game = game;
-		server = game.server();
 		this.gameDefinition = gameDefinition;
-		this.phaseDefinition = phaseDefinition;
-		this.phaseType = phaseType;
 
+		level = Objects.requireNonNull(game.server.getLevel(map.dimension()), "Game dimension not loaded");
 		this.map = map;
-		this.behaviors = behaviors;
 
+		allPlayers = new MutablePlayerSet(game.server);
 		for (PlayerRole role : PlayerRole.ROLES) {
-			roles.put(role, new MutablePlayerSet(server));
-		}
-	}
-
-	public static CompletableFuture<GameResult<GamePhase>> create(GameInstance game, IGameDefinition gameDefinition, IGamePhaseDefinition phaseDefinition, GamePhaseType phaseType) {
-		MinecraftServer server = game.server();
-
-		GameResult<Unit> result = GamePhaseManager.get().canStartGamePhase(phaseDefinition);
-		if (result.isError()) {
-			return CompletableFuture.completedFuture(result.castError());
+			playersByRole.put(role, allPlayers.filter(player -> roles.get(player.getUUID()) == role));
 		}
 
-		CompletableFuture<GameMap> mapFuture = phaseDefinition.getMap().open(server);
-		BehaviorList behaviors = phaseDefinition.createBehaviors();
-
-		return GameResult.handleException(mapFuture
-				.thenApplyAsync(map -> new GamePhase(game, gameDefinition, phaseDefinition, phaseType, map, behaviors), server));
-	}
-
-	GameResult<Unit> start() {
-		try {
-			behaviors.registerTo(this, events);
-		} catch (GameException e) {
-			return GameResult.error(e.getTextMessage());
-		} catch (Exception e) {
-			return GameResult.error(Component.literal(e.getClass() + ": " + e.getMessage()));
-		}
-
-		final String mapName = map.name();
+		String mapName = map.name();
 		if (mapName != null) {
 			statistics().global().set(StatisticKey.MAP, mapName);
 		}
 
-		startTime = level().getGameTime();
-
-		try {
-			invoker(GamePhaseEvents.CREATE).create();
-
-			allocateRoles();
-
-			invoker(GamePlayerEvents.BEFORE_ADD_PLAYERS).beforeAddPlayers(
-					participants().stream().map(PlayerKey::from).collect(Collectors.toSet()),
-					spectators().stream().map(PlayerKey::from).collect(Collectors.toSet())
-			);
-
-			for (ServerPlayer player : allPlayers().shuffledCopy(random())) {
-				addAndSpawnPlayer(player, getRoleFor(player));
-			}
-
-			invoker(GamePhaseEvents.START).start(game.lobby.getMetadata().initiator());
-		} catch (Exception e) {
-			return GameResult.fromException("Failed to start game", e);
-		}
+		behaviors.registerTo(this, events);
+		invoker(GamePhaseEvents.CREATE).create();
 
 		controlCommands = buildControlCommandInvoker();
 
-		return GameResult.ok();
+		ResourceLocation introSlideshow = definition().introSlideshow();
+		if (introSlideshow != null) {
+			events.listen(GamePlayerEvents.JOIN, player ->
+					SlideshowApi.preload(player, introSlideshow)
+			);
+		}
 	}
 
 	private ControlCommandInvoker buildControlCommandInvoker() {
@@ -171,11 +124,51 @@ public class GamePhase implements IGamePhase {
 		return commands;
 	}
 
-	private ServerPlayer addAndSpawnPlayer(ServerPlayer player, @Nullable PlayerRole role) {
-		ResourceLocation introSlideshow = definition().introSlideshow();
-		if (phaseType == GamePhaseType.WAITING && introSlideshow != null) {
-			SlideshowApi.preload(player, introSlideshow);
+	public void assignRolesFrom(TeamAllocator<PlayerRole, PlayerKey> roleAllocator) {
+		roleAllocator.setSizeForTeam(PlayerRole.PARTICIPANT, definition().getMaximumParticipantCount());
+		invoker(GamePlayerEvents.ALLOCATE_ROLES).onAllocateRoles(roleAllocator);
+
+		roleAllocator.allocate(this::setPlayerRole);
+	}
+
+	public GameResult<Unit> addPlayersAndStart(PlayerIterable players, @Nullable PlayerKey initiator) {
+		if (startTime != NOT_STARTED) {
+			return GameResult.error(GameTexts.Commands.GAME_ALREADY_STARTED);
 		}
+
+		startTime = level.getGameTime();
+
+		try {
+			invoker(GamePlayerEvents.BEFORE_ADD_PLAYERS).beforeAddPlayers(
+					collectPlayersWithRole(players, PlayerRole.PARTICIPANT),
+					collectPlayersWithRole(players, PlayerRole.SPECTATOR)
+			);
+		} catch (Exception e) {
+			LOGGER.error("Failed to prepare players for join", e);
+		}
+
+		for (ServerPlayer player : players.shuffledCopy(random())) {
+			addAndSpawnPlayer(player);
+		}
+
+		try {
+			invoker(GamePhaseEvents.START).start(initiator);
+		} catch (Exception e) {
+			return GameResult.fromException("Failed to start game", e);
+		}
+
+		return GameResult.ok();
+	}
+
+	private Set<PlayerKey> collectPlayersWithRole(PlayerIterable players, PlayerRole role) {
+		return players.stream()
+				.filter(player -> getRoleFor(player) == role)
+				.map(PlayerKey::from)
+				.collect(Collectors.toSet());
+	}
+
+	private ServerPlayer addAndSpawnPlayer(ServerPlayer player) {
+		PlayerRole role = getRoleFor(player);
 
 		ServerPlayer newPlayer;
 		Consumer<ServerPlayer> initializer;
@@ -189,47 +182,123 @@ public class GamePhase implements IGamePhase {
 			try {
 				invoker(GamePlayerEvents.SPAWN).onSpawn(player.getUUID(), spawn, role);
 			} catch (Exception e) {
-				LoveTropics.LOGGER.error("Failed to dispatch player spawn event", e);
+				LOGGER.error("Failed to dispatch player spawn event", e);
 			}
 			newPlayer = PlayerIsolation.INSTANCE.teleportTo(player, spawn.level(), spawn.position(), spawn.yRot(), spawn.xRot());
 			initializer = spawn::applyInitializers;
 		}
 
-		invoker(GamePlayerEvents.ADD).onAdd(newPlayer);
-		initializer.accept(newPlayer);
+		allPlayers.add(newPlayer);
 
-		invoker(GamePlayerEvents.SET_ROLE).onSetRole(newPlayer, role, null);
+		try {
+			invoker(GamePlayerEvents.ADD).onAdd(newPlayer);
+			initializer.accept(newPlayer);
 
-		addedPlayers.add(player.getUUID());
+			invoker(GamePlayerEvents.SET_ROLE).onSetRole(newPlayer, role, null);
+		} catch (Exception e) {
+			LOGGER.error("Failed to dispatch player add event", e);
+		}
 
 		return newPlayer;
 	}
 
+	public void setFocusedLive(boolean focusedLive) {
+		this.focusedLive = focusedLive;
+	}
+
 	@Nullable
-	GameStopReason tick() {
-		if (subPhase != null) {
-			if (subPhase.tick() != null) {
-				GamePhase lastPhase = subPhase;
-				startNextQueuedMicrogame().whenComplete((newGame, throwable) -> {
-					if (throwable != null || !newGame) {
-						returnHere(lastPhase);
-					}
-					if (throwable != null) {
-						LOGGER.error("Failed to start next queued micro-game", throwable);
-					}
-				});
-				return null;
+	public GameStopReason stopReason() {
+		return stopReason;
+	}
+
+	public boolean isStopped() {
+		return stopReason != null;
+	}
+
+	public boolean tick() {
+		if (stopReason != null) {
+			if (isReadyToDestroy()) {
+				destroy();
+				return true;
 			}
-		} else {
-			try {
-				scheduler.tick();
-				invoker(GamePhaseEvents.TICK).tick();
-			} catch (Exception e) {
-				cancelWithError(e);
-			}
+			return false;
 		}
 
-		return stopped;
+		tryStartQueuedSubPhase();
+
+		if (subPhase != null) {
+			tickSubPhase(subPhase);
+		} else {
+			tickTopLevel();
+		}
+
+		return false;
+	}
+
+	private void tickTopLevel() {
+		try {
+			scheduler.tick();
+			invoker(GamePhaseEvents.TICK).tick();
+		} catch (Exception e) {
+			cancelWithError(e);
+		}
+	}
+
+	private void tickSubPhase(GamePhase subPhase) {
+		if (!subPhase.isStopped()) {
+			return;
+		}
+		if (queuedSubPhase != null) {
+			// A new sub-phase is queued, don't transfer players back here just yet
+			return;
+		}
+		this.subPhase = null;
+		List<ServerPlayer> players = subPhase.removeAllPlayers();
+		players.forEach(this::addAndSpawnPlayer);
+
+		invoker(SubGameEvents.RETURN_TO_TOP).onReturnToTopGame();
+	}
+
+	private void tryStartQueuedSubPhase() {
+		if (queuedSubPhase == null) {
+			return;
+		}
+		try {
+			GamePhase nextSubPhase = queuedSubPhase.getNow(null);
+			if (nextSubPhase != null) {
+				startSubPhase(nextSubPhase);
+				queuedSubPhase = null;
+			}
+		} catch (Exception e) {
+			LOGGER.error("Failed to start queued sub-phase", e);
+			queuedSubPhase = null;
+		}
+	}
+
+	private void startSubPhase(GamePhase subPhase) {
+		List<ServerPlayer> allPlayers;
+		if (this.subPhase != null) {
+			// Transfer players horizontally if possible - the top game doesn't need to know about it!
+			this.subPhase.requestStop(GameStopReason.canceled());
+			allPlayers = this.subPhase.removeAllPlayers();
+		} else {
+			allPlayers = Lists.newArrayList(this.allPlayers);
+			allPlayers.forEach(player -> removePlayer(player, false));
+		}
+
+		invoker(SubGameEvents.CREATE).onCreateSubGame(subPhase, subPhase.events);
+
+		this.subPhase = subPhase;
+		subPhase.roles.putAll(roles);
+		subPhase.addPlayersAndStart(PlayerIterable.from(allPlayers), null);
+	}
+
+	@Override
+	public void queueSubGame(GameConfig subGameConfig) {
+		if (isStopped()) {
+			return;
+		}
+		queuedSubPhase = GamePhaseManager.get().createPhase(game, game.server(), subGameConfig, subGameConfig.getPlayingPhase());
 	}
 
 	@Override
@@ -242,13 +311,9 @@ public class GamePhase implements IGamePhase {
 		return game.instanceState();
 	}
 
-	public GamePhaseType phaseType() {
-		return phaseType;
-	}
-
 	@Override
 	public PlayerSet allPlayers() {
-		return game.allPlayers();
+		return allPlayers;
 	}
 
 	@Override
@@ -256,166 +321,142 @@ public class GamePhase implements IGamePhase {
 		return gameDefinition;
 	}
 
-	public IGamePhaseDefinition phaseDefinition() {
-		return phaseDefinition;
-	}
-
 	@Override
 	public <T> T invoker(GameEventType<T> type) {
 		return events.invoker(type);
 	}
 
-	private void allocateRoles() {
-		// TODO: somehow if a player is in a lobby and then leaves they can get in such a state as to join late and be joined as a participant when clicking 'play'
-		if (assignedRoles) {
-			return;
-		}
-
-		LOGGER.debug("Allocating players to roles based on selections: {}", game.lobby.getPlayers().getRoleSelections());
-		TeamAllocator<PlayerRole, PlayerKey> allocator = game.lobby.getPlayers().createRoleAllocator();
-		allocator.setSizeForTeam(PlayerRole.PARTICIPANT, definition().getMaximumParticipantCount());
-		invoker(GamePlayerEvents.ALLOCATE_ROLES).onAllocateRoles(allocator);
-
-		allocator.allocate((playerKey, role) -> {
-			ServerPlayer player = allPlayers().getPlayerBy(playerKey);
-			if (player != null) {
-				setPlayerRole(player, role);
-			}
-		});
-
-		assignedRoles = true;
-	}
-
-	public void assignRolesFrom(IGamePhase topLevelGame) {
-		for (PlayerRole role : PlayerRole.values()) {
-			for (ServerPlayer player : topLevelGame.getPlayersWithRole(role)) {
-				setPlayerRole(player, role);
-			}
-		}
-		assignedRoles = true;
-	}
-
 	@Override
 	public boolean setPlayerRole(ServerPlayer player, @Nullable PlayerRole role) {
-		PlayerRole lastRole = getRoleFor(player);
+		return setPlayerRole(PlayerKey.from(player), role);
+	}
+
+	private boolean setPlayerRole(PlayerKey player, @Nullable PlayerRole role) {
+		PlayerRole lastRole;
+		if (role != null) {
+			lastRole = roles.put(player.id(), role);
+		} else {
+			lastRole = roles.remove(player.id());
+		}
+
 		if (role == lastRole) {
 			return false;
 		}
 
-		if (lastRole != null) {
-			roles.get(lastRole).remove(player);
-		}
-		if (role != null) {
-			roles.get(role).add(player);
-		}
-
 		// If we haven't added this player yet, just track state for now
-		if (addedPlayers.contains(player.getUUID())) {
-			onSetPlayerRole(player, role, lastRole);
+		ServerPlayer playerEntity = allPlayers.getPlayerBy(player);
+		if (playerEntity != null) {
+			applyRoleChange(playerEntity, role, lastRole);
 		}
 
 		return true;
 	}
 
-	private void onSetPlayerRole(ServerPlayer player, @Nullable PlayerRole role, @Nullable PlayerRole lastRole) {
+	private void applyRoleChange(ServerPlayer player, @Nullable PlayerRole role, @Nullable PlayerRole lastRole) {
 		try {
 			SpawnBuilder spawn = new SpawnBuilder(player);
 			invoker(GamePlayerEvents.SPAWN).onSpawn(player.getUUID(), spawn, role);
 			spawn.teleportAndApply(player);
-			if (role != lastRole) {
-				invoker(GamePlayerEvents.SET_ROLE).onSetRole(player, role, lastRole);
-			}
+			invoker(GamePlayerEvents.SET_ROLE).onSetRole(player, role, lastRole);
 		} catch (Exception e) {
-			LoveTropics.LOGGER.warn("Failed to dispatch player set role event", e);
+			LOGGER.error("Failed to dispatch player set role event", e);
 		}
 	}
 
-	ServerPlayer onPlayerJoin(ServerPlayer player) {
+	public ServerPlayer addPlayer(ServerPlayer player, PlayerRole requestedRole) {
+		PlayerRole role;
 		try {
-			// Bit of a hack - might already have been assigned a role from the top-level game
-			PlayerRole role = getRoleFor(player);
-			if (role == null) {
-				// The player hasn't joined the game yet, so don't expose the player instance
-				PlayerRole selectedRole = game.lobby.getPlayers().getRoleSelections().getSelectedRoleFor(player.getUUID());
-				role = invoker(GamePlayerEvents.SELECT_ROLE_ON_JOIN).selectRole(PlayerKey.from(player), selectedRole);
-				setPlayerRole(player, role);
-			}
-			ServerPlayer newPlayer = addAndSpawnPlayer(player, role);
+			// The player hasn't joined the game yet, so don't expose the player instance
+			role = invoker(GamePlayerEvents.SELECT_ROLE_ON_JOIN).selectRole(PlayerKey.from(player), requestedRole);
+		} catch (Exception e) {
+			LOGGER.error("Failed to select role for {}, joining as spectator", player.getScoreboardName(), e);
+			role = PlayerRole.SPECTATOR;
+		}
+
+		return addPlayerWithRole(player, role);
+	}
+
+	private ServerPlayer addPlayerWithRole(ServerPlayer player, @Nullable PlayerRole role) {
+		setPlayerRole(player, role);
+
+		ServerPlayer newPlayer = addAndSpawnPlayer(player);
+		try {
 			invoker(GamePlayerEvents.JOIN).onAdd(newPlayer);
-
-			if (subPhase != null) {
-				// Let the top-level game decide how the player can join, and then just pass them along
-				subPhase.assignRolesFrom(this);
-				movePlayerToSubPhase(player);
-				return subPhase.onPlayerJoin(newPlayer);
-			}
-
-			return newPlayer;
 		} catch (Exception e) {
-			LoveTropics.LOGGER.warn("Failed to dispatch player join event", e);
+			LOGGER.error("Failed to dispatch player join event", e);
 			return player;
 		}
-	}
 
-	ServerPlayer onPlayerLeave(ServerPlayer player, boolean loggingOut) {
 		if (subPhase != null) {
-			// To ensure that the top-level game gets notified properly, we need to pull the player out step-by-step
-			try {
-				subPhase.invoker(GamePlayerEvents.LEAVE).onRemove(player);
-			} catch (Exception e) {
-				LoveTropics.LOGGER.warn("Failed to dispatch player leave event", e);
-			}
-			player = returnPlayerToParentPhase(subPhase, player);
+			// Let the top-level game decide how the player can join, and then just pass them along
+			removePlayer(player, false);
+			return subPhase.addPlayerWithRole(newPlayer, role);
 		}
 
-		try {
-			invoker(GamePlayerEvents.LEAVE).onRemove(player);
-		} catch (Exception e) {
-			LoveTropics.LOGGER.warn("Failed to dispatch player leave event", e);
-		}
-
-		for (PlayerRole role : PlayerRole.ROLES) {
-			roles.get(role).remove(player);
-		}
-
-		try {
-			addedPlayers.remove(player.getUUID());
-			invoker(GamePlayerEvents.REMOVE).onRemove(player);
-		} catch (Exception e) {
-			LoveTropics.LOGGER.warn("Failed to dispatch player leave event", e);
-		}
-
-		// Don't try to restore the player if they're logging out, as we never save their in-game state anyway
-		if (loggingOut) {
-			return player;
-		}
-		return PlayerIsolation.INSTANCE.restore(player);
+		return newPlayer;
 	}
 
-	void removePlayer(ServerPlayer player) {
-		addedPlayers.remove(player.getUUID());
-		for (PlayerRole role : PlayerRole.ROLES) {
-			roles.get(role).remove(player);
+	public ServerPlayer removePlayer(ServerPlayer player, boolean explicitlyLeft) {
+		if (subPhase != null && !allPlayers.contains(player)) {
+			// To ensure that the top-level game gets notified properly, we need to pull the player out step-by-step
+			player = subPhase.removePlayer(player, explicitlyLeft);
+			player = addAndSpawnPlayer(player);
 		}
+
+		allPlayers.remove(player);
+
+		if (explicitlyLeft) {
+			try {
+				invoker(GamePlayerEvents.LEAVE).onRemove(player);
+			} catch (Exception e) {
+				LOGGER.error("Failed to dispatch player leave event", e);
+			}
+		}
+
 		try {
 			invoker(GamePlayerEvents.REMOVE).onRemove(player);
 		} catch (Exception e) {
-			LoveTropics.LOGGER.warn("Failed to dispatch player leave event", e);
+			LOGGER.error("Failed to dispatch player leave event", e);
 		}
+
+		if (explicitlyLeft) {
+			roles.remove(player.getUUID());
+		}
+
+		return player;
+	}
+
+	public List<ServerPlayer> removeAllPlayers() {
+		List<ServerPlayer> players = Lists.newArrayList(allPlayers);
+		allPlayers.clear();
+
+		try {
+			for (ServerPlayer player : players) {
+				invoker(GamePlayerEvents.REMOVE).onRemove(player);
+			}
+		} catch (Exception e) {
+			LOGGER.error("Unknown error while removing players", e);
+		}
+
+		return players;
 	}
 
 	public void cancelWithError(Exception exception) {
-		LoveTropics.LOGGER.warn("Game canceled due to exception", exception);
+		LOGGER.error("Game canceled due to exception", exception);
 		requestStop(GameStopReason.errored(Component.literal("Game stopped due to exception: " + exception)));
 	}
 
 	@Override
 	public GameResult<Unit> requestStop(GameStopReason reason) {
-		if (stopped != null) {
+		if (stopReason != null) {
 			return GameResult.error(GameTexts.Commands.GAME_ALREADY_STOPPED);
 		}
 
-		stopped = reason;
+		if (subPhase != null) {
+			subPhase.requestStop(reason);
+		}
+
+		stopReason = reason;
 
 		try {
 			invoker(GamePhaseEvents.STOP).stop(reason);
@@ -430,35 +471,47 @@ public class GamePhase implements IGamePhase {
 		}
 	}
 
-	void destroy() {
+	private void destroy() {
 		if (destroyed) {
 			return;
 		}
 		destroyed = true;
 
-		destroySubGame();
-		requestStop(GameStopReason.canceled());
+		if (subPhase != null) {
+			subPhase.destroy();
+			subPhase = null;
+		}
 
 		try {
-			for (ServerPlayer player : allPlayers()) {
-				addedPlayers.remove(player.getUUID());
-				invoker(GamePlayerEvents.REMOVE).onRemove(player);
-			}
-
 			invoker(GamePhaseEvents.DESTROY).destroy();
 		} catch (Exception e) {
-			LoveTropics.LOGGER.warn("Unknown error while stopping game", e);
+			LOGGER.error("Unknown error while stopping game", e);
 		} finally {
 			map.close(this);
 		}
 	}
 
+	private boolean isReadyToDestroy() {
+		return stopReason != null && allPlayers.isEmpty() && (subPhase == null || subPhase.isReadyToDestroy());
+	}
+
+	public void stopForServerShutdown() {
+		if (subPhase != null) {
+			subPhase.stopForServerShutdown();
+		}
+		requestStop(GameStopReason.serverStopping());
+		removeAllPlayers();
+		destroy();
+	}
+
 	@Override
 	public PlayerSet getPlayersWithRole(PlayerRole role) {
-		if (hideRoles) {
-			return PlayerSet.EMPTY;
-		}
-		return roles.get(role);
+		return playersByRole.get(role);
+	}
+
+	@Override
+	public @Nullable PlayerRole getRoleFor(ServerPlayer player) {
+		return roles.get(player.getUUID());
 	}
 
 	@Override
@@ -473,7 +526,7 @@ public class GamePhase implements IGamePhase {
 
 	@Override
 	public ServerLevel level() {
-		return server.getLevel(map.dimension());
+		return level;
 	}
 
 	@Override
@@ -483,91 +536,19 @@ public class GamePhase implements IGamePhase {
 
 	@Override
 	public long ticks() {
-		if (startTime == 0) {
+		if (startTime == NOT_STARTED) {
 			return 0;
 		}
-		return level().getGameTime() - startTime;
-	}
-
-	@Override
-	public IGamePhase getTopPhase() {
-		return Objects.requireNonNullElse(game.lobby.getTopPhase(), this);
+		return level.getGameTime() - startTime;
 	}
 
 	@Override
 	public boolean isFocusedLive() {
-		return game.lobby.metadata.visibility().isFocusedLive();
+		return focusedLive;
 	}
 
 	public GamePhase getActivePhase() {
 		return Objects.requireNonNullElse(subPhase, this);
-	}
-
-	public void startSubPhase(GamePhase subPhase) {
-		this.subPhase = subPhase;
-		GamePhaseManager.get().addGamePhaseToDimension(subPhase.dimension(), subPhase);
-		subPhase.assignRolesFrom(this);
-		hideRoles = true;
-		for (ServerPlayer player : allPlayers()) {
-			movePlayerToSubPhase(player);
-		}
-		hideRoles = false;
-
-		subPhase.events.listen(GamePhaseEvents.CREATE, () ->
-				invoker(SubGameEvents.CREATE).onCreateSubGame(subPhase, subPhase.events)
-		);
-		subPhase.start();
-	}
-
-	private void movePlayerToSubPhase(ServerPlayer player) {
-		if (addedPlayers.remove(player.getUUID())) {
-			invoker(GamePlayerEvents.REMOVE).onRemove(player);
-		}
-	}
-
-	private void returnHere(GamePhase fromSubPhase) {
-		for (ServerPlayer player : allPlayers().shuffledCopy(random())) {
-			returnPlayerToParentPhase(fromSubPhase, player);
-		}
-		invoker(SubGameEvents.RETURN_TO_TOP).onReturnToTopGame();
-	}
-
-	private ServerPlayer returnPlayerToParentPhase(GamePhase fromSubPhase, ServerPlayer player) {
-		fromSubPhase.removePlayer(player);
-		return addAndSpawnPlayer(player, getRoleFor(player));
-	}
-
-	private void destroySubGame() {
-		if (subPhase != null) {
-			subPhase.destroy();
-			GamePhaseManager.get().removeGamePhaseFromDimension(subPhase.dimension(), subPhase);
-			subPhase = null;
-		}
-	}
-
-	public void clearQueuedGames() {
-		subPhaseQueue.clear();
-	}
-
-	public void queueGames(List<GameConfig> games) {
-		subPhaseQueue.addAll(games);
-	}
-
-	public CompletableFuture<Boolean> startNextQueuedMicrogame() {
-		destroySubGame();
-		// No queued games left
-		if (subPhaseQueue.isEmpty()) {
-			return CompletableFuture.completedFuture(false);
-		}
-		final GameConfig nextGame = subPhaseQueue.remove();
-		return GamePhase.create(game, nextGame, nextGame.getPlayingPhase(), GamePhaseType.PLAYING).thenApply(result -> {
-			if (result.isOk()) {
-				startSubPhase(result.getOk());
-				return true;
-			}
-			LOGGER.error("Failed to start micro-game {} - {}", nextGame.id().toString(), result.getError().getString());
-			return false;
-		});
 	}
 
 	public ControlCommandInvoker controlCommands() {

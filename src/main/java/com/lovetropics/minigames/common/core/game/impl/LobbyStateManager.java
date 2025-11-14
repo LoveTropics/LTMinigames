@@ -8,6 +8,7 @@ import net.minecraft.network.chat.Component;
 import org.apache.logging.log4j.LogManager;
 
 import javax.annotation.Nullable;
+import java.util.Objects;
 
 final class LobbyStateManager {
 	private final GameLobby lobby;
@@ -25,6 +26,11 @@ final class LobbyStateManager {
 	@Nullable
 	public GamePhase getTopPhase() {
 		return state.phase;
+	}
+
+	@Nullable
+	public GamePhaseType getTopPhaseType() {
+		return state.phaseType();
 	}
 
 	@Nullable
@@ -70,7 +76,7 @@ final class LobbyStateManager {
 		GamePhase phase = state.phase;
 		if (phase != null) {
 			IGameDefinition definition = phase.definition();
-			GamePhaseType phaseType = phase.phaseType();
+			GamePhaseType phaseType = Objects.requireNonNullElse(state.phaseType(), GamePhaseType.WAITING);
 			return new LobbyState.Errored(definition, phaseType, error);
 		} else {
 			return new LobbyState.Paused();

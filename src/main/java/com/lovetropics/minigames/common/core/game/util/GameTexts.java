@@ -83,6 +83,7 @@ public final class GameTexts {
 		public static final Component CANNOT_START_LOBBY = KEYS.add("cannot_start", "There is no game to start in this lobby!");
 		public static final Component NOT_IN_LOBBY = KEYS.add("not_in_lobby", "You are not currently in any lobby!");
 		public static final Component NOT_IN_GAME = KEYS.add("not_in_game", "You are not currently in any game!");
+		public static final Component GAME_ALREADY_STARTED = KEYS.add("game_already_started", "This game has already been started!");
 		public static final Component GAME_ALREADY_STOPPED = KEYS.add("game_already_stopped", "This game has already been stopped!");
 		public static final Component NO_MANAGE_PERMISSION = KEYS.add("no_manage_permission", "You do not have permission to manage this lobby!");
 

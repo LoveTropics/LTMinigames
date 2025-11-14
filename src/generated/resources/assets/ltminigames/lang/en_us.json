@@ -60,6 +60,7 @@
   "ltminigames.command.cannot_teleport_into_game": "You cannot teleport into a game without being a part of it!",
   "ltminigames.command.chat_channel.global": "Global Chat",
   "ltminigames.command.chat_channel.team": "Team Chat",
+  "ltminigames.command.game_already_started": "This game has already been started!",
   "ltminigames.command.game_already_stopped": "This game has already been stopped!",
   "ltminigames.command.games_intersect": "The game cannot be started because it intersects with another active game!",
   "ltminigames.command.joined_lobby": "You have joined %s!",

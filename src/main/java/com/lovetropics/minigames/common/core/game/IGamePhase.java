@@ -1,6 +1,7 @@
 package com.lovetropics.minigames.common.core.game;
 
 import com.lovetropics.minigames.common.core.game.behavior.event.GameEventType;
+import com.lovetropics.minigames.common.core.game.config.GameConfig;
 import com.lovetropics.minigames.common.core.game.player.PlayerRole;
 import com.lovetropics.minigames.common.core.game.player.PlayerSet;
 import com.lovetropics.minigames.common.core.game.state.GameStateMap;
@@ -58,6 +59,8 @@ public interface IGamePhase {
 
 	GameResult<Unit> requestStop(GameStopReason reason);
 
+	void queueSubGame(GameConfig subGameConfig);
+
 	GameScheduler scheduler();
 
 	/**
@@ -90,14 +93,7 @@ public interface IGamePhase {
 	}
 
 	@Nullable
-	default PlayerRole getRoleFor(ServerPlayer player) {
-		for (PlayerRole role : PlayerRole.ROLES) {
-			if (getPlayersWithRole(role).contains(player)) {
-				return role;
-			}
-		}
-		return null;
-	}
+	PlayerRole getRoleFor(ServerPlayer player);
 
 	/**
 	 * @return the tick counter since the game started
@@ -111,8 +107,6 @@ public interface IGamePhase {
 	default GameInstanceIntegrations getIntegrationsOrThrow() {
 		return instanceState().getOrThrow(GameInstanceIntegrations.KEY);
 	}
-
-	IGamePhase getTopPhase();
 
 	boolean isFocusedLive();
 }

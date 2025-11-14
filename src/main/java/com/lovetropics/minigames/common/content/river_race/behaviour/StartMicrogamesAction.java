@@ -7,10 +7,10 @@ import com.lovetropics.minigames.common.core.game.behavior.action.GameActionCont
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionList;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvents;
+import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.SubGameEvents;
 import com.lovetropics.minigames.common.core.game.config.GameConfig;
 import com.lovetropics.minigames.common.core.game.config.GameConfigs;
-import com.lovetropics.minigames.common.core.game.impl.GamePhase;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -19,9 +19,11 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ExtraCodecs;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Queue;
 
 public record StartMicrogamesAction(
 		List<ResourceLocation> gameConfigIds,
@@ -49,11 +51,24 @@ public record StartMicrogamesAction(
 		}
 
 		MutableBoolean scheduled = new MutableBoolean();
+		Queue<GameConfig> gameQueue = new ArrayDeque<>();
+
 		events.listen(GameActionEvents.APPLY, context -> {
-			queueMicrogames(game, gameConfigs);
-			startQueuedMicrogame(game);
-			scheduled.setTrue();
+			gameQueue.clear();
+			gameQueue.addAll(pickCountRandomly(gameConfigs, gamesPerRound));
+			if (queueNextSubGame(game, gameQueue)) {
+				scheduled.setTrue();
+			}
 			return true;
+		});
+
+		events.listen(SubGameEvents.CREATE, (subGame, subEvents) -> {
+			if (scheduled.isFalse()) {
+				return;
+			}
+			subEvents.listen(GamePhaseEvents.STOP, reason ->
+					queueNextSubGame(game, gameQueue)
+			);
 		});
 
 		events.listen(SubGameEvents.RETURN_TO_TOP, () -> {
@@ -64,21 +79,18 @@ public record StartMicrogamesAction(
 		});
 	}
 
-	public void queueMicrogames(IGamePhase game, List<GameConfig> gameConfigs) {
-		// TODO: Don't do that!
-		if (game.getTopPhase() instanceof GamePhase multiGamePhase) {
-			multiGamePhase.clearQueuedGames();
-
-			final List<GameConfig> configs = new ArrayList<>(gameConfigs);
-			Collections.shuffle(configs);
-			multiGamePhase.queueGames(configs.subList(0, Math.min(configs.size(), gamesPerRound)));
+	private boolean queueNextSubGame(IGamePhase game, Queue<GameConfig> gameQueue) {
+		GameConfig config = gameQueue.poll();
+		if (config != null) {
+			game.queueSubGame(config);
+			return true;
 		}
+		return false;
 	}
 
-	public void startQueuedMicrogame(final IGamePhase game) {
-		// TODO: Don't do that!
-		if (game.getTopPhase() instanceof GamePhase multiGamePhase) {
-			multiGamePhase.startNextQueuedMicrogame();
-		}
+	private static <T> List<T> pickCountRandomly(List<T> candidates, int count) {
+		List<T> shuffledCandidates = new ArrayList<>(candidates);
+		Collections.shuffle(shuffledCandidates);
+		return shuffledCandidates.subList(0, Math.min(shuffledCandidates.size(), count));
 	}
 }

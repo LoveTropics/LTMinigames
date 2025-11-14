@@ -16,6 +16,7 @@ import com.lovetropics.minigames.common.core.game.lobby.LobbyControls;
 import com.lovetropics.minigames.common.core.game.lobby.LobbyStateListener;
 import com.lovetropics.minigames.common.core.game.lobby.LobbyVisibility;
 import com.lovetropics.minigames.common.core.game.player.PlayerIterable;
+import com.lovetropics.minigames.common.core.game.player.PlayerRole;
 import com.lovetropics.minigames.common.core.game.player.PlayerRoleSelections;
 import com.lovetropics.minigames.common.core.game.rewards.GameRewardsMap;
 import com.lovetropics.minigames.common.core.game.util.GameTexts;
@@ -27,6 +28,7 @@ import net.minecraft.util.Unit;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import javax.annotation.Nullable;
+import java.util.List;
 
 /**
  * This is what is created when the command /game create is run - it is not the 'waiting room' lobby, it is a game lobby, as in
@@ -83,20 +85,14 @@ public final class GameLobby {
 	}
 
 	@Nullable
-	public GameInstance getCurrentGame() {
-		GamePhase phase = getActivePhase();
-		return phase != null ? phase.game : null;
-	}
-
-	@Nullable
-	public IGamePhase getTopPhase() {
-		return state.getTopPhase();
-	}
-
-	@Nullable
 	public GamePhase getActivePhase() {
 		GamePhase phase = state.getTopPhase();
 		return phase != null ? phase.getActivePhase() : null;
+	}
+
+	@Nullable
+	public GamePhaseType getActivePhaseType() {
+		return state.getTopPhaseType();
 	}
 
 	@Nullable
@@ -172,18 +168,16 @@ public final class GameLobby {
 	private GameResult<Unit> onGamePhaseChange(@Nullable GamePhase oldPhase, @Nullable GamePhase newPhase) {
 		GameResult<Unit> result = GameResult.ok();
 
-		if (newPhase == null && oldPhase != null) {
-			onQueuePaused();
-		}
-
 		if (oldPhase != null) {
-			oldPhase.destroy();
-			GamePhaseManager.get().removeGamePhaseFromDimension(oldPhase.dimension(), oldPhase);
+			List<ServerPlayer> removedPlayers = oldPhase.removeAllPlayers();
+			if (newPhase == null) {
+				onQueuePaused(removedPlayers);
+			}
 		}
 
 		if (newPhase != null) {
-			GamePhaseManager.get().addGamePhaseToDimension(newPhase.dimension(), newPhase);
-			result = startPhase(newPhase);
+			newPhase.assignRolesFrom(players.createRoleAllocator());
+			result = newPhase.addPlayersAndStart(players, metadata.initiator());
 		}
 
 		GameInstance oldGame = oldPhase != null ? oldPhase.game : null;
@@ -195,10 +189,6 @@ public final class GameLobby {
 		stateListener.onGamePhaseChange(this);
 
 		return result;
-	}
-
-	private GameResult<Unit> startPhase(GamePhase phase) {
-		return phase.start();
 	}
 
 	private void onGameInstanceChange(@Nullable GameInstance oldGame, @Nullable GameInstance newGame) {
@@ -218,9 +208,9 @@ public final class GameLobby {
 		}
 	}
 
-	void onQueuePaused() {
-		for (ServerPlayer player : getPlayers()) {
-			onPlayerExitGame(player);
+	void onQueuePaused(List<ServerPlayer> removedPlayers) {
+		for (ServerPlayer player : removedPlayers) {
+			onPlayerExitGame(PlayerIsolation.INSTANCE.restore(player));
 		}
 
 		stateListener.onLobbyPaused(this);
@@ -243,7 +233,8 @@ public final class GameLobby {
 
 		GamePhase phase = state.getTopPhase();
 		if (phase != null) {
-			phase.onPlayerJoin(player);
+			PlayerRole selectedRole = players.getRoleSelections().getSelectedRoleFor(player.getUUID());
+			phase.addPlayer(player, selectedRole);
 		}
 
 		management.onPlayersChanged();
@@ -252,7 +243,12 @@ public final class GameLobby {
 	ServerPlayer onPlayerLeave(ServerPlayer player, boolean loggingOut) {
 		GamePhase phase = state.getTopPhase();
 		if (phase != null) {
-			player = phase.onPlayerLeave(player, loggingOut);
+			player = phase.removePlayer(player, loggingOut);
+
+			// Don't try to restore the player if they're logging out, as we never save their in-game state anyway
+			if (!loggingOut) {
+				player = PlayerIsolation.INSTANCE.restore(player);
+			}
 		}
 
 		stateListener.onPlayerLeave(this, player);
@@ -269,7 +265,7 @@ public final class GameLobby {
 
 	// TODO: better abstract this logic?
 	void onPlayerExitGame(ServerPlayer player) {
-		rewardsMap.grant(PlayerIsolation.INSTANCE.restore(player));
+		rewardsMap.grant(player);
 	}
 
 	void onPlayerStartTracking(ServerPlayer player) {
@@ -315,7 +311,7 @@ public final class GameLobby {
 		@Override
 		public void onPlayerJoin(GameLobby lobby, ServerPlayer player) {
 			GamePhase currentPhase = lobby.getActivePhase();
-			if (currentPhase != null && currentPhase.phaseType() == GamePhaseType.WAITING) {
+			if (currentPhase != null && lobby.getActivePhaseType() == GamePhaseType.WAITING) {
 				onPlayerJoinGame(lobby, currentPhase);
 			}
 		}
@@ -323,7 +319,7 @@ public final class GameLobby {
 		@Override
 		public void onPlayerLeave(GameLobby lobby, ServerPlayer player) {
 			GamePhase currentPhase = lobby.getActivePhase();
-			if (currentPhase != null && currentPhase.phaseType() == GamePhaseType.WAITING) {
+			if (currentPhase != null && lobby.getActivePhaseType() == GamePhaseType.WAITING) {
 				onPlayerLeaveGame(lobby, currentPhase);
 			}
 		}

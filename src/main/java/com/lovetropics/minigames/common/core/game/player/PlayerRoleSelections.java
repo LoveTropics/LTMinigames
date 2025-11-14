@@ -8,7 +8,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.neoforged.neoforge.network.PacketDistributor;
 
-import javax.annotation.Nonnull;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -73,7 +72,6 @@ public final class PlayerRoleSelections {
 		roles.put(player.getUUID(), role);
 	}
 
-	@Nonnull
 	public PlayerRole getSelectedRoleFor(UUID playerId) {
 		return roles.getOrDefault(playerId, PlayerRole.SPECTATOR);
 	}

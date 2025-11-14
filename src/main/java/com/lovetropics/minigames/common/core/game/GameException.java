@@ -2,6 +2,9 @@ package com.lovetropics.minigames.common.core.game;
 
 import net.minecraft.network.chat.Component;
 
+import javax.annotation.Nullable;
+import java.util.concurrent.CompletionException;
+
 public class GameException extends RuntimeException {
 	private final Component message;
 
@@ -17,5 +20,15 @@ public class GameException extends RuntimeException {
 
 	public Component getTextMessage() {
 		return message;
+	}
+
+	@Nullable
+	public static GameException unwrap(@Nullable Throwable throwable) {
+		if (throwable instanceof GameException exception) {
+			return exception;
+		} else if (throwable instanceof CompletionException exception) {
+			return unwrap(exception.getCause());
+		}
+		return null;
 	}
 }

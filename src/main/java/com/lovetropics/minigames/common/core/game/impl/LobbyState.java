@@ -30,11 +30,20 @@ abstract class LobbyState {
 		this.phase = phase;
 	}
 
+	@Nullable
+	protected GamePhaseType phaseType() {
+		return null;
+	}
+
 	protected abstract GameResult<LobbyState> tick(GameLobby lobby);
 
 	@Nullable
 	protected ClientCurrentGame getClientCurrentGame() {
-		return phase != null ? ClientCurrentGame.create(phase) : null;
+		if (phase != null) {
+			GamePhaseType phaseType = Objects.requireNonNullElse(phaseType(), GamePhaseType.WAITING);
+			return ClientCurrentGame.create(phase, phaseType);
+		}
+		return null;
 	}
 
 	final Yield yield() {
@@ -120,36 +129,35 @@ abstract class LobbyState {
 			final IGamePhaseDefinition playingDefinition = definition.getPlayingPhase();
 			Optional<IGamePhaseDefinition> waitingDefinition = definition.getWaitingPhase();
 			if (waitingDefinition.isPresent()) {
-				CompletableFuture<GameResult<LobbyState>> waiting = createWaiting(game, waitingDefinition.get(), playingDefinition);
+				CompletableFuture<LobbyState> waiting = createWaiting(lobby, game, waitingDefinition.get(), playingDefinition);
 				return new Pending(lastPhase, waiting, null);
 			} else {
-				CompletableFuture<GameResult<LobbyState>> playing = createPlaying(game, playingDefinition);
-				return new Pending(lastPhase, playing, openIntroSlideshow(game));
+				CompletableFuture<LobbyState> playing = createPlaying(game, playingDefinition);
+				return new Pending(lastPhase, playing, openIntroSlideshow(lobby, game));
 			}
 		}
 
-		private CompletableFuture<GameResult<LobbyState>> createPlaying(GameInstance game, IGamePhaseDefinition definition) {
-			return GamePhase.create(game, game.definition, definition, GamePhaseType.PLAYING)
-					.thenApply(result -> result.map(Playing::new));
+		private CompletableFuture<LobbyState> createPlaying(GameInstance game, IGamePhaseDefinition definition) {
+			return GamePhaseManager.get().createPhase(game, game.server(), game.definition, definition).thenApply(Playing::new);
 		}
 
-		private CompletableFuture<GameResult<LobbyState>> createWaiting(GameInstance game, IGamePhaseDefinition definition, IGamePhaseDefinition playing) {
-			return GamePhase.create(game, game.definition, definition, GamePhaseType.WAITING)
-					.thenApply(result -> result.map(waiting -> {
+		private CompletableFuture<LobbyState> createWaiting(GameLobby lobby, GameInstance game, IGamePhaseDefinition definition, IGamePhaseDefinition playing) {
+			return GamePhaseManager.get().createPhase(game, game.server(), game.definition, definition)
+					.thenApply(waiting -> {
 						Supplier<LobbyState> start = () -> {
-							CompletableFuture<GameResult<LobbyState>> next = createPlaying(waiting.game, playing);
-							return new LobbyState.Pending(waiting, next, openIntroSlideshow(game));
+							CompletableFuture<LobbyState> next = createPlaying(waiting.game, playing);
+							return new LobbyState.Pending(waiting, next, openIntroSlideshow(lobby, game));
 						};
 						return new LobbyState.Waiting(waiting, start);
-					}));
+					});
 		}
 
-		private @Nullable SlideshowInstanceHandle openIntroSlideshow(GameInstance game) {
+		private @Nullable SlideshowInstanceHandle openIntroSlideshow(GameLobby lobby, GameInstance game) {
 			ResourceLocation slideshowId = game.definition.introSlideshow();
 			SlideshowInstanceHandle slideshow = slideshowId != null ? SlideshowApi.open(slideshowId) : null;
 			if (slideshow != null) {
 				slideshow.play();
-				game.allPlayers().forEach(slideshow::addPlayer);
+				lobby.getPlayers().forEach(slideshow::addPlayer);
 			}
 			return slideshow;
 		}
@@ -164,12 +172,11 @@ abstract class LobbyState {
 
 		@Override
 		protected GameResult<LobbyState> tick(GameLobby lobby) {
-			GameStopReason stopping = Objects.requireNonNull(phase).tick();
-			if (stopping == null) {
-				return GameResult.ok(this);
-			} else {
-				return nextState(stopping);
+			GameStopReason stopReason = Objects.requireNonNull(phase).stopReason();
+			if (stopReason != null) {
+				return nextState(stopReason);
 			}
+			return GameResult.ok(this);
 		}
 
 		private GameResult<LobbyState> nextState(GameStopReason stopping) {
@@ -178,6 +185,11 @@ abstract class LobbyState {
 			} else {
 				return GameResult.error(stopping.getError());
 			}
+		}
+
+		@Override
+		protected GamePhaseType phaseType() {
+			return GamePhaseType.PLAYING;
 		}
 	}
 
@@ -199,12 +211,11 @@ abstract class LobbyState {
 
 		@Override
 		protected GameResult<LobbyState> tick(GameLobby lobby) {
-			GameStopReason stopping = Objects.requireNonNull(phase).tick();
-			if (stopping == null) {
-				return GameResult.ok(this);
-			} else {
-				return nextState(stopping);
+			GameStopReason stopReason = Objects.requireNonNull(phase).stopReason();
+			if (stopReason != null) {
+				return nextState(stopReason);
 			}
+			return GameResult.ok(this);
 		}
 
 		private GameResult<LobbyState> nextState(GameStopReason stopping) {
@@ -213,6 +224,11 @@ abstract class LobbyState {
 			} else {
 				return GameResult.error(stopping.getError());
 			}
+		}
+
+		@Override
+		protected GamePhaseType phaseType() {
+			return GamePhaseType.WAITING;
 		}
 	}
 
@@ -225,17 +241,14 @@ abstract class LobbyState {
 		@Nullable
 		ClientCurrentGame pendingGame;
 
-		Pending(@Nullable GamePhase phase, CompletableFuture<GameResult<LobbyState>> next, @Nullable SlideshowInstanceHandle slideshow) {
+		Pending(@Nullable GamePhase phase, CompletableFuture<LobbyState> next, @Nullable SlideshowInstanceHandle slideshow) {
 			super(phase);
-			this.next = next;
+			this.next = GameResult.handleException(next);
 			this.slideshow = slideshow;
 		}
 
 		@Override
 		protected GameResult<LobbyState> tick(GameLobby lobby) {
-			if (phase != null) {
-				phase.tick();
-			}
 			if (slideshow != null && slideshow.currentTime() < slideshow.totalTime() - SLIDESHOW_BUFFER_TIME) {
 				return GameResult.ok(this);
 			}

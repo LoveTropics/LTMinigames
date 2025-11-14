@@ -60,6 +60,7 @@
   "ltminigames.command.cannot_teleport_into_game": "¡ʇı ɟo ʇɹɐd ɐ buıǝq ʇnoɥʇıʍ ǝɯɐb ɐ oʇuı ʇɹodǝןǝʇ ʇouuɐɔ noʎ",
   "ltminigames.command.chat_channel.global": "ʇɐɥƆ ןɐqoן⅁",
   "ltminigames.command.chat_channel.team": "ʇɐɥƆ ɯɐǝ⟘",
+  "ltminigames.command.game_already_started": "¡pǝʇɹɐʇs uǝǝq ʎpɐǝɹןɐ sɐɥ ǝɯɐb sıɥ⟘",
   "ltminigames.command.game_already_stopped": "¡pǝddoʇs uǝǝq ʎpɐǝɹןɐ sɐɥ ǝɯɐb sıɥ⟘",
   "ltminigames.command.games_intersect": "¡ǝɯɐb ǝʌıʇɔɐ ɹǝɥʇouɐ ɥʇıʍ sʇɔǝsɹǝʇuı ʇı ǝsnɐɔǝq pǝʇɹɐʇs ǝq ʇouuɐɔ ǝɯɐb ǝɥ⟘",
   "ltminigames.command.joined_lobby": "¡%s pǝuıoظ ǝʌɐɥ noʎ",

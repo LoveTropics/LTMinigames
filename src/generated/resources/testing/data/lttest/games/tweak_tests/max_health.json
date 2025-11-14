@@ -1,0 +1,22 @@
+{
+  "backend_id": "lttest:tweak_tests/max_health",
+  "behaviors": [
+    {
+      "type": "ltminigames:apply_to_player",
+      "actions": {
+        "actions": {
+          "type": "ltminigames:set_max_health",
+          "max_health": 30,
+          "max_health_by_team": {}
+        }
+      }
+    }
+  ],
+  "map": {
+    "type": "ltminigames:inline",
+    "dimension": "minecraft:overworld"
+  },
+  "maximum_participants": 50,
+  "name": "lttest:tweak_tests/max_health",
+  "statistics_key": "tweak_tests/max_health"
+}
