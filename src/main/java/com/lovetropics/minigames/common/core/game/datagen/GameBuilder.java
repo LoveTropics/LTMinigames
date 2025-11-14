@@ -6,10 +6,8 @@ import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.config.GameConfig;
 import com.lovetropics.minigames.common.core.game.config.GamePhaseConfig;
 import com.lovetropics.minigames.common.core.game.map.IGameMapProvider;
-import com.lovetropics.minigames.common.util.Util;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.phys.AABB;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -108,17 +106,10 @@ public class GameBuilder {
 
 	public static final class PhaseBuilder {
 		private final IGameMapProvider map;
-		@Nullable
-		private AABB area;
 		private final List<BehaviorTemplate> behaviors = new ArrayList<>();
 
 		public PhaseBuilder(IGameMapProvider map) {
 			this.map = map;
-		}
-
-		public PhaseBuilder setArea(@Nullable AABB area) {
-			this.area = area;
-			return this;
 		}
 
 		public PhaseBuilder withBehavior(IGameBehavior... behavior) {
@@ -129,7 +120,7 @@ public class GameBuilder {
 		}
 
 		public GamePhaseConfig create() {
-			return new GamePhaseConfig(map, area == null ? Util.INFINITE_AABB : area, behaviors);
+			return new GamePhaseConfig(map, behaviors);
 		}
 	}
 }

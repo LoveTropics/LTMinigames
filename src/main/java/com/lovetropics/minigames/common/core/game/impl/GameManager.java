@@ -23,7 +23,6 @@ import net.minecraft.util.Unit;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -76,14 +75,11 @@ public class GameManager implements IGameLookup {
 	GameResult<Unit> canStartGamePhase(IGamePhaseDefinition definition) {
 		IGameMapProvider map = definition.getMap();
 		List<ResourceKey<Level>> possibleDimensions = map.getPossibleDimensions();
-		AABB area = definition.getGameArea();
 
 		for (ResourceKey<Level> dimension : possibleDimensions) {
 			List<GamePhase> games = gamesByDimension.getOrDefault(dimension, Collections.emptyList());
-			for (GamePhase game : games) {
-				if (game.phaseDefinition().getGameArea().intersects(area)) {
-					return GameResult.error(GameTexts.Commands.GAMES_INTERSECT);
-				}
+			if (!games.isEmpty()) {
+				return GameResult.error(GameTexts.Commands.GAMES_INTERSECT);
 			}
 		}
 
@@ -110,12 +106,12 @@ public class GameManager implements IGameLookup {
 	@Nullable
 	@Override
 	public GamePhase getGamePhaseAt(Level level, Vec3 pos) {
-		return getGamePhaseForWorld(level, phase -> phase.phaseDefinition().getGameArea().contains(pos));
+		return getGamePhaseInDimension(level);
 	}
 
 	@Nullable
 	@Override
-	public IGamePhase getGamePhaseInDimension(Level level) {
+	public GamePhase getGamePhaseInDimension(Level level) {
 		List<GamePhase> games = gamesByDimension.get(level.dimension());
 		if (games != null && games.size() == 1) {
 			return games.getFirst();
@@ -123,17 +119,11 @@ public class GameManager implements IGameLookup {
 		return null;
 	}
 
-	public List<GamePhase> getGamePhasesForWorld(Level level) {
-		if (level.isClientSide) {
-			return Collections.emptyList();
+	public List<GamePhase> getGamePhasesForLevel(Level level) {
+		if (level.isClientSide()) {
+			return List.of();
 		}
-
 		return gamesByDimension.getOrDefault(level.dimension(), Collections.emptyList());
-	}
-
-	@Nullable
-	public GamePhase getGamePhaseForWorld(Level level, Predicate<GamePhase> pred) {
-		return getGamePhasesForWorld(level).stream().filter(pred).findFirst().orElse(null);
 	}
 
 	@Nullable
