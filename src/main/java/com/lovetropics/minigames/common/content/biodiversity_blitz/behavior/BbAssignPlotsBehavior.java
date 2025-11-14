@@ -58,7 +58,7 @@ public final class BbAssignPlotsBehavior implements IGameBehavior {
 	public void register(IGamePhase game, EventRegistrar events) {
 		MapRegions regions = game.mapRegions();
 
-		events.listen(GamePhaseEvents.CREATE, participants -> {
+		events.listen(GamePhaseEvents.CREATE, () -> {
 			teamPlots.forEach((teamKey, config) -> {
 				if (teams.getTeamByKey(teamKey) == null) {
 					throw new GameException(Component.literal("Game team does not exist: " + teamKey));

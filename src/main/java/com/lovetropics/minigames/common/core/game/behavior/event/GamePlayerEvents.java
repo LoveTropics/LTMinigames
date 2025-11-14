@@ -25,6 +25,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 
 import javax.annotation.Nullable;
+import java.util.Set;
 import java.util.UUID;
 
 public final class GamePlayerEvents {
@@ -225,6 +226,12 @@ public final class GamePlayerEvents {
 		}
 	});
 
+	public static final GameEventType<BeforeAddPlayers> BEFORE_ADD_PLAYERS = GameEventType.create(BeforeAddPlayers.class, listeners -> (participants, spectators) -> {
+		for (BeforeAddPlayers listener : listeners) {
+			listener.beforeAddPlayers(participants, spectators);
+		}
+	});
+
 	public static final GameEventType<Chat> CHAT = GameEventType.create(Chat.class, listeners -> (player, message) -> {
 		for (Chat listener : listeners) {
 			if (listener.onChat(player, message)) {
@@ -340,6 +347,10 @@ public final class GamePlayerEvents {
 
 	public interface AllocateRoles {
 		void onAllocateRoles(TeamAllocator<PlayerRole, PlayerKey> allocator);
+	}
+
+	public interface BeforeAddPlayers {
+		void beforeAddPlayers(Set<PlayerKey> participants, Set<PlayerKey> spectators);
 	}
 
 	public interface Chat {

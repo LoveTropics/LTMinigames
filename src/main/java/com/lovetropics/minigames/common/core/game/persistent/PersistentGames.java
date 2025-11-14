@@ -14,7 +14,6 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 @EventBusSubscriber(modid = LoveTropics.ID)
 public class PersistentGames {
@@ -39,7 +38,7 @@ public class PersistentGames {
 				behavior.instantiate().register(game, game.events());
 			}
 
-			game.invoker(GamePhaseEvents.CREATE).create(Set.of());
+			game.invoker(GamePhaseEvents.CREATE).create();
 			game.invoker(GamePhaseEvents.START).start(null);
 
 			RUNNING_GAMES.add(game);

@@ -63,7 +63,7 @@ public final class TeamsBehavior implements IGameBehavior {
 
 		addTeamsToScoreboard(game);
 
-		events.listen(GamePhaseEvents.CREATE, participants -> {
+		events.listen(GamePlayerEvents.BEFORE_ADD_PLAYERS, (participants, spectators) -> {
 			teams.allocatePlayers(participants);
 			game.invoker(GameTeamEvents.TEAMS_ALLOCATED).onTeamsAllocated();
 		});

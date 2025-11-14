@@ -142,9 +142,14 @@ public class GamePhase implements IGamePhase {
 		startTime = level().getGameTime();
 
 		try {
+			invoker(GamePhaseEvents.CREATE).create();
+
 			allocateRoles();
 
-			invoker(GamePhaseEvents.CREATE).create(participants().stream().map(PlayerKey::from).collect(Collectors.toSet()));
+			invoker(GamePlayerEvents.BEFORE_ADD_PLAYERS).beforeAddPlayers(
+					participants().stream().map(PlayerKey::from).collect(Collectors.toSet()),
+					spectators().stream().map(PlayerKey::from).collect(Collectors.toSet())
+			);
 
 			for (ServerPlayer player : allPlayers().shuffledCopy(random())) {
 				addAndSpawnPlayer(player, getRoleFor(player));
@@ -508,7 +513,7 @@ public class GamePhase implements IGamePhase {
 		}
 		hideRoles = false;
 
-		subPhase.events.listen(GamePhaseEvents.CREATE, participants ->
+		subPhase.events.listen(GamePhaseEvents.CREATE, () ->
 				invoker(SubGameEvents.CREATE).onCreateSubGame(subPhase, subPhase.events)
 		);
 		subPhase.start();

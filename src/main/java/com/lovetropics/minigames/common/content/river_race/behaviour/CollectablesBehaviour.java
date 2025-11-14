@@ -82,7 +82,7 @@ public final class CollectablesBehaviour implements IGameBehavior {
 			zone.setCollectable(createItem(zone, collectable));
 		});
 
-		events.listen(GamePhaseEvents.CREATE, participants -> monumentSlots.forEach((pos, zone) -> {
+		events.listen(GamePhaseEvents.CREATE, () -> monumentSlots.forEach((pos, zone) -> {
 			if (zone.collectable() != null) {
 				spawnCollectableDisplay(game, zone.collectable(), pos.getCenter());
 			}

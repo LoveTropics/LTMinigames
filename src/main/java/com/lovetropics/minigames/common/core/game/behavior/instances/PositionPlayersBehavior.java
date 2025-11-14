@@ -6,7 +6,6 @@ import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.SpawnBuilder;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
-import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
 import com.lovetropics.minigames.common.core.game.player.PlayerRole;
 import com.lovetropics.minigames.common.core.game.player.PlayerSet;
@@ -85,17 +84,16 @@ public class PositionPlayersBehavior implements IGameBehavior {
 
 		TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
 		if (splitByTeam && teams != null) {
-			if (!teamSpawnKeys.isEmpty()) {
-				events.listen(GamePhaseEvents.CREATE, participants -> teamSpawners = teamSpawnKeys.entrySet().stream()
-						.collect(Collectors.toMap(
-								Map.Entry::getKey,
-								entry -> new CycledSpawner(regions, entry.getValue())
-						)));
-			} else if (!participantSpawner.regions().isEmpty()) {
-				events.listen(GamePhaseEvents.CREATE, participants ->
-						teamSpawners = createTeamSpawners(game, teams, participantSpawner, participants.size())
-				);
-			}
+			events.listen(GamePlayerEvents.BEFORE_ADD_PLAYERS, (participants, spectators) -> {
+				if (!teamSpawnKeys.isEmpty()) {
+					teamSpawners = teamSpawnKeys.entrySet().stream().collect(Collectors.toMap(
+							Map.Entry::getKey,
+							entry -> new CycledSpawner(regions, entry.getValue())
+					));
+				} else if (!participantSpawner.regions().isEmpty()) {
+					teamSpawners = createTeamSpawners(game, teams, participantSpawner, participants.size());
+				}
+			});
 		}
 
 		events.listen(GamePlayerEvents.SPAWN, (playerId, spawn, role) -> spawnPlayerAsRole(game, playerId, spawn, role, teams));

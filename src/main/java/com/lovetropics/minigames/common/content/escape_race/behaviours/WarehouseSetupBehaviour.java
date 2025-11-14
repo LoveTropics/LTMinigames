@@ -37,7 +37,7 @@ public record WarehouseSetupBehaviour(
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		State state = new State();
 		TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
-		events.listen(GamePhaseEvents.CREATE, participants -> this.onGameStarted(game, state));
+		events.listen(GamePhaseEvents.CREATE, () -> this.onGameStarted(game, state));
 		events.listen(GamePhaseEvents.TICK, () -> {
 			for (String roomEntranceRegion : state.rooms.keySet()) {
 					RoomState roomState = state.rooms.get(roomEntranceRegion);
