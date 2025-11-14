@@ -122,6 +122,7 @@ import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.Blo
 import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.GameFinishTrigger;
 import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.GeneralEventsTrigger;
 import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.ItemPickedUpTrigger;
+import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.ItemPutInItemFrameTrigger;
 import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.OnDamageTrigger;
 import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.OnDeathTrigger;
 import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.OnEntityInteractionTrigger;
@@ -344,6 +345,7 @@ public class GameBehaviorTypes {
 	public static final GameBehaviorEntry<DisguiseAsPlayerBoxBehaviour> DISGUISE_AS_PLAYER_BOX = register("disguise_as_player_box", DisguiseAsPlayerBoxBehaviour.CODEC);
 	public static final GameBehaviorEntry<UpdateWordBoxesInWorldBehaviour> UPDATE_WORD_BOXES_IN_WORLD = register("update_word_boxes_in_world", UpdateWordBoxesInWorldBehaviour.CODEC);
 	public static final GameBehaviorEntry<IncreaseRandomTickRateInRegionBehaviour> INCREASE_RANDOM_TICK_RATE_IN_REGION = register("increase_random_tick_rate_in_region", IncreaseRandomTickRateInRegionBehaviour.CODEC);
+	public static final GameBehaviorEntry<ItemPutInItemFrameTrigger> ITEM_PUT_IN_ITEM_FRAME = register("item_put_in_item_frame", ItemPutInItemFrameTrigger.CODEC);
 
 	public static final GameBehaviorEntry<SetupIntegrationsBehavior> SETUP_INTEGRATIONS = register("setup_integrations", SetupIntegrationsBehavior.CODEC);
 	public static final GameBehaviorEntry<JoinLateWithRoleBehavior> JOIN_LATE_WITH_ROLE = register("join_late_with_role", JoinLateWithRoleBehavior.CODEC);
