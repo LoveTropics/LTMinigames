@@ -3,7 +3,7 @@ package com.lovetropics.minigames.common.core.command.game;
 import com.lovetropics.minigames.common.core.command.argument.GameConfigArgument;
 import com.lovetropics.minigames.common.core.game.IGameDefinition;
 import com.lovetropics.minigames.common.core.game.impl.GameLobby;
-import com.lovetropics.minigames.common.core.game.impl.GameManager;
+import com.lovetropics.minigames.common.core.game.impl.GameLobbyManager;
 import com.lovetropics.minigames.common.core.game.lobby.LobbyControls;
 import com.lovetropics.minigames.common.core.game.util.GameTexts;
 import com.mojang.brigadier.Command;
@@ -32,7 +32,7 @@ public class StartGameCommand {
 	}
 
 	private static int start(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
-		GameLobby lobby = GameManager.get().getLobbyFor(context.getSource());
+		GameLobby lobby = GameLobbyManager.get().getLobbyFor(context.getSource());
 		if (lobby == null) {
 			throw NOT_IN_LOBBY.create();
 		}
@@ -40,7 +40,7 @@ public class StartGameCommand {
 	}
 
 	private static int enqueueAndStart(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
-		GameLobby lobby = GameManager.get().getLobbyFor(context.getSource());
+		GameLobby lobby = GameLobbyManager.get().getLobbyFor(context.getSource());
 		if (lobby == null) {
 			throw NOT_IN_LOBBY.create();
 		}

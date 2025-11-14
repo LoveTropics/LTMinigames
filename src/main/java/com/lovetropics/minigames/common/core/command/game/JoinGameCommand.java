@@ -4,8 +4,8 @@ import com.lovetropics.minigames.common.core.command.argument.GameLobbyArgument;
 import com.lovetropics.minigames.common.core.command.argument.PlayerRoleArgument;
 import com.lovetropics.minigames.common.core.game.GameResult;
 import com.lovetropics.minigames.common.core.game.impl.GameLobby;
+import com.lovetropics.minigames.common.core.game.impl.GameLobbyManager;
 import com.lovetropics.minigames.common.core.game.impl.LobbyPlayerManager;
-import com.lovetropics.minigames.common.core.game.impl.GameManager;
 import com.lovetropics.minigames.common.core.game.player.PlayerRole;
 import com.lovetropics.minigames.common.core.game.util.GameTexts;
 import com.mojang.brigadier.Command;
@@ -89,7 +89,7 @@ public class JoinGameCommand {
 		if (givenLobby != null) {
 			return GameResult.ok(givenLobby);
 		} else {
-			List<? extends GameLobby> lobbies = GameManager.get().getVisibleLobbies(source).collect(Collectors.toList());
+			List<? extends GameLobby> lobbies = GameLobbyManager.get().getVisibleLobbies(source).collect(Collectors.toList());
 			if (lobbies.size() == 1) {
 				return GameResult.ok(lobbies.getFirst());
 			} else if (lobbies.isEmpty()) {
@@ -102,7 +102,7 @@ public class JoinGameCommand {
 
 	private static int forcePlayerJoin(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
 		ServerPlayer player = EntityArgument.getPlayer(context, "player");
-		GameLobby lobby = GameManager.get().getLobbyFor(player);
+		GameLobby lobby = GameLobbyManager.get().getLobbyFor(player);
 		if (lobby == null) {
 			throw new SimpleCommandExceptionType(GameTexts.Commands.NOT_IN_LOBBY).create();
 		}

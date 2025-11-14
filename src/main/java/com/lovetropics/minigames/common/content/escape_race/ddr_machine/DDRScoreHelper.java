@@ -4,7 +4,7 @@ import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DdrLevel;
 import com.lovetropics.minigames.common.content.escape_race.event.EscapeRaceEvents;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
-import com.lovetropics.minigames.common.core.game.impl.GameManager;
+import com.lovetropics.minigames.common.core.game.impl.GamePhaseManager;
 import net.minecraft.core.Holder;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerScoreboard;
@@ -30,7 +30,7 @@ public class DDRScoreHelper {
 		if (scoreAccess.get() < score) {
 			scoreAccess.set(score);
 		}
-		IGamePhase game = GameManager.get().getGamePhaseFor(serverPlayer);
+		IGamePhase game = GamePhaseManager.get().getGamePhaseFor(serverPlayer);
 		if(game != null){
 			game.invoker(EscapeRaceEvents.DDR_LEVEL_COMPLETED)
 					.onComplete(serverPlayer, level, score, bestStreak);

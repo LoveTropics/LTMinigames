@@ -2,7 +2,7 @@ package com.lovetropics.minigames.mixin;
 
 import com.lovetropics.minigames.common.core.game.PlayerIsolation;
 import com.lovetropics.minigames.common.core.game.PlayerListAccess;
-import com.lovetropics.minigames.common.core.game.impl.GameManager;
+import com.lovetropics.minigames.common.core.game.impl.GameLobbyManager;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -95,6 +95,6 @@ public abstract class PlayerListMixin implements PlayerListAccess {
 	// FIXME: It would be nice to not need to produce new player instances in the logout process - but microgames need it right now to pull players all the way out
 	@ModifyVariable(method = "remove", at = @At(value = "HEAD"), argsOnly = true)
 	private ServerPlayer onPlayerLogOut(ServerPlayer player) {
-		return GameManager.onPlayerLoggedOut(player);
+		return GameLobbyManager.onPlayerLoggedOut(player);
 	}
 }

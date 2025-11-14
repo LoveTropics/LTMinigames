@@ -3,7 +3,7 @@ package com.lovetropics.minigames.client.lobby.manage;
 import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.client.lobby.manage.state.update.ServerLobbyUpdate;
 import com.lovetropics.minigames.common.core.game.impl.GameLobby;
-import com.lovetropics.minigames.common.core.game.impl.GameManager;
+import com.lovetropics.minigames.common.core.game.impl.GameLobbyManager;
 import com.lovetropics.minigames.common.core.game.impl.LobbyManagement;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -32,7 +32,7 @@ public record ServerManageLobbyMessage(int id, Optional<ServerLobbyUpdate.Set> u
 	}
 
 	public static void handle(ServerManageLobbyMessage message, IPayloadContext context) {
-		GameLobby lobby = GameManager.get().getLobbyByNetworkId(message.id);
+		GameLobby lobby = GameLobbyManager.get().getLobbyByNetworkId(message.id);
 		ServerPlayer player = (ServerPlayer) context.player();
 		if (lobby == null) {
 			return;

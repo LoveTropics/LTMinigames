@@ -2,7 +2,7 @@ package com.lovetropics.minigames.client.lobby;
 
 import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.core.game.impl.GameLobby;
-import com.lovetropics.minigames.common.core.game.impl.GameManager;
+import com.lovetropics.minigames.common.core.game.impl.GameLobbyManager;
 import com.lovetropics.minigames.common.core.game.util.GameTexts;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.ChatFormatting;
@@ -22,7 +22,7 @@ public record LeaveLobbyPacket() implements CustomPacketPayload {
 		if (!(context.player() instanceof ServerPlayer player)) {
 			return;
 		}
-		GameLobby lobby = GameManager.get().getLobbyFor(player);
+		GameLobby lobby = GameLobbyManager.get().getLobbyFor(player);
 		if (lobby != null && lobby.getPlayers().remove(player, false)) {
 			player.sendSystemMessage(GameTexts.Commands.leftLobby(lobby));
 		} else {

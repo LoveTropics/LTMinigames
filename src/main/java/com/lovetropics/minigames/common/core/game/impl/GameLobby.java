@@ -35,7 +35,7 @@ import javax.annotation.Nullable;
  * A game lobby can have many games in its queue, each will be given a GameInstance.
  */
 public final class GameLobby {
-	final GameManager manager;
+	final GameLobbyManager manager;
 	final MinecraftServer server;
 	GameLobbyMetadata metadata;
 
@@ -54,7 +54,7 @@ public final class GameLobby {
 	private boolean needsRolePrompt = false;
 	private boolean closed;
 
-	GameLobby(GameManager manager, MinecraftServer server, GameLobbyMetadata metadata) {
+	GameLobby(GameLobbyManager manager, MinecraftServer server, GameLobbyMetadata metadata) {
 		this.manager = manager;
 		this.server = server;
 		this.metadata = metadata;
@@ -178,11 +178,11 @@ public final class GameLobby {
 
 		if (oldPhase != null) {
 			oldPhase.destroy();
-			manager.removeGamePhaseFromDimension(oldPhase.dimension(), oldPhase);
+			GamePhaseManager.get().removeGamePhaseFromDimension(oldPhase.dimension(), oldPhase);
 		}
 
 		if (newPhase != null) {
-			manager.addGamePhaseToDimension(newPhase.dimension(), newPhase);
+			GamePhaseManager.get().addGamePhaseToDimension(newPhase.dimension(), newPhase);
 			result = startPhase(newPhase);
 		}
 

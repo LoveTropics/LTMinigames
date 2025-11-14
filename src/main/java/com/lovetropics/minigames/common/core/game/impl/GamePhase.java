@@ -1,9 +1,7 @@
 package com.lovetropics.minigames.common.core.game.impl;
 
-import com.google.common.collect.Lists;
 import com.lovetropics.lib.slideshow.SlideshowApi;
 import com.lovetropics.minigames.LoveTropics;
-import com.lovetropics.minigames.common.content.river_race.event.RiverRaceEvents;
 import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.GamePhaseType;
 import com.lovetropics.minigames.common.core.game.GameResult;
@@ -35,7 +33,6 @@ import com.lovetropics.minigames.common.core.game.util.TeamAllocator;
 import com.lovetropics.minigames.common.core.map.MapRegions;
 import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
-import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -49,7 +46,6 @@ import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
 import java.util.ArrayDeque;
-import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Objects;
@@ -117,7 +113,7 @@ public class GamePhase implements IGamePhase {
 	public static CompletableFuture<GameResult<GamePhase>> create(GameInstance game, IGameDefinition gameDefinition, IGamePhaseDefinition phaseDefinition, GamePhaseType phaseType) {
 		MinecraftServer server = game.server();
 
-		GameResult<Unit> result = game.lobby.manager.canStartGamePhase(phaseDefinition);
+		GameResult<Unit> result = GamePhaseManager.get().canStartGamePhase(phaseDefinition);
 		if (result.isError()) {
 			return CompletableFuture.completedFuture(result.castError());
 		}
@@ -504,7 +500,7 @@ public class GamePhase implements IGamePhase {
 
 	public void startSubPhase(GamePhase subPhase) {
 		this.subPhase = subPhase;
-		GameManager.INSTANCE.addGamePhaseToDimension(subPhase.dimension(), subPhase);
+		GamePhaseManager.get().addGamePhaseToDimension(subPhase.dimension(), subPhase);
 		subPhase.assignRolesFrom(this);
 		hideRoles = true;
 		for (ServerPlayer player : allPlayers()) {
@@ -539,7 +535,7 @@ public class GamePhase implements IGamePhase {
 	private void destroySubGame() {
 		if (subPhase != null) {
 			subPhase.destroy();
-			GameManager.INSTANCE.removeGamePhaseFromDimension(subPhase.dimension(), subPhase);
+			GamePhaseManager.get().removeGamePhaseFromDimension(subPhase.dimension(), subPhase);
 			subPhase = null;
 		}
 	}

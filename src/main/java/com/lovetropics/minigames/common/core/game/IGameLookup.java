@@ -1,6 +1,5 @@
 package com.lovetropics.minigames.common.core.game;
 
-import com.lovetropics.minigames.common.core.game.impl.GameLobby;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
@@ -11,17 +10,6 @@ import net.minecraft.world.phys.Vec3;
 import javax.annotation.Nullable;
 
 public interface IGameLookup {
-	@Nullable
-	GameLobby getLobbyFor(Player player);
-
-	@Nullable
-	default GameLobby getLobbyFor(CommandSourceStack source) {
-		if (source.getEntity() instanceof Player player) {
-			return getLobbyFor(player);
-		}
-		return null;
-	}
-
 	@Nullable
 	IGamePhase getGamePhaseFor(Player player);
 

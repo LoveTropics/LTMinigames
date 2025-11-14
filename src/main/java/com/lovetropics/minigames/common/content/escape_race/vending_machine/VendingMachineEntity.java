@@ -2,7 +2,7 @@ package com.lovetropics.minigames.common.content.escape_race.vending_machine;
 
 import com.lovetropics.minigames.common.content.escape_race.EscapeRace;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
-import com.lovetropics.minigames.common.core.game.impl.GameManager;
+import com.lovetropics.minigames.common.core.game.impl.GamePhaseManager;
 import com.lovetropics.minigames.common.core.network.vending.SelectVendingMachineItemMessage;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
@@ -125,7 +125,7 @@ public class VendingMachineEntity extends Entity implements ContainerEntity {
 	}
 
 	public void tryPurchase(Player player, int itemIndex){
-		IGamePhase game = GameManager.get().getGamePhaseFor(player);
+		IGamePhase game = GamePhaseManager.get().getGamePhaseFor(player);
 		if(game != null) {
 			if(game.invoker(VendingMachineEvents.PURCHASE_ITEM)
 					.onPurchaseItem(player, this, getItem(itemIndex))){
@@ -339,6 +339,7 @@ public class VendingMachineEntity extends Entity implements ContainerEntity {
 		this.clearChestVehicleContent();
 	}
 
+	@Override
 	@Nullable
 	public AbstractContainerMenu createMenu(int containerId, Inventory playerInventory, Player p_38253_) {
 		if (this.lootTable != null && p_38253_.isSpectator()) {

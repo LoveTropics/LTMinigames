@@ -3,7 +3,7 @@ package com.lovetropics.minigames.gametests.api;
 import com.lovetropics.minigames.common.core.game.GameResult;
 import com.lovetropics.minigames.common.core.game.GameStopReason;
 import com.lovetropics.minigames.common.core.game.impl.GameLobby;
-import com.lovetropics.minigames.common.core.game.impl.GameManager;
+import com.lovetropics.minigames.common.core.game.impl.GameLobbyManager;
 import com.lovetropics.minigames.common.core.game.lobby.LobbyControls;
 import com.lovetropics.minigames.common.core.game.player.PlayerRole;
 import com.lovetropics.minigames.mixin.gametest.GameTestHelperAccess;
@@ -768,7 +768,7 @@ public class LTGameTestHelper extends GameTestHelper {
 	public TestGameLobby createGame(ServerPlayer player, PlayerRole initiatorRole) {
 		String name = player.getScoreboardName() + "'s Lobby";
 
-		GameResult<GameLobby> result = GameManager.get().createGameLobby(name, player);
+		GameResult<GameLobby> result = GameLobbyManager.get().createGameLobby(name, player);
 		assertTrue(result.isOk(), () -> "Game could not be created: " + result.getError().getString());
 
 		GameLobby lobby = result.getOk();

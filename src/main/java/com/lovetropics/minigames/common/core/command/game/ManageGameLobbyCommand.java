@@ -3,7 +3,7 @@ package com.lovetropics.minigames.common.core.command.game;
 import com.lovetropics.minigames.common.core.command.argument.GameLobbyArgument;
 import com.lovetropics.minigames.common.core.game.GameResult;
 import com.lovetropics.minigames.common.core.game.impl.GameLobby;
-import com.lovetropics.minigames.common.core.game.impl.GameManager;
+import com.lovetropics.minigames.common.core.game.impl.GameLobbyManager;
 import com.lovetropics.minigames.common.core.game.impl.LobbyManagement;
 import com.lovetropics.minigames.common.core.game.util.GameTexts;
 import com.mojang.brigadier.Command;
@@ -49,7 +49,7 @@ public class ManageGameLobbyCommand {
 
 	public static GameResult<GameLobby> createAndJoinLobby(ServerPlayer player) {
 		String name = player.getScoreboardName() + "'s Lobby";
-		GameResult<GameLobby> result = GameManager.get().createGameLobby(name, player);
+		GameResult<GameLobby> result = GameLobbyManager.get().createGameLobby(name, player);
 		if (result.isError()) {
 			return result.castError();
 		}
@@ -68,7 +68,7 @@ public class ManageGameLobbyCommand {
 
 	private static int manageCurrentLobby(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
 		ServerPlayer player = context.getSource().getPlayerOrException();
-		GameLobby lobby = GameManager.get().getLobbyFor(player);
+		GameLobby lobby = GameLobbyManager.get().getLobbyFor(player);
 		if (lobby == null) {
 			throw NOT_IN_LOBBY.create();
 		}

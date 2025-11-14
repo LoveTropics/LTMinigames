@@ -2,7 +2,7 @@ package com.lovetropics.minigames.common.content.survive_the_tide.block;
 
 import com.lovetropics.minigames.common.content.survive_the_tide.SurviveTheTide;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
-import com.lovetropics.minigames.common.core.game.impl.GameManager;
+import com.lovetropics.minigames.common.core.game.impl.GamePhaseManager;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeam;
 import com.lovetropics.minigames.common.core.game.state.team.TeamState;
 import com.mojang.serialization.Codec;
@@ -49,7 +49,7 @@ public class BigRedButtonBlockEntity extends BlockEntity {
 			return;
 		}
 
-		IGamePhase game = GameManager.get().getGamePhaseAt(level, pos);
+		IGamePhase game = GamePhaseManager.get().getGamePhaseAt(level, pos);
 		int smallestTeamSize = game != null ? getSmallestTeamSize(game) : 1;
 		int requiredCount = entity.requirements.resolve(smallestTeamSize);
 		int presentCount = game != null && entity.pressed ? entity.countPlayersPresent(game, pos) : 0;
@@ -97,7 +97,7 @@ public class BigRedButtonBlockEntity extends BlockEntity {
 
 	public void press() {
 		// No game is active, just allow instant trigger
-		if (GameManager.get().getGamePhaseAt(level, getBlockPos()) == null) {
+		if (GamePhaseManager.get().getGamePhaseAt(level, getBlockPos()) == null) {
 			trigger();
 			return;
 		}

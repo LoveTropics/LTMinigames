@@ -3,7 +3,7 @@ package com.lovetropics.minigames.common.core.network.trivia;
 import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.content.river_race.block.HasTrivia;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
-import com.lovetropics.minigames.common.core.game.impl.GameManager;
+import com.lovetropics.minigames.common.core.game.impl.GamePhaseManager;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.StreamCodec;
@@ -21,7 +21,7 @@ public record RequestTriviaStateUpdateMessage(BlockPos triviaBlock) implements C
 
 	public static void handle(final RequestTriviaStateUpdateMessage message, final IPayloadContext context) {
 		if (context.player().level().getBlockEntity(message.triviaBlock()) instanceof HasTrivia triviaBlockEntity) {
-			IGamePhase game = GameManager.get().getGamePhaseFor(context.player());
+			IGamePhase game = GamePhaseManager.get().getGamePhaseFor(context.player());
 			if (game != null) {
 				ServerPlayer player = (ServerPlayer) context.player();
 				PacketDistributor.sendToPlayer(player, new TriviaAnswerResponseMessage(message.triviaBlock(), triviaBlockEntity.getState()));

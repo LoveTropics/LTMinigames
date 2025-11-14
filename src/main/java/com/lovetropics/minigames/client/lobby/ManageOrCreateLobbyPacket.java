@@ -4,7 +4,7 @@ import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.core.command.game.ManageGameLobbyCommand;
 import com.lovetropics.minigames.common.core.game.GameResult;
 import com.lovetropics.minigames.common.core.game.impl.GameLobby;
-import com.lovetropics.minigames.common.core.game.impl.GameManager;
+import com.lovetropics.minigames.common.core.game.impl.GameLobbyManager;
 import com.lovetropics.minigames.common.core.game.util.GameTexts;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.commands.Commands;
@@ -28,7 +28,7 @@ public record ManageOrCreateLobbyPacket() implements CustomPacketPayload {
 			player.sendSystemMessage(GameTexts.Commands.NO_MANAGE_PERMISSION);
 			return;
 		}
-		GameLobby lobby = GameManager.get().getLobbyFor(player);
+		GameLobby lobby = GameLobbyManager.get().getLobbyFor(player);
 		if (lobby != null) {
 			if (!lobby.getManagement().startManaging(player)) {
 				player.sendSystemMessage(GameTexts.Commands.NO_MANAGE_PERMISSION);

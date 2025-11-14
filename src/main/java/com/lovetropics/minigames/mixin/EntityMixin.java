@@ -6,7 +6,7 @@ import com.lovetropics.minigames.client.game.ClientGameStateManager;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.client_state.GameClientStateTypes;
 import com.lovetropics.minigames.common.core.game.client_state.instance.CollidersClientState;
-import com.lovetropics.minigames.common.core.game.impl.GameManager;
+import com.lovetropics.minigames.common.core.game.impl.GamePhaseManager;
 import com.lovetropics.minigames.common.core.game.state.ColliderState;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -34,7 +34,7 @@ public class EntityMixin {
 				colliders.addTo(boundingBox, output);
 			}
 		} else {
-			IGamePhase game = GameManager.get().getGamePhaseFor(player);
+			IGamePhase game = GamePhaseManager.get().getGamePhaseFor(player);
 			if (game != null) {
 				ColliderState colliderState = game.state().getOrNull(ColliderState.KEY);
 				if (colliderState != null) {
