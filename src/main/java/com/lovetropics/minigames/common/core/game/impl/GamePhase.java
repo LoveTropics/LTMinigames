@@ -236,6 +236,9 @@ public class GamePhase implements IGamePhase {
 	}
 
 	private void tickTopLevel() {
+		if (startTime == NOT_STARTED) {
+			return;
+		}
 		try {
 			scheduler.tick();
 			invoker(GamePhaseEvents.TICK).tick();
