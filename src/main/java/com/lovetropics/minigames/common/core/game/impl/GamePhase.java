@@ -122,12 +122,11 @@ public class GamePhase implements IGamePhase {
 			return CompletableFuture.completedFuture(result.castError());
 		}
 
+		CompletableFuture<GameMap> mapFuture = phaseDefinition.getMap().open(server);
 		BehaviorList behaviors = phaseDefinition.createBehaviors();
 
-		CompletableFuture<GameResult<GamePhase>> future = phaseDefinition.getMap().open(server)
-				.thenApply(r -> r.map(map -> new GamePhase(game, gameDefinition, phaseDefinition, phaseType, map, behaviors)));
-
-		return GameResult.handleException("Unknown exception starting game phase", future);
+		return GameResult.handleException(mapFuture
+				.thenApplyAsync(map -> new GamePhase(game, gameDefinition, phaseDefinition, phaseType, map, behaviors), server));
 	}
 
 	GameResult<Unit> start() {

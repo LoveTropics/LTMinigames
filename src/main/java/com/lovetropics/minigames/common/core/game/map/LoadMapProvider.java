@@ -3,7 +3,7 @@ package com.lovetropics.minigames.common.core.game.map;
 import com.lovetropics.minigames.common.core.dimension.RuntimeDimensionConfig;
 import com.lovetropics.minigames.common.core.dimension.RuntimeDimensionHandle;
 import com.lovetropics.minigames.common.core.dimension.RuntimeDimensions;
-import com.lovetropics.minigames.common.core.game.GameResult;
+import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.map.MapExportReader;
 import com.lovetropics.minigames.common.core.map.MapMetadata;
 import com.lovetropics.minigames.common.core.map.MapWorldInfo;
@@ -58,7 +58,7 @@ public record LoadMapProvider(
 	}
 
 	@Override
-	public CompletableFuture<GameResult<GameMap>> open(MinecraftServer server) {
+	public CompletableFuture<GameMap> open(MinecraftServer server) {
 		Holder<DimensionType> dimensionType = this.dimensionType.orElse(server.overworld().dimensionTypeRegistration());
 		LevelStem dimension = new LevelStem(dimensionType, new VoidChunkGenerator(server));
 		MapWorldSettings worldSettings = new MapWorldSettings();
@@ -67,48 +67,45 @@ public record LoadMapProvider(
 		RuntimeDimensionConfig config = new RuntimeDimensionConfig(dimension, 0, worldInfo);
 
 		return CompletableFuture.supplyAsync(() -> openDimension(server, config), server)
-				.thenApplyAsync(result -> result.andThen(handle -> {
-					return loadMapInto(server, worldSettings, handle);
-				}), Util.backgroundExecutor())
-				.thenApplyAsync(result -> result.map(pair -> {
+				.thenApplyAsync(handle -> loadMapInto(server, worldSettings, handle), Util.backgroundExecutor())
+				.thenApplyAsync(pair -> {
 					RuntimeDimensionHandle dimensionHandle = pair.getFirst();
 					MapMetadata metadata = pair.getSecond();
 					return new GameMap(name.orElse(null), dimensionHandle.asKey(), metadata.regions())
 							.onClose(game -> dimensionHandle.delete());
-				}), server);
+				}, server);
 	}
 
-	private GameResult<RuntimeDimensionHandle> openDimension(MinecraftServer server, RuntimeDimensionConfig config) {
+	private RuntimeDimensionHandle openDimension(MinecraftServer server, RuntimeDimensionConfig config) {
 		RuntimeDimensions dimensions = RuntimeDimensions.get(server);
 		if (dimension.isEmpty()) {
-			return GameResult.ok(dimensions.openTemporary(config));
+			return dimensions.openTemporary(config);
 		}
 
 		RuntimeDimensionHandle handle = dimensions.openTemporaryWithKey(dimension.get(), config);
 		if (handle != null) {
-			return GameResult.ok(handle);
+			return handle;
 		} else {
-			return GameResult.error(Component.literal("Dimension already loaded in '" + dimension.get() + "'"));
+			throw new GameException(Component.literal("Dimension already loaded in '" + dimension.get() + "'"));
 		}
 	}
 
-	private GameResult<Pair<RuntimeDimensionHandle, MapMetadata>> loadMapInto(MinecraftServer server, MapWorldSettings mapWorldSettings, RuntimeDimensionHandle handle) {
+	private Pair<RuntimeDimensionHandle, MapMetadata> loadMapInto(MinecraftServer server, MapWorldSettings mapWorldSettings, RuntimeDimensionHandle handle) {
 		ResourceLocation path = loadFrom.withPath(p -> "maps/" + p + ".zip");
 
 		Optional<Resource> resource = server.getResourceManager().getResource(path);
 		if (resource.isEmpty()) {
-			return GameResult.error(Component.literal("No map exists at '" + path + "'"));
+			throw new GameException(Component.literal("No map exists at '" + path + "'"));
 		}
 
 		try {
 			try (MapExportReader reader = MapExportReader.open(resource.get().open())) {
 				MapMetadata metadata = reader.loadInto(server, handle.asKey());
 				mapWorldSettings.importFrom(metadata.settings());
-				return GameResult.ok(Pair.of(handle, metadata));
+				return Pair.of(handle, metadata);
 			}
 		} catch (IOException e) {
-			LOGGER.error("Failed to load map from {}", path, e);
-			return GameResult.fromException("Failed to load map from '" + path + "'", e);
+			throw new GameException(Component.literal("Failed to load map from '" + path + "'"), e);
 		}
 	}
 }

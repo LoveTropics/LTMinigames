@@ -1,6 +1,6 @@
 package com.lovetropics.minigames.common.core.game.map;
 
-import com.lovetropics.minigames.common.core.game.GameResult;
+import com.lovetropics.minigames.common.core.game.GameException;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.registries.Registries;
@@ -29,12 +29,12 @@ public record InlineMapProvider(ResourceKey<Level> dimension) implements IGameMa
 	}
 
 	@Override
-	public CompletableFuture<GameResult<GameMap>> open(MinecraftServer server) {
+	public CompletableFuture<GameMap> open(MinecraftServer server) {
 		if (server.getLevel(dimension) == null) {
-			return CompletableFuture.completedFuture(GameResult.error(Component.literal("Missing dimension " + dimension)));
+			return CompletableFuture.failedFuture(new GameException(Component.literal("Missing dimension " + dimension)));
 		}
 
 		GameMap map = new GameMap(null, dimension);
-		return CompletableFuture.completedFuture(GameResult.ok(map));
+		return CompletableFuture.completedFuture(map);
 	}
 }

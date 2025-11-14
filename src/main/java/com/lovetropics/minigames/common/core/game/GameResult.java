@@ -38,17 +38,32 @@ public final class GameResult<T> {
 		return new GameResult<>(null, exception.getTextMessage());
 	}
 
-	public static <T> GameResult<T> fromException(String message, Exception exception) {
-		exception.printStackTrace();
-		return GameResult.error(Component.literal(message + ": " + exception));
+	public static <T> GameResult<T> fromException(Throwable throwable) {
+		return fromException("Unknown error", throwable);
+	}
+
+	public static <T> GameResult<T> fromException(String message, Throwable throwable) {
+		if (throwable instanceof GameException gameException) {
+			return error(gameException);
+		}
+		return GameResult.error(Component.literal(message + ": " + throwable));
 	}
 
 	public static <T> CompletableFuture<GameResult<T>> handleException(String message, CompletableFuture<GameResult<T>> future) {
 		return future.handle((result, throwable) -> {
-			if (throwable instanceof Exception) {
-				return GameResult.fromException(message, (Exception) throwable);
+			if (throwable != null) {
+				return GameResult.fromException(message, throwable);
 			}
 			return result;
+		});
+	}
+
+	public static <T> CompletableFuture<GameResult<T>> handleException(CompletableFuture<T> future) {
+		return future.handle((result, throwable) -> {
+			if (throwable != null) {
+				return GameResult.fromException(throwable);
+			}
+			return GameResult.ok(result);
 		});
 	}
 

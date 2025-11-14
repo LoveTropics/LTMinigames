@@ -1,9 +1,9 @@
 package com.lovetropics.minigames.common.core.game.map;
 
 import com.lovetropics.lib.codec.MoreCodecs;
-import com.lovetropics.minigames.common.core.game.GameResult;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.Util;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.RandomSource;
@@ -35,8 +35,7 @@ public record RandomMapProvider(IGameMapProvider[] mapProviders) implements IGam
 	}
 
 	@Override
-	public CompletableFuture<GameResult<GameMap>> open(MinecraftServer server) {
-		IGameMapProvider map = mapProviders[RANDOM.nextInt(mapProviders.length)];
-		return map.open(server);
+	public CompletableFuture<GameMap> open(MinecraftServer server) {
+		return Util.getRandom(mapProviders, RANDOM).open(server);
 	}
 }

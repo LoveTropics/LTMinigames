@@ -1,6 +1,5 @@
 package com.lovetropics.minigames.common.core.game.map;
 
-import com.lovetropics.minigames.common.core.game.GameResult;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
@@ -13,7 +12,7 @@ import java.util.concurrent.CompletableFuture;
 public interface IGameMapProvider {
 	MapCodec<? extends IGameMapProvider> getCodec();
 
-	CompletableFuture<GameResult<GameMap>> open(MinecraftServer server);
+	CompletableFuture<GameMap> open(MinecraftServer server);
 
 	default List<ResourceKey<Level>> getPossibleDimensions() {
 		return Collections.emptyList();

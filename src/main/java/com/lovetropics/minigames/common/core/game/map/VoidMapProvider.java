@@ -3,7 +3,6 @@ package com.lovetropics.minigames.common.core.game.map;
 import com.lovetropics.minigames.common.core.dimension.RuntimeDimensionConfig;
 import com.lovetropics.minigames.common.core.dimension.RuntimeDimensionHandle;
 import com.lovetropics.minigames.common.core.dimension.RuntimeDimensions;
-import com.lovetropics.minigames.common.core.game.GameResult;
 import com.lovetropics.minigames.common.core.map.MapRegions;
 import com.lovetropics.minigames.common.core.map.MapWorldInfo;
 import com.lovetropics.minigames.common.core.map.MapWorldSettings;
@@ -31,7 +30,7 @@ public record VoidMapProvider(Optional<String> name, Optional<Holder<DimensionTy
 	}
 
 	@Override
-	public CompletableFuture<GameResult<GameMap>> open(MinecraftServer server) {
+	public CompletableFuture<GameMap> open(MinecraftServer server) {
 		Holder<DimensionType> dimensionType = this.dimensionType.orElse(server.overworld().dimensionTypeRegistration());
 		LevelStem dimension = new LevelStem(dimensionType, new VoidChunkGenerator(server));
 
@@ -40,11 +39,8 @@ public record VoidMapProvider(Optional<String> name, Optional<Holder<DimensionTy
 
 		return CompletableFuture.supplyAsync(() -> {
 			RuntimeDimensionHandle dimensionHandle = RuntimeDimensions.get(server).openTemporary(config);
-
-			GameMap map = new GameMap(name.orElse(null), dimensionHandle.asKey(), new MapRegions())
+			return new GameMap(name.orElse(null), dimensionHandle.asKey(), new MapRegions())
 					.onClose(game -> dimensionHandle.delete());
-
-			return GameResult.ok(map);
 		}, server);
 	}
 }
