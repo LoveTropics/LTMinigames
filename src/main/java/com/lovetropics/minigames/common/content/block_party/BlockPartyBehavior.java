@@ -42,6 +42,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public final class BlockPartyBehavior implements IGameBehavior {
@@ -167,9 +168,8 @@ public final class BlockPartyBehavior implements IGameBehavior {
 	}
 
 	CountingDown startCountingDown(int round) {
-		ServerLevel world = game.level();
-		Floor floor = Floor.generate(world.random, quadCountX, quadCountZ, blocks);
-		floor.set(world, floorRegion, quadSize);
+		ServerLevel level = game.level();
+		Floor floor = Floor.generate(level, level.random, floorRegion, quadSize, quadCountX, quadCountZ, blocks);
 
 		ItemStack targetStack = new ItemStack(floor.target.getBlock());
 
@@ -298,42 +298,42 @@ public final class BlockPartyBehavior implements IGameBehavior {
 	}
 
 	static final class Floor {
-		private final BlockState[] quads;
-		private final int quadCountX;
-		private final int quadCountZ;
-
 		private final BlockState target;
 
-		Floor(BlockState[] quads, int quadCountX, int quadCountZ, BlockState target) {
-			this.quads = quads;
-			this.quadCountX = quadCountX;
-			this.quadCountZ = quadCountZ;
+		Floor(BlockState target) {
 			this.target = target;
 		}
 
-		static Floor generate(RandomSource random, int quadCountX, int quadCountZ, BlockState[] blocks) {
+		static Floor generate(ServerLevel level, RandomSource random, BlockBox box, int quadSize, int quadCountX, int quadCountZ, BlockState[] blocks) {
 			BlockState[] quads = new BlockState[quadCountX * quadCountZ];
 
-			for (int z = 0; z < quadCountZ; z++) {
-				for (int x = 0; x < quadCountX; x++) {
-					quads[x + z * quadCountX] = blocks[random.nextInt(blocks.length)];
-				}
-			}
+			List<BlockState> candidateTargets = new ArrayList<>();
 
-			BlockState target = Util.getRandom(quads, random);
-			return new Floor(quads, quadCountX, quadCountZ, target);
-		}
-
-		void set(ServerLevel world, BlockBox box, int quadSize) {
 			for (BlockPos pos : box) {
+				if (level.isEmptyBlock(pos)) {
+					continue;
+				}
+
 				int localX = pos.getX() - box.min().getX();
 				int localZ = pos.getZ() - box.min().getZ();
-				int x = Mth.clamp(localX / quadSize, 0, quadCountX - 1);
-				int z = Mth.clamp(localZ / quadSize, 0, quadCountZ - 1);
+				int quadX = Mth.clamp(localX / quadSize, 0, quadCountX - 1);
+				int quadZ = Mth.clamp(localZ / quadSize, 0, quadCountZ - 1);
 
-				BlockState quad = quads[x + z * quadCountX];
-				world.setBlock(pos, quad, Block.UPDATE_KNOWN_SHAPE | Block.UPDATE_CLIENTS);
+				int quadIndex = quadX + quadZ * quadCountX;
+				BlockState selectedBlock = quads[quadIndex];
+				if (selectedBlock == null) {
+					selectedBlock = Util.getRandom(blocks, random);
+					quads[quadIndex] = selectedBlock;
+					if (!candidateTargets.contains(selectedBlock)) {
+						candidateTargets.add(selectedBlock);
+					}
+				}
+
+				level.setBlock(pos, selectedBlock, Block.UPDATE_KNOWN_SHAPE | Block.UPDATE_CLIENTS);
 			}
+
+			BlockState target = Util.getRandom(candidateTargets, random);
+			return new Floor(target);
 		}
 
 		void removeNonTargets(ServerLevel world, BlockBox box) {
