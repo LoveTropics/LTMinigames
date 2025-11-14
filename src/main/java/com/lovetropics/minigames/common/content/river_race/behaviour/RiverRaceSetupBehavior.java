@@ -3,14 +3,18 @@ package com.lovetropics.minigames.common.content.river_race.behaviour;
 import com.lovetropics.minigames.common.content.river_race.RiverRaceState;
 import com.lovetropics.minigames.common.content.river_race.event.RiverRaceEvents;
 import com.lovetropics.minigames.common.core.game.GameException;
+import com.lovetropics.minigames.common.core.game.IGameDefinition;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
+import com.lovetropics.minigames.common.core.game.behavior.event.SubGameEvents;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeamKey;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 
 import java.util.Map;
 
@@ -35,5 +39,12 @@ public record RiverRaceSetupBehavior(
 		events.listen(RiverRaceEvents.UNLOCK_ZONE, id ->
 				riverRace.setCurrentZone(riverRace.getZoneById(id))
 		);
+
+		// TODO: Move this to its own behavior?
+		events.listen(SubGameEvents.CREATE, (subPhase, subEvents) -> {
+			IGameDefinition definition = subPhase.definition();
+			subPhase.allPlayers().sendMessage(Component.literal("Now Playing: ").append(definition.name()).withStyle(ChatFormatting.GREEN));
+			subPhase.allPlayers().showTitle(Component.empty().append(definition.name()).withStyle(ChatFormatting.GREEN), definition.subtitle(), 10, 40, 10);
+		});
 	}
 }

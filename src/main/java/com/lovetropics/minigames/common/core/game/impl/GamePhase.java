@@ -568,10 +568,6 @@ public class GamePhase implements IGamePhase {
 		return GamePhase.create(game, nextGame, nextGame.getPlayingPhase(), GamePhaseType.PLAYING).thenApply(result -> {
 			if (result.isOk()) {
 				startSubPhase(result.getOk());
-				invoker(RiverRaceEvents.MICROGAME_STARTED).onMicrogameStarted(this);
-				game.allPlayers().sendMessage(Component.literal("Now Playing: ").append(nextGame.name()).withStyle(ChatFormatting.GREEN));
-				game.allPlayers().showTitle(Component.empty().append(nextGame.name()).withStyle(ChatFormatting.GREEN),
-						nextGame.subtitle(), 10, 40, 10);
 				return true;
 			}
 			LOGGER.error("Failed to start micro-game {} - {}", nextGame.id().toString(), result.getError().getString());

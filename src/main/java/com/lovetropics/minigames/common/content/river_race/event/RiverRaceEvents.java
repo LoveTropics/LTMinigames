@@ -28,12 +28,6 @@ public class RiverRaceEvents {
 		}
 	});
 
-	public static final GameEventType<MicrogameStarted> MICROGAME_STARTED = GameEventType.create(MicrogameStarted.class, listeners -> (game) -> {
-		for (MicrogameStarted listener : listeners) {
-			listener.onMicrogameStarted(game);
-		}
-	});
-
 	public static final GameEventType<UnlockZone> UNLOCK_ZONE = GameEventType.create(UnlockZone.class, listeners -> id -> {
 		for (UnlockZone listener : listeners) {
 			listener.onUnlockZone(id);
@@ -57,10 +51,6 @@ public class RiverRaceEvents {
 
 	public interface CollectablePlaced {
 		void onCollectablePlaced(ServerPlayer player, GameTeam team, BlockPos pos);
-	}
-
-	public interface MicrogameStarted {
-		void onMicrogameStarted(IGamePhase game);
 	}
 
 	public interface UnlockZone {
