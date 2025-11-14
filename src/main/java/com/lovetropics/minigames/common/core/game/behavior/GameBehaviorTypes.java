@@ -164,6 +164,7 @@ import com.lovetropics.minigames.common.core.game.behavior.instances.tweak.TntAu
 import com.lovetropics.minigames.common.core.game.behavior.instances.world.FillChestsByMarkerBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.world.ForceLoadRegionBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.world.GenerateEntitiesBehavior;
+import com.lovetropics.minigames.common.core.game.behavior.instances.world.IncreaseRandomTickRateInRegionBehaviour;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeam;
 import com.lovetropics.minigames.common.util.registry.GameBehaviorEntry;
 import com.lovetropics.minigames.common.util.registry.LoveTropicsRegistrate;
@@ -342,7 +343,7 @@ public class GameBehaviorTypes {
 	public static final GameBehaviorEntry<SpawnTeamsTrigger> SPAWN_TEAMS_TRIGGER = register("on_spawn_teams", SpawnTeamsTrigger.CODEC);
 	public static final GameBehaviorEntry<DisguiseAsPlayerBoxBehaviour> DISGUISE_AS_PLAYER_BOX = register("disguise_as_player_box", DisguiseAsPlayerBoxBehaviour.CODEC);
 	public static final GameBehaviorEntry<UpdateWordBoxesInWorldBehaviour> UPDATE_WORD_BOXES_IN_WORLD = register("update_word_boxes_in_world", UpdateWordBoxesInWorldBehaviour.CODEC);
-
+	public static final GameBehaviorEntry<IncreaseRandomTickRateInRegionBehaviour> INCREASE_RANDOM_TICK_RATE_IN_REGION = register("increase_random_tick_rate_in_region", IncreaseRandomTickRateInRegionBehaviour.CODEC);
 
 	public static final GameBehaviorEntry<SetupIntegrationsBehavior> SETUP_INTEGRATIONS = register("setup_integrations", SetupIntegrationsBehavior.CODEC);
 	public static final GameBehaviorEntry<JoinLateWithRoleBehavior> JOIN_LATE_WITH_ROLE = register("join_late_with_role", JoinLateWithRoleBehavior.CODEC);
