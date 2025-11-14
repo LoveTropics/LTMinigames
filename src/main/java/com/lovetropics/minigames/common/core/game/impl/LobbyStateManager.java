@@ -4,13 +4,16 @@ import com.lovetropics.minigames.client.lobby.state.ClientCurrentGame;
 import com.lovetropics.minigames.common.core.game.GamePhaseType;
 import com.lovetropics.minigames.common.core.game.IGameDefinition;
 import com.lovetropics.minigames.common.core.game.lobby.LobbyControls;
+import com.mojang.logging.LogUtils;
 import net.minecraft.network.chat.Component;
-import org.apache.logging.log4j.LogManager;
+import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
 import java.util.Objects;
 
 final class LobbyStateManager {
+	private static final Logger LOGGER = LogUtils.getLogger();
+
 	private final GameLobby lobby;
 	private LobbyState state = new LobbyState.Paused();
 
@@ -72,7 +75,7 @@ final class LobbyStateManager {
 	}
 
 	private LobbyState errored(LobbyState state, Component error) {
-		LogManager.getLogger().info(error.getContents());
+		LOGGER.error("Encountered lobby error, pausing: {}", error.getString());
 		GamePhase phase = state.phase;
 		if (phase != null) {
 			IGameDefinition definition = phase.definition();
