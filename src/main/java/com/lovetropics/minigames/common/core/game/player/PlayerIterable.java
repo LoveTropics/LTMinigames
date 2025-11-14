@@ -3,6 +3,8 @@ package com.lovetropics.minigames.common.core.game.player;
 import com.google.common.base.Predicate;
 import com.google.common.collect.AbstractIterator;
 import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
+import net.minecraft.Util;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
@@ -16,11 +18,13 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.PlayerList;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import javax.annotation.Nullable;
 import java.util.Iterator;
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -107,5 +111,11 @@ public interface PlayerIterable extends PlayerOps, Iterable<ServerPlayer> {
 				}
 			}
 		};
+	}
+
+	default List<ServerPlayer> shuffledCopy(RandomSource random) {
+		List<ServerPlayer> players = Lists.newArrayList(iterator());
+		Util.shuffle(players, random);
+		return players;
 	}
 }

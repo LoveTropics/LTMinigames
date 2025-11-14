@@ -151,10 +151,7 @@ public class GamePhase implements IGamePhase {
 
 			invoker(GamePhaseEvents.CREATE).create(participants().stream().map(PlayerKey::from).collect(Collectors.toSet()));
 
-			List<ServerPlayer> shuffledPlayers = Lists.newArrayList(allPlayers());
-			Collections.shuffle(shuffledPlayers);
-
-			for (ServerPlayer player : shuffledPlayers) {
+			for (ServerPlayer player : allPlayers().shuffledCopy(random())) {
 				addAndSpawnPlayer(player, getRoleFor(player));
 			}
 
@@ -529,9 +526,7 @@ public class GamePhase implements IGamePhase {
 	}
 
 	private void returnHere(GamePhase fromSubPhase) {
-		List<ServerPlayer> shuffledPlayers = Lists.newArrayList(allPlayers());
-		Collections.shuffle(shuffledPlayers);
-		for (ServerPlayer player : shuffledPlayers) {
+		for (ServerPlayer player : allPlayers().shuffledCopy(random())) {
 			returnPlayerToParentPhase(fromSubPhase, player);
 		}
 		invoker(SubGameEvents.RETURN_TO_TOP).onReturnToTopGame();

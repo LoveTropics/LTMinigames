@@ -1,6 +1,5 @@
 package com.lovetropics.minigames.common.core.game.behavior.instances.action;
 
-import com.google.common.collect.Lists;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
@@ -12,7 +11,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 
-import java.util.Collections;
 import java.util.List;
 
 public record SwapPlayersAction(double distanceThreshold) implements IGameBehavior {
@@ -36,8 +34,7 @@ public record SwapPlayersAction(double distanceThreshold) implements IGameBehavi
 	}
 
 	private void shufflePlayers(IGamePhase game) {
-		List<ServerPlayer> players = Lists.newArrayList(game.participants());
-		Collections.shuffle(players);
+		List<ServerPlayer> players = game.participants().shuffledCopy(game.random());
 
 		List<Vec3> playerPositions = players.stream()
 				.map(Entity::position)
@@ -51,8 +48,7 @@ public record SwapPlayersAction(double distanceThreshold) implements IGameBehavi
 	}
 
 	private void swapNearbyPlayers(IGamePhase game) {
-		List<ServerPlayer> players = Lists.newArrayList(game.participants());
-		Collections.shuffle(players);
+		List<ServerPlayer> players = game.participants().shuffledCopy(game.random());
 
 		List<Vec3> playerPositions = players.stream()
 				.map(Entity::position)
