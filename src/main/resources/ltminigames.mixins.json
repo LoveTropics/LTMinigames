@@ -21,6 +21,7 @@
     "event.EntityTypeMixin",
     "event.FallingBlockEntityMixin",
     "event.ItemStackMixin",
+    "event.LivingEntityMixin",
     "event.ServerLevelMixin",
     "fix.ServerwaypointManagerMixin",
     "gametest.GameTestHelperAccess",
@@ -39,11 +40,11 @@
     "client.HotbarOverride",
     "client.IntegratedPlayerListMixin",
     "client.KeyboardInputMixin",
+    "client.LevelRendererMixin",
     "client.LivingEntityRendererMixin",
     "client.MinecraftMixin",
     "client.MouseHandlerMixin",
-    "client.PlayerTabOverlayGuiMixin",
-    "client.LevelRendererMixin"
+    "client.PlayerTabOverlayGuiMixin"
   ],
   "injectors": {
     "defaultRequire": 1
