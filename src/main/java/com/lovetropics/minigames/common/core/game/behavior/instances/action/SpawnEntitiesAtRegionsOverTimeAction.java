@@ -14,6 +14,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.levelgen.Heightmap;
 
 import java.util.List;
@@ -27,13 +28,15 @@ public class SpawnEntitiesAtRegionsOverTimeAction implements IGameBehavior {
 			Codec.STRING.listOf().fieldOf("regions_to_spawn_at").forGetter(c -> c.regionsToSpawnAtKeys),
 			EntityTemplate.CODEC.fieldOf("entity").forGetter(c -> c.entity),
 			Codec.INT.optionalFieldOf("entity_count", 1).forGetter(c -> c.entityCount),
-			Codec.INT.optionalFieldOf("ticks_to_spawn_for", 1).forGetter(c -> c.ticksToSpawnFor)
+			Codec.INT.optionalFieldOf("ticks_to_spawn_for", 1).forGetter(c -> c.ticksToSpawnFor),
+			Codec.BOOL.optionalFieldOf("at_heightmap", true).forGetter(c -> c.atHeightmap)
 	).apply(i, SpawnEntitiesAtRegionsOverTimeAction::new));
 
 	private final List<String> regionsToSpawnAtKeys;
 	private final EntityTemplate entity;
 	private final int entityCount;
 	private final int ticksToSpawnFor;
+	private final boolean atHeightmap;
 
 	//runtime adjusted vars
 	private int ticksRemaining;
@@ -41,11 +44,12 @@ public class SpawnEntitiesAtRegionsOverTimeAction implements IGameBehavior {
 
 	private final List<BlockBox> regionsToSpawnAt = Lists.newArrayList();
 
-	public SpawnEntitiesAtRegionsOverTimeAction(final List<String> regionsToSpawnAtKeys, final EntityTemplate entity, final int entityCount, final int ticksToSpawnFor) {
+	public SpawnEntitiesAtRegionsOverTimeAction(final List<String> regionsToSpawnAtKeys, final EntityTemplate entity, final int entityCount, final int ticksToSpawnFor, final boolean atHeightmap) {
 		this.regionsToSpawnAtKeys = regionsToSpawnAtKeys;
 		this.entity = entity;
 		this.entityCount = entityCount;
 		this.ticksToSpawnFor = ticksToSpawnFor;
+		this.atHeightmap = atHeightmap;
 	}
 
 	@Override
@@ -76,11 +80,15 @@ public class SpawnEntitiesAtRegionsOverTimeAction implements IGameBehavior {
 
 			//System.out.println("spawnsPerTick: " + spawnsPerTick + ", ticksRemaining: " + ticksRemaining);
 
+			ServerLevel level = game.level();
 			for (int i = 0; i < spawnsPerTick; i++) {
-				BlockBox region = regionsToSpawnAt.get(game.level().getRandom().nextInt(regionsToSpawnAt.size()));
-				final BlockPos pos = game.level().getHeightmapPos(Heightmap.Types.WORLD_SURFACE, region.sample(game.level().getRandom()));
+				BlockBox region = regionsToSpawnAt.get(level.getRandom().nextInt(regionsToSpawnAt.size()));
+				BlockPos pos = region.sample(level.getRandom());
+				if (atHeightmap) {
+					pos = level.getHeightmapPos(Heightmap.Types.WORLD_SURFACE, pos);
+				}
 
-				entity.spawn(game.level(), pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 0.0f, 0.0f);
+				entity.spawn(level, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 0.0f, 0.0f);
 				entityCountRemaining--;
 			}
 
