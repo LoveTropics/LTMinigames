@@ -52,6 +52,7 @@ import net.neoforged.neoforge.event.level.BlockGrowFeatureEvent;
 import net.neoforged.neoforge.event.level.ChunkEvent;
 import net.neoforged.neoforge.event.level.ExplosionEvent;
 import net.neoforged.neoforge.event.level.ExplosionKnockbackEvent;
+import net.neoforged.neoforge.event.level.block.CropGrowEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
 import java.util.Objects;
@@ -458,6 +459,25 @@ public final class GameEventDispatcher {
 				}
 			} catch (Exception e) {
 				LoveTropics.LOGGER.warn("Failed to dispatch tree grow event", e);
+			}
+		}
+	}
+
+	@SubscribeEvent
+	public void onCropGrow(CropGrowEvent.Pre event) {
+		IGamePhase game = gameLookup.getGamePhaseAt((Level) event.getLevel(), event.getPos());
+		if (game != null) {
+			try {
+				TriState result = game.invoker(GameWorldEvents.CROP_GROW).onCropGrow(game.level(), event.getPos());
+				if (result.isFalse()) {
+					event.setResult(CropGrowEvent.Pre.Result.DO_NOT_GROW);
+				} else if(result.isTrue()) {
+					event.setResult(CropGrowEvent.Pre.Result.GROW);
+				} else {
+					event.setResult(CropGrowEvent.Pre.Result.DEFAULT);
+				}
+			} catch (Exception e) {
+				LoveTropics.LOGGER.warn("Failed to dispatch crop grow event", e);
 			}
 		}
 	}

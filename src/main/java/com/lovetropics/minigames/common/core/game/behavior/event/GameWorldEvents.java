@@ -52,6 +52,17 @@ public final class GameWorldEvents {
 		return TriState.DEFAULT;
 	});
 
+	public static final GameEventType<CropGrow> CROP_GROW = GameEventType.create(CropGrow.class, listeners -> (world, pos) -> {
+		for (CropGrow listener : listeners) {
+			TriState result = listener.onCropGrow(world, pos);
+			if (!result.isDefault()) {
+				return result;
+			}
+		}
+
+		return TriState.DEFAULT;
+	});
+
 	public static final GameEventType<SetWeather> SET_WEATHER = GameEventType.create(SetWeather.class, listeners -> (lastEvent, event) -> {
 		for (SetWeather listener : listeners) {
 			listener.onSetWeather(lastEvent, event);
@@ -105,6 +116,10 @@ public final class GameWorldEvents {
 
 	public interface SaplingGrow {
 		TriState onSaplingGrow(Level world, BlockPos pos);
+	}
+
+	public interface CropGrow {
+		TriState onCropGrow(Level world, BlockPos pos);
 	}
 
 	public interface SetWeather {
