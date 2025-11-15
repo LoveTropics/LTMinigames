@@ -7,7 +7,7 @@
       "divisor_y": 1,
       "regions": [
         {
-          "sprite": "ltminigames:speed_power_up",
+          "sprite": "ltminigames:mob_effect/speed_power_up",
           "x": 0,
           "y": 0,
           "width": 1,
