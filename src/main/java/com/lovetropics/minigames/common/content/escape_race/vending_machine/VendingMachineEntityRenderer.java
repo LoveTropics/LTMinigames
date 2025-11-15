@@ -1,17 +1,15 @@
 package com.lovetropics.minigames.common.content.escape_race.vending_machine;
 
 import com.lovetropics.minigames.LoveTropics;
-import com.lovetropics.minigames.common.content.escape_race.EscapeRace;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
+import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.OutlineBufferSource;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.debug.DebugRenderer;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.item.ItemModelResolver;
@@ -19,32 +17,32 @@ import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ARGB;
+import net.minecraft.util.CommonColors;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.phys.HitResult;
-import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.shapes.Shapes;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
-import org.joml.Matrix4f;
-import org.joml.Vector3f;
 
-import java.util.Objects;
-import java.util.Optional;
+import java.util.List;
 
 public class VendingMachineEntityRenderer extends EntityRenderer<VendingMachineEntity, VendingMachineRenderState> {
 	private static final ResourceLocation TEXTURE = LoveTropics.location("textures/entity/vending_machine.png");
 
-	private final VendingMachineEntityModel model;
+	private final VendingMachineModel model;
 	private final ItemModelResolver itemModelResolver;
+	private final Font font;
 
 	public VendingMachineEntityRenderer(EntityRendererProvider.Context context) {
 		super(context);
-		model = new VendingMachineEntityModel(context.bakeLayer(VendingMachineEntityModel.LAYER_LOCATION));
-		this.itemModelResolver = context.getItemModelResolver();
+		model = new VendingMachineModel(context.bakeLayer(VendingMachineModel.LAYER_LOCATION));
+		itemModelResolver = context.getItemModelResolver();
+		font = context.getFont();
+	}
+
+	public VendingMachineModel getModel() {
+		return model;
 	}
 
 	@Override
@@ -55,218 +53,152 @@ public class VendingMachineEntityRenderer extends EntityRenderer<VendingMachineE
 	@Override
 	public void extractRenderState(VendingMachineEntity entity, VendingMachineRenderState reusedState, float partialTick) {
 		super.extractRenderState(entity, reusedState, partialTick);
+		Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
+		VendingMachineSlots.Picker picker = VendingMachineSlots.picker(camera, entity);
+		int pickedSlot = picker.pickSlot();
 		reusedState.yRot = entity.getYRot();
-		for (int i = 0; i < Objects.requireNonNull(reusedState.items).size(); i++) {
-			ItemStackRenderState stack = reusedState.items.get(i);
-			if(entity.getItems().size() >= i){
-				ItemStack itemStack = entity.getItems().get(i);
-				itemModelResolver.updateForNonLiving(stack, itemStack, ItemDisplayContext.FIXED, entity);
-				reusedState.itemStacks.set(i, itemStack.copy());
-			}
+		List<ItemStack> visualItems = entity.getVisualItems();
+		for (int i = 0; i < reusedState.slots.size(); i++) {
+			VendingMachineRenderState.SlotState slotState = reusedState.slots.get(i);
+			ItemStack itemStack = i < visualItems.size() ? visualItems.get(i) : ItemStack.EMPTY;
+			slotState.update(itemModelResolver, itemStack, entity, entity.getSelected() == i, pickedSlot == i);
 		}
-		reusedState.isLookingAt = Minecraft.getInstance().crosshairPickEntity == entity && Minecraft.getInstance().player.getLookAngle().dot(entity.getLookAngle()) < 0;
-		reusedState.selectedIndex = entity.getSelected();
-		if(reusedState.selectedIndex != -1) {
-			ItemStack itemStack = entity.getItems().get(reusedState.selectedIndex);
-			if(itemStack.has(EscapeRace.VENDINGMACHINE_COMPONENT)){
-				reusedState.selectedCost = itemStack.get(EscapeRace.VENDINGMACHINE_COMPONENT);
-			}
-			reusedState.selectedName = itemStack.getHoverName().getString();
-		} else {
-			reusedState.selectedCost = -1;
-		}
-		if(entity.getDroppingItem() != null){
+		ItemStack droppingItem = entity.getDroppingItem();
+		if (droppingItem != null) {
 			itemModelResolver.updateForNonLiving(reusedState.droppingItem, entity.getDroppingItem(), ItemDisplayContext.FIXED, entity);
+			reusedState.droppingFromSlot = entity.getDroppingFromSlot();
+			reusedState.droppingItemProgress = entity.getDroppingItemProgress(partialTick);
+		} else {
+			reusedState.droppingItem.clear();
 		}
-		reusedState.droppingItemProgress = entity.getDroppingItemProgress();
-		reusedState.droppingItemStart = entity.getDroppingItemStart();
+		reusedState.hasSelection = entity.getSelected() != VendingMachineEntity.NO_SLOT;
+		reusedState.buyButtonPicked = picker.isPicked(model.buyButtonBounds());
 	}
 
 	@Override
 	public void render(VendingMachineRenderState renderState, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
 		super.render(renderState, poseStack, bufferSource, packedLight);
 		poseStack.pushPose();
-		poseStack.translate(0.0, 1.5, 0.0); // Roughly get into the center of the place
+		VendingMachineModel.applyModelTransform(poseStack, renderState.yRot);
 
-		poseStack.mulPose(Axis.YP.rotationDegrees(180 - renderState.yRot)); // Facing
-		poseStack.pushPose();
-		poseStack.mulPose(Axis.ZP.rotationDegrees(180f)); // Turn upsidedown
 		model.setupAnim(renderState);
-
 		VertexConsumer builder = bufferSource.getBuffer(model.renderType(TEXTURE));
-		model.renderToBuffer(poseStack, builder, packedLight, OverlayTexture.NO_OVERLAY); // Render the model
-		poseStack.popPose();
-		int i = 0;
-		Vector3f lookVector = Minecraft.getInstance().gameRenderer.getMainCamera().getLookVector();
-		for (int renderStateIndex = 0; renderStateIndex < renderState.items.size(); renderStateIndex++) {
-			ItemStackRenderState item = renderState.items.get(renderStateIndex);
-			if(item.isEmpty())
+		model.renderToBuffer(poseStack, builder, packedLight, OverlayTexture.NO_OVERLAY);
+
+		for (int slotIndex = 0; slotIndex < renderState.slots.size(); slotIndex++) {
+			VendingMachineRenderState.SlotState slotState = renderState.slots.get(slotIndex);
+			if (slotState.item.isEmpty()) {
 				continue;
-			if(renderStateIndex >= VendingMachineEntity.SLOTS.size()){
-				continue;
-			}
-			VendingMachineEntity.VendingMachineSlot slot = VendingMachineEntity.SLOTS.get(renderStateIndex);
-			var size = item.getModelBoundingBox().getSize();
-			float scale = 0.4f;
-			if(size > 0.5){
-				float diffInSize = (float) size - 0.5f; // Account for different item model scales (ish)
-				scale = scale - diffInSize;
 			}
 			poseStack.pushPose();
-			poseStack.translate(slot.x(), slot.y(), slot.z());
-			poseStack.scale(scale, scale, scale);
-			Matrix4f inverted = new Matrix4f();
-			poseStack.last().pose().invert(inverted);
-			Vec3 relativeWorldSpace = Vec3.ZERO;
-			Vector3f target = inverted.transformPosition(relativeWorldSpace.add(new Vec3(lookVector).scale(1.5f)).toVector3f(), new Vector3f());
-			for(int x = 0; x < 4; x++){
-				poseStack.pushPose();
-				poseStack.translate(0, 0, 0.5*x);
-				// Invert the posestack last matrix
-				// subtract camera position and Apply to hitresult
-				boolean isHighlighted = false;
-				if(x == 0) {
-					if (renderState.isLookingAt) {;
-						Vector3f origin = inverted.transformPosition(relativeWorldSpace.toVector3f(), new Vector3f());
-						Optional<Vec3> clip = new AABB(-0.5, -0.5, -0.5, 0.5, 0.5, 0.5).clip(new Vec3(origin), new Vec3(target));
-						if (clip.isPresent()) {
-							isHighlighted = true;
-						}
-					}
-				}
-				if(x == 0 && (isHighlighted || renderStateIndex == renderState.selectedIndex) && renderState.isLookingAt) {
-					poseStack.pushPose();
-					poseStack.scale(1.25f, 1.25f, 1.25f);
-					OutlineBufferSource bufferSource1 = Minecraft.getInstance().renderBuffers().outlineBufferSource();
-					if(renderStateIndex == renderState.selectedIndex){
-						bufferSource1.setColor(0,255, 0, 255);
-					} else {
-						bufferSource1.setColor(255, 255, 255, 255);
-					}
-					item.render(poseStack, bufferSource1, packedLight, OverlayTexture.NO_OVERLAY);
-					String name = renderState.itemStacks.get(renderStateIndex).getHoverName().getString();
-					Font font = Minecraft.getInstance().font;
-					float xOffset = -font.width(name) / 2f;
-					int j = (int)(Minecraft.getInstance().options.getBackgroundOpacity(0.25F) * 255.0F) << 24;
-					poseStack.popPose();
-					poseStack.pushPose();
-					poseStack.mulPose(Axis.ZP.rotationDegrees(-180f)); // Turn upsidedown
-					poseStack.scale(0.03f, 0.03f, 0.03f);
-					font.drawInBatch(
-							name,
-							xOffset,
-							-30f,
-							-1, false, poseStack.last().pose(), bufferSource, Font.DisplayMode.SEE_THROUGH, j, packedLight
-					);
-					poseStack.popPose();
-				} else {
-					item.render(poseStack, bufferSource, packedLight, OverlayTexture.NO_OVERLAY);
-				}
-				poseStack.popPose();
-			}
+			poseStack.translate(slotState.pos);
+			poseStack.scale(-1.0f, -1.0f, 1.0f);
+			renderSlot(poseStack, bufferSource, packedLight, slotState.selected, slotState.picked, slotState);
 			poseStack.popPose();
-			i++;
 		}
+
+		if (!renderState.droppingItem.isEmpty()) {
+			VendingMachineRenderState.SlotState fromSlot = renderState.slots.get(renderState.droppingFromSlot);
+			renderDroppingItem(renderState, poseStack, bufferSource, packedLight, renderState.droppingItem, fromSlot);
+		}
+
+		poseStack.popPose();
+	}
+
+	private void renderSlot(PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, boolean selected, boolean highlighted, VendingMachineRenderState.SlotState slot) {
+		float itemScale = computeItemScale(slot.item);
+
 		poseStack.pushPose();
-		var z = renderState.selectedIndex != -1 ? 0.56f : -0.55f;
-		poseStack.translate(-0.71f, -0.19f, -0.56f);
-		Matrix4f inverted = new Matrix4f();
-		poseStack.last().pose().invert(inverted);
-		Vec3 relativeWorldSpace = Vec3.ZERO;
-		Vector3f target = inverted.transformPosition(relativeWorldSpace.add(new Vec3(lookVector).scale(1.5f)).toVector3f(), new Vector3f());
-		Vector3f origin = inverted.transformPosition(relativeWorldSpace.toVector3f(), new Vector3f());
-		Optional<Vec3> clip = new AABB(-0.15, -0.1, -0.1, 0.15, 0.1, 0.1).clip(new Vec3(origin), new Vec3(target));
-		if (clip.isPresent()) {
-			VertexConsumer buffer = bufferSource.getBuffer(RenderType.debugQuads());
-			PoseStack.Pose last = poseStack.last();
-			// TOP
-			buffer
-					.addVertex(last.pose(), -0.15f, -0.01f, -0.05f)
-					.setColor(255,255,255,128)
-					.setNormal(0, 0,0);
-			buffer
-					.addVertex(last.pose(),0.15f, -0.01f, -0.05f)
-					.setColor(255,255,255,128)
-					.setNormal(0, 0,0);
-			buffer
-					.addVertex(last.pose(),0.15f, 0.01f, -0.05f)
-					.setColor(255,255,255,128)
-					.setNormal(0, 0,0);
-			buffer
-					.addVertex(last.pose(),-0.15f, 0.01f, -0.05f)
-					.setColor(255,255,255,128)
-					.setNormal(0, 0,0);
-			//RIGHT
-			buffer
-					.addVertex(last.pose(), -0.15f, -0.0101f, -0.05f)
-					.setColor(255,255,255,128)
-					.setNormal(0, 0,0);
-			buffer
-					.addVertex(last.pose(),-0.15f, -0.18f, -0.05f)
-					.setColor(255,255,255,128)
-					.setNormal(0, 0,0);
-			buffer
-					.addVertex(last.pose(),-0.13f, -0.18f, -0.05f)
-					.setColor(255,255,255,128)
-					.setNormal(0, 0,0);
-			buffer
-					.addVertex(last.pose(),-0.13f, -0.0101f, -0.05f)
-					.setColor(255,255,255,128)
-					.setNormal(0, 0,0);
-			// BOTTOM
-			buffer
-					.addVertex(last.pose(), -0.13f, -0.18f, -0.05f)
-					.setColor(255,255,255,128)
-					.setNormal(0, 0,0);
-			buffer
-					.addVertex(last.pose(),0.15f, -0.18f, -0.05f)
-					.setColor(255,255,255,128)
-					.setNormal(0, 0,0);
-			buffer
-					.addVertex(last.pose(),0.15f, -0.16f, -0.05f)
-					.setColor(255,255,255,128)
-					.setNormal(0, 0,0);
-			buffer
-					.addVertex(last.pose(),-0.13f, -0.16f, -0.05f)
-					.setColor(255,255,255,128)
-					.setNormal(0, 0,0);
-			// LEFT
-			buffer
-					.addVertex(last.pose(), 0.15f, -0.01f, -0.05f)
-					.setColor(255,255,255,128)
-					.setNormal(0, 0,0);
-			buffer
-					.addVertex(last.pose(),0.15f, -0.16f, -0.05f)
-					.setColor(255,255,255,128)
-					.setNormal(0, 0,0);
-			buffer
-					.addVertex(last.pose(),0.13f, -0.16f, -0.05f)
-					.setColor(255,255,255,128)
-					.setNormal(0, 0,0);
-			buffer
-					.addVertex(last.pose(),0.13f, -0.01f, -0.05f)
-					.setColor(255,255,255,128)
-					.setNormal(0, 0,0);
-		}
-		poseStack.popPose();
-		if(!renderState.droppingItem.isEmpty()){
-			ItemStackRenderState item = renderState.droppingItem;
-			var size = item.getModelBoundingBox().getSize();
-			float scale = 0.4f;
-			if(size > 0.5){
-				float diffInSize = (float) size - 0.5f; // Account for different item model scales (ish)
-				scale = scale - diffInSize;
-			}
+		poseStack.scale(itemScale, itemScale, itemScale);
+
+		renderBackgroundSlotItems(poseStack, bufferSource, packedLight, slot);
+
+		if (selected || highlighted) {
 			poseStack.pushPose();
-			net.minecraft.world.phys.Vec3 pos = Mth.lerp(renderState.droppingItemProgress, new Vec3(renderState.droppingItemStart), new Vec3(renderState.droppingItemStart.x, -1, renderState.droppingItemStart.z ));
-			float yRot = Mth.lerp(renderState.droppingItemProgress, 0, 360);
-			poseStack.translate(pos);
-			poseStack.scale(scale, scale, scale);
-			poseStack.mulPose(Axis.XN.rotationDegrees(yRot));
-			item.render(poseStack, bufferSource, packedLight, OverlayTexture.NO_OVERLAY);
+			poseStack.scale(1.25f, 1.25f, 1.25f);
+			OutlineBufferSource outlineBufferSource = Minecraft.getInstance().renderBuffers().outlineBufferSource();
+			if (selected) {
+				outlineBufferSource.setColor(0, 255, 0, 255);
+			} else {
+				outlineBufferSource.setColor(255, 255, 255, 255);
+			}
+			slot.item.render(poseStack, outlineBufferSource, packedLight, OverlayTexture.NO_OVERLAY);
+			poseStack.popPose();
+		} else {
+			slot.item.render(poseStack, bufferSource, packedLight, OverlayTexture.NO_OVERLAY);
+		}
+
+		poseStack.popPose();
+
+		// TODO: Big hack to force the text to render in front!
+		if (bufferSource instanceof MultiBufferSource.BufferSource b) {
+			b.endBatch();
+		}
+
+		if (selected || highlighted) {
+			int backgroundColor = ARGB.color(Minecraft.getInstance().options.getBackgroundOpacity(0.25f), CommonColors.BLACK);
+			poseStack.pushPose();
+			float scale = 0.15f / 16.0f;
+			poseStack.scale(-scale, -scale, scale);
+			font.drawInBatch(
+					slot.name,
+					-font.width(slot.name) / 2.0f,
+					-25.0f,
+					CommonColors.WHITE,
+					false,
+					poseStack.last().pose(),
+					bufferSource,
+					Font.DisplayMode.SEE_THROUGH,
+					backgroundColor,
+					packedLight
+			);
 			poseStack.popPose();
 		}
+	}
+
+	private void renderBackgroundSlotItems(PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, VendingMachineRenderState.SlotState slot) {
+		poseStack.pushPose();
+		for (int i = 0; i < 3; i++) {
+			poseStack.translate(0, 0, 0.5);
+			slot.item.render(poseStack, bufferSource, packedLight, OverlayTexture.NO_OVERLAY);
+		}
 		poseStack.popPose();
+	}
+
+	private void renderDroppingItem(VendingMachineRenderState renderState, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, ItemStackRenderState item, VendingMachineRenderState.SlotState fromSlot) {
+		poseStack.pushPose();
+
+		float pushAmount = 0.15f;
+		float fallToY = 1.0f;
+		float distanceToFall = (float) (fallToY - fromSlot.pos.y);
+
+		float pushEndTime = 0.5f;
+		float fallDuration = 0.5f * distanceToFall / 1.6f;
+
+		float pushAlpha = Mth.clampedMap(renderState.droppingItemProgress, 0.0f, pushEndTime, 0.0f, 1.0f);
+		float fallAlpha = Mth.square(Mth.clampedMap(renderState.droppingItemProgress, pushEndTime, 1.0f, 0.0f, 1.0f));
+
+		float itemScale = computeItemScale(item) * 1.25f;
+
+		float y = (float) Mth.lerp(Math.min(fallAlpha / fallDuration, 1.0f), fromSlot.pos.y, fallToY);
+		float z = (float) fromSlot.pos.z + pushAlpha * -pushAmount;
+		float yRot = Mth.lerp(fallAlpha, 0, Mth.TWO_PI);
+
+		poseStack.translate(fromSlot.pos.x, y, z);
+		poseStack.mulPose(Axis.XN.rotation(yRot));
+		poseStack.scale(-itemScale, -itemScale, itemScale);
+		item.render(poseStack, bufferSource, packedLight, OverlayTexture.NO_OVERLAY);
+		poseStack.popPose();
+	}
+
+	private float computeItemScale(ItemStackRenderState item) {
+		double itemSize = item.getModelBoundingBox().getSize();
+		float itemScale = 0.4f;
+		if (itemSize > 0.5) {
+			float diffInSize = (float) itemSize - 0.5f; // Account for different item model scales (ish)
+			itemScale = itemScale - diffInSize;
+		}
+		return itemScale;
 	}
 
 	public static void registerOverlays(RegisterGuiLayersEvent event) {
@@ -279,39 +211,35 @@ public class VendingMachineEntityRenderer extends EntityRenderer<VendingMachineE
 	}
 
 	private static void renderOverlay(GuiGraphics graphics) {
-		if(Minecraft.getInstance().hitResult != null && Minecraft.getInstance().hitResult.getType() == HitResult.Type.ENTITY) {
-			if(Minecraft.getInstance().hitResult instanceof EntityHitResult entityHitResult) {
-				if(entityHitResult.getEntity() instanceof VendingMachineEntity entity) {
-					if(entity.getLookAngle().dot(Minecraft.getInstance().player.getLookAngle()) < 1){
-						int lookingAt = entity.calculatePlayerLookingAtSlot(Minecraft.getInstance().player);
-						if(lookingAt != -1 && lookingAt < entity.getItems().size()){
-							ItemStack lookingAtItem = entity.getItems().get(lookingAt);
-							if(!lookingAtItem.isEmpty()) {
-								Font font = Minecraft.getInstance().font;
+		Minecraft minecraft = Minecraft.getInstance();
+		if (!(minecraft.hitResult instanceof EntityHitResult entityHitResult)) {
+			return;
+		}
+		if (!(entityHitResult.getEntity() instanceof VendingMachineEntity entity)) {
+			return;
+		}
 
-								int width = font.width(lookingAtItem.getHoverName());
-								int x = (graphics.guiWidth() / 2) + (-width / 2);
-								int y = (graphics.guiHeight() - 80) + ((18 - font.lineHeight) / 2) + 8;
+		Camera camera = minecraft.gameRenderer.getMainCamera();
+		VendingMachineSlots.Picker picker = VendingMachineSlots.picker(camera, entity);
+
+		int pickedSlot = picker.pickSlot();
+		ItemStack itemStack = pickedSlot != VendingMachineEntity.NO_SLOT ? entity.getVisualItems().get(pickedSlot) : ItemStack.EMPTY;
+		if (itemStack.isEmpty()) {
+			return;
+		}
+
+		Font font = minecraft.font;
+
+		int width = font.width(itemStack.getHoverName());
+		int x = (graphics.guiWidth() / 2) + (-width / 2);
+		int y = (graphics.guiHeight() - 80) + ((18 - font.lineHeight) / 2) + 8;
 
 //								String currency = .getString();
 
-								int i = ARGB.colorFromFloat(0.88f, 33 / 255f, 29/ 255f, 24/ 255f);
-								if (i != 0) {
-									int j = 2;
-									graphics.fill(x - 2, y - 2, x + width + 2, y + 9 + 2, ARGB.multiply(i, -1));
-								}
-								graphics.drawStringWithBackdrop(
-										font, lookingAtItem.getHoverName(),
-										x,
-										y,
-										width,
-										ARGB.color(1f, -1)
-								);
-							}
-						}
-					}
-				}
-			}
-		}
+		int backgroundColor = 0xe0211d18;
+		int padding = 2;
+		graphics.fill(x - padding, y - padding, x + width + padding, y + font.lineHeight + padding, ARGB.multiply(backgroundColor, CommonColors.WHITE));
+
+		graphics.drawString(font, itemStack.getHoverName(), x, y, CommonColors.WHITE, true);
 	}
 }

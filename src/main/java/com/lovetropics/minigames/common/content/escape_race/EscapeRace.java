@@ -1,5 +1,6 @@
 package com.lovetropics.minigames.common.content.escape_race;
 
+import com.google.common.collect.Lists;
 import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.content.escape_race.behaviours.BreakBucksBehaviour;
 import com.lovetropics.minigames.common.content.escape_race.behaviours.WarehouseSetupBehaviour;
@@ -20,7 +21,6 @@ import com.lovetropics.minigames.common.util.registry.LoveTropicsRegistrate;
 import com.mojang.serialization.Codec;
 import com.tterrag.registrate.util.entry.ItemEntry;
 import com.tterrag.registrate.util.entry.RegistryEntry;
-import net.minecraft.core.NonNullList;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
@@ -52,17 +52,15 @@ public class EscapeRace {
 	public static final DeferredRegister<EntityDataSerializer<?>> ENTITY_SERIALIZERS = DeferredRegister.create(NeoForgeRegistries.ENTITY_DATA_SERIALIZERS, LoveTropics.ID);
 	public static final DeferredRegister.DataComponents DATA_COMPONENTS = DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, LoveTropics.ID);
 
-	public static final EntityDataSerializer<NonNullList<ItemStack>> ITEM_STACK_LIST = new EntityDataSerializer<>() {
+	public static final EntityDataSerializer<List<ItemStack>> ITEM_STACK_LIST = new EntityDataSerializer<>() {
 		@Override
-		public StreamCodec<? super RegistryFriendlyByteBuf, NonNullList<ItemStack>> codec() {
-			return ItemStack.OPTIONAL_STREAM_CODEC.apply(ByteBufCodecs.collection(NonNullList::createWithCapacity));
+		public StreamCodec<? super RegistryFriendlyByteBuf, List<ItemStack>> codec() {
+			return ItemStack.OPTIONAL_STREAM_CODEC.apply(ByteBufCodecs.list());
 		}
 
 		@Override
-		public NonNullList<ItemStack> copy(NonNullList<ItemStack> value) {
-			NonNullList<ItemStack> list = NonNullList.create();
-			value.forEach((stack) -> list.add(stack.copy()));
-			return list;
+		public List<ItemStack> copy(List<ItemStack> value) {
+			return List.copyOf(Lists.transform(value, ItemStack::copy));
 		}
 	};
 	public static final EntityDataSerializer<DDRMachineEntity.DDRMachineState> DDR_STATE = EntityDataSerializer.forValueType(

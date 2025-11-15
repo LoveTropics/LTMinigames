@@ -1,11 +1,9 @@
 package com.lovetropics.minigames.common.content.escape_race.vending_machine;
 
 import com.lovetropics.minigames.LoveTropics;
-import net.minecraft.client.animation.AnimationChannel;
-import net.minecraft.client.animation.AnimationDefinition;
-import net.minecraft.client.animation.Keyframe;
-import net.minecraft.client.animation.KeyframeAnimation;
-import net.minecraft.client.animation.KeyframeAnimations;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
+import it.unimi.dsi.fastutil.objects.ReferenceArraySet;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
@@ -15,14 +13,19 @@ import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
-import net.neoforged.neoforge.client.event.FrameGraphSetupEvent;
+import org.joml.Vector3f;
+
+import java.util.Set;
 
 @EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
-public class VendingMachineEntityModel extends EntityModel<VendingMachineRenderState> {
+public class VendingMachineModel extends EntityModel<VendingMachineRenderState> {
 	// This layer location should be baked with EntityRendererProvider.Context in the entity renderer and passed into this model's constructor
 	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(LoveTropics.location("vending_machine"), "main");
 	private final ModelPart root;
@@ -32,21 +35,12 @@ public class VendingMachineEntityModel extends EntityModel<VendingMachineRenderS
 	private final ModelPart control_panel;
 	private final ModelPart buy_button;
 	private final ModelPart buy_button_on;
+	private final ModelPart buy_button_picked;
 	private final ModelPart price_screen_cover;
 
-	public static final AnimationDefinition scale_buy_button = AnimationDefinition.Builder.withLength(0.0F).looping()
-		.addAnimation("control_panel", new AnimationChannel(AnimationChannel.Targets.POSITION,
-			new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 4.0F, 2.0F), AnimationChannel.Interpolations.LINEAR)
-			))
-			.addAnimation("control_panel", new AnimationChannel(AnimationChannel.Targets.SCALE,
-			new Keyframe(0.0F, KeyframeAnimations.scaleVec(0.3333F, 0.3333F, 0.3333F), AnimationChannel.Interpolations.LINEAR)
-			))
-			.build();
+	private final AABB buyButtonBounds;
 
-	private final KeyframeAnimation scale_buy_button_on;
-
-
-	public VendingMachineEntityModel(ModelPart root) {
+	public VendingMachineModel(ModelPart root) {
 		super(root);
 		this.root = root.getChild("root");
 		this.root2 = this.root.getChild("root2");
@@ -55,9 +49,25 @@ public class VendingMachineEntityModel extends EntityModel<VendingMachineRenderS
 		this.control_panel = this.machine.getChild("control_panel");
 		this.buy_button = this.control_panel.getChild("buy_button");
 		this.buy_button_on = this.buy_button.getChild("buy_button_on");
+		this.buy_button_picked = this.buy_button.getChild("buy_button_picked");
 		this.price_screen_cover = this.control_panel.getChild("price_screen_cover");
-		scale_buy_button_on = scale_buy_button.bake(root);
 		buy_button_on.visible = false;
+		buy_button_picked.visible = false;
+
+		buyButtonBounds = computePartBounds(this.root, root2, machine, control_panel, buy_button);
+	}
+
+	private static AABB computePartBounds(ModelPart... path) {
+		PoseStack poseStack = new PoseStack();
+		for (int i = 0; i < path.length - 1; i++) {
+			path[i].translateAndRotate(poseStack);
+		}
+		ModelPart part = path[path.length - 1];
+		Set<Vector3f> vertices = new ReferenceArraySet<>();
+		part.getExtentsForGui(poseStack, vertices);
+		AABB.Builder bounds = new AABB.Builder();
+		vertices.forEach(bounds::include);
+		return bounds.build();
 	}
 
 	public static LayerDefinition createBodyLayer() {
@@ -104,11 +114,11 @@ public class VendingMachineEntityModel extends EntityModel<VendingMachineRenderS
 
 		PartDefinition vending_flap = machine.addOrReplaceChild("vending_flap", CubeListBuilder.create().texOffs(108, 16).addBox(-6.0F, 0.0F, -9.0F, 12.0F, 4.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offset(-2.0F, -10.0F, 1.0F));
 
-		PartDefinition control_panel = machine.addOrReplaceChild("control_panel", CubeListBuilder.create().texOffs(10, 122).addBox(-21.0F, -45.0F, 0.0F, 21.0F, 45.0F, 3.0F, new CubeDeformation(0.0F)), PartPose.offset(15.0F, -13.0F, -12.0F));
-
+		PartDefinition control_panel = machine.addOrReplaceChild("control_panel", CubeListBuilder.create().texOffs(10, 122).addBox(-21.0F, -45.0F, 0.0F, 21.0F, 45.0F, 3.0F, new CubeDeformation(0.0F)), PartPose.offset(15.0F, -13.0F, -12.0F).withScale(1.0f / 3.0f));
 		PartDefinition buy_button = control_panel.addOrReplaceChild("buy_button", CubeListBuilder.create().texOffs(68, 154).addBox(2.0F, -12.0F, -33.0F, 15.0F, 9.0F, 3.0F, new CubeDeformation(0.0F)), PartPose.offset(-20.0F, 0.0F, 32.0F));
 
 		PartDefinition buy_button_on = buy_button.addOrReplaceChild("buy_button_on", CubeListBuilder.create().texOffs(69, 125).addBox(2.0F, -12.0F, -33.0313F, 15.0F, 9.0F, 0.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
+		PartDefinition buy_button_picked = buy_button.addOrReplaceChild("buy_button_picked", CubeListBuilder.create().texOffs(112, 125).addBox(2.0F, -12.0F, -33.0313F, 15.0F, 9.0F, 0.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
 
 		PartDefinition price_screen_cover = control_panel.addOrReplaceChild("price_screen_cover", CubeListBuilder.create().texOffs(68, 169).addBox(-7.5F, -3.0F, -1.5F, 15.0F, 7.0F, 3.0F, new CubeDeformation(0.0F)), PartPose.offset(-10.5F, -39.0F, 0.5F));
 
@@ -117,16 +127,38 @@ public class VendingMachineEntityModel extends EntityModel<VendingMachineRenderS
 
 	@SubscribeEvent
 	public static void onRegisterLayerDefinitions(final EntityRenderersEvent.RegisterLayerDefinitions event) {
-		event.registerLayerDefinition(LAYER_LOCATION, VendingMachineEntityModel::createBodyLayer);
+		event.registerLayerDefinition(LAYER_LOCATION, VendingMachineModel::createBodyLayer);
 	}
 
 	@Override
 	public void setupAnim(VendingMachineRenderState renderState) {
 		super.setupAnim(renderState);
-		scale_buy_button_on.applyStatic();
-		buy_button_on.visible = renderState.selectedIndex != -1;
-		if(renderState.selectedIndex != -1) {
+		buy_button_on.visible = renderState.hasSelection;
+		buy_button_picked.visible = renderState.buyButtonPicked;
+		if (renderState.hasSelection) {
 			buy_button.z -= 1;
 		}
+	}
+
+	public AABB buyButtonBounds() {
+		return buyButtonBounds;
+	}
+
+	public static void applyModelTransform(PoseStack poseStack, float yRot) {
+		poseStack.scale(-1.0f, -1.0f, 1.0f);
+		poseStack.translate(0.0f, MODEL_Y_OFFSET, 0.0f);
+		poseStack.mulPose(Axis.YP.rotationDegrees(180.0f + yRot));
+	}
+
+	public static Vec3 toModelSpace(Vec3 pos, Vec3 entityPos, float entityYRot) {
+		Vector3f result = new Vector3f(
+				(float) (pos.x - entityPos.x),
+				(float) (pos.y - entityPos.y),
+				(float) (pos.z - entityPos.z)
+		);
+		result.mul(-1.0f, -1.0f, 1.0f)
+				.add(0.0f, -MODEL_Y_OFFSET, 0.0f)
+				.rotateY(-Mth.PI - entityYRot * Mth.DEG_TO_RAD);
+		return new Vec3(result);
 	}
 }

@@ -21,7 +21,9 @@ import com.lovetropics.minigames.common.core.network.trivia.RequestTriviaStateUp
 import com.lovetropics.minigames.common.core.network.trivia.SelectTriviaAnswerMessage;
 import com.lovetropics.minigames.common.core.network.trivia.ShowTriviaMessage;
 import com.lovetropics.minigames.common.core.network.trivia.TriviaAnswerResponseMessage;
+import com.lovetropics.minigames.common.core.network.vending.ClientboundVendingMachineDropPacket;
 import com.lovetropics.minigames.common.core.network.vending.SelectVendingMachineItemMessage;
+import com.lovetropics.minigames.common.core.network.vending.ServerboundVendingMachinePurchasePacket;
 import com.lovetropics.minigames.common.core.network.workspace.AddWorkspaceRegionMessage;
 import com.lovetropics.minigames.common.core.network.workspace.SetWorkspaceMessage;
 import com.lovetropics.minigames.common.core.network.workspace.UpdateWorkspaceRegionMessage;
@@ -74,6 +76,8 @@ public final class LoveTropicsNetwork {
 		registrar.playToClient(SetForcedPoseMessage.TYPE, SetForcedPoseMessage.STREAM_CODEC);
 
 		registrar.playToServer(SelectVendingMachineItemMessage.TYPE, SelectVendingMachineItemMessage.STREAM_CODEC, SelectVendingMachineItemMessage::handle);
+		registrar.playToServer(ServerboundVendingMachinePurchasePacket.TYPE, ServerboundVendingMachinePurchasePacket.STREAM_CODEC, ServerboundVendingMachinePurchasePacket::handle);
+		registrar.playToClient(ClientboundVendingMachineDropPacket.TYPE, ClientboundVendingMachineDropPacket.STREAM_CODEC);
 
 		registrar.playToServer(ServerboundUpdateDdrInputPacket.TYPE, ServerboundUpdateDdrInputPacket.STREAM_CODEC, ServerboundUpdateDdrInputPacket::handle);
 		registrar.playToServer(ServerboundSelectDdrLevelPacket.TYPE, ServerboundSelectDdrLevelPacket.STREAM_CODEC, ServerboundSelectDdrLevelPacket::handle);
@@ -111,5 +115,6 @@ public final class LoveTropicsNetwork {
 		event.register(SetForcedPoseMessage.TYPE, SetForcedPoseMessage::handle);
 
 		event.register(ClientboundSetCameraViewPacket.TYPE, ClientboundSetCameraViewPacket::handle);
+		event.register(ClientboundVendingMachineDropPacket.TYPE, ClientboundVendingMachineDropPacket::handle);
 	}
 }
