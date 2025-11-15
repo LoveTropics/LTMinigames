@@ -14,9 +14,6 @@ public class MinigameItems {
 
 	/** Powerups */
 	public static final ItemEntry<Item> UPSET_STOMACH = REGISTRATE.item("upset_stomach", Item::new).register();
-	public static final ItemEntry<Item> TAPIR_TAKEOVER = REGISTRATE.item("tapir_takeover", Item::new).register();
-	public static final ItemEntry<Item> SLIP_N_SLIDE = REGISTRATE.item("slip_n_slide", Item::new).lang("Slip n' Slide").register();
-	public static final ItemEntry<Item> COLADA_RALL_DAMAGE = REGISTRATE.item("colada_rall_damage", Item::new).lang("Colada-rall Damage").register();
 	/** End powerups */
 
 	public static void init() {
