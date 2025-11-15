@@ -10,6 +10,7 @@ import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DDRMachi
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DdrInput;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DdrSessionState;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DdrLevel;
+import com.lovetropics.minigames.common.content.escape_race.effect.BasicMobEffect;
 import com.lovetropics.minigames.common.content.escape_race.effect.UpsetStomachEffect;
 import com.lovetropics.minigames.common.content.escape_race.misc.RoomEntrancePadEntity;
 import com.lovetropics.minigames.common.content.escape_race.misc.RoomEntrancePadEntityRenderer;
@@ -31,6 +32,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.util.CommonColors;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.EntityType;
@@ -148,7 +150,8 @@ public class EscapeRace {
 			.lang("Upset Stomach").register();
 
 	public static final Holder<MobEffect> COLADARAL_DAMAGE = REGISTRATE.object("coladaral_damage")
-			.mobEffect(() -> new UpsetStomachEffect(MobEffectCategory.HARMFUL))
+			.mobEffect(() -> new BasicMobEffect(MobEffectCategory.HARMFUL, CommonColors.WHITE))
+			.lang("Colada-ral Damage")
 			.register();
 
 

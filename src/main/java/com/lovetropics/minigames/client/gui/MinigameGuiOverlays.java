@@ -18,18 +18,18 @@ import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 @EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
 public class MinigameGuiOverlays {
 
-	private static final ResourceLocation COLADARALL_DAMAGE_OVERLAY = ResourceLocation.withDefaultNamespace("textures/misc/powder_snow_outline.png");
+	private static final ResourceLocation COLADARAL_DAMAGE_OVERLAY = LoveTropics.location("textures/gui/coladaral_damage_outline.png");
 
 	@SubscribeEvent
 	public static void registerGuiLayers(RegisterGuiLayersEvent event) {
-		event.registerBelow(VanillaGuiLayers.CAMERA_OVERLAYS, LoveTropics.location("coladarall_damage"), MinigameGuiOverlays::renderColadarallDamage);
+		event.registerBelow(VanillaGuiLayers.CAMERA_OVERLAYS, LoveTropics.location("coladaral_damage"), MinigameGuiOverlays::renderColadaralDamage);
 	}
 
-	private static void renderColadarallDamage(GuiGraphics graphics, DeltaTracker tracker) {
+	private static void renderColadaralDamage(GuiGraphics graphics, DeltaTracker tracker) {
 		final LocalPlayer player = Minecraft.getInstance().player;
 
 		if (player.hasEffect(EscapeRace.COLADARAL_DAMAGE.getDelegate())) {
-			renderTextureOverlay(graphics, COLADARALL_DAMAGE_OVERLAY, 1.0f);
+			renderTextureOverlay(graphics, COLADARAL_DAMAGE_OVERLAY, 0.9f);
 		}
 	}
 
