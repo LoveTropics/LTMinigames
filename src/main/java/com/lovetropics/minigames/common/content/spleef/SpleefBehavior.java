@@ -37,6 +37,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class SpleefBehavior implements IGameBehavior {
@@ -83,7 +84,7 @@ public class SpleefBehavior implements IGameBehavior {
 	private boolean gameOver = false;
 
 	// Handy for checking who won if multiple people were eliminated at the same time.
-	private List<ServerPlayer> lastTickPlayers;
+	private List<ServerPlayer> lastTickPlayers = Collections.emptyList();
 
 	private boolean blockSinglePlayerWin = false;
 
