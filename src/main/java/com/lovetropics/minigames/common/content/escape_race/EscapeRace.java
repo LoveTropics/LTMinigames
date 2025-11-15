@@ -147,6 +147,10 @@ public class EscapeRace {
 			))
 			.lang("Upset Stomach").register();
 
+	public static final Holder<MobEffect> COLADARAL_DAMAGE = REGISTRATE.object("coladaral_damage")
+			.mobEffect(() -> new UpsetStomachEffect(MobEffectCategory.HARMFUL))
+			.register();
+
 
 	public static void init() {
 		register("itemstack_list", ITEM_STACK_LIST);
