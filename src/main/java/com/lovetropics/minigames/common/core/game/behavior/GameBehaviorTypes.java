@@ -123,6 +123,7 @@ import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.Gam
 import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.GeneralEventsTrigger;
 import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.ItemPickedUpTrigger;
 import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.ItemPutInItemFrameTrigger;
+import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.ItemUsedTrigger;
 import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.OnDamageTrigger;
 import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.OnDeathTrigger;
 import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.OnEntityInteractionTrigger;
@@ -205,6 +206,7 @@ public class GameBehaviorTypes {
 	public static final GameBehaviorEntry<OnDeathTrigger> ON_DEATH = register("on_death", OnDeathTrigger.CODEC);
 	public static final GameBehaviorEntry<OnDamageTrigger> ON_DAMAGE = register("on_damage", OnDamageTrigger.CODEC);
 	public static final GameBehaviorEntry<OnEntityInteractionTrigger> ON_ENTITY_INTERACTION = register("on_entity_interaction", OnEntityInteractionTrigger.CODEC);
+	public static final GameBehaviorEntry<ItemUsedTrigger> ITEM_USED = register("item_used", ItemUsedTrigger.CODEC);
 	public static final GameBehaviorEntry<WhileInRegionTrigger> WHILE_IN_REGION = register("while_in_region", WhileInRegionTrigger.CODEC);
 	public static final GameBehaviorEntry<ScheduledActionsTrigger> SCHEDULED_ACTIONS = register("scheduled_actions", ScheduledActionsTrigger.CODEC);
 	public static final GameBehaviorEntry<PeriodicActionsTrigger> PERIODIC_ACTIONS = register("periodic_actions", PeriodicActionsTrigger.CODEC);

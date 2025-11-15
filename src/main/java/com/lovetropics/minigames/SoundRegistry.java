@@ -29,6 +29,8 @@ public class SoundRegistry {
 	public static final Holder<SoundEvent> TERRY_TRASH_THIRTY_SECONDS = register("escape_race.terry_trash.thirty_seconds");
 	public static final Holder<SoundEvent> TERRY_TRASH_FIVE_SECONDS = register("escape_race.terry_trash.five_seconds");
 
+	public static final Holder<SoundEvent> UPSET_STOMACH_FART = register("upset_stomach.fart");
+
 	private static Holder<SoundEvent> register(String name) {
 		return REGISTER.register(name, () -> SoundEvent.createVariableRangeEvent(LoveTropics.location(name)));
 	}

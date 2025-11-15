@@ -118,5 +118,10 @@
     "sounds": [
       "ltminigames:escape_race/terry_trash/five_seconds"
     ]
+  },
+  "upset_stomach.fart": {
+    "sounds": [
+      "ltminigames:fart_1"
+    ]
   }
 }

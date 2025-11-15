@@ -10,6 +10,7 @@ import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DDRMachi
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DdrInput;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DdrSessionState;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DdrLevel;
+import com.lovetropics.minigames.common.content.escape_race.effect.UpsetStomachEffect;
 import com.lovetropics.minigames.common.content.escape_race.misc.RoomEntrancePadEntity;
 import com.lovetropics.minigames.common.content.escape_race.misc.RoomEntrancePadEntityRenderer;
 import com.lovetropics.minigames.common.content.escape_race.rooms.RoomStatus;
@@ -21,6 +22,7 @@ import com.lovetropics.minigames.common.util.registry.LoveTropicsRegistrate;
 import com.mojang.serialization.Codec;
 import com.tterrag.registrate.util.entry.ItemEntry;
 import com.tterrag.registrate.util.entry.RegistryEntry;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
@@ -29,8 +31,12 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
@@ -131,6 +137,15 @@ public class EscapeRace {
 			.register();
 
 	public static final GameBehaviorEntry<WarehouseSetupBehaviour> WAREHOUSE_SETUP_BEHAVIOUR = REGISTRATE.object("escape_race/warehouse_setup").behavior(WarehouseSetupBehaviour.CODEC).register();
+
+	public static final Holder<MobEffect> UPSET_STOMACH = REGISTRATE.object("upset_stomach")
+			.mobEffect(() -> new UpsetStomachEffect(MobEffectCategory.HARMFUL).addAttributeModifier(
+					Attributes.MOVEMENT_SPEED,
+					LoveTropics.location("upset_stomach_slowdown"),
+					-0.35,
+					AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL
+			))
+			.lang("Upset Stomach").register();
 
 
 	public static void init() {
