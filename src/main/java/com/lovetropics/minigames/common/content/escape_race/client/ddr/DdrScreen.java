@@ -1,5 +1,7 @@
-package com.lovetropics.minigames.common.content.escape_race.ddr_machine;
+package com.lovetropics.minigames.common.content.escape_race.client.ddr;
 
+import com.lovetropics.minigames.common.content.escape_race.client.ddr.render.DDRMachineEntityModel;
+import com.lovetropics.minigames.common.content.escape_race.client.ddr.render.DDRMachineEntityRenderer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Camera;
 import net.minecraft.client.model.geom.ModelPart;

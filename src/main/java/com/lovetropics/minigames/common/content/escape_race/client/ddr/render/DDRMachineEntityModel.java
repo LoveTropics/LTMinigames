@@ -1,4 +1,4 @@
-package com.lovetropics.minigames.common.content.escape_race.ddr_machine;
+package com.lovetropics.minigames.common.content.escape_race.client.ddr.render;
 
 import com.lovetropics.minigames.LoveTropics;
 import net.minecraft.client.animation.KeyframeAnimation;

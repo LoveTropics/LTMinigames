@@ -1,5 +1,6 @@
-package com.lovetropics.minigames.common.content.escape_race.ddr_machine;
+package com.lovetropics.minigames.common.content.escape_race.client.ddr;
 
+import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DdrInput;
 import net.minecraft.util.BinaryAnimator;
 import net.minecraft.util.Mth;
 

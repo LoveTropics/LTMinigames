@@ -1,6 +1,6 @@
 package com.lovetropics.minigames.mixin.client;
 
-import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DDRMachinePlayerHelper;
+import com.lovetropics.minigames.common.content.escape_race.client.ddr.render.DDRMachinePlayerHelper;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.MultiBufferSource;

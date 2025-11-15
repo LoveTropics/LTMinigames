@@ -5,29 +5,25 @@ import net.minecraft.core.Holder;
 
 import javax.annotation.Nullable;
 import java.util.ArrayDeque;
-import java.util.Comparator;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.Iterator;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-public final class DdrLevelInputHandler {
+public final class DdrLevelInputQueue {
 	private final int maxTickDeviation;
 	private final Deque<TimedDdrInput> pendingInputs;
 
-	public DdrLevelInputHandler(int maxTickDeviation, Holder<DdrLevel> level) {
+	public DdrLevelInputQueue(int maxTickDeviation, Holder<DdrLevel> level) {
 		this.maxTickDeviation = maxTickDeviation;
-		pendingInputs = level.value().ticks().long2ObjectEntrySet().stream()
-				.map(entry -> new TimedDdrInput(entry.getLongKey(), entry.getValue()))
-				.sorted(Comparator.comparingLong(TimedDdrInput::tick))
-				.collect(Collectors.toCollection(ArrayDeque::new));
+		pendingInputs = new ArrayDeque<>(level.value().inputs());
 	}
 
-	public Stream<TimedDdrInput> pendingInputs() {
-		return pendingInputs.stream();
+	public Collection<TimedDdrInput> pendingInputs() {
+		return Collections.unmodifiableCollection(pendingInputs);
 	}
 
-	private int discardExpiredInputs(long currentTick) {
+	public int discardExpiredInputs(long currentTick) {
 		int count = 0;
 		while (!pendingInputs.isEmpty()) {
 			TimedDdrInput input = pendingInputs.peekFirst();
@@ -39,6 +35,20 @@ public final class DdrLevelInputHandler {
 			}
 		}
 		return count;
+	}
+
+	public void clearInputAt(long inputTick) {
+		Iterator<TimedDdrInput> iterator = pendingInputs.iterator();
+		while (iterator.hasNext()) {
+			TimedDdrInput input = iterator.next();
+			if (input.tick() < inputTick) {
+				continue;
+			}
+			if (input.tick() == inputTick) {
+				iterator.remove();
+			}
+			break;
+		}
 	}
 
 	public Result handleInput(DdrInput input, long currentTick) {
@@ -59,7 +69,7 @@ public final class DdrLevelInputHandler {
 				iterator.remove();
 
 				int deviationTicks = (int) Math.abs(pendingInput.tick() - currentTick);
-				Hit hit = new Hit(deviationTicks, pendingInput.input().equals(input));
+				Hit hit = new Hit(pendingInput.tick(), deviationTicks, pendingInput.input().equals(input));
 
 				return new Result(expiredCount, hit);
 			}
@@ -74,6 +84,6 @@ public final class DdrLevelInputHandler {
 	) {
 	}
 
-	public record Hit(int deviationTicks, boolean fullMatch) {
+	public record Hit(long hitTick, int deviationTicks, boolean fullMatch) {
 	}
 }

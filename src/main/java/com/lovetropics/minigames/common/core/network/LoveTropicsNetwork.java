@@ -14,9 +14,9 @@ import com.lovetropics.minigames.client.lobby.state.message.LobbyPlayersMessage;
 import com.lovetropics.minigames.client.lobby.state.message.LobbyUpdateMessage;
 import com.lovetropics.minigames.client.particle_line.DrawParticleLineMessage;
 import com.lovetropics.minigames.client.toast.ShowNotificationToastMessage;
-import com.lovetropics.minigames.common.core.network.ddr.ClientboundSetCameraViewPacket;
+import com.lovetropics.minigames.common.core.network.ddr.ClientboundDdrInputHitPacket;
+import com.lovetropics.minigames.common.core.network.ddr.ServerboundDdrInputPacket;
 import com.lovetropics.minigames.common.core.network.ddr.ServerboundSelectDdrLevelPacket;
-import com.lovetropics.minigames.common.core.network.ddr.ServerboundUpdateDdrInputPacket;
 import com.lovetropics.minigames.common.core.network.trivia.RequestTriviaStateUpdateMessage;
 import com.lovetropics.minigames.common.core.network.trivia.SelectTriviaAnswerMessage;
 import com.lovetropics.minigames.common.core.network.trivia.ShowTriviaMessage;
@@ -79,9 +79,9 @@ public final class LoveTropicsNetwork {
 		registrar.playToServer(ServerboundVendingMachinePurchasePacket.TYPE, ServerboundVendingMachinePurchasePacket.STREAM_CODEC, ServerboundVendingMachinePurchasePacket::handle);
 		registrar.playToClient(ClientboundVendingMachineDropPacket.TYPE, ClientboundVendingMachineDropPacket.STREAM_CODEC);
 
-		registrar.playToServer(ServerboundUpdateDdrInputPacket.TYPE, ServerboundUpdateDdrInputPacket.STREAM_CODEC, ServerboundUpdateDdrInputPacket::handle);
+		registrar.playToServer(ServerboundDdrInputPacket.TYPE, ServerboundDdrInputPacket.STREAM_CODEC, ServerboundDdrInputPacket::handle);
 		registrar.playToServer(ServerboundSelectDdrLevelPacket.TYPE, ServerboundSelectDdrLevelPacket.STREAM_CODEC, ServerboundSelectDdrLevelPacket::handle);
-		registrar.playToClient(ClientboundSetCameraViewPacket.TYPE, ClientboundSetCameraViewPacket.STREAM_CODEC);
+		registrar.playToClient(ClientboundDdrInputHitPacket.TYPE, ClientboundDdrInputHitPacket.STREAM_CODEC);
 	}
 
 	@SubscribeEvent
@@ -114,7 +114,7 @@ public final class LoveTropicsNetwork {
 
 		event.register(SetForcedPoseMessage.TYPE, SetForcedPoseMessage::handle);
 
-		event.register(ClientboundSetCameraViewPacket.TYPE, ClientboundSetCameraViewPacket::handle);
+		event.register(ClientboundDdrInputHitPacket.TYPE, ClientboundDdrInputHitPacket::handle);
 		event.register(ClientboundVendingMachineDropPacket.TYPE, ClientboundVendingMachineDropPacket::handle);
 	}
 }

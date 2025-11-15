@@ -1,4 +1,4 @@
-package com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels;
+package com.lovetropics.minigames.common.content.escape_race.client.ddr.render;
 
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.network.chat.CommonComponents;

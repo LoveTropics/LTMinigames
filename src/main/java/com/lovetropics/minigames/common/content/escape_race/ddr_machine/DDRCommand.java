@@ -42,23 +42,19 @@ public final class DDRCommand {
 	private static int startRecording(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
 		Holder<JukeboxSong> track = ResourceArgument.getResource(context, "track", Registries.JUKEBOX_SONG);
 		String name = StringArgumentType.getString(context, "name");
-		ServerPlayer player = context.getSource().getPlayer();
-		if(player != null){
-			if(player.getVehicle() != null && player.getVehicle() instanceof DDRMachineEntity ddrMachineEntity){
-				ddrMachineEntity.startRecording(track, name);
-				return Command.SINGLE_SUCCESS;
-			}
+		ServerPlayer player = context.getSource().getPlayerOrException();
+		if (player.getControlledVehicle() instanceof DDRMachineEntity ddrMachineEntity) {
+			ddrMachineEntity.startRecording(player, track, name);
+			return Command.SINGLE_SUCCESS;
 		}
 		throw NOT_DDRING.create();
 	}
 
 	private static int stopRecording(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
-		ServerPlayer player = context.getSource().getPlayer();
-		if(player != null){
-			if(player.getVehicle() != null && player.getVehicle() instanceof DDRMachineEntity ddrMachineEntity){
-				ddrMachineEntity.stopRecording();
-				return Command.SINGLE_SUCCESS;
-			}
+		ServerPlayer player = context.getSource().getPlayerOrException();
+		if (player.getControlledVehicle() instanceof DDRMachineEntity ddrMachineEntity) {
+			ddrMachineEntity.stopRecording(player);
+			return Command.SINGLE_SUCCESS;
 		}
 		throw NOT_DDRING.create();
 	}

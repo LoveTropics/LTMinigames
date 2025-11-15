@@ -5,11 +5,11 @@ import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.content.escape_race.behaviours.BreakBucksBehaviour;
 import com.lovetropics.minigames.common.content.escape_race.behaviours.WarehouseSetupBehaviour;
 import com.lovetropics.minigames.common.content.escape_race.client.EscapeRaceClientBucksState;
+import com.lovetropics.minigames.common.content.escape_race.client.ddr.render.DDRMachineEntityRenderer;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DDRMachineEntity;
-import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DDRMachineEntityRenderer;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DdrInput;
+import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DdrSessionState;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DdrLevel;
-import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.TimedDdrInput;
 import com.lovetropics.minigames.common.content.escape_race.misc.RoomEntrancePadEntity;
 import com.lovetropics.minigames.common.content.escape_race.misc.RoomEntrancePadEntityRenderer;
 import com.lovetropics.minigames.common.content.escape_race.rooms.RoomStatus;
@@ -49,6 +49,8 @@ import static net.minecraft.world.level.storage.loot.LootTable.lootTable;
 public class EscapeRace {
 	private static final LoveTropicsRegistrate REGISTRATE = LoveTropics.registrate();
 
+	public static final ResourceKey<Registry<DdrLevel>> DDR_LEVEL = ResourceKey.createRegistryKey(LoveTropics.location("ddr_level"));
+
 	public static final DeferredRegister<EntityDataSerializer<?>> ENTITY_SERIALIZERS = DeferredRegister.create(NeoForgeRegistries.ENTITY_DATA_SERIALIZERS, LoveTropics.ID);
 	public static final DeferredRegister.DataComponents DATA_COMPONENTS = DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, LoveTropics.ID);
 
@@ -66,8 +68,7 @@ public class EscapeRace {
 	public static final EntityDataSerializer<DDRMachineEntity.DDRMachineState> DDR_STATE = EntityDataSerializer.forValueType(
 			DDRMachineEntity.DDRMachineState.STREAM_CODEC
 	);
-
-	public static final EntityDataSerializer<List<TimedDdrInput>> DDR_LEVEL_TICK_MAP = EntityDataSerializer.forValueType(TimedDdrInput.STREAM_CODEC.apply(ByteBufCodecs.list()));
+	public static final EntityDataSerializer<DdrSessionState> DDR_SESSION = EntityDataSerializer.forValueType(DdrSessionState.STREAM_CODEC);
 
 	public static final EntityDataSerializer<DdrInput> DDR_INPUT = EntityDataSerializer.forValueType(DdrInput.STREAM_CODEC);
 	public static final EntityDataSerializer<RoomStatus> ROOM_STATUS = EntityDataSerializer.forValueType(RoomStatus.STREAM_CODEC);
@@ -75,8 +76,6 @@ public class EscapeRace {
 	public static DeferredHolder<EntityDataSerializer<?>, EntityDataSerializer<?>> register(String name, EntityDataSerializer<?> dataSerializerEntry) {
 		return ENTITY_SERIALIZERS.register(name, () -> dataSerializerEntry);
 	}
-
-	public static final ResourceKey<Registry<DdrLevel>> DDR_LEVEL = ResourceKey.createRegistryKey(LoveTropics.location("ddr_level"));
 
 	@SubscribeEvent
 	public static void registerDatapackRegistries(DataPackRegistryEvent.NewRegistry event) {
@@ -137,8 +136,8 @@ public class EscapeRace {
 	public static void init() {
 		register("itemstack_list", ITEM_STACK_LIST);
 		register("ddr_state", DDR_STATE);
-		register("ddr_level_tick_map", DDR_LEVEL_TICK_MAP);
 		register("ddr_input", DDR_INPUT);
+		register("ddr_session", DDR_SESSION);
 		register("room_status", ROOM_STATUS);
 	}
 

@@ -1,7 +1,9 @@
-package com.lovetropics.minigames.common.content.escape_race.ddr_machine;
+package com.lovetropics.minigames.common.content.escape_race.client.ddr.render;
 
 import com.lovetropics.minigames.LoveTropics;
-import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DDRMachineLevelClientRenderState;
+import com.lovetropics.minigames.common.content.escape_race.client.ddr.DdrScreen;
+import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DDRMachineEntity;
+import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DdrInput;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DdrLevel;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.TimedDdrInput;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -74,13 +76,19 @@ public class DDRMachineEntityRenderer extends EntityRenderer<DDRMachineEntity, D
 		state.toBedState.copyFrom(entity.toBedState);
 		state.toDDRState.copyFrom(entity.toDDRMachineState);
 		state.ddrMachineState = entity.getState();
-		state.input = entity.getPlayerInput();
-		state.upcomingMoves = entity.getUpcomingMoves();
-		state.currentTick = entity.getCurrentTick();
+		state.input = entity.getClientCurrentInput();
+		state.upcomingMoves.clear();
+		long currentTick = entity.getClientCurrentTick();
+		for (TimedDdrInput input : entity.clientPendingInputs()) {
+			long tick = input.tick();
+			if ((tick + 10) >= currentTick && tick - currentTick <= 20 * 4) {
+				state.upcomingMoves.add(input);
+			}
+		}
+		state.currentTick = currentTick;
 		state.isRiding = entity.getControllingPassenger() instanceof LocalPlayer;
 
 		Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
-
 		List<Holder<DdrLevel>> levels = entity.getOrderedLevels();
 		if (state.levels.size() != levels.size()) {
 			// This practically won't ever happen, as the list of levels is constant for a session
@@ -125,8 +133,8 @@ public class DDRMachineEntityRenderer extends EntityRenderer<DDRMachineEntity, D
 
 	private void renderScreenContent(PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, DDRMachineRenderState state) {
 		switch (state.ddrMachineState) {
-			case MENU -> renderMenuScreen(poseStack, bufferSource, packedLight, state);
-			case PLAYING, RECORDING -> renderPlayingScreen(poseStack, bufferSource, packedLight, state);
+			case DDRMachineEntity.DDRMachineState.MENU -> renderMenuScreen(poseStack, bufferSource, packedLight, state);
+			case DDRMachineEntity.DDRMachineState.PLAYING, DDRMachineEntity.DDRMachineState.RECORDING -> renderPlayingScreen(poseStack, bufferSource, packedLight, state);
 		}
 	}
 

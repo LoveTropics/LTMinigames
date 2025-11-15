@@ -1,6 +1,7 @@
-package com.lovetropics.minigames.common.content.escape_race.ddr_machine;
+package com.lovetropics.minigames.common.content.escape_race.client.ddr.render;
 
-import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DDRMachineLevelClientRenderState;
+import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DDRMachineEntity;
+import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DdrInput;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.TimedDdrInput;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.world.entity.AnimationState;
@@ -21,9 +22,9 @@ public class DDRMachineRenderState extends EntityRenderState {
 
 	public boolean isRiding = false;
 
-	public List<TimedDdrInput> upcomingMoves = List.of();
+	public final List<TimedDdrInput> upcomingMoves = new ArrayList<>();
 
-	public int currentTick = 0;
+	public long currentTick = 0;
 
 	public DDRMachineRenderState() {
 		super();

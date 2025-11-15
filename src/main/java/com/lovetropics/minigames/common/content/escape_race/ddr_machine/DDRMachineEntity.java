@@ -1,22 +1,22 @@
 package com.lovetropics.minigames.common.content.escape_race.ddr_machine;
 
-import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.content.escape_race.EscapeRace;
-import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DDRMachineLevelState;
+import com.lovetropics.minigames.common.content.escape_race.client.ddr.ClientDdrMachine;
+import com.lovetropics.minigames.common.content.escape_race.client.ddr.DdrPlayerPoseState;
+import com.lovetropics.minigames.common.content.escape_race.client.ddr.DdrScreen;
+import com.lovetropics.minigames.common.content.escape_race.client.ddr.render.DDRMachineEntityRenderer;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DdrLevel;
-import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DdrLevelDifficulty;
+import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DdrLevelInputQueue;
+import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DdrRecordingSession;
+import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DdrServerSession;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.TimedDdrInput;
-import com.lovetropics.minigames.common.core.network.ddr.ClientboundSetCameraViewPacket;
+import com.lovetropics.minigames.common.core.network.ddr.ClientboundDdrInputHitPacket;
 import com.lovetropics.minigames.common.core.network.ddr.ServerboundSelectDdrLevelPacket;
-import com.lovetropics.minigames.common.core.network.ddr.ServerboundUpdateDdrInputPacket;
-import com.mojang.serialization.JsonOps;
 import io.netty.buffer.ByteBuf;
-import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.core.Holder;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -35,25 +35,21 @@ import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.PlayerRideable;
-import net.minecraft.world.entity.player.Input;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.JukeboxSong;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.LevelEvent;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import javax.annotation.Nullable;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.IntFunction;
 
 public class DDRMachineEntity extends Entity implements PlayerRideable {
@@ -86,22 +82,18 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 	private static final EntityDataAccessor<DdrInput> DATA_PLAYER_INPUT = SynchedEntityData.defineId(DDRMachineEntity.class, EscapeRace.DDR_INPUT);
 
 	private static final EntityDataAccessor<DDRMachineState> DATA_STATE = SynchedEntityData.defineId(DDRMachineEntity.class, EscapeRace.DDR_STATE);
-	private static final EntityDataAccessor<List<TimedDdrInput>> DATA_UPCOMING_MOVES = SynchedEntityData.defineId(DDRMachineEntity.class, EscapeRace.DDR_LEVEL_TICK_MAP);
-	private static final EntityDataAccessor<Integer> DATA_CURRENT_TICK = SynchedEntityData.defineId(DDRMachineEntity.class, EntityDataSerializers.INT);
+	private static final EntityDataAccessor<DdrSessionState> DATA_SESSION = SynchedEntityData.defineId(DDRMachineEntity.class, EscapeRace.DDR_SESSION);
 	private static final EntityDataAccessor<Long> DATA_STATE_LAST_CHANGE_TICK = SynchedEntityData.defineId(DDRMachineEntity.class, EntityDataSerializers.LONG);
 
 	private final List<Holder<DdrLevel>> orderedLevels;
 
-	private DdrInput lastInput = DdrInput.NONE;
-	private final DdrPlayerPoseState poseState = new DdrPlayerPoseState();
-
-	private int recordingStartTick = 0;
+	@Nullable
+	private DdrServerSession serverSession;
+	@Nullable
+	private DdrRecordingSession recordingSession;
 
 	@Nullable
-	private DDRMachineLevelState currentLevelState = null;
-	private int currentLevelLength = 0;
-
-	private int playingStartTick = 0;
+	private ClientDdrMachine clientMachine;
 
 	public DDRMachineEntity(EntityType<? extends Entity> entityType, Level level) {
 		super(entityType, level);
@@ -109,6 +101,10 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 				.sorted(Comparator.comparing(l -> l.key().location()))
 				.map(l -> (Holder<DdrLevel>) l)
 				.toList();
+
+		if (level.isClientSide()) {
+			clientMachine = new ClientDdrMachine();
+		}
 	}
 
 	public List<Holder<DdrLevel>> getOrderedLevels() {
@@ -119,8 +115,7 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 	protected void defineSynchedData(SynchedEntityData.Builder builder) {
 		builder.define(DATA_PLAYER_INPUT, DdrInput.NONE)
 				.define(DATA_STATE, DDRMachineState.MENU)
-				.define(DATA_UPCOMING_MOVES, List.of())
-				.define(DATA_CURRENT_TICK, 0)
+				.define(DATA_SESSION, DdrSessionState.INACTIVE)
 				.define(DATA_STATE_LAST_CHANGE_TICK, 0L);
 	}
 
@@ -244,10 +239,10 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 
 	@Override
 	public boolean hurtClient(DamageSource damageSource) {
-		if (damageSource.getEntity() instanceof Player player) {
+		if (damageSource.getEntity() instanceof Player player && player.isLocalPlayer()) {
 			Holder<DdrLevel> pickedLevel = pickLevel(player);
 			if (pickedLevel != null) {
-				ClientPacketDistributor.sendToServer(new ServerboundSelectDdrLevelPacket(getId(), pickedLevel));
+				ClientPacketDistributor.sendToServer(new ServerboundSelectDdrLevelPacket(pickedLevel));
 			}
 		}
 		return super.hurtClient(damageSource);
@@ -276,128 +271,123 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 	@Override
 	public void tick() {
 		super.tick();
-		if (isLocalInstanceAuthoritative()) {
-			if (level().isClientSide) {
-				handleControls();
-				poseState.tick(lastInput);
-			}
-			return;
-		} else if (level().isClientSide()) {
-			poseState.tick(getPlayerInput());
-		}
-		if (!level().isClientSide) {
-			DdrInput newInputs = getPlayerInput().subtract(lastInput);
-			lastInput = getPlayerInput();
 
-			if (getState() == DDRMachineState.RECORDING && currentLevelState != null) {
-				int currentTick = tickCount - recordingStartTick;
-				if (!newInputs.isEmpty()) {
-					currentLevelState.getLevel().value().ticks().put(currentTick, newInputs);
-				}
-				if (currentTick >= currentLevelLength) {
-					stopRecording();
-				}
-			} else if (getState() == DDRMachineState.PLAYING && currentLevelState != null) {
-				int currentTick = tickCount - playingStartTick;
-				getEntityData().set(DATA_CURRENT_TICK, currentTick);
-				getEntityData().set(DATA_UPCOMING_MOVES, currentLevelState.pendingInputs()
-						.filter(input -> {
-							long tick = input.tick();
-							return (tick + 10) >= currentTick && tick - currentTick <= 20 * 4;
-						})
-						.toList());
-				currentLevelState.checkIfHit(currentTick, newInputs, (ServerPlayer) getControllingPassenger());
-				if (currentTick >= currentLevelLength) {
-					stopPlaying();
-				}
-			}
+		if (!level().isClientSide()) {
+			tickServer();
+			setupAnimationStates();
+		} else if (clientMachine != null) {
+			clientMachine.tick(this);
+		}
+	}
+
+	private void tickServer() {
+		if (getControllingPassenger() instanceof ServerPlayer player) {
+			tickControlledServer(player);
 		} else {
-			this.setupAnimationStates();
+			serverSession = null;
+			recordingSession = null;
 		}
 	}
 
-	public void startPlaying(Holder<DdrLevel> level) {
-		if (getState() == DDRMachineState.PLAYING && currentLevelState != null) {
-			return;
+	private void tickControlledServer(ServerPlayer player) {
+		if (recordingSession != null) {
+			DdrRecordingSession.Recording recording = recordingSession.tick(player);
+			if (recording != null) {
+				stopRecording(player, recording);
+			}
 		}
-		playingStartTick = tickCount;
-		currentLevelState = new DDRMachineLevelState(level);
-		Holder<JukeboxSong> track = currentLevelState.getLevel().value().track();
-		currentLevelLength = track.value().lengthInTicks();
-		if (getControllingPassenger() instanceof ServerPlayer player) {
-			player.connection.send(new ClientboundSetCameraViewPacket(1));
-			playSong(track);
-			player.sendSystemMessage(Component.literal("Starting track"), true);
-		}
-		setState(DDRMachineState.PLAYING);
-	}
 
-	private void playSong(Holder<JukeboxSong> track) {
-		int songId = level().registryAccess().lookupOrThrow(Registries.JUKEBOX_SONG).getId(track.value());
-		level().levelEvent(null, LevelEvent.SOUND_PLAY_JUKEBOX_SONG, blockPosition(), songId);
-	}
-
-	public void stopPlaying() {
-		if (getControllingPassenger() instanceof ServerPlayer player) {
+		if (serverSession != null && serverSession.isFinished(player)) {
 			stopPlaying(player);
 		}
 	}
 
-	public void stopPlaying(ServerPlayer player) {
-		if (getState() != DDRMachineState.PLAYING || currentLevelState == null) {
+	public void startPlaying(ServerPlayer player, Holder<DdrLevel> level) {
+		if (getState() != DDRMachineState.MENU) {
 			return;
 		}
-		setState(DDRMachineState.MENU);
-		DDRScoreHelper.onGameFinished(player, currentLevelState.getLevel(), currentLevelState.getCurrentLevelScore(), currentLevelState.getHighestStreak());
-		player.sendSystemMessage(Component.literal("Your Score: " + currentLevelState.getCurrentLevelScore()));
-		player.sendSystemMessage(Component.literal("Highest Streak: " + currentLevelState.getHighestStreak()));
-		playingStartTick = 0;
-		currentLevelState = null;
-		level().levelEvent(LevelEvent.SOUND_STOP_JUKEBOX_SONG, blockPosition(), 0);
+		long startedAtTime = player.level().getGameTime();
+		serverSession = new DdrServerSession(level, startedAtTime);
+		player.sendSystemMessage(Component.literal("Starting track"), true);
+		getEntityData().set(DATA_SESSION, DdrSessionState.playing(level, startedAtTime));
+		getEntityData().set(DATA_STATE, DDRMachineState.PLAYING);
+	}
+
+	@Override
+	public void onRemovedFromLevel() {
+		super.onRemovedFromLevel();
+		if (clientMachine != null) {
+			clientMachine.onRemoved();
+		}
+	}
+
+	private void stopPlaying(ServerPlayer player) {
+		if (serverSession == null) {
+			return;
+		}
+		DDRScoreHelper.onGameFinished(player, serverSession.level(), serverSession.getCurrentLevelScore(), serverSession.getHighestStreak());
+		player.sendSystemMessage(Component.literal("Your Score: " + serverSession.getCurrentLevelScore()));
+		player.sendSystemMessage(Component.literal("Highest Streak: " + serverSession.getHighestStreak()));
+		getEntityData().set(DATA_SESSION, DdrSessionState.INACTIVE);
+		getEntityData().set(DATA_STATE, DDRMachineState.MENU);
+		serverSession = null;
 		player.sendSystemMessage(Component.literal("Stopping track"));
-		player.connection.send(new ClientboundSetCameraViewPacket(0));
 	}
 
-	public void startRecording(Holder<JukeboxSong> track, String name) {
-		if (getState() == DDRMachineState.RECORDING && currentLevelState != null) {
+	public void startRecording(ServerPlayer player, Holder<JukeboxSong> track, String name) {
+		if (getState() != DDRMachineState.MENU) {
 			return;
 		}
-		recordingStartTick = tickCount;
-		currentLevelState = new DDRMachineLevelState(Holder.direct(new DdrLevel(track, new ItemStack(Items.MUSIC_DISC_PIGSTEP), Component.literal(name), new Long2ObjectOpenHashMap<>(), DdrLevelDifficulty.EASY)));
-		currentLevelLength = track.value().lengthInTicks();
-		if (getControllingPassenger() instanceof ServerPlayer player) {
-			playSong(track);
-			player.sendSystemMessage(Component.literal("Starting track & recording..."));
-		}
-		setState(DDRMachineState.RECORDING);
+		long startedAtTime = player.level().getGameTime();
+		recordingSession = new DdrRecordingSession(Component.literal(name), track, startedAtTime);
+		player.sendSystemMessage(Component.literal("Starting track & recording..."));
+		getEntityData().set(DATA_SESSION, DdrSessionState.recording(track, startedAtTime));
+		getEntityData().set(DATA_STATE, DDRMachineState.RECORDING);
 	}
 
-	public void stopRecording() {
-		if (getState() != DDRMachineState.RECORDING || currentLevelState == null) {
+	public void stopRecording(ServerPlayer player) {
+		if (recordingSession != null) {
+			stopRecording(player, recordingSession.stopRecording());
+		}
+	}
+
+	private void stopRecording(ServerPlayer player, DdrRecordingSession.Recording recording) {
+		if (recordingSession == null) {
 			return;
 		}
-		setState(DDRMachineState.MENU);
-		recordingStartTick = 0;
-		if (getControllingPassenger() instanceof ServerPlayer player) {
-			level().levelEvent(LevelEvent.SOUND_STOP_JUKEBOX_SONG, blockPosition(), 0);
-			player.sendSystemMessage(Component.literal("Stopping track & recording..."));
+		recordingSession = null;
+		getEntityData().set(DATA_SESSION, DdrSessionState.INACTIVE);
+		getEntityData().set(DATA_STATE, DDRMachineState.MENU);
+
+		player.sendSystemMessage(Component.literal("Stopping track & recording..."));
+
+		recording.export(player.registryAccess());
+	}
+
+	public void handleClientInput(ServerPlayer player, DdrInput input, long inputTick) {
+		DdrInput newInput = input.subtract(getPlayerInput());
+		getEntityData().set(DATA_PLAYER_INPUT, input);
+		if (newInput.isEmpty()) {
+			return;
 		}
-		Holder<DdrLevel> level = currentLevelState.getLevel();
-		getServer().submit(() -> {
-			DdrLevel.DIRECT_CODEC.encodeStart(registryAccess().createSerializationContext(JsonOps.INSTANCE), level.value())
-					.ifError((error) -> {
-						System.out.println(error.message());
-					}).ifSuccess((output) -> {
-						try {
-							Path path = DdrLevel.pathFor(LoveTropics.location(level.value().track().unwrapKey().orElseThrow().location().getPath()));
-							Files.createDirectories(path.getParent());
-							Files.deleteIfExists(path);
-							Files.writeString(path, output.toString());
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-					});
-		});
+		if (serverSession != null) {
+			DdrLevelInputQueue.Hit hit = serverSession.handleInput(player, newInput, inputTick);
+			if (hit != null) {
+				PacketDistributor.sendToPlayersTrackingEntity(this, new ClientboundDdrInputHitPacket(getId(), hit.hitTick()));
+			}
+		} else if (recordingSession != null) {
+			recordingSession.handleInput(newInput, inputTick);
+		}
+	}
+
+	public void handleRemoteClientInputHit(long inputTick) {
+		if (clientMachine != null) {
+			clientMachine.handleRemoteInputHit(this, inputTick);
+		}
+	}
+
+	public DdrInput getPlayerInput() {
+		return getEntityData().get(DATA_PLAYER_INPUT);
 	}
 
 	@Override
@@ -409,31 +399,29 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 		}
 	}
 
-	public void updatePlayerInput(DdrInput pose) {
-		getEntityData().set(DATA_PLAYER_INPUT, pose);
-	}
-
-	public DdrInput getPlayerInput() {
-		return getEntityData().get(DATA_PLAYER_INPUT);
-	}
-
 	@Override
 	protected void removePassenger(Entity passenger) {
 		super.removePassenger(passenger);
-		if (!level().isClientSide && passenger instanceof ServerPlayer serverPlayer) {
-			if (getState() == DDRMachineState.PLAYING) {
+		if (passenger instanceof ServerPlayer serverPlayer) {
+			if (serverSession != null) {
 				stopPlaying(serverPlayer);
+			} else if (recordingSession != null) {
+				stopRecording(serverPlayer);
 			}
 		}
 	}
 
-	private void handleControls() {
-		if (isVehicle() && getControllingPassenger() instanceof final LocalPlayer player) {
-			Input keyPresses = player.input.keyPresses;
-			DdrInput input = DdrInput.fromKeyPresses(keyPresses);
-			if (!input.equals(lastInput)) {
-				ClientPacketDistributor.sendToServer(new ServerboundUpdateDdrInputPacket(input));
-				lastInput = input;
+	@Override
+	public void onSyncedDataUpdated(EntityDataAccessor<?> key) {
+		super.onSyncedDataUpdated(key);
+		if (DATA_SESSION.equals(key) && clientMachine != null) {
+			DdrSessionState session = getEntityData().get(DATA_SESSION);
+			if (session.playingLevel().isPresent()) {
+				clientMachine.startPlaying(session.playingLevel().get(), session.startedAtTime());
+			} else if (session.recordingTrack().isPresent()) {
+				clientMachine.startRecording(session.recordingTrack().get(), session.startedAtTime());
+			} else {
+				clientMachine.clearSession();
 			}
 		}
 	}
@@ -442,21 +430,19 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 		return getEntityData().get(DATA_STATE);
 	}
 
-	public List<TimedDdrInput> getUpcomingMoves() {
-		return getEntityData().get(DATA_UPCOMING_MOVES);
+	public Collection<TimedDdrInput> clientPendingInputs() {
+		return Objects.requireNonNull(clientMachine).pendingInputs();
 	}
 
-	public int getCurrentTick() {
-		return getEntityData().get(DATA_CURRENT_TICK);
+	public long getClientCurrentTick() {
+		return Objects.requireNonNull(clientMachine).getCurrentTick(this);
+	}
+
+	public DdrInput getClientCurrentInput() {
+		return Objects.requireNonNull(clientMachine).getCurrentInput(this);
 	}
 
 	public DdrPlayerPoseState getPoseState() {
-		return poseState;
-	}
-
-	@Override
-	public void onSyncedDataUpdated(EntityDataAccessor<?> key) {
-		super.onSyncedDataUpdated(key);
-
+		return Objects.requireNonNull(clientMachine).poseState();
 	}
 }

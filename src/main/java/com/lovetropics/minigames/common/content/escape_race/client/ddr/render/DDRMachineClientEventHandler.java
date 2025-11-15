@@ -1,6 +1,7 @@
-package com.lovetropics.minigames.common.content.escape_race.ddr_machine;
+package com.lovetropics.minigames.common.content.escape_race.client.ddr.render;
 
 import com.lovetropics.minigames.LoveTropics;
+import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DDRMachineEntity;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
