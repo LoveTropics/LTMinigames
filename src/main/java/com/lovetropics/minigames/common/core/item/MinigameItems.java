@@ -14,6 +14,8 @@ public class MinigameItems {
 
 	/** Powerups */
 	public static final ItemEntry<Item> UPSET_STOMACH = REGISTRATE.item("upset_stomach", Item::new).register();
+	public static final ItemEntry<Item> COLADARAL_DAMAGE = REGISTRATE.item("coladaral_damage", Item::new).register();
+	public static final ItemEntry<Item> TAPIR_TAKEOVER = REGISTRATE.item("tapir_takeover", Item::new).register();
 	/** End powerups */
 
 	public static void init() {
