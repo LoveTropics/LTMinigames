@@ -417,11 +417,11 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 		if (DATA_SESSION.equals(key) && clientMachine != null) {
 			DdrSessionState session = getEntityData().get(DATA_SESSION);
 			if (session.playingLevel().isPresent()) {
-				clientMachine.startPlaying(session.playingLevel().get(), session.startedAtTime());
+				clientMachine.startPlaying(this, session.playingLevel().get(), session.startedAtTime());
 			} else if (session.recordingTrack().isPresent()) {
-				clientMachine.startRecording(session.recordingTrack().get(), session.startedAtTime());
+				clientMachine.startRecording(this, session.recordingTrack().get(), session.startedAtTime());
 			} else {
-				clientMachine.clearSession();
+				clientMachine.clearSession(this);
 			}
 		}
 	}

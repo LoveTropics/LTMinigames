@@ -8,6 +8,7 @@ import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.D
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DdrServerSession;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.TimedDdrInput;
 import com.lovetropics.minigames.common.core.network.ddr.ServerboundDdrInputPacket;
+import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.resources.sounds.SoundInstance;
@@ -67,15 +68,24 @@ public class ClientDdrMachine {
 		}
 	}
 
-	public void startPlaying(Holder<DdrLevel> level, long startedAtTime) {
+	public void startPlaying(DDRMachineEntity entity, Holder<DdrLevel> level, long startedAtTime) {
+		if (entity.getControllingPassenger() instanceof LocalPlayer) {
+			Minecraft.getInstance().options.setCameraType(CameraType.THIRD_PERSON_BACK);
+		}
 		session = new PlaySession(level, startedAtTime);
 	}
 
-	public void startRecording(Holder<JukeboxSong> track, long startedAtTime) {
+	public void startRecording(DDRMachineEntity entity, Holder<JukeboxSong> track, long startedAtTime) {
+		if (entity.getControllingPassenger() instanceof LocalPlayer) {
+			Minecraft.getInstance().options.setCameraType(CameraType.THIRD_PERSON_BACK);
+		}
 		session = new RecordingSession(track, startedAtTime);
 	}
 
-	public void clearSession() {
+	public void clearSession(DDRMachineEntity entity) {
+		if (entity.getControllingPassenger() instanceof LocalPlayer) {
+			Minecraft.getInstance().options.setCameraType(CameraType.FIRST_PERSON);
+		}
 		session = null;
 	}
 
