@@ -9,9 +9,8 @@ import com.lovetropics.minigames.common.content.river_race.event.RiverRaceEvents
 import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
-import com.lovetropics.minigames.common.core.game.behavior.action.GameActionContext;
+import com.lovetropics.minigames.common.core.game.behavior.action.GameActionContextKeys;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionList;
-import com.lovetropics.minigames.common.core.game.behavior.action.GameActionParameter;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
@@ -33,6 +32,8 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.TriState;
 import net.minecraft.util.Unit;
+import net.minecraft.util.context.ContextKeySet;
+import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
@@ -143,10 +144,10 @@ public final class CollectablesBehaviour implements IGameBehavior {
 
 	private TriState onCollectablePlaced(IGamePhase game, ServerPlayer player, GameTeam team, RiverRaceState.Zone collectableZone, BlockPos slotPos) {
 		if (firstTeamToCollect.putIfAbsent(collectableZone.id(), team.key()) == null) {
-			GameActionContext context = GameActionContext.builder()
-					.set(GameActionParameter.TEAM, team)
-					.set(GameActionParameter.NAME, collectableZone.displayName())
-					.build();
+			ContextMap context = new ContextMap.Builder()
+					.withParameter(GameActionContextKeys.TEAM, team)
+					.withParameter(GameActionContextKeys.NAME, collectableZone.displayName())
+					.create(ContextKeySet.EMPTY);
 			CollectableConfig config = collectablesByZone.get(collectableZone.id());
 			if (config != null) {
 				config.onCompleteAction.apply(game, context, game.allPlayers());

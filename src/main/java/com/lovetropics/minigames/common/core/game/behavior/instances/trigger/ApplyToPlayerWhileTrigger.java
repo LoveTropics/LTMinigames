@@ -4,7 +4,6 @@ import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorType;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorTypes;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
-import com.lovetropics.minigames.common.core.game.behavior.action.GameActionContext;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionList;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
@@ -13,6 +12,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.advancements.critereon.EntityPredicate;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.context.ContextMap;
 
 import java.util.Set;
 import java.util.UUID;
@@ -34,11 +34,11 @@ public record ApplyToPlayerWhileTrigger(EntityPredicate predicate, GameActionLis
 		events.listen(GamePlayerEvents.TICK, player -> {
 			if (predicate.matches(player, player)) {
 				if (appliedToPlayers.add(player.getUUID())) {
-					apply.apply(game, GameActionContext.EMPTY, player);
+					apply.apply(game, ContextMap.EMPTY, player);
 				}
 			} else {
 				if (appliedToPlayers.remove(player.getUUID())) {
-					clear.apply(game, GameActionContext.EMPTY, player);
+					clear.apply(game, ContextMap.EMPTY, player);
 				}
 			}
 		});

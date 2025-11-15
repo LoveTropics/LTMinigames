@@ -3,9 +3,8 @@ package com.lovetropics.minigames.common.core.game.behavior.instances.donation;
 import com.google.common.collect.Lists;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
-import com.lovetropics.minigames.common.core.game.behavior.action.GameActionContext;
+import com.lovetropics.minigames.common.core.game.behavior.action.GameActionContextKeys;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionList;
-import com.lovetropics.minigames.common.core.game.behavior.action.GameActionParameter;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePackageEvents;
 import com.lovetropics.minigames.common.core.game.player.PlayerSet;
@@ -19,6 +18,8 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.Util;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.TriState;
+import net.minecraft.util.context.ContextKeySet;
+import net.minecraft.util.context.ContextMap;
 import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
@@ -133,7 +134,7 @@ public final class DonationPackageBehavior implements IGameBehavior {
 			LOGGER.warn("No players to apply package {}, rejecting", gamePackage);
 			return TriState.FALSE;
 		}
-		GameActionContext context = actionContext(gamePackage);
+		ContextMap context = actionContext(gamePackage);
 		if (receiveActions.apply(game, context, players)) {
 			ServerPlayer singleReceiver = players.size() == 1 ? players.getFirst() : null;
 			notification.ifPresent(notification -> notification.onPlayerReceive(game, singleReceiver, gamePackage.sendingPlayerName(), data.name()));
@@ -147,7 +148,7 @@ public final class DonationPackageBehavior implements IGameBehavior {
 			LOGGER.warn("No teams to apply package {}, rejecting", gamePackage);
 			return TriState.FALSE;
 		}
-		GameActionContext context = actionContext(gamePackage);
+		ContextMap context = actionContext(gamePackage);
 		if (teamReceiveActions.apply(game, context, teams) | receiveActions.apply(game, context, players)) {
 			GameTeam singleReceiver = teams.size() == 1 ? teams.getFirst() : null;
 			notification.ifPresent(notification -> notification.onTeamReceive(game, singleReceiver, gamePackage.sendingPlayerName(), data.name()));
@@ -156,12 +157,12 @@ public final class DonationPackageBehavior implements IGameBehavior {
 		return TriState.FALSE;
 	}
 
-	private static GameActionContext actionContext(GamePackage gamePackage) {
-		GameActionContext.Builder context = GameActionContext.builder();
-		context.set(GameActionParameter.PACKAGE, gamePackage);
+	private static ContextMap actionContext(GamePackage gamePackage) {
+		ContextMap.Builder context = new ContextMap.Builder();
+		context.withParameter(GameActionContextKeys.PACKAGE, gamePackage);
 		if (gamePackage.sendingPlayerName() != null) {
-			context.set(GameActionParameter.PACKAGE_SENDER, gamePackage.sendingPlayerName());
+			context.withParameter(GameActionContextKeys.PACKAGE_SENDER, gamePackage.sendingPlayerName());
 		}
-		return context.build();
+		return context.create(ContextKeySet.EMPTY);
 	}
 }

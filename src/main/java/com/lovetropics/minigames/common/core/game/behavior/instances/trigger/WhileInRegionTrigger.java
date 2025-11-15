@@ -4,15 +4,16 @@ import com.lovetropics.lib.BlockBox;
 import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
-import com.lovetropics.minigames.common.core.game.behavior.action.GameActionContext;
+import com.lovetropics.minigames.common.core.game.behavior.action.GameActionContextKeys;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionList;
-import com.lovetropics.minigames.common.core.game.behavior.action.GameActionParameter;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.context.ContextKeySet;
+import net.minecraft.util.context.ContextMap;
 
 import java.util.Map;
 
@@ -36,7 +37,9 @@ public record WhileInRegionTrigger(Map<String, GameActionList<ServerPlayer>> reg
 			for (var entry : regionActions.entrySet()) {
 				if (isPlayerInRegion(game, player, entry.getKey())) {
 					GameActionList<ServerPlayer> actions = entry.getValue();
-					GameActionContext context = GameActionContext.builder().set(GameActionParameter.NAME, player.getDisplayName()).build();
+					ContextMap context = new ContextMap.Builder()
+							.withParameter(GameActionContextKeys.NAME, player.getDisplayName())
+							.create(ContextKeySet.EMPTY);
 					actions.apply(game, context, player);
 				}
 			}

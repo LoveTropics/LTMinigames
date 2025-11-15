@@ -5,7 +5,6 @@ import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorType;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorTypes;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
-import com.lovetropics.minigames.common.core.game.behavior.action.GameActionContext;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionList;
 import com.lovetropics.minigames.common.core.game.behavior.action.PlayerActionTarget;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
@@ -17,6 +16,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.context.ContextMap;
 
 import java.util.List;
 import java.util.Map;
@@ -44,7 +44,7 @@ public record ScheduledActionsTrigger(PlayerActionTarget target, ProgressChannel
 
 		events.listen(GamePhaseEvents.TICK, () -> actions.removeIf(entry -> {
 			if (entry.getFirst().getAsBoolean()) {
-				entry.getSecond().apply(game, GameActionContext.EMPTY, target.resolve(game, List.of()));
+				entry.getSecond().apply(game, ContextMap.EMPTY, target.resolve(game, List.of()));
 				return true;
 			}
 			return false;

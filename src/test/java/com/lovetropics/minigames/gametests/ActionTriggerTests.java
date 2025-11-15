@@ -1,7 +1,6 @@
 package com.lovetropics.minigames.gametests;
 
 import com.lovetropics.minigames.common.core.game.GameStopReason;
-import com.lovetropics.minigames.common.core.game.behavior.action.GameActionContext;
 import com.lovetropics.minigames.common.core.game.behavior.action.NoneActionTarget;
 import com.lovetropics.minigames.common.core.game.behavior.action.PlayerActionTarget;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvents;
@@ -28,6 +27,7 @@ import net.minecraft.network.protocol.game.ClientboundSystemChatPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -97,7 +97,7 @@ public class ActionTriggerTests implements MinigameTest {
 				.thenExecute(helper.startGame(lobby))
 				.thenIdle(20)
 				.thenExecute(() -> helper.assertReceivedPacket(player, 0, ClientboundSystemChatPacket.class, it -> it.content().equals(Component.literal("hello world!"))))
-				.thenExecute(() -> lobby.getActivePhase().invoker(GameActionEvents.APPLY_TO_PLAYER).apply(GameActionContext.EMPTY, player))
+				.thenExecute(() -> lobby.getActivePhase().invoker(GameActionEvents.APPLY_TO_PLAYER).apply(ContextMap.EMPTY, player))
 				.thenExecute(() -> helper.assertReceivedPacket(player, 1, ClientboundSoundPacket.class, it -> it.getSound().value() == SoundEvents.ALLAY_HURT && it.getVolume() == 0.5f && it.getPitch() == 0.5f))
 				.thenSucceed();
 	}

@@ -6,21 +6,18 @@ import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorType;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorTypes;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
-import com.lovetropics.minigames.common.core.game.behavior.action.GameActionContext;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionList;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents;
-import com.lovetropics.minigames.common.util.registry.GameBehaviorEntry;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.advancements.critereon.BlockPredicate;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.context.ContextMap;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Supplier;
 
 public final class BlockInRegionTrigger implements IGameBehavior {
@@ -80,7 +77,7 @@ public final class BlockInRegionTrigger implements IGameBehavior {
 		if (runOnce && triggered) {
 			return;
 		}
-		actions.apply(game, GameActionContext.EMPTY);
+		actions.apply(game, ContextMap.EMPTY);
 		triggered = true;
 	}
 

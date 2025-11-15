@@ -6,7 +6,6 @@ import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.GameWinner;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
-import com.lovetropics.minigames.common.core.game.behavior.action.GameActionContext;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionList;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameLogicEvents;
@@ -34,6 +33,7 @@ import net.minecraft.network.protocol.game.ClientboundSetTitlesAnimationPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.BossEvent;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -170,7 +170,7 @@ public class RaceTrackBehavior implements IGameBehavior {
 
 			for (BlockBox region : regions) {
 				registerCheckpoint(region, (player, state) -> {
-					actions.apply(game, GameActionContext.EMPTY, player);
+					actions.apply(game, ContextMap.EMPTY, player);
 					return false;
 				});
 			}

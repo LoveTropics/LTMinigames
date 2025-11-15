@@ -4,7 +4,6 @@ import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorType;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorTypes;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
-import com.lovetropics.minigames.common.core.game.behavior.action.GameActionContext;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionList;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvents;
@@ -22,6 +21,7 @@ import net.minecraft.SharedConstants;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
+import net.minecraft.util.context.ContextMap;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -85,9 +85,9 @@ public record ApplyForTimeAction(
 		private void tick(final IGamePhase game) {
 			final long time = game.ticks();
 			if (finishTime != NOT_ACTIVE) {
-				tick.apply(game, GameActionContext.EMPTY);
+				tick.apply(game, ContextMap.EMPTY);
 				if (time >= finishTime) {
-					clear.apply(game, GameActionContext.EMPTY);
+					clear.apply(game, ContextMap.EMPTY);
 					nestedInvokers.forEach((type, invoker) -> invoker.clear());
 					finishTime = NOT_ACTIVE;
 				}
@@ -98,13 +98,13 @@ public record ApplyForTimeAction(
 		private boolean tickPlayer(IGamePhase game, Object2LongMap.Entry<UUID> entry, long time) {
 			final ServerPlayer player = game.allPlayers().getPlayerBy(entry.getKey());
 			if (player != null) {
-				tick.apply(game, GameActionContext.EMPTY, player);
+				tick.apply(game, ContextMap.EMPTY, player);
 			}
 
 			final long finishTime = entry.getLongValue();
 			if (time >= finishTime) {
 				if (player != null) {
-					clear.apply(game, GameActionContext.EMPTY, player);
+					clear.apply(game, ContextMap.EMPTY, player);
 				}
 				return true;
 			} else {
@@ -122,7 +122,7 @@ public record ApplyForTimeAction(
 			}
 		}
 
-		private boolean tryApply(final IGamePhase game, final GameActionContext context) {
+		private boolean tryApply(final IGamePhase game, final ContextMap context) {
 			if (finishTime == NOT_ACTIVE && apply.apply(game, context)) {
 				nestedInvokers.forEach((type, invoker) ->
 						invoker.setUnchecked(nestedListeners.invoker(type))
@@ -133,7 +133,7 @@ public record ApplyForTimeAction(
 			return false;
 		}
 
-		public boolean tryApplyTo(final IGamePhase game, final GameActionContext context, final ServerPlayer player) {
+		public boolean tryApplyTo(final IGamePhase game, final ContextMap context, final ServerPlayer player) {
 			if (!playerFinishTimes.containsKey(player.getUUID()) && apply.apply(game, context, player)) {
 				playerFinishTimes.put(player.getUUID(), game.ticks() + (long) seconds * SharedConstants.TICKS_PER_SECOND);
 				return true;

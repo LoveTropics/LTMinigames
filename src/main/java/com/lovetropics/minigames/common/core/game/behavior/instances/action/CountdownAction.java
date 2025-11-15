@@ -2,7 +2,6 @@ package com.lovetropics.minigames.common.core.game.behavior.instances.action;
 
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
-import com.lovetropics.minigames.common.core.game.behavior.action.GameActionContext;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionList;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents;
@@ -17,6 +16,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.context.ContextMap;
 
 import java.util.LinkedList;
 import java.util.Map;
@@ -76,6 +76,6 @@ public final class CountdownAction<T> implements IGameBehavior {
 		}
 	}
 
-	private record QueueEntry<T>(long time, GameActionContext context, Iterable<T> sources) {
+	private record QueueEntry<T>(long time, ContextMap context, Iterable<T> sources) {
 	}
 }

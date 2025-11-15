@@ -4,9 +4,8 @@ import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorType;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorTypes;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
-import com.lovetropics.minigames.common.core.game.behavior.action.GameActionContext;
+import com.lovetropics.minigames.common.core.game.behavior.action.GameActionContextKeys;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionList;
-import com.lovetropics.minigames.common.core.game.behavior.action.GameActionParameter;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
 import com.lovetropics.minigames.common.util.Util;
@@ -16,6 +15,8 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.advancements.critereon.EntityPredicate;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.TriState;
+import net.minecraft.util.context.ContextKeySet;
+import net.minecraft.util.context.ContextMap;
 
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -45,12 +46,13 @@ public record OnDeathTrigger(GameActionList<ServerPlayer> killedAction, GameActi
 			if (killedPredicate.isPresent() && !killedPredicate.get().matches(player, player)) {
 				return TriState.DEFAULT;
 			}
-			final GameActionContext.Builder context = GameActionContext.builder().set(GameActionParameter.KILLED, player);
+			final ContextMap.Builder context = new ContextMap.Builder()
+					.withParameter(GameActionContextKeys.KILLED, player);
 			if (killer != null) {
-				killedAction.apply(game, context.set(GameActionParameter.KILLER, killer).build(), player);
-				killerAction.apply(game, context.set(GameActionParameter.KILLER, killer).build(), killer);
+				killedAction.apply(game, context.withParameter(GameActionContextKeys.KILLER, killer).create(ContextKeySet.EMPTY), player);
+				killerAction.apply(game, context.withParameter(GameActionContextKeys.KILLER, killer).create(ContextKeySet.EMPTY), killer);
 			} else {
-				killedAction.apply(game, context.build(), player);
+				killedAction.apply(game, context.create(ContextKeySet.EMPTY), player);
 			}
 			return TriState.DEFAULT;
 		});

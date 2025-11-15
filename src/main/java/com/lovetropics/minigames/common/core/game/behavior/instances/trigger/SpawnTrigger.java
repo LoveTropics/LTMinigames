@@ -5,7 +5,6 @@ import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorType;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorTypes;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
-import com.lovetropics.minigames.common.core.game.behavior.action.GameActionContext;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionList;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
@@ -13,6 +12,7 @@ import com.lovetropics.minigames.common.core.game.player.PlayerRole;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.context.ContextMap;
 
 import java.util.function.Supplier;
 
@@ -27,7 +27,7 @@ public record SpawnTrigger(PlayerRole role, GameActionList<ServerPlayer> action)
 		action.register(game, events);
 		events.listen(GamePlayerEvents.SPAWN, (playerId, spawn, role) -> {
 			if (this.role == role) {
-				spawn.run(player -> action.apply(game, GameActionContext.EMPTY, player));
+				spawn.run(player -> action.apply(game, ContextMap.EMPTY, player));
 			}
 		});
 	}

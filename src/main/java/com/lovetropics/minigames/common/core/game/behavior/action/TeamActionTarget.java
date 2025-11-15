@@ -14,6 +14,7 @@ import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.StringRepresentable;
+import net.minecraft.util.context.ContextMap;
 import org.apache.commons.lang3.function.ToBooleanBiFunction;
 
 import java.util.List;
@@ -40,7 +41,7 @@ public record TeamActionTarget(Either<BuiltinType, GameTeamKey> team) implements
 	}
 
 	@Override
-	public boolean apply(IGamePhase game, GameEventListeners listeners, GameActionContext actionContext, Iterable<GameTeam> sources) {
+	public boolean apply(IGamePhase game, GameEventListeners listeners, ContextMap actionContext, Iterable<GameTeam> sources) {
 		boolean result = false;
 		for (GameTeam team : resolve(game, sources)) {
 			result |= listeners.invoker(GameActionEvents.APPLY_TO_TEAM).apply(actionContext, team);
@@ -55,7 +56,7 @@ public record TeamActionTarget(Either<BuiltinType, GameTeamKey> team) implements
 	}
 
 	@Override
-	public void listenAndCaptureSource(EventRegistrar listeners, ToBooleanBiFunction<GameActionContext, Iterable<GameTeam>> listener) {
+	public void listenAndCaptureSource(EventRegistrar listeners, ToBooleanBiFunction<ContextMap, Iterable<GameTeam>> listener) {
 		listeners.listen(GameActionEvents.APPLY_TO_TEAM, (context, team) -> listener.applyAsBoolean(context, List.of(team)));
 	}
 

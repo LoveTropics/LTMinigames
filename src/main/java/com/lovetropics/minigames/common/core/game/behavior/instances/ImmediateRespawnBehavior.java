@@ -3,7 +3,6 @@ package com.lovetropics.minigames.common.core.game.behavior.instances;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.SpawnBuilder;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
-import com.lovetropics.minigames.common.core.game.behavior.action.GameActionContext;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionList;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
@@ -17,6 +16,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.TriState;
+import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.Container;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
@@ -81,7 +81,7 @@ public record ImmediateRespawnBehavior(Optional<PlayerRole> role, Optional<Playe
 
 		// Run only at the end of the current game tick, as the code that caused the damage might still have side-effects
 		game.scheduler().runAfterTicks(0, () ->
-				respawnAction.apply(game, GameActionContext.EMPTY, player)
+				respawnAction.apply(game, ContextMap.EMPTY, player)
 		);
 
 		if (clearKillTracker) {

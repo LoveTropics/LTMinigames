@@ -3,7 +3,6 @@ package com.lovetropics.minigames.common.core.game.behavior.instances.trigger;
 import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
-import com.lovetropics.minigames.common.core.game.behavior.action.GameActionContext;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionList;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
@@ -14,6 +13,7 @@ import net.minecraft.advancements.critereon.EntityPredicate;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.TriState;
+import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.decoration.ItemFrame;
@@ -67,7 +67,7 @@ public record ItemPutInItemFrameTrigger(
 				}
 				if(doCheckForItem) {
 					if (!itemFrame.getItem().isEmpty()) {
-						empty.ifPresent(serverPlayerGameActionList -> serverPlayerGameActionList.apply(game, GameActionContext.EMPTY, player));
+						empty.ifPresent(serverPlayerGameActionList -> serverPlayerGameActionList.apply(game, ContextMap.EMPTY, player));
 					}
 				}
 			}
@@ -98,12 +98,12 @@ public record ItemPutInItemFrameTrigger(
 						if (itemFrame.getItem().isEmpty()) {
 							if (itemPredicate.isPresent()) {
 								if (itemPredicate.get().test(itemInHand)) {
-									matches.ifPresent(serverPlayerGameActionList -> serverPlayerGameActionList.apply(game, GameActionContext.EMPTY, player));
+									matches.ifPresent(serverPlayerGameActionList -> serverPlayerGameActionList.apply(game, ContextMap.EMPTY, player));
 								} else {
-									doesntMatch.ifPresent(serverPlayerGameActionList -> serverPlayerGameActionList.apply(game, GameActionContext.EMPTY, player));
+									doesntMatch.ifPresent(serverPlayerGameActionList -> serverPlayerGameActionList.apply(game, ContextMap.EMPTY, player));
 								}
 							} else {
-								matches.ifPresent(serverPlayerGameActionList -> serverPlayerGameActionList.apply(game, GameActionContext.EMPTY, player));
+								matches.ifPresent(serverPlayerGameActionList -> serverPlayerGameActionList.apply(game, ContextMap.EMPTY, player));
 							}
 						}
 					}

@@ -1,9 +1,9 @@
 package com.lovetropics.minigames.common.core.game.behavior.event;
 
 import com.lovetropics.minigames.common.content.biodiversity_blitz.plot.Plot;
-import com.lovetropics.minigames.common.core.game.behavior.action.GameActionContext;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeam;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.entity.Entity;
 
 // TODO: Enable any of these action targets to be reinterpreted in another context
@@ -56,22 +56,22 @@ public final class GameActionEvents {
 	}
 
 	public interface Apply {
-		boolean apply(GameActionContext context);
+		boolean apply(ContextMap context);
 	}
 
 	public interface ApplyToEntity {
-		boolean apply(GameActionContext context, Entity target);
+		boolean apply(ContextMap context, Entity target);
 	}
 
 	public interface ApplyToPlayer {
-		boolean apply(GameActionContext context, ServerPlayer target);
+		boolean apply(ContextMap context, ServerPlayer target);
 	}
 
 	public interface ApplyToPlot {
-		boolean apply(GameActionContext context, Plot plot);
+		boolean apply(ContextMap context, Plot plot);
 	}
 
 	public interface ApplyToTeam {
-		boolean apply(GameActionContext context, GameTeam team);
+		boolean apply(ContextMap context, GameTeam team);
 	}
 }

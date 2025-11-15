@@ -3,7 +3,6 @@ package com.lovetropics.minigames.common.content.river_race.behaviour;
 import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
-import com.lovetropics.minigames.common.core.game.behavior.action.GameActionContext;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionList;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvents;
@@ -17,6 +16,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ExtraCodecs;
+import net.minecraft.util.context.ContextMap;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 
 import java.util.ArrayDeque;
@@ -74,7 +74,7 @@ public record StartMicrogamesAction(
 		events.listen(SubGameEvents.RETURN_TO_TOP, () -> {
 			if (scheduled.isTrue()) {
 				scheduled.setFalse();
-				onComplete.apply(game, GameActionContext.EMPTY);
+				onComplete.apply(game, ContextMap.EMPTY);
 			}
 		});
 	}

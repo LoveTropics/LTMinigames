@@ -4,9 +4,8 @@ import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorType;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorTypes;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
-import com.lovetropics.minigames.common.core.game.behavior.action.GameActionContext;
+import com.lovetropics.minigames.common.core.game.behavior.action.GameActionContextKeys;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionList;
-import com.lovetropics.minigames.common.core.game.behavior.action.GameActionParameter;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.PickUpResult;
@@ -15,6 +14,8 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.context.ContextKeySet;
+import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.Optional;
@@ -34,10 +35,10 @@ public record ItemPickedUpTrigger(Optional<ItemPredicate> itemPredicate, GameAct
 		events.listen(GamePlayerEvents.PICK_UP_ITEM, (player, item) -> {
 			final ItemStack stack = item.getItem();
 			if (itemPredicate.isEmpty() || itemPredicate.get().test(stack)) {
-				final GameActionContext context = GameActionContext.builder()
-						.set(GameActionParameter.ITEM, stack)
-						.set(GameActionParameter.COUNT, stack.getCount())
-						.build();
+				final ContextMap context = new ContextMap.Builder()
+						.withParameter(GameActionContextKeys.ITEM, stack)
+						.withParameter(GameActionContextKeys.COUNT, stack.getCount())
+						.create(ContextKeySet.EMPTY);
 				action.apply(game, context, player);
 				return consume ? PickUpResult.DISCARD : PickUpResult.PASS;
 			}

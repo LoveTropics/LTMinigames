@@ -5,7 +5,7 @@ import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorType;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorTypes;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
-import com.lovetropics.minigames.common.core.game.behavior.action.GameActionParameter;
+import com.lovetropics.minigames.common.core.game.behavior.action.GameActionContextKeys;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePackageEvents;
@@ -36,7 +36,7 @@ public record TriggerEveryPackageBehavior(Set<String> exclude) implements IGameB
 	public void register(final IGamePhase game, final EventRegistrar events) {
 		final GamePackageState packages = game.state().get(GamePackageState.KEY);
 		events.listen(GameActionEvents.APPLY, context -> {
-			final GamePackage sourcePackage = context.get(GameActionParameter.PACKAGE).orElse(null);
+			final GamePackage sourcePackage = context.getOptional(GameActionContextKeys.PACKAGE);
 			if (sourcePackage == null) {
 				return false;
 			}

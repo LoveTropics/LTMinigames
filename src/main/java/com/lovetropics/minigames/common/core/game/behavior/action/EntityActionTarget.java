@@ -6,6 +6,7 @@ import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameEventListeners;
 import com.mojang.serialization.Codec;
+import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.entity.Entity;
 import org.apache.commons.lang3.function.ToBooleanBiFunction;
 
@@ -22,7 +23,7 @@ public record EntityActionTarget() implements ActionTarget<Entity> {
 	}
 
 	@Override
-	public boolean apply(IGamePhase game, GameEventListeners listeners, GameActionContext actionContext, Iterable<Entity> sources) {
+	public boolean apply(IGamePhase game, GameEventListeners listeners, ContextMap actionContext, Iterable<Entity> sources) {
 		boolean result = false;
 		for (Entity target : Lists.newArrayList(sources)) {
 			result |= listeners.invoker(GameActionEvents.APPLY_TO_ENTITY).apply(actionContext, target);
@@ -31,7 +32,7 @@ public record EntityActionTarget() implements ActionTarget<Entity> {
 	}
 
 	@Override
-	public void listenAndCaptureSource(EventRegistrar listeners, ToBooleanBiFunction<GameActionContext, Iterable<Entity>> listener) {
+	public void listenAndCaptureSource(EventRegistrar listeners, ToBooleanBiFunction<ContextMap, Iterable<Entity>> listener) {
 		listeners.listen(GameActionEvents.APPLY_TO_ENTITY, (context, target) -> listener.applyAsBoolean(context, List.of(target)));
 	}
 

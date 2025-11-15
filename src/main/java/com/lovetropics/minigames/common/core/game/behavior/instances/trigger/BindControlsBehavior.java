@@ -3,7 +3,6 @@ package com.lovetropics.minigames.common.core.game.behavior.instances.trigger;
 import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
-import com.lovetropics.minigames.common.core.game.behavior.action.GameActionContext;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionList;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents;
@@ -11,6 +10,7 @@ import com.lovetropics.minigames.common.core.game.state.control.ControlCommand;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.entity.Entity;
 
 import java.util.Map;
@@ -31,9 +31,9 @@ public record BindControlsBehavior(Map<ControlCommand.Scope, Map<String, GameAct
 				commands.register(control, scope, source -> {
 					Entity entity = source.getEntity();
 					if (entity instanceof ServerPlayer player) {
-						actions.apply(game, GameActionContext.EMPTY, player);
+						actions.apply(game, ContextMap.EMPTY, player);
 					} else {
-						actions.apply(game, GameActionContext.EMPTY);
+						actions.apply(game, ContextMap.EMPTY);
 					}
 				});
 			}));

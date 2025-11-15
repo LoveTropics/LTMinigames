@@ -3,7 +3,6 @@ package com.lovetropics.minigames.common.content.qottott.behavior;
 import com.lovetropics.lib.BlockBox;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
-import com.lovetropics.minigames.common.core.game.behavior.action.GameActionContext;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionList;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents;
@@ -17,6 +16,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.TriState;
+import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
@@ -73,7 +73,7 @@ public record KitSelectionBehavior(List<Kit> kits) implements IGameBehavior {
 			if (role == PlayerRole.PARTICIPANT) {
 				spawn.run(player -> {
 					final Kit kit = selectedKits.getOrDefault(player.getUUID(), defaultKit);
-					kit.apply.apply(game, GameActionContext.EMPTY, player);
+					kit.apply.apply(game, ContextMap.EMPTY, player);
 				});
 			}
 		});
@@ -82,7 +82,7 @@ public record KitSelectionBehavior(List<Kit> kits) implements IGameBehavior {
 	private static boolean applyKit(final IGamePhase game, final ServerPlayer player, final Entity target, final Map<UUID, Kit> kitEntities, final Map<UUID, Kit> selectedKits) {
 		final Kit kit = kitEntities.get(target.getUUID());
 		if (kit != null) {
-			kit.apply.apply(game, GameActionContext.EMPTY, player);
+			kit.apply.apply(game, ContextMap.EMPTY, player);
 			selectedKits.put(player.getUUID(), kit);
 			return true;
 		}

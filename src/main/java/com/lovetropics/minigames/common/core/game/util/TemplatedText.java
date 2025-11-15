@@ -1,7 +1,6 @@
 package com.lovetropics.minigames.common.core.game.util;
 
-import com.lovetropics.minigames.common.core.game.behavior.action.GameActionContext;
-import com.lovetropics.minigames.common.core.game.behavior.action.GameActionParameter;
+import com.lovetropics.minigames.common.core.game.behavior.action.GameActionContextKeys;
 import com.mojang.serialization.Codec;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import net.minecraft.network.chat.Component;
@@ -10,6 +9,7 @@ import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.util.Unit;
+import net.minecraft.util.context.ContextMap;
 
 import java.util.Map;
 import java.util.Optional;
@@ -21,22 +21,40 @@ public record TemplatedText(Component template) {
 
 	private static final Pattern PATTERN = Pattern.compile("%([a-zA-Z0-9_]+)%");
 
-	public Component apply(GameActionContext context) {
+	public Component apply(ContextMap context) {
 		Map<String, Component> values = new Object2ObjectArrayMap<>();
 		addValuesFromContext(context, values);
 		return apply(values);
 	}
 
-	private static void addValuesFromContext(GameActionContext context, Map<String, Component> values) {
-		context.get(GameActionParameter.PACKAGE_SENDER).ifPresent(name -> values.put("sender", Component.literal(name)));
-		context.get(GameActionParameter.KILLER).ifPresent(player -> values.put("killer", player.getDisplayName()));
-		context.get(GameActionParameter.KILLED).ifPresent(player -> values.put("killed", player.getDisplayName()));
-		context.get(GameActionParameter.TARGET).ifPresent(entity -> values.put("target", entity.getDisplayName()));
-		context.get(GameActionParameter.COUNT).ifPresent(count -> values.put("count", Component.literal(String.valueOf(count))));
-		context.get(GameActionParameter.ITEM).ifPresent(item -> values.put("item", item.getHoverName()));
-		context.get(GameActionParameter.TEAM).ifPresent(team -> values.put("team", team.config().styledName()));
-		context.get(GameActionParameter.NAME).ifPresent(name -> values.put("name", name));
-		context.get(GameActionParameter.WINNER).ifPresent(name -> values.put("winner", name));
+	private static void addValuesFromContext(ContextMap context, Map<String, Component> values) {
+		Optional.ofNullable(context.getOptional(GameActionContextKeys.PACKAGE_SENDER)).ifPresent(name ->
+				values.put("sender", Component.literal(name))
+		);
+		Optional.ofNullable(context.getOptional(GameActionContextKeys.KILLER)).ifPresent(player ->
+				values.put("killer", player.getDisplayName())
+		);
+		Optional.ofNullable(context.getOptional(GameActionContextKeys.KILLED)).ifPresent(player ->
+				values.put("killed", player.getDisplayName())
+		);
+		Optional.ofNullable(context.getOptional(GameActionContextKeys.TARGET)).ifPresent(entity ->
+				values.put("target", entity.getDisplayName())
+		);
+		Optional.ofNullable(context.getOptional(GameActionContextKeys.COUNT)).ifPresent(count ->
+				values.put("count", Component.literal(String.valueOf(count)))
+		);
+		Optional.ofNullable(context.getOptional(GameActionContextKeys.ITEM)).ifPresent(item ->
+				values.put("item", item.getHoverName())
+		);
+		Optional.ofNullable(context.getOptional(GameActionContextKeys.TEAM)).ifPresent(team ->
+				values.put("team", team.config().styledName())
+		);
+		Optional.ofNullable(context.getOptional(GameActionContextKeys.NAME)).ifPresent(name ->
+				values.put("name", name)
+		);
+		Optional.ofNullable(context.getOptional(GameActionContextKeys.WINNER)).ifPresent(name ->
+				values.put("winner", name)
+		);
 	}
 
 	public Component apply(Map<String, Component> values) {

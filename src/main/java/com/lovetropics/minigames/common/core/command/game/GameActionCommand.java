@@ -5,7 +5,6 @@ import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorType;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorTypes;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
-import com.lovetropics.minigames.common.core.game.behavior.action.GameActionContext;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameEventListeners;
 import com.lovetropics.minigames.common.core.game.config.GameConfigs;
@@ -29,6 +28,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.entity.Entity;
 
 import java.util.Collection;
@@ -71,11 +71,11 @@ public class GameActionCommand {
 			boolean result = false;
 			for (var target : targets) {
 				if (target instanceof ServerPlayer serverPlayer) {
-					result |= events.invoker(GameActionEvents.APPLY_TO_PLAYER).apply(GameActionContext.EMPTY, serverPlayer);
+					result |= events.invoker(GameActionEvents.APPLY_TO_PLAYER).apply(ContextMap.EMPTY, serverPlayer);
 				} else if (target != null) {
-					result |= events.invoker(GameActionEvents.APPLY_TO_ENTITY).apply(GameActionContext.EMPTY, target);
+					result |= events.invoker(GameActionEvents.APPLY_TO_ENTITY).apply(ContextMap.EMPTY, target);
 				} else {
-					result |= events.invoker(GameActionEvents.APPLY).apply(GameActionContext.EMPTY);
+					result |= events.invoker(GameActionEvents.APPLY).apply(ContextMap.EMPTY);
 				}
 			}
 			if (result) {

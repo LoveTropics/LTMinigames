@@ -4,22 +4,16 @@ import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorType;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorTypes;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
-import com.lovetropics.minigames.common.core.game.behavior.action.GameActionContext;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionList;
-import com.lovetropics.minigames.common.core.game.behavior.action.GameActionParameter;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
-import com.lovetropics.minigames.common.core.game.behavior.event.PickUpResult;
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.advancements.critereon.BlockPredicate;
 import net.minecraft.advancements.critereon.EntityPredicate;
-import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.TriState;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.util.context.ContextMap;
 
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -46,7 +40,7 @@ public record BlockBreakTrigger(
 			if (blockPredicate.isPresent() && !blockPredicate.get().matches(player.level(), pos)) {
 				return TriState.DEFAULT;
 			}
-			action.apply(game, GameActionContext.EMPTY, player);
+			action.apply(game, ContextMap.EMPTY, player);
 			return TriState.DEFAULT;
 		});
 	}

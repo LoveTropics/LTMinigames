@@ -5,7 +5,6 @@ import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorType;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorTypes;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
-import com.lovetropics.minigames.common.core.game.behavior.action.GameActionContext;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionList;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents;
@@ -14,6 +13,7 @@ import com.lovetropics.minigames.common.core.game.state.progress.ProgressionPeri
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.util.context.ContextMap;
 
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
@@ -35,7 +35,7 @@ public record PeriodicActionsTrigger(ProgressChannel channel, Optional<Progressi
 		int onTick = interval - 1;
 		events.listen(GamePhaseEvents.TICK, () -> {
 			if (game.ticks() % interval == onTick && isActive.getAsBoolean()) {
-				actions.apply(game, GameActionContext.EMPTY);
+				actions.apply(game, ContextMap.EMPTY);
 			}
 		});
 	}

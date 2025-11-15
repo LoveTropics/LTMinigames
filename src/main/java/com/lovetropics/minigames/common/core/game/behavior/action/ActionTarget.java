@@ -6,6 +6,7 @@ import com.lovetropics.minigames.common.core.game.behavior.event.GameEventListen
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
+import net.minecraft.util.context.ContextMap;
 import org.apache.commons.lang3.function.ToBooleanBiFunction;
 
 import java.util.List;
@@ -24,9 +25,9 @@ public interface ActionTarget<T> {
 
 	List<T> resolve(IGamePhase phase, Iterable<T> sources);
 
-	boolean apply(IGamePhase game, GameEventListeners listeners, GameActionContext context, Iterable<T> sources);
+	boolean apply(IGamePhase game, GameEventListeners listeners, ContextMap context, Iterable<T> sources);
 
-	void listenAndCaptureSource(EventRegistrar listeners, ToBooleanBiFunction<GameActionContext, Iterable<T>> listener);
+	void listenAndCaptureSource(EventRegistrar listeners, ToBooleanBiFunction<ContextMap, Iterable<T>> listener);
 
 	default boolean requiresSource() {
 		return false;

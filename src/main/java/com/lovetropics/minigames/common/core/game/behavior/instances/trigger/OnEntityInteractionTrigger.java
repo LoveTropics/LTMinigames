@@ -5,15 +5,16 @@ import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorType;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorTypes;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
-import com.lovetropics.minigames.common.core.game.behavior.action.GameActionContext;
+import com.lovetropics.minigames.common.core.game.behavior.action.GameActionContextKeys;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionList;
-import com.lovetropics.minigames.common.core.game.behavior.action.GameActionParameter;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.advancements.critereon.EntityPredicate;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.context.ContextKeySet;
+import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -51,9 +52,10 @@ public record OnEntityInteractionTrigger(
 				return InteractionResult.PASS;
 			}
 
-			final GameActionContext.Builder context = GameActionContext.builder().set(GameActionParameter.TARGET, target);
-			sourceActions.apply(game, context.build(), player);
-			targetActions.apply(game, context.build(), target);
+			final ContextMap.Builder context = new ContextMap.Builder()
+					.withParameter(GameActionContextKeys.TARGET, target);
+			sourceActions.apply(game, context.create(ContextKeySet.EMPTY), player);
+			targetActions.apply(game, context.create(ContextKeySet.EMPTY), target);
 
 			return InteractionResult.CONSUME;
 		});

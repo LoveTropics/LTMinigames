@@ -2,8 +2,7 @@ package com.lovetropics.minigames.common.core.game.behavior.instances.action;
 
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
-import com.lovetropics.minigames.common.core.game.behavior.action.GameActionContext;
-import com.lovetropics.minigames.common.core.game.behavior.action.GameActionParameter;
+import com.lovetropics.minigames.common.core.game.behavior.action.GameActionContextKeys;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvents;
 import com.mojang.logging.LogUtils;
@@ -15,6 +14,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.GameProfileCache;
 import net.minecraft.util.StringUtil;
+import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.component.ResolvableProfile;
 import org.lovetropics.peekaboo.api.Disguise;
@@ -54,16 +54,16 @@ public record SetDisguiseAction(Disguise disguise, boolean applyDonorName, boole
 		});
 	}
 
-	private CompletableFuture<Disguise> resolveDisguise(final IGamePhase game, final GameActionContext context) {
-		final Optional<String> packageSender = context.get(GameActionParameter.PACKAGE_SENDER);
+	private CompletableFuture<Disguise> resolveDisguise(final IGamePhase game, final ContextMap context) {
+		final String packageSender = context.getOptional(GameActionContextKeys.PACKAGE_SENDER);
 		final Optional<TypedEntityData> entityDisguise = disguise.entity();
 		if (entityDisguise.isEmpty()) {
 			return CompletableFuture.completedFuture(disguise);
 		}
 
 		final ResourceLocation id = EntityType.getKey(entityDisguise.get().type());
-		if (applyDonorName && packageSender.isPresent() && DUMMY_PLAYER.equals(id)) {
-			return resolveDummyDisguise(game, entityDisguise.get(), packageSender.get()).thenApply(entity -> disguise.withEntity(Optional.of(entity)));
+		if (applyDonorName && packageSender != null && DUMMY_PLAYER.equals(id)) {
+			return resolveDummyDisguise(game, entityDisguise.get(), packageSender).thenApply(entity -> disguise.withEntity(Optional.of(entity)));
 		}
 
 		return CompletableFuture.completedFuture(disguise);

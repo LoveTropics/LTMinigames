@@ -4,8 +4,7 @@ import com.lovetropics.minigames.common.content.qottott.Qottott;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorType;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
-import com.lovetropics.minigames.common.core.game.behavior.action.GameActionContext;
-import com.lovetropics.minigames.common.core.game.behavior.action.GameActionParameter;
+import com.lovetropics.minigames.common.core.game.behavior.action.GameActionContextKeys;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvents;
 import com.lovetropics.minigames.common.core.game.state.statistics.StatisticKey;
@@ -14,6 +13,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
+import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 
 import java.util.function.Supplier;
@@ -37,11 +37,11 @@ public record GivePointsAction(StatisticKey<Integer> statistic, int count, boole
 		});
 	}
 
-	private int resolveCount(GameActionContext context, ServerPlayer player) {
+	private int resolveCount(ContextMap context, ServerPlayer player) {
 		if (bypassMultiplier) {
 			return count;
 		}
-		final int count = this.count * context.get(GameActionParameter.COUNT).orElse(1);
+		final int count = this.count * context.getOrDefault(GameActionContextKeys.COUNT, 1);
 		return Mth.floor(count * getMultiplier(player));
 	}
 

@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import com.lovetropics.lib.BlockBox;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
-import com.lovetropics.minigames.common.core.game.behavior.action.GameActionContext;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents;
@@ -15,6 +14,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.level.levelgen.Heightmap;
 
 import java.util.List;
@@ -65,7 +65,7 @@ public class SpawnEntitiesAtRegionsOverTimeAction implements IGameBehavior {
 		events.listen(GamePhaseEvents.TICK, () -> tick(game));
 	}
 
-	private boolean applyPackage(GameActionContext context) {
+	private boolean applyPackage(ContextMap context) {
 		ticksRemaining += ticksToSpawnFor;
 		entityCountRemaining += entityCount;
 		return true;

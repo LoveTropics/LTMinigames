@@ -5,7 +5,6 @@ import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorType;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorTypes;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
-import com.lovetropics.minigames.common.core.game.behavior.action.GameActionContext;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionList;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameLogicEvents;
@@ -16,6 +15,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.TriState;
+import net.minecraft.util.context.ContextMap;
 
 import javax.annotation.Nullable;
 import java.util.Map;
@@ -78,14 +78,14 @@ public record GeneralEventsTrigger(Map<String, GameActionList<ServerPlayer>> eve
 	private void invoke(IGamePhase game, String event) {
 		var actions = eventActions.get(event);
 		if (actions != null) {
-			actions.apply(game, GameActionContext.EMPTY);
+			actions.apply(game, ContextMap.EMPTY);
 		}
 	}
 
 	private void invoke(IGamePhase game, String event, ServerPlayer player) {
 		var actions = eventActions.get(event);
 		if (actions != null) {
-			actions.apply(game, GameActionContext.EMPTY, player);
+			actions.apply(game, ContextMap.EMPTY, player);
 		}
 	}
 

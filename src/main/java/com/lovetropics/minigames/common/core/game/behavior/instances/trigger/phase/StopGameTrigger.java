@@ -5,12 +5,12 @@ import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorType;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorTypes;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
-import com.lovetropics.minigames.common.core.game.behavior.action.GameActionContext;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionList;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.util.context.ContextMap;
 
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -29,11 +29,11 @@ public record StopGameTrigger(GameActionList<Void> actions, Optional<GameActionL
 		cancel.ifPresent(c -> c.register(game, events));
 
 		events.listen(GamePhaseEvents.STOP, reason -> {
-			actions.apply(game, GameActionContext.EMPTY);
+			actions.apply(game, ContextMap.EMPTY);
 			if (reason.isFinished()) {
-				finish.ifPresent(f -> f.apply(game, GameActionContext.EMPTY));
+				finish.ifPresent(f -> f.apply(game, ContextMap.EMPTY));
 			} else {
-				cancel.ifPresent(c -> c.apply(game, GameActionContext.EMPTY));
+				cancel.ifPresent(c -> c.apply(game, ContextMap.EMPTY));
 			}
 		});
 	}

@@ -5,6 +5,7 @@ import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameEventListeners;
 import com.mojang.serialization.Codec;
+import net.minecraft.util.context.ContextMap;
 import org.apache.commons.lang3.function.ToBooleanBiFunction;
 
 import java.util.List;
@@ -19,12 +20,12 @@ public record NoneActionTarget() implements ActionTarget<Void> {
 	}
 
 	@Override
-	public boolean apply(IGamePhase game, GameEventListeners listeners, GameActionContext context, Iterable<Void> sources) {
+	public boolean apply(IGamePhase game, GameEventListeners listeners, ContextMap context, Iterable<Void> sources) {
 		return false;
 	}
 
 	@Override
-	public void listenAndCaptureSource(EventRegistrar listeners, ToBooleanBiFunction<GameActionContext, Iterable<Void>> listener) {
+	public void listenAndCaptureSource(EventRegistrar listeners, ToBooleanBiFunction<ContextMap, Iterable<Void>> listener) {
 		listeners.listen(GameActionEvents.APPLY, context -> listener.applyAsBoolean(context, List.of()));
 	}
 

@@ -9,6 +9,7 @@ import com.lovetropics.minigames.common.core.game.behavior.event.GameEventListen
 import com.mojang.serialization.Codec;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.StringRepresentable;
+import net.minecraft.util.context.ContextMap;
 import org.apache.commons.lang3.function.ToBooleanBiFunction;
 
 import java.util.List;
@@ -24,7 +25,7 @@ public record PlayerActionTarget(Target target) implements ActionTarget<ServerPl
 	}
 
 	@Override
-	public boolean apply(IGamePhase game, GameEventListeners listeners, GameActionContext actionContext, Iterable<ServerPlayer> sources) {
+	public boolean apply(IGamePhase game, GameEventListeners listeners, ContextMap actionContext, Iterable<ServerPlayer> sources) {
 		boolean result = false;
 		for (ServerPlayer target : target.resolve(game, sources)) {
 			result |= listeners.invoker(GameActionEvents.APPLY_TO_PLAYER).apply(actionContext, target);
@@ -34,7 +35,7 @@ public record PlayerActionTarget(Target target) implements ActionTarget<ServerPl
 	}
 
 	@Override
-	public void listenAndCaptureSource(EventRegistrar listeners, ToBooleanBiFunction<GameActionContext, Iterable<ServerPlayer>> listener) {
+	public void listenAndCaptureSource(EventRegistrar listeners, ToBooleanBiFunction<ContextMap, Iterable<ServerPlayer>> listener) {
 		listeners.listen(GameActionEvents.APPLY_TO_PLAYER, (context, target1) -> listener.applyAsBoolean(context, List.of(target1)));
 	}
 

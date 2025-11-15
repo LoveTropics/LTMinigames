@@ -14,6 +14,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.MapLike;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.entity.Entity;
 
 import java.util.Arrays;
@@ -100,26 +101,26 @@ public class GameActionList<T> {
 		registered = true;
 	}
 
-	public <T1> boolean applyIf(Codec<? extends ActionTarget<T1>> type, IGamePhase phase, GameActionContext context, Iterable<T1> sources) {
+	public <T1> boolean applyIf(Codec<? extends ActionTarget<T1>> type, IGamePhase phase, ContextMap context, Iterable<T1> sources) {
 		if (type == target.type()) {
 			return apply(phase, context, (Iterable<T>) sources);
 		}
 		return false;
 	}
 
-	public <T1> boolean applyIf(Supplier<? extends Codec<? extends ActionTarget<T1>>> type, IGamePhase phase, GameActionContext context, Iterable<T1> sources) {
+	public <T1> boolean applyIf(Supplier<? extends Codec<? extends ActionTarget<T1>>> type, IGamePhase phase, ContextMap context, Iterable<T1> sources) {
 		return applyIf(type.get(), phase, context, sources);
 	}
 
-	public boolean apply(IGamePhase phase, GameActionContext context) {
+	public boolean apply(IGamePhase phase, ContextMap context) {
 		return apply(phase, context, target.resolve(phase, List.of()));
 	}
 
-	public boolean apply(IGamePhase phase, GameActionContext context, T... sources) {
+	public boolean apply(IGamePhase phase, ContextMap context, T... sources) {
 		return apply(phase, context, Arrays.asList(sources));
 	}
 
-	public boolean apply(IGamePhase phase, GameActionContext context, Iterable<T> sources) {
+	public boolean apply(IGamePhase phase, ContextMap context, Iterable<T> sources) {
 		if (isEmpty()) {
 			return true;
 		}

@@ -2,7 +2,6 @@ package com.lovetropics.minigames.common.core.game.behavior.instances.trigger;
 
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
-import com.lovetropics.minigames.common.core.game.behavior.action.GameActionContext;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionList;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents;
@@ -12,6 +11,7 @@ import com.lovetropics.minigames.common.core.game.state.progress.ProgressionPoin
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.util.context.ContextMap;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -37,7 +37,7 @@ public record PhaseChangeTrigger(ProgressChannel channel, Map<ProgressionPoint, 
 			while (iterator.hasNext()) {
 				var entry = iterator.next();
 				if (progression.isAfter(entry.getKey())) {
-					entry.getValue().apply(game, GameActionContext.EMPTY);
+					entry.getValue().apply(game, ContextMap.EMPTY);
 					iterator.remove();
 				}
 			}

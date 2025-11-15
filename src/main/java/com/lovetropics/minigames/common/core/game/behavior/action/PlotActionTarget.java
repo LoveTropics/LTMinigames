@@ -10,6 +10,7 @@ import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvent
 import com.lovetropics.minigames.common.core.game.behavior.event.GameEventListeners;
 import com.mojang.serialization.Codec;
 import net.minecraft.util.StringRepresentable;
+import net.minecraft.util.context.ContextMap;
 import org.apache.commons.lang3.function.ToBooleanBiFunction;
 
 import java.util.List;
@@ -24,7 +25,7 @@ public record PlotActionTarget(Target target) implements ActionTarget<Plot> {
 	}
 
 	@Override
-	public boolean apply(IGamePhase game, GameEventListeners listeners, GameActionContext actionContext, Iterable<Plot> sources) {
+	public boolean apply(IGamePhase game, GameEventListeners listeners, ContextMap actionContext, Iterable<Plot> sources) {
 		boolean result = false;
 		for (Plot target : target.resolve(game, sources)) {
 			result |= listeners.invoker(GameActionEvents.APPLY_TO_PLOT).apply(actionContext, target);
@@ -33,7 +34,7 @@ public record PlotActionTarget(Target target) implements ActionTarget<Plot> {
 	}
 
 	@Override
-	public void listenAndCaptureSource(EventRegistrar listeners, ToBooleanBiFunction<GameActionContext, Iterable<Plot>> listener) {
+	public void listenAndCaptureSource(EventRegistrar listeners, ToBooleanBiFunction<ContextMap, Iterable<Plot>> listener) {
 		listeners.listen(GameActionEvents.APPLY_TO_PLOT, (context, plot) -> listener.applyAsBoolean(context, List.of(plot)));
 	}
 
