@@ -34,7 +34,9 @@ import java.time.Instant;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public final class GameInstanceIntegrations implements IGameState {
 	public static final GameStateKey<GameInstanceIntegrations> KEY = GameStateKey.create("Game Integrations");
@@ -231,6 +233,10 @@ public final class GameInstanceIntegrations implements IGameState {
 		} else {
 			integrations.post(endpoint, payload);
 		}
+	}
+
+	public <T> CompletableFuture<Optional<T>> get(String endpoint, Codec<T> codec) {
+		return integrations.get(endpoint, codec);
 	}
 
 	private void close() {

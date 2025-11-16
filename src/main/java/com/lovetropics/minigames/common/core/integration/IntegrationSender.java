@@ -6,7 +6,10 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.lovetropics.minigames.common.config.ConfigLT;
 import com.mojang.logging.LogUtils;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.JsonOps;
 import net.minecraft.Util;
+import net.minecraft.util.LenientJsonParser;
 import org.apache.http.HttpHeaders;
 import org.slf4j.Logger;
 
@@ -15,12 +18,12 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 public interface IntegrationSender {
 	Logger LOGGER = LogUtils.getLogger();
 
-	IntegrationSender NULL = (endpoint, body) -> true;
 	IntegrationSender LOGGING = new Log();
 
 	static IntegrationSender open() {
@@ -38,6 +41,8 @@ public interface IntegrationSender {
 	}
 
 	boolean post(final String endpoint, final String body);
+
+	<T> Optional<T> get(String endpoint, Codec<T> codec);
 
 	final class Http implements IntegrationSender {
 		private static final HttpClient CLIENT = HttpClient.newBuilder().executor(Util.ioPool()).build();
@@ -79,6 +84,35 @@ public interface IntegrationSender {
 			return false;
 		}
 
+		@Override
+		public <T> Optional<T> get(String endpoint, Codec<T> codec) {
+			if (isDisabled()) {
+				return Optional.empty();
+			}
+			try {
+				LOGGER.debug("Sending GET to {}/{}", url.get(), endpoint);
+
+				HttpResponse<String> response = CLIENT.send(
+						request(endpoint).GET().build(),
+						HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8)
+				);
+
+				if (response.statusCode() >= 200 && response.statusCode() < 300) {
+					LOGGER.debug("Received response from GET to {}/{}: {}", url.get(), endpoint, response.body());
+					JsonElement json = LenientJsonParser.parse(response.body());
+					return codec.parse(JsonOps.INSTANCE, json).resultOrPartial(error ->
+							LOGGER.error("Malformed response from {}/{}: {}", url.get(), endpoint, error)
+					);
+				} else {
+					LOGGER.error("Received unexpected response code ({}) from {}/{}: {}", response.statusCode(), url.get(), endpoint, response.body());
+				}
+			} catch (Exception e) {
+				LOGGER.error("An exception occurred while trying to GET from {}/{}", url.get(), endpoint, e);
+			}
+
+			return Optional.empty();
+		}
+
 		private HttpRequest.Builder request(String endpoint) {
 			return HttpRequest.newBuilder(URI.create(url.get() + "/" + endpoint))
 					.header(HttpHeaders.USER_AGENT, "LTMinigames 1.0 (lovetropics.org)")
@@ -108,6 +142,12 @@ public interface IntegrationSender {
 		public boolean post(String endpoint, String body) {
 			LOGGER.info("POST to {}\n: {}", endpoint, body);
 			return true;
+		}
+
+		@Override
+		public <T> Optional<T> get(String endpoint, Codec<T> codec) {
+			LOGGER.info("GET from {}", endpoint);
+			return Optional.empty();
 		}
 	}
 }

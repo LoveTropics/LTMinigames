@@ -11,6 +11,7 @@ import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.state.GameStateMap;
 import com.lovetropics.minigames.common.core.integration.game_actions.GameActionType;
 import com.mojang.logging.LogUtils;
+import com.mojang.serialization.Codec;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ExtraCodecs;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -22,6 +23,8 @@ import org.slf4j.Logger;
 import javax.annotation.Nullable;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -156,6 +159,10 @@ public final class BackendIntegrations {
 
 	void postPolling(final String endpoint, final JsonElement body) {
 		EXECUTOR.submit(() -> pollSender.post(endpoint, body));
+	}
+
+	<T> CompletableFuture<Optional<T>> get(final String endpoint, final Codec<T> codec) {
+		return CompletableFuture.supplyAsync(() -> sender.get(endpoint, codec), EXECUTOR);
 	}
 
 	public boolean isConnected() {
