@@ -79,39 +79,39 @@ public class ConfigLT {
 					.define("baseUrl", "https://localhost:443");
 			worldLoadEndpoint = COMMON_BUILDER
 					.comment("Endpoint used when the server starts to reset minigame state")
-					.define("worldLoadEndpoint", "minigame/worldloaded");
+					.define("worldLoadEndpoint", "minigames/minigame/worldloaded");
 			worldUnloadEndpoint = COMMON_BUILDER
 					.comment("Endpoint used when the server stops to reset minigame state")
-					.define("worldUnloadEndpoint", "minigame/worldunloaded");
+					.define("worldUnloadEndpoint", "minigames/minigame/worldunloaded");
 			minigameStartEndpoint = COMMON_BUILDER
 					.comment("Endpoint used when a minigame is started")
-					.define("minigameStartEndpoint", "minigame/start");
+					.define("minigameStartEndpoint", "minigames/minigame/start");
 			minigameEndEndpoint = COMMON_BUILDER
 					.comment("Endpoint used when a minigame is successfully completed")
-					.define("minigameEndEndpoint", "minigame/end");
+					.define("minigameEndEndpoint", "minigames/minigame/end");
 			minigameCancelEndpoint = COMMON_BUILDER
 					.comment("Endpoint used when a minigame is canceled before finishing")
-					.define("minigameCancelEndpoint", "minigame/cancel");
+					.define("minigameCancelEndpoint", "minigames/minigame/cancel");
 			minigamePlayerUpdateEndpoint = COMMON_BUILDER
 					.comment("Endpoint used to update a player's status during a minigame")
-					.define("minigamePlayerUpdateEndpoint", "minigame/playerupdate");
+					.define("minigamePlayerUpdateEndpoint", "minigames/minigame/playerupdate");
 			minigameUpdatePackagesEndpoint = COMMON_BUILDER
 					.comment("Endpoint used to update the packages used in a minigame")
-					.define("minigameUpdatePackagesEndpoint", "minigame/updatepackages");
+					.define("minigameUpdatePackagesEndpoint", "minigames/minigame/updatepackages");
 			actionResolvedEndpoint = COMMON_BUILDER
 					.comment("Endpoint used to notify the backend an action was received and resolved")
-					.define("actionResolvedEndpoint", "minigame/actionresolved");
+					.define("actionResolvedEndpoint", "minigames/minigame/actionresolved");
 			authToken = COMMON_BUILDER
 					.comment("Auth token used to authenticate with the tech stack")
 					.define("authToken", "");
 			webSocketUrl = COMMON_BUILDER
 					.comment("URL the web socket is running on")
-					.define("webSocketUrl", "wss://localhost:443/ws");
+					.define("webSocketUrl", "wss://localhost:443");
 			pendingActionsEndpoint = COMMON_BUILDER
 					.comment("URL to receive any care/sabotage packages or chat events that were triggered but never acknowledged by the mod (maybe due to a premature shutdown)")
-					.define("pendingActionsEndpoint", "minigame/pendingactions");
+					.define("pendingActionsEndpoint", "minigames/minigame/pendingactions");
 			addPollEndpoint = COMMON_BUILDER
-					.define("addPollEndpoint", "polls/add");
+					.define("addPollEndpoint", "polls/polls/add");
 			COMMON_BUILDER.pop();
 		}
 	}
