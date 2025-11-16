@@ -12,18 +12,20 @@ import com.lovetropics.minigames.common.core.game.behavior.event.GameEventListen
 import com.lovetropics.minigames.common.core.game.behavior.event.GameEventType;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.MutableInvoker;
+import com.lovetropics.minigames.common.core.game.state.ActionMutex;
+import com.lovetropics.minigames.common.core.game.state.ActionMutexState;
 import com.lovetropics.minigames.common.core.game.util.TemplatedText;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import it.unimi.dsi.fastutil.objects.Object2LongMap;
-import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import net.minecraft.SharedConstants;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.util.context.ContextMap;
 
+import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -37,7 +39,9 @@ public record ApplyForTimeAction(
 		// Slightly sketchy implications for plugging any behavior in here, but oh well
 		IGameBehavior nested,
 		Optional<TemplatedText> indicator,
-		int seconds
+		int seconds,
+		Optional<ResourceLocation> mutex,
+		boolean forceAcquireMutex
 ) implements IGameBehavior {
 	public static final MapCodec<ApplyForTimeAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			GameActionList.CODEC.optionalFieldOf("apply", GameActionList.EMPTY).forGetter(ApplyForTimeAction::apply),
@@ -45,7 +49,9 @@ public record ApplyForTimeAction(
 			GameActionList.CODEC.optionalFieldOf("tick", GameActionList.EMPTY).forGetter(ApplyForTimeAction::tick),
 			IGameBehavior.CODEC.optionalFieldOf("nested", IGameBehavior.EMPTY).forGetter(ApplyForTimeAction::nested),
 			TemplatedText.CODEC.optionalFieldOf("indicator").forGetter(ApplyForTimeAction::indicator),
-			Codec.INT.fieldOf("seconds").forGetter(ApplyForTimeAction::seconds)
+			Codec.INT.fieldOf("seconds").forGetter(ApplyForTimeAction::seconds),
+			ResourceLocation.CODEC.optionalFieldOf("mutex").forGetter(ApplyForTimeAction::mutex),
+			Codec.BOOL.optionalFieldOf("force_acquire_mutex", false).forGetter(ApplyForTimeAction::forceAcquireMutex)
 	).apply(i, ApplyForTimeAction::new));
 
 	@Override
@@ -70,46 +76,58 @@ public record ApplyForTimeAction(
 	}
 
 	private class State {
-		private static final long NOT_ACTIVE = -1;
-
 		private final GameEventListeners nestedListeners = new GameEventListeners();
 		private final Map<GameEventType<?>, MutableInvoker<?>> nestedInvokers = new HashMap<>();
 
-		private long finishTime = NOT_ACTIVE;
-		private final Object2LongMap<UUID> playerFinishTimes = new Object2LongOpenHashMap<>();
-
-		private State() {
-			playerFinishTimes.defaultReturnValue(NOT_ACTIVE);
-		}
+		@Nullable
+		private ActiveAction globalAction;
+		private final Map<UUID, ActiveAction> playerActions = new HashMap<>();
 
 		private void tick(final IGamePhase game) {
 			final long time = game.ticks();
-			if (finishTime != NOT_ACTIVE) {
-				tick.apply(game, ContextMap.EMPTY);
-				if (time >= finishTime) {
-					clear.apply(game, ContextMap.EMPTY);
-					nestedInvokers.forEach((type, invoker) -> invoker.clear());
-					finishTime = NOT_ACTIVE;
-				}
+			if (globalAction != null && tickGlobalAction(game, globalAction, time)) {
+				clearNestedInvokers();
+				globalAction = null;
 			}
-			playerFinishTimes.object2LongEntrySet().removeIf(entry -> tickPlayer(game, entry, time));
+			playerActions.entrySet().removeIf(entry ->
+					tickPlayer(game, entry.getKey(), entry.getValue(), time)
+			);
 		}
 
-		private boolean tickPlayer(IGamePhase game, Object2LongMap.Entry<UUID> entry, long time) {
-			final ServerPlayer player = game.allPlayers().getPlayerBy(entry.getKey());
+		private boolean tickGlobalAction(IGamePhase game, ActiveAction action, long time) {
+			if (!action.isMutexValid()) {
+				return true;
+			}
+			tick.apply(game, ContextMap.EMPTY);
+			if (time >= action.finishTime) {
+				clear.apply(game, ContextMap.EMPTY);
+				return true;
+			}
+			return false;
+		}
+
+		private void clearNestedInvokers() {
+			nestedInvokers.forEach((type, invoker) -> invoker.clear());
+		}
+
+		private boolean tickPlayer(IGamePhase game, UUID playerId, ActiveAction action, long time) {
+			if (!action.isMutexValid()) {
+				return true;
+			}
+
+			final ServerPlayer player = game.allPlayers().getPlayerBy(playerId);
 			if (player != null) {
 				tick.apply(game, ContextMap.EMPTY, ActionSubjects.ofPlayer(player));
 			}
 
-			final long finishTime = entry.getLongValue();
-			if (time >= finishTime) {
+			if (time >= action.finishTime) {
 				if (player != null) {
 					clear.apply(game, ContextMap.EMPTY, ActionSubjects.ofPlayer(player));
 				}
 				return true;
 			} else {
 				if (player != null && indicator.isPresent()) {
-					tickIndicator(player, finishTime - time, indicator.get());
+					tickIndicator(player, action.finishTime - time, indicator.get());
 				}
 				return false;
 			}
@@ -123,22 +141,67 @@ public record ApplyForTimeAction(
 		}
 
 		private boolean tryApply(final IGamePhase game, final ContextMap context, ActionSubjects<?> targets) {
-			boolean applied = false;
 			long newFinishTime = game.ticks() + (long) seconds * SharedConstants.TICKS_PER_SECOND;
-			if (finishTime == NOT_ACTIVE && apply.apply(game, context)) {
+
+			ActionMutexState mutexes = game.state().get(ActionMutexState.KEY);
+			boolean applied = tryApplyGlobal(game, mutexes, context, newFinishTime);
+			for (ServerPlayer player : targets.asPlayers(game)) {
+				applied |= tryApplyForPlayer(game, context, player, mutexes, newFinishTime);
+			}
+
+			return applied;
+		}
+
+		private boolean tryApplyGlobal(IGamePhase game, ActionMutexState mutexes, ContextMap context, long newFinishTime) {
+			if (globalAction != null) {
+				return false;
+			}
+			ActionMutex acquiredMutex = null;
+			if (mutex.isPresent()) {
+				acquiredMutex = mutexes.acquireGlobal(mutex.get(), forceAcquireMutex);
+				if (acquiredMutex == null) {
+					return false;
+				}
+			}
+			if (apply.apply(game, context)) {
 				nestedInvokers.forEach((type, invoker) ->
 						invoker.setUnchecked(nestedListeners.invoker(type))
 				);
-				finishTime = newFinishTime;
-				applied = true;
+				globalAction = new ActiveAction(newFinishTime, acquiredMutex);
+				return true;
+			} else if (acquiredMutex != null) {
+				acquiredMutex.close();
 			}
-			for (ServerPlayer player : targets.asPlayers(game)) {
-				if (!playerFinishTimes.containsKey(player.getUUID()) && apply.apply(game, context, ActionSubjects.ofPlayer(player))) {
-					playerFinishTimes.put(player.getUUID(), newFinishTime);
-					applied = true;
+			return false;
+		}
+
+		private boolean tryApplyForPlayer(IGamePhase game, ContextMap context, ServerPlayer player, ActionMutexState mutexes, long newFinishTime) {
+			if (playerActions.containsKey(player.getUUID())) {
+				return false;
+			}
+			ActionMutex acquiredMutex = null;
+			if (mutex.isPresent()) {
+				acquiredMutex = mutexes.acquireForPlayer(player, mutex.get(), forceAcquireMutex);
+				if (acquiredMutex == null) {
+					return false;
 				}
 			}
-			return applied;
+			if (apply.apply(game, context, ActionSubjects.ofPlayer(player))) {
+				playerActions.put(player.getUUID(), new ActiveAction(newFinishTime, acquiredMutex));
+				return true;
+			} else if (acquiredMutex != null) {
+				acquiredMutex.close();
+			}
+			return false;
+		}
+
+		private record ActiveAction(
+				long finishTime,
+				@Nullable ActionMutex mutex
+		) {
+			public boolean isMutexValid() {
+				return mutex == null || mutex.isValid();
+			}
 		}
 	}
 }
