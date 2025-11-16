@@ -3,7 +3,6 @@ package com.lovetropics.minigames.common.core.game.behavior.instances.action;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
-import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.tags.DamageTypeTags;
@@ -32,7 +31,7 @@ public record AllowSingleFallAction() implements IGameBehavior {
 			return amount;
 		});
 
-		events.listen(GameActionEvents.APPLY_TO_PLAYER, (context, target) -> {
+		events.applyToPlayers(game, (context, target) -> {
 			playersAllowedToFall.add(target.getUUID());
 			return true;
 		});

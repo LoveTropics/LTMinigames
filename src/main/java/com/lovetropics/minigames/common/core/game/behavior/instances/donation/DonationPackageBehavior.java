@@ -3,11 +3,11 @@ package com.lovetropics.minigames.common.core.game.behavior.instances.donation;
 import com.google.common.collect.Lists;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
+import com.lovetropics.minigames.common.core.game.behavior.action.ActionSubjects;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionContextKeys;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionList;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePackageEvents;
-import com.lovetropics.minigames.common.core.game.player.PlayerSet;
 import com.lovetropics.minigames.common.core.game.state.GamePackageState;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeam;
 import com.lovetropics.minigames.common.core.game.state.team.TeamState;
@@ -32,20 +32,17 @@ public final class DonationPackageBehavior implements IGameBehavior {
 	public static final MapCodec<DonationPackageBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			DonationPackageData.CODEC.forGetter(c -> c.data),
 			DonationPackageNotification.CODEC.optionalFieldOf("notification").forGetter(c -> c.notification),
-			GameActionList.PLAYER_CODEC.optionalFieldOf("receive_actions", GameActionList.EMPTY_PLAYER).forGetter(c -> c.receiveActions),
-			GameActionList.TEAM_CODEC.optionalFieldOf("team_receive_actions", GameActionList.EMPTY_TEAM).forGetter(c -> c.teamReceiveActions)
+			GameActionList.CODEC.optionalFieldOf("receive_actions", GameActionList.EMPTY).forGetter(c -> c.receiveActions)
 	).apply(i, DonationPackageBehavior::new));
 
 	private final DonationPackageData data;
 	private final Optional<DonationPackageNotification> notification;
-	private final GameActionList<ServerPlayer> receiveActions;
-	private final GameActionList<GameTeam> teamReceiveActions;
+	private final GameActionList receiveActions;
 
-	public DonationPackageBehavior(DonationPackageData data, Optional<DonationPackageNotification> notification, GameActionList<ServerPlayer> receiveActions, GameActionList<GameTeam> teamReceiveActions) {
+	public DonationPackageBehavior(DonationPackageData data, Optional<DonationPackageNotification> notification, GameActionList receiveActions) {
 		this.data = data;
 		this.notification = notification;
 		this.receiveActions = receiveActions;
-		this.teamReceiveActions = teamReceiveActions;
 	}
 
 	@Override
@@ -53,7 +50,6 @@ public final class DonationPackageBehavior implements IGameBehavior {
 		events.listen(GamePackageEvents.RECEIVE_PACKAGE, gamePackage -> onGamePackageReceived(game, gamePackage));
 
 		receiveActions.register(game, events);
-		teamReceiveActions.register(game, events);
 
 		PackageCostModifierBehavior.State costModifier = game.state().get(PackageCostModifierBehavior.State.KEY);
 		game.state().get(GamePackageState.KEY).addPackageType(data.apply(costModifier));
@@ -79,7 +75,7 @@ public final class DonationPackageBehavior implements IGameBehavior {
 				LOGGER.warn("Could not find a team receiver for package: {}", gamePackage);
 				return TriState.FALSE;
 			}
-			return applyToTeams(game, gamePackage, List.of(receivingTeam), teams.getPlayersForTeam(game, receivingTeam.key()));
+			return applyToTeams(game, gamePackage, List.of(receivingTeam));
 		}
 
 		if (gamePackage.receivingPlayer().isEmpty()) {
@@ -109,10 +105,10 @@ public final class DonationPackageBehavior implements IGameBehavior {
 			TeamState teams = game.instanceState().getOrDefault(TeamState.KEY, TeamState.EMPTY);
 			List<GameTeam> allTeams = Lists.newArrayList(teams);
 			if (allTeams.isEmpty()) {
-				return applyToTeams(game, gamePackage, List.of(), PlayerSet.EMPTY);
+				return applyToTeams(game, gamePackage, List.of());
 			}
 			GameTeam randomTeam = Util.getRandom(allTeams, game.random());
-			return applyToTeams(game, gamePackage, List.of(randomTeam), teams.getPlayersForTeam(game, randomTeam.key()));
+			return applyToTeams(game, gamePackage, List.of(randomTeam));
 		} else {
 			final ServerPlayer randomPlayer = Util.getRandom(Lists.newArrayList(game.participants()), game.random());
 			return applyToPlayers(game, gamePackage, List.of(randomPlayer));
@@ -123,7 +119,7 @@ public final class DonationPackageBehavior implements IGameBehavior {
 		if (data.applyToTeam()) {
 			TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
 			List<GameTeam> allTeams = teams != null ? Lists.newArrayList(teams) : List.of();
-			return applyToTeams(game, gamePackage, allTeams, game.participants());
+			return applyToTeams(game, gamePackage, allTeams);
 		} else {
 			return applyToPlayers(game, gamePackage, Lists.newArrayList(game.participants()));
 		}
@@ -135,7 +131,7 @@ public final class DonationPackageBehavior implements IGameBehavior {
 			return TriState.FALSE;
 		}
 		ContextMap context = actionContext(gamePackage);
-		if (receiveActions.apply(game, context, players)) {
+		if (receiveActions.apply(game, context, ActionSubjects.ofPlayers(players))) {
 			ServerPlayer singleReceiver = players.size() == 1 ? players.getFirst() : null;
 			notification.ifPresent(notification -> notification.onPlayerReceive(game, singleReceiver, gamePackage.sendingPlayerName(), data.name()));
 			return TriState.TRUE;
@@ -143,13 +139,13 @@ public final class DonationPackageBehavior implements IGameBehavior {
 		return TriState.FALSE;
 	}
 
-	private TriState applyToTeams(IGamePhase game, GamePackage gamePackage, List<GameTeam> teams, PlayerSet players) {
+	private TriState applyToTeams(IGamePhase game, GamePackage gamePackage, List<GameTeam> teams) {
 		if (teams.isEmpty()) {
 			LOGGER.warn("No teams to apply package {}, rejecting", gamePackage);
 			return TriState.FALSE;
 		}
 		ContextMap context = actionContext(gamePackage);
-		if (teamReceiveActions.apply(game, context, teams) | receiveActions.apply(game, context, players)) {
+		if (receiveActions.apply(game, context, ActionSubjects.ofTeams(Lists.transform(teams, GameTeam::key)))) {
 			GameTeam singleReceiver = teams.size() == 1 ? teams.getFirst() : null;
 			notification.ifPresent(notification -> notification.onTeamReceive(game, singleReceiver, gamePackage.sendingPlayerName(), data.name()));
 			return TriState.TRUE;

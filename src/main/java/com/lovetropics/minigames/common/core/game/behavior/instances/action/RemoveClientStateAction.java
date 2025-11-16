@@ -3,7 +3,6 @@ package com.lovetropics.minigames.common.core.game.behavior.instances.action;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
-import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvents;
 import com.lovetropics.minigames.common.core.game.client_state.GameClientState;
 import com.lovetropics.minigames.common.core.game.client_state.GameClientStateType;
 import com.lovetropics.minigames.common.core.game.client_state.GameClientStateTypes;
@@ -17,7 +16,7 @@ public record RemoveClientStateAction(GameClientStateType<?> type) implements IG
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
-		events.listen(GameActionEvents.APPLY_TO_PLAYER, (context, target) -> {
+		events.applyToPlayers(game, (context, target) -> {
 			GameClientState.removeFromPlayer(type, target);
 			return true;
 		});

@@ -7,7 +7,6 @@ import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorType;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorTypes;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
-import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvents;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -23,7 +22,7 @@ public record GiveEffectAction(List<MobEffectInstance> effects) implements IGame
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		events.listen(GameActionEvents.APPLY_TO_ENTITY, (context, entity) -> {
+		events.applyToEntities(game, (context, entity) -> {
 			if (!(entity instanceof LivingEntity livingEntity)) {
 				return false;
 			}

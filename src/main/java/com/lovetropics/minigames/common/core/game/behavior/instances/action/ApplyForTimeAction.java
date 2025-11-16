@@ -4,6 +4,7 @@ import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorType;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorTypes;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
+import com.lovetropics.minigames.common.core.game.behavior.action.ActionSubjects;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionList;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvents;
@@ -30,18 +31,18 @@ import java.util.UUID;
 import java.util.function.Supplier;
 
 public record ApplyForTimeAction(
-		GameActionList<ServerPlayer> apply,
-		GameActionList<ServerPlayer> clear,
-		GameActionList<ServerPlayer> tick,
+		GameActionList apply,
+		GameActionList clear,
+		GameActionList tick,
 		// Slightly sketchy implications for plugging any behavior in here, but oh well
 		IGameBehavior nested,
 		Optional<TemplatedText> indicator,
 		int seconds
 ) implements IGameBehavior {
 	public static final MapCodec<ApplyForTimeAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			GameActionList.PLAYER_CODEC.optionalFieldOf("apply", GameActionList.EMPTY_PLAYER).forGetter(ApplyForTimeAction::apply),
-			GameActionList.PLAYER_CODEC.optionalFieldOf("clear", GameActionList.EMPTY_PLAYER).forGetter(ApplyForTimeAction::clear),
-			GameActionList.PLAYER_CODEC.optionalFieldOf("tick", GameActionList.EMPTY_PLAYER).forGetter(ApplyForTimeAction::tick),
+			GameActionList.CODEC.optionalFieldOf("apply", GameActionList.EMPTY).forGetter(ApplyForTimeAction::apply),
+			GameActionList.CODEC.optionalFieldOf("clear", GameActionList.EMPTY).forGetter(ApplyForTimeAction::clear),
+			GameActionList.CODEC.optionalFieldOf("tick", GameActionList.EMPTY).forGetter(ApplyForTimeAction::tick),
 			IGameBehavior.CODEC.optionalFieldOf("nested", IGameBehavior.EMPTY).forGetter(ApplyForTimeAction::nested),
 			TemplatedText.CODEC.optionalFieldOf("indicator").forGetter(ApplyForTimeAction::indicator),
 			Codec.INT.fieldOf("seconds").forGetter(ApplyForTimeAction::seconds)
@@ -59,8 +60,7 @@ public record ApplyForTimeAction(
 			state.nestedInvokers.put(type, MutableInvoker.addTo(events, type));
 		}
 
-		events.listen(GameActionEvents.APPLY, context -> state.tryApply(game, context));
-		events.listen(GameActionEvents.APPLY_TO_PLAYER, (context, player) -> state.tryApplyTo(game, context, player));
+		events.listen(GameActionEvents.APPLY, (context, targets) -> state.tryApply(game, context, targets));
 		events.listen(GamePhaseEvents.TICK, () -> state.tick(game));
 	}
 
@@ -98,13 +98,13 @@ public record ApplyForTimeAction(
 		private boolean tickPlayer(IGamePhase game, Object2LongMap.Entry<UUID> entry, long time) {
 			final ServerPlayer player = game.allPlayers().getPlayerBy(entry.getKey());
 			if (player != null) {
-				tick.apply(game, ContextMap.EMPTY, player);
+				tick.apply(game, ContextMap.EMPTY, ActionSubjects.ofPlayer(player));
 			}
 
 			final long finishTime = entry.getLongValue();
 			if (time >= finishTime) {
 				if (player != null) {
-					clear.apply(game, ContextMap.EMPTY, player);
+					clear.apply(game, ContextMap.EMPTY, ActionSubjects.ofPlayer(player));
 				}
 				return true;
 			} else {
@@ -122,23 +122,23 @@ public record ApplyForTimeAction(
 			}
 		}
 
-		private boolean tryApply(final IGamePhase game, final ContextMap context) {
+		private boolean tryApply(final IGamePhase game, final ContextMap context, ActionSubjects<?> targets) {
+			boolean applied = false;
+			long newFinishTime = game.ticks() + (long) seconds * SharedConstants.TICKS_PER_SECOND;
 			if (finishTime == NOT_ACTIVE && apply.apply(game, context)) {
 				nestedInvokers.forEach((type, invoker) ->
 						invoker.setUnchecked(nestedListeners.invoker(type))
 				);
-				finishTime = game.ticks() + (long) seconds * SharedConstants.TICKS_PER_SECOND;
-				return true;
+				finishTime = newFinishTime;
+				applied = true;
 			}
-			return false;
-		}
-
-		public boolean tryApplyTo(final IGamePhase game, final ContextMap context, final ServerPlayer player) {
-			if (!playerFinishTimes.containsKey(player.getUUID()) && apply.apply(game, context, player)) {
-				playerFinishTimes.put(player.getUUID(), game.ticks() + (long) seconds * SharedConstants.TICKS_PER_SECOND);
-				return true;
+			for (ServerPlayer player : targets.asPlayers(game)) {
+				if (!playerFinishTimes.containsKey(player.getUUID()) && apply.apply(game, context, ActionSubjects.ofPlayer(player))) {
+					playerFinishTimes.put(player.getUUID(), newFinishTime);
+					applied = true;
+				}
 			}
-			return false;
+			return applied;
 		}
 	}
 }

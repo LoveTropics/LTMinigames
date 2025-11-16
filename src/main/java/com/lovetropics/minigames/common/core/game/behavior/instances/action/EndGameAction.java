@@ -1,8 +1,10 @@
 package com.lovetropics.minigames.common.core.game.behavior.instances.action;
 
+import com.google.common.collect.Iterables;
 import com.lovetropics.minigames.common.core.game.GameWinner;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
+import com.lovetropics.minigames.common.core.game.behavior.action.ActionSubjects;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameLogicEvents;
@@ -31,12 +33,12 @@ public record EndGameAction(
 	public void register(IGamePhase game, EventRegistrar events) {
 		if (winBySource.isPresent()) {
 			Source source = winBySource.get();
-			events.listen(GameActionEvents.APPLY_TO_PLAYER, (context, target) -> {
-				game.invoker(GameLogicEvents.GAME_OVER).onGameOver(getWinnerBySource(game, target, source));
+			events.listen(GameActionEvents.APPLY, (context, targets) -> {
+				game.invoker(GameLogicEvents.GAME_OVER).onGameOver(getWinnerBySource(game, targets, source));
 				return true;
 			});
 		} else {
-			events.listen(GameActionEvents.APPLY, context -> {
+			events.listen(GameActionEvents.APPLY, (context, targets) -> {
 				GameWinner winner = getFixedWinner(game);
 				if (winner != null) {
 					game.invoker(GameLogicEvents.GAME_OVER).onGameOver(winner);
@@ -58,12 +60,15 @@ public record EndGameAction(
 		}).map(GameWinner.Team::new).orElse(null);
 	}
 
-	private GameWinner getWinnerBySource(IGamePhase game, ServerPlayer target, Source source) {
+	private GameWinner getWinnerBySource(IGamePhase game, ActionSubjects<?> targets, Source source) {
 		return switch (source) {
-			case PLAYER -> new GameWinner.Player(target);
+			case PLAYER -> {
+				ServerPlayer player = Iterables.getOnlyElement(targets.asPlayers(game));
+				yield player != null ? new GameWinner.Player(player) : new GameWinner.Nobody();
+			}
 			case TEAM -> {
 				TeamState teams = game.instanceState().getOrThrow(TeamState.KEY);
-				GameTeamKey teamKey = teams.getTeamForPlayer(target);
+				GameTeamKey teamKey = Iterables.getOnlyElement(targets.asTeams(game));
 				GameTeam team = teamKey != null ? teams.getTeamByKey(teamKey) : null;
 				yield team != null ? new GameWinner.Team(team) : new GameWinner.Nobody();
 			}

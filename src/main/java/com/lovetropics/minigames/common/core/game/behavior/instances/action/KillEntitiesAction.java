@@ -30,7 +30,7 @@ public record KillEntitiesAction(
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
-		events.listen(GameActionEvents.APPLY, context -> {
+		events.listen(GameActionEvents.APPLY, (context, targets) -> {
 			List<Entity> candidates = new ArrayList<>();
 			for (Entity entity : game.level().getAllEntities()) {
 				if (predicate.matches(game.level(), Vec3.ZERO, entity)) {

@@ -23,7 +23,7 @@ public record RemoveCollidersAction(List<String> regions) implements IGameBehavi
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		ColliderState colliders = ColliderState.getOrAdd(game, events);
-		events.listen(GameActionEvents.APPLY, context -> {
+		events.listen(GameActionEvents.APPLY, (context, targets) -> {
 			for (String region : regions) {
 				colliders.removeCollider(region);
 			}

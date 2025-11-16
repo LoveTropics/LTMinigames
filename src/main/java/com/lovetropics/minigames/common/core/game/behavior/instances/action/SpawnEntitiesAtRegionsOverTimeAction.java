@@ -61,7 +61,7 @@ public class SpawnEntitiesAtRegionsOverTimeAction implements IGameBehavior {
 			regionsToSpawnAt.addAll(regions.get(key));
 		}
 
-		events.listen(GameActionEvents.APPLY, this::applyPackage);
+		events.listen(GameActionEvents.APPLY, (context, targets) -> applyPackage(context));
 		events.listen(GamePhaseEvents.TICK, () -> tick(game));
 	}
 

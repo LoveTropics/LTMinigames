@@ -4,7 +4,6 @@ import com.lovetropics.lib.entity.FireworkPalette;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
-import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvents;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeamKey;
 import com.lovetropics.minigames.common.core.game.state.team.TeamState;
 import com.mojang.serialization.Codec;
@@ -24,7 +23,7 @@ public record SpawnFireworksAction(
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
-		events.listen(GameActionEvents.APPLY_TO_ENTITY, (context, entity) -> {
+		events.applyToEntities(game, (context, entity) -> {
 			BlockPos fireworkPos = entity.level().getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, entity.blockPosition());
 			FireworkPalette palette = selectPalette(game, entity);
 			palette.spawn(fireworkPos, entity.level());

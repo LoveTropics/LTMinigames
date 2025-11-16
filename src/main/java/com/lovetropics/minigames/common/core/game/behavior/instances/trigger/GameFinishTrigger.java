@@ -8,8 +8,8 @@ import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents
 import com.mojang.serialization.MapCodec;
 import net.minecraft.util.context.ContextMap;
 
-public record GameFinishTrigger(GameActionList<Void> actions) implements IGameBehavior {
-	public static final MapCodec<GameFinishTrigger> CODEC = GameActionList.VOID_MAP_CODEC.xmap(GameFinishTrigger::new, GameFinishTrigger::actions);
+public record GameFinishTrigger(GameActionList actions) implements IGameBehavior {
+	public static final MapCodec<GameFinishTrigger> CODEC = GameActionList.MAP_CODEC.xmap(GameFinishTrigger::new, GameFinishTrigger::actions);
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {

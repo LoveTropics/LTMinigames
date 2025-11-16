@@ -1,5 +1,6 @@
 package com.lovetropics.minigames.common.content.biodiversity_blitz.plot;
 
+import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.state.GameStateKey;
 import com.lovetropics.minigames.common.core.game.state.IGameState;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeamKey;
@@ -7,6 +8,7 @@ import com.lovetropics.minigames.common.core.game.state.team.TeamState;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -56,6 +58,17 @@ public final class PlotsState implements Iterable<Plot>, IGameState {
 			return team != null ? getPlotFor(team) : null;
 		}
 		return null;
+	}
+
+	public List<ServerPlayer> getPlayersForPlot(IGamePhase game, Plot plot) {
+		List<ServerPlayer> players = new ArrayList<>();
+		for (ServerPlayer participant : game.participants()) {
+			Plot playerPlot = getPlotFor(participant);
+			if (playerPlot == plot) {
+				players.add(participant);
+			}
+		}
+		return players;
 	}
 
 	@Override

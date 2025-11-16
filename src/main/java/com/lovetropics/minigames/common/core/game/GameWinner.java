@@ -1,10 +1,9 @@
 package com.lovetropics.minigames.common.core.game;
 
 import com.lovetropics.minigames.common.content.MinigameTexts;
-import com.lovetropics.minigames.common.core.game.player.PlayerSet;
+import com.lovetropics.minigames.common.core.game.behavior.action.ActionSubjects;
 import com.lovetropics.minigames.common.core.game.state.statistics.PlayerKey;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeam;
-import com.lovetropics.minigames.common.core.game.state.team.TeamState;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
@@ -16,7 +15,7 @@ public sealed interface GameWinner {
 
 	Component name();
 
-	PlayerSet resolvePlayers(IGamePhase game);
+	ActionSubjects<?> resolveSubjects(IGamePhase game);
 
 	record Nobody() implements GameWinner {
 		@Override
@@ -25,8 +24,8 @@ public sealed interface GameWinner {
 		}
 
 		@Override
-		public PlayerSet resolvePlayers(IGamePhase game) {
-			return PlayerSet.EMPTY;
+		public ActionSubjects<?> resolveSubjects(IGamePhase game) {
+			return ActionSubjects.EMPTY;
 		}
 	}
 
@@ -37,15 +36,15 @@ public sealed interface GameWinner {
 		}
 
 		@Override
-		public PlayerSet resolvePlayers(IGamePhase game) {
-			return PlayerSet.of(player);
+		public ActionSubjects<?> resolveSubjects(IGamePhase game) {
+			return ActionSubjects.ofPlayer(player);
 		}
 	}
 
 	record OfflinePlayer(PlayerKey playerKey, Component name) implements GameWinner {
 		@Override
-		public PlayerSet resolvePlayers(IGamePhase game) {
-			return PlayerSet.EMPTY;
+		public ActionSubjects<?> resolveSubjects(IGamePhase game) {
+			return ActionSubjects.EMPTY;
 		}
 	}
 
@@ -56,8 +55,8 @@ public sealed interface GameWinner {
 		}
 
 		@Override
-		public PlayerSet resolvePlayers(IGamePhase game) {
-			return game.instanceState().getOrThrow(TeamState.KEY).getPlayersForTeam(game, team.key());
+		public ActionSubjects<?> resolveSubjects(IGamePhase game) {
+			return ActionSubjects.ofTeam(team.key());
 		}
 	}
 }

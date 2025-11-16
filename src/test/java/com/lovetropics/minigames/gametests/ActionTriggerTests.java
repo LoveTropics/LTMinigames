@@ -1,8 +1,8 @@
 package com.lovetropics.minigames.gametests;
 
 import com.lovetropics.minigames.common.core.game.GameStopReason;
-import com.lovetropics.minigames.common.core.game.behavior.action.NoneActionTarget;
-import com.lovetropics.minigames.common.core.game.behavior.action.PlayerActionTarget;
+import com.lovetropics.minigames.common.core.game.behavior.action.ActionSubjects;
+import com.lovetropics.minigames.common.core.game.behavior.action.ActionTarget;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvents;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.GiveEffectAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.PlaySoundAction;
@@ -46,21 +46,19 @@ public class ActionTriggerTests implements MinigameTest {
 		generator.builder(gameId("start"))
 				.withPlayingPhase(new InlineMapProvider(Level.OVERWORLD), phaseBuilder -> phaseBuilder
 						.withBehavior(new StartGameTrigger(behaviors.applyToAllPlayers(
-								NoneActionTarget.INSTANCE,
 								new SendMessageAction(new TemplatedText(Component.literal("hello world!")))
 						)), new PlaySoundAction(SoundEvents.ALLAY_HURT, 0.5f, 0.5f, SoundSource.AMBIENT, false)));
 
 		generator.builder(gameId("stop"))
 				.withPlayingPhase(new InlineMapProvider(Level.OVERWORLD), phaseBuilder -> phaseBuilder
 						.withBehavior(new StopGameTrigger(behaviors.applyToAllPlayers(
-								NoneActionTarget.INSTANCE,
 								new RunCommandsAction(List.of(), List.of("give @s minecraft:oak_planks 13"))
 						), Optional.empty(), Optional.empty())));
 
 		generator.builder(gameId("events"))
 				.withPlayingPhase(new InlineMapProvider(Level.OVERWORLD), phaseBuilder -> phaseBuilder
 						.withBehavior(new GeneralEventsTrigger(Map.of(
-								"player_hurt", behaviors.actions(PlayerActionTarget.SOURCE, new GiveEffectAction(
+								"player_hurt", behaviors.actions(ActionTarget.PASS, new GiveEffectAction(
 										List.of(new MobEffectInstance(MobEffects.ABSORPTION, 23, 2))
 								))
 						))));
@@ -97,7 +95,7 @@ public class ActionTriggerTests implements MinigameTest {
 				.thenExecute(helper.startGame(lobby))
 				.thenIdle(20)
 				.thenExecute(() -> helper.assertReceivedPacket(player, 0, ClientboundSystemChatPacket.class, it -> it.content().equals(Component.literal("hello world!"))))
-				.thenExecute(() -> lobby.getActivePhase().invoker(GameActionEvents.APPLY_TO_PLAYER).apply(ContextMap.EMPTY, player))
+				.thenExecute(() -> lobby.getActivePhase().invoker(GameActionEvents.APPLY).apply(ContextMap.EMPTY, ActionSubjects.ofPlayer(player)))
 				.thenExecute(() -> helper.assertReceivedPacket(player, 1, ClientboundSoundPacket.class, it -> it.getSound().value() == SoundEvents.ALLAY_HURT && it.getVolume() == 0.5f && it.getPitch() == 0.5f))
 				.thenSucceed();
 	}

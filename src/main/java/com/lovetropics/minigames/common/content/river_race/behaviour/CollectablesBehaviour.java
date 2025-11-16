@@ -9,6 +9,7 @@ import com.lovetropics.minigames.common.content.river_race.event.RiverRaceEvents
 import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
+import com.lovetropics.minigames.common.core.game.behavior.action.ActionSubjects;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionContextKeys;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionList;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
@@ -150,7 +151,7 @@ public final class CollectablesBehaviour implements IGameBehavior {
 					.create(ContextKeySet.EMPTY);
 			CollectableConfig config = collectablesByZone.get(collectableZone.id());
 			if (config != null) {
-				config.onCompleteAction.apply(game, context, game.allPlayers());
+				config.onCompleteAction.apply(game, context, ActionSubjects.ofPlayer(player));
 			}
 		}
 		game.invoker(RiverRaceEvents.COLLECTABLE_PLACED).onCollectablePlaced(player, team, slotPos);
@@ -169,12 +170,12 @@ public final class CollectablesBehaviour implements IGameBehavior {
 	public record CollectableConfig(
 			ItemStack baseItem,
 			List<String> monumentSlotRegions,
-			GameActionList<ServerPlayer> onCompleteAction
+			GameActionList onCompleteAction
 	) {
 		public static final Codec<CollectableConfig> CODEC = RecordCodecBuilder.create(i -> i.group(
 				MoreCodecs.ITEM_STACK.fieldOf("item").forGetter(CollectableConfig::baseItem),
 				ExtraCodecs.nonEmptyList(Codec.STRING.listOf()).fieldOf("monument_slot_region").forGetter(CollectableConfig::monumentSlotRegions),
-				GameActionList.PLAYER_CODEC.fieldOf("on_complete").forGetter(CollectableConfig::onCompleteAction)
+				GameActionList.CODEC.fieldOf("on_complete").forGetter(CollectableConfig::onCompleteAction)
 		).apply(i, CollectableConfig::new));
 	}
 }

@@ -5,7 +5,6 @@ import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
-import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvents;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -36,7 +35,7 @@ public record SpawnParticlesAroundEntityAction(ParticleOptions[] particles, IntP
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		final RandomSource random = game.random();
 		final Function<Entity, Vec3> positionGenerator = createPositionGenerator(random);
-		events.listen(GameActionEvents.APPLY_TO_ENTITY, (context, entity) -> {
+		events.applyToEntities(game, (context, entity) -> {
 			int count = this.count.sample(random);
 			for (int i = 0; i < count; i++) {
 				ParticleOptions particle = particles[random.nextInt(particles.length)];

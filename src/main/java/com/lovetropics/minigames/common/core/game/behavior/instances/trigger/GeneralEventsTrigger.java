@@ -5,6 +5,7 @@ import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorType;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorTypes;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
+import com.lovetropics.minigames.common.core.game.behavior.action.ActionSubjects;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionList;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameLogicEvents;
@@ -22,8 +23,8 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 // TODO: split up into separate trigger types
-public record GeneralEventsTrigger(Map<String, GameActionList<ServerPlayer>> eventActions) implements IGameBehavior {
-	public static final MapCodec<GeneralEventsTrigger> CODEC = Codec.unboundedMap(Codec.STRING, GameActionList.PLAYER_CODEC)
+public record GeneralEventsTrigger(Map<String, GameActionList> eventActions) implements IGameBehavior {
+	public static final MapCodec<GeneralEventsTrigger> CODEC = Codec.unboundedMap(Codec.STRING, GameActionList.CODEC)
 			.xmap(GeneralEventsTrigger::new, b -> b.eventActions)
 			.fieldOf("events");
 
@@ -85,7 +86,7 @@ public record GeneralEventsTrigger(Map<String, GameActionList<ServerPlayer>> eve
 	private void invoke(IGamePhase game, String event, ServerPlayer player) {
 		var actions = eventActions.get(event);
 		if (actions != null) {
-			actions.apply(game, ContextMap.EMPTY, player);
+			actions.apply(game, ContextMap.EMPTY, ActionSubjects.ofPlayer(player));
 		}
 	}
 

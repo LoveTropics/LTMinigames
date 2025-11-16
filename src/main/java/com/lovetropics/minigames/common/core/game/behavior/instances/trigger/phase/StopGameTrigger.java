@@ -15,11 +15,11 @@ import net.minecraft.util.context.ContextMap;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-public record StopGameTrigger(GameActionList<Void> actions, Optional<GameActionList<Void>> finish, Optional<GameActionList<Void>> cancel) implements IGameBehavior {
+public record StopGameTrigger(GameActionList actions, Optional<GameActionList> finish, Optional<GameActionList> cancel) implements IGameBehavior {
 	public static final MapCodec<StopGameTrigger> CODEC = RecordCodecBuilder.mapCodec(in -> in.group(
-			GameActionList.VOID_CODEC.fieldOf("actions").forGetter(StopGameTrigger::actions),
-			GameActionList.VOID_CODEC.optionalFieldOf("finish").forGetter(StopGameTrigger::finish),
-			GameActionList.VOID_CODEC.optionalFieldOf("cancel").forGetter(StopGameTrigger::cancel)
+			GameActionList.CODEC.fieldOf("actions").forGetter(StopGameTrigger::actions),
+			GameActionList.CODEC.optionalFieldOf("finish").forGetter(StopGameTrigger::finish),
+			GameActionList.CODEC.optionalFieldOf("cancel").forGetter(StopGameTrigger::cancel)
 	).apply(in, StopGameTrigger::new));
 
 	@Override

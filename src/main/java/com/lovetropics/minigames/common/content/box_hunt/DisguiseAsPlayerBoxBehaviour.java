@@ -4,8 +4,6 @@ import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
-import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvents;
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
@@ -22,7 +20,7 @@ public class DisguiseAsPlayerBoxBehaviour implements IGameBehavior {
 	public static final MapCodec<DisguiseAsPlayerBoxBehaviour> CODEC = MapCodec.unit(DisguiseAsPlayerBoxBehaviour::new);
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		events.listen(GameActionEvents.APPLY_TO_PLAYER, (context, player) -> {
+		events.applyToPlayers(game, (context, player) -> {
 			EntityDisguiseHolder disguiseHolder = EntityDisguiseHolder.getOrNull(player);
 			if (disguiseHolder == null) {
 				return false;

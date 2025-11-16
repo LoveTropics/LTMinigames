@@ -3,6 +3,7 @@ package com.lovetropics.minigames.common.core.game.behavior.instances.trigger;
 import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
+import com.lovetropics.minigames.common.core.game.behavior.action.ActionSubjects;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionList;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
@@ -11,7 +12,6 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.advancements.critereon.EntityPredicate;
 import net.minecraft.advancements.critereon.ItemPredicate;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.TriState;
 import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.InteractionResult;
@@ -26,18 +26,18 @@ public record ItemPutInItemFrameTrigger(
 		Optional<EntityPredicate> itemFramePredicate,
 		Optional<List<String>> itemFrameTags,
 		Optional<ItemPredicate> itemPredicate,
-		Optional<GameActionList<ServerPlayer>> matches,
-		Optional<GameActionList<ServerPlayer>> doesntMatch,
-		Optional<GameActionList<ServerPlayer>> empty
+		Optional<GameActionList> matches,
+		Optional<GameActionList> doesntMatch,
+		Optional<GameActionList> empty
 ) implements IGameBehavior {
 
 	public static final MapCodec<ItemPutInItemFrameTrigger> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			EntityPredicate.CODEC.optionalFieldOf("predicate").forGetter(ItemPutInItemFrameTrigger::itemFramePredicate),
 			Codec.STRING.listOf().optionalFieldOf("tags").forGetter(ItemPutInItemFrameTrigger::itemFrameTags),
 			ItemPredicate.CODEC.optionalFieldOf("item_predicate").forGetter(ItemPutInItemFrameTrigger::itemPredicate),
-			GameActionList.PLAYER_CODEC.optionalFieldOf("matches").forGetter(ItemPutInItemFrameTrigger::matches),
-			GameActionList.PLAYER_CODEC.optionalFieldOf("doesnt_match").forGetter(ItemPutInItemFrameTrigger::doesntMatch),
-			GameActionList.PLAYER_CODEC.optionalFieldOf("empty").forGetter(ItemPutInItemFrameTrigger::empty)
+			GameActionList.CODEC.optionalFieldOf("matches").forGetter(ItemPutInItemFrameTrigger::matches),
+			GameActionList.CODEC.optionalFieldOf("doesnt_match").forGetter(ItemPutInItemFrameTrigger::doesntMatch),
+			GameActionList.CODEC.optionalFieldOf("empty").forGetter(ItemPutInItemFrameTrigger::empty)
 	).apply(i, ItemPutInItemFrameTrigger::new));
 
 
@@ -67,7 +67,7 @@ public record ItemPutInItemFrameTrigger(
 				}
 				if(doCheckForItem) {
 					if (!itemFrame.getItem().isEmpty()) {
-						empty.ifPresent(serverPlayerGameActionList -> serverPlayerGameActionList.apply(game, ContextMap.EMPTY, player));
+						empty.ifPresent(actions -> actions.apply(game, ContextMap.EMPTY, ActionSubjects.ofPlayer(player)));
 					}
 				}
 			}
@@ -98,12 +98,12 @@ public record ItemPutInItemFrameTrigger(
 						if (itemFrame.getItem().isEmpty()) {
 							if (itemPredicate.isPresent()) {
 								if (itemPredicate.get().test(itemInHand)) {
-									matches.ifPresent(serverPlayerGameActionList -> serverPlayerGameActionList.apply(game, ContextMap.EMPTY, player));
+									matches.ifPresent(actions -> actions.apply(game, ContextMap.EMPTY, ActionSubjects.ofPlayer(player)));
 								} else {
-									doesntMatch.ifPresent(serverPlayerGameActionList -> serverPlayerGameActionList.apply(game, ContextMap.EMPTY, player));
+									doesntMatch.ifPresent(actions -> actions.apply(game, ContextMap.EMPTY, ActionSubjects.ofPlayer(player)));
 								}
 							} else {
-								matches.ifPresent(serverPlayerGameActionList -> serverPlayerGameActionList.apply(game, ContextMap.EMPTY, player));
+								matches.ifPresent(actions -> actions.apply(game, ContextMap.EMPTY, ActionSubjects.ofPlayer(player)));
 							}
 						}
 					}

@@ -5,7 +5,6 @@ import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
-import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvents;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
@@ -19,7 +18,7 @@ public record SetBlockAtEntityAction(BlockStateProvider block) implements IGameB
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		events.listen(GameActionEvents.APPLY_TO_ENTITY, (context, entity) -> {
+		events.applyToEntities(game, (context, entity) -> {
 			BlockPos pos = entity.blockPosition();
 			BlockState state = block.getState(entity.level().random, pos);
 			entity.level().setBlockAndUpdate(pos, state);

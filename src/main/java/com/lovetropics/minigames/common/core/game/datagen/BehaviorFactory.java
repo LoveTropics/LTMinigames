@@ -1,11 +1,9 @@
 package com.lovetropics.minigames.common.core.game.datagen;
 
-import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorTypes;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.action.ActionTarget;
-import com.lovetropics.minigames.common.core.game.behavior.action.ApplyToBehavior;
+import com.lovetropics.minigames.common.core.game.behavior.action.ApplyToAction;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionList;
-import com.lovetropics.minigames.common.core.game.behavior.action.PlayerActionTarget;
 import com.lovetropics.minigames.common.core.game.behavior.instances.CompositeBehavior;
 import net.minecraft.resources.ResourceLocation;
 
@@ -26,18 +24,16 @@ public class BehaviorFactory {
 		return behaviors.entrySet().stream();
 	}
 
-	public <T> GameActionList<T> applyToAllPlayers(ActionTarget<T> target, IGameBehavior... behaviors) {
-		return new GameActionList<>(applyToAllPlayersBehavior(behaviors), target);
+	public GameActionList applyToAllPlayers(IGameBehavior... behaviors) {
+		return new GameActionList(list(behaviors), ActionTarget.Simple.ALL_PLAYERS);
 	}
 
-	public <T> IGameBehavior applyToAllPlayersBehavior(IGameBehavior... behaviors) {
-		return new ApplyToBehavior<>(new PlayerActionTarget(PlayerActionTarget.Target.ALL),
-				new GameActionList<>(list(behaviors),
-						new PlayerActionTarget(PlayerActionTarget.Target.SOURCE)), GameBehaviorTypes.APPLY_TO_PLAYER);
+	public IGameBehavior applyToAllPlayersBehavior(IGameBehavior... behaviors) {
+		return new ApplyToAction(applyToAllPlayers(behaviors));
 	}
 
-	public <T> GameActionList<T> actions(ActionTarget<T> target, IGameBehavior behaviors) {
-		return new GameActionList<>(list(behaviors), target);
+	public GameActionList actions(ActionTarget target, IGameBehavior behaviors) {
+		return new GameActionList(list(behaviors), target);
 	}
 
 	public IGameBehavior list(IGameBehavior... behaviors) {

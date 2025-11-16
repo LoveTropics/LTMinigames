@@ -7,7 +7,6 @@ import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
-import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
 import com.mojang.serialization.Codec;
@@ -41,7 +40,7 @@ public record TurtleBoostBehavior(float amount, int duration) implements IGameBe
 		Object2LongMap<UUID> boostEndTimes = new Object2LongArrayMap<>();
 		boostEndTimes.defaultReturnValue(NOT_BOOSTING);
 
-		events.listen(GameActionEvents.APPLY_TO_PLAYER, (context, player) -> {
+		events.applyToPlayers(game, (context, player) -> {
 			long endTime = game.ticks() + duration;
 			if (boostEndTimes.put(player.getUUID(), endTime) == NOT_BOOSTING) {
 				startBoosting(player, modifiers);

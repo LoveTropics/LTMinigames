@@ -47,7 +47,7 @@ public class SpawnEntityAtRegionsAction implements IGameBehavior {
 			regionsToSpawnAt.addAll(regions.get(key));
 		}
 
-		events.listen(GameActionEvents.APPLY, (context) -> {
+		events.listen(GameActionEvents.APPLY, (context, targets) -> {
 			if (regionsToSpawnAt.isEmpty()) {
 				return false;
 			}

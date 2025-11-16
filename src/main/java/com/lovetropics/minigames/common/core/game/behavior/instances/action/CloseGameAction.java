@@ -12,7 +12,7 @@ public record CloseGameAction() implements IGameBehavior {
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
-		events.listen(GameActionEvents.APPLY, context -> {
+		events.listen(GameActionEvents.APPLY, (context, targets) -> {
 			game.requestStop(GameStopReason.finished());
 			return true;
 		});

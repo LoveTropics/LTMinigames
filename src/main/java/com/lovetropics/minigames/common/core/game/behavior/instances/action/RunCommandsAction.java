@@ -20,16 +20,12 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 public record RunCommandsAction(List<String> globalCommands, List<String> entityCommands) implements IGameBehavior {
-	private static final Logger LOGGER = LogManager.getLogger(RunCommandsAction.class);
-
 	private static final Codec<String> COMMAND_CODEC = Codec.STRING.xmap(
 			command -> {
 				if (command.startsWith("/")) {
@@ -65,7 +61,7 @@ public record RunCommandsAction(List<String> globalCommands, List<String> entity
 				}
 			}
 
-			events.listen(GameActionEvents.APPLY, context -> {
+			events.listen(GameActionEvents.APPLY, (context, targets) -> {
 				for (ParseResults<CommandSourceStack> command : globalCommands) {
 					commands.performCommand(command, command.getReader().getString());
 				}
@@ -74,7 +70,7 @@ public record RunCommandsAction(List<String> globalCommands, List<String> entity
 		}
 
 		if (!entityCommands.isEmpty()) {
-			events.listen(GameActionEvents.APPLY_TO_ENTITY, (context, entity) -> {
+			events.applyToEntities(game, (context, entity) -> {
 				CommandSourceStack targetSource = source.withEntity(entity).withPosition(entity.position());
 				for (String command : entityCommands) {
 					commands.performPrefixedCommand(targetSource, command);

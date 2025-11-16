@@ -5,7 +5,6 @@ import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorType;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorTypes;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
-import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvents;
 import com.lovetropics.minigames.common.core.game.state.statistics.StatisticKey;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.SharedConstants;
@@ -17,7 +16,7 @@ public record SetTotalTimeAction() implements IGameBehavior {
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
-		events.listen(GameActionEvents.APPLY_TO_PLAYER, (context, target) -> {
+		events.applyToPlayers(game, (context, target) -> {
 			game.statistics().forPlayer(target).set(StatisticKey.TOTAL_TIME, (int) (game.ticks() / SharedConstants.TICKS_PER_SECOND));
 			return true;
 		});

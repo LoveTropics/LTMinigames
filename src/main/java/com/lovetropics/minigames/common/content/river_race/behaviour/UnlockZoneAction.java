@@ -23,7 +23,7 @@ public record UnlockZoneAction(
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		events.listen(GameActionEvents.APPLY, context -> {
+		events.listen(GameActionEvents.APPLY, (context, targets) -> {
 			game.invoker(RiverRaceEvents.UNLOCK_ZONE).onUnlockZone(zone);
 			return true;
 		});

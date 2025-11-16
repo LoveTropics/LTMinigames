@@ -4,6 +4,7 @@ import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorType;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorTypes;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
+import com.lovetropics.minigames.common.core.game.behavior.action.ActionSubjects;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionList;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
@@ -22,14 +23,14 @@ import java.util.function.Supplier;
 
 public record WhileInInventoryTrigger(
 		ItemPredicate itemPredicate,
-		GameActionList<ServerPlayer> apply,
-		GameActionList<ServerPlayer> clear,
+		GameActionList apply,
+		GameActionList clear,
 		boolean stack
 ) implements IGameBehavior {
 	public static final MapCodec<WhileInInventoryTrigger> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			ItemPredicate.CODEC.fieldOf("item").forGetter(WhileInInventoryTrigger::itemPredicate),
-			GameActionList.PLAYER_CODEC.optionalFieldOf("apply", GameActionList.EMPTY_PLAYER).forGetter(WhileInInventoryTrigger::apply),
-			GameActionList.PLAYER_CODEC.optionalFieldOf("clear", GameActionList.EMPTY_PLAYER).forGetter(WhileInInventoryTrigger::clear),
+			GameActionList.CODEC.optionalFieldOf("apply", GameActionList.EMPTY).forGetter(WhileInInventoryTrigger::apply),
+			GameActionList.CODEC.optionalFieldOf("clear", GameActionList.EMPTY).forGetter(WhileInInventoryTrigger::clear),
 			Codec.BOOL.optionalFieldOf("stack", false).forGetter(WhileInInventoryTrigger::stack)
 	).apply(i, WhileInInventoryTrigger::new));
 
@@ -57,11 +58,11 @@ public record WhileInInventoryTrigger(
 
 		if (newCount > oldCount) {
 			for (int i = 0; i < newCount - oldCount; i++) {
-				apply.apply(game, ContextMap.EMPTY, player);
+				apply.apply(game, ContextMap.EMPTY, ActionSubjects.ofPlayer(player));
 			}
 		} else {
 			for (int i = 0; i < oldCount - newCount; i++) {
-				clear.apply(game, ContextMap.EMPTY, player);
+				clear.apply(game, ContextMap.EMPTY, ActionSubjects.ofPlayer(player));
 			}
 		}
 	}

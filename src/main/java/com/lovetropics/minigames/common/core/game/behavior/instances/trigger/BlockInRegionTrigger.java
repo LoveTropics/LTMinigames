@@ -26,19 +26,19 @@ public final class BlockInRegionTrigger implements IGameBehavior {
 			Codec.STRING.fieldOf("region").forGetter(BlockInRegionTrigger::region),
 			BlockPredicate.CODEC.fieldOf("predicate").forGetter(BlockInRegionTrigger::predicate),
 			Codec.BOOL.optionalFieldOf("all_match", true).forGetter(BlockInRegionTrigger::allMatch),
-			GameActionList.VOID_CODEC.fieldOf("actions").forGetter(BlockInRegionTrigger::actions),
+			GameActionList.MAP_CODEC.forGetter(BlockInRegionTrigger::actions),
 			Codec.BOOL.optionalFieldOf("run_once", true).forGetter(BlockInRegionTrigger::runOnce)
 	).apply(i, BlockInRegionTrigger::new));
 
 	private final String region;
 	private final BlockPredicate predicate;
 	private final boolean allMatch;
-	private final GameActionList<Void> actions;
+	private final GameActionList actions;
 	private final boolean runOnce;
 
 	private boolean triggered = false;
 
-	public BlockInRegionTrigger(String region, BlockPredicate predicate, boolean allMatch, GameActionList<Void> actions, boolean runOnce) {
+	public BlockInRegionTrigger(String region, BlockPredicate predicate, boolean allMatch, GameActionList actions, boolean runOnce) {
 		this.region = region;
 		this.predicate = predicate;
 		this.allMatch = allMatch;
@@ -98,7 +98,7 @@ public final class BlockInRegionTrigger implements IGameBehavior {
 		return allMatch;
 	}
 
-	public GameActionList<Void> actions() {
+	public GameActionList actions() {
 		return actions;
 	}
 

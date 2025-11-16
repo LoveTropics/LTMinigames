@@ -4,6 +4,7 @@ import com.lovetropics.lib.BlockBox;
 import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
+import com.lovetropics.minigames.common.core.game.behavior.action.ActionSubjects;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionContextKeys;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionList;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
@@ -17,15 +18,15 @@ import net.minecraft.util.context.ContextMap;
 
 import java.util.Map;
 
-public record WhileInRegionTrigger(Map<String, GameActionList<ServerPlayer>> regionActions, int interval) implements IGameBehavior {
+public record WhileInRegionTrigger(Map<String, GameActionList> regionActions, int interval) implements IGameBehavior {
 	public static final MapCodec<WhileInRegionTrigger> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			Codec.unboundedMap(Codec.STRING, GameActionList.PLAYER_CODEC).fieldOf("regions").forGetter(WhileInRegionTrigger::regionActions),
+			Codec.unboundedMap(Codec.STRING, GameActionList.CODEC).fieldOf("regions").forGetter(WhileInRegionTrigger::regionActions),
 			Codec.INT.optionalFieldOf("interval", 20).forGetter(WhileInRegionTrigger::interval)
 	).apply(i, WhileInRegionTrigger::new));
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		for (GameActionList<ServerPlayer> actions : regionActions.values()) {
+		for (GameActionList actions : regionActions.values()) {
 			actions.register(game, events);
 		}
 
@@ -36,11 +37,11 @@ public record WhileInRegionTrigger(Map<String, GameActionList<ServerPlayer>> reg
 
 			for (var entry : regionActions.entrySet()) {
 				if (isPlayerInRegion(game, player, entry.getKey())) {
-					GameActionList<ServerPlayer> actions = entry.getValue();
+					GameActionList actions = entry.getValue();
 					ContextMap context = new ContextMap.Builder()
 							.withParameter(GameActionContextKeys.NAME, player.getDisplayName())
 							.create(ContextKeySet.EMPTY);
-					actions.apply(game, context, player);
+					actions.apply(game, context, ActionSubjects.ofPlayer(player));
 				}
 			}
 		});

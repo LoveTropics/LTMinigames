@@ -3,6 +3,7 @@ package com.lovetropics.minigames.common.core.game.behavior.instances;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.SpawnBuilder;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
+import com.lovetropics.minigames.common.core.game.behavior.action.ActionSubjects;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionList;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
@@ -26,13 +27,13 @@ import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.Optional;
 
-public record ImmediateRespawnBehavior(Optional<PlayerRole> role, Optional<PlayerRole> respawnAsRole, Optional<TemplatedText> deathMessage, boolean dropInventory, GameActionList<ServerPlayer> respawnAction, boolean spectateKiller, boolean clearKillTracker) implements IGameBehavior {
+public record ImmediateRespawnBehavior(Optional<PlayerRole> role, Optional<PlayerRole> respawnAsRole, Optional<TemplatedText> deathMessage, boolean dropInventory, GameActionList respawnAction, boolean spectateKiller, boolean clearKillTracker) implements IGameBehavior {
 	public static final MapCodec<ImmediateRespawnBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			PlayerRole.CODEC.optionalFieldOf("role").forGetter(c -> c.role),
 			PlayerRole.CODEC.optionalFieldOf("respawn_as").forGetter(c -> c.respawnAsRole),
 			TemplatedText.CODEC.optionalFieldOf("death_message").forGetter(c -> c.deathMessage),
 			Codec.BOOL.optionalFieldOf("drop_inventory", false).forGetter(c -> c.dropInventory),
-			GameActionList.PLAYER_CODEC.optionalFieldOf("respawn_action", GameActionList.EMPTY_PLAYER).forGetter(c -> c.respawnAction),
+			GameActionList.CODEC.optionalFieldOf("respawn_action", GameActionList.EMPTY).forGetter(c -> c.respawnAction),
 			Codec.BOOL.optionalFieldOf("spectate_killer", true).forGetter(c -> c.spectateKiller),
 			Codec.BOOL.optionalFieldOf("clear_kill_tracker", false).forGetter(c -> c.clearKillTracker)
 	).apply(i, ImmediateRespawnBehavior::new));
@@ -81,7 +82,7 @@ public record ImmediateRespawnBehavior(Optional<PlayerRole> role, Optional<Playe
 
 		// Run only at the end of the current game tick, as the code that caused the damage might still have side-effects
 		game.scheduler().runAfterTicks(0, () ->
-				respawnAction.apply(game, ContextMap.EMPTY, player)
+				respawnAction.apply(game, ContextMap.EMPTY, ActionSubjects.ofPlayer(player))
 		);
 
 		if (clearKillTracker) {

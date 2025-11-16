@@ -3,7 +3,6 @@ package com.lovetropics.minigames.common.core.game.behavior.instances.action;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
-import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvents;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Holder;
@@ -20,7 +19,7 @@ public record AddAttributeModifierAction(Holder<Attribute> attribute, AttributeM
 
 	@Override
 	public void register(final IGamePhase game, final EventRegistrar events) {
-		events.listen(GameActionEvents.APPLY_TO_ENTITY, (context, entity) -> {
+		events.applyToEntities(game, (context, entity) -> {
 			if (!(entity instanceof LivingEntity livingEntity)) {
 				return false;
 			}

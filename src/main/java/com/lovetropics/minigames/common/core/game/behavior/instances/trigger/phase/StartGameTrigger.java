@@ -13,9 +13,8 @@ import net.minecraft.util.context.ContextMap;
 
 import java.util.function.Supplier;
 
-public record StartGameTrigger(GameActionList<Void> actions) implements IGameBehavior {
-	public static final MapCodec<StartGameTrigger> CODEC = GameActionList.VOID_MAP_CODEC
-			.xmap(StartGameTrigger::new, StartGameTrigger::actions);
+public record StartGameTrigger(GameActionList actions) implements IGameBehavior {
+	public static final MapCodec<StartGameTrigger> CODEC = GameActionList.MAP_CODEC.xmap(StartGameTrigger::new, StartGameTrigger::actions);
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {

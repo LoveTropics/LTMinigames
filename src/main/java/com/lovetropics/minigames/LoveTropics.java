@@ -71,7 +71,6 @@ import com.lovetropics.minigames.common.core.dimension.RuntimeDimensions;
 import com.lovetropics.minigames.common.core.entity.MinigameEntities;
 import com.lovetropics.minigames.common.core.extension.LimitedSpawnerAttachment;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorTypes;
-import com.lovetropics.minigames.common.core.game.behavior.action.ActionTargetTypes;
 import com.lovetropics.minigames.common.core.game.client_state.GameClientStateTypes;
 import com.lovetropics.minigames.common.core.game.impl.GameEventDispatcher;
 import com.lovetropics.minigames.common.core.game.impl.GamePhaseManager;
@@ -191,7 +190,6 @@ public class LoveTropics {
 
 		GameBehaviorTypes.init(modBus);
 		PersistentGameBehaviors.init(modBus);
-		ActionTargetTypes.init(modBus);
 		EntityPredicates.init(modBus);
 		LootItemConditions.init();
 		GameClientStateTypes.init(modBus);

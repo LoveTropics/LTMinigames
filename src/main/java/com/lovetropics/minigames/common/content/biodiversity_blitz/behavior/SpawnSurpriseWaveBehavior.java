@@ -32,7 +32,7 @@ public class SpawnSurpriseWaveBehavior implements IGameBehavior {
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		PlotsState plots = game.state().getOrThrow(PlotsState.KEY);
 
-		events.listen(GameActionEvents.APPLY, context -> {
+		events.listen(GameActionEvents.APPLY, (context, targets) -> {
 			ServerLevel world = game.level();
 
 			for (Plot plot : plots) {

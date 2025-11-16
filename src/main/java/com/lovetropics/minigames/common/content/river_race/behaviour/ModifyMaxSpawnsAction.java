@@ -6,7 +6,6 @@ import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
-import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvents;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeamKey;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -31,8 +30,8 @@ public record ModifyMaxSpawnsAction(
 		Object2LongMap<GameTeamKey> expiryTimes = new Object2LongOpenHashMap<>();
 		expiryTimes.defaultReturnValue(game.ticks());
 
-		events.listen(GameActionEvents.APPLY_TO_TEAM, (context, team) -> {
-			expiryTimes.compute(team.key(), (t, lastExpiryTime) -> {
+		events.applyToTeams(game, (context, team) -> {
+			expiryTimes.compute(team, (t, lastExpiryTime) -> {
 				long baseTime = lastExpiryTime != null ? lastExpiryTime : game.ticks();
 				return baseTime + durationTicks;
 			});

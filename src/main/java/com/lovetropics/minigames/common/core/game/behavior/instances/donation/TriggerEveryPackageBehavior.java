@@ -35,7 +35,7 @@ public record TriggerEveryPackageBehavior(Set<String> exclude) implements IGameB
 	@Override
 	public void register(final IGamePhase game, final EventRegistrar events) {
 		final GamePackageState packages = game.state().get(GamePackageState.KEY);
-		events.listen(GameActionEvents.APPLY, context -> {
+		events.listen(GameActionEvents.APPLY, (context, targets) -> {
 			final GamePackage sourcePackage = context.getOptional(GameActionContextKeys.PACKAGE);
 			if (sourcePackage == null) {
 				return false;

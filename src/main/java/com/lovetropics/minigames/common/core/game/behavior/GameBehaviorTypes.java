@@ -1,14 +1,10 @@
 package com.lovetropics.minigames.common.core.game.behavior;
 
 import com.lovetropics.minigames.LoveTropics;
-import com.lovetropics.minigames.common.content.biodiversity_blitz.plot.Plot;
 import com.lovetropics.minigames.common.content.box_hunt.DisguiseAsPlayerBoxBehaviour;
 import com.lovetropics.minigames.common.content.box_hunt.UpdateWordBoxesInWorldBehaviour;
 import com.lovetropics.minigames.common.content.river_race.behaviour.KillInVoidBehavior;
-import com.lovetropics.minigames.common.core.game.behavior.action.ApplyToBehavior;
-import com.lovetropics.minigames.common.core.game.behavior.action.PlayerActionTarget;
-import com.lovetropics.minigames.common.core.game.behavior.action.PlotActionTarget;
-import com.lovetropics.minigames.common.core.game.behavior.action.TeamActionTarget;
+import com.lovetropics.minigames.common.core.game.behavior.action.ApplyToAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.AddWeatherBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.CheckpointsBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.CompositeBehavior;
@@ -86,7 +82,6 @@ import com.lovetropics.minigames.common.core.game.behavior.instances.action.Spaw
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.SpectatorActivityAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.StartProgressChannelAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.SwapPlayersAction;
-import com.lovetropics.minigames.common.core.game.behavior.instances.action.TargetPlayerAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.TransformPlayerTornadoAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.WeatherEventAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.command.WeatherControlsBehavior;
@@ -115,7 +110,6 @@ import com.lovetropics.minigames.common.core.game.behavior.instances.team.SyncTe
 import com.lovetropics.minigames.common.core.game.behavior.instances.team.TeamChatBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.team.TeamsBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.ApplyToPlayerWhileTrigger;
-import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.ApplyToPlayersAround;
 import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.BindControlsBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.BlockBreakTrigger;
 import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.BlockInRegionTrigger;
@@ -167,14 +161,12 @@ import com.lovetropics.minigames.common.core.game.behavior.instances.world.Force
 import com.lovetropics.minigames.common.core.game.behavior.instances.world.GenerateEntitiesBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.world.IncreaseRandomTickRateInRegionBehaviour;
 import com.lovetropics.minigames.common.core.game.behavior.instances.world.PreventCropGrowthInRegionBehaviour;
-import com.lovetropics.minigames.common.core.game.state.team.GameTeam;
 import com.lovetropics.minigames.common.util.registry.GameBehaviorEntry;
 import com.lovetropics.minigames.common.util.registry.LoveTropicsRegistrate;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
@@ -252,7 +244,6 @@ public class GameBehaviorTypes {
 	public static final GameBehaviorEntry<PointsSidebarBehavior> POINTS_SIDEBAR = register("points_sidebar", PointsSidebarBehavior.CODEC);
 	public static final GameBehaviorEntry<DamageInWaterBehavior> DAMAGE_IN_WATER = register("damage_in_water", DamageInWaterBehavior.CODEC);
 	public static final GameBehaviorEntry<ApplyToPlayerWhileTrigger> APPLY_TO_PLAYER_WHILE = register("apply_to_player_while", ApplyToPlayerWhileTrigger.CODEC);
-	public static final GameBehaviorEntry<ApplyToPlayersAround> APPLY_TO_PLAYERS_AROUND = register("apply_to_players_around", ApplyToPlayersAround.CODEC);
 	public static final GameBehaviorEntry<BlockInRegionTrigger> BLOCK_IN_REGION = register("block_in_region", BlockInRegionTrigger.CODEC);
 	public static final GameBehaviorEntry<SnowballBreakBlockBehavior> SNOWBALL_BREAK_BLOCK = register("snowball_break_block", SnowballBreakBlockBehavior.CODEC);
 
@@ -297,8 +288,7 @@ public class GameBehaviorTypes {
 	public static final GameBehaviorEntry<PackageCostModifierBehavior> PACKAGE_COST_MODIFIER = register("package_cost_modifier", PackageCostModifierBehavior.CODEC);
 	public static final GameBehaviorEntry<WeatherEventAction> WEATHER_EVENT = register("weather_event", WeatherEventAction.CODEC);
 	public static final GameBehaviorEntry<CountdownAction<?>> COUNTDOWN_ACTION = register("countdown_action", CountdownAction.CODEC);
-	public static final GameBehaviorEntry<DelayedAction<?>> DELAYED = register("delayed", DelayedAction.CODEC);
-	public static final GameBehaviorEntry<TargetPlayerAction> TARGET_PLAYER = register("target_player", TargetPlayerAction.CODEC);
+	public static final GameBehaviorEntry<DelayedAction> DELAYED = register("delayed", DelayedAction.CODEC);
 	public static final GameBehaviorEntry<SpawnFireworksAction> SPAWN_FIREWORKS = register("spawn_fireworks", SpawnFireworksAction.CODEC);
 	public static final GameBehaviorEntry<RunCommandsAction> RUN_COMMANDS = register("run_commands", RunCommandsAction.CODEC);
 	public static final GameBehaviorEntry<SendMessageAction> SEND_MESSAGE = register("send_message", SendMessageAction.CODEC);
@@ -357,9 +347,7 @@ public class GameBehaviorTypes {
 	public static final GameBehaviorEntry<ApplyClientStateAction> APPLY_CLIENT_STATE = register("apply_client_state", ApplyClientStateAction.CODEC);
 	public static final GameBehaviorEntry<RemoveClientStateAction> REMOVE_CLIENT_STATE = register("remove_client_state", RemoveClientStateAction.CODEC);
 
-	public static final GameBehaviorEntry<ApplyToBehavior<Plot, PlotActionTarget>> APPLY_TO_PLOT = register("apply_to_plot", ApplyToBehavior.PLOT_CODEC);
-	public static final GameBehaviorEntry<ApplyToBehavior<ServerPlayer, PlayerActionTarget>> APPLY_TO_PLAYER = register("apply_to_player", ApplyToBehavior.PLAYER_CODEC);
-	public static final GameBehaviorEntry<ApplyToBehavior<GameTeam, TeamActionTarget>> APPLY_TO_TEAM = register("apply_to_team", ApplyToBehavior.TEAM_CODEC);
+	public static final GameBehaviorEntry<ApplyToAction> APPLY_TO = register("apply_to", ApplyToAction.CODEC);
 
 	public static <T extends IGameBehavior> GameBehaviorEntry<T> register(final String name, final MapCodec<T> codec) {
 		return REGISTRATE.object(name).behavior(codec).register();

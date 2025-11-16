@@ -6,7 +6,6 @@ import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorType;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionContextKeys;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
-import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvents;
 import com.lovetropics.minigames.common.core.game.state.statistics.StatisticKey;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -27,7 +26,7 @@ public record GivePointsAction(StatisticKey<Integer> statistic, int count, boole
 
 	@Override
 	public void register(final IGamePhase game, final EventRegistrar events) {
-		events.listen(GameActionEvents.APPLY_TO_PLAYER, (context, player) -> {
+		events.applyToPlayers(game, (context, player) -> {
 			final int count = resolveCount(context, player);
 			if (count > 0) {
 				game.statistics().forPlayer(player).incrementInt(statistic, count);

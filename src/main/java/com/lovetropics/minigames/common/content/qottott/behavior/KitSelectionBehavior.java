@@ -3,6 +3,7 @@ package com.lovetropics.minigames.common.content.qottott.behavior;
 import com.lovetropics.lib.BlockBox;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
+import com.lovetropics.minigames.common.core.game.behavior.action.ActionSubjects;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionList;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents;
@@ -73,7 +74,7 @@ public record KitSelectionBehavior(List<Kit> kits) implements IGameBehavior {
 			if (role == PlayerRole.PARTICIPANT) {
 				spawn.run(player -> {
 					final Kit kit = selectedKits.getOrDefault(player.getUUID(), defaultKit);
-					kit.apply.apply(game, ContextMap.EMPTY, player);
+					kit.apply.apply(game, ContextMap.EMPTY, ActionSubjects.ofPlayer(player));
 				});
 			}
 		});
@@ -82,19 +83,19 @@ public record KitSelectionBehavior(List<Kit> kits) implements IGameBehavior {
 	private static boolean applyKit(final IGamePhase game, final ServerPlayer player, final Entity target, final Map<UUID, Kit> kitEntities, final Map<UUID, Kit> selectedKits) {
 		final Kit kit = kitEntities.get(target.getUUID());
 		if (kit != null) {
-			kit.apply.apply(game, ContextMap.EMPTY, player);
+			kit.apply.apply(game, ContextMap.EMPTY, ActionSubjects.ofPlayer(player));
 			selectedKits.put(player.getUUID(), kit);
 			return true;
 		}
 		return false;
 	}
 
-	private record Kit(String region, float angle, TypedEntityData entity, GameActionList<ServerPlayer> apply) {
+	private record Kit(String region, float angle, TypedEntityData entity, GameActionList apply) {
 		public static final Codec<Kit> CODEC = RecordCodecBuilder.create(i -> i.group(
 				Codec.STRING.fieldOf("region").forGetter(Kit::region),
 				Codec.FLOAT.optionalFieldOf("angle", 0.0f).forGetter(Kit::angle),
 				TypedEntityData.CODEC.fieldOf("entity").forGetter(Kit::entity),
-				GameActionList.PLAYER_CODEC.fieldOf("apply").forGetter(Kit::apply)
+				GameActionList.CODEC.fieldOf("apply").forGetter(Kit::apply)
 		).apply(i, Kit::new));
 	}
 }

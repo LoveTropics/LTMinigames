@@ -24,7 +24,7 @@ public record StartProgressChannelAction(
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		ProgressHolder holder = channel.getOrThrow(game);
-		events.listen(GameActionEvents.APPLY, context -> {
+		events.listen(GameActionEvents.APPLY, (context, targets) -> {
 			holder.start();
 			return true;
 		});

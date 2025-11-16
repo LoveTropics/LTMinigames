@@ -4,6 +4,7 @@ import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorType;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorTypes;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
+import com.lovetropics.minigames.common.core.game.behavior.action.ActionSubjects;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionList;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
@@ -11,7 +12,6 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.advancements.critereon.BlockPredicate;
 import net.minecraft.advancements.critereon.EntityPredicate;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.TriState;
 import net.minecraft.util.context.ContextMap;
 
@@ -21,12 +21,12 @@ import java.util.function.Supplier;
 public record BlockBreakTrigger(
 		Optional<EntityPredicate> predicate,
 		Optional<BlockPredicate> blockPredicate,
-		GameActionList<ServerPlayer> action) implements IGameBehavior {
+		GameActionList action) implements IGameBehavior {
 
 	public static final MapCodec<BlockBreakTrigger> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			EntityPredicate.CODEC.optionalFieldOf("player_predicate").forGetter(BlockBreakTrigger::predicate),
 			BlockPredicate.CODEC.optionalFieldOf("block_predicate").forGetter(BlockBreakTrigger::blockPredicate),
-			GameActionList.PLAYER_CODEC.fieldOf("action").forGetter(BlockBreakTrigger::action)
+			GameActionList.MAP_CODEC.forGetter(BlockBreakTrigger::action)
 	).apply(i, BlockBreakTrigger::new));
 
 	@Override
@@ -40,7 +40,7 @@ public record BlockBreakTrigger(
 			if (blockPredicate.isPresent() && !blockPredicate.get().matches(player.level(), pos)) {
 				return TriState.DEFAULT;
 			}
-			action.apply(game, ContextMap.EMPTY, player);
+			action.apply(game, ContextMap.EMPTY, ActionSubjects.ofPlayer(player));
 			return TriState.DEFAULT;
 		});
 	}

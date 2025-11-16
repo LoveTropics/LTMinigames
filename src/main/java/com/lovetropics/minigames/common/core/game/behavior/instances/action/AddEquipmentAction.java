@@ -6,7 +6,6 @@ import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorType;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorTypes;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
-import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvents;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeam;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeamKey;
 import com.lovetropics.minigames.common.core.game.state.team.TeamState;
@@ -17,6 +16,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.DyedItemColor;
 
@@ -41,43 +41,58 @@ public record AddEquipmentAction(List<ItemStack> items, ItemStack head, ItemStac
 	@Override
 	public void register(final IGamePhase game, final EventRegistrar events) {
 		final TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
-		events.listen(GameActionEvents.APPLY_TO_PLAYER, (context, player) -> {
-			if (clear) {
-				player.getInventory().clearContent();
+		events.applyToEntities(game, (context, entity) -> {
+			if (!(entity instanceof LivingEntity livingEntity)) {
+				return false;
 			}
-			for (final ItemStack item : items) {
-				player.getInventory().add(copyAndModify(player, teams, item));
-			}
-			if (!head.isEmpty()) {
-				player.setItemSlot(EquipmentSlot.HEAD, copyAndModify(player, teams, head));
-			}
-			if (!chest.isEmpty()) {
-				player.setItemSlot(EquipmentSlot.CHEST, copyAndModify(player, teams, chest));
-			}
-			if (!legs.isEmpty()) {
-				player.setItemSlot(EquipmentSlot.LEGS, copyAndModify(player, teams, legs));
-			}
-			if (!feet.isEmpty()) {
-				player.setItemSlot(EquipmentSlot.FEET, copyAndModify(player, teams, feet));
-			}
-			if (!offhand.isEmpty()) {
-				addOrReplaceInSlot(player, EquipmentSlot.OFFHAND, copyAndModify(player, teams, offhand));
-			}
-			if (teams != null) {
-				final GameTeamKey teamKey = teams.getTeamForPlayer(player);
-				final ItemStack hotbarItem = hotbarTeamItems.get(teamKey);
-				if (hotbarItem != null) {
-					player.getInventory().add(8, copyAndModify(player, teams, hotbarItem));
+
+			if (entity instanceof ServerPlayer player) {
+				if (clear) {
+					player.getInventory().clearContent();
+				}
+				for (final ItemStack item : items) {
+					player.getInventory().add(copyAndModify(player, teams, item));
+				}
+
+				if (teams != null) {
+					final GameTeamKey teamKey = teams.getTeamForPlayer(player);
+					final ItemStack hotbarItem = hotbarTeamItems.get(teamKey);
+					if (hotbarItem != null) {
+						player.getInventory().add(8, copyAndModify(livingEntity, teams, hotbarItem));
+					}
+				}
+			} else {
+				if (clear) {
+					for (EquipmentSlot slot : EquipmentSlot.VALUES) {
+						livingEntity.setItemSlot(slot, ItemStack.EMPTY);
+					}
 				}
 			}
+
+			if (!head.isEmpty()) {
+				livingEntity.setItemSlot(EquipmentSlot.HEAD, copyAndModify(livingEntity, teams, head));
+			}
+			if (!chest.isEmpty()) {
+				livingEntity.setItemSlot(EquipmentSlot.CHEST, copyAndModify(livingEntity, teams, chest));
+			}
+			if (!legs.isEmpty()) {
+				livingEntity.setItemSlot(EquipmentSlot.LEGS, copyAndModify(livingEntity, teams, legs));
+			}
+			if (!feet.isEmpty()) {
+				livingEntity.setItemSlot(EquipmentSlot.FEET, copyAndModify(livingEntity, teams, feet));
+			}
+			if (!offhand.isEmpty()) {
+				addOrReplaceInSlot(livingEntity, EquipmentSlot.OFFHAND, copyAndModify(livingEntity, teams, offhand));
+			}
+
 			return true;
 		});
 	}
 
-	private void addOrReplaceInSlot(ServerPlayer player, EquipmentSlot slot, ItemStack itemStack) {
-		ItemStack oldStack = player.getItemBySlot(slot);
+	private void addOrReplaceInSlot(LivingEntity entity, EquipmentSlot slot, ItemStack itemStack) {
+		ItemStack oldStack = entity.getItemBySlot(slot);
 		if (oldStack.isEmpty()) {
-			player.setItemSlot(slot, itemStack);
+			entity.setItemSlot(slot, itemStack);
 			return;
 		}
 
@@ -89,17 +104,19 @@ public record AddEquipmentAction(List<ItemStack> items, ItemStack head, ItemStac
 			oldStack.shrink(transferCount);
 		}
 
-		player.setItemSlot(slot, itemStack);
-		player.getInventory().add(oldStack);
+		entity.setItemSlot(slot, itemStack);
+		if (entity instanceof ServerPlayer player) {
+			player.getInventory().add(oldStack);
+		}
 	}
 
-	private ItemStack copyAndModify(final ServerPlayer player, @Nullable final TeamState teams, final ItemStack item) {
+	private ItemStack copyAndModify(final LivingEntity entity, @Nullable final TeamState teams, final ItemStack item) {
 		final ItemStack result = item.copy();
 		if (!colorByTeam) {
 			return result;
 		}
 		if (result.is(ItemTags.DYEABLE) && teams != null) {
-			final GameTeamKey teamKey = teams.getTeamForPlayer(player);
+			final GameTeamKey teamKey = entity instanceof ServerPlayer player ? teams.getTeamForPlayer(player) : null;
 			final GameTeam team = teamKey != null ? teams.getTeamByKey(teamKey) : null;
 			if (team != null) {
 				setColor(team, result);

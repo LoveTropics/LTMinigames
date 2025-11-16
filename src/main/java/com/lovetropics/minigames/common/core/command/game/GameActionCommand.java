@@ -5,6 +5,7 @@ import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorType;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorTypes;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
+import com.lovetropics.minigames.common.core.game.behavior.action.ActionSubjects;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameEventListeners;
 import com.lovetropics.minigames.common.core.game.config.GameConfigs;
@@ -27,7 +28,6 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.entity.Entity;
 
@@ -68,17 +68,7 @@ public class GameActionCommand {
 			IGameBehavior behavior = parseBehavior(ctx);
 			GameEventListeners events = new GameEventListeners();
 			behavior.register(game, events);
-			boolean result = false;
-			for (var target : targets) {
-				if (target instanceof ServerPlayer serverPlayer) {
-					result |= events.invoker(GameActionEvents.APPLY_TO_PLAYER).apply(ContextMap.EMPTY, serverPlayer);
-				} else if (target != null) {
-					result |= events.invoker(GameActionEvents.APPLY_TO_ENTITY).apply(ContextMap.EMPTY, target);
-				} else {
-					result |= events.invoker(GameActionEvents.APPLY).apply(ContextMap.EMPTY);
-				}
-			}
-			if (result) {
+			if (events.invoker(GameActionEvents.APPLY).apply(ContextMap.EMPTY, ActionSubjects.ofEntities(targets))) {
 				ctx.getSource().sendSuccess(() -> Component.literal("Successfully applied action"), false);
 			} else {
 				ctx.getSource().sendFailure(Component.literal("No action was applied"));

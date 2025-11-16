@@ -20,7 +20,7 @@ public record SwapPlayersAction(double distanceThreshold) implements IGameBehavi
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
-		events.listen(GameActionEvents.APPLY, (context) -> {
+		events.listen(GameActionEvents.APPLY, (context, targets) -> {
 			if (game.participants().size() <= 1) {
 				return false;
 			}

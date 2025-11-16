@@ -9,8 +9,8 @@ import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents
 import com.mojang.serialization.MapCodec;
 import net.minecraft.util.context.ContextMap;
 
-public record GameTickTrigger(GameActionList<Void> actions) implements IGameBehavior {
-	public static final MapCodec<GameTickTrigger> CODEC = GameActionList.VOID_MAP_CODEC
+public record GameTickTrigger(GameActionList actions) implements IGameBehavior {
+	public static final MapCodec<GameTickTrigger> CODEC = GameActionList.MAP_CODEC
 			.xmap(GameTickTrigger::new, GameTickTrigger::actions);
 
 	@Override

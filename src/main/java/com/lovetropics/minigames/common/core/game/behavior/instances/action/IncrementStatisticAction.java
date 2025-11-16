@@ -13,22 +13,22 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import java.util.function.Supplier;
 
-public record IncrementStatisticAction(StatisticKey<Integer> statistic, int amount) implements IGameBehavior {
+public record IncrementStatisticAction(
+		StatisticKey<Integer> statistic,
+		int amount,
+		SetStatisticAction.Scope scope
+) implements IGameBehavior {
 	public static final MapCodec<IncrementStatisticAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			StatisticKey.typedCodec(Integer.class).fieldOf("statistic").forGetter(IncrementStatisticAction::statistic),
-			Codec.INT.optionalFieldOf("amount", 1).forGetter(IncrementStatisticAction::amount)
+			Codec.INT.optionalFieldOf("amount", 1).forGetter(IncrementStatisticAction::amount),
+			SetStatisticAction.Scope.CODEC.fieldOf("scope").forGetter(IncrementStatisticAction::scope)
 	).apply(i, IncrementStatisticAction::new));
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
-		events.listen(GameActionEvents.APPLY, context -> {
-			game.statistics().global().incrementInt(statistic, amount);
-			return true;
-		});
-		events.listen(GameActionEvents.APPLY_TO_PLAYER, (context, target) -> {
-			game.statistics().forPlayer(target).incrementInt(statistic, amount);
-			return true;
-		});
+		events.listen(GameActionEvents.APPLY, (context, targets) ->
+				scope.applyTo(game, targets, statistics -> statistics.incrementInt(statistic, amount))
+		);
 	}
 
 	@Override

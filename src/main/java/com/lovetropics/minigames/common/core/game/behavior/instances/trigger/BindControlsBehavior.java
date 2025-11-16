@@ -3,6 +3,7 @@ package com.lovetropics.minigames.common.core.game.behavior.instances.trigger;
 import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
+import com.lovetropics.minigames.common.core.game.behavior.action.ActionSubjects;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionList;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents;
@@ -15,8 +16,8 @@ import net.minecraft.world.entity.Entity;
 
 import java.util.Map;
 
-public record BindControlsBehavior(Map<ControlCommand.Scope, Map<String, GameActionList<ServerPlayer>>> scopedActions) implements IGameBehavior {
-	public static final MapCodec<BindControlsBehavior> CODEC = Codec.unboundedMap(ControlCommand.Scope.CODEC, Codec.unboundedMap(Codec.STRING, GameActionList.PLAYER_CODEC))
+public record BindControlsBehavior(Map<ControlCommand.Scope, Map<String, GameActionList>> scopedActions) implements IGameBehavior {
+	public static final MapCodec<BindControlsBehavior> CODEC = Codec.unboundedMap(ControlCommand.Scope.CODEC, Codec.unboundedMap(Codec.STRING, GameActionList.CODEC))
 			.xmap(BindControlsBehavior::new, b -> b.scopedActions)
 			.fieldOf("scopes");
 
@@ -30,8 +31,8 @@ public record BindControlsBehavior(Map<ControlCommand.Scope, Map<String, GameAct
 			scopedActions.forEach((scope, scopedActions) -> scopedActions.forEach((control, actions) -> {
 				commands.register(control, scope, source -> {
 					Entity entity = source.getEntity();
-					if (entity instanceof ServerPlayer player) {
-						actions.apply(game, ContextMap.EMPTY, player);
+					if (entity != null) {
+						actions.apply(game, ContextMap.EMPTY, ActionSubjects.ofEntity(entity));
 					} else {
 						actions.apply(game, ContextMap.EMPTY);
 					}

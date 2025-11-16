@@ -4,7 +4,6 @@ import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionContextKeys;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
-import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvents;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -38,7 +37,7 @@ public record SetDisguiseAction(Disguise disguise, boolean applyDonorName, boole
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
-		events.listen(GameActionEvents.APPLY_TO_PLAYER, (context, player) -> {
+		events.applyToPlayers(game, (context, player) -> {
 			EntityDisguiseHolder disguiseHolder = EntityDisguiseHolder.getOrNull(player);
 			if (disguiseHolder == null) {
 				return false;

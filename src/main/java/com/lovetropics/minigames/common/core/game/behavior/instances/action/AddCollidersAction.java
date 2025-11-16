@@ -24,7 +24,7 @@ public record AddCollidersAction(List<String> regions) implements IGameBehavior 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		ColliderState colliders = ColliderState.getOrAdd(game, events);
-		events.listen(GameActionEvents.APPLY, context -> {
+		events.listen(GameActionEvents.APPLY, (context, targets) -> {
 			for (String region : regions) {
 				BlockBox collider = game.mapRegions().getOrThrow(region);
 				colliders.addCollider(region, collider);

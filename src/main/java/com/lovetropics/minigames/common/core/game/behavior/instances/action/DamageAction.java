@@ -4,7 +4,6 @@ import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
-import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvents;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -22,8 +21,9 @@ public record DamageAction(Optional<Holder<DamageType>> source, float amount) im
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		events.listen(GameActionEvents.APPLY_TO_ENTITY, (context, entity) -> {
-			entity.hurt(
+		events.applyToEntities(game, (context, entity) -> {
+			entity.hurtServer(
+					game.level(),
 					source.map(DamageSource::new)
 							.orElseGet(entity.damageSources()::generic),
 					amount

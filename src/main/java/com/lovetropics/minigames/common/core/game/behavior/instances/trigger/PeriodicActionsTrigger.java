@@ -19,12 +19,12 @@ import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
-public record PeriodicActionsTrigger(ProgressChannel channel, Optional<ProgressionPeriod> inPeriod, int interval, GameActionList<Void> actions) implements IGameBehavior {
+public record PeriodicActionsTrigger(ProgressChannel channel, Optional<ProgressionPeriod> inPeriod, int interval, GameActionList actions) implements IGameBehavior {
 	public static final MapCodec<PeriodicActionsTrigger> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			ProgressChannel.CODEC.optionalFieldOf("channel", ProgressChannel.MAIN).forGetter(PeriodicActionsTrigger::channel),
 			ProgressionPeriod.CODEC.optionalFieldOf("in_period").forGetter(PeriodicActionsTrigger::inPeriod),
 			Codec.INT.fieldOf("interval").forGetter(PeriodicActionsTrigger::interval),
-			GameActionList.VOID_CODEC.fieldOf("actions").forGetter(PeriodicActionsTrigger::actions)
+			GameActionList.MAP_CODEC.forGetter(PeriodicActionsTrigger::actions)
 	).apply(i, PeriodicActionsTrigger::new));
 
 	@Override

@@ -3,7 +3,6 @@ package com.lovetropics.minigames.common.core.game.behavior.instances.action;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
-import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
 import com.lovetropics.minigames.common.core.game.client_state.GameClientState;
 import com.mojang.serialization.MapCodec;
@@ -21,7 +20,7 @@ public record ApplyClientStateAction(GameClientState state) implements IGameBeha
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
 		Set<UUID> appliedToPlayers = new HashSet<>();
-		events.listen(GameActionEvents.APPLY_TO_PLAYER, (context, target) -> {
+		events.applyToPlayers(game, (context, target) -> {
 			GameClientState.sendToPlayer(state, target);
 			appliedToPlayers.add(target.getUUID());
 			return true;

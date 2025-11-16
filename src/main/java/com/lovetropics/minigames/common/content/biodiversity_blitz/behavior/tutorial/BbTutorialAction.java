@@ -10,7 +10,6 @@ import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
-import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents;
 import com.mojang.authlib.GameProfile;
 import com.mojang.serialization.Codec;
@@ -70,7 +69,7 @@ public class BbTutorialAction implements IGameBehavior {
 		tutorialActions = new Reference2ObjectOpenHashMap<>();
 		tutorialPlots = new HashSet<>();
 
-		events.listen(GameActionEvents.APPLY_TO_PLOT, (context, playerPlot) -> {
+		events.applyToPlots(game, (context, playerPlot) -> {
 			// Don't run the same tutorial twice per plot
 			if (!tutorialPlots.add(playerPlot)) {
 				return false;

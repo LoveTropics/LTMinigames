@@ -6,6 +6,7 @@ import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.GameWinner;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
+import com.lovetropics.minigames.common.core.game.behavior.action.ActionSubjects;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionList;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameLogicEvents;
@@ -51,7 +52,7 @@ public class RaceTrackBehavior implements IGameBehavior {
 	public static final MapCodec<RaceTrackBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			PathData.CODEC.fieldOf("path").forGetter(b -> b.pathData),
 			Codec.STRING.optionalFieldOf("finish_region", "finish").forGetter(b -> b.finishRegion),
-			Codec.unboundedMap(Codec.STRING, GameActionList.PLAYER_CODEC).optionalFieldOf("checkpoint_regions", Map.of()).forGetter(b -> b.checkpointRegions),
+			Codec.unboundedMap(Codec.STRING, GameActionList.CODEC).optionalFieldOf("checkpoint_regions", Map.of()).forGetter(b -> b.checkpointRegions),
 			Codec.INT.optionalFieldOf("lap_count", 1).forGetter(b -> b.lapCount),
 			Codec.INT.optionalFieldOf("winner_count", 3).forGetter(b -> b.winnerCount),
 			Codec.LONG.optionalFieldOf("start_time", 0L).forGetter(b -> b.startTime)
@@ -69,7 +70,7 @@ public class RaceTrackBehavior implements IGameBehavior {
 
 	private final PathData pathData;
 	private final String finishRegion;
-	private final Map<String, GameActionList<ServerPlayer>> checkpointRegions;
+	private final Map<String, GameActionList> checkpointRegions;
 	private final int lapCount;
 	private final int winnerCount;
 	// TODO: Should be a phase / other kind of trigger
@@ -86,7 +87,7 @@ public class RaceTrackBehavior implements IGameBehavior {
 
 	private final List<Checkpoint> checkpoints = new ArrayList<>();
 
-	private RaceTrackBehavior(PathData pathData, String finishRegion, Map<String, GameActionList<ServerPlayer>> checkpointRegions, int lapCount, int winnerCount, long startTime) {
+	private RaceTrackBehavior(PathData pathData, String finishRegion, Map<String, GameActionList> checkpointRegions, int lapCount, int winnerCount, long startTime) {
 		this.pathData = pathData;
 		this.finishRegion = finishRegion;
 		this.checkpointRegions = checkpointRegions;
@@ -159,7 +160,7 @@ public class RaceTrackBehavior implements IGameBehavior {
 		// TODO: Hacky
 		registerCheckpoint(finishBox, 0.9f * path.length(), path.length(), this::onPlayerFinishLap);
 
-		for (Map.Entry<String, GameActionList<ServerPlayer>> entry : checkpointRegions.entrySet()) {
+		for (Map.Entry<String, GameActionList> entry : checkpointRegions.entrySet()) {
 			Collection<BlockBox> regions = game.mapRegions().get(entry.getKey());
 			if (regions.isEmpty()) {
 				continue;
@@ -170,7 +171,7 @@ public class RaceTrackBehavior implements IGameBehavior {
 
 			for (BlockBox region : regions) {
 				registerCheckpoint(region, (player, state) -> {
-					actions.apply(game, ContextMap.EMPTY, player);
+					actions.apply(game, ContextMap.EMPTY, ActionSubjects.ofPlayer(player));
 					return false;
 				});
 			}

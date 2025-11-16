@@ -4,7 +4,6 @@ import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.content.river_race.behaviour.CollectablesBehaviour;
 import com.lovetropics.minigames.common.content.river_race.behaviour.KillAboveVoidBehavior;
 import com.lovetropics.minigames.common.content.river_race.behaviour.ModifyMaxSpawnsAction;
-import com.lovetropics.minigames.common.content.river_race.behaviour.OverlordBehavior;
 import com.lovetropics.minigames.common.content.river_race.behaviour.ProgressBehaviour;
 import com.lovetropics.minigames.common.content.river_race.behaviour.RewardsFromMicrogameBehavior;
 import com.lovetropics.minigames.common.content.river_race.behaviour.RiverRaceMerchantBehavior;
@@ -66,7 +65,6 @@ public class RiverRace {
 	public static final GameBehaviorEntry<StartMicrogamesAction> START_MICROGAMES_ACTION = REGISTRATE.object("start_microgames").behavior(StartMicrogamesAction.CODEC).register();
 	public static final GameBehaviorEntry<VictoryPointsBehavior> VICTORY_POINTS_BEHAVIOR = REGISTRATE.object("victory_points").behavior(VictoryPointsBehavior.CODEC).register();
 	public static final GameBehaviorEntry<RiverRaceMerchantBehavior> RIVER_RACE_MERCHANT_BEHAVIOR = REGISTRATE.object("river_race_merchant").behavior(RiverRaceMerchantBehavior.CODEC).register();
-	public static final GameBehaviorEntry<OverlordBehavior> OVERLORD_BEHAVIOR = REGISTRATE.object("river_race_overlord").behavior(OverlordBehavior.CODEC).register();
 	public static final GameBehaviorEntry<ProgressBehaviour> RIVER_RACE_PROGRESS_BEHAVIOUR = REGISTRATE.object("river_race_progress").behavior(ProgressBehaviour.CODEC).register();
 	public static final GameBehaviorEntry<CollectablesBehaviour> COLLECTABLES_BEHAVIOUR = REGISTRATE.object("river_race_collectables").behavior(CollectablesBehaviour.CODEC).register();
 	public static final GameBehaviorEntry<UnlockZoneAction> UNLOCK_ZONE_ACTION = REGISTRATE.object("unlock_zone").behavior(UnlockZoneAction.CODEC).register();

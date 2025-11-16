@@ -6,7 +6,6 @@ import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
-import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvents;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.chat.Component;
@@ -22,7 +21,7 @@ public record NotificationToastAction(Component text, NotificationStyle style) i
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		ShowNotificationToastMessage message = new ShowNotificationToastMessage(text, style);
-		events.listen(GameActionEvents.APPLY_TO_PLAYER, (context, target) -> {
+		events.applyToPlayers(game, (context, target) -> {
 			PacketDistributor.sendToPlayer(target, message);
 			return true;
 		});

@@ -17,6 +17,7 @@ import net.minecraft.server.level.ServerPlayer;
 
 import javax.annotation.Nullable;
 import java.util.Iterator;
+import java.util.List;
 
 public class SpawnEntitiesAroundPlayersAction implements IGameBehavior {
 	public static final MapCodec<SpawnEntitiesAroundPlayersAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
@@ -51,12 +52,15 @@ public class SpawnEntitiesAroundPlayersAction implements IGameBehavior {
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
-		events.listen(GameActionEvents.APPLY, context -> {
+		events.listen(GameActionEvents.APPLY, (context, targets) -> {
+			List<ServerPlayer> players = targets.asPlayers(game);
+			if (players.isEmpty()) {
+				return false;
+			}
 			remainingEntityCount = maxEntityCount;
-			return true;
-		});
-		events.listen(GameActionEvents.APPLY_TO_PLAYER, (context, player) -> {
-			playerToAmountToSpawn.put(player, entityCountPerPlayer);
+			for (ServerPlayer player : players) {
+				playerToAmountToSpawn.put(player, entityCountPerPlayer);
+			}
 			return true;
 		});
 		events.listen(GamePhaseEvents.TICK, () -> tick(game));

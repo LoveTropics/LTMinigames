@@ -5,6 +5,7 @@ import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorType;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorTypes;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
+import com.lovetropics.minigames.common.core.game.behavior.action.ActionSubjects;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionContextKeys;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionList;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
@@ -12,25 +13,23 @@ import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvent
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.advancements.critereon.EntityPredicate;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.context.ContextKeySet;
 import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.Entity;
 
 import java.util.Optional;
 import java.util.function.Supplier;
 
 public record OnEntityInteractionTrigger(
-		GameActionList<ServerPlayer> sourceActions,
-		GameActionList<Entity> targetActions,
+		GameActionList sourceActions,
+		GameActionList targetActions,
 		Optional<EntityPredicate> sourcePredicate,
 		Optional<EntityPredicate> targetPredicate
 ) implements IGameBehavior {
 	public static final MapCodec<OnEntityInteractionTrigger> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-			GameActionList.PLAYER_CODEC.optionalFieldOf("source_actions", GameActionList.EMPTY_PLAYER).forGetter(OnEntityInteractionTrigger::sourceActions),
-			GameActionList.ENTITY_CODEC.optionalFieldOf("target_actions", GameActionList.EMPTY_ENTITY).forGetter(OnEntityInteractionTrigger::targetActions),
+			GameActionList.CODEC.optionalFieldOf("source_actions", GameActionList.EMPTY).forGetter(OnEntityInteractionTrigger::sourceActions),
+			GameActionList.CODEC.optionalFieldOf("target_actions", GameActionList.EMPTY).forGetter(OnEntityInteractionTrigger::targetActions),
 			EntityPredicate.CODEC.optionalFieldOf("source_predicate").forGetter(OnEntityInteractionTrigger::sourcePredicate),
 			EntityPredicate.CODEC.optionalFieldOf("target_predicate").forGetter(OnEntityInteractionTrigger::targetPredicate)
 	).apply(instance, OnEntityInteractionTrigger::new));
@@ -54,8 +53,8 @@ public record OnEntityInteractionTrigger(
 
 			final ContextMap.Builder context = new ContextMap.Builder()
 					.withParameter(GameActionContextKeys.TARGET, target);
-			sourceActions.apply(game, context.create(ContextKeySet.EMPTY), player);
-			targetActions.apply(game, context.create(ContextKeySet.EMPTY), target);
+			sourceActions.apply(game, context.create(ContextKeySet.EMPTY), ActionSubjects.ofPlayer(player));
+			targetActions.apply(game, context.create(ContextKeySet.EMPTY), ActionSubjects.ofEntity(target));
 
 			return InteractionResult.CONSUME;
 		});

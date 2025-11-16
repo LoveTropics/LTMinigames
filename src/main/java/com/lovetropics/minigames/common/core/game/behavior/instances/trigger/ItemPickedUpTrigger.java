@@ -4,6 +4,7 @@ import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorType;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorTypes;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
+import com.lovetropics.minigames.common.core.game.behavior.action.ActionSubjects;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionContextKeys;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionList;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
@@ -13,7 +14,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.advancements.critereon.ItemPredicate;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.context.ContextKeySet;
 import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.item.ItemStack;
@@ -21,10 +21,10 @@ import net.minecraft.world.item.ItemStack;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-public record ItemPickedUpTrigger(Optional<ItemPredicate> itemPredicate, GameActionList<ServerPlayer> action, boolean consume) implements IGameBehavior {
+public record ItemPickedUpTrigger(Optional<ItemPredicate> itemPredicate, GameActionList action, boolean consume) implements IGameBehavior {
 	public static final MapCodec<ItemPickedUpTrigger> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			ItemPredicate.CODEC.optionalFieldOf("item").forGetter(ItemPickedUpTrigger::itemPredicate),
-			GameActionList.PLAYER_CODEC.fieldOf("action").forGetter(ItemPickedUpTrigger::action),
+			GameActionList.MAP_CODEC.forGetter(ItemPickedUpTrigger::action),
 			Codec.BOOL.optionalFieldOf("consume", false).forGetter(ItemPickedUpTrigger::consume)
 	).apply(i, ItemPickedUpTrigger::new));
 
@@ -39,7 +39,7 @@ public record ItemPickedUpTrigger(Optional<ItemPredicate> itemPredicate, GameAct
 						.withParameter(GameActionContextKeys.ITEM, stack)
 						.withParameter(GameActionContextKeys.COUNT, stack.getCount())
 						.create(ContextKeySet.EMPTY);
-				action.apply(game, context, player);
+				action.apply(game, context, ActionSubjects.ofPlayer(player));
 				return consume ? PickUpResult.DISCARD : PickUpResult.PASS;
 			}
 			return PickUpResult.PASS;

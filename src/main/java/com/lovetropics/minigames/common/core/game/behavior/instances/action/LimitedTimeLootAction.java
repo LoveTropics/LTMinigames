@@ -4,7 +4,6 @@ import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
-import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameWorldEvents;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -51,7 +50,7 @@ public record LimitedTimeLootAction(
 			throw new GameException(Component.literal("No loot table with id: " + this.lootTable));
 		}
 
-		events.listen(GameActionEvents.APPLY_TO_PLAYER, (context, player) -> {
+		events.applyToPlayers(game, (context, player) -> {
 			expiryTimes.compute(player.getUUID(), (playerId, lastExpiryTime) -> {
 				long baseTime = lastExpiryTime != null ? lastExpiryTime : game.ticks();
 				return baseTime + durationTicks;

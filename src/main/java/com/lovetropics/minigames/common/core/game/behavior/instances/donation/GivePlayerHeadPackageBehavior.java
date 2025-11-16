@@ -4,7 +4,6 @@ import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionContextKeys;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
-import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvents;
 import com.lovetropics.minigames.common.util.Util;
 import com.mojang.authlib.properties.PropertyMap;
 import com.mojang.serialization.Codec;
@@ -27,7 +26,7 @@ public record GivePlayerHeadPackageBehavior(boolean forced) implements IGameBeha
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
-		events.listen(GameActionEvents.APPLY_TO_PLAYER, (context, player) -> {
+		events.applyToPlayers(game, (context, player) -> {
 			String sendingPlayer = context.getOrDefault(GameActionContextKeys.PACKAGE_SENDER, "LoveTropics");
 
 			ItemStack head = createHeadForSender(sendingPlayer);

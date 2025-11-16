@@ -4,15 +4,14 @@ import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
-import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvents;
 import com.lovetropics.minigames.common.util.EntityTemplate;
 import com.lovetropics.minigames.common.util.Util;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
@@ -26,15 +25,15 @@ public record SpawnEntityAtPlayerAction(EntityTemplate entity, int damagePlayerA
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		events.listen(GameActionEvents.APPLY_TO_PLAYER, (context, player) -> {
-			Vec3 spawnPos = findSpawnPos(game, player);
+		events.applyToEntities(game, (context, target) -> {
+			Vec3 spawnPos = findSpawnPos(game, target);
 			if (spawnPos == null) {
-				spawnPos = player.position();
+				spawnPos = target.position();
 			}
 
-			entity.spawn(player.level(), spawnPos.x, spawnPos.y, spawnPos.z, 0.0f, 0.0f);
+			entity.spawn(game.level(), spawnPos.x, spawnPos.y, spawnPos.z, 0.0f, 0.0f);
 			if (damagePlayerAmount > 0) {
-				player.hurtServer(player.level(), player.damageSources().generic(), damagePlayerAmount);
+				target.hurtServer(game.level(), target.damageSources().generic(), damagePlayerAmount);
 			}
 
 			return true;
@@ -42,14 +41,14 @@ public record SpawnEntityAtPlayerAction(EntityTemplate entity, int damagePlayerA
 	}
 
 	@Nullable
-	private Vec3 findSpawnPos(IGamePhase game, ServerPlayer player) {
+	private Vec3 findSpawnPos(IGamePhase game, Entity entity) {
 		for (int i = 0; i < 10; i++) {
-			double angle = player.getRandom().nextDouble() * 2 * Math.PI;
-			double x = player.getX() + Math.sin(angle) * distance;
-			double z = player.getZ() + Math.cos(angle) * distance;
+			double angle = entity.getRandom().nextDouble() * 2 * Math.PI;
+			double x = entity.getX() + Math.sin(angle) * distance;
+			double z = entity.getZ() + Math.cos(angle) * distance;
 			int maxDistanceY = Mth.floor(distance);
 
-			BlockPos groundPos = Util.findGround(game.level(), BlockPos.containing(x, player.getY(), z), maxDistanceY);
+			BlockPos groundPos = Util.findGround(game.level(), BlockPos.containing(x, entity.getY(), z), maxDistanceY);
 			if (groundPos != null) {
 				return new Vec3(x, groundPos.getY(), z);
 			}

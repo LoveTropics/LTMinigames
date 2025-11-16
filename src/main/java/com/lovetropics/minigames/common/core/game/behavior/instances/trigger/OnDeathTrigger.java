@@ -4,6 +4,7 @@ import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorType;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorTypes;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
+import com.lovetropics.minigames.common.core.game.behavior.action.ActionSubjects;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionContextKeys;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionList;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
@@ -21,10 +22,10 @@ import net.minecraft.util.context.ContextMap;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-public record OnDeathTrigger(GameActionList<ServerPlayer> killedAction, GameActionList<ServerPlayer> killerAction, Optional<EntityPredicate> killedPredicate, Optional<EntityPredicate> killerPredicate, boolean excludeSelf) implements IGameBehavior {
+public record OnDeathTrigger(GameActionList killedAction, GameActionList killerAction, Optional<EntityPredicate> killedPredicate, Optional<EntityPredicate> killerPredicate, boolean excludeSelf) implements IGameBehavior {
 	public static final MapCodec<OnDeathTrigger> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			GameActionList.PLAYER_CODEC.optionalFieldOf("killed_action", GameActionList.EMPTY_PLAYER).forGetter(OnDeathTrigger::killedAction),
-			GameActionList.PLAYER_CODEC.optionalFieldOf("killer_action", GameActionList.EMPTY_PLAYER).forGetter(OnDeathTrigger::killerAction),
+			GameActionList.CODEC.optionalFieldOf("killed_action", GameActionList.EMPTY).forGetter(OnDeathTrigger::killedAction),
+			GameActionList.CODEC.optionalFieldOf("killer_action", GameActionList.EMPTY).forGetter(OnDeathTrigger::killerAction),
 			EntityPredicate.CODEC.optionalFieldOf("killed_predicate").forGetter(OnDeathTrigger::killedPredicate),
 			EntityPredicate.CODEC.optionalFieldOf("killer_predicate").forGetter(OnDeathTrigger::killerPredicate),
 			Codec.BOOL.optionalFieldOf("exclude_self", false).forGetter(OnDeathTrigger::excludeSelf)
@@ -49,10 +50,10 @@ public record OnDeathTrigger(GameActionList<ServerPlayer> killedAction, GameActi
 			final ContextMap.Builder context = new ContextMap.Builder()
 					.withParameter(GameActionContextKeys.KILLED, player);
 			if (killer != null) {
-				killedAction.apply(game, context.withParameter(GameActionContextKeys.KILLER, killer).create(ContextKeySet.EMPTY), player);
-				killerAction.apply(game, context.withParameter(GameActionContextKeys.KILLER, killer).create(ContextKeySet.EMPTY), killer);
+				killedAction.apply(game, context.withParameter(GameActionContextKeys.KILLER, killer).create(ContextKeySet.EMPTY), ActionSubjects.ofPlayer(player));
+				killerAction.apply(game, context.withParameter(GameActionContextKeys.KILLER, killer).create(ContextKeySet.EMPTY), ActionSubjects.ofPlayer(killer));
 			} else {
-				killedAction.apply(game, context.create(ContextKeySet.EMPTY), player);
+				killedAction.apply(game, context.create(ContextKeySet.EMPTY), ActionSubjects.ofPlayer(player));
 			}
 			return TriState.DEFAULT;
 		});

@@ -28,13 +28,13 @@ import java.util.Queue;
 public record StartMicrogamesAction(
 		List<ResourceLocation> gameConfigIds,
 		int gamesPerRound,
-		GameActionList<Void> onComplete
+		GameActionList onComplete
 ) implements IGameBehavior {
 
 	public static final MapCodec<StartMicrogamesAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			ExtraCodecs.nonEmptyList(ResourceLocation.CODEC.listOf()).fieldOf("games").forGetter(StartMicrogamesAction::gameConfigIds),
 			Codec.INT.optionalFieldOf("games_per_round", 1).forGetter(c -> c.gamesPerRound),
-			GameActionList.VOID_CODEC.optionalFieldOf("on_complete", GameActionList.EMPTY_VOID).forGetter(StartMicrogamesAction::onComplete)
+			GameActionList.CODEC.optionalFieldOf("on_complete", GameActionList.EMPTY).forGetter(StartMicrogamesAction::onComplete)
 	).apply(i, StartMicrogamesAction::new));
 
 	@Override
@@ -53,7 +53,7 @@ public record StartMicrogamesAction(
 		MutableBoolean scheduled = new MutableBoolean();
 		Queue<GameConfig> gameQueue = new ArrayDeque<>();
 
-		events.listen(GameActionEvents.APPLY, context -> {
+		events.listen(GameActionEvents.APPLY, (context, targets) -> {
 			gameQueue.clear();
 			gameQueue.addAll(pickCountRandomly(gameConfigs, gamesPerRound));
 			if (queueNextSubGame(game, gameQueue)) {

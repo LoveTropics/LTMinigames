@@ -5,7 +5,6 @@ import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
-import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvents;
 import com.lovetropics.minigames.common.core.game.rewards.GameRewardsMap;
 import com.lovetropics.minigames.common.core.game.state.statistics.StatisticKey;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeamKey;
@@ -29,7 +28,7 @@ public record GiveRewardAction(List<ItemStack> items, Optional<StatisticBinding>
 	@Override
 	public void register(final IGamePhase game, final EventRegistrar events) throws GameException {
 		GameRewardsMap rewards = game.instanceState().getOrThrow(GameRewardsMap.STATE);
-		events.listen(GameActionEvents.APPLY_TO_PLAYER, (context, target) -> {
+		events.applyToPlayers(game, (context, target) -> {
 			for (final ItemStack item : items) {
 				final int count = statisticBinding.map(binding -> binding.resolve(game, target)).orElse(item.getCount());
 				rewards.forPlayer(target).give(item.copyWithCount(count));

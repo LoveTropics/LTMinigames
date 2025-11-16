@@ -40,14 +40,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-public record ItemDropperBehavior(Either<List<ItemStack>, ResourceKey<LootTable>> loot, String regionKey, boolean combined, boolean beacon, IntProvider intervalTicks, Optional<GameActionList<Void>> announcement, Optional<ConfiguredSound> sound) implements IGameBehavior {
+public record ItemDropperBehavior(Either<List<ItemStack>, ResourceKey<LootTable>> loot, String regionKey, boolean combined, boolean beacon, IntProvider intervalTicks, Optional<GameActionList> announcement, Optional<ConfiguredSound> sound) implements IGameBehavior {
 	public static final MapCodec<ItemDropperBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			Codec.either(ExtraCodecs.compactListCodec(MoreCodecs.ITEM_STACK), ResourceKey.codec(Registries.LOOT_TABLE)).fieldOf("loot").forGetter(ItemDropperBehavior::loot),
 			Codec.STRING.fieldOf("region").forGetter(ItemDropperBehavior::regionKey),
 			Codec.BOOL.optionalFieldOf("combined", false).forGetter(ItemDropperBehavior::combined),
 			Codec.BOOL.optionalFieldOf("beacon", false).forGetter(ItemDropperBehavior::beacon),
 			IntProvider.POSITIVE_CODEC.fieldOf("interval_ticks").forGetter(ItemDropperBehavior::intervalTicks),
-			GameActionList.VOID_CODEC.optionalFieldOf("announcement").forGetter(ItemDropperBehavior::announcement),
+			GameActionList.CODEC.optionalFieldOf("announcement").forGetter(ItemDropperBehavior::announcement),
 			ConfiguredSound.CODEC.optionalFieldOf("sound").forGetter(ItemDropperBehavior::sound)
 	).apply(i, ItemDropperBehavior::new));
 

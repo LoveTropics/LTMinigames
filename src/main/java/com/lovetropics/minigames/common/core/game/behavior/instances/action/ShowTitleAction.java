@@ -3,7 +3,6 @@ package com.lovetropics.minigames.common.core.game.behavior.instances.action;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
-import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvents;
 import com.lovetropics.minigames.common.core.game.util.TemplatedText;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -33,7 +32,7 @@ public record ShowTitleAction(Optional<TemplatedText> title, Optional<TemplatedT
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
-		events.listen(GameActionEvents.APPLY_TO_PLAYER, (context, target) -> {
+		events.applyToPlayers(game, (context, target) -> {
 			target.connection.send(new ClientboundClearTitlesPacket(true));
 			target.connection.send(new ClientboundSetTitlesAnimationPacket(fadeIn, stay, fadeOut));
 			target.connection.send(new ClientboundSetTitleTextPacket(title.map(title -> title.apply(context)).orElse(EMPTY_TITLE)));

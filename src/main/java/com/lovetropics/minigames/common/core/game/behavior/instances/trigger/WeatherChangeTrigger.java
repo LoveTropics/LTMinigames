@@ -13,20 +13,20 @@ import net.minecraft.util.context.ContextMap;
 
 import java.util.Map;
 
-public record WeatherChangeTrigger(Map<WeatherEventType, GameActionList<Void>> eventActions) implements IGameBehavior {
+public record WeatherChangeTrigger(Map<WeatherEventType, GameActionList> eventActions) implements IGameBehavior {
 	public static final MapCodec<WeatherChangeTrigger> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			Codec.unboundedMap(WeatherEventType.CODEC, GameActionList.VOID_CODEC).fieldOf("events").forGetter(c -> c.eventActions)
+			Codec.unboundedMap(WeatherEventType.CODEC, GameActionList.CODEC).fieldOf("events").forGetter(c -> c.eventActions)
 	).apply(i, WeatherChangeTrigger::new));
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
-		for (GameActionList<Void> actions : eventActions.values()) {
+		for (GameActionList actions : eventActions.values()) {
 			actions.register(game, events);
 		}
 
 		events.listen(GameWorldEvents.SET_WEATHER, (lastEvent, event) -> {
 			if (event != null) {
-				GameActionList<Void> actions = eventActions.get(event.getType());
+				GameActionList actions = eventActions.get(event.getType());
 				if (actions != null) {
 					actions.apply(game, ContextMap.EMPTY);
 				}

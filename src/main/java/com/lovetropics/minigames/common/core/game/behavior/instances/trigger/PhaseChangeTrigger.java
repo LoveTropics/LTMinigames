@@ -16,10 +16,10 @@ import net.minecraft.util.context.ContextMap;
 import java.util.ArrayList;
 import java.util.Map;
 
-public record PhaseChangeTrigger(ProgressChannel channel, Map<ProgressionPoint, GameActionList<Void>> phases) implements IGameBehavior {
+public record PhaseChangeTrigger(ProgressChannel channel, Map<ProgressionPoint, GameActionList> phases) implements IGameBehavior {
 	public static final MapCodec<PhaseChangeTrigger> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			ProgressChannel.CODEC.optionalFieldOf("channel", ProgressChannel.MAIN).forGetter(PhaseChangeTrigger::channel),
-			Codec.unboundedMap(ProgressionPoint.CODEC, GameActionList.VOID_CODEC).fieldOf("phases").forGetter(PhaseChangeTrigger::phases)
+			Codec.unboundedMap(ProgressionPoint.CODEC, GameActionList.CODEC).fieldOf("phases").forGetter(PhaseChangeTrigger::phases)
 	).apply(i, PhaseChangeTrigger::new));
 
 	@Override

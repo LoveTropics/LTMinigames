@@ -4,6 +4,7 @@ import com.lovetropics.lib.BlockBox;
 import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
+import com.lovetropics.minigames.common.core.game.behavior.action.ActionSubjects;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionList;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents;
@@ -38,14 +39,14 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.BooleanSupplier;
 
-public record LobbyWithPortalBehavior(String portalRegion, String targetRegion, String pointTowardsRegion, ProgressChannel channel, ProgressionPeriod openAt, GameActionList<ServerPlayer> teleportAction) implements IGameBehavior {
+public record LobbyWithPortalBehavior(String portalRegion, String targetRegion, String pointTowardsRegion, ProgressChannel channel, ProgressionPeriod openAt, GameActionList teleportAction) implements IGameBehavior {
 	public static final MapCodec<LobbyWithPortalBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			Codec.STRING.fieldOf("portal_region").forGetter(LobbyWithPortalBehavior::portalRegion),
 			Codec.STRING.fieldOf("target_region").forGetter(LobbyWithPortalBehavior::targetRegion),
 			Codec.STRING.fieldOf("point_towards_region").forGetter(LobbyWithPortalBehavior::pointTowardsRegion),
 			ProgressChannel.CODEC.optionalFieldOf("channel", ProgressChannel.MAIN).forGetter(LobbyWithPortalBehavior::channel),
 			ProgressionPeriod.CODEC.fieldOf("open_at").forGetter(LobbyWithPortalBehavior::openAt),
-			GameActionList.PLAYER_CODEC.optionalFieldOf("on_teleport", GameActionList.EMPTY_PLAYER).forGetter(LobbyWithPortalBehavior::teleportAction)
+			GameActionList.CODEC.optionalFieldOf("on_teleport", GameActionList.EMPTY).forGetter(LobbyWithPortalBehavior::teleportAction)
 	).apply(i, LobbyWithPortalBehavior::new));
 
 	@Override
@@ -86,7 +87,7 @@ public record LobbyWithPortalBehavior(String portalRegion, String targetRegion, 
 				final Vec3 center = target.center();
 				player.teleportTo(player.level(), center.x, center.y, center.z, Set.of(), computeAngle(center, pointTowards), 0.0f, true);
 				player.level().playSound(null, center.x, center.y, center.z, SoundEvents.CHORUS_FRUIT_TELEPORT, SoundSource.PLAYERS, 1.0f, 1.0f);
-				teleportAction.apply(game, ContextMap.EMPTY, player);
+				teleportAction.apply(game, ContextMap.EMPTY, ActionSubjects.ofPlayer(player));
 			}
 		});
 
