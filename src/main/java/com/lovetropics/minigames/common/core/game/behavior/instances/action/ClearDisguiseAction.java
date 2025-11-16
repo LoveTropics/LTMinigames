@@ -13,7 +13,12 @@ public record ClearDisguiseAction(Disguise disguise) implements IGameBehavior {
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
 		events.applyToEntities(game, (context, entity) -> {
-			EntityDisguiseHolder.update(entity, d -> d.clear(disguise));
+			// Nothing specified to clear - just clear everything
+			if (disguise.isEmpty()) {
+				EntityDisguiseHolder.set(entity, Disguise.NONE);
+			} else {
+				EntityDisguiseHolder.update(entity, d -> d.clear(disguise));
+			}
 			return true;
 		});
 	}
