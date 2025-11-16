@@ -29,6 +29,7 @@ import com.lovetropics.minigames.common.core.game.behavior.instances.SetGameClie
 import com.lovetropics.minigames.common.core.game.behavior.instances.SetGameTypesBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.SetupIntegrationsBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.SnowballBreakBlockBehavior;
+import com.lovetropics.minigames.common.core.game.behavior.instances.SpawnDonorsInRegionBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.SpectatorChaseBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.TipsAndTricksBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.AddAttributeModifierAction;
@@ -338,6 +339,7 @@ public class GameBehaviorTypes {
 	public static final GameBehaviorEntry<IncreaseRandomTickRateInRegionBehaviour> INCREASE_RANDOM_TICK_RATE_IN_REGION = register("increase_random_tick_rate_in_region", IncreaseRandomTickRateInRegionBehaviour.CODEC);
 	public static final GameBehaviorEntry<ItemPutInItemFrameTrigger> ITEM_PUT_IN_ITEM_FRAME = register("item_put_in_item_frame", ItemPutInItemFrameTrigger.CODEC);
 	public static final GameBehaviorEntry<PreventCropGrowthInRegionBehaviour> PREVENT_CROP_GROWTH_IN_REGION = register("prevent_crop_growth_in_region", PreventCropGrowthInRegionBehaviour.CODEC);
+	public static final GameBehaviorEntry<SpawnDonorsInRegionBehavior> SPAWN_DONORS_IN_REGION = register("spawn_donors_in_region", SpawnDonorsInRegionBehavior.CODEC);
 
 	public static final GameBehaviorEntry<SetupIntegrationsBehavior> SETUP_INTEGRATIONS = register("setup_integrations", SetupIntegrationsBehavior.CODEC);
 	public static final GameBehaviorEntry<JoinLateWithRoleBehavior> JOIN_LATE_WITH_ROLE = register("join_late_with_role", JoinLateWithRoleBehavior.CODEC);
