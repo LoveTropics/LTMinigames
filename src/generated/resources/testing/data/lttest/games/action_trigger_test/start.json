@@ -4,14 +4,10 @@
     {
       "type": "ltminigames:phase_triggers/start",
       "actions": {
-        "type": "ltminigames:apply_to_player",
-        "actions": {
-          "actions": {
-            "type": "ltminigames:send_message",
-            "message": "hello world!"
-          }
-        }
-      }
+        "type": "ltminigames:send_message",
+        "message": "hello world!"
+      },
+      "target": "all_players"
     },
     {
       "type": "ltminigames:play_sound",

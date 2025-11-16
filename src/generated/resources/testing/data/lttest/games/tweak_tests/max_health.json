@@ -2,14 +2,13 @@
   "backend_id": "lttest:tweak_tests/max_health",
   "behaviors": [
     {
-      "type": "ltminigames:apply_to_player",
+      "type": "ltminigames:apply_to",
       "actions": {
-        "actions": {
-          "type": "ltminigames:set_max_health",
-          "max_health": 30,
-          "max_health_by_team": {}
-        }
-      }
+        "type": "ltminigames:set_max_health",
+        "max_health": 30,
+        "max_health_by_team": {}
+      },
+      "target": "all_players"
     }
   ],
   "map": {

@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "ltminigames:item/anchor_arms"
+    "layer0": "ltminigames:item/shruggy_arms"
   }
 }

@@ -17,10 +17,10 @@ public class MinigameItems {
 	public static final ItemEntry<Item> UPSET_STOMACH = REGISTRATE.item("upset_stomach", Item::new).register();
 	public static final ItemEntry<Item> COLADARAL_DAMAGE = REGISTRATE.item("coladaral_damage", Item::new).register();
 	public static final ItemEntry<Item> TAPIR_TAKEOVER = REGISTRATE.item("tapir_takeover", Item::new).register();
-	public static final ItemEntry<Item> TINY_ARMS = REGISTRATE.item("tiny_arms", Item::new).register();
+	public static final ItemEntry<Item> SHRUGGY_ARMS = REGISTRATE.item("shruggy_arms", Item::new).register();
 
 	// Powerups
-	public static final ItemEntry<Item> ANCHOR_ARMS = REGISTRATE.item("anchor_arms", Item::new).register();
+	public static final ItemEntry<Item> ENDER_ARMS = REGISTRATE.item("ender_arms", Item::new).register();
 
 	/** End powerups and sabotages */
 

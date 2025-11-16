@@ -5,16 +5,14 @@
       "type": "ltminigames:events",
       "events": {
         "player_hurt": {
-          "actions": {
-            "type": "ltminigames:give_effect",
-            "effects": [
-              {
-                "type": "minecraft:absorption",
-                "amplifier": 2,
-                "seconds": 1.15
-              }
-            ]
-          }
+          "type": "ltminigames:give_effect",
+          "effects": [
+            {
+              "type": "minecraft:absorption",
+              "amplifier": 2,
+              "seconds": 1.15
+            }
+          ]
         }
       }
     }

@@ -5,14 +5,10 @@
       "type": "ltminigames:phase_triggers/stop",
       "actions": {
         "actions": {
-          "type": "ltminigames:apply_to_player",
-          "actions": {
-            "actions": {
-              "type": "ltminigames:run_commands",
-              "player": "give @s minecraft:oak_planks 13"
-            }
-          }
-        }
+          "type": "ltminigames:run_commands",
+          "player": "give @s minecraft:oak_planks 13"
+        },
+        "target": "all_players"
       }
     }
   ],
