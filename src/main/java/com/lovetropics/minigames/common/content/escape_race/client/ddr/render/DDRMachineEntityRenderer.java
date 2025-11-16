@@ -162,7 +162,7 @@ public class DDRMachineEntityRenderer extends EntityRenderer<DDRMachineEntity, D
 		poseStack.popPose();
 
 		float textScale = 0.5f;
-		poseStack.scale(textScale, textScale, textScale);
+		poseStack.scale(textScale, textScale, -textScale);
 
 		int backgroundColor = ARGB.color(Minecraft.getInstance().options.getBackgroundOpacity(0.25f), CommonColors.BLACK);
 		font.drawInBatch(
@@ -173,7 +173,7 @@ public class DDRMachineEntityRenderer extends EntityRenderer<DDRMachineEntity, D
 				false,
 				poseStack.last().pose(),
 				bufferSource,
-				Font.DisplayMode.SEE_THROUGH,
+				Font.DisplayMode.NORMAL,
 				backgroundColor,
 				packedLight
 		);
