@@ -79,7 +79,11 @@ public final class HealthTagRenderer {
 
 		float textX = (left + iconSize) * textScale;
 		float textY = -font.lineHeight / 2.0F;
+		poseStack.pushPose();
+		poseStack.scale(-1, 1, 1);
+		poseStack.translate(-16, 0, 0);
 		font.drawInBatch(healthText, textX, textY, CommonColors.WHITE, false, poseStack.last().pose(), bufferSource, Font.DisplayMode.NORMAL, 0, LightTexture.FULL_BRIGHT);
+		poseStack.popPose();
 
 		poseStack.pushPose();
 		poseStack.translate(left - 4.5f, -4.5F, 0.0F);
