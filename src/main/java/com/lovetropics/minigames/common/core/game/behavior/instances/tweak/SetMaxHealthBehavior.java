@@ -47,8 +47,6 @@ public record SetMaxHealthBehavior(double maxHealth, Object2DoubleMap<GameTeamKe
 			removeFromPlayer(player);
 			applyToPlayer(game, player);
 		});
-
-		events.listen(GamePlayerEvents.LEAVE, this::removeFromPlayer);
 	}
 
 	private void applyToPlayer(IGamePhase game, ServerPlayer player) {
