@@ -92,6 +92,9 @@ public class GamePhase implements IGamePhase {
 		this.game = game;
 		this.gameDefinition = gameDefinition;
 
+		// TODO: Don't do that :(
+		focusedLive = game.lobby.metadata.visibility().isFocusedLive();
+
 		level = Objects.requireNonNull(game.server.getLevel(map.dimension()), "Game dimension not loaded");
 		this.map = map;
 
@@ -200,10 +203,6 @@ public class GamePhase implements IGamePhase {
 		}
 
 		return newPlayer;
-	}
-
-	public void setFocusedLive(boolean focusedLive) {
-		this.focusedLive = focusedLive;
 	}
 
 	@Nullable

@@ -62,7 +62,6 @@ public class GamePhaseManager implements IGameLookup {
 		return mapFuture
 				.thenApplyAsync(map -> {
 					GamePhase phase = new GamePhase(game, gameDefinition, map, behaviors);
-					phase.setFocusedLive(game.lobby.metadata.visibility().isFocusedLive());
 					queuedGames.add(phase);
 					return phase;
 				}, server)
