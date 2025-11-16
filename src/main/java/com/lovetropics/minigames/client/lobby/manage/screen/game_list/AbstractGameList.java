@@ -61,7 +61,7 @@ public abstract class AbstractGameList extends AbstractLTList<AbstractGameList.E
 		}
 
 		public static Entry game(AbstractLTList<Entry> list, int id, ClientGameDefinition game) {
-			Component playerRange = GameTexts.Ui.playerRange(game.minimumParticipants(), game.maximumParticipants());
+			Component playerRange = GameTexts.Ui.playerCount(game.maximumParticipants());
 
 			Component subtitle;
 			if (game.subtitle() != null) {

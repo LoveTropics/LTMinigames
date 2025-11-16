@@ -6,7 +6,6 @@ import com.lovetropics.minigames.client.lobby.state.message.JoinedLobbyMessage;
 import com.lovetropics.minigames.client.lobby.state.message.LeftLobbyMessage;
 import com.lovetropics.minigames.client.lobby.state.message.LobbyPlayersMessage;
 import com.lovetropics.minigames.client.lobby.state.message.LobbyUpdateMessage;
-import com.lovetropics.minigames.common.core.game.GamePhaseType;
 import com.lovetropics.minigames.common.core.game.GameResult;
 import com.lovetropics.minigames.common.core.game.IGameDefinition;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
@@ -21,7 +20,6 @@ import com.lovetropics.minigames.common.core.game.player.PlayerRoleSelections;
 import com.lovetropics.minigames.common.core.game.rewards.GameRewardsMap;
 import com.lovetropics.minigames.common.core.game.util.GameTexts;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Unit;
@@ -88,11 +86,6 @@ public final class GameLobby {
 	public GamePhase getActivePhase() {
 		GamePhase phase = state.getTopPhase();
 		return phase != null ? phase.getActivePhase() : null;
-	}
-
-	@Nullable
-	public GamePhaseType getActivePhaseType() {
-		return state.getTopPhaseType();
 	}
 
 	@Nullable
@@ -309,40 +302,8 @@ public final class GameLobby {
 
 	static final class ChatNotifyListener implements LobbyStateListener {
 		@Override
-		public void onPlayerJoin(GameLobby lobby, ServerPlayer player) {
-			GamePhase currentPhase = lobby.getActivePhase();
-			if (currentPhase != null && lobby.getActivePhaseType() == GamePhaseType.WAITING) {
-				onPlayerJoinGame(lobby, currentPhase);
-			}
-		}
-
-		@Override
-		public void onPlayerLeave(GameLobby lobby, ServerPlayer player) {
-			GamePhase currentPhase = lobby.getActivePhase();
-			if (currentPhase != null && lobby.getActivePhaseType() == GamePhaseType.WAITING) {
-				onPlayerLeaveGame(lobby, currentPhase);
-			}
-		}
-
-		@Override
 		public void onPlayerStartTracking(GameLobby lobby, ServerPlayer player) {
 			player.displayClientMessage(GameTexts.Status.lobbyOpened(lobby), false);
-		}
-
-		private void onPlayerJoinGame(GameLobby lobby, IGamePhase currentPhase) {
-			int minimumParticipants = currentPhase.definition().getMinimumParticipantCount();
-			if (lobby.getPlayers().size() == minimumParticipants) {
-				Component enoughPlayers = GameTexts.Status.enoughPlayers();
-				lobby.getTrackingPlayers().sendMessage(enoughPlayers);
-			}
-		}
-
-		private void onPlayerLeaveGame(GameLobby lobby, IGamePhase currentPhase) {
-			int minimumParticipants = currentPhase.definition().getMinimumParticipantCount();
-			if (lobby.getPlayers().size() == minimumParticipants - 1) {
-				Component noLongerEnoughPlayers = GameTexts.Status.noLongerEnoughPlayers();
-				lobby.getTrackingPlayers().sendMessage(noLongerEnoughPlayers);
-			}
 		}
 
 		@Override

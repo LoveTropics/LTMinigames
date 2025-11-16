@@ -17,7 +17,6 @@ public record ClientGameDefinition(
 		Component name,
 		@Nullable Component subtitle,
 		@Nullable ResourceLocation icon,
-		int minimumParticipants,
 		int maximumParticipants
 ) {
 	public static final StreamCodec<RegistryFriendlyByteBuf, ClientGameDefinition> STREAM_CODEC = StreamCodec.of((output, definition) -> definition.encode(output), ClientGameDefinition::decode);
@@ -35,7 +34,6 @@ public record ClientGameDefinition(
 				definition.name(),
 				definition.subtitle(),
 				definition.icon(),
-				definition.getMinimumParticipantCount(),
 				definition.getMaximumParticipantCount()
 		);
 	}
@@ -45,9 +43,8 @@ public record ClientGameDefinition(
 		Component name = ComponentSerialization.STREAM_CODEC.decode(buffer);
 		Component subtitle = buffer.readBoolean() ? ComponentSerialization.STREAM_CODEC.decode(buffer) : null;
 		ResourceLocation icon = buffer.readBoolean() ? buffer.readResourceLocation() : null;
-		int minimumParticipants = buffer.readVarInt();
 		int maximumParticipants = buffer.readVarInt();
-		return new ClientGameDefinition(id, name, subtitle, icon, minimumParticipants, maximumParticipants);
+		return new ClientGameDefinition(id, name, subtitle, icon, maximumParticipants);
 	}
 
 	public void encode(RegistryFriendlyByteBuf buffer) {
@@ -61,7 +58,6 @@ public record ClientGameDefinition(
 		if (icon != null) {
 			buffer.writeResourceLocation(icon);
 		}
-		buffer.writeVarInt(minimumParticipants);
 		buffer.writeVarInt(maximumParticipants);
 	}
 }

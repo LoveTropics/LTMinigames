@@ -27,7 +27,6 @@ public class GameBuilder {
 	private Component subtitle;
 	@Nullable
 	private ResourceLocation icon;
-	private int minimumParticipants = 1;
 	private int maximumParticipants = 50;
 	@Nullable
 	private ResourceLocation introSlideshow;
@@ -69,11 +68,6 @@ public class GameBuilder {
 		return this;
 	}
 
-	public GameBuilder setMinimumParticipants(int minimumParticipants) {
-		this.minimumParticipants = minimumParticipants;
-		return this;
-	}
-
 	public GameBuilder setMaximumParticipants(int maximumParticipants) {
 		this.maximumParticipants = maximumParticipants;
 		return this;
@@ -101,7 +95,7 @@ public class GameBuilder {
 
 	public GameConfig build() {
 		Objects.requireNonNull(playing, "Playing phase must be initialized");
-		return new GameConfig(id, backendId, statisticsKey, name, subtitle, icon, minimumParticipants, maximumParticipants, introSlideshow, waiting, playing, hideFromList);
+		return new GameConfig(id, backendId, statisticsKey, name, subtitle, icon, maximumParticipants, introSlideshow, waiting, playing, hideFromList);
 	}
 
 	public static final class PhaseBuilder {

@@ -32,11 +32,6 @@ final class LobbyStateManager {
 	}
 
 	@Nullable
-	public GamePhaseType getTopPhaseType() {
-		return state.phaseType();
-	}
-
-	@Nullable
 	public ClientCurrentGame getClientCurrentGame() {
 		return state.getClientCurrentGame();
 	}

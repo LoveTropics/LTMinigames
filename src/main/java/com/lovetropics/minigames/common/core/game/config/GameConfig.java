@@ -21,7 +21,6 @@ public record GameConfig(
 		Component name,
 		@Nullable Component subtitle,
 		@Nullable ResourceLocation icon,
-		int minimumParticipants,
 		int maximumParticipants,
 		@Nullable ResourceLocation introSlideshow,
 		@Nullable GamePhaseConfig waiting,
@@ -35,26 +34,20 @@ public record GameConfig(
 				ComponentSerialization.CODEC.fieldOf("name").forGetter(c -> c.name),
 				ComponentSerialization.CODEC.optionalFieldOf("subtitle").forGetter(c -> Optional.ofNullable(c.subtitle)),
 				ResourceLocation.CODEC.optionalFieldOf("icon").forGetter(c -> Optional.ofNullable(c.icon)),
-				Codec.INT.optionalFieldOf("minimum_participants", 1).forGetter(c -> c.minimumParticipants),
 				Codec.INT.optionalFieldOf("maximum_participants", 100).forGetter(c -> c.maximumParticipants),
 				ResourceLocation.CODEC.optionalFieldOf("intro_slideshow").forGetter(c -> Optional.ofNullable(c.introSlideshow)),
 				GamePhaseConfig.CODEC.optionalFieldOf("waiting").forGetter(c -> Optional.ofNullable(c.waiting)),
 				GamePhaseConfig.MAP_CODEC.forGetter(c -> c.playing),
 				Codec.BOOL.optionalFieldOf("hide_from_list", false).forGetter(c -> c.hideFromList)
-		).apply(i, (backendIdOpt, statisticsKeyOpt, name, subtitleOpt, iconOpt, minimumParticipants, maximumParticipants, introSlideshowOpt, waitingOpt, active, hideFromList) -> {
+		).apply(i, (backendIdOpt, statisticsKeyOpt, name, subtitleOpt, iconOpt, maximumParticipants, introSlideshowOpt, waitingOpt, active, hideFromList) -> {
 			ResourceLocation backendId = backendIdOpt.orElse(id);
 			String statisticsKey = statisticsKeyOpt.orElse(id.getPath());
 			Component subtitle = subtitleOpt.orElse(null);
 			ResourceLocation icon = iconOpt.orElse(null);
 			ResourceLocation introSlideshow = introSlideshowOpt.orElse(null);
 			GamePhaseConfig waiting = waitingOpt.orElse(null);
-			return new GameConfig(id, backendId, statisticsKey, name, subtitle, icon, minimumParticipants, maximumParticipants, introSlideshow, waiting, active, hideFromList);
+			return new GameConfig(id, backendId, statisticsKey, name, subtitle, icon, maximumParticipants, introSlideshow, waiting, active, hideFromList);
 		}));
-	}
-
-	@Override
-	public int getMinimumParticipantCount() {
-		return minimumParticipants;
 	}
 
 	@Override

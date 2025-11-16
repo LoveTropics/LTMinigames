@@ -53,16 +53,6 @@ public interface IGameDefinition {
 	}
 
 	/**
-	 * Will not let you start the minigame without at least this amount of
-	 * players registered for the polling minigame.
-	 *
-	 * @return The minimum amount of players required to start the minigame.
-	 */
-	default int getMinimumParticipantCount() {
-		return 0;
-	}
-
-	/**
 	 * Will only select up to this many participants to actually play
 	 * in the started minigame. The rest of the players registered for
 	 * the minigame will be slotted in as spectators where they can watch

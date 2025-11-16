@@ -144,9 +144,6 @@ public final class GameTexts {
 		private static final TranslationCollector.Fun2 PLAYER_JOINED = KEYS.add2("player_joined", "%s has joined %s!");
 		private static final TranslationCollector.Fun2 SPECTATOR_JOINED = KEYS.add2("spectator_joined", "%s has joined %s as a spectator!");
 
-		private static final Component ENOUGH_PLAYERS = KEYS.add("enough_players", "There are now enough players to start the game!");
-		private static final Component NO_LONGER_ENOUGH_PLAYERS = KEYS.add("no_longer_enough_players", "There are no longer enough players to start game!");
-
 		private static final Component LEFT_GAME_DIMENSION = KEYS.add("left_game_dimension", "You left the game dimension and have been removed from the lobby!");
 
 		private static final Component LOBBY_PAUSED = KEYS.add("lobby_paused", "Your current lobby has paused! You have been teleported to your last location.");
@@ -170,14 +167,6 @@ public final class GameTexts {
 
 		public static MutableComponent lobbyStopped() {
 			return formatStatus(LOBBY_STOPPED.copy());
-		}
-
-		public static MutableComponent enoughPlayers() {
-			return formatPositive(ENOUGH_PLAYERS.copy());
-		}
-
-		public static MutableComponent noLongerEnoughPlayers() {
-			return formatNegative(NO_LONGER_ENOUGH_PLAYERS.copy());
 		}
 
 		public static MutableComponent leftGameDimension() {
@@ -208,7 +197,6 @@ public final class GameTexts {
 		public static final Component SELECT_SPECTATE = KEYS.add("select_spectate", "Spectate");
 
 		private static final TranslationCollector.Fun1 GAME_PLAYER_COUNT = KEYS.add1("game_player_count", "%s players");
-		private static final TranslationCollector.Fun2 GAME_PLAYER_RANGE = KEYS.add2("game_player_range", "%s-%s players");
 
 		public static final Component PARTICIPATING = KEYS.add("participating", "Participating");
 		public static final Component SPECTATING = KEYS.add("spectating", "Spectating");
@@ -220,12 +208,8 @@ public final class GameTexts {
 		public static final Component LOBBY_PUBLIC_LIVE = KEYS.add("visibility.public_live", "Public (Live)");
 		public static final Component LOBBY_PRIVATE = KEYS.add("visibility.private", "Private");
 
-		public static MutableComponent playerRange(int min, int max) {
-			if (min == max) {
-				return GAME_PLAYER_COUNT.apply(min);
-			} else {
-				return GAME_PLAYER_RANGE.apply(min, max);
-			}
+		public static MutableComponent playerCount(int count) {
+			return GAME_PLAYER_COUNT.apply(count);
 		}
 
 		public static Component roleDescription(PlayerRole role) {
