@@ -103,7 +103,7 @@ public class EscapeRace {
 					properties.sized(3.0F, 3.0F)
 							.setShouldReceiveVelocityUpdates(true)
 							.clientTrackingRange(8)
-							.passengerAttachments(new Vec3(0.0f, 0.8f, 0.0f))
+							.passengerAttachments(new Vec3(0f, 0.6f, 0.35f))
 							.updateInterval(3))
 			.loot((loot, type) -> loot.add(type, lootTable()))
 			.lang("DDR Machine")

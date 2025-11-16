@@ -26,6 +26,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.ByIdMap;
+import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
@@ -228,13 +229,10 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 
 	@Override
 	protected Vec3 getPassengerAttachmentPoint(Entity entity, EntityDimensions dimensions, float partialTick) {
-		if(getState() == DDRMachineState.BEDS){
-			if(this.getControllingPassenger() == entity) {
-				return new Vec3(0f, 0.6f, 0.35f);
-			}
+		if (getState() == DDRMachineState.BEDS && getControllingPassenger() == entity) {
+			return new Vec3(0f, 0.6f, 0.35f).yRot(-getYRot() * Mth.DEG_TO_RAD);
 		}
-		return new Vec3(0f, 0.6f, 0.35f);
-//		return super.getPassengerAttachmentPoint(entity, dimensions, partialTick);
+		return super.getPassengerAttachmentPoint(entity, dimensions, partialTick);
 	}
 
 	@Override
