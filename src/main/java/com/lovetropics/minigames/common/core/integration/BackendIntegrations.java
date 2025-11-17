@@ -182,7 +182,9 @@ public final class BackendIntegrations {
 
 	public void onServerAboutToStart() {
 		post(ConfigLT.INTEGRATIONS.worldLoadEndpoint.get(), "");
-		updateConfig(uri, token);
+		if (subscriber == null) {
+			subscriber = buildSubscriber(uri, token);
+		}
 	}
 
 	public void onServerStop() {
