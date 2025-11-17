@@ -2,6 +2,7 @@ package com.lovetropics.minigames.common.content.river_race.event;
 
 import com.lovetropics.minigames.common.content.river_race.block.TriviaType;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
+import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameEventType;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeam;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeamKey;
@@ -41,6 +42,18 @@ public class RiverRaceEvents {
 		return count;
 	});
 
+	public static final GameEventType<CreateMicrogame> CREATE_MICROGAME = GameEventType.create(CreateMicrogame.class, listeners -> (subGame, subEvents) -> {
+		for (CreateMicrogame listener : listeners) {
+			listener.onCreateMicrogame(subGame, subEvents);
+		}
+	});
+
+	public static final GameEventType<MicrogamesEnded> MICROGAMES_ENDED = GameEventType.create(MicrogamesEnded.class, listeners -> () -> {
+		for (MicrogamesEnded listener : listeners) {
+			listener.onMicrogamesEnded();
+		}
+	});
+
 	public interface AnswerTriviaQuestion {
 		void onAnswer(ServerPlayer player, TriviaType triviaType, BlockPos triviaPos);
 	}
@@ -59,5 +72,13 @@ public class RiverRaceEvents {
 
 	public interface ModifyMaxSpawnCount {
 		int modifyMaxSpawnCount(BlockPos pos, int count);
+	}
+
+	public interface CreateMicrogame {
+		void onCreateMicrogame(IGamePhase subGame, EventRegistrar events);
+	}
+
+	public interface MicrogamesEnded {
+		void onMicrogamesEnded();
 	}
 }

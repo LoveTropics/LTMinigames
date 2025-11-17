@@ -4,7 +4,6 @@ import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.IGameDefinition;
 import com.lovetropics.minigames.common.core.game.IGameLookup;
-import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.IGamePhaseDefinition;
 import com.lovetropics.minigames.common.core.game.behavior.BehaviorList;
 import com.lovetropics.minigames.common.core.game.map.GameMap;
@@ -15,7 +14,6 @@ import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -48,23 +46,31 @@ public class GamePhaseManager implements IGameLookup {
 		return INSTANCE;
 	}
 
-	public CompletableFuture<GamePhase> createPhase(GameInstance game, MinecraftServer server, IGameDefinition gameDefinition, IGamePhaseDefinition phaseDefinition) {
+	public CompletableFuture<GamePhase> createTopPhase(GameInstance game, IGamePhaseDefinition phaseDefinition) {
+		return createPhase(game, null, game.definition(), phaseDefinition);
+	}
+
+	public CompletableFuture<GamePhase> createSubPhase(GamePhase parentPhase, IGameDefinition subGameDefinition) {
+		return createPhase(parentPhase.game, parentPhase, subGameDefinition, subGameDefinition.getPlayingPhase());
+	}
+
+	private CompletableFuture<GamePhase> createPhase(GameInstance game, @Nullable GamePhase parentPhase, IGameDefinition definition, IGamePhaseDefinition phaseDefinition) {
 		try {
 			checkCanAddGamePhase(phaseDefinition);
 		} catch (GameException e) {
 			return CompletableFuture.failedFuture(e);
 		}
 
-		CompletableFuture<GameMap> mapFuture = phaseDefinition.getMap().open(server);
+		CompletableFuture<GameMap> mapFuture = phaseDefinition.getMap().open(game.server());
 
 		BehaviorList behaviors = phaseDefinition.createBehaviors();
 
 		return mapFuture
 				.thenApplyAsync(map -> {
-					GamePhase phase = new GamePhase(game, gameDefinition, map, behaviors);
+					GamePhase phase = new GamePhase(game, parentPhase, map, definition, behaviors);
 					queuedGames.add(phase);
 					return phase;
-				}, server)
+				}, game.server())
 				.exceptionally(throwable -> {
 					GameException gameException = GameException.unwrap(throwable);
 					if (gameException != null) {
@@ -87,32 +93,26 @@ public class GamePhaseManager implements IGameLookup {
 	@Nullable
 	@Override
 	public GamePhase getGamePhaseFor(Player player) {
-		GameLobby lobby = GameLobbyManager.get().getLobbyFor(player);
-		return lobby != null ? lobby.getActivePhase() : null;
+		return getGamePhaseInDimension(player.level());
 	}
 
 	@Nullable
 	@Override
 	public GamePhase getGamePhaseAt(Level level, Vec3 pos) {
-		List<GamePhase> phases = getGamePhasesForLevel(level);
-		return !phases.isEmpty() ? phases.getFirst() : null;
+		return getGamePhaseInDimension(level);
 	}
 
 	@Nullable
 	@Override
-	public IGamePhase getGamePhaseInDimension(Level level) {
+	public GamePhase getGamePhaseInDimension(Level level) {
+		if (level.isClientSide()) {
+			return null;
+		}
 		List<GamePhase> games = gamesByDimension.get(level.dimension());
 		if (games != null && games.size() == 1) {
 			return games.getFirst();
 		}
 		return null;
-	}
-
-	public List<GamePhase> getGamePhasesForLevel(Level level) {
-		if (level.isClientSide()) {
-			return List.of();
-		}
-		return gamesByDimension.getOrDefault(level.dimension(), List.of());
 	}
 
 	public ControlCommandInvoker getControlInvoker(CommandSourceStack source) {

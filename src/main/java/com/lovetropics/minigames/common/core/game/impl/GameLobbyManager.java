@@ -225,7 +225,7 @@ public class GameLobbyManager {
 		} else if (from == null) {
 			return false;
 		}
-		return from.game.lobby == to.game.lobby;
+		return from.game.lobby() == to.game.lobby();
 	}
 
 	@SubscribeEvent
@@ -241,7 +241,7 @@ public class GameLobbyManager {
 
 		ResourceKey<Level> dimension = phase.dimension();
 		if (event.getFrom() == dimension && event.getTo() != dimension) {
-			if (phase.game.lobby.getPlayers().remove(player, false)) {
+			if (phase.game.lobby().getPlayers().remove(player, false)) {
 				player.displayClientMessage(GameTexts.Status.leftGameDimension(), false);
 			}
 		}

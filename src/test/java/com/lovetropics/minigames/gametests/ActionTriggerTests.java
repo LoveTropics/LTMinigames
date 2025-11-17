@@ -95,7 +95,7 @@ public class ActionTriggerTests implements MinigameTest {
 				.thenExecute(helper.startGame(lobby))
 				.thenIdle(20)
 				.thenExecute(() -> helper.assertReceivedPacket(player, 0, ClientboundSystemChatPacket.class, it -> it.content().equals(Component.literal("hello world!"))))
-				.thenExecute(() -> lobby.getActivePhase().invoker(GameActionEvents.APPLY).apply(ContextMap.EMPTY, ActionSubjects.ofPlayer(player)))
+				.thenExecute(() -> lobby.getTopPhase().invoker(GameActionEvents.APPLY).apply(ContextMap.EMPTY, ActionSubjects.ofPlayer(player)))
 				.thenExecute(() -> helper.assertReceivedPacket(player, 1, ClientboundSoundPacket.class, it -> it.getSound().value() == SoundEvents.ALLAY_HURT && it.getVolume() == 0.5f && it.getPitch() == 0.5f))
 				.thenSucceed();
 	}
@@ -109,7 +109,7 @@ public class ActionTriggerTests implements MinigameTest {
 		helper.startSequence()
 				.thenExecute(helper.startGame(lobby))
 				.thenIdle(20)
-				.thenExecute(() -> lobby.getActivePhase().requestStop(GameStopReason.finished()))
+				.thenExecute(() -> lobby.getTopPhase().requestStop(GameStopReason.finished()))
 				.thenExecute(() -> helper.assertPlayerInventoryContainsAt(player, 0, new ItemStack(Items.OAK_PLANKS, 13)))
 				.thenSucceed();
 	}

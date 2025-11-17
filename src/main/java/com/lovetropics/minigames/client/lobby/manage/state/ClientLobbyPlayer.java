@@ -9,19 +9,13 @@ import net.minecraft.server.level.ServerPlayer;
 import javax.annotation.Nullable;
 import java.util.UUID;
 
-public final class ClientLobbyPlayer {
-	private final UUID uuid;
-	@Nullable
-	private final PlayerRole playingRole;
-
-	private ClientLobbyPlayer(UUID uuid, @Nullable PlayerRole playingRole) {
-		this.uuid = uuid;
-		this.playingRole = playingRole;
-	}
-
+public record ClientLobbyPlayer(
+		UUID uuid,
+		@Nullable PlayerRole playingRole
+) {
 	public static ClientLobbyPlayer from(GameLobby lobby, ServerPlayer player) {
-		IGamePhase currentPhase = lobby.getActivePhase();
-		PlayerRole playingRole = currentPhase != null ? currentPhase.getRoleFor(player) : null;
+		IGamePhase topPhase = lobby.getTopPhase();
+		PlayerRole playingRole = topPhase != null ? topPhase.getRoleFor(player) : null;
 		return new ClientLobbyPlayer(player.getUUID(), playingRole);
 	}
 
@@ -53,14 +47,5 @@ public final class ClientLobbyPlayer {
 		} else {
 			return null;
 		}
-	}
-
-	public UUID uuid() {
-		return uuid;
-	}
-
-	@Nullable
-	public PlayerRole playingRole() {
-		return playingRole;
 	}
 }

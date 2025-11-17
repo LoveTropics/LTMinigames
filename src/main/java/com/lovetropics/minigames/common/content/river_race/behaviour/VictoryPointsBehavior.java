@@ -11,7 +11,6 @@ import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameLogicEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents;
-import com.lovetropics.minigames.common.core.game.behavior.event.SubGameEvents;
 import com.lovetropics.minigames.common.core.game.player.PlayerSet;
 import com.lovetropics.minigames.common.core.game.state.statistics.GameStatistics;
 import com.lovetropics.minigames.common.core.game.state.statistics.Placement;
@@ -134,15 +133,17 @@ public class VictoryPointsBehavior implements IGameBehavior {
 			}
 		});
 
-		events.listen(SubGameEvents.CREATE, (subGame, subEvents) -> {
+		events.listen(RiverRaceEvents.CREATE_MICROGAME, (subGame, subEvents) -> {
 			if (microgameSegment == null) {
 				microgameSegment = new MicrogameSegmentState();
 			}
 			MicrogameSegmentState segment = microgameSegment;
-			ResourceLocation microgameId = subGame.definition().id();
-			subEvents.listen(GameLogicEvents.GAME_OVER, winner -> onMicrogameWinTriggered(microgameId, winner, segment));
+			subEvents.listen(GameLogicEvents.GAME_OVER, winner -> {
+				ResourceLocation microgameId = subGame.definition().id();
+				onMicrogameWinTriggered(microgameId, winner, segment);
+			});
 		});
-		events.listen(SubGameEvents.RETURN_TO_TOP, () -> {
+		events.listen(RiverRaceEvents.MICROGAMES_ENDED, () -> {
 			if (microgameSegment != null) {
 				onMicrogamesCompleted(microgameSegment);
 				microgameSegment = null;

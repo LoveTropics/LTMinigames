@@ -8,7 +8,6 @@ import com.lovetropics.minigames.client.lobby.state.message.LobbyPlayersMessage;
 import com.lovetropics.minigames.client.lobby.state.message.LobbyUpdateMessage;
 import com.lovetropics.minigames.common.core.game.GameResult;
 import com.lovetropics.minigames.common.core.game.IGameDefinition;
-import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.PlayerIsolation;
 import com.lovetropics.minigames.common.core.game.lobby.GameLobbyMetadata;
 import com.lovetropics.minigames.common.core.game.lobby.LobbyControls;
@@ -83,9 +82,8 @@ public final class GameLobby {
 	}
 
 	@Nullable
-	public GamePhase getActivePhase() {
-		GamePhase phase = state.getTopPhase();
-		return phase != null ? phase.getActivePhase() : null;
+	public GamePhase getTopPhase() {
+		return state.getTopPhase();
 	}
 
 	@Nullable
@@ -296,8 +294,8 @@ public final class GameLobby {
 
 	@Nullable
 	public IGameDefinition getCurrentGameDefinition() {
-		IGamePhase phase = getActivePhase();
-		return phase != null ? phase.definition() : null;
+		GamePhase topPhase = getTopPhase();
+		return topPhase != null ? topPhase.definition() : null;
 	}
 
 	static final class ChatNotifyListener implements LobbyStateListener {

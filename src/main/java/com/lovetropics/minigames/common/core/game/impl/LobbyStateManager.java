@@ -1,7 +1,6 @@
 package com.lovetropics.minigames.common.core.game.impl;
 
 import com.lovetropics.minigames.client.lobby.state.ClientCurrentGame;
-import com.lovetropics.minigames.common.core.game.GamePhaseType;
 import com.lovetropics.minigames.common.core.game.IGameDefinition;
 import com.lovetropics.minigames.common.core.game.lobby.LobbyControls;
 import com.mojang.logging.LogUtils;
@@ -9,7 +8,6 @@ import net.minecraft.network.chat.Component;
 import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
-import java.util.Objects;
 
 final class LobbyStateManager {
 	private static final Logger LOGGER = LogUtils.getLogger();
@@ -19,11 +17,6 @@ final class LobbyStateManager {
 
 	LobbyStateManager(GameLobby lobby) {
 		this.lobby = lobby;
-	}
-
-	@Nullable
-	public GameInstance getGame() {
-		return state.phase != null ? state.phase.game : null;
 	}
 
 	@Nullable
@@ -74,8 +67,7 @@ final class LobbyStateManager {
 		GamePhase phase = state.phase;
 		if (phase != null) {
 			IGameDefinition definition = phase.definition();
-			GamePhaseType phaseType = Objects.requireNonNullElse(state.phaseType(), GamePhaseType.WAITING);
-			return new LobbyState.Errored(definition, phaseType, error);
+			return new LobbyState.Errored(definition, state.phaseType(), error);
 		} else {
 			return new LobbyState.Paused();
 		}

@@ -20,8 +20,8 @@ public record TestGameLobby(GameLobby lobby) {
 	}
 
 	@Nullable
-	public IGamePhase getActivePhase() {
-		return lobby.getActivePhase();
+	public IGamePhase getTopPhase() {
+		return lobby.getTopPhase();
 	}
 
 	public QueuedGame enqueue(ResourceLocation gameId) {

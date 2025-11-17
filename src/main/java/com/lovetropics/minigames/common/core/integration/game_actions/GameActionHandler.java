@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.List;
@@ -25,9 +26,9 @@ public final class GameActionHandler {
 		this.integrations = integrations;
 	}
 
-	public void pollGameActions(IGamePhase game, int tick) {
+	public void pollGameActions(Collection<IGamePhase> games, int tick) {
 		for (ActionsQueue queue : queues.values()) {
-			GameActionRequest request = queue.tryHandle(game, tick);
+			GameActionRequest request = queue.tryHandle(games, tick);
 			if (request != null && request.type().sendsAcknowledgement()) {
 				// If we resolved the action, send acknowledgement to the backend
 				integrations.acknowledgeActionDelivery(request);
@@ -56,27 +57,31 @@ public final class GameActionHandler {
 		}
 
 		@Nullable
-		public GameActionRequest tryHandle(IGamePhase game, int tick) {
+		public GameActionRequest tryHandle(Collection<IGamePhase> games, int tick) {
 			if (queue.isEmpty() && deferredQueue.isEmpty() || tick < nextPollTick) {
 				return null;
 			}
 			nextPollTick = tick + requestType.getPollingIntervalTicks();
-			GameActionRequest handledRequest = tryHandleQueue(game, queue);
+			GameActionRequest handledRequest = tryHandleQueue(games, queue);
 			if (handledRequest != null) {
 				return handledRequest;
 			}
-			return tryHandleQueue(game, deferredQueue);
+			return tryHandleQueue(games, deferredQueue);
 		}
 
 		@Nullable
-		private GameActionRequest tryHandleQueue(IGamePhase game, Queue<GameActionRequest> queue) {
+		private GameActionRequest tryHandleQueue(Collection<IGamePhase> games, Queue<GameActionRequest> queue) {
 			List<GameActionRequest> unhandledRequests = new ArrayList<>();
 			try {
 				GameActionRequest request;
 				while ((request = queue.poll()) != null) {
 					LOGGER.debug("Trying to resolve incoming game action request: {}", request);
 					try {
-						if (request.action().resolve(game, game.server())) {
+						boolean applied = false;
+						for (IGamePhase game : games) {
+							applied |= request.action().resolve(game, game.server());
+						}
+						if (applied) {
 							return request;
 						} else {
 							unhandledRequests.add(request);

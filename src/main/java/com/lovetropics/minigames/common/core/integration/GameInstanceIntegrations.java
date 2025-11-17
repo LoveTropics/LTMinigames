@@ -7,10 +7,11 @@ import com.lovetropics.minigames.common.config.ConfigLT;
 import com.lovetropics.minigames.common.core.game.IGameDefinition;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
-import com.lovetropics.minigames.common.core.game.behavior.event.GameEventListeners;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePackageEvents;
+import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameTeamEvents;
+import com.lovetropics.minigames.common.core.game.behavior.event.SubGameEvents;
 import com.lovetropics.minigames.common.core.game.behavior.instances.donation.DonationPackageData;
 import com.lovetropics.minigames.common.core.game.state.GamePackageState;
 import com.lovetropics.minigames.common.core.game.state.GameStateKey;
@@ -22,6 +23,7 @@ import com.lovetropics.minigames.common.core.integration.game_actions.GameAction
 import com.lovetropics.minigames.common.core.integration.game_actions.GameActionRequest;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.server.MinecraftServer;
@@ -29,10 +31,11 @@ import net.minecraft.server.level.ServerPlayer;
 
 import javax.annotation.Nullable;
 import java.time.Instant;
-import java.util.ArrayDeque;
-import java.util.Deque;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -46,11 +49,9 @@ public final class GameInstanceIntegrations implements IGameState {
 	private final UUID gameUuid = UUID.randomUUID();
 
 	private final IGamePhase topLevelGame;
-	private final Deque<IGamePhase> gameStack = new ArrayDeque<>();
+	private final List<IGamePhase> allGames = new ArrayList<>();
 
 	private final BackendIntegrations integrations;
-
-	private final GameEventListeners phaseListeners = new GameEventListeners();
 
 	private final GameActionHandler actions;
 
@@ -61,35 +62,40 @@ public final class GameInstanceIntegrations implements IGameState {
 		this.integrations = integrations;
 		actions = new GameActionHandler(this);
 
-		gameStack.addLast(topLevelGame);
+		allGames.addLast(topLevelGame);
+	}
 
-		phaseListeners.listen(GamePlayerEvents.REMOVE, p -> sendParticipantsList());
-		phaseListeners.listen(GamePlayerEvents.SET_ROLE, (p, r, lr) -> sendParticipantsList());
-		phaseListeners.listen(GameTeamEvents.TEAMS_ALLOCATED, p -> sendParticipantsList());
+	private void addListeners(EventRegistrar events) {
+		events.listen(GamePlayerEvents.REMOVE, p -> sendParticipantsList());
+		events.listen(GamePlayerEvents.SET_ROLE, (p, r, lr) -> sendParticipantsList());
+		events.listen(GameTeamEvents.TEAMS_ALLOCATED, p -> sendParticipantsList());
 
-		phaseListeners.listen(SubGameEvents.CREATE, (subGame, subEvents) -> {
-			gameStack.addLast(subGame);
+		addSubGameListeners(events);
+	}
+
+	private void addSubGameListeners(EventRegistrar events) {
+		events.listen(SubGameEvents.CREATE, (subGame, subEvents) -> {
+			allGames.add(subGame);
 			subEvents.listen(GamePhaseEvents.DESTROY, () -> {
-				gameStack.removeLast();
+				allGames.remove(subGame);
 				sendPackagesUpdate();
 				sendParticipantsList();
 			});
 			sendPackagesUpdate();
 			sendParticipantsList();
+			addSubGameListeners(subEvents);
 		});
 	}
 
 	public void start(IGamePhase phase, EventRegistrar events, @Nullable PlayerKey initiator) {
-		if (phase != gameStack.peekLast()) {
-			throw new IllegalStateException("Tried to send start event for game that was not active");
+		if (phase != topLevelGame) {
+			return;
 		}
 
-		if (phase == topLevelGame) {
-			sendMinigameStart(initiator);
-			requestQueuedActions();
-		}
+		sendMinigameStart(initiator);
+		requestQueuedActions();
 
-		events.addAll(phaseListeners);
+		addListeners(events);
 	}
 
 	private void sendMinigameStart(@Nullable PlayerKey initiator) {
@@ -118,10 +124,19 @@ public final class GameInstanceIntegrations implements IGameState {
 			payload.add("subtitle", ComponentSerialization.CODEC.encodeStart(JsonOps.INSTANCE, subtitle).getOrThrow());
 		}
 
-		IGamePhase activeGame = activeGame();
-		GamePackageState packageState = activeGame.state().getOrNull(GamePackageState.KEY);
-		List<DonationPackageData> packageList = packageState != null ? List.copyOf(packageState.packages()) : List.of();
-		payload.add("packages", PACKAGES_CODEC.encodeStart(JsonOps.INSTANCE, packageList).getOrThrow());
+		Set<DonationPackageData> allPackages = new ObjectOpenHashSet<>();
+		for (IGamePhase game : allGames) {
+			GamePackageState packageState = game.state().getOrNull(GamePackageState.KEY);
+			if (packageState != null) {
+				allPackages.addAll(packageState.packages());
+			}
+		}
+
+		List<DonationPackageData> sortedPackages = allPackages.stream()
+				.sorted(Comparator.comparing(DonationPackageData::id))
+				.toList();
+
+		payload.add("packages", PACKAGES_CODEC.encodeStart(JsonOps.INSTANCE, sortedPackages).getOrThrow());
 	}
 
 	public void finish(IGamePhase phase) {
@@ -178,18 +193,16 @@ public final class GameInstanceIntegrations implements IGameState {
 
 	private JsonArray serializeParticipantsArray() {
 		JsonArray participantsArray = new JsonArray();
-		for (ServerPlayer participant : activeGame().participants()) {
-			participantsArray.add(PlayerKey.from(participant).serializeProfile());
+		for (IGamePhase game : allGames) {
+			for (ServerPlayer player : game.participants()) {
+				participantsArray.add(PlayerKey.from(player).serializeProfile());
+			}
 		}
 		return participantsArray;
 	}
 
-	private IGamePhase activeGame() {
-		return gameStack.getLast();
-	}
-
 	private JsonArray serializeTeamsArray() {
-		TeamState teams = activeGame().instanceState().getOrNull(TeamState.KEY);
+		TeamState teams = topLevelGame.instanceState().getOrNull(TeamState.KEY);
 		if (teams == null) {
 			return new JsonArray();
 		}
@@ -244,7 +257,7 @@ public final class GameInstanceIntegrations implements IGameState {
 
 	void tick(MinecraftServer server) {
 		if (!closed) {
-			actions.pollGameActions(activeGame(), server.getTickCount());
+			actions.pollGameActions(allGames, server.getTickCount());
 		}
 	}
 
@@ -256,7 +269,9 @@ public final class GameInstanceIntegrations implements IGameState {
 
 	void handlePoll(JsonObject object, Crud crud) {
 		if (!closed) {
-			activeGame().invoker(GamePackageEvents.RECEIVE_POLL_EVENT).onReceivePollEvent(object, crud);
+			for (IGamePhase game : allGames) {
+				game.invoker(GamePackageEvents.RECEIVE_POLL_EVENT).onReceivePollEvent(object, crud);
+			}
 		}
 	}
 }

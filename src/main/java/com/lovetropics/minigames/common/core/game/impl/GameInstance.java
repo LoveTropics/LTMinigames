@@ -9,16 +9,20 @@ import net.minecraft.server.MinecraftServer;
  */
 public final class GameInstance {
 	// TODO: Remove this backward reference
-	final GameLobby lobby;
-	final MinecraftServer server;
-	final IGameDefinition definition;
+	private final GameLobby lobby;
+	private final MinecraftServer server;
+	private final IGameDefinition definition;
 
-	final GameStateMap stateMap = new GameStateMap();
+	private final GameStateMap stateMap = new GameStateMap();
 
 	GameInstance(GameLobby lobby, IGameDefinition definition) {
 		this.lobby = lobby;
 		server = lobby.getServer();
 		this.definition = definition;
+	}
+
+	public MinecraftServer server() {
+		return server;
 	}
 
 	public IGameDefinition definition() {
@@ -29,7 +33,7 @@ public final class GameInstance {
 		return stateMap;
 	}
 
-	public MinecraftServer server() {
-		return server;
+	/* package-private */ GameLobby lobby() {
+		return lobby;
 	}
 }

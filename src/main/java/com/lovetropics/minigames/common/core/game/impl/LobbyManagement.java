@@ -101,8 +101,9 @@ public final class LobbyManagement {
 	public void selectControl(LobbyControls.Type type) {
 		LobbyControls.Action action = lobby.getControls().get(type);
 		// TODO: This shouldn't be here!
-		if (type == LobbyControls.Type.RESTART) {
-			var queuedGame = lobby.gameQueue.enqueue(lobby.state.getGame().definition());
+		GamePhase topPhase = lobby.state.getTopPhase();
+		if (topPhase != null && type == LobbyControls.Type.RESTART) {
+			var queuedGame = lobby.gameQueue.enqueue(topPhase.definition());
 			reorderQueuedGame(queuedGame.networkId(), 0);
 		}
 		if (action != null) {

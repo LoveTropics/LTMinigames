@@ -2,6 +2,7 @@ package com.lovetropics.minigames.common.core.game;
 
 import com.lovetropics.minigames.common.core.game.behavior.event.GameEventType;
 import com.lovetropics.minigames.common.core.game.config.GameConfig;
+import com.lovetropics.minigames.common.core.game.player.PlayerIterable;
 import com.lovetropics.minigames.common.core.game.player.PlayerRole;
 import com.lovetropics.minigames.common.core.game.player.PlayerSet;
 import com.lovetropics.minigames.common.core.game.state.GameStateMap;
@@ -59,7 +60,21 @@ public interface IGamePhase {
 
 	GameResult<Unit> requestStop(GameStopReason reason);
 
-	void queueSubGame(GameConfig subGameConfig);
+	PendingSubPhase createSubPhase(GameConfig subGameConfig);
+
+	void returnToParent(ServerPlayer player);
+
+	default void returnToParent(PlayerIterable players) {
+		players.forEach(this::returnToParent);
+	}
+
+	void transferPlayerTo(ServerPlayer player, IGamePhase subPhase);
+
+	default void transferPlayersTo(PlayerIterable players, IGamePhase subPhase) {
+		for (ServerPlayer player : players) {
+			transferPlayerTo(player, subPhase);
+		}
+	}
 
 	GameScheduler scheduler();
 

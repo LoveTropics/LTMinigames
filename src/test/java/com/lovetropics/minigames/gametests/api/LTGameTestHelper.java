@@ -782,16 +782,16 @@ public class LTGameTestHelper extends GameTestHelper {
 
 			@Override
 			public void testPassed(GameTestInfo pTest, GameTestRunner pRunner) {
-				if (lobby.getActivePhase() != null) {
-					lobby.getActivePhase().requestStop(GameStopReason.finished());
+				if (lobby.getTopPhase() != null) {
+					lobby.getTopPhase().requestStop(GameStopReason.finished());
 				}
 				lobby.getManagement().close();
 			}
 
 			@Override
 			public void testFailed(GameTestInfo pTest, GameTestRunner pRunner) {
-				if (lobby.getActivePhase() != null) {
-					lobby.getActivePhase().requestStop(GameStopReason.canceled());
+				if (lobby.getTopPhase() != null) {
+					lobby.getTopPhase().requestStop(GameStopReason.canceled());
 				}
 				lobby.getManagement().close();
 			}

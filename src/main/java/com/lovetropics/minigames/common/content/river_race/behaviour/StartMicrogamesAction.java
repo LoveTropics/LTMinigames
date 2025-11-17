@@ -1,23 +1,29 @@
 package com.lovetropics.minigames.common.content.river_race.behaviour;
 
+import com.lovetropics.minigames.common.content.river_race.event.RiverRaceEvents;
 import com.lovetropics.minigames.common.core.game.GameException;
+import com.lovetropics.minigames.common.core.game.IGameDefinition;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
+import com.lovetropics.minigames.common.core.game.PendingSubPhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionList;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents;
-import com.lovetropics.minigames.common.core.game.behavior.event.SubGameEvents;
+import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
 import com.lovetropics.minigames.common.core.game.config.GameConfig;
 import com.lovetropics.minigames.common.core.game.config.GameConfigs;
+import com.lovetropics.minigames.common.core.game.player.PlayerSet;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.context.ContextMap;
-import org.apache.commons.lang3.mutable.MutableBoolean;
+import org.apache.commons.lang3.mutable.MutableObject;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -50,47 +56,67 @@ public record StartMicrogamesAction(
 			gameConfigs.add(config);
 		}
 
-		MutableBoolean scheduled = new MutableBoolean();
 		Queue<GameConfig> gameQueue = new ArrayDeque<>();
+		MutableObject<IGamePhase> activeMicrogame = new MutableObject<>();
 
 		events.listen(GameActionEvents.APPLY, (context, targets) -> {
 			gameQueue.clear();
 			gameQueue.addAll(pickCountRandomly(gameConfigs, gamesPerRound));
-			if (queueNextSubGame(game, gameQueue)) {
-				scheduled.setTrue();
+			if (activeMicrogame.getValue() == null) {
+				queueNextSubGame(game, gameQueue, activeMicrogame);
 			}
 			return true;
 		});
 
-		events.listen(SubGameEvents.CREATE, (subGame, subEvents) -> {
-			if (scheduled.isFalse()) {
-				return;
-			}
-			subEvents.listen(GamePhaseEvents.STOP, reason ->
-					queueNextSubGame(game, gameQueue)
-			);
-		});
-
-		events.listen(SubGameEvents.RETURN_TO_TOP, () -> {
-			if (scheduled.isTrue()) {
-				scheduled.setFalse();
-				onComplete.apply(game, ContextMap.EMPTY);
+		events.listen(GamePlayerEvents.JOIN, player -> {
+			IGamePhase microgame = activeMicrogame.getValue();
+			if (microgame != null) {
+				game.transferPlayerTo(player, microgame);
 			}
 		});
 	}
 
-	private boolean queueNextSubGame(IGamePhase game, Queue<GameConfig> gameQueue) {
+	private void queueNextSubGame(IGamePhase game, Queue<GameConfig> gameQueue, MutableObject<IGamePhase> activeMicrogame) {
+		IGamePhase lastMicrogame = activeMicrogame.getValue();
+		activeMicrogame.setValue(null);
+
 		GameConfig config = gameQueue.poll();
-		if (config != null) {
-			game.queueSubGame(config);
-			return true;
+		if (config == null) {
+			if (lastMicrogame == null) {
+				return;
+			}
+			onComplete.apply(game, ContextMap.EMPTY);
+			lastMicrogame.returnToParent(lastMicrogame.allPlayers());
+			game.invoker(RiverRaceEvents.MICROGAMES_ENDED).onMicrogamesEnded();
+			return;
 		}
-		return false;
+
+		PlayerSet allPlayers = lastMicrogame != null ? lastMicrogame.allPlayers() : game.allPlayers();
+
+		PendingSubPhase subPhase = game.createSubPhase(config);
+		subPhase.queuePlayers(allPlayers);
+
+		subPhase.whenCreated((subGame, subEvents) -> {
+			activeMicrogame.setValue(subGame);
+			subEvents.listen(GamePlayerEvents.ADD, player ->
+					onPlayerJoinMicrogame(subGame, player)
+			);
+			subEvents.listen(GamePhaseEvents.STOP, reason ->
+					queueNextSubGame(game, gameQueue, activeMicrogame)
+			);
+			game.invoker(RiverRaceEvents.CREATE_MICROGAME).onCreateMicrogame(subGame, subEvents);
+		});
 	}
 
 	private static <T> List<T> pickCountRandomly(List<T> candidates, int count) {
 		List<T> shuffledCandidates = new ArrayList<>(candidates);
 		Collections.shuffle(shuffledCandidates);
 		return shuffledCandidates.subList(0, Math.min(shuffledCandidates.size(), count));
+	}
+
+	private void onPlayerJoinMicrogame(IGamePhase subGame, ServerPlayer player) {
+		IGameDefinition definition = subGame.definition();
+		player.sendSystemMessage(Component.literal("Now Playing: ").append(definition.name()).withStyle(ChatFormatting.GREEN));
+		PlayerSet.of(player).showTitle(Component.empty().append(definition.name()).withStyle(ChatFormatting.GREEN), definition.subtitle(), 10, 40, 10);
 	}
 }

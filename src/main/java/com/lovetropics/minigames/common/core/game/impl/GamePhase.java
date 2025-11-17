@@ -6,6 +6,7 @@ import com.lovetropics.minigames.common.core.game.GameResult;
 import com.lovetropics.minigames.common.core.game.GameStopReason;
 import com.lovetropics.minigames.common.core.game.IGameDefinition;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
+import com.lovetropics.minigames.common.core.game.PendingSubPhase;
 import com.lovetropics.minigames.common.core.game.PlayerIsolation;
 import com.lovetropics.minigames.common.core.game.SpawnBuilder;
 import com.lovetropics.minigames.common.core.game.behavior.BehaviorList;
@@ -34,6 +35,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Unit;
@@ -41,6 +43,7 @@ import net.minecraft.world.level.Level;
 import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
@@ -58,10 +61,10 @@ import java.util.stream.Collectors;
 public class GamePhase implements IGamePhase {
 	private static final Logger LOGGER = LogUtils.getLogger();
 
-	private static final long NOT_STARTED = -1;
-
 	/* package-private */ final GameInstance game;
-	private final IGameDefinition gameDefinition;
+	// TODO: Narrow the data that we need to expose from this
+	private final IGameDefinition definition;
+	private final @Nullable GamePhase parentPhase;
 
 	private final ServerLevel level;
 	private final GameMap map;
@@ -73,32 +76,35 @@ public class GamePhase implements IGamePhase {
 
 	private final GameEventListeners events = new GameEventListeners();
 
-	private long startTime = NOT_STARTED;
-	private boolean focusedLive;
+	private long ticks;
+	private boolean started;
+	private final boolean focusedLive;
 
 	private final GameScheduler scheduler = new GameScheduler();
 	private ControlCommandInvoker controlCommands = ControlCommandInvoker.EMPTY;
 
-	@Nullable
-	private GamePhase subPhase;
-	@Nullable
-	private CompletableFuture<GamePhase> queuedSubPhase;
+	private final List<GamePhase> subPhases = new ArrayList<>();
+	private final List<PendingSubPhaseImpl> pendingSubPhases = new ArrayList<>();
+
+	private boolean handlingJoin;
 
 	@Nullable
 	private GameStopReason stopReason;
 	private boolean destroyed;
 
-	/* package-private */ GamePhase(GameInstance game, IGameDefinition gameDefinition, GameMap map, BehaviorList behaviors) {
+	/* package-private */ GamePhase(GameInstance game, @Nullable GamePhase parentPhase, GameMap map, IGameDefinition definition, BehaviorList behaviors) {
 		this.game = game;
-		this.gameDefinition = gameDefinition;
+		this.parentPhase = parentPhase;
+		this.definition = definition;
 
 		// TODO: Don't do that :(
-		focusedLive = game.lobby.metadata.visibility().isFocusedLive();
+		focusedLive = game.lobby().metadata.visibility().isFocusedLive();
 
-		level = Objects.requireNonNull(game.server.getLevel(map.dimension()), "Game dimension not loaded");
+		MinecraftServer server = game.server();
+		level = Objects.requireNonNull(server.getLevel(map.dimension()), "Game dimension not loaded");
 		this.map = map;
 
-		allPlayers = new MutablePlayerSet(game.server);
+		allPlayers = new MutablePlayerSet(server);
 		for (PlayerRole role : PlayerRole.ROLES) {
 			playersByRole.put(role, allPlayers.filter(player -> roles.get(player.getUUID()) == role));
 		}
@@ -135,11 +141,11 @@ public class GamePhase implements IGamePhase {
 	}
 
 	public GameResult<Unit> addPlayersAndStart(PlayerIterable players, @Nullable PlayerKey initiator) {
-		if (startTime != NOT_STARTED) {
+		if (started) {
 			return GameResult.error(GameTexts.Commands.GAME_ALREADY_STARTED);
 		}
 
-		startTime = level.getGameTime();
+		started = true;
 
 		try {
 			invoker(GamePlayerEvents.BEFORE_ADD_PLAYERS).beforeAddPlayers(
@@ -151,7 +157,7 @@ public class GamePhase implements IGamePhase {
 		}
 
 		for (ServerPlayer player : players.shuffledCopy(random())) {
-			addAndSpawnPlayer(player);
+			addPlayerDirectly(player, false);
 		}
 
 		try {
@@ -170,7 +176,7 @@ public class GamePhase implements IGamePhase {
 				.collect(Collectors.toSet());
 	}
 
-	private ServerPlayer addAndSpawnPlayer(ServerPlayer player) {
+	private ServerPlayer addPlayerDirectly(ServerPlayer player, boolean explicitlyJoined) {
 		PlayerRole role = getRoleFor(player);
 
 		ServerPlayer newPlayer;
@@ -198,6 +204,15 @@ public class GamePhase implements IGamePhase {
 			initializer.accept(newPlayer);
 
 			invoker(GamePlayerEvents.SET_ROLE).onSetRole(newPlayer, role, null);
+
+			if (explicitlyJoined) {
+				handlingJoin = true;
+				try {
+					invoker(GamePlayerEvents.JOIN).onAdd(newPlayer);
+				} finally {
+					handlingJoin = false;
+				}
+			}
 		} catch (Exception e) {
 			LOGGER.error("Failed to dispatch player add event", e);
 		}
@@ -215,6 +230,10 @@ public class GamePhase implements IGamePhase {
 	}
 
 	public boolean tick() {
+		if (parentPhase == null) {
+			tickTopLevel();
+		}
+
 		if (stopReason != null) {
 			if (isReadyToDestroy()) {
 				destroy();
@@ -223,84 +242,120 @@ public class GamePhase implements IGamePhase {
 			return false;
 		}
 
-		tryStartQueuedSubPhase();
-
-		if (subPhase != null) {
-			tickSubPhase(subPhase);
-		} else {
-			tickTopLevel();
+		if (!started) {
+			return false;
 		}
 
-		return false;
-	}
+		pendingSubPhases.removeIf(pending -> {
+			if (pending.future.isDone()) {
+				registerSubPhase(pending);
+				return true;
+			}
+			return false;
+		});
 
-	private void tickTopLevel() {
-		if (startTime == NOT_STARTED) {
-			return;
-		}
 		try {
 			scheduler.tick();
 			invoker(GamePhaseEvents.TICK).tick();
 		} catch (Exception e) {
 			cancelWithError(e);
 		}
+		ticks++;
+
+		return false;
 	}
 
-	private void tickSubPhase(GamePhase subPhase) {
-		if (!subPhase.isStopped()) {
-			return;
-		}
-		if (queuedSubPhase != null) {
-			// A new sub-phase is queued, don't transfer players back here just yet
-			return;
-		}
-		this.subPhase = null;
-		List<ServerPlayer> players = subPhase.removeAllPlayers();
-		players.forEach(this::addAndSpawnPlayer);
-
-		invoker(SubGameEvents.RETURN_TO_TOP).onReturnToTopGame();
+	private void tickTopLevel() {
+		handleStoppedSubPhases();
 	}
 
-	private void tryStartQueuedSubPhase() {
-		if (queuedSubPhase == null) {
-			return;
-		}
-		try {
-			GamePhase nextSubPhase = queuedSubPhase.getNow(null);
-			if (nextSubPhase != null) {
-				startSubPhase(nextSubPhase);
-				queuedSubPhase = null;
+	// Note: not restoring players to the main world once the top phase is closed, as the lobby will transfer horizontally when ready
+	private void handleStoppedSubPhases() {
+		subPhases.removeIf(subPhase -> {
+			subPhase.handleStoppedSubPhases();
+			if (subPhase.stopReason == null) {
+				return false;
 			}
-		} catch (Exception e) {
-			LOGGER.error("Failed to start queued sub-phase", e);
-			queuedSubPhase = null;
-		}
+			// We don't want to pull players up that are going to be transferred horizontally anyway once the next phase loads
+			// For simplicity now, just wait until all sub-phases are ready
+			if (!pendingSubPhases.isEmpty()) {
+				return false;
+			}
+			for (ServerPlayer player : subPhase.removeAllPlayers()) {
+				addPlayerDirectly(player, false);
+			}
+			return true;
+		});
 	}
 
-	private void startSubPhase(GamePhase subPhase) {
-		List<ServerPlayer> allPlayers;
-		if (this.subPhase != null) {
-			// Transfer players horizontally if possible - the top game doesn't need to know about it!
-			this.subPhase.requestStop(GameStopReason.canceled());
-			allPlayers = this.subPhase.removeAllPlayers();
-		} else {
-			allPlayers = Lists.newArrayList(this.allPlayers);
-			allPlayers.forEach(player -> removePlayer(player, false));
+	private void registerSubPhase(PendingSubPhaseImpl pending) {
+		try {
+			GamePhase phase = pending.future.join();
+			pending.registered = true;
+			for (PendingSubPhase.CreateHandler handler : pending.createHandlers) {
+				handler.onCreate(phase, phase.events);
+			}
+			invoker(SubGameEvents.CREATE).onCreateSubGame(phase, phase.events);
+
+			phase.roles.putAll(roles);
+
+			List<ServerPlayer> playersToAdd = new ArrayList<>();
+			for (ServerPlayer player : pending.queuedPlayers) {
+				if (allPlayers.contains(player)) {
+					removePlayerDirectly(player, false);
+					playersToAdd.add(player);
+				} else {
+					// Transfer horizontally if possible so that we don't need to pull players up into the top phase
+					for (GamePhase subPhase : subPhases) {
+						if (subPhase.allPlayers().contains(player)) {
+							subPhase.removePlayerDirectly(player, false);
+							playersToAdd.add(player);
+							break;
+						}
+					}
+				}
+			}
+			phase.addPlayersAndStart(PlayerIterable.from(playersToAdd), null);
+
+			subPhases.add(phase);
+		} catch (Exception e) {
+			LOGGER.error("Failed to create sub-phase", e);
 		}
-
-		invoker(SubGameEvents.CREATE).onCreateSubGame(subPhase, subPhase.events);
-
-		this.subPhase = subPhase;
-		subPhase.roles.putAll(roles);
-		subPhase.addPlayersAndStart(PlayerIterable.from(allPlayers), null);
 	}
 
 	@Override
-	public void queueSubGame(GameConfig subGameConfig) {
-		if (isStopped()) {
-			return;
+	public void returnToParent(ServerPlayer player) {
+		if (parentPhase == null) {
+			removePlayerDirectly(player, true);
+			PlayerIsolation.INSTANCE.restore(player);
+		} else {
+			removePlayerDirectly(player, false);
+			parentPhase.addPlayerDirectly(player, false);
 		}
-		queuedSubPhase = GamePhaseManager.get().createPhase(game, game.server(), subGameConfig, subGameConfig.getPlayingPhase());
+	}
+
+	@Override
+	public void transferPlayerTo(ServerPlayer player, IGamePhase subPhase) {
+		if (!subPhases.contains(subPhase)) {
+			throw new IllegalArgumentException("Cannot transfer player to phase that is not a direct child of this phase");
+		}
+		removePlayerDirectly(player, false);
+		// TODO: Should we always pass through roles like this, or do we want the game to decide?
+		if (handlingJoin) {
+			subPhase.setPlayerRole(player, getRoleFor(player));
+		}
+		((GamePhase) subPhase).addPlayerDirectly(player, handlingJoin);
+	}
+
+	@Override
+	public PendingSubPhase createSubPhase(GameConfig subGameConfig) {
+		if (isStopped()) {
+			throw new IllegalStateException("Cannot create sub-phase for stopped game");
+		}
+		CompletableFuture<GamePhase> future = GamePhaseManager.get().createSubPhase(this, subGameConfig);
+		PendingSubPhaseImpl pendingPhase = new PendingSubPhaseImpl(future, server());
+		pendingSubPhases.add(pendingPhase);
+		return pendingPhase;
 	}
 
 	@Override
@@ -320,7 +375,7 @@ public class GamePhase implements IGamePhase {
 
 	@Override
 	public IGameDefinition definition() {
-		return gameDefinition;
+		return definition;
 	}
 
 	@Override
@@ -366,46 +421,46 @@ public class GamePhase implements IGamePhase {
 	}
 
 	public ServerPlayer addPlayer(ServerPlayer player, PlayerRole requestedRole) {
-		PlayerRole role;
+		PlayerRole role = selectRoleForJoin(player, requestedRole);
+		setPlayerRole(player, role);
+		return addPlayerDirectly(player, true);
+	}
+
+	@Nullable
+	private PlayerRole selectRoleForJoin(ServerPlayer player, PlayerRole requestedRole) {
 		try {
 			// The player hasn't joined the game yet, so don't expose the player instance
-			role = invoker(GamePlayerEvents.SELECT_ROLE_ON_JOIN).selectRole(PlayerKey.from(player), requestedRole);
+			return invoker(GamePlayerEvents.SELECT_ROLE_ON_JOIN).selectRole(PlayerKey.from(player), requestedRole);
 		} catch (Exception e) {
 			LOGGER.error("Failed to select role for {}, joining as spectator", player.getScoreboardName(), e);
-			role = PlayerRole.SPECTATOR;
+			return PlayerRole.SPECTATOR;
 		}
-
-		return addPlayerWithRole(player, role);
 	}
 
-	private ServerPlayer addPlayerWithRole(ServerPlayer player, @Nullable PlayerRole role) {
-		setPlayerRole(player, role);
-
-		ServerPlayer newPlayer = addAndSpawnPlayer(player);
-		try {
-			invoker(GamePlayerEvents.JOIN).onAdd(newPlayer);
-		} catch (Exception e) {
-			LOGGER.error("Failed to dispatch player join event", e);
-			return player;
+	public ServerPlayer removePlayer(ServerPlayer player, boolean loggingOut) {
+		// To ensure that the top-level game gets notified of leaves properly, we need to pull the player out step-by-step
+		for (GamePhase subPhase : subPhases) {
+			if (subPhase.allPlayers.contains(player)) {
+				player = subPhase.removePlayer(player, loggingOut);
+				break;
+			}
 		}
-
-		if (subPhase != null) {
-			// Let the top-level game decide how the player can join, and then just pass them along
-			removePlayer(player, false);
-			return subPhase.addPlayerWithRole(newPlayer, role);
+		removePlayerDirectly(player, true);
+		if (parentPhase != null) {
+			return parentPhase.addPlayerDirectly(player, false);
+		} else {
+			if (loggingOut) {
+				// Don't try to restore the player if they're logging out, as we never save their in-game state anyway
+				return player;
+			}
+			return PlayerIsolation.INSTANCE.restore(player);
 		}
-
-		return newPlayer;
 	}
 
-	public ServerPlayer removePlayer(ServerPlayer player, boolean explicitlyLeft) {
-		if (subPhase != null && !allPlayers.contains(player)) {
-			// To ensure that the top-level game gets notified properly, we need to pull the player out step-by-step
-			player = subPhase.removePlayer(player, explicitlyLeft);
-			player = addAndSpawnPlayer(player);
+	private void removePlayerDirectly(ServerPlayer player, boolean explicitlyLeft) {
+		if (!allPlayers.remove(player)) {
+			throw new IllegalArgumentException(player.getScoreboardName() + " is not in this phase, cannot be removed");
 		}
-
-		allPlayers.remove(player);
 
 		if (explicitlyLeft) {
 			try {
@@ -424,8 +479,6 @@ public class GamePhase implements IGamePhase {
 		if (explicitlyLeft) {
 			roles.remove(player.getUUID());
 		}
-
-		return player;
 	}
 
 	public List<ServerPlayer> removeAllPlayers() {
@@ -454,7 +507,7 @@ public class GamePhase implements IGamePhase {
 			return GameResult.error(GameTexts.Commands.GAME_ALREADY_STOPPED);
 		}
 
-		if (subPhase != null) {
+		for (GamePhase subPhase : subPhases) {
 			subPhase.requestStop(reason);
 		}
 
@@ -479,10 +532,14 @@ public class GamePhase implements IGamePhase {
 		}
 		destroyed = true;
 
-		if (subPhase != null) {
-			subPhase.destroy();
-			subPhase = null;
+		for (PendingSubPhaseImpl pendingSubPhase : pendingSubPhases) {
+			GameStopReason stopReason = Objects.requireNonNullElse(this.stopReason, GameStopReason.canceled());
+			pendingSubPhase.future.thenAcceptAsync(phase -> phase.requestStop(stopReason), server());
 		}
+		pendingSubPhases.clear();
+
+		subPhases.forEach(GamePhase::destroy);
+		subPhases.clear();
 
 		try {
 			invoker(GamePhaseEvents.DESTROY).destroy();
@@ -494,11 +551,20 @@ public class GamePhase implements IGamePhase {
 	}
 
 	private boolean isReadyToDestroy() {
-		return stopReason != null && allPlayers.isEmpty() && (subPhase == null || subPhase.isReadyToDestroy());
+		// The phase itself isn't responsible for moving players out - so wait for them to leave before we clean up
+		if (stopReason == null || !allPlayers.isEmpty()) {
+			return false;
+		}
+		for (GamePhase subPhase : subPhases) {
+			if (!subPhase.isReadyToDestroy()) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	public void stopForServerShutdown() {
-		if (subPhase != null) {
+		for (GamePhase subPhase : subPhases) {
 			subPhase.stopForServerShutdown();
 		}
 		requestStop(GameStopReason.serverStopping());
@@ -538,10 +604,7 @@ public class GamePhase implements IGamePhase {
 
 	@Override
 	public long ticks() {
-		if (startTime == NOT_STARTED) {
-			return 0;
-		}
-		return level.getGameTime() - startTime;
+		return ticks;
 	}
 
 	@Override
@@ -549,11 +612,37 @@ public class GamePhase implements IGamePhase {
 		return focusedLive;
 	}
 
-	public GamePhase getActivePhase() {
-		return Objects.requireNonNullElse(subPhase, this);
-	}
-
 	public ControlCommandInvoker controlCommands() {
 		return controlCommands;
+	}
+
+	private static class PendingSubPhaseImpl implements PendingSubPhase {
+		private final CompletableFuture<GamePhase> future;
+		private final MutablePlayerSet queuedPlayers;
+		private final List<CreateHandler> createHandlers = new ArrayList<>();
+		private boolean registered;
+
+		private PendingSubPhaseImpl(CompletableFuture<GamePhase> future, MinecraftServer server) {
+			this.future = future;
+			queuedPlayers = new MutablePlayerSet(server);
+		}
+
+		private void checkPending() {
+			if (registered) {
+				throw new IllegalArgumentException("Sub-phase has already been registered");
+			}
+		}
+
+		@Override
+		public void queuePlayer(ServerPlayer player) {
+			checkPending();
+			queuedPlayers.add(player);
+		}
+
+		@Override
+		public void whenCreated(CreateHandler handler) {
+			checkPending();
+			createHandlers.add(handler);
+		}
 	}
 }

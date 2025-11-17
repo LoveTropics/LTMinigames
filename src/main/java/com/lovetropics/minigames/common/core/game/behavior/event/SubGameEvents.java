@@ -9,20 +9,10 @@ public final class SubGameEvents {
 		}
 	});
 
-	public static final GameEventType<ReturnToTop> RETURN_TO_TOP = GameEventType.create(ReturnToTop.class, listeners -> () -> {
-		for (ReturnToTop listener : listeners) {
-			listener.onReturnToTopGame();
-		}
-	});
-
 	private SubGameEvents() {
 	}
 
 	public interface Create {
 		void onCreateSubGame(IGamePhase subGame, EventRegistrar subEvents);
-	}
-
-	public interface ReturnToTop {
-		void onReturnToTopGame();
 	}
 }

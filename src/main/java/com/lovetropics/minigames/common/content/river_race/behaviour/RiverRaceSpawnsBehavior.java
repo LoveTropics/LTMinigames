@@ -2,12 +2,12 @@ package com.lovetropics.minigames.common.content.river_race.behaviour;
 
 import com.lovetropics.lib.BlockBox;
 import com.lovetropics.minigames.common.content.river_race.RiverRaceState;
+import com.lovetropics.minigames.common.content.river_race.event.RiverRaceEvents;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.SpawnBuilder;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
-import com.lovetropics.minigames.common.core.game.behavior.event.SubGameEvents;
 import com.lovetropics.minigames.common.core.game.player.PlayerRole;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeamKey;
 import com.lovetropics.minigames.common.core.game.state.team.TeamState;
@@ -59,7 +59,7 @@ public record RiverRaceSpawnsBehavior(
 			}
 		});
 
-		events.listen(SubGameEvents.RETURN_TO_TOP, () -> {
+		events.listen(RiverRaceEvents.MICROGAMES_ENDED, () -> {
 			// Bring all players to the new zone
 			for (ServerPlayer player : game.participants()) {
 				SpawnBuilder spawn = new SpawnBuilder(player);
