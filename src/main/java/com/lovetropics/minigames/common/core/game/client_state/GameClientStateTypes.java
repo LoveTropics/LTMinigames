@@ -7,7 +7,7 @@ import com.lovetropics.minigames.common.core.game.client_state.instance.Collider
 import com.lovetropics.minigames.common.core.game.client_state.instance.CraftingBeeCraftsClientState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.DisableBobbingState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.DisablePlayerMovementState;
-import com.lovetropics.minigames.common.core.game.client_state.instance.DisableRiptideCollisionState;
+import com.lovetropics.minigames.common.core.game.client_state.instance.DisablePlayerCollision;
 import com.lovetropics.minigames.common.core.game.client_state.instance.FogClientState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.GlowTeamMembersState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.HealthTagClientState;
@@ -62,7 +62,7 @@ public final class GameClientStateTypes {
 	public static final GameClientTweakEntry<DisableBobbingState> DISABLE_BOBBING = register("disable_bobbing", MapCodec.unit(DisableBobbingState.INSTANCE), StreamCodec.unit(DisableBobbingState.INSTANCE));
 	public static final GameClientTweakEntry<BeSpeedyState> BE_SPEEDY = register("be_speedy", MapCodec.unit(BeSpeedyState.INSTANCE), StreamCodec.unit(BeSpeedyState.INSTANCE));
 	public static final GameClientTweakEntry<DisablePlayerMovementState> DISABLE_PLAYER_MOVEMENT = register("disable_player_movement", MapCodec.unit(DisablePlayerMovementState.INSTANCE), StreamCodec.unit(DisablePlayerMovementState.INSTANCE));
-	public static final GameClientTweakEntry<DisableRiptideCollisionState> DISABLE_RIPTIDE_COLLISION = register("disable_riptide_collision", MapCodec.unit(DisableRiptideCollisionState.INSTANCE), StreamCodec.unit(DisableRiptideCollisionState.INSTANCE));
+	public static final GameClientTweakEntry<DisablePlayerCollision> DISABLE_PLAYER_COLLISION = register("disable_player_collision", MapCodec.unit(DisablePlayerCollision.INSTANCE), StreamCodec.unit(DisablePlayerCollision.INSTANCE));
 
 	public static <T extends GameClientState> GameClientTweakEntry<T> register(final String name, final MapCodec<T> codec) {
 		return REGISTRATE.object(name)

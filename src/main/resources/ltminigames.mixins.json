@@ -13,6 +13,7 @@
     "RideCommandMixin",
     "ServerPlayerMixin",
     "chat.ServerGamePacketListenerImplMixin",
+    "client.PlayerMixin",
     "command.CommandsMixin",
     "dimension.ChunkStorageMixin",
     "dimension.SimpleRegistryMixin",

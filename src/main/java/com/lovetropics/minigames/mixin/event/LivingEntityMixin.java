@@ -17,7 +17,7 @@ import java.util.List;
 public class LivingEntityMixin {
 	@WrapOperation(method = "checkAutoSpinAttack", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;getEntities(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/phys/AABB;)Ljava/util/List;"))
 	private List<Entity> filterCollidedEntities(Level level, Entity entity, AABB aabb, Operation<List<Entity>> original) {
-		if (level.isClientSide() && ClientGameStateManager.getOrNull(GameClientStateTypes.DISABLE_RIPTIDE_COLLISION) != null) {
+		if (level.isClientSide() && ClientGameStateManager.getOrNull(GameClientStateTypes.DISABLE_PLAYER_COLLISION) != null) {
 			return List.of();
 		}
 		return original.call(level, entity, aabb);
