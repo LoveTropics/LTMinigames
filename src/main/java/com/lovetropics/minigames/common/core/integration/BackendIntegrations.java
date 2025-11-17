@@ -28,6 +28,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 @EventBusSubscriber(modid = LoveTropics.ID)
@@ -38,8 +39,8 @@ public final class BackendIntegrations {
 
 	private static final Logger LOGGER = LogUtils.getLogger();
 
-	private static final int RETRY_DELAY_SECONDS = 30;
-	private static final int MAX_RETRIES = 5;
+	private static final int RETRY_DELAY_SECONDS = 10;
+	private static final int MAX_RETRIES = 6;
 
 	private static final ScheduledExecutorService EXECUTOR = Executors.newSingleThreadScheduledExecutor(
 			new ThreadFactoryBuilder()
@@ -58,6 +59,8 @@ public final class BackendIntegrations {
 
 	private String uri = "";
 	private String token = "";
+
+	private CompletableFuture<?> postFuture = CompletableFuture.completedFuture(null);
 
 	private BackendIntegrations() {
 	}
@@ -137,33 +140,60 @@ public final class BackendIntegrations {
 		return instance;
 	}
 
+	private void schedulePost(Function<ScheduledExecutorService, CompletableFuture<?>> futureSupplier) {
+		postFuture = postFuture.thenRunAsync(
+				() -> futureSupplier.apply(EXECUTOR).exceptionally(throwable -> {
+					LOGGER.error("Encountered exception in backend integrations sender", throwable);
+					return null;
+				}),
+				EXECUTOR
+		);
+	}
+
 	// TODO: It would be nice to have a more robust system for sending with retries - for example, if we send but the minigame didn't exist.. we probably shouldn't resend it
 	void postAndRetry(final String endpoint, final JsonElement body) {
 		postAndRetry(endpoint, body, 0);
 	}
 
 	private void postAndRetry(final String endpoint, final JsonElement body, final int depth) {
-		EXECUTOR.submit(() -> {
-			if (!sender.post(endpoint, body)) {
-				if (depth <= MAX_RETRIES) {
-					EXECUTOR.schedule(() -> {
-						postAndRetry(endpoint, body, depth + 1);
-					}, RETRY_DELAY_SECONDS, TimeUnit.SECONDS);
-				}
-			}
+		schedulePost(executor -> {
+			CompletableFuture<?> future = new CompletableFuture<>();
+			postAndRetryInner(future, executor, endpoint, body, depth);
+			return future;
 		});
 	}
 
+	private void postAndRetryInner(CompletableFuture<?> future, ScheduledExecutorService executor, String endpoint, JsonElement body, int depth) {
+		if (sender.post(endpoint, body) || depth > MAX_RETRIES) {
+			future.complete(null);
+		} else {
+			executor.schedule(
+					() -> postAndRetryInner(future, executor, endpoint, body, depth + 1),
+					RETRY_DELAY_SECONDS,
+					TimeUnit.SECONDS
+			);
+		}
+	}
+
 	void post(final String endpoint, final JsonElement body) {
-		EXECUTOR.submit(() -> sender.post(endpoint, body));
+		schedulePost(executor -> {
+			sender.post(endpoint, body);
+			return CompletableFuture.completedFuture(null);
+		});
 	}
 
 	void post(final String endpoint, final String body) {
-		EXECUTOR.submit(() -> sender.post(endpoint, body));
+		schedulePost(executor -> {
+			sender.post(endpoint, body);
+			return CompletableFuture.completedFuture(null);
+		});
 	}
 
 	void postPolling(final String endpoint, final JsonElement body) {
-		EXECUTOR.submit(() -> pollSender.post(endpoint, body));
+		schedulePost(executor -> {
+			pollSender.post(endpoint, body);
+			return CompletableFuture.completedFuture(null);
+		});
 	}
 
 	<T> CompletableFuture<Optional<T>> get(final String endpoint, final Codec<T> codec) {
