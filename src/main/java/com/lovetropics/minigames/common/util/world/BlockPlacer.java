@@ -92,6 +92,10 @@ public class BlockPlacer {
 					var delay = tickDelay != null ? tickDelay.apply(pos) : 0;
 					var blockPosCopy = pos.immutable();
 					scheduler.runAfterTicks(delay, () -> {
+						// The target block might have changed since we scheduled - check it again!
+						if (delay > 0 && replacingPredicate != null && !replacingPredicate.test(new BlockInWorld(level, blockPosCopy, true))) {
+							return;
+						}
 						BlockInput blockinput = mode.filter.filter(boundingBox, blockPosCopy, newBlock, level);
 						if (blockinput != null) {
 							BlockState oldState = level.getBlockState(blockPosCopy);
