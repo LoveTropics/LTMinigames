@@ -56,6 +56,9 @@ public final class BackendIntegrations {
 	@Nullable
 	private GameInstanceIntegrations liveInstance;
 
+	private String uri = "";
+	private String token = "";
+
 	private BackendIntegrations() {
 	}
 
@@ -105,10 +108,12 @@ public final class BackendIntegrations {
 	}
 
 	public void updateConfig(String uri, String token) {
+		this.uri = uri;
+		this.token = token;
 		if (subscriber != null) {
 			subscriber.close();
+			subscriber = buildSubscriber(uri, token);
 		}
-		subscriber = buildSubscriber(uri, token);
 	}
 
 	@SubscribeEvent
@@ -175,11 +180,12 @@ public final class BackendIntegrations {
 		}
 	}
 
-	public void sendOpen() {
+	public void onServerAboutToStart() {
 		post(ConfigLT.INTEGRATIONS.worldLoadEndpoint.get(), "");
+		updateConfig(uri, token);
 	}
 
-	public void sendClose() {
+	public void onServerStop() {
 		post(ConfigLT.INTEGRATIONS.worldUnloadEndpoint.get(), "");
 		if (subscriber != null) {
 			subscriber.close();
