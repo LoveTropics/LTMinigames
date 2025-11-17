@@ -42,7 +42,7 @@ public class StartGameCommand {
 	private static int enqueueAndStart(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
 		GameLobby lobby = GameLobbyManager.get().getLobbyFor(context.getSource());
 		if (lobby == null) {
-			throw NOT_IN_LOBBY.create();
+			lobby = ManageGameLobbyCommand.createAndJoinLobby(context.getSource().getPlayerOrException()).orElseThrow();
 		}
 		lobby.getGameQueue().enqueue(GameConfigArgument.get(context, "game"));
 		return startLobby(context, lobby);
