@@ -17,6 +17,7 @@ import com.lovetropics.minigames.common.core.game.behavior.instances.GiveItemsTo
 import com.lovetropics.minigames.common.core.game.behavior.instances.ImmediateRespawnBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.JoinLateWithRoleBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.LastRemainingWinTrigger;
+import com.lovetropics.minigames.common.core.game.behavior.instances.MinigameCompetitionBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.OnlyTickInPeriodBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.PermanentItemBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.PlayerHeadRewardBehavior;
@@ -340,6 +341,7 @@ public class GameBehaviorTypes {
 	public static final GameBehaviorEntry<ItemPutInItemFrameTrigger> ITEM_PUT_IN_ITEM_FRAME = register("item_put_in_item_frame", ItemPutInItemFrameTrigger.CODEC);
 	public static final GameBehaviorEntry<PreventCropGrowthInRegionBehaviour> PREVENT_CROP_GROWTH_IN_REGION = register("prevent_crop_growth_in_region", PreventCropGrowthInRegionBehaviour.CODEC);
 	public static final GameBehaviorEntry<SpawnDonorsInRegionBehavior> SPAWN_DONORS_IN_REGION = register("spawn_donors_in_region", SpawnDonorsInRegionBehavior.CODEC);
+	public static final GameBehaviorEntry<MinigameCompetitionBehavior> MINIGAME_COMPETITION = register("minigame_competition", MinigameCompetitionBehavior.CODEC);
 
 	public static final GameBehaviorEntry<SetupIntegrationsBehavior> SETUP_INTEGRATIONS = register("setup_integrations", SetupIntegrationsBehavior.CODEC);
 	public static final GameBehaviorEntry<JoinLateWithRoleBehavior> JOIN_LATE_WITH_ROLE = register("join_late_with_role", JoinLateWithRoleBehavior.CODEC);

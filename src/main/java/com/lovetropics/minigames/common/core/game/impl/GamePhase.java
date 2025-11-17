@@ -616,7 +616,7 @@ public class GamePhase implements IGamePhase {
 		return controlCommands;
 	}
 
-	private static class PendingSubPhaseImpl implements PendingSubPhase {
+	private class PendingSubPhaseImpl implements PendingSubPhase {
 		private final CompletableFuture<GamePhase> future;
 		private final MutablePlayerSet queuedPlayers;
 		private final List<CreateHandler> createHandlers = new ArrayList<>();
@@ -635,8 +635,11 @@ public class GamePhase implements IGamePhase {
 
 		@Override
 		public void queuePlayer(ServerPlayer player) {
-			checkPending();
-			queuedPlayers.add(player);
+			if (registered) {
+				transferPlayerTo(player, future.join());
+			} else {
+				queuedPlayers.add(player);
+			}
 		}
 
 		@Override
