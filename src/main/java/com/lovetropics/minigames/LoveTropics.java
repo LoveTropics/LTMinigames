@@ -300,11 +300,11 @@ public class LoveTropics {
 	}
 
 	private void onServerAboutToStart(final ServerAboutToStartEvent event) {
-		BackendIntegrations.get().sendOpen();
+		BackendIntegrations.get().onServerAboutToStart();
 	}
 
 	private void onServerStopping(final ServerStoppingEvent event) {
-		BackendIntegrations.get().sendClose();
+		BackendIntegrations.get().onServerStop();
 	}
 
 	private void onAttemptSpawn(final MobSpawnEvent.PositionCheck event) {
