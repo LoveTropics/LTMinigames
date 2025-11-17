@@ -1,5 +1,6 @@
 package com.lovetropics.minigames.common.core.game.behavior.instances;
 
+import com.lovetropics.minigames.common.core.command.argument.GameConfigArgument;
 import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.PendingSubPhase;
@@ -9,12 +10,14 @@ import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
+import com.lovetropics.minigames.common.core.game.command.GameCommandRegistrar;
 import com.lovetropics.minigames.common.core.game.config.GameConfig;
 import com.lovetropics.minigames.common.core.game.config.GameConfigs;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.Util;
+import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ExtraCodecs;
@@ -62,6 +65,10 @@ public final class MinigameCompetitionBehavior implements IGameBehavior {
 		}
 		gameQueue.addAll(gameConfigs);
 
+		events.listen(GamePhaseEvents.REGISTER_COMMANDS, (commands, buildContext) ->
+				registerGlobalCommands(game, commands)
+		);
+
 		queueNextGame(game);
 
 		events.listen(GamePhaseEvents.START, initiator -> {
@@ -79,6 +86,21 @@ public final class MinigameCompetitionBehavior implements IGameBehavior {
 				pendingGame.queuePlayer(player);
 			}
 		});
+	}
+
+	private void registerGlobalCommands(IGamePhase topGame, GameCommandRegistrar commands) {
+		commands.register(Commands.literal("queue")
+				.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+				.then(GameConfigArgument.argument("game").executes(context -> {
+					GameConfig config = GameConfigArgument.get(context, "game");
+					gameQueue.add(config);
+					context.getSource().sendSuccess(() -> Component.literal("Added " + config.id() + " to queue"), false);
+					if (currentGame == null && pendingGame == null) {
+						queueNextGame(topGame);
+					}
+					return 1;
+				}))
+		);
 	}
 
 	private void queueNextGame(IGamePhase topGame) {
@@ -105,6 +127,9 @@ public final class MinigameCompetitionBehavior implements IGameBehavior {
 			currentGame = subGame;
 			subEvents.listen(GamePhaseEvents.STOP, reason ->
 					queueNextGame(topGame)
+			);
+			subEvents.listen(GamePhaseEvents.REGISTER_COMMANDS, (commands, buildContext) ->
+					registerGlobalCommands(topGame, commands)
 			);
 		});
 	}

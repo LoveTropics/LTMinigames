@@ -81,7 +81,7 @@ public class GamePhase implements IGamePhase {
 	private final boolean focusedLive;
 
 	private final GameScheduler scheduler = new GameScheduler();
-	private final GameCommandSet commandSet;
+	private GameCommandSet commandSet = GameCommandSet.EMPTY;
 
 	private final List<GamePhase> subPhases = new ArrayList<>();
 	private final List<PendingSubPhaseImpl> pendingSubPhases = new ArrayList<>();
@@ -117,8 +117,6 @@ public class GamePhase implements IGamePhase {
 		behaviors.registerTo(this, events);
 		invoker(GamePhaseEvents.CREATE).create();
 
-		commandSet = GameCommandSet.registerFor(this);
-
 		ResourceLocation introSlideshow = definition().introSlideshow();
 		if (introSlideshow != null) {
 			events.listen(GamePlayerEvents.JOIN, player ->
@@ -140,6 +138,8 @@ public class GamePhase implements IGamePhase {
 		}
 
 		started = true;
+
+		commandSet = GameCommandSet.registerFor(this);
 
 		try {
 			invoker(GamePlayerEvents.BEFORE_ADD_PLAYERS).beforeAddPlayers(

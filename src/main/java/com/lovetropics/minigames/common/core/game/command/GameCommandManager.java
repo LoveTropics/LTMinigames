@@ -3,13 +3,19 @@ package com.lovetropics.minigames.common.core.game.command;
 import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.core.game.impl.GamePhase;
 import com.lovetropics.minigames.common.core.game.impl.GamePhaseManager;
+import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.ParseResults;
+import com.mojang.brigadier.StringReader;
+import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.tree.RootCommandNode;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.CommandEvent;
+
+import javax.annotation.Nullable;
+import java.util.concurrent.CompletableFuture;
 
 @EventBusSubscriber(modid = LoveTropics.ID)
 public class GameCommandManager {
@@ -42,5 +48,23 @@ public class GameCommandManager {
 		if (gamePhase != null) {
 			root.addChild(gamePhase.getCommandSet().baseCommand());
 		}
+	}
+
+	@Nullable
+	public static CompletableFuture<Suggestions> getCommandSuggestions(ParseResults<CommandSourceStack> parse) {
+		if (isParseSuccess(parse)) {
+			return null;
+		}
+		CommandSourceStack source = parse.getContext().getSource();
+		GamePhase gamePhase = (GamePhase) GamePhaseManager.get().getGamePhaseFor(source);
+		if (gamePhase == null) {
+			return null;
+		}
+		StringReader gameReader = new StringReader(parse.getReader().getString());
+		if (gameReader.canRead() && gameReader.peek() == '/') {
+			gameReader.skip();
+		}
+		CommandDispatcher<CommandSourceStack> gameDispatcher = gamePhase.getCommandSet().dispatcher();
+		return gameDispatcher.getCompletionSuggestions(gameDispatcher.parse(gameReader, source));
 	}
 }

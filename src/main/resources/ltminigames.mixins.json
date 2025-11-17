@@ -15,6 +15,7 @@
     "chat.ServerGamePacketListenerImplMixin",
     "client.PlayerMixin",
     "command.CommandsMixin",
+    "command.ServerGamePacketListenerImplMixin",
     "dimension.ChunkStorageMixin",
     "dimension.SimpleRegistryMixin",
     "dimension.WorldGenSettingsMixin",

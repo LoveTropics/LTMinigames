@@ -13,6 +13,11 @@ public record GameCommandSet(
 		CommandDispatcher<CommandSourceStack> dispatcher,
 		LiteralCommandNode<CommandSourceStack> baseCommand
 ) {
+	public static final GameCommandSet EMPTY = new GameCommandSet(
+			new CommandDispatcher<>(),
+			Commands.literal("game").build()
+	);
+
 	public static GameCommandSet registerFor(IGamePhase game) {
 		LiteralArgumentBuilder<CommandSourceStack> baseCommand = Commands.literal("game");
 		CommandBuildContext buildContext = CommandBuildContext.simple(game.registryAccess(), game.level().enabledFeatures());

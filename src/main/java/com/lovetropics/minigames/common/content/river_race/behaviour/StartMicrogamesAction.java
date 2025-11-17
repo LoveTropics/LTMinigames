@@ -1,6 +1,7 @@
 package com.lovetropics.minigames.common.content.river_race.behaviour;
 
 import com.lovetropics.minigames.common.content.river_race.event.RiverRaceEvents;
+import com.lovetropics.minigames.common.core.command.argument.GameConfigArgument;
 import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.IGameDefinition;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
@@ -11,6 +12,7 @@ import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
+import com.lovetropics.minigames.common.core.game.command.GameCommandRegistrar;
 import com.lovetropics.minigames.common.core.game.config.GameConfig;
 import com.lovetropics.minigames.common.core.game.config.GameConfigs;
 import com.lovetropics.minigames.common.core.game.player.PlayerSet;
@@ -18,6 +20,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.ChatFormatting;
+import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -74,6 +77,25 @@ public record StartMicrogamesAction(
 				game.transferPlayerTo(player, microgame);
 			}
 		});
+
+		events.listen(GamePhaseEvents.REGISTER_COMMANDS, (commands, buildContext) ->
+				registerGlobalCommands(game, commands, gameQueue, activeMicrogame)
+		);
+	}
+
+	private void registerGlobalCommands(IGamePhase topGame, GameCommandRegistrar commands, Queue<GameConfig> gameQueue, MutableObject<IGamePhase> activeMicrogame) {
+		commands.register(Commands.literal("queue")
+				.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+				.then(GameConfigArgument.argument("game").executes(context -> {
+					GameConfig config = GameConfigArgument.get(context, "game");
+					gameQueue.add(config);
+					context.getSource().sendSuccess(() -> Component.literal("Added " + config.id() + " to queue"), false);
+					if (activeMicrogame.getValue() == null) {
+						queueNextSubGame(topGame, gameQueue, activeMicrogame);
+					}
+					return 1;
+				}))
+		);
 	}
 
 	private void queueNextSubGame(IGamePhase game, Queue<GameConfig> gameQueue, MutableObject<IGamePhase> activeMicrogame) {
@@ -103,6 +125,9 @@ public record StartMicrogamesAction(
 			);
 			subEvents.listen(GamePhaseEvents.STOP, reason ->
 					queueNextSubGame(game, gameQueue, activeMicrogame)
+			);
+			subEvents.listen(GamePhaseEvents.REGISTER_COMMANDS, (commands, buildContext) ->
+					registerGlobalCommands(game, commands, gameQueue, activeMicrogame)
 			);
 			game.invoker(RiverRaceEvents.CREATE_MICROGAME).onCreateMicrogame(subGame, subEvents);
 		});
