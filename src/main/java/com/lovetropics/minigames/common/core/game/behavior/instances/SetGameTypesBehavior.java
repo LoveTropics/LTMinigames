@@ -11,11 +11,12 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.GameType;
 
 import javax.annotation.Nullable;
+import java.util.Optional;
 
-public record SetGameTypesBehavior(GameType participantGameType, GameType spectatorGameType, GameType allGameType) implements IGameBehavior {
+public record SetGameTypesBehavior(Optional<GameType> participantGameType, Optional<GameType> spectatorGameType, GameType allGameType) implements IGameBehavior {
 	public static final MapCodec<SetGameTypesBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			GameType.CODEC.optionalFieldOf("participant", GameType.SURVIVAL).forGetter(c -> c.participantGameType),
-			GameType.CODEC.optionalFieldOf("spectator", GameType.SPECTATOR).forGetter(c -> c.spectatorGameType),
+			GameType.CODEC.optionalFieldOf("participant").forGetter(c -> c.participantGameType),
+			GameType.CODEC.optionalFieldOf("spectator").forGetter(c -> c.spectatorGameType),
 			GameType.CODEC.optionalFieldOf("all", GameType.ADVENTURE).forGetter(c -> c.allGameType)
 	).apply(i, SetGameTypesBehavior::new));
 
@@ -25,11 +26,13 @@ public record SetGameTypesBehavior(GameType participantGameType, GameType specta
 	}
 
 	private void applyRoleTo(ServerPlayer player, @Nullable PlayerRole role) {
-		GameType gameType = allGameType;
+		GameType gameType;
 		if (role == PlayerRole.PARTICIPANT) {
-			gameType = participantGameType;
+			gameType = participantGameType.orElse(allGameType);
 		} else if (role == PlayerRole.SPECTATOR) {
-			gameType = spectatorGameType;
+			gameType = spectatorGameType.orElse(allGameType);
+		} else {
+			gameType = allGameType;
 		}
 		player.setGameMode(gameType);
 	}
