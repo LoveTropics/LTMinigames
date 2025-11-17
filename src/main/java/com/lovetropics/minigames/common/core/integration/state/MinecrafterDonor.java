@@ -5,6 +5,8 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.Util;
 import net.minecraft.core.UUIDUtil;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.RandomSource;
 
 import java.util.List;
 import java.util.UUID;
@@ -28,6 +30,27 @@ public record MinecrafterDonor(
 	).apply(i, MinecrafterDonor::new));
 
 	public static final Codec<MinecrafterDonor> CODEC = MAP_CODEC.codec();
-
 	public static final Codec<List<MinecrafterDonor>> LIST_CODEC = MinecrafterDonor.CODEC.listOf();
+
+	private static final List<String> ANONYMOUS_NAMES = List.of(
+			"Anonymous Andy",
+			"Secretive Sally",
+			"Timid Tommy"
+	);
+
+	public Component getDisplayName(int color, RandomSource random) {
+		final String name = anonymous() ? Util.getRandom(ANONYMOUS_NAMES, random) : minecraftName().isEmpty() ? name() : minecraftName();
+		return Component.literal(name).withColor(color);
+	}
+
+	public static MinecrafterDonor empty() {
+		return new MinecrafterDonor(
+				0.0,
+				"",
+				"",
+				"",
+				Util.NIL_UUID,
+				true
+		);
+	}
 }

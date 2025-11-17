@@ -1,6 +1,7 @@
 package com.lovetropics.minigames.common.core.data;
 
 import com.lovetropics.minigames.LoveTropics;
+import com.lovetropics.minigames.common.core.integration.state.MinecrafterDonor;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -14,5 +15,9 @@ public class LoveTropicsAttachments {
 			() -> AttachmentType.builder(() -> 0)
 					.sync(ByteBufCodecs.INT)
 					.build()
+	);
+
+	public static final DeferredHolder<AttachmentType<?>, AttachmentType<MinecrafterDonor>> DONOR = ATTACHMENT_TYPES.register(
+			"donor", () -> AttachmentType.builder(MinecrafterDonor::empty).serialize(MinecrafterDonor.MAP_CODEC).build()
 	);
 }
