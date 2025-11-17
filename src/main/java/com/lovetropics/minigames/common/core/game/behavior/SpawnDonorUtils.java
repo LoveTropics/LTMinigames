@@ -3,8 +3,8 @@ package com.lovetropics.minigames.common.core.game.behavior;
 import com.lovetropics.lib.BlockBox;
 import com.lovetropics.minigames.common.core.data.LoveTropicsAttachments;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
+import com.lovetropics.minigames.common.core.integration.game_actions.Donation;
 import com.lovetropics.minigames.common.core.integration.state.DonationScale;
-import com.lovetropics.minigames.common.core.integration.state.MinecrafterDonor;
 import com.lovetropics.minigames.common.core.map.MapRegions;
 import com.mojang.authlib.properties.PropertyMap;
 import net.minecraft.Util;
@@ -31,15 +31,15 @@ public class SpawnDonorUtils {
 	public static final ResourceLocation DUMMY_PLAYER = ResourceLocation.fromNamespaceAndPath("dummyplayers", "dummy_player");
 	public static final DeferredHolder<EntityType<?>, EntityType<?>> DUMMY = DeferredHolder.create(Registries.ENTITY_TYPE, DUMMY_PLAYER);
 
-	public static void spawnDonorInRandomRegion(IGamePhase game, final MinecrafterDonor donor, final List<String> regions, List<DonationScale> scales) {
+	public static void spawnDonorInRandomRegion(IGamePhase game, final Donation donation, final List<String> regions, List<DonationScale> scales) {
 		CompoundTag tag = new CompoundTag();
 		final Villager villager = EntityType.VILLAGER.create(game.level(), EntitySpawnReason.MOB_SUMMONED);
 		if (villager == null) {
 			return;
 		}
 
-		if (!donor.minecraftUuid().equals(Util.NIL_UUID)) {
-			final ResolvableProfile resolvableProfile = new ResolvableProfile(Optional.empty(), Optional.of(donor.minecraftUuid()), new PropertyMap());
+		if (!donation.minecraftUuid().equals(Util.NIL_UUID)) {
+			final ResolvableProfile resolvableProfile = new ResolvableProfile(Optional.empty(), Optional.of(donation.minecraftUuid()), new PropertyMap());
 			tag.put("profile", ResolvableProfile.CODEC.encodeStart(NbtOps.INSTANCE, resolvableProfile).getOrThrow());
 		}
 
@@ -47,7 +47,7 @@ public class SpawnDonorUtils {
 			return;
 		}
 
-		DonationScale scale = DonationScale.getScale(donor.amount(), scales);
+		DonationScale scale = DonationScale.getScale(donation.amount(), scales);
 		final float scaleAmount = (float) scale.scale();
 		Disguise disguise = getDisguise(scaleAmount).withEntity(Optional.of(new TypedEntityData(DUMMY.value(), tag)));
 		EntityDisguiseHolder.set(villager, disguise);
@@ -60,8 +60,8 @@ public class SpawnDonorUtils {
 		BlockBox box = Util.getRandom(regionsToSpawnAt, game.random());
 		BlockPos spawnPos = box.sample(game.random());
 
-		villager.setCustomName(donor.getDisplayName(scale.color(), game.random()));
-		villager.setData(LoveTropicsAttachments.DONOR, donor);
+		villager.setCustomName(donation.getDisplayName(scale.color(), game.random()));
+		villager.setData(LoveTropicsAttachments.DONATION, donation);
 		villager.snapTo(spawnPos, 0, 0);
 		game.level().addFreshEntity(villager);
 	}
