@@ -33,6 +33,8 @@ public class SpawnDonorUtils {
 
 	public static void spawnDonorInRandomRegion(IGamePhase game, final Donation donation, final List<String> regions, List<DonationScale> scales) {
 		CompoundTag tag = new CompoundTag();
+		tag.putBoolean("NoBasePlate", true);
+
 		final Villager villager = EntityType.VILLAGER.create(game.level(), EntitySpawnReason.MOB_SUMMONED);
 		if (villager == null) {
 			return;
