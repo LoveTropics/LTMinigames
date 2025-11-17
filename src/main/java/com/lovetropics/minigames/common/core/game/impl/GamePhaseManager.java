@@ -8,10 +8,8 @@ import com.lovetropics.minigames.common.core.game.IGamePhaseDefinition;
 import com.lovetropics.minigames.common.core.game.behavior.BehaviorList;
 import com.lovetropics.minigames.common.core.game.map.GameMap;
 import com.lovetropics.minigames.common.core.game.map.IGameMapProvider;
-import com.lovetropics.minigames.common.core.game.state.control.ControlCommandInvoker;
 import com.lovetropics.minigames.common.core.game.util.GameTexts;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
-import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
@@ -113,11 +111,6 @@ public class GamePhaseManager implements IGameLookup {
 			return games.getFirst();
 		}
 		return null;
-	}
-
-	public ControlCommandInvoker getControlInvoker(CommandSourceStack source) {
-		GamePhase phase = (GamePhase) getGamePhaseFor(source);
-		return phase != null ? phase.controlCommands() : ControlCommandInvoker.EMPTY;
 	}
 
 	@SubscribeEvent

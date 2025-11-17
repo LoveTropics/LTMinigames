@@ -6,8 +6,6 @@ import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorTypes;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents;
-import com.lovetropics.minigames.common.core.game.state.control.ControlCommand;
-import com.lovetropics.minigames.common.core.game.state.control.ControlCommands;
 import com.lovetropics.minigames.common.core.game.weather.PrecipitationType;
 import com.lovetropics.minigames.common.core.game.weather.WeatherController;
 import com.lovetropics.minigames.common.core.game.weather.WeatherControllerManager;
@@ -24,7 +22,7 @@ public class WeatherControlsBehavior implements IGameBehavior {
 	public void register(IGamePhase game, EventRegistrar events) {
 		controller = WeatherControllerManager.forWorld(game.level());
 
-		events.listen(GamePhaseEvents.REGISTER_COMMANDS, commands -> {
+		events.listen(GamePhaseEvents.REGISTER_COMMANDS, (commands, buildContext) -> {
 			commands.registerAdmin("start_heatwave", source -> controller.setHeatwave(true));
 			commands.registerAdmin("stop_heatwave", source -> controller.setHeatwave(false));
 

@@ -1,7 +1,7 @@
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 @FieldsAreNonnullByDefault
-package com.lovetropics.minigames.common.core.game.state.control;
+package com.lovetropics.minigames.mixin.command;
 
 import net.minecraft.FieldsAreNonnullByDefault;
 import net.minecraft.MethodsReturnNonnullByDefault;

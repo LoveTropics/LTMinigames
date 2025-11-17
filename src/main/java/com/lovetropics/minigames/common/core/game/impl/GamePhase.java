@@ -15,6 +15,7 @@ import com.lovetropics.minigames.common.core.game.behavior.event.GameEventType;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.SubGameEvents;
+import com.lovetropics.minigames.common.core.game.command.GameCommandSet;
 import com.lovetropics.minigames.common.core.game.config.GameConfig;
 import com.lovetropics.minigames.common.core.game.map.GameMap;
 import com.lovetropics.minigames.common.core.game.player.MutablePlayerSet;
@@ -22,8 +23,6 @@ import com.lovetropics.minigames.common.core.game.player.PlayerIterable;
 import com.lovetropics.minigames.common.core.game.player.PlayerRole;
 import com.lovetropics.minigames.common.core.game.player.PlayerSet;
 import com.lovetropics.minigames.common.core.game.state.GameStateMap;
-import com.lovetropics.minigames.common.core.game.state.control.ControlCommandInvoker;
-import com.lovetropics.minigames.common.core.game.state.control.ControlCommands;
 import com.lovetropics.minigames.common.core.game.state.statistics.PlayerKey;
 import com.lovetropics.minigames.common.core.game.state.statistics.StatisticKey;
 import com.lovetropics.minigames.common.core.game.util.GameScheduler;
@@ -81,7 +80,7 @@ public class GamePhase implements IGamePhase {
 	private final boolean focusedLive;
 
 	private final GameScheduler scheduler = new GameScheduler();
-	private ControlCommandInvoker controlCommands = ControlCommandInvoker.EMPTY;
+	private final GameCommandSet commandSet;
 
 	private final List<GamePhase> subPhases = new ArrayList<>();
 	private final List<PendingSubPhaseImpl> pendingSubPhases = new ArrayList<>();
@@ -117,7 +116,7 @@ public class GamePhase implements IGamePhase {
 		behaviors.registerTo(this, events);
 		invoker(GamePhaseEvents.CREATE).create();
 
-		controlCommands = buildControlCommandInvoker();
+		commandSet = GameCommandSet.registerFor(this);
 
 		ResourceLocation introSlideshow = definition().introSlideshow();
 		if (introSlideshow != null) {
@@ -125,12 +124,6 @@ public class GamePhase implements IGamePhase {
 					SlideshowApi.preload(player, introSlideshow)
 			);
 		}
-	}
-
-	private ControlCommandInvoker buildControlCommandInvoker() {
-		ControlCommands commands = new ControlCommands();
-		invoker(GamePhaseEvents.REGISTER_COMMANDS).register(commands);
-		return commands;
 	}
 
 	public void assignRolesFrom(TeamAllocator<PlayerRole, PlayerKey> roleAllocator) {
@@ -200,21 +193,19 @@ public class GamePhase implements IGamePhase {
 		allPlayers.add(newPlayer);
 
 		try {
+			handlingJoin = explicitlyJoined;
 			invoker(GamePlayerEvents.ADD).onAdd(newPlayer);
 			initializer.accept(newPlayer);
 
 			invoker(GamePlayerEvents.SET_ROLE).onSetRole(newPlayer, role, null);
 
 			if (explicitlyJoined) {
-				handlingJoin = true;
-				try {
-					invoker(GamePlayerEvents.JOIN).onAdd(newPlayer);
-				} finally {
-					handlingJoin = false;
-				}
+				invoker(GamePlayerEvents.JOIN).onAdd(newPlayer);
 			}
 		} catch (Exception e) {
 			LOGGER.error("Failed to dispatch player add event", e);
+		} finally {
+			handlingJoin = false;
 		}
 
 		return newPlayer;
@@ -612,8 +603,8 @@ public class GamePhase implements IGamePhase {
 		return focusedLive;
 	}
 
-	public ControlCommandInvoker controlCommands() {
-		return controlCommands;
+	public GameCommandSet getCommandSet() {
+		return commandSet;
 	}
 
 	private class PendingSubPhaseImpl implements PendingSubPhase {

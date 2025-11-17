@@ -1,8 +1,9 @@
 package com.lovetropics.minigames.common.core.game.behavior.event;
 
 import com.lovetropics.minigames.common.core.game.GameStopReason;
-import com.lovetropics.minigames.common.core.game.state.control.ControlCommandRegistrar;
+import com.lovetropics.minigames.common.core.game.command.GameCommandRegistrar;
 import com.lovetropics.minigames.common.core.game.state.statistics.PlayerKey;
+import net.minecraft.commands.CommandBuildContext;
 
 import javax.annotation.Nullable;
 
@@ -43,9 +44,9 @@ public final class GamePhaseEvents {
 		}
 	});
 
-	public static final GameEventType<RegisterCommands> REGISTER_COMMANDS = GameEventType.create(RegisterCommands.class, listeners -> commands -> {
+	public static final GameEventType<RegisterCommands> REGISTER_COMMANDS = GameEventType.create(RegisterCommands.class, listeners -> (commands, buildContext) -> {
 		for (RegisterCommands listener : listeners) {
-			listener.register(commands);
+			listener.register(commands, buildContext);
 		}
 	});
 
@@ -77,6 +78,6 @@ public final class GamePhaseEvents {
 	}
 
 	public interface RegisterCommands {
-		void register(ControlCommandRegistrar commands);
+		void register(GameCommandRegistrar commands, CommandBuildContext buildContext);
 	}
 }

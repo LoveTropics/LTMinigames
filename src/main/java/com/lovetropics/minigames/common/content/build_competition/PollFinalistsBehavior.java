@@ -51,7 +51,7 @@ public record PollFinalistsBehavior(String finalistsTag, String winnerTag, Strin
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		GameInstanceIntegrations integrations = game.getIntegrationsOrThrow();
-		events.listen(GamePhaseEvents.REGISTER_COMMANDS, commands -> {
+		events.listen(GamePhaseEvents.REGISTER_COMMANDS, (commands, buildContext) -> {
 			commands.registerAdmin("start_runoff", source -> {
 				try {
 					PlayerList players = source.getServer().getPlayerList();

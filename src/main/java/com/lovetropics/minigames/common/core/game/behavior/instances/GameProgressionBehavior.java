@@ -5,7 +5,6 @@ import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents;
 import com.lovetropics.minigames.common.core.game.state.GameStateMap;
-import com.lovetropics.minigames.common.core.game.state.control.ControlCommand;
 import com.lovetropics.minigames.common.core.game.state.progress.ProgressChannel;
 import com.lovetropics.minigames.common.core.game.state.progress.ProgressHolder;
 import com.lovetropics.minigames.common.core.game.state.progress.ProgressionPeriod;
@@ -79,7 +78,7 @@ public class GameProgressionBehavior implements IGameBehavior {
 			progressHolder.set(newTime);
 		});
 
-		events.listen(GamePhaseEvents.REGISTER_COMMANDS, commands -> {
+		events.listen(GamePhaseEvents.REGISTER_COMMANDS, (commands, buildContext) -> {
 			commands.registerAdmin("pause", source -> debugTimeMultiplier = 0);
 			commands.registerAdmin("resume", source -> debugTimeMultiplier = 1);
 			commands.registerAdmin("fastForward", source -> debugTimeMultiplier *= 2);
