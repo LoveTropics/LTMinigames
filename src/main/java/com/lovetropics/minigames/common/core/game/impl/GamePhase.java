@@ -39,6 +39,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Unit;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
@@ -180,12 +181,7 @@ public class GamePhase implements IGamePhase {
 			newPlayer = PlayerIsolation.INSTANCE.reloadPlayerFromTag(playerTag, player);
 			initializer = p -> {};
 		} else {
-			SpawnBuilder spawn = new SpawnBuilder(player);
-			try {
-				invoker(GamePlayerEvents.SPAWN).onSpawn(player.getUUID(), spawn, role);
-			} catch (Exception e) {
-				LOGGER.error("Failed to dispatch player spawn event", e);
-			}
+			SpawnBuilder spawn = determinePlayerSpawn(player, role);
 			newPlayer = PlayerIsolation.INSTANCE.teleportTo(player, spawn.level(), spawn.position(), spawn.yRot(), spawn.xRot());
 			initializer = spawn::applyInitializers;
 		}
@@ -209,6 +205,18 @@ public class GamePhase implements IGamePhase {
 		}
 
 		return newPlayer;
+	}
+
+	private SpawnBuilder determinePlayerSpawn(ServerPlayer player, @Nullable PlayerRole role) {
+		SpawnBuilder spawn = new SpawnBuilder(player);
+		// Just have some kind of default, even if unreasonable
+		spawn.teleportTo(level(), new Vec3(0.0, 64.0, 0.0), 0.0f, 0.0f);
+		try {
+			invoker(GamePlayerEvents.SPAWN).onSpawn(player.getUUID(), spawn, role);
+		} catch (Exception e) {
+			LOGGER.error("Failed to dispatch player spawn event", e);
+		}
+		return spawn;
 	}
 
 	@Nullable
@@ -402,8 +410,7 @@ public class GamePhase implements IGamePhase {
 
 	private void applyRoleChange(ServerPlayer player, @Nullable PlayerRole role, @Nullable PlayerRole lastRole) {
 		try {
-			SpawnBuilder spawn = new SpawnBuilder(player);
-			invoker(GamePlayerEvents.SPAWN).onSpawn(player.getUUID(), spawn, role);
+			SpawnBuilder spawn = determinePlayerSpawn(player, role);
 			spawn.teleportAndApply(player);
 			invoker(GamePlayerEvents.SET_ROLE).onSetRole(player, role, lastRole);
 		} catch (Exception e) {
