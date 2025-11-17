@@ -33,6 +33,7 @@ import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Team;
 import org.apache.commons.lang3.RandomStringUtils;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -65,7 +66,14 @@ public final class TeamsBehavior implements IGameBehavior {
 
 		events.listen(GamePlayerEvents.BEFORE_ADD_PLAYERS, (participants, spectators) -> {
 			teams.allocatePlayers(participants);
-			game.invoker(GameTeamEvents.TEAMS_ALLOCATED).onTeamsAllocated();
+			Map<PlayerKey, GameTeamKey> participantTeams = new HashMap<>();
+			for (PlayerKey participant : participants) {
+				GameTeamKey team = teams.getTeamForPlayer(participant);
+				if (team != null) {
+					participantTeams.put(participant, team);
+				}
+			}
+			game.invoker(GameTeamEvents.TEAMS_ALLOCATED).onTeamsAllocated(participantTeams);
 		});
 
 		events.listen(GamePlayerEvents.ADD, player -> {

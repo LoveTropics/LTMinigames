@@ -1,8 +1,11 @@
 package com.lovetropics.minigames.common.core.game.behavior.event;
 
+import com.lovetropics.minigames.common.core.game.state.statistics.PlayerKey;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeamKey;
 import com.lovetropics.minigames.common.core.game.state.team.TeamState;
 import net.minecraft.server.level.ServerPlayer;
+
+import java.util.Map;
 
 public final class GameTeamEvents {
 	public static final GameEventType<SetGameTeam> SET_GAME_TEAM = GameEventType.create(SetGameTeam.class, listeners -> (player, teams, team) -> {
@@ -17,9 +20,9 @@ public final class GameTeamEvents {
 		}
 	});
 
-	public static final GameEventType<TeamsAllocated> TEAMS_ALLOCATED = GameEventType.create(TeamsAllocated.class, listeners -> () -> {
+	public static final GameEventType<TeamsAllocated> TEAMS_ALLOCATED = GameEventType.create(TeamsAllocated.class, listeners -> participantTeams -> {
 		for (TeamsAllocated listener : listeners) {
-			listener.onTeamsAllocated();
+			listener.onTeamsAllocated(participantTeams);
 		}
 	});
 
@@ -35,6 +38,6 @@ public final class GameTeamEvents {
 	}
 
 	public interface TeamsAllocated {
-		void onTeamsAllocated();
+		void onTeamsAllocated(Map<PlayerKey, GameTeamKey> participantTeams);
 	}
 }

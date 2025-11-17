@@ -7,8 +7,9 @@ import com.lovetropics.minigames.common.core.game.SpawnBuilder;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
+import com.lovetropics.minigames.common.core.game.behavior.event.GameTeamEvents;
 import com.lovetropics.minigames.common.core.game.player.PlayerRole;
-import com.lovetropics.minigames.common.core.game.player.PlayerSet;
+import com.lovetropics.minigames.common.core.game.state.statistics.PlayerKey;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeam;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeamKey;
 import com.lovetropics.minigames.common.core.game.state.team.TeamState;
@@ -84,29 +85,32 @@ public class PositionPlayersBehavior implements IGameBehavior {
 
 		TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
 		if (splitByTeam && teams != null) {
-			events.listen(GamePlayerEvents.BEFORE_ADD_PLAYERS, (participants, spectators) -> {
-				if (!teamSpawnKeys.isEmpty()) {
+			if (!teamSpawnKeys.isEmpty()) {
+				events.listen(GamePlayerEvents.BEFORE_ADD_PLAYERS, (participants, spectators) -> {
 					teamSpawners = teamSpawnKeys.entrySet().stream().collect(Collectors.toMap(
 							Map.Entry::getKey,
 							entry -> new CycledSpawner(regions, entry.getValue())
 					));
-				} else if (!participantSpawner.regions().isEmpty()) {
-					teamSpawners = createTeamSpawners(game, teams, participantSpawner, participants.size());
-				}
-			});
+				});
+			} else if (!participantSpawner.regions().isEmpty()) {
+				events.listen(GameTeamEvents.TEAMS_ALLOCATED, participantTeams -> {
+					teamSpawners = createTeamSpawners(teams, participantSpawner, participantTeams);
+				});
+			}
 		}
 
 		events.listen(GamePlayerEvents.SPAWN, (playerId, spawn, role) -> spawnPlayerAsRole(game, playerId, spawn, role, teams));
 	}
 
-	private Map<GameTeamKey, CycledSpawner> createTeamSpawners(IGamePhase game, TeamState teams, CycledSpawner spawns, int participantCount) {
+	private Map<GameTeamKey, CycledSpawner> createTeamSpawners(TeamState teams, CycledSpawner spawns, Map<PlayerKey, GameTeamKey> participants) {
 		Map<GameTeamKey, CycledSpawner> teamSpawners = new HashMap<>();
 
 		int spawnCount = spawns.size();
-		int groupSize = Math.max(participantCount / spawnCount, 1);
+		int groupSize = Math.max(participants.size() / spawnCount, 1);
 		for (GameTeam team : teams) {
-			PlayerSet teamPlayers = teams.getParticipantsForTeam(game, team.key());
-			int teamSize = teamPlayers.size();
+			int teamSize = (int) participants.values().stream()
+					.filter(team.key()::equals)
+					.count();
 			int teamGroupCount = Math.max(teamSize / groupSize, 1);
 			teamSpawners.put(team.key(), spawns.take(teamGroupCount));
 		}

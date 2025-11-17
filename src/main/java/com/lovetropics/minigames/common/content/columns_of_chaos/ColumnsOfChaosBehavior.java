@@ -16,6 +16,7 @@ import com.lovetropics.minigames.common.core.game.state.team.GameTeam;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeamKey;
 import com.lovetropics.minigames.common.core.game.state.team.TeamState;
 import com.lovetropics.minigames.common.core.game.util.CycledSpawner;
+import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -37,6 +38,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -47,6 +49,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 public final class ColumnsOfChaosBehavior implements IGameBehavior {
+	private static final Logger LOGGER = LogUtils.getLogger();
+
 	public static final MapCodec<ColumnsOfChaosBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			Codec.INT.fieldOf("pillar_height").forGetter(b -> b.pillarHeight),
 			Codec.INT.optionalFieldOf("item_interval", 40).forGetter(b -> b.itemInterval),
@@ -56,6 +60,7 @@ public final class ColumnsOfChaosBehavior implements IGameBehavior {
 			RegistryCodecs.homogeneousList(Registries.ITEM).optionalFieldOf("excluded_items").forGetter(b -> b.excludedItems),
 			Codec.STRING.fieldOf("floor_region").forGetter(b -> b.floorRegionName)
 	).apply(i, ColumnsOfChaosBehavior::new));
+
 	private final int pillarHeight;
 	private final int itemInterval;
 	private final int decreaseOverRounds;
@@ -84,11 +89,13 @@ public final class ColumnsOfChaosBehavior implements IGameBehavior {
 		floorRegion = game.mapRegions().getOrThrow(floorRegionName);
 		TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
 		Map<GameTeamKey, CycledSpawner> teamSpawners = new HashMap<>();
-		events.listen(GameTeamEvents.TEAMS_ALLOCATED, () -> {
+		events.listen(GameTeamEvents.TEAMS_ALLOCATED, participantTeams -> {
 			for (GameTeam team : teams) {
-				PlayerSet teamPlayers = teams.getPlayersForTeam(game, team.key());
+				int teamSize = (int) participantTeams.values().stream()
+						.filter(team.key()::equals)
+						.count();
 				List<BlockBox> spawnRegions = new ArrayList<>();
-				for (int i = 1; i <= teamPlayers.size(); i++) {
+				for (int i = 1; i <= teamSize; i++) {
 					String regionKey = team.key().id() + "_" + i;
 					BlockBox pillarBox = game.mapRegions().getOrThrow(regionKey);
 					level.setBlock(pillarBox.centerBlock(), Blocks.BEDROCK.defaultBlockState(), Block.UPDATE_CLIENTS);
@@ -105,6 +112,8 @@ public final class ColumnsOfChaosBehavior implements IGameBehavior {
 				BlockBox spawnForPlayer = getSpawnForPlayer(playerId, teams, teamSpawners);
 				if (spawnForPlayer != null) {
 					spawn.teleportTo(game.level(), spawnForPlayer.centerBlock());
+				} else {
+					LOGGER.warn("Didn't find spawn for {} as {}", playerId, role);
 				}
 			} else {
 				spawn.teleportTo(game.level(), game.mapRegions().getOrThrow("spectator_spawn").centerBlock());

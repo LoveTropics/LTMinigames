@@ -11,6 +11,7 @@ import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvent
 import com.lovetropics.minigames.common.core.game.behavior.event.GameTeamEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameWorldEvents;
 import com.lovetropics.minigames.common.core.game.player.PlayerSet;
+import com.lovetropics.minigames.common.core.game.state.statistics.PlayerKey;
 import com.lovetropics.minigames.common.core.game.state.statistics.StatisticKey;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeam;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeamKey;
@@ -231,11 +232,14 @@ public record SpeedCarbGolfBehaviour(Map<ResourceLocation, String> potentialHole
 				}
 			}
 		});
-		events.listen(GameTeamEvents.TEAMS_ALLOCATED, () -> {
+		events.listen(GameTeamEvents.TEAMS_ALLOCATED, participantTeams -> {
 			int x = 1;
 			for (GameTeam team : teams) {
-				PlayerSet playersForTeam = teams.getPlayersForTeam(game, team.key());
-				Iterator<ServerPlayer> players = playersForTeam.iterator();
+				List<PlayerKey> playersForTeam = participantTeams.entrySet().stream()
+						.filter(entry -> entry.getValue().equals(team.key()))
+						.map(Map.Entry::getKey)
+						.toList();
+				Iterator<PlayerKey> players = playersForTeam.iterator();
 				List<String> holes = new ArrayList<>();
 				for (int i = 0; i < pickedHoles.size(); i++) {
 					String holeNumber = "1" + x + "0" + i;
@@ -249,7 +253,7 @@ public record SpeedCarbGolfBehaviour(Map<ResourceLocation, String> potentialHole
 						players = playersForTeam.iterator();
 					}
 					if (players.hasNext()) {
-						assignedHoles.put(holeNumber, players.next().getUUID());
+						assignedHoles.put(holeNumber, players.next().id());
 					}
 					holes.add(holeNumber);
 				}

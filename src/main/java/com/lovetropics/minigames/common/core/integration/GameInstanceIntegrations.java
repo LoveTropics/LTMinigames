@@ -9,10 +9,8 @@ import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameEventListeners;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePackageEvents;
-import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameTeamEvents;
-import com.lovetropics.minigames.common.core.game.behavior.event.SubGameEvents;
 import com.lovetropics.minigames.common.core.game.behavior.instances.donation.DonationPackageData;
 import com.lovetropics.minigames.common.core.game.state.GamePackageState;
 import com.lovetropics.minigames.common.core.game.state.GameStateKey;
@@ -67,7 +65,7 @@ public final class GameInstanceIntegrations implements IGameState {
 
 		phaseListeners.listen(GamePlayerEvents.REMOVE, p -> sendParticipantsList());
 		phaseListeners.listen(GamePlayerEvents.SET_ROLE, (p, r, lr) -> sendParticipantsList());
-		phaseListeners.listen(GameTeamEvents.TEAMS_ALLOCATED, this::sendParticipantsList);
+		phaseListeners.listen(GameTeamEvents.TEAMS_ALLOCATED, p -> sendParticipantsList());
 
 		phaseListeners.listen(SubGameEvents.CREATE, (subGame, subEvents) -> {
 			gameStack.addLast(subGame);
