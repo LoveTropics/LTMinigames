@@ -315,10 +315,10 @@ public class SpleefBehavior implements IGameBehavior {
 
 	private void countdownMessage(int seconds, int color, float soundPitch, int delayTicks) {
 		game.scheduler().runAfterTicks(delayTicks, () -> {
-			title(MinigameTexts.SPLEEF_COUNTDOWN_TITLE.apply(
-									Component.literal(Integer.toString(seconds)).withStyle(Style.EMPTY.withColor(TextColor.fromRgb(color))))
-							.withStyle(ChatFormatting.GRAY),
+			title(
 					MinigameTexts.SPLEEF_COUNTDOWN_SUBTITLE.copy().withStyle(ChatFormatting.YELLOW),
+					MinigameTexts.SPLEEF_COUNTDOWN_TITLE.apply(Component.literal(Integer.toString(seconds))
+							.withStyle(Style.EMPTY.withColor(TextColor.fromRgb(color)))).withStyle(ChatFormatting.GRAY),
 					5, 20, seconds == 1 ? 0 : 5);
 			game.allPlayers().playSound(SoundEvents.NOTE_BLOCK_BIT.value(), SoundSource.MASTER, Integer.MAX_VALUE, soundPitch);
 		});
