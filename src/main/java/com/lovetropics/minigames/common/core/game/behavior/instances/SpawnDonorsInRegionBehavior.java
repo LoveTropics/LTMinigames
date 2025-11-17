@@ -7,6 +7,7 @@ import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.SpawnDonorUtils;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameLivingEntityEvents;
+import com.lovetropics.minigames.common.core.game.behavior.event.GamePackageEvents;
 import com.lovetropics.minigames.common.core.game.util.GameTexts;
 import com.lovetropics.minigames.common.core.integration.BackendIntegrations;
 import com.lovetropics.minigames.common.core.integration.GameInstanceIntegrations;
@@ -48,6 +49,7 @@ public record SpawnDonorsInRegionBehavior(
 			return;
 		}
 
+		// Spawn at start of game
 		integrations.get("donations/donations/all/limited", Donation.LIST_CODEC).thenAcceptAsync(result -> {
 				if (result.isPresent()) {
 					final List<Donation> donations = result.get();
@@ -59,6 +61,12 @@ public record SpawnDonorsInRegionBehavior(
 			}, game.scheduler()
 		);
 
+		// Spawn throughout game
+		events.listen(GamePackageEvents.RECEIVE_DONATION, donation -> {
+			SpawnDonorUtils.spawnDonorInRandomRegion(game, donation, regions, scales.orElse(List.of()));
+		});
+
+		// Drop sassy book on death
 		events.listen(GameLivingEntityEvents.MOB_DROP, (e, d, r) -> {
 			if (e.hasData(LoveTropicsAttachments.DONATION)) {
 				ItemStack book = new ItemStack(Items.WRITTEN_BOOK, 1);
