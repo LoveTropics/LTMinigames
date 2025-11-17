@@ -279,6 +279,7 @@ public class SpleefBehavior implements IGameBehavior {
 
 	private void updateForcedProgression() {
 		if (currentFloor >= floors) {
+			bossBar.close();
 			return;
 		}
 		if (progressionTimer <= 0) {
