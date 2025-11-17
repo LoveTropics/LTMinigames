@@ -16,6 +16,7 @@ import com.lovetropics.minigames.common.content.block.LoveTropicsBlocks;
 import com.lovetropics.minigames.common.content.block.TrashType;
 import com.lovetropics.minigames.common.content.block_party.BlockParty;
 import com.lovetropics.minigames.common.content.block_party.BlockPartyTexts;
+import com.lovetropics.minigames.common.content.build_battle.BuildBattle;
 import com.lovetropics.minigames.common.content.build_competition.BuildCompetition;
 import com.lovetropics.minigames.common.content.columns_of_chaos.ColumnsOfChaos;
 import com.lovetropics.minigames.common.content.columns_of_chaos.ColumnsOfChaosTexts;
@@ -204,6 +205,7 @@ public class LoveTropics {
 		TurtleRace.init();
 		Qottott.init();
 		Spleef.init();
+		BuildBattle.init();
 		RiverRace.init();
 		DeACoudre.init();
 		TreasureDig.init();
