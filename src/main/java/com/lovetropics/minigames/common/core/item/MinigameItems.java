@@ -3,7 +3,6 @@ package com.lovetropics.minigames.common.core.item;
 import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.util.registry.LoveTropicsRegistrate;
 import com.tterrag.registrate.util.entry.ItemEntry;
-import net.minecraft.world.item.Item;
 
 public class MinigameItems {
 
@@ -14,13 +13,14 @@ public class MinigameItems {
 
 	/** Powerups and Sabotages */
 	// Sabotages
-	public static final ItemEntry<Item> UPSET_STOMACH = REGISTRATE.item("upset_stomach", Item::new).register();
-	public static final ItemEntry<Item> COLADARAL_DAMAGE = REGISTRATE.item("coladaral_damage", Item::new).register();
-	public static final ItemEntry<Item> TAPIR_TAKEOVER = REGISTRATE.item("tapir_takeover", Item::new).register();
-	public static final ItemEntry<Item> SHRUGGY_ARMS = REGISTRATE.item("shruggy_arms", Item::new).register();
+	public static final ItemEntry<PowerupItem> UPSET_STOMACH = REGISTRATE.item("upset_stomach", PowerupItem::new).register();
+	public static final ItemEntry<PowerupItem> COLADARAL_DAMAGE = REGISTRATE.item("coladaral_damage", PowerupItem::new).register();
+	public static final ItemEntry<PowerupItem> TAPIR_TAKEOVER = REGISTRATE.item("tapir_takeover", PowerupItem::new).register();
+	public static final ItemEntry<PowerupItem> SHRUGGY_ARMS = REGISTRATE.item("shruggy_arms", PowerupItem::new).register();
+	public static final ItemEntry<PowerupItem> CONTROL_INVERTER = REGISTRATE.item("control_inverter", PowerupItem::new).register();
 
 	// Powerups
-	public static final ItemEntry<Item> ENDER_ARMS = REGISTRATE.item("ender_arms", Item::new).register();
+	public static final ItemEntry<PowerupItem> ENDER_ARMS = REGISTRATE.item("ender_arms", PowerupItem::new).register();
 
 	/** End powerups and sabotages */
 

@@ -20,10 +20,10 @@ import org.lovetropics.peekaboo.api.EntityDisguiseHolder;
 import javax.annotation.Nullable;
 
 @EventBusSubscriber(modid = LoveTropics.ID)
-public class TapirTimeMobEffect extends MobEffect {
+public class TapirTakeoverMobEffect extends MobEffect {
 	private static final DeferredHolder<EntityType<?>, EntityType<?>> TAPIR = DeferredHolder.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath("tropicraft", "tapir"));
 
-	public TapirTimeMobEffect(MobEffectCategory category) {
+	public TapirTakeoverMobEffect(MobEffectCategory category) {
 		super(category, CommonColors.WHITE);
 	}
 
@@ -53,7 +53,7 @@ public class TapirTimeMobEffect extends MobEffect {
 	}
 
 	private static void removeDisguise(@Nullable MobEffectInstance effectInstance, LivingEntity livingEntity) {
-		if (effectInstance != null && effectInstance.is(EscapeRace.TAPIR_TIME)) {
+		if (effectInstance != null && effectInstance.is(EscapeRace.TAPIR_TAKEOVER)) {
 			EntityDisguiseHolder disguiseHolder = EntityDisguiseHolder.getOrNull(livingEntity);
 			if (disguiseHolder != null && disguiseHolder.disguise().equals(Disguise.of(TAPIR.get()))) {
 				disguiseHolder.clear();

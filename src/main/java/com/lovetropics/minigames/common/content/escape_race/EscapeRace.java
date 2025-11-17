@@ -11,7 +11,7 @@ import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DdrInput
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DdrSessionState;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DdrLevel;
 import com.lovetropics.minigames.common.content.escape_race.effect.BasicMobEffect;
-import com.lovetropics.minigames.common.content.escape_race.effect.TapirTimeMobEffect;
+import com.lovetropics.minigames.common.content.escape_race.effect.TapirTakeoverMobEffect;
 import com.lovetropics.minigames.common.content.escape_race.effect.UpsetStomachEffect;
 import com.lovetropics.minigames.common.content.escape_race.misc.RoomEntrancePadEntity;
 import com.lovetropics.minigames.common.content.escape_race.misc.RoomEntrancePadEntityRenderer;
@@ -155,8 +155,8 @@ public class EscapeRace {
 			.lang("Colada-ral Damage")
 			.register();
 
-	public static final Holder<MobEffect> TAPIR_TIME = REGISTRATE.object("tapir_time")
-			.mobEffect(() -> new TapirTimeMobEffect(MobEffectCategory.NEUTRAL))
+	public static final Holder<MobEffect> TAPIR_TAKEOVER = REGISTRATE.object("tapir_takeover")
+			.mobEffect(() -> new TapirTakeoverMobEffect(MobEffectCategory.NEUTRAL))
 			.register();
 
 	public static void init() {
