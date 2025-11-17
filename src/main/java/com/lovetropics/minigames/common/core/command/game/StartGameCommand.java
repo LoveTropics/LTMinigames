@@ -2,6 +2,7 @@ package com.lovetropics.minigames.common.core.command.game;
 
 import com.lovetropics.minigames.common.core.command.argument.GameConfigArgument;
 import com.lovetropics.minigames.common.core.game.IGameDefinition;
+import com.lovetropics.minigames.common.core.game.config.GameConfig;
 import com.lovetropics.minigames.common.core.game.impl.GameLobby;
 import com.lovetropics.minigames.common.core.game.impl.GameLobbyManager;
 import com.lovetropics.minigames.common.core.game.lobby.LobbyControls;
@@ -13,6 +14,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.server.level.ServerPlayer;
 
 import static net.minecraft.commands.Commands.literal;
 
@@ -25,7 +27,7 @@ public class StartGameCommand {
 				.then(literal("start").requires(s -> s.hasPermission(Commands.LEVEL_GAMEMASTERS))
 						.executes(StartGameCommand::start)
 						.then(GameConfigArgument.argument("game")
-								.executes(StartGameCommand::enqueueAndStart)
+								.executes(context -> enqueueAndStart(context, GameConfigArgument.get(context, "game")))
 						)
 				)
 		);
@@ -39,12 +41,17 @@ public class StartGameCommand {
 		return startLobby(context, lobby);
 	}
 
-	private static int enqueueAndStart(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+	private static int enqueueAndStart(CommandContext<CommandSourceStack> context, GameConfig game) throws CommandSyntaxException {
 		GameLobby lobby = GameLobbyManager.get().getLobbyFor(context.getSource());
 		if (lobby == null) {
-			lobby = ManageGameLobbyCommand.createAndJoinLobby(context.getSource().getPlayerOrException()).orElseThrow();
+			ServerPlayer player = context.getSource().getPlayer();
+			if (player == null) {
+				throw NOT_IN_LOBBY.create();
+			}
+			lobby = GameLobbyManager.get().createGameLobby(player.getScoreboardName() + "'s Lobby", player).orElseThrow();
+			lobby.getPlayers().joinAndPrompt(player);
 		}
-		lobby.getGameQueue().enqueue(GameConfigArgument.get(context, "game"));
+		lobby.getGameQueue().enqueue(game);
 		return startLobby(context, lobby);
 	}
 
