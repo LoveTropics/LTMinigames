@@ -2,14 +2,18 @@ package com.lovetropics.minigames.common.core.game;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
+import com.mojang.logging.LogUtils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Unit;
+import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 public final class GameResult<T> {
+	private static final Logger LOGGER = LogUtils.getLogger();
+
 	private static final GameResult<Unit> OK_UNIT = GameResult.ok(Unit.INSTANCE);
 
 	@Nullable
@@ -46,6 +50,7 @@ public final class GameResult<T> {
 		if (throwable instanceof GameException gameException) {
 			return error(gameException);
 		}
+		LOGGER.error(message, throwable);
 		return GameResult.error(Component.literal(message + ": " + throwable));
 	}
 
