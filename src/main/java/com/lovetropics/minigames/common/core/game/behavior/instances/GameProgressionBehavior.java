@@ -10,11 +10,13 @@ import com.lovetropics.minigames.common.core.game.state.progress.ProgressHolder;
 import com.lovetropics.minigames.common.core.game.state.progress.ProgressionPeriod;
 import com.lovetropics.minigames.common.core.game.state.progress.ProgressionPoint;
 import com.lovetropics.minigames.common.util.LinearSpline;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.floats.Float2FloatFunction;
 import net.minecraft.SharedConstants;
+import net.minecraft.commands.Commands;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.Mth;
 
@@ -81,7 +83,15 @@ public class GameProgressionBehavior implements IGameBehavior {
 		events.listen(GamePhaseEvents.REGISTER_COMMANDS, (commands, buildContext) -> {
 			commands.registerAdmin("pause", source -> debugTimeMultiplier = 0);
 			commands.registerAdmin("resume", source -> debugTimeMultiplier = 1);
-			commands.registerAdmin("fastForward", source -> debugTimeMultiplier *= 2);
+			commands.register(Commands.literal("setspeed")
+					.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+					.then(Commands.argument("speed", IntegerArgumentType.integer(0, 100))
+							.executes(context -> {
+								debugTimeMultiplier = IntegerArgumentType.getInteger(context, "speed");
+								return 1;
+							})
+					)
+			);
 		});
 	}
 
