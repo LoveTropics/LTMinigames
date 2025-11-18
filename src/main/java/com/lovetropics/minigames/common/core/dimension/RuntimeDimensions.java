@@ -1,6 +1,8 @@
 package com.lovetropics.minigames.common.core.dimension;
 
 import com.lovetropics.minigames.LoveTropics;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import it.unimi.dsi.fastutil.longs.LongSet;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
@@ -13,6 +15,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.ProgressListener;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.dimension.LevelStem;
@@ -183,7 +186,7 @@ public final class RuntimeDimensions {
 	}
 
 	boolean tickDimensionDeletion(ServerLevel world) {
-		kickPlayersFrom(world);
+		prepareForDeletion(world);
 		if (isWorldUnloaded(world) || isTemporaryDimension(world.dimension())) {
 			deleteDimension(world);
 			return true;
@@ -197,7 +200,7 @@ public final class RuntimeDimensions {
 		for (ResourceKey<Level> dimension : temporaryDimensions) {
 			ServerLevel world = server.getLevel(dimension);
 			if (world != null) {
-				kickPlayersFrom(world);
+				prepareForDeletion(world);
 				deleteDimension(world);
 			}
 		}
@@ -209,8 +212,16 @@ public final class RuntimeDimensions {
 		}, server);
 	}
 
-	private void kickPlayersFrom(ServerLevel world) {
-		if (world.players().isEmpty()) {
+	private void prepareForDeletion(ServerLevel level) {
+		LongSet forceLoadedChunks = new LongOpenHashSet(level.getChunkSource().getForceLoadedChunks());
+		forceLoadedChunks.forEach(chunkKey ->
+				level.getChunkSource().updateChunkForced(new ChunkPos(chunkKey), false)
+		);
+		kickPlayersFrom(level);
+	}
+
+	private void kickPlayersFrom(ServerLevel level) {
+		if (level.players().isEmpty()) {
 			return;
 		}
 
@@ -218,7 +229,7 @@ public final class RuntimeDimensions {
 		BlockPos spawnPos = overworld.getSharedSpawnPos();
 		float spawnAngle = overworld.getSharedSpawnAngle();
 
-		List<ServerPlayer> players = new ArrayList<>(world.players());
+		List<ServerPlayer> players = new ArrayList<>(level.players());
 		for (ServerPlayer player : players) {
 			player.teleportTo(overworld, spawnPos.getX() + 0.5, spawnPos.getY(), spawnPos.getZ() + 0.5, Set.of(), spawnAngle, 0.0F, true);
 		}
