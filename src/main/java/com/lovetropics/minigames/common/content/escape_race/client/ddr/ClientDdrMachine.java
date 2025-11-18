@@ -10,6 +10,7 @@ import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.T
 import com.lovetropics.minigames.common.core.network.ddr.ServerboundDdrInputPacket;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.Options;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.Holder;
 import net.minecraft.world.entity.Entity;
@@ -37,8 +38,8 @@ public class ClientDdrMachine {
 	private DdrSoundInstance playingTrackSound;
 
 	public void tick(DDRMachineEntity entity) {
-		if (entity.getControllingPassenger() instanceof LocalPlayer player) {
-			tickControlledLocal(entity, player);
+		if (entity.getControllingPassenger() instanceof LocalPlayer) {
+			tickControlledLocal(entity);
 			poseState.tick(lastInput);
 		} else {
 			lastInput = DdrInput.NONE;
@@ -52,8 +53,14 @@ public class ClientDdrMachine {
 		tickSound(entity);
 	}
 
-	private void tickControlledLocal(DDRMachineEntity entity, LocalPlayer player) {
-		DdrInput input = DdrInput.fromKeyPresses(player.input.keyPresses);
+	private void tickControlledLocal(DDRMachineEntity entity) {
+		Options options = Minecraft.getInstance().options;
+		DdrInput input = new DdrInput(
+				options.keyUp.isDown(),
+				options.keyDown.isDown(),
+				options.keyLeft.isDown(),
+				options.keyRight.isDown()
+		);
 		DdrInput newInput = input.subtract(lastInput);
 		lastInput = input;
 

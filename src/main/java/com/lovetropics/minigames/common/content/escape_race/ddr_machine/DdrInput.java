@@ -6,7 +6,6 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.world.entity.player.Input;
 
 public record DdrInput(
 		boolean forward,
@@ -41,15 +40,6 @@ public record DdrInput(
 	);
 
 	public static final DdrInput NONE = new DdrInput(false, false, false, false);
-
-	public static DdrInput fromKeyPresses(Input keyPresses) {
-		return new DdrInput(
-				keyPresses.forward(),
-				keyPresses.backward(),
-				keyPresses.left(),
-				keyPresses.right()
-		);
-	}
 
 	public boolean overlaps(DdrInput other) {
 		return (forward && other.forward)
