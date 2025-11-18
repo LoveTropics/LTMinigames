@@ -355,7 +355,7 @@ public class RaceTrackBehavior implements IGameBehavior {
 	private record Checkpoint(AABB box, float minPosition, float maxPosition, Handler handler) {
 		public boolean test(Vec3 lastPosition, Vec3 position, float trackedPosition) {
 			return trackedPosition >= minPosition && trackedPosition <= maxPosition
-					&& box.clip(lastPosition, position).isPresent();
+					&& (box.contains(lastPosition) || box.contains(position) || box.clip(lastPosition, position).isPresent());
 		}
 
 		public interface Handler {
