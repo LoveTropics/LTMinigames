@@ -74,49 +74,34 @@
     ],
     "subtitle": "subtitles.entity.generic.explode"
   },
-  "escape_race.terry_trash.welcome": {
+  "escape_race.terry_trash.sound_1": {
     "sounds": [
-      "ltminigames:escape_race/terry_trash/welcome"
+      "ltminigames:escape_race/terry_trash/sound_1"
     ]
   },
-  "escape_race.terry_trash.code_unlock": {
+  "escape_race.terry_trash.sound_2": {
     "sounds": [
-      "ltminigames:escape_race/terry_trash/code_unlock"
+      "ltminigames:escape_race/terry_trash/sound_2"
     ]
   },
-  "escape_race.terry_trash.dirty_trash": {
+  "escape_race.terry_trash.sound_3": {
     "sounds": [
-      "ltminigames:escape_race/terry_trash/dirty_trash"
+      "ltminigames:escape_race/terry_trash/sound_3"
     ]
   },
-  "escape_race.terry_trash.food_contamination": {
+  "escape_race.terry_trash.sound_4": {
     "sounds": [
-      "ltminigames:escape_race/terry_trash/food_contamination"
+      "ltminigames:escape_race/terry_trash/sound_4"
     ]
   },
-  "escape_race.terry_trash.coconut_bombs": {
+  "escape_race.terry_trash.sound_5": {
     "sounds": [
-      "ltminigames:escape_race/terry_trash/coconut_bombs"
+      "ltminigames:escape_race/terry_trash/sound_5"
     ]
   },
-  "escape_race.terry_trash.chemical_contamination": {
+  "escape_race.terry_trash.sound_6": {
     "sounds": [
-      "ltminigames:escape_race/terry_trash/chemical_contamination"
-    ]
-  },
-  "escape_race.terry_trash.two_minutes": {
-    "sounds": [
-      "ltminigames:escape_race/terry_trash/two_minutes"
-    ]
-  },
-  "escape_race.terry_trash.thirty_seconds": {
-    "sounds": [
-      "ltminigames:escape_race/terry_trash/thirty_seconds_seconds"
-    ]
-  },
-  "escape_race.terry_trash.five_seconds": {
-    "sounds": [
-      "ltminigames:escape_race/terry_trash/five_seconds"
+      "ltminigames:escape_race/terry_trash/sound_6"
     ]
   },
   "upset_stomach.fart": {
