@@ -35,7 +35,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 public final class PlayerIsolation {
 	public static final PlayerIsolation INSTANCE = new PlayerIsolation();
@@ -124,7 +123,6 @@ public final class PlayerIsolation {
 			oldPlayer.addTag(RELOADING_TAG);
 
 			final ServerPlayer newPlayer = recreatePlayer(oldPlayer);
-			newPlayer.addTag(RELOADING_TAG);
 			SlideshowApi.replacePlayer(oldPlayer, newPlayer);
 
 			EventHooks.firePlayerLoggedOut(oldPlayer);
@@ -141,6 +139,7 @@ public final class PlayerIsolation {
 			((PlayerListAccess) playerList).ltminigames$firePlayerLoading(newPlayer);
 
 			initializer.accept(newPlayer, reporter);
+			newPlayer.addTag(RELOADING_TAG);
 			newPlayer.onUpdateAbilities();
 
 			final ServerLevel newLevel = newPlayer.level();
