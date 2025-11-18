@@ -65,13 +65,13 @@ public class VendingMachineEntityRenderer extends EntityRenderer<VendingMachineE
 		Camera camera = minecraft.gameRenderer.getMainCamera();
 		VendingMachineSlots.Picker picker = VendingMachineSlots.picker(camera, entity);
 		int pickedSlot = picker.pickSlot();
+		int selectedSlot = minecraft.crosshairPickEntity == entity ? entity.getSelected() : VendingMachineEntity.NO_SLOT;
 		reusedState.yRot = entity.getYRot();
 		List<ItemStack> visualItems = entity.getVisualItems();
 		for (int i = 0; i < reusedState.slots.size(); i++) {
 			VendingMachineRenderState.SlotState slotState = reusedState.slots.get(i);
 			ItemStack itemStack = i < visualItems.size() ? visualItems.get(i) : ItemStack.EMPTY;
-			boolean selected = entity.getSelected() == i && minecraft.crosshairPickEntity == entity;
-			slotState.update(itemModelResolver, itemStack, entity, selected, pickedSlot == i);
+			slotState.update(itemModelResolver, itemStack, entity, selectedSlot == i, pickedSlot == i);
 		}
 		ItemStack droppingItem = entity.getDroppingItem();
 		if (droppingItem != null) {
@@ -81,8 +81,8 @@ public class VendingMachineEntityRenderer extends EntityRenderer<VendingMachineE
 		} else {
 			reusedState.droppingItem.clear();
 		}
-		reusedState.hasSelection = entity.getSelected() != VendingMachineEntity.NO_SLOT;
-		reusedState.anyHighlighted = pickedSlot != VendingMachineEntity.NO_SLOT;
+		reusedState.hasSelection = selectedSlot != VendingMachineEntity.NO_SLOT;
+		reusedState.anyHighlighted = pickedSlot != VendingMachineEntity.NO_SLOT && !visualItems.get(pickedSlot).isEmpty();
 		reusedState.buyButtonPicked = picker.isPicked(model.buyButtonBounds());
 	}
 
@@ -95,6 +95,12 @@ public class VendingMachineEntityRenderer extends EntityRenderer<VendingMachineE
 		model.setupAnim(renderState);
 		VertexConsumer builder = bufferSource.getBuffer(model.renderType(TEXTURE));
 		model.renderToBuffer(poseStack, builder, packedLight, OverlayTexture.NO_OVERLAY);
+
+		if (renderState.hasSelection) {
+			OutlineBufferSource outlineBufferSource = Minecraft.getInstance().renderBuffers().outlineBufferSource();
+			outlineBufferSource.setColor(0, 255, 0, 255);
+			model.renderBuyButtonOnly(poseStack, outlineBufferSource.getBuffer(model.renderType(TEXTURE)));
+		}
 
 		for (int slotIndex = 0; slotIndex < renderState.slots.size(); slotIndex++) {
 			VendingMachineRenderState.SlotState slotState = renderState.slots.get(slotIndex);

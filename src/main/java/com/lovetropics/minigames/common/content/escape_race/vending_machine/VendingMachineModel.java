@@ -2,6 +2,7 @@ package com.lovetropics.minigames.common.content.escape_race.vending_machine;
 
 import com.lovetropics.minigames.LoveTropics;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import it.unimi.dsi.fastutil.objects.ReferenceArraySet;
 import net.minecraft.client.model.EntityModel;
@@ -13,6 +14,8 @@ import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
+import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -138,6 +141,17 @@ public class VendingMachineModel extends EntityModel<VendingMachineRenderState> 
 		if (renderState.hasSelection) {
 			buy_button.z -= 1;
 		}
+	}
+
+	// Work me would hate Love Tropics me for this one
+	public void renderBuyButtonOnly(PoseStack poseStack, VertexConsumer buffer) {
+		poseStack.pushPose();
+		root.translateAndRotate(poseStack);
+		root2.translateAndRotate(poseStack);
+		machine.translateAndRotate(poseStack);
+		control_panel.translateAndRotate(poseStack);
+		buy_button.render(poseStack, buffer, LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY);
+		poseStack.popPose();
 	}
 
 	public AABB buyButtonBounds() {

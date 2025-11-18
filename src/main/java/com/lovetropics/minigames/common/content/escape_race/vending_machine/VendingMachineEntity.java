@@ -137,6 +137,7 @@ public class VendingMachineEntity extends Entity implements ContainerEntity {
 		}
 		playSound(SoundRegistry.CORRECT.value());
 		startDropping(selectedItem.copyWithCount(1), itemIndex);
+		getEntityData().set(DATA_SELECTED, NO_SLOT);
 	}
 
 	@Override
