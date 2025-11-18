@@ -36,6 +36,7 @@
   ],
   "client": [
     "client.AbstractRecipeBookScreenMixin",
+    "client.AbstractSoundInstanceAccess",
     "client.BiomeColorsMixin",
     "client.CapeLayerMixin",
     "client.ClientPacketListenerMixin",

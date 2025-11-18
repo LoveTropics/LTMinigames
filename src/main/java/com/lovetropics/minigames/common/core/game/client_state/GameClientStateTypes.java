@@ -6,8 +6,8 @@ import com.lovetropics.minigames.common.core.game.client_state.instance.BeaconCl
 import com.lovetropics.minigames.common.core.game.client_state.instance.CollidersClientState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.CraftingBeeCraftsClientState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.DisableBobbingState;
-import com.lovetropics.minigames.common.core.game.client_state.instance.DisablePlayerMovementState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.DisablePlayerCollision;
+import com.lovetropics.minigames.common.core.game.client_state.instance.DisablePlayerMovementState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.FogClientState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.GlowTeamMembersState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.HealthTagClientState;
@@ -18,6 +18,7 @@ import com.lovetropics.minigames.common.core.game.client_state.instance.PointTag
 import com.lovetropics.minigames.common.core.game.client_state.instance.ReplaceTexturesClientState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.ResourcePackClientState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.SidebarClientState;
+import com.lovetropics.minigames.common.core.game.client_state.instance.SoundVolumeModifier;
 import com.lovetropics.minigames.common.core.game.client_state.instance.SpectatingClientState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.SwapMovementClientState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.TeamMembersClientState;
@@ -63,6 +64,7 @@ public final class GameClientStateTypes {
 	public static final GameClientTweakEntry<BeSpeedyState> BE_SPEEDY = register("be_speedy", MapCodec.unit(BeSpeedyState.INSTANCE), StreamCodec.unit(BeSpeedyState.INSTANCE));
 	public static final GameClientTweakEntry<DisablePlayerMovementState> DISABLE_PLAYER_MOVEMENT = register("disable_player_movement", MapCodec.unit(DisablePlayerMovementState.INSTANCE), StreamCodec.unit(DisablePlayerMovementState.INSTANCE));
 	public static final GameClientTweakEntry<DisablePlayerCollision> DISABLE_PLAYER_COLLISION = register("disable_player_collision", MapCodec.unit(DisablePlayerCollision.INSTANCE), StreamCodec.unit(DisablePlayerCollision.INSTANCE));
+	public static final GameClientTweakEntry<SoundVolumeModifier> SOUND_VOLUME_MODIFIER = register("sound_volume_modifier", SoundVolumeModifier.CODEC, SoundVolumeModifier.STREAM_CODEC);
 
 	public static <T extends GameClientState> GameClientTweakEntry<T> register(final String name, final MapCodec<T> codec) {
 		return REGISTRATE.object(name)
