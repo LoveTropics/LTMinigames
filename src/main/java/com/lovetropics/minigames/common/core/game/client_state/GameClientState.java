@@ -11,6 +11,7 @@ import net.minecraft.server.level.ServerPlayer;
 import org.apache.commons.lang3.mutable.MutableInt;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Function;
 
@@ -32,8 +33,10 @@ public interface GameClientState {
 		Map<UUID, T> statesByPlayer = new Reference2ObjectOpenHashMap<>();
 		events.listen(GamePlayerEvents.ADD, player -> {
 			T state = generator.apply(player);
-			statesByPlayer.put(player.getUUID(), state);
-			sendToPlayer(state, player);
+			if (state != null) {
+				statesByPlayer.put(player.getUUID(), state);
+				sendToPlayer(state, player);
+			}
 		});
 
 		events.listen(GamePlayerEvents.REMOVE, player -> {
@@ -47,16 +50,17 @@ public interface GameClientState {
 			if (timer.getAndIncrement() % interval != 0) {
 				return;
 			}
-			for (Map.Entry<UUID, T> entry : statesByPlayer.entrySet()) {
-				ServerPlayer player = game.allPlayers().getPlayerBy(entry.getKey());
-				if (player == null) {
-					continue;
-				}
-				T oldState = entry.getValue();
+			for (ServerPlayer player : game.allPlayers()) {
+				T oldState = statesByPlayer.get(player.getUUID());
 				T newState = generator.apply(player);
-				if (!newState.equals(oldState)) {
-					sendToPlayer(newState, player);
-					entry.setValue(newState);
+				if (!Objects.equals(oldState, newState)) {
+					if (newState != null) {
+						sendToPlayer(newState, player);
+						statesByPlayer.put(player.getUUID(), newState);
+					} else {
+						removeFromPlayer(type, player);
+						statesByPlayer.remove(player.getUUID());
+					}
 				}
 			}
 		});

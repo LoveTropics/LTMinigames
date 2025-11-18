@@ -77,8 +77,7 @@ public class RoomEntrancePadEntityRenderer extends EntityRenderer<RoomEntrancePa
 		};
 		reusedState.height = Mth.lerp(unlockProgress, reusedState.height, entity.getHeight());
 		EscapeRaceClientBucksState breakBuckState = ClientGameStateManager.getOrNull(EscapeRace.BREAK_BUCK_STATE);
-		int breakBucks = breakBuckState != null ? breakBuckState.amount() : 0;
-		reusedState.canAfford = breakBucks >= room.cost();
+		reusedState.canAfford = breakBuckState == null || breakBuckState.amount() >= room.cost();
 		itemModelResolver.updateForNonLiving(reusedState.breakBuck, breakBuck, ItemDisplayContext.FIXED, entity);
 	}
 

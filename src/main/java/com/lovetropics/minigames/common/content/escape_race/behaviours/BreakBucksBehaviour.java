@@ -29,8 +29,11 @@ public class BreakBucksBehaviour implements IGameBehavior {
 		TeamState teams = game.instanceState().getOrThrow(TeamState.KEY);
 		GameClientState.applyGlobally(game, events, SharedConstants.TICKS_PER_SECOND, EscapeRace.BREAK_BUCK_STATE.get(), player -> {
 			GameTeamKey teamForPlayer = teams.getTeamForPlayer(player);
-			int anInt = teamForPlayer != null ? game.statistics().forTeam(teamForPlayer).getInt(StatisticKey.BREAK_BUCKS) : 0;
-			return new EscapeRaceClientBucksState(anInt);
+			if (teamForPlayer == null) {
+				return null;
+			}
+			int breakBucks = game.statistics().forTeam(teamForPlayer).getInt(StatisticKey.BREAK_BUCKS);
+			return new EscapeRaceClientBucksState(breakBucks);
 		});
 		events.listen(EscapeRaceEvents.DDR_LEVEL_COMPLETED, (player, level, score, bestStreak) -> {
 			GameTeamKey teamForPlayer = teams.getTeamForPlayer(player);

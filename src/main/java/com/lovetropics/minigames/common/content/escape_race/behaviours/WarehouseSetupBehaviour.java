@@ -13,6 +13,7 @@ import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorType;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents;
+import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
 import com.lovetropics.minigames.common.core.game.client_state.GameClientState;
 import com.lovetropics.minigames.common.core.game.command.GameCommandRegistrar;
 import com.lovetropics.minigames.common.core.game.config.GameConfig;
@@ -76,6 +77,19 @@ public record WarehouseSetupBehaviour(
 			return state.asClientState(teamForPlayer);
 		});
 
+		events.listen(GamePlayerEvents.JOIN, player -> {
+			GameTeamKey team = teams.getTeamForPlayer(player);
+			if (team == null) {
+				return;
+			}
+			for (RoomInstance room : state.rooms.values()) {
+				TeamRoomInstance teamRoom = room.getTeamRoom(team);
+				if (teamRoom.maybeTransferPlayer(game, player)) {
+					return;
+				}
+			}
+		});
+
 		events.listen(GamePhaseEvents.REGISTER_COMMANDS, (commands, buildContext) ->
 				registerCommands(commands, state)
 		);
@@ -120,7 +134,7 @@ public record WarehouseSetupBehaviour(
 		}
 
 		for (GameTeamKey team : teams.getTeamKeys()) {
-			TeamRoomInstance teamState = room.getTeamState(team);
+			TeamRoomInstance teamState = room.getTeamRoom(team);
 			if (teamState.status != RoomStatus.LOCKED) {
 				teamState.unlockingBar.setPlayers(PlayerSet.EMPTY);
 				continue;
@@ -169,7 +183,7 @@ public record WarehouseSetupBehaviour(
 
 		room.entrancePad.setUnlockingTicks(unlockingState.unlockingTicks, unlockingState.wasUnlocking);
 
-		TeamRoomInstance teamRoom = room.getTeamState(unlockingState.team);
+		TeamRoomInstance teamRoom = room.getTeamRoom(unlockingState.team);
 		if (result.isTrue()) {
 			teamRoom.status = RoomStatus.UNLOCKED;
 			game.statistics().forTeam(unlockingState.team).incrementInt(StatisticKey.BREAK_BUCKS, -room.cost);
@@ -227,7 +241,7 @@ public record WarehouseSetupBehaviour(
 		public EscapeRaceRoomsState asClientState(@Nullable GameTeamKey team) {
 			Int2ObjectMap<EscapeRaceRoomsState.Room> rooms = new Int2ObjectOpenHashMap<>();
 			for (RoomInstance room : this.rooms.values()) {
-				TeamRoomInstance teamState = team != null ? room.getTeamState(team) : null;
+				TeamRoomInstance teamState = team != null ? room.getTeamRoom(team) : null;
 				rooms.put(room.entrancePad.getId(), new EscapeRaceRoomsState.Room(
 						room.config.displayName,
 						// TODO: What do we show for spectators?
@@ -263,7 +277,7 @@ public record WarehouseSetupBehaviour(
 		private final RoomEntrancePadEntity entrancePad;
 		private int cost;
 
-		public final Map<GameTeamKey, TeamRoomInstance> teamStates = new HashMap<>();
+		public final Map<GameTeamKey, TeamRoomInstance> teamRooms = new HashMap<>();
 		private @Nullable UnlockingState unlockingState;
 
 		public RoomInstance(RoomConfig config, GameConfig subGameConfig, BlockBox entranceBox, RoomEntrancePadEntity entrancePad) {
@@ -274,8 +288,8 @@ public record WarehouseSetupBehaviour(
 			cost = config.baseCost();
 		}
 
-		public TeamRoomInstance getTeamState(GameTeamKey teamKey) {
-			return teamStates.computeIfAbsent(teamKey, k -> new TeamRoomInstance(this));
+		public TeamRoomInstance getTeamRoom(GameTeamKey teamKey) {
+			return teamRooms.computeIfAbsent(teamKey, k -> new TeamRoomInstance(this));
 		}
 
 		public boolean isBlockedFor(@Nullable GameTeamKey team) {
@@ -289,37 +303,53 @@ public record WarehouseSetupBehaviour(
 		private RoomStatus status = RoomStatus.LOCKED;
 
 		@Nullable
-		private PendingSubPhase pendingSubPhase;
+		private PendingSubPhase pendingSubGame;
 		@Nullable
-		private IGamePhase subPhase;
+		private IGamePhase subGame;
 		private boolean stopped;
 
 		public TeamRoomInstance(RoomInstance room) {
 			this.room = room;
 		}
 
+		public boolean maybeTransferPlayer(IGamePhase topGame, ServerPlayer player) {
+			if (stopped) {
+				return false;
+			}
+			if (pendingSubGame != null) {
+				pendingSubGame.queuePlayer(player);
+				return true;
+			} else if (subGame != null) {
+				topGame.transferPlayerTo(player, subGame);
+				return true;
+			}
+			return false;
+		}
+
 		public boolean sendToSubPhase(IGamePhase topGame, PlayerSet players) {
 			if (stopped) {
 				return false;
 			}
-			if (pendingSubPhase == null && subPhase == null) {
-				pendingSubPhase = topGame.createSubPhase(room.subGameConfig);
-				pendingSubPhase.whenCreated(this::onGameCreated);
+			if (pendingSubGame == null && subGame == null) {
+				pendingSubGame = topGame.createSubPhase(room.subGameConfig);
+				pendingSubGame.whenCreated(this::onGameCreated);
 			}
-			if (pendingSubPhase != null) {
-				pendingSubPhase.queuePlayers(players);
-			} else if (subPhase != null) {
-				topGame.transferPlayersTo(players, subPhase);
+			if (pendingSubGame != null) {
+				pendingSubGame.queuePlayers(players);
+			} else if (subGame != null) {
+				topGame.transferPlayersTo(players, subGame);
 			}
 			return true;
 		}
 
 		private void onGameCreated(IGamePhase subGame, EventRegistrar subEvents) {
-			pendingSubPhase = null;
-			subPhase = subGame;
-			subEvents.listen(GamePhaseEvents.STOP, reason ->
-					stopped = true
-			);
+			pendingSubGame = null;
+			this.subGame = subGame;
+			subEvents.listen(GamePhaseEvents.STOP, reason -> {
+				stopped = true;
+				this.subGame = null;
+				subGame.returnToParent(subGame.allPlayers());
+			});
 		}
 	}
 
@@ -330,6 +360,10 @@ public record WarehouseSetupBehaviour(
 			int breakBucks
 	) {
 		public boolean isAccepted(RoomInstance room) {
+			if (teamSize == 0) {
+				// The team is probably in another room
+				return false;
+			}
 			return playersCrouching.size() >= teamSize && breakBucks >= room.cost;
 		}
 	}
