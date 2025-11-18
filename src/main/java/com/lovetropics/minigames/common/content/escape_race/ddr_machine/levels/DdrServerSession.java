@@ -75,7 +75,7 @@ public class DdrServerSession {
 
 	// No reason not to completely trust the client - doesn't allow them to do something a modified client couldn't do anyway by sending perfectly timed inputs
 	@Nullable
-	public DdrLevelInputQueue.Hit handleInput(ServerPlayer player, DdrInput newInput, long inputTick) {
+	public DdrLevelInputQueue.Hit handleInputTick(ServerPlayer player, DdrInput newInput, long inputTick) {
 		DdrLevelInputQueue.Result result = inputQueue.handleInput(newInput, inputTick);
 		if (result.missedCount() > 0) {
 			if (currentLevelStreak > 0) {

@@ -42,7 +42,7 @@ public class DdrRecordingSession {
 	}
 
 	public void handleInput(DdrInput newInput, long inputTick) {
-		if (inputTick >= track.value().lengthInTicks()) {
+		if (newInput.isEmpty() || inputTick >= track.value().lengthInTicks()) {
 			return;
 		}
 		inputs.add(new TimedDdrInput(inputTick, newInput));

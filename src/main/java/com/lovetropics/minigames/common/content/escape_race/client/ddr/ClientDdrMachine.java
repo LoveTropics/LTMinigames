@@ -50,12 +50,10 @@ public class ClientDdrMachine {
 	private void tickControlledLocal(DDRMachineEntity entity, LocalPlayer player) {
 		DdrInput input = DdrInput.fromKeyPresses(player.input.keyPresses);
 		DdrInput newInput = input.subtract(lastInput);
+		lastInput = input;
 
 		long currentTick = getCurrentTick(entity);
-		if (!input.equals(lastInput)) {
-			ClientPacketDistributor.sendToServer(new ServerboundDdrInputPacket(input, currentTick));
-			lastInput = input;
-		}
+		ClientPacketDistributor.sendToServer(new ServerboundDdrInputPacket(input, currentTick));
 
 		if (session != null) {
 			session.handleLocalInput(newInput, currentTick);

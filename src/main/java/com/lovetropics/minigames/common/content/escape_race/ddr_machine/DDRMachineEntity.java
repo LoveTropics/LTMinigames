@@ -363,11 +363,8 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 	public void handleClientInput(ServerPlayer player, DdrInput input, long inputTick) {
 		DdrInput newInput = input.subtract(getPlayerInput());
 		getEntityData().set(DATA_PLAYER_INPUT, input);
-		if (newInput.isEmpty()) {
-			return;
-		}
 		if (serverSession != null) {
-			DdrLevelInputQueue.Hit hit = serverSession.handleInput(player, newInput, inputTick);
+			DdrLevelInputQueue.Hit hit = serverSession.handleInputTick(player, newInput, inputTick);
 			if (hit != null) {
 				PacketDistributor.sendToPlayersTrackingEntity(this, new ClientboundDdrInputHitPacket(getId(), hit.hitTick()));
 			}
