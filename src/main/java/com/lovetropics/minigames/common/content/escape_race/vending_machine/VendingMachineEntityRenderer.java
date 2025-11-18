@@ -82,6 +82,7 @@ public class VendingMachineEntityRenderer extends EntityRenderer<VendingMachineE
 			reusedState.droppingItem.clear();
 		}
 		reusedState.hasSelection = entity.getSelected() != VendingMachineEntity.NO_SLOT;
+		reusedState.anyHighlighted = pickedSlot != VendingMachineEntity.NO_SLOT;
 		reusedState.buyButtonPicked = picker.isPicked(model.buyButtonBounds());
 	}
 
@@ -103,7 +104,7 @@ public class VendingMachineEntityRenderer extends EntityRenderer<VendingMachineE
 			poseStack.pushPose();
 			poseStack.translate(slotState.pos);
 			poseStack.scale(-1.0f, -1.0f, 1.0f);
-			renderSlot(poseStack, bufferSource, packedLight, slotState.selected, slotState.picked, slotState);
+			renderSlot(poseStack, bufferSource, packedLight, slotState.selected, slotState.picked, renderState.anyHighlighted, slotState);
 			poseStack.popPose();
 		}
 
@@ -115,7 +116,7 @@ public class VendingMachineEntityRenderer extends EntityRenderer<VendingMachineE
 		poseStack.popPose();
 	}
 
-	private void renderSlot(PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, boolean selected, boolean highlighted, VendingMachineRenderState.SlotState slot) {
+	private void renderSlot(PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, boolean selected, boolean highlighted, boolean anyHighlighted, VendingMachineRenderState.SlotState slot) {
 		float itemScale = computeItemScale(slot.item);
 
 		poseStack.pushPose();
@@ -145,7 +146,7 @@ public class VendingMachineEntityRenderer extends EntityRenderer<VendingMachineE
 			b.endBatch();
 		}
 
-		if (selected || highlighted) {
+		if ((selected && !anyHighlighted) || highlighted) {
 			int backgroundColor = ARGB.color(Minecraft.getInstance().options.getBackgroundOpacity(0.25f), CommonColors.BLACK);
 			poseStack.pushPose();
 			float scale = 0.15f / 16.0f;

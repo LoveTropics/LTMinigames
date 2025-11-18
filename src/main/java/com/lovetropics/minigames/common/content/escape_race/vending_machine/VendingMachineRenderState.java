@@ -17,6 +17,7 @@ public class VendingMachineRenderState extends EntityRenderState {
 	public float yRot;
 	public final List<SlotState> slots = new ArrayList<>(VendingMachineSlots.COUNT);
 	public boolean hasSelection;
+	public boolean anyHighlighted;
 	public boolean buyButtonPicked;
 
 	public final ItemStackRenderState droppingItem = new ItemStackRenderState();
