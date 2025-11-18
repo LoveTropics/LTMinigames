@@ -19,15 +19,12 @@ public class SoundRegistry {
 	public static final Holder<SoundEvent> INCORRECT = register("incorrect");
 	public static final Holder<SoundEvent> QUIET_EXPLOSION = register("quiet_explosion");
 
-	public static final Holder<SoundEvent> TERRY_TRASH_WELCOME = register("escape_race.terry_trash.welcome");
-	public static final Holder<SoundEvent> TERRY_TRASH_CODE_UNLOCK = register("escape_race.terry_trash.code_unlock");
-	public static final Holder<SoundEvent> TERRY_TRASH_DIRTY_TRASH = register("escape_race.terry_trash.dirty_trash");
-	public static final Holder<SoundEvent> TERRY_TRASH_FOOD_CONTAMINATION = register("escape_race.terry_trash.food_contamination");
-	public static final Holder<SoundEvent> TERRY_TRASH_COCONUT_BOMBS = register("escape_race.terry_trash.coconut_bombs");
-	public static final Holder<SoundEvent> TERRY_TRASH_CHEMICAL_CONTAMINATION = register("escape_race.terry_trash.chemical_contamination");
-	public static final Holder<SoundEvent> TERRY_TRASH_TWO_MINUTES = register("escape_race.terry_trash.two_minutes");
-	public static final Holder<SoundEvent> TERRY_TRASH_THIRTY_SECONDS = register("escape_race.terry_trash.thirty_seconds");
-	public static final Holder<SoundEvent> TERRY_TRASH_FIVE_SECONDS = register("escape_race.terry_trash.five_seconds");
+	public static final Holder<SoundEvent> TERRY_TRASH_SOUND_1 = register("escape_race.terry_trash.sound_1");
+	public static final Holder<SoundEvent> TERRY_TRASH_SOUND_2 = register("escape_race.terry_trash.sound_2");
+	public static final Holder<SoundEvent> TERRY_TRASH_SOUND_3 = register("escape_race.terry_trash.sound_3");
+	public static final Holder<SoundEvent> TERRY_TRASH_SOUND_4 = register("escape_race.terry_trash.sound_4");
+	public static final Holder<SoundEvent> TERRY_TRASH_SOUND_5 = register("escape_race.terry_trash.sound_5");
+	public static final Holder<SoundEvent> TERRY_TRASH_SOUND_6 = register("escape_race.terry_trash.sound_6");
 
 	public static final Holder<SoundEvent> UPSET_STOMACH_FART = register("upset_stomach.fart");
 
