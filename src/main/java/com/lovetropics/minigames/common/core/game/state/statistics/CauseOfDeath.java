@@ -1,14 +1,22 @@
 package com.lovetropics.minigames.common.core.game.state.statistics;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 
-import javax.annotation.Nullable;
+import java.util.Optional;
 
-public record CauseOfDeath(String type, String typeName, @Nullable String source, @Nullable String sourceName) {
+public record CauseOfDeath(String type, String typeName, Optional<String> source, Optional<String> sourceName) {
+	public static final Codec<CauseOfDeath> CODEC = RecordCodecBuilder.create(i -> i.group(
+			Codec.STRING.fieldOf("type").forGetter(CauseOfDeath::type),
+			Codec.STRING.fieldOf("type_name").forGetter(CauseOfDeath::typeName),
+			Codec.STRING.optionalFieldOf("source").forGetter(CauseOfDeath::source),
+			Codec.STRING.optionalFieldOf("source_name").forGetter(CauseOfDeath::sourceName)
+	).apply(i, CauseOfDeath::new));
+
 	public static CauseOfDeath from(DamageSource damage) {
 		String type = damage.getMsgId();
 		String typeName = getDamageTypeName(damage);
@@ -23,20 +31,7 @@ public record CauseOfDeath(String type, String typeName, @Nullable String source
 			sourceName = sourceType.getDescription().getString();
 		}
 
-		return new CauseOfDeath(type, typeName, source, sourceName);
-	}
-
-	public JsonObject serialize() {
-		JsonObject root = new JsonObject();
-		root.addProperty("type", type);
-		root.addProperty("type_name", typeName);
-
-		if (source != null) {
-			root.addProperty("source", source);
-			root.addProperty("source_name", sourceName);
-		}
-
-		return root;
+		return new CauseOfDeath(type, typeName, Optional.ofNullable(source), Optional.ofNullable(sourceName));
 	}
 
 	private static String getDamageTypeName(DamageSource damage) {

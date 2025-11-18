@@ -4,6 +4,7 @@ import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.core.game.IGameDefinition;
 import com.lovetropics.minigames.common.core.game.impl.GameLobby;
 import com.lovetropics.minigames.common.core.game.player.PlayerRole;
+import com.lovetropics.minigames.common.core.game.state.statistics.StatisticKey;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
@@ -86,6 +87,7 @@ public final class GameTexts {
 		public static final Component GAME_ALREADY_STARTED = KEYS.add("game_already_started", "This game has already been started!");
 		public static final Component GAME_ALREADY_STOPPED = KEYS.add("game_already_stopped", "This game has already been stopped!");
 		public static final Component NO_MANAGE_PERMISSION = KEYS.add("no_manage_permission", "You do not have permission to manage this lobby!");
+		private static final TranslationCollector.Fun1 NO_TEAM = KEYS.add1("no_team", "No team with id: %s");
 
 		public static final Component GAMES_INTERSECT = KEYS.add("games_intersect", "The game cannot be started because it intersects with another active game!");
 
@@ -98,6 +100,9 @@ public final class GameTexts {
 		public static final Component TEAM_CHAT_CHANNEL = KEYS.add("chat_channel.team", "Team Chat");
 		public static final TranslationCollector.Fun1 SET_CHAT_CHANNEL = KEYS.add1("set_chat_channel", "You are now chatting in %s");
 		public static final Component TEAM_CHAT_INTRO = KEYS.add("team_chat_intro", "You are using team chat. Use /shout or /chat global to chat with everyone.");
+
+		private static final TranslationCollector.Fun3 STATISTIC_VALUE = KEYS.add3("statistic_value", "%s on %s has a value of: %s");
+		public static final Component GAME_STATISTICS = KEYS.add("game_statistics", "Game Statistics");
 
 		public static MutableComponent joinedLobby(GameLobby lobby) {
 			return formatPositive(JOINED_LOBBY.apply(lobbyName(lobby)));
@@ -133,6 +138,14 @@ public final class GameTexts {
 
 		public static MutableComponent cannotTeleportIntoGame() {
 			return formatNegative(CANNOT_TELEPORT_INTO_GAME.copy());
+		}
+
+		public static MutableComponent noTeam(Object id) {
+			return NO_TEAM.apply(id);
+		}
+
+		public static <T> MutableComponent statisticValue(StatisticKey<T> statisticKey, Component targetName, @Nullable T value) {
+			return STATISTIC_VALUE.apply(statisticKey.getKey(), targetName, value == null ? "null" : statisticKey.display(value));
 		}
 	}
 

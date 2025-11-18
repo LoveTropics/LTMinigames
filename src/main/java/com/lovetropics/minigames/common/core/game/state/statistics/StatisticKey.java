@@ -1,23 +1,18 @@
 package com.lovetropics.minigames.common.core.game.state.statistics;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonPrimitive;
 import com.lovetropics.lib.codec.CodecRegistry;
-import com.lovetropics.minigames.common.content.block.TrashType;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeamKey;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import com.mojang.serialization.JsonOps;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
-import it.unimi.dsi.fastutil.ints.IntListIterator;
 
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.function.BiConsumer;
+import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static com.lovetropics.minigames.common.core.game.state.statistics.StatisticDisplays.*;
 
@@ -45,7 +40,7 @@ public final class StatisticKey<T> {
 
 	public static final StatisticKey<Integer> TIME_SURVIVED = ofInt("time_survived").displays(minutesSeconds());
 	public static final StatisticKey<Integer> ROUNDS_SURVIVED = ofInt("rounds_survived").displays(unit("rounds"));
-	public static final StatisticKey<CauseOfDeath> CAUSE_OF_DEATH = register(CauseOfDeath.class, "cause_of_death", CauseOfDeath::serialize);
+	public static final StatisticKey<CauseOfDeath> CAUSE_OF_DEATH = register(CauseOfDeath.class, "cause_of_death", CauseOfDeath.CODEC);
 	public static final StatisticKey<PlayerKey> KILLED_BY = ofPlayer("killed_by");
 	public static final StatisticKey<Integer> TIME_CAMPING = ofInt("time_camping").displays(minutesSeconds());
 	public static final StatisticKey<GameTeamKey> TEAM = ofTeam("team");
@@ -92,79 +87,62 @@ public final class StatisticKey<T> {
 
 	private final Class<T> type;
 	private final String key;
-	private final Function<T, JsonElement> serializer;
+	private final Codec<T> valueCodec;
 	private Function<T, String> display = simple();
 	@Nullable
 	private T defaultValue;
 
-	private StatisticKey(Class<T> type, String key, Function<T, JsonElement> serializer) {
+	private StatisticKey(Class<T> type, String key, Codec<T> valueCodec) {
 		this.type = type;
 		this.key = key;
-		this.serializer = serializer;
+		this.valueCodec = valueCodec;
 	}
 
-	public static <T> StatisticKey<T> register(Class<T> type, String key, Function<T, JsonElement> serializer) {
-		StatisticKey<T> statistic = new StatisticKey<>(type, key, serializer);
+	public static <T> StatisticKey<T> register(Class<T> type, String key, Codec<T> codec) {
+		StatisticKey<T> statistic = new StatisticKey<>(type, key, codec);
 		REGISTRY.register(key, statistic);
 		return statistic;
 	}
 
 	public static StatisticKey<Integer> ofInt(String key) {
-		return StatisticKey.register(Integer.class, key, JsonPrimitive::new).defaultValue(0);
+		return StatisticKey.register(Integer.class, key, Codec.INT).defaultValue(0);
 	}
 
 	public static StatisticKey<Integer> ofIntNoDefault(String key) {
-		return StatisticKey.register(Integer.class, key, JsonPrimitive::new);
+		return StatisticKey.register(Integer.class, key, Codec.INT);
 	}
 
 	public static StatisticKey<Float> ofFloat(String key) {
-		return StatisticKey.register(Float.class, key, JsonPrimitive::new).defaultValue(0.0f);
+		return StatisticKey.register(Float.class, key, Codec.FLOAT).defaultValue(0.0f);
 	}
 
 	public static StatisticKey<Boolean> ofBool(String key) {
-		return StatisticKey.register(Boolean.class, key, JsonPrimitive::new).defaultValue(false);
+		return StatisticKey.register(Boolean.class, key, Codec.BOOL).defaultValue(false);
 	}
 
 	public static StatisticKey<String> ofString(String key) {
-		return StatisticKey.register(String.class, key, JsonPrimitive::new);
+		return StatisticKey.register(String.class, key, Codec.STRING);
 	}
 
 	public static StatisticKey<PlayerKey> ofPlayer(String key) {
-		return StatisticKey.register(PlayerKey.class, key, PlayerKey::serializeId);
+		return StatisticKey.register(PlayerKey.class, key, PlayerKey.UUID_CODEC);
 	}
 
 	public static StatisticKey<GameTeamKey> ofTeam(String key) {
-		return StatisticKey.register(GameTeamKey.class, key, team -> new JsonPrimitive(team.id()));
+		return StatisticKey.register(GameTeamKey.class, key, GameTeamKey.CODEC);
 	}
 
 	public static StatisticKey<IntList> ofIntList(String key) {
-		return StatisticKey.intoArray(IntList.class, key, (values, array) -> {
-			IntListIterator iterator = values.iterator();
-			while (iterator.hasNext()) {
-				array.add(new JsonPrimitive(iterator.nextInt()));
-			}
-		});
+		return StatisticKey.register(IntList.class, key, Codec.INT.listOf().xmap(IntArrayList::new, Function.identity()));
 	}
 
 	public static StatisticKey<List<String>> ofStringList(String key) {
-		return StatisticKey.ofList(key, JsonPrimitive::new);
+		return StatisticKey.ofList(key, Codec.STRING);
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T> StatisticKey<List<T>> ofList(String key, Function<T, JsonElement> serializeElement) {
-		return StatisticKey.intoArray((Class<List<T>>) (Class<?>) List.class, key, (values, array) -> {
-			for (T value : values) {
-				array.add(serializeElement.apply(value));
-			}
-		});
-	}
-
-	private static <T> StatisticKey<T> intoArray(Class<T> type, String key, BiConsumer<T, JsonArray> serialize) {
-		return StatisticKey.register(type, key, values -> {
-			JsonArray array = new JsonArray();
-			serialize.accept(values, array);
-			return array;
-		});
+	public static <T> StatisticKey<List<T>> ofList(String key, Codec<T> elementCodec) {
+		return StatisticKey.register((Class<List<T>>) (Class<?>) List.class, key, elementCodec.listOf());
 	}
 
 	public StatisticKey<T> displays(Function<T, String> display) {
@@ -186,8 +164,12 @@ public final class StatisticKey<T> {
 		return defaultValue;
 	}
 
+	public Codec<T> valueCodec() {
+		return valueCodec;
+	}
+
 	public JsonElement serialize(T value) {
-		return serializer.apply(value);
+		return valueCodec.encodeStart(JsonOps.INSTANCE, value).getOrThrow();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -212,5 +194,9 @@ public final class StatisticKey<T> {
 	@Nullable
 	public static StatisticKey<?> get(String key) {
 		return REGISTRY.get(key);
+	}
+
+	public static Set<String> keys() {
+		return REGISTRY.keySet();
 	}
 }

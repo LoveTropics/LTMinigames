@@ -11,6 +11,8 @@ import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import com.mojang.authlib.yggdrasil.YggdrasilEnvironment;
+import com.mojang.serialization.Codec;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -22,6 +24,12 @@ import java.util.UUID;
 public final class PlayerKey implements StatisticHolder {
 	private static final YggdrasilAuthenticationService AUTH_SERVICE = new YggdrasilAuthenticationService(Proxy.NO_PROXY, YggdrasilEnvironment.PROD.getEnvironment());
 	private static final MinecraftSessionService SESSION_SERVICE = AUTH_SERVICE.createMinecraftSessionService();
+
+	// TODO: We should probably update this format :(
+	public static final Codec<PlayerKey> UUID_CODEC = UUIDUtil.CODEC.xmap(
+			uuid -> new PlayerKey(new GameProfile(uuid, "Unknown")),
+			PlayerKey::id
+	);
 
 	private final GameProfile profile;
 
