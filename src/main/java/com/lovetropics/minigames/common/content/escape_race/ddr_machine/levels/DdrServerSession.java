@@ -18,9 +18,10 @@ import net.minecraft.world.phys.Vec3;
 import javax.annotation.Nullable;
 
 public class DdrServerSession {
-	public static final int TICK_RANGE_EITHER_SIDE = 5;
+	private static final int PERFECT_TOLERANCE = 1;
+	public static final int TICK_RANGE_EITHER_SIDE = PERFECT_TOLERANCE + 5;
 	private static final int SCORE_PER_TICK = 10;
-	private static final int PERFECT_SCORE = TICK_RANGE_EITHER_SIDE * SCORE_PER_TICK;
+	private static final int PERFECT_SCORE = (TICK_RANGE_EITHER_SIDE - PERFECT_TOLERANCE) * SCORE_PER_TICK;
 
 	private final Holder<DdrLevel> level;
 	private final DdrLevelInputQueue inputQueue;
@@ -119,6 +120,7 @@ public class DdrServerSession {
 	}
 
 	private static int computeScore(DdrLevelInputQueue.Hit hit) {
-		return Math.max(PERFECT_SCORE - (hit.deviationTicks() * SCORE_PER_TICK), 0);
+		int adjustedTicks = Math.max(hit.deviationTicks() - PERFECT_TOLERANCE, 0);
+		return Math.max(PERFECT_SCORE - (adjustedTicks * SCORE_PER_TICK), 0);
 	}
 }
