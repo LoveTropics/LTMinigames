@@ -29,7 +29,7 @@ import com.lovetropics.minigames.common.core.game.behavior.instances.ScoreMobInG
 import com.lovetropics.minigames.common.core.game.behavior.instances.SetGameClientStateBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.SetGameTypesBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.SetupIntegrationsBehavior;
-import com.lovetropics.minigames.common.core.game.behavior.instances.SnowballBreakBlockBehavior;
+import com.lovetropics.minigames.common.core.game.behavior.instances.ProjectileBreakBlockBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.SpawnDonorsInRegionBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.SpectatorChaseBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.TipsAndTricksBehavior;
@@ -247,7 +247,7 @@ public class GameBehaviorTypes {
 	public static final GameBehaviorEntry<DamageInWaterBehavior> DAMAGE_IN_WATER = register("damage_in_water", DamageInWaterBehavior.CODEC);
 	public static final GameBehaviorEntry<ApplyToPlayerWhileTrigger> APPLY_TO_PLAYER_WHILE = register("apply_to_player_while", ApplyToPlayerWhileTrigger.CODEC);
 	public static final GameBehaviorEntry<BlockInRegionTrigger> BLOCK_IN_REGION = register("block_in_region", BlockInRegionTrigger.CODEC);
-	public static final GameBehaviorEntry<SnowballBreakBlockBehavior> SNOWBALL_BREAK_BLOCK = register("snowball_break_block", SnowballBreakBlockBehavior.CODEC);
+	public static final GameBehaviorEntry<ProjectileBreakBlockBehavior> PROJECTILE_BREAK_BLOCK = register("projectile_break_block", ProjectileBreakBlockBehavior.CODEC);
 
 	public static final GameBehaviorEntry<BindObjectiveToStatisticBehavior> BIND_OBJECTIVE_TO_STATISTIC = register("bind_objective_to_statistic", BindObjectiveToStatisticBehavior.CODEC);
 	public static final GameBehaviorEntry<PlaceByStatisticBehavior> PLACE_BY_STATISTIC = register("place_by_statistic", PlaceByStatisticBehavior.CODEC);
