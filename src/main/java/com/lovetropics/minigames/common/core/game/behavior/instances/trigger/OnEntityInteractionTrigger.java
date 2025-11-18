@@ -10,13 +10,16 @@ import com.lovetropics.minigames.common.core.game.behavior.action.GameActionCont
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionList;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.advancements.critereon.EntityPredicate;
+import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.util.context.ContextKeySet;
 import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -24,14 +27,18 @@ import java.util.function.Supplier;
 public record OnEntityInteractionTrigger(
 		GameActionList sourceActions,
 		GameActionList targetActions,
+		Optional<ItemPredicate> itemUsedPredicate,
 		Optional<EntityPredicate> sourcePredicate,
-		Optional<EntityPredicate> targetPredicate
+		Optional<EntityPredicate> targetPredicate,
+		boolean consume
 ) implements IGameBehavior {
 	public static final MapCodec<OnEntityInteractionTrigger> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 			GameActionList.CODEC.optionalFieldOf("source_actions", GameActionList.EMPTY).forGetter(OnEntityInteractionTrigger::sourceActions),
 			GameActionList.CODEC.optionalFieldOf("target_actions", GameActionList.EMPTY).forGetter(OnEntityInteractionTrigger::targetActions),
+			ItemPredicate.CODEC.optionalFieldOf("item_used").forGetter(OnEntityInteractionTrigger::itemUsedPredicate),
 			EntityPredicate.CODEC.optionalFieldOf("source_predicate").forGetter(OnEntityInteractionTrigger::sourcePredicate),
-			EntityPredicate.CODEC.optionalFieldOf("target_predicate").forGetter(OnEntityInteractionTrigger::targetPredicate)
+			EntityPredicate.CODEC.optionalFieldOf("target_predicate").forGetter(OnEntityInteractionTrigger::targetPredicate),
+			Codec.BOOL.optionalFieldOf("consume", false).forGetter(OnEntityInteractionTrigger::consume)
 	).apply(instance, OnEntityInteractionTrigger::new));
 
 	@Override
@@ -40,7 +47,12 @@ public record OnEntityInteractionTrigger(
 		targetActions.register(game, events);
 
 		events.listen(GamePlayerEvents.INTERACT_ENTITY, (player, target, hand) -> {
-			if (hand != InteractionHand.MAIN_HAND) {
+			if (itemUsedPredicate.isEmpty() && hand != InteractionHand.MAIN_HAND) {
+				return InteractionResult.PASS;
+			}
+
+			ItemStack itemInHand = player.getItemInHand(hand);
+			if (itemUsedPredicate.isPresent() && !itemUsedPredicate.get().test(itemInHand)) {
 				return InteractionResult.PASS;
 			}
 
@@ -53,10 +65,17 @@ public record OnEntityInteractionTrigger(
 
 			final ContextMap.Builder context = new ContextMap.Builder()
 					.withParameter(GameActionContextKeys.TARGET, target);
-			sourceActions.apply(game, context.create(ContextKeySet.EMPTY), ActionSubjects.ofPlayer(player));
-			targetActions.apply(game, context.create(ContextKeySet.EMPTY), ActionSubjects.ofEntity(target));
+			boolean applied = sourceActions.apply(game, context.create(ContextKeySet.EMPTY), ActionSubjects.ofPlayer(player))
+					| targetActions.apply(game, context.create(ContextKeySet.EMPTY), ActionSubjects.ofEntity(target));
 
-			return InteractionResult.CONSUME;
+			if (applied) {
+				if (consume) {
+					itemInHand.consume(1, player);
+				}
+				return InteractionResult.SUCCESS_SERVER;
+			} else {
+				return InteractionResult.FAIL;
+			}
 		});
 	}
 
