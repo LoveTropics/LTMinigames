@@ -13,6 +13,7 @@ import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.T
 import com.lovetropics.minigames.common.core.network.ddr.ClientboundDdrInputHitPacket;
 import com.lovetropics.minigames.common.core.network.ddr.ServerboundSelectDdrLevelPacket;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.SharedConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
@@ -21,7 +22,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.syncher.EntityDataAccessor;
-import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -54,6 +54,8 @@ import java.util.Objects;
 import java.util.function.IntFunction;
 
 public class DDRMachineEntity extends Entity implements PlayerRideable {
+	private static final int BED_COOLDOWN_TICKS = SharedConstants.TICKS_PER_SECOND * 2;
+
 	public enum DDRMachineState {
 		MENU(0),
 		PLAYING(1),
@@ -67,7 +69,7 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 		}
 
 		public int id() {
-			return this.id;
+			return id;
 		}
 
 		private static final IntFunction<DDRMachineState> BY_ID = ByIdMap.continuous(
@@ -76,7 +78,6 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 		public static final StreamCodec<ByteBuf, DDRMachineState> STREAM_CODEC = ByteBufCodecs.idMapper(BY_ID, DDRMachineState::id);
 	}
 
-	private static final int MAX_PASSENGERS = 1;
 	public final AnimationState toBedState = new AnimationState();
 	public final AnimationState toDDRMachineState = new AnimationState();
 
@@ -84,7 +85,6 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 
 	private static final EntityDataAccessor<DDRMachineState> DATA_STATE = SynchedEntityData.defineId(DDRMachineEntity.class, EscapeRace.DDR_STATE);
 	private static final EntityDataAccessor<DdrSessionState> DATA_SESSION = SynchedEntityData.defineId(DDRMachineEntity.class, EscapeRace.DDR_SESSION);
-	private static final EntityDataAccessor<Long> DATA_STATE_LAST_CHANGE_TICK = SynchedEntityData.defineId(DDRMachineEntity.class, EntityDataSerializers.LONG);
 
 	private final List<Holder<DdrLevel>> orderedLevels;
 
@@ -96,6 +96,8 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 	@Nullable
 	private ClientDdrMachine clientMachine;
 
+	private long canSwitchBedStateAfterTime;
+
 	public DDRMachineEntity(EntityType<? extends Entity> entityType, Level level) {
 		super(entityType, level);
 		orderedLevels = level.registryAccess().lookupOrThrow(EscapeRace.DDR_LEVEL).listElements()
@@ -106,6 +108,8 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 		if (level.isClientSide()) {
 			clientMachine = new ClientDdrMachine();
 		}
+
+		toDDRMachineState.start(-BED_COOLDOWN_TICKS);
 	}
 
 	public List<Holder<DdrLevel>> getOrderedLevels() {
@@ -116,8 +120,7 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 	protected void defineSynchedData(SynchedEntityData.Builder builder) {
 		builder.define(DATA_PLAYER_INPUT, DdrInput.NONE)
 				.define(DATA_STATE, DDRMachineState.MENU)
-				.define(DATA_SESSION, DdrSessionState.INACTIVE)
-				.define(DATA_STATE_LAST_CHANGE_TICK, 0L);
+				.define(DATA_SESSION, DdrSessionState.INACTIVE);
 	}
 
 	@Override
@@ -162,6 +165,9 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 	@Override
 	public InteractionResult interact(Player player, InteractionHand hand) {
 //		foldIntoBedState.start(this.tickCount);
+		if (hand != InteractionHand.MAIN_HAND) {
+			return InteractionResult.PASS;
+		}
 
 		if (player.isPassengerOfSameVehicle(this)) {
 			if (level().isClientSide()) {
@@ -174,7 +180,11 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 			player.startRiding(this);
 			return InteractionResult.SUCCESS;
 		} else if (!level().isClientSide() && player.isShiftKeyDown()) {
+			if (level().getGameTime() < canSwitchBedStateAfterTime) {
+				return InteractionResult.FAIL;
+			}
 			ejectPassengers();
+			canSwitchBedStateAfterTime = level().getGameTime() + BED_COOLDOWN_TICKS;
 			if (getState() == DDRMachineState.MENU) {
 				setState(DDRMachineState.BEDS);
 			} else if (getState() == DDRMachineState.BEDS) {
@@ -200,32 +210,8 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 		return true;
 	}
 
-	public void setState(DDRMachineState state) {
-		if(getState() != state) {
-			DDRMachineState oldState = getState();
-			getEntityData().set(DATA_STATE, state);
-			if((oldState == DDRMachineState.BEDS && state != DDRMachineState.BEDS) || (oldState != DDRMachineState.BEDS && state == DDRMachineState.BEDS)) {
-				getEntityData().set(DATA_STATE_LAST_CHANGE_TICK, this.level().getGameTime());
-			}
-		}
-	}
-
-	public long getStateTime() {
-		return this.level().getGameTime() - Math.abs(this.entityData.get(DATA_STATE_LAST_CHANGE_TICK));
-	}
-
-	private void setupAnimationStates() {
-		if(getState() == DDRMachineState.MENU) {
-			this.toBedState.stop();
-			if(getStateTime() == 0){
-				this.toDDRMachineState.start(this.tickCount);
-			}
-		} else if(getState() == DDRMachineState.BEDS) {
-			this.toDDRMachineState.stop();
-			if(getStateTime() == 0){
-				this.toBedState.start(this.tickCount);
-			}
-		}
+	public void setState(DDRMachineState newState) {
+		getEntityData().set(DATA_STATE, newState);
 	}
 
 	@Override
@@ -279,11 +265,14 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 
 		if (!level().isClientSide()) {
 			tickServer();
-		} else {
-			setupAnimationStates();
-			if (clientMachine != null) {
-				clientMachine.tick(this);
-			}
+		} else if (clientMachine != null) {
+			clientMachine.tick(this);
+		}
+
+		if (level().isClientSide()) {
+			DDRMachineState state = getState();
+			toBedState.animateWhen(state == DDRMachineState.BEDS, tickCount);
+			toDDRMachineState.animateWhen(state != DDRMachineState.BEDS, tickCount);
 		}
 	}
 
@@ -317,7 +306,7 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 		serverSession = new DdrServerSession(level, startedAtTime);
 		player.sendSystemMessage(Component.literal("Starting track"), true);
 		getEntityData().set(DATA_SESSION, DdrSessionState.playing(level, startedAtTime));
-		getEntityData().set(DATA_STATE, DDRMachineState.PLAYING);
+		setState(DDRMachineState.PLAYING);
 	}
 
 	@Override
@@ -336,7 +325,7 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 		player.sendSystemMessage(Component.literal("Your Score: " + serverSession.getCurrentLevelScore()));
 		player.sendSystemMessage(Component.literal("Highest Streak: " + serverSession.getHighestStreak()));
 		getEntityData().set(DATA_SESSION, DdrSessionState.INACTIVE);
-		getEntityData().set(DATA_STATE, DDRMachineState.MENU);
+		setState(DDRMachineState.MENU);
 		serverSession = null;
 		player.sendSystemMessage(Component.literal("Stopping track"));
 	}
@@ -349,7 +338,7 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 		recordingSession = new DdrRecordingSession(Component.literal(name), track, startedAtTime);
 		player.sendSystemMessage(Component.literal("Starting track & recording..."));
 		getEntityData().set(DATA_SESSION, DdrSessionState.recording(track, startedAtTime));
-		getEntityData().set(DATA_STATE, DDRMachineState.RECORDING);
+		setState(DDRMachineState.RECORDING);
 	}
 
 	public void stopRecording(ServerPlayer player) {
@@ -364,7 +353,7 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 		}
 		recordingSession = null;
 		getEntityData().set(DATA_SESSION, DdrSessionState.INACTIVE);
-		getEntityData().set(DATA_STATE, DDRMachineState.MENU);
+		setState(DDRMachineState.MENU);
 
 		player.sendSystemMessage(Component.literal("Stopping track & recording..."));
 
@@ -400,9 +389,9 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 	@Override
 	public void onPassengerTurned(Entity entityToUpdate) {
 		super.onPassengerTurned(entityToUpdate);
-		entityToUpdate.setYBodyRot(180 + this.getYRot());
+		entityToUpdate.setYBodyRot(180 + getYRot());
 		if (getState() == DDRMachineState.PLAYING) {
-			entityToUpdate.setYRot(180 + this.getYRot());
+			entityToUpdate.setYRot(180 + getYRot());
 		}
 	}
 
