@@ -8,6 +8,7 @@
     "DataCommandsMixin",
     "EntityAccessor",
     "EntityMixin",
+    "EntitySelectorMixin",
     "MinecraftServerMixin",
     "PlayerListMixin",
     "RideCommandMixin",
