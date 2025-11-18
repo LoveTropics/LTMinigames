@@ -36,6 +36,9 @@ public record EntityTemplate(EntityType<?> type, CompoundTag tag) {
 		tag.putString("id", EntityType.getKey(type).toString());
 		return EntityType.loadEntityRecursive(tag, level, EntitySpawnReason.COMMAND, e -> {
 			e.snapTo(x, y, z, yRot, xRot);
+			e.setYRot(yRot);
+			e.setYBodyRot(yRot);
+			e.setYHeadRot(yRot);
 			return e;
 		});
 	}
