@@ -272,9 +272,11 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 
 		if (!level().isClientSide()) {
 			tickServer();
+		} else {
 			setupAnimationStates();
-		} else if (clientMachine != null) {
-			clientMachine.tick(this);
+			if (clientMachine != null) {
+				clientMachine.tick(this);
+			}
 		}
 	}
 
