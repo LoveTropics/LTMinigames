@@ -12,6 +12,7 @@ import com.lovetropics.minigames.common.core.game.IGamePhaseDefinition;
 import com.lovetropics.minigames.common.core.game.lobby.LobbyControls;
 import com.lovetropics.minigames.common.core.game.lobby.QueuedGame;
 import com.lovetropics.minigames.common.core.game.rewards.GameRewardsMap;
+import com.lovetropics.minigames.common.dev.DevQuickPlay;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
@@ -211,7 +212,11 @@ abstract class LobbyState {
 
 		@Override
 		protected GameResult<LobbyState> tick(GameLobby lobby) {
-			GameStopReason stopReason = Objects.requireNonNull(phase).stopReason();
+			GamePhase phase = Objects.requireNonNull(this.phase);
+			if (DevQuickPlay.isEnabled()) {
+				phase.requestStop(GameStopReason.finished());
+			}
+			GameStopReason stopReason = phase.stopReason();
 			if (stopReason != null) {
 				return nextState(stopReason);
 			}

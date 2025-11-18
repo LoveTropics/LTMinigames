@@ -2,6 +2,7 @@ package com.lovetropics.minigames.common.core.game.player;
 
 import com.lovetropics.minigames.client.lobby.select_role.SelectRolePromptMessage;
 import com.lovetropics.minigames.common.core.game.lobby.GameLobbyId;
+import com.lovetropics.minigames.common.dev.DevQuickPlay;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -37,6 +38,10 @@ public final class PlayerRoleSelections {
 	}
 
 	public CompletableFuture<PlayerRole> prompt(ServerPlayer player) {
+		if (DevQuickPlay.isEnabled()) {
+			roles.put(player.getUUID(), PlayerRole.PARTICIPANT);
+			return CompletableFuture.completedFuture(PlayerRole.PARTICIPANT);
+		}
 		CompletableFuture<PlayerRole> future = pendingResponses.get(player.getUUID());
 		if (future == null) {
 			final CompletableFuture<PlayerRole> rootFuture = new CompletableFuture<>();

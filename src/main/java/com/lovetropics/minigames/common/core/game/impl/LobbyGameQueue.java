@@ -1,7 +1,9 @@
 package com.lovetropics.minigames.common.core.game.impl;
 
 import com.lovetropics.minigames.common.core.game.IGameDefinition;
+import com.lovetropics.minigames.common.core.game.config.GameConfig;
 import com.lovetropics.minigames.common.core.game.lobby.QueuedGame;
+import com.lovetropics.minigames.common.dev.DevQuickPlay;
 import net.minecraft.util.Mth;
 
 import javax.annotation.Nullable;
@@ -14,7 +16,14 @@ public final class LobbyGameQueue implements Iterable<QueuedGame> {
 
 	@Nullable
 	QueuedGame next() {
-		return !entries.isEmpty() ? entries.removeFirst() : null;
+		if (!entries.isEmpty()) {
+			return entries.removeFirst();
+		}
+		GameConfig quickPlayGame = DevQuickPlay.getQuickPlayGame();
+		if (quickPlayGame != null) {
+			return QueuedGame.create(quickPlayGame);
+		}
+		return null;
 	}
 
 	public QueuedGame enqueue(IGameDefinition game) {
