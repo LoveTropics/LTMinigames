@@ -5,6 +5,7 @@ import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.content.escape_race.behaviours.BreakBucksBehaviour;
 import com.lovetropics.minigames.common.content.escape_race.behaviours.WarehouseSetupBehaviour;
 import com.lovetropics.minigames.common.content.escape_race.client.EscapeRaceClientBucksState;
+import com.lovetropics.minigames.common.content.escape_race.client.EscapeRaceRoomsState;
 import com.lovetropics.minigames.common.content.escape_race.client.ddr.render.DDRMachineEntityRenderer;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DDRMachineEntity;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DdrInput;
@@ -15,7 +16,6 @@ import com.lovetropics.minigames.common.content.escape_race.effect.TapirTakeover
 import com.lovetropics.minigames.common.content.escape_race.effect.UpsetStomachEffect;
 import com.lovetropics.minigames.common.content.escape_race.misc.RoomEntrancePadEntity;
 import com.lovetropics.minigames.common.content.escape_race.misc.RoomEntrancePadEntityRenderer;
-import com.lovetropics.minigames.common.content.escape_race.rooms.RoomStatus;
 import com.lovetropics.minigames.common.content.escape_race.vending_machine.VendingMachineEntity;
 import com.lovetropics.minigames.common.content.escape_race.vending_machine.VendingMachineEntityRenderer;
 import com.lovetropics.minigames.common.util.registry.GameBehaviorEntry;
@@ -80,7 +80,6 @@ public class EscapeRace {
 	public static final EntityDataSerializer<DdrSessionState> DDR_SESSION = EntityDataSerializer.forValueType(DdrSessionState.STREAM_CODEC);
 
 	public static final EntityDataSerializer<DdrInput> DDR_INPUT = EntityDataSerializer.forValueType(DdrInput.STREAM_CODEC);
-	public static final EntityDataSerializer<RoomStatus> ROOM_STATUS = EntityDataSerializer.forValueType(RoomStatus.STREAM_CODEC);
 
 	public static DeferredHolder<EntityDataSerializer<?>, EntityDataSerializer<?>> register(String name, EntityDataSerializer<?> dataSerializerEntry) {
 		return ENTITY_SERIALIZERS.register(name, () -> dataSerializerEntry);
@@ -132,6 +131,10 @@ public class EscapeRace {
 	public static final GameClientTweakEntry<EscapeRaceClientBucksState> BREAK_BUCK_STATE = REGISTRATE.object("break_buck_count")
 			.clientState(EscapeRaceClientBucksState.CODEC)
 			.register();
+	public static final GameClientTweakEntry<EscapeRaceRoomsState> ROOMS_STATE = REGISTRATE.object("rooms_state")
+			.clientState(EscapeRaceRoomsState.CODEC).streamCodec(EscapeRaceRoomsState.STREAM_CODEC)
+			.register();
+
 	public static final GameBehaviorEntry<BreakBucksBehaviour> BREAK_BUCKS_BEHAVIOUR = REGISTRATE.object("escape_race/break_bucks").behavior(BreakBucksBehaviour.CODEC).register();
 
 
@@ -164,7 +167,6 @@ public class EscapeRace {
 		register("ddr_state", DDR_STATE);
 		register("ddr_input", DDR_INPUT);
 		register("ddr_session", DDR_SESSION);
-		register("room_status", ROOM_STATUS);
 	}
 
 

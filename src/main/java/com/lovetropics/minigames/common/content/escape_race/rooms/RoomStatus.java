@@ -6,7 +6,6 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.ByIdMap;
 import net.minecraft.util.StringRepresentable;
-import net.minecraft.world.entity.animal.armadillo.Armadillo;
 
 import java.util.function.IntFunction;
 
@@ -15,7 +14,7 @@ public enum RoomStatus implements StringRepresentable {
 	UNLOCKED("unlocked", 1),
 	COMPLETED("completed", 2),;
 
-	static final Codec<RoomStatus> CODEC = StringRepresentable.fromEnum(RoomStatus::values);
+	public static final Codec<RoomStatus> CODEC = StringRepresentable.fromEnum(RoomStatus::values);
 	private static final IntFunction<RoomStatus> BY_ID = ByIdMap.continuous(
 			RoomStatus::id, values(), ByIdMap.OutOfBoundsStrategy.ZERO
 	);

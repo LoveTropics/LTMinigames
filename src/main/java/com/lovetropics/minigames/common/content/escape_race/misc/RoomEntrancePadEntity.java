@@ -1,9 +1,5 @@
 package com.lovetropics.minigames.common.content.escape_race.misc;
 
-import com.lovetropics.minigames.common.content.escape_race.EscapeRace;
-import com.lovetropics.minigames.common.content.escape_race.rooms.RoomStatus;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -26,11 +22,6 @@ public class RoomEntrancePadEntity extends Entity {
 	private static final EntityDataAccessor<Float> HEIGHT = SynchedEntityData.defineId(RoomEntrancePadEntity.class, EntityDataSerializers.FLOAT);
 	private static final EntityDataAccessor<Float> DEPTH = SynchedEntityData.defineId(RoomEntrancePadEntity.class, EntityDataSerializers.FLOAT);
 
-	private static final EntityDataAccessor<Integer> COST = SynchedEntityData.defineId(RoomEntrancePadEntity.class, EntityDataSerializers.INT);
-	private static final EntityDataAccessor<RoomStatus> ROOM_STATUS = SynchedEntityData.defineId(RoomEntrancePadEntity.class, EscapeRace.ROOM_STATUS);
-	private static final EntityDataAccessor<Component> ROOM_NAME = SynchedEntityData.defineId(RoomEntrancePadEntity.class, EntityDataSerializers.COMPONENT);
-
-
 	public RoomEntrancePadEntity(EntityType<?> entityType, Level level) {
 		super(entityType, level);
 	}
@@ -39,10 +30,7 @@ public class RoomEntrancePadEntity extends Entity {
 	protected void defineSynchedData(SynchedEntityData.Builder builder) {
 		builder.define(WIDTH, 1f)
 				.define(HEIGHT, 1f)
-				.define(DEPTH, 1f)
-				.define(COST, 1)
-				.define(ROOM_STATUS, RoomStatus.LOCKED)
-				.define(ROOM_NAME, Component.empty());
+				.define(DEPTH, 1f);
 	}
 
 	@Override
@@ -80,8 +68,6 @@ public class RoomEntrancePadEntity extends Entity {
 		getEntityData().set(WIDTH, input.getFloatOr("width", 1));
 		getEntityData().set(HEIGHT, input.getFloatOr("height", 1));
 		getEntityData().set(DEPTH, input.getFloatOr("depth", 1));
-		getEntityData().set(COST, input.getIntOr("cost", 1));
-		getEntityData().set(ROOM_NAME, input.read("name", ComponentSerialization.CODEC).orElse(Component.empty()));
 	}
 
 	@Override
@@ -89,16 +75,10 @@ public class RoomEntrancePadEntity extends Entity {
 		output.putFloat("width", getWidth());
 		output.putFloat("height", getHeight());
 		output.putFloat("depth", getDepth());
-		output.storeNullable("name", ComponentSerialization.CODEC, getRoomName());
-		output.putInt("cost", getCost());
 	}
 
 	public float getWidth() {
 		return getEntityData().get(WIDTH);
-	}
-
-	public int getCost(){
-		return getEntityData().get(COST);
 	}
 
 	public float getDepth() {
@@ -112,27 +92,12 @@ public class RoomEntrancePadEntity extends Entity {
 	public void setWidth(float width) {
 		getEntityData().set(WIDTH, width);
 	}
+
 	public void setHeight(float height) {
 		getEntityData().set(HEIGHT, height);
 	}
+
 	public void setDepth(float depth) {
 		getEntityData().set(DEPTH, depth);
 	}
-	public void setCost(int cost) {
-		getEntityData().set(COST, cost);
-	}
-	public RoomStatus getRoomStatus() {
-		return getEntityData().get(ROOM_STATUS);
-	}
-	public void setRoomStatus(RoomStatus roomStatus) {
-		getEntityData().set(ROOM_STATUS, roomStatus);
-	}
-	public Component getRoomName() {
-		return getEntityData().get(ROOM_NAME);
-	}
-
-	public void setRoomName(Component name) {
-		getEntityData().set(ROOM_NAME, name);
-	}
-
 }

@@ -1,7 +1,5 @@
 package com.lovetropics.minigames.common.content.escape_race.client;
 
-import com.lovetropics.minigames.common.content.biodiversity_blitz.BiodiversityBlitz;
-import com.lovetropics.minigames.common.content.biodiversity_blitz.client_state.ClientBbSelfState;
 import com.lovetropics.minigames.common.content.escape_race.EscapeRace;
 import com.lovetropics.minigames.common.core.game.client_state.GameClientState;
 import com.lovetropics.minigames.common.core.game.client_state.GameClientStateType;

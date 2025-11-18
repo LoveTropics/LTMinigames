@@ -99,4 +99,24 @@ public class Codecs {
 			}
 		};
 	}
+
+	// Yep.
+	public static <A> MapCodec<A> no() {
+		return new MapCodec<>() {
+			@Override
+			public <T> RecordBuilder<T> encode(A input, DynamicOps<T> ops, RecordBuilder<T> prefix) {
+				return prefix.withErrorsFrom(DataResult.error(() -> "No"));
+			}
+
+			@Override
+			public <T> DataResult<A> decode(DynamicOps<T> ops, MapLike<T> input) {
+				return DataResult.error(() -> "No");
+			}
+
+			@Override
+			public <T> Stream<T> keys(DynamicOps<T> ops) {
+				return Stream.empty();
+			}
+		};
+	}
 }

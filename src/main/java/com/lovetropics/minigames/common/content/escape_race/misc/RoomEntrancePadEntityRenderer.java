@@ -4,6 +4,7 @@ import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.client.game.ClientGameStateManager;
 import com.lovetropics.minigames.common.content.escape_race.EscapeRace;
 import com.lovetropics.minigames.common.content.escape_race.client.EscapeRaceClientBucksState;
+import com.lovetropics.minigames.common.content.escape_race.client.EscapeRaceRoomsState;
 import com.lovetropics.minigames.common.content.escape_race.rooms.RoomStatus;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -25,6 +26,8 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.joml.Quaternionf;
+
+import java.util.Objects;
 
 public class RoomEntrancePadEntityRenderer extends EntityRenderer<RoomEntrancePadEntity, RoomEntrancePadRenderState> {
 	private static final ResourceLocation TEXTURE = LoveTropics.location("textures/entity/room_entrance_pad.png");
@@ -57,17 +60,19 @@ public class RoomEntrancePadEntityRenderer extends EntityRenderer<RoomEntrancePa
 		reusedState.height = entity.getHeight();
 		reusedState.width = entity.getWidth();
 		reusedState.ticks = entity.tickCount;
-		reusedState.roomStatus = entity.getRoomStatus();
-		reusedState.cost = entity.getCost();
-		reusedState.roomName = entity.getRoomName();
-		reusedState.color = switch(entity.getRoomStatus()){
+		EscapeRaceRoomsState roomsState = Objects.requireNonNullElse(ClientGameStateManager.getOrNull(EscapeRace.ROOMS_STATE), EscapeRaceRoomsState.EMPTY);
+		EscapeRaceRoomsState.Room room = Objects.requireNonNullElse(roomsState.byEntrance(entity), EscapeRaceRoomsState.Room.EMPTY);
+		reusedState.roomStatus = room.status();
+		reusedState.cost = room.cost();
+		reusedState.roomName = room.name();
+		reusedState.color = switch(room.status()){
 			case LOCKED -> 0xFFFF0000;
 			case UNLOCKED -> 0xFF0000FF;
 			case COMPLETED -> 0xFF00FF00;
 		};
 		EscapeRaceClientBucksState breakBuckState = ClientGameStateManager.getOrNull(EscapeRace.BREAK_BUCK_STATE);
 		int breakBucks = breakBuckState != null ? breakBuckState.amount() : 0;
-		reusedState.canAfford = breakBucks >= entity.getCost();
+		reusedState.canAfford = breakBucks >= room.cost();
 		itemModelResolver.updateForNonLiving(reusedState.breakBuck, breakBuck, ItemDisplayContext.FIXED, entity);
 	}
 
