@@ -233,8 +233,12 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 
 	@Override
 	protected Vec3 getPassengerAttachmentPoint(Entity entity, EntityDimensions dimensions, float partialTick) {
-		if (getState() == DDRMachineState.BEDS && getControllingPassenger() == entity) {
-			return new Vec3(0f, 0.6f, 0.35f).yRot(-getYRot() * Mth.DEG_TO_RAD);
+		if (getState() == DDRMachineState.BEDS) {
+			int index = getPassengers().indexOf(entity);
+			if (index == -1) {
+				return super.getPassengerAttachmentPoint(entity, dimensions, partialTick);
+			}
+			return new Vec3(0f, 0.6f + index * 0.8f, 0.35f).yRot(-getYRot() * Mth.DEG_TO_RAD);
 		}
 		return super.getPassengerAttachmentPoint(entity, dimensions, partialTick);
 	}
