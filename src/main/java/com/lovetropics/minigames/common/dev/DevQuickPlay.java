@@ -40,14 +40,13 @@ import org.slf4j.Logger;
 import javax.annotation.Nullable;
 import java.util.function.Function;
 
-@EventBusSubscriber(Dist.CLIENT)
+@EventBusSubscriber
 public class DevQuickPlay {
 	public static final String OPTION_NAME = "quickPlayMinigame";
 	private static final String LEVEL_NAME = "Minigames";
 
 	private static final Logger LOGGER = LogUtils.getLogger();
 
-	private static boolean firstTitleScreen;
 	@Nullable
 	private static ResourceLocation quickPlayGameId;
 
@@ -71,43 +70,6 @@ public class DevQuickPlay {
 		return gameConfig;
 	}
 
-	private static void loadIntoQuickPlayWorld() {
-		Minecraft minecraft = Minecraft.getInstance();
-		if (minecraft.getLevelSource().levelExists(LEVEL_NAME)) {
-			minecraft.createWorldOpenFlows().openWorld(LEVEL_NAME, () -> minecraft.setScreen(new TitleScreen()));
-		} else {
-			GameRules gameRules = new GameRules(FeatureFlags.VANILLA_SET);
-			gameRules.getRule(GameRules.RULE_DAYLIGHT).set(false, null);
-			gameRules.getRule(GameRules.RULE_WEATHER_CYCLE).set(false, null);
-
-			WorldDataConfiguration dataConfiguration = new WorldDataConfiguration(DataPackConfig.DEFAULT, FeatureFlags.VANILLA_SET);
-			LevelSettings levelSettings = new LevelSettings(LEVEL_NAME, GameType.CREATIVE, false, Difficulty.NORMAL, true, gameRules, dataConfiguration);
-			WorldOptions worldOptions = new WorldOptions(0, false, false);
-			Function<HolderLookup.Provider, WorldDimensions> dimensionsProvider = registries -> {
-				Holder.Reference<WorldPreset> flatPreset = registries.lookupOrThrow(Registries.WORLD_PRESET).getOrThrow(WorldPresets.FLAT);
-				Holder.Reference<FlatLevelGeneratorPreset> redstoneReady = registries.lookupOrThrow(Registries.FLAT_LEVEL_GENERATOR_PRESET).getOrThrow(FlatLevelGeneratorPresets.REDSTONE_READY);
-				return flatPreset.value().createWorldDimensions()
-						.replaceOverworldGenerator(registries, new FlatLevelSource(redstoneReady.value().settings()));
-			};
-
-			minecraft.createWorldOpenFlows().createFreshLevel(LEVEL_NAME, levelSettings, worldOptions, dimensionsProvider, new TitleScreen());
-		}
-	}
-
-	@SubscribeEvent
-	public static void onSetScreen(ScreenEvent.Opening event) {
-		if (firstTitleScreen) {
-			return;
-		}
-		if (event.getNewScreen() instanceof TitleScreen) {
-			if (isEnabled()) {
-				loadIntoQuickPlayWorld();
-				event.setCanceled(true);
-			}
-			firstTitleScreen = true;
-		}
-	}
-
 	@SubscribeEvent
 	public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
 		if (!(event.getEntity() instanceof ServerPlayer player) || !player.getServer().isSingleplayerOwner(player.getGameProfile())) {
@@ -129,6 +91,48 @@ public class DevQuickPlay {
 			});
 		} catch (CommandSyntaxException e) {
 			LOGGER.error("Failed to start lobby", e);
+		}
+	}
+
+	@EventBusSubscriber(Dist.CLIENT)
+	public static class Client {
+		private static boolean firstTitleScreen;
+
+		private static void loadIntoQuickPlayWorld() {
+			Minecraft minecraft = Minecraft.getInstance();
+			if (minecraft.getLevelSource().levelExists(LEVEL_NAME)) {
+				minecraft.createWorldOpenFlows().openWorld(LEVEL_NAME, () -> minecraft.setScreen(new TitleScreen()));
+			} else {
+				GameRules gameRules = new GameRules(FeatureFlags.VANILLA_SET);
+				gameRules.getRule(GameRules.RULE_DAYLIGHT).set(false, null);
+				gameRules.getRule(GameRules.RULE_WEATHER_CYCLE).set(false, null);
+
+				WorldDataConfiguration dataConfiguration = new WorldDataConfiguration(DataPackConfig.DEFAULT, FeatureFlags.VANILLA_SET);
+				LevelSettings levelSettings = new LevelSettings(LEVEL_NAME, GameType.CREATIVE, false, Difficulty.NORMAL, true, gameRules, dataConfiguration);
+				WorldOptions worldOptions = new WorldOptions(0, false, false);
+				Function<HolderLookup.Provider, WorldDimensions> dimensionsProvider = registries -> {
+					Holder.Reference<WorldPreset> flatPreset = registries.lookupOrThrow(Registries.WORLD_PRESET).getOrThrow(WorldPresets.FLAT);
+					Holder.Reference<FlatLevelGeneratorPreset> redstoneReady = registries.lookupOrThrow(Registries.FLAT_LEVEL_GENERATOR_PRESET).getOrThrow(FlatLevelGeneratorPresets.REDSTONE_READY);
+					return flatPreset.value().createWorldDimensions()
+							.replaceOverworldGenerator(registries, new FlatLevelSource(redstoneReady.value().settings()));
+				};
+
+				minecraft.createWorldOpenFlows().createFreshLevel(LEVEL_NAME, levelSettings, worldOptions, dimensionsProvider, new TitleScreen());
+			}
+		}
+
+		@SubscribeEvent
+		public static void onSetScreen(ScreenEvent.Opening event) {
+			if (firstTitleScreen) {
+				return;
+			}
+			if (event.getNewScreen() instanceof TitleScreen) {
+				if (isEnabled()) {
+					loadIntoQuickPlayWorld();
+					event.setCanceled(true);
+				}
+				firstTitleScreen = true;
+			}
 		}
 	}
 }
