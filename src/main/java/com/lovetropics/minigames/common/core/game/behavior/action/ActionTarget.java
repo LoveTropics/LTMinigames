@@ -1,6 +1,7 @@
 package com.lovetropics.minigames.common.core.game.behavior.action;
 
 import com.google.common.collect.Collections2;
+import com.google.common.collect.Lists;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeamKey;
 import com.mojang.datafixers.util.Either;
@@ -41,6 +42,7 @@ public interface ActionTarget {
 		registry.put("sequence", Sequence.MAP_CODEC);
 		registry.put("exclude", Excluding.MAP_CODEC);
 		registry.put("filter_entities", FilterEntities.MAP_CODEC);
+		registry.put("limit_entities", LimitEntities.MAP_CODEC);
 		registry.put("players_around", PlayersAround.MAP_CODEC);
 		registry.put("specific_player", SpecificPlayer.MAP_CODEC);
 		registry.put("specific_team", SpecificTeam.MAP_CODEC);
@@ -58,6 +60,7 @@ public interface ActionTarget {
 		SPECTATORS("spectators", (game, sources) -> ActionSubjects.ofPlayers(game.spectators())),
 		WIDEN_TO_TEAM("widen_to_team", (game, sources) -> sources.coerceInto(game, ActionSubjectType.TEAM)),
 		WIDEN_TO_PLOT("widen_to_plot", (game, sources) -> sources.coerceInto(game, ActionSubjectType.PLOT)),
+		ALL_ENTITIES("all_entities", (game, sources) -> ActionSubjects.ofEntities(Lists.newArrayList(game.level().getAllEntities()))),
 		;
 
 		public static final Codec<Simple> CODEC = StringRepresentable.fromEnum(Simple::values);
@@ -170,12 +173,32 @@ public interface ActionTarget {
 		@Override
 		public ActionSubjects<?> resolveTargets(IGamePhase game, ActionSubjects<?> sources) {
 			return ActionSubjects.ofEntities(List.copyOf(Collections2.filter(sources.asEntities(game), entity ->
-					!predicate.matches(game.level(), null, entity)
+					predicate.matches(game.level(), null, entity)
 			)));
 		}
 
 		@Override
 		public MapCodec<FilterEntities> codec() {
+			return MAP_CODEC;
+		}
+	}
+
+	record LimitEntities(
+			int count
+	) implements ActionTarget {
+		public static final MapCodec<LimitEntities> MAP_CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+				Codec.INT.fieldOf("count").forGetter(LimitEntities::count)
+		).apply(i, LimitEntities::new));
+
+		@Override
+		public ActionSubjects<?> resolveTargets(IGamePhase game, ActionSubjects<?> sources) {
+			List<Entity> entities = new ArrayList<>(sources.asEntities(game));
+			Util.shuffle(entities, game.random());
+			return ActionSubjects.ofEntities(List.copyOf(entities.subList(0, Math.min(count, entities.size()))));
+		}
+
+		@Override
+		public MapCodec<LimitEntities> codec() {
 			return MAP_CODEC;
 		}
 	}

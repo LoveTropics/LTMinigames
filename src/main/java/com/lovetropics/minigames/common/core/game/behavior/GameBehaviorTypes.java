@@ -53,7 +53,7 @@ import com.lovetropics.minigames.common.core.game.behavior.instances.action.Give
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.GiveLootAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.GiveRewardAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.IncrementStatisticAction;
-import com.lovetropics.minigames.common.core.game.behavior.instances.action.KillEntitiesAction;
+import com.lovetropics.minigames.common.core.game.behavior.instances.action.KillAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.LimitedTimeLootAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.NotificationToastAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.PlaySoundAction;
@@ -322,7 +322,7 @@ public class GameBehaviorTypes {
 	public static final GameBehaviorEntry<SetTabListOrderAction> SET_TAB_LIST_ORDER = register("set_tab_list_order", SetTabListOrderAction.CODEC);
 	public static final GameBehaviorEntry<SetEntityHighlightColorAction> SET_ENTITY_HIGHLIGHT_COLOR = register("set_entity_highlight_color", SetEntityHighlightColorAction.CODEC);
 	public static final GameBehaviorEntry<SetTotalTimeAction> SET_TOTAL_TIME = register("set_total_time", SetTotalTimeAction.CODEC);
-	public static final GameBehaviorEntry<KillEntitiesAction> KILL_ENTITIES = register("kill_entities", KillEntitiesAction.CODEC);
+	public static final GameBehaviorEntry<KillAction> KILL = register("kill", KillAction.CODEC);
 	public static final GameBehaviorEntry<StartProgressChannelAction> START_PROGRESS_CHANNEL = register("start_progress_channel", StartProgressChannelAction.CODEC);
 	public static final GameBehaviorEntry<PreventBreakBehavior> PREVENT_BREAK = register("prevent_break", PreventBreakBehavior.CODEC);
 	public static final GameBehaviorEntry<ForceHandsBehavior> FORCE_HANDS = register("force_hands", ForceHandsBehavior.CODEC);
