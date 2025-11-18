@@ -8,8 +8,6 @@ import com.lovetropics.minigames.common.core.game.behavior.SpawnDonorUtils;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameLivingEntityEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePackageEvents;
-import com.lovetropics.minigames.common.core.game.util.GameTexts;
-import com.lovetropics.minigames.common.core.integration.BackendIntegrations;
 import com.lovetropics.minigames.common.core.integration.GameInstanceIntegrations;
 import com.lovetropics.minigames.common.core.integration.game_actions.Donation;
 import com.lovetropics.minigames.common.core.integration.state.DonationScale;
@@ -41,9 +39,6 @@ public record SpawnDonorsInRegionBehavior(
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		if (!BackendIntegrations.get().isConnected()) {
-			throw new GameException(GameTexts.Status.integrationsNotConnected());
-		}
 		GameInstanceIntegrations integrations = game.instanceState().getOrNull(GameInstanceIntegrations.KEY);
 		if (integrations == null) {
 			return;
