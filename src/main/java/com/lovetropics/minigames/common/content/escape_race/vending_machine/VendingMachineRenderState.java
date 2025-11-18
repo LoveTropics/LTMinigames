@@ -47,7 +47,7 @@ public class VendingMachineRenderState extends EntityRenderState {
 			this.selected = selected;
 			this.picked = picked;
 			name = itemStack.getHoverName();
-			cost = itemStack.getOrDefault(EscapeRace.VENDINGMACHINE_COMPONENT, 0);
+			cost = itemStack.getOrDefault(EscapeRace.VENDING_MACHINE_COST, 0);
 		}
 	}
 }

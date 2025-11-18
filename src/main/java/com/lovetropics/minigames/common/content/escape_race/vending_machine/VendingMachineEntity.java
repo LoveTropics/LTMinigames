@@ -1,6 +1,7 @@
 package com.lovetropics.minigames.common.content.escape_race.vending_machine;
 
 import com.google.common.collect.Lists;
+import com.lovetropics.minigames.SoundRegistry;
 import com.lovetropics.minigames.common.content.escape_race.EscapeRace;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.impl.GamePhaseManager;
@@ -10,7 +11,6 @@ import com.lovetropics.minigames.common.core.network.vending.ServerboundVendingM
 import net.minecraft.SharedConstants;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
-import net.minecraft.commands.Commands;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.component.DataComponents;
@@ -19,6 +19,7 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -110,20 +111,23 @@ public class VendingMachineEntity extends Entity implements ContainerEntity {
 	}
 
 	private void spawnDroppedItem(ItemStack itemStack) {
-		Vec3 spawnPos = position().add(getLookAngle().scale(1f));
-		level().addFreshEntity(new ItemEntity(level(), spawnPos.x, spawnPos.y, spawnPos.z, itemStack.copy()));
+		Vec3 forward = getDirection().getUnitVec3();
+		Vec3 spawnPos = position().add(0.0, 0.25, 0.0).add(forward.scale(0.75f));
+		ItemEntity entity = new ItemEntity(level(), spawnPos.x, spawnPos.y, spawnPos.z, itemStack.copy());
+		entity.setDeltaMovement(forward.scale(0.1).add(0.0, 0.2, 0.0));
+		level().addFreshEntity(entity);
 	}
 
-	public void tryPurchase(Player player, int itemIndex) {
+	public void tryPurchase(ServerPlayer player, int itemIndex) {
 		if (droppingItem != null) {
 			return;
 		}
 		IGamePhase game = GamePhaseManager.get().getGamePhaseFor(player);
-		if (game != null && !game.invoker(VendingMachineEvents.PURCHASE_ITEM).onPurchaseItem(player, this, getItem(itemIndex))) {
-			// Play sound, did not purchase
+		if (game != null && game.invoker(VendingMachineEvents.PURCHASE_ITEM).tryPurchaseItem(player, this, getItem(itemIndex)).isFalse()) {
+			playSound(SoundRegistry.INCORRECT.value());
 			return;
 		}
-		// Play sound, did purchase
+		playSound(SoundRegistry.CORRECT.value());
 		startDropping(getItem(itemIndex).copyWithCount(1), itemIndex);
 	}
 
@@ -216,7 +220,7 @@ public class VendingMachineEntity extends Entity implements ContainerEntity {
 
 	@Override
 	public boolean hasCustomOutlineRendering(Player player) {
-		return player.hasLineOfSight(this) && player.getLookAngle().dot(getLookAngle()) < 0;
+		return true;
 	}
 
 	@Override
@@ -302,7 +306,7 @@ public class VendingMachineEntity extends Entity implements ContainerEntity {
 
 	@Override
 	public InteractionResult interact(Player player, InteractionHand hand) {
-		if (player.isShiftKeyDown() && player.hasPermissions(Commands.LEVEL_GAMEMASTERS)) {
+		if (player.isShiftKeyDown() && player.canUseGameMasterBlocks()) {
 			player.openMenu(this);
 		}
 		return InteractionResult.SUCCESS;

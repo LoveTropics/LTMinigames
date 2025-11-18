@@ -1,7 +1,8 @@
 package com.lovetropics.minigames.common.content.escape_race.vending_machine;
 
 import com.lovetropics.minigames.common.core.game.behavior.event.GameEventType;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.TriState;
 import net.minecraft.world.item.ItemStack;
 
 public class VendingMachineEvents {
@@ -9,17 +10,15 @@ public class VendingMachineEvents {
 	public static final GameEventType<PurchaseItem> PURCHASE_ITEM = GameEventType.create(VendingMachineEvents.PurchaseItem.class,
 			listeners -> (player, entity, itemStack) -> {
 				for (PurchaseItem listener : listeners) {
-					boolean isCorrect = listener.onPurchaseItem(player, entity, itemStack);
-					if (isCorrect) {
-						return true;
+					TriState result = listener.tryPurchaseItem(player, entity, itemStack);
+					if (!result.isDefault()) {
+						return result;
 					}
 				}
-				return false;
+				return TriState.DEFAULT;
 			});
 
 	public interface PurchaseItem {
-		boolean onPurchaseItem(Player player, VendingMachineEntity entity,
-							   ItemStack item);
+		TriState tryPurchaseItem(ServerPlayer player, VendingMachineEntity entity, ItemStack item);
 	}
-
 }

@@ -1,13 +1,19 @@
 package com.lovetropics.minigames.common.content.escape_race.vending_machine;
 
 import com.lovetropics.minigames.LoveTropics;
+import com.lovetropics.minigames.client.game.ClientGameStateManager;
+import com.lovetropics.minigames.common.content.escape_race.EscapeRace;
+import com.lovetropics.minigames.common.content.escape_race.EscapeRaceTexts;
+import com.lovetropics.minigames.common.content.escape_race.client.EscapeRaceClientBucksState;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.inventory.tooltip.TooltipRenderUtil;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.OutlineBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
@@ -15,6 +21,7 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.CommonColors;
@@ -25,6 +32,7 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class VendingMachineEntityRenderer extends EntityRenderer<VendingMachineEntity, VendingMachineRenderState> {
@@ -230,18 +238,33 @@ public class VendingMachineEntityRenderer extends EntityRenderer<VendingMachineE
 			return;
 		}
 
+		List<Component> lines = new ArrayList<>();
+		lines.add(itemStack.getHoverName());
+
+		EscapeRaceClientBucksState breakBucks = ClientGameStateManager.getOrNull(EscapeRace.BREAK_BUCK_STATE);
+		if (breakBucks != null) {
+			int cost = itemStack.getOrDefault(EscapeRace.VENDING_MACHINE_COST, 0);
+			Component styledCost = Component.literal(String.valueOf(cost)).withStyle(breakBucks.amount() >= cost ? ChatFormatting.GREEN : ChatFormatting.RED);
+			lines.add(EscapeRaceTexts.BREAK_BUCKS_COST.apply(styledCost).withStyle(ChatFormatting.GRAY));
+		}
+
 		Font font = minecraft.font;
 
-		int width = font.width(itemStack.getHoverName());
-		int x = (graphics.guiWidth() / 2) + (-width / 2);
-		int y = (graphics.guiHeight() - 80) + ((18 - font.lineHeight) / 2) + 8;
+		int width = lines.stream().mapToInt(font::width).max().orElse(0);
+		int height = (font.lineHeight + 1) * lines.size();
 
-//								String currency = .getString();
+		int centerX = graphics.guiWidth() / 2;
+		int centerY = graphics.guiHeight() - 70;
 
-		int backgroundColor = 0xe0211d18;
+		int left = centerX - width / 2;
+		int top = centerY - height / 2;
+
 		int padding = 2;
-		graphics.fill(x - padding, y - padding, x + width + padding, y + font.lineHeight + padding, ARGB.multiply(backgroundColor, CommonColors.WHITE));
+		TooltipRenderUtil.renderTooltipBackground(graphics, left - padding, top - padding, width + padding * 2, height + padding, null);
 
-		graphics.drawString(font, itemStack.getHoverName(), x, y, CommonColors.WHITE, true);
+		for (Component line : lines) {
+			graphics.drawCenteredString(font, line, centerX, top, CommonColors.WHITE);
+			top += font.lineHeight + 1;
+		}
 	}
 }

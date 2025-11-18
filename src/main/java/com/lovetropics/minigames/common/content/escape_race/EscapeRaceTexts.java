@@ -24,13 +24,15 @@ public class EscapeRaceTexts {
 
 	public static final Component DDR_PERFECT_SCORE = KEYS.add("ddr.positive.perfect", "Perfect!");
 	public static final Component DDR_STREAK_BROKEN = KEYS.add("ddr.negative.streak_broken", "Streak Broken!").withStyle(ChatFormatting.RED);
+	public static final TranslationCollector.Fun1 DDR_SCORE_ADDED = KEYS.add1("ddr.score.added", "+%s Break Bucks");
 
 	public static final TranslationCollector.Fun1 UNLOCKING = KEYS.add1("room.unlocking", "UNLOCKING - %s%%");
 	public static final TranslationCollector.Fun2 LOCKED_CANNOT_AFFORD = KEYS.add2("room.locked_cannot_afford", "LOCKED - %s/%s Break Bucks");
 	public static final TranslationCollector.Fun2 LOCKED_NOT_ENOUGH_PLAYERS = KEYS.add2("room.locked_not_enough_players", "LOCKED - %s/%s crouched");
 
+	public static final TranslationCollector.Fun1 BREAK_BUCKS_COST = KEYS.add1("vending_machine.break_bucks_cost", "%s Break Bucks");
+
 	public static void collectTranslations(BiConsumer<String, String> consumer){
-		KEYS.add("ddr.score.added", "+%s Break Bucks");
 		KEYS.add("donorbook.title", "%s's final thoughts");
 
 		KEYS.forEach(consumer);

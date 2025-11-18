@@ -21,7 +21,6 @@ import com.lovetropics.minigames.common.content.escape_race.vending_machine.Vend
 import com.lovetropics.minigames.common.util.registry.GameBehaviorEntry;
 import com.lovetropics.minigames.common.util.registry.GameClientTweakEntry;
 import com.lovetropics.minigames.common.util.registry.LoveTropicsRegistrate;
-import com.mojang.serialization.Codec;
 import com.tterrag.registrate.util.entry.ItemEntry;
 import com.tterrag.registrate.util.entry.RegistryEntry;
 import net.minecraft.core.Holder;
@@ -34,6 +33,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.CommonColors;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.EntityType;
@@ -109,9 +109,9 @@ public class EscapeRace {
 			.renderer(() -> DDRMachineEntityRenderer::new)
 			.register();
 
-	public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> VENDINGMACHINE_COMPONENT = DATA_COMPONENTS.registerComponentType(
+	public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> VENDING_MACHINE_COST = DATA_COMPONENTS.registerComponentType(
 			"vending_machine_cost",
-			builder -> builder.persistent(Codec.INT)
+			builder -> builder.persistent(ExtraCodecs.NON_NEGATIVE_INT)
 	);
 	public static final ItemEntry<Item> BREAK_BUCK = REGISTRATE.item("break_buck", Item::new)
 			.lang("Break Buck")

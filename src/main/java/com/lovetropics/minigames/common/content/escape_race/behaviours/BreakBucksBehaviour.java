@@ -1,9 +1,11 @@
 package com.lovetropics.minigames.common.content.escape_race.behaviours;
 
 import com.lovetropics.minigames.common.content.escape_race.EscapeRace;
+import com.lovetropics.minigames.common.content.escape_race.EscapeRaceTexts;
 import com.lovetropics.minigames.common.content.escape_race.client.EscapeRaceClientBucksState;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DdrLevelDifficulty;
 import com.lovetropics.minigames.common.content.escape_race.event.EscapeRaceEvents;
+import com.lovetropics.minigames.common.content.escape_race.vending_machine.VendingMachineEvents;
 import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
@@ -11,6 +13,7 @@ import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents;
 import com.lovetropics.minigames.common.core.game.client_state.GameClientState;
 import com.lovetropics.minigames.common.core.game.state.statistics.StatisticKey;
+import com.lovetropics.minigames.common.core.game.state.statistics.StatisticsMap;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeamKey;
 import com.lovetropics.minigames.common.core.game.state.team.TeamState;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
@@ -18,8 +21,8 @@ import com.mojang.serialization.MapCodec;
 import net.minecraft.ChatFormatting;
 import net.minecraft.SharedConstants;
 import net.minecraft.commands.Commands;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.TriState;
 
 public class BreakBucksBehaviour implements IGameBehavior {
 	public static final MapCodec<BreakBucksBehaviour> CODEC = MapCodec.unit(BreakBucksBehaviour::new);
@@ -46,6 +49,21 @@ public class BreakBucksBehaviour implements IGameBehavior {
 			}
 		});
 
+		events.listen(VendingMachineEvents.PURCHASE_ITEM, (player, entity, item) -> {
+			GameTeamKey team = teams.getTeamForPlayer(player);
+			if (team == null) {
+				return TriState.FALSE;
+			}
+			StatisticsMap teamStatistics = game.statistics().forTeam(team);
+			int cost = item.getOrDefault(EscapeRace.VENDING_MACHINE_COST, 0);
+			int breakBucks = teamStatistics.getInt(StatisticKey.BREAK_BUCKS);
+			if (breakBucks >= cost) {
+				teamStatistics.incrementInt(StatisticKey.BREAK_BUCKS, -cost);
+				return TriState.TRUE;
+			}
+			return TriState.FALSE;
+		});
+
 		events.listen(GamePhaseEvents.REGISTER_COMMANDS, (commands, buildContext) -> {
 			commands.register(Commands.literal("breakbucks")
 					.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
@@ -68,8 +86,6 @@ public class BreakBucksBehaviour implements IGameBehavior {
 
 	private void addBreakBucks(IGamePhase game, TeamState teams, GameTeamKey team, int amount) {
 		game.statistics().forTeam(team).incrementInt(StatisticKey.BREAK_BUCKS, amount);
-		teams.getPlayersForTeam(game, team).sendMessage(
-				Component.translatable("ltminigames.minigame.escape_race.ddr.score.added", amount).withStyle(ChatFormatting.GOLD)
-		);
+		teams.getPlayersForTeam(game, team).sendMessage(EscapeRaceTexts.DDR_SCORE_ADDED.apply(amount).withStyle(ChatFormatting.GOLD));
 	}
 }

@@ -412,6 +412,7 @@
   "ltminigames.minigame.escape_race.room.locked_not_enough_players": "LOCKED - %s/%s crouched",
   "ltminigames.minigame.escape_race.room.unlocking": "UNLOCKING - %s%%",
   "ltminigames.minigame.escape_race.terry_trash": "Terry's Trash",
+  "ltminigames.minigame.escape_race.vending_machine.break_bucks_cost": "%s Break Bucks",
   "ltminigames.minigame.event.acid_rain_event": "Acid Rain",
   "ltminigames.minigame.event.acid_rain_event.description": "MWAHAHAHA",
   "ltminigames.minigame.event.acid_rain_event.toast": "Chat has started ACID RAIN for 1 minute!",
