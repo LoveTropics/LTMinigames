@@ -114,7 +114,7 @@ public class VendingMachineModel extends EntityModel<VendingMachineRenderState> 
 
 		PartDefinition vending_flap = machine.addOrReplaceChild("vending_flap", CubeListBuilder.create().texOffs(108, 16).addBox(-6.0F, 0.0F, -9.0F, 12.0F, 4.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offset(-2.0F, -10.0F, 1.0F));
 
-		PartDefinition control_panel = machine.addOrReplaceChild("control_panel", CubeListBuilder.create().texOffs(10, 122).addBox(-21.0F, -45.0F, 0.0F, 21.0F, 45.0F, 3.0F, new CubeDeformation(0.0F)), PartPose.offset(15.0F, -13.0F, -12.0F).withScale(1.0f / 3.0f));
+		PartDefinition control_panel = machine.addOrReplaceChild("control_panel", CubeListBuilder.create().texOffs(10, 122).addBox(-21.0F, -45.0F, 0.0F, 21.0F, 45.0F, 3.0F, new CubeDeformation(0.0F)), PartPose.offset(15.0F, -13.0F, -10.0F).withScale(1.0f / 3.0f));
 		PartDefinition buy_button = control_panel.addOrReplaceChild("buy_button", CubeListBuilder.create().texOffs(68, 154).addBox(2.0F, -12.0F, -33.0F, 15.0F, 9.0F, 3.0F, new CubeDeformation(0.0F)), PartPose.offset(-20.0F, 0.0F, 32.0F));
 
 		PartDefinition buy_button_on = buy_button.addOrReplaceChild("buy_button_on", CubeListBuilder.create().texOffs(69, 125).addBox(2.0F, -12.0F, -33.0313F, 15.0F, 9.0F, 0.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));

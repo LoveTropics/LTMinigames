@@ -53,7 +53,8 @@ public class VendingMachineEntityRenderer extends EntityRenderer<VendingMachineE
 	@Override
 	public void extractRenderState(VendingMachineEntity entity, VendingMachineRenderState reusedState, float partialTick) {
 		super.extractRenderState(entity, reusedState, partialTick);
-		Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
+		Minecraft minecraft = Minecraft.getInstance();
+		Camera camera = minecraft.gameRenderer.getMainCamera();
 		VendingMachineSlots.Picker picker = VendingMachineSlots.picker(camera, entity);
 		int pickedSlot = picker.pickSlot();
 		reusedState.yRot = entity.getYRot();
@@ -61,7 +62,8 @@ public class VendingMachineEntityRenderer extends EntityRenderer<VendingMachineE
 		for (int i = 0; i < reusedState.slots.size(); i++) {
 			VendingMachineRenderState.SlotState slotState = reusedState.slots.get(i);
 			ItemStack itemStack = i < visualItems.size() ? visualItems.get(i) : ItemStack.EMPTY;
-			slotState.update(itemModelResolver, itemStack, entity, entity.getSelected() == i, pickedSlot == i);
+			boolean selected = entity.getSelected() == i && minecraft.crosshairPickEntity == entity;
+			slotState.update(itemModelResolver, itemStack, entity, selected, pickedSlot == i);
 		}
 		ItemStack droppingItem = entity.getDroppingItem();
 		if (droppingItem != null) {
