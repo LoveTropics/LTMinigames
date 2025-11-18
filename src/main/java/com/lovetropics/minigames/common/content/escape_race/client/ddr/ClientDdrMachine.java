@@ -11,17 +11,22 @@ import com.lovetropics.minigames.common.core.network.ddr.ServerboundDdrInputPack
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.core.Holder;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.JukeboxSong;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 public class ClientDdrMachine {
+	private static final double SOUND_RANGE = 5.0;
+
 	@Nullable
 	private Session session;
 
@@ -29,7 +34,7 @@ public class ClientDdrMachine {
 
 	private final DdrPlayerPoseState poseState = new DdrPlayerPoseState();
 	@Nullable
-	private SoundInstance playingTrackSound;
+	private DdrSoundInstance playingTrackSound;
 
 	public void tick(DDRMachineEntity entity) {
 		if (entity.getControllingPassenger() instanceof LocalPlayer player) {
@@ -99,13 +104,30 @@ public class ClientDdrMachine {
 	private void tickSound(DDRMachineEntity entity) {
 		if (session != null) {
 			if (playingTrackSound == null) {
-				SoundInstance sound = new DdrSoundInstance(session.track(), entity, session.currentTick(entity.level()));
+				DdrSoundInstance sound = new DdrSoundInstance(session.track(), entity, session.currentTick(entity.level()));
 				Minecraft.getInstance().getSoundManager().play(sound);
 				playingTrackSound = sound;
 			}
+			playingTrackSound.setFadeIn(shouldPlaySound(entity));
 		} else {
 			stopSound();
 		}
+	}
+
+	private boolean shouldPlaySound(DDRMachineEntity entity) {
+		Entity cameraEntity = Minecraft.getInstance().cameraEntity;
+		if (cameraEntity == null) {
+			return false;
+		}
+		if (entity.getControllingPassenger() == cameraEntity) {
+			return true;
+		}
+		// This is pretty hacky, but it gets the job done
+		AABB bounds = cameraEntity.getBoundingBox().inflate(SOUND_RANGE);
+		Optional<DDRMachineEntity> closestPlayingDdrMachine = cameraEntity.level().getEntitiesOfClass(DDRMachineEntity.class, bounds).stream()
+				.filter(DDRMachineEntity::isPlayingSound)
+				.min(Comparator.comparingDouble(cameraEntity::distanceToSqr));
+		return closestPlayingDdrMachine.isPresent() && closestPlayingDdrMachine.get() == entity;
 	}
 
 	private void stopSound() {
@@ -128,6 +150,10 @@ public class ClientDdrMachine {
 
 	public void onRemoved() {
 		stopSound();
+	}
+
+	public boolean isPlayingSound() {
+		return session != null;
 	}
 
 	private sealed interface Session {

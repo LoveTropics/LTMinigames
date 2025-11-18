@@ -22,18 +22,25 @@ import java.util.concurrent.CompletionException;
 
 public class DdrSoundInstance extends AbstractTickableSoundInstance {
 	private static final float VOLUME = 4.0f;
+	public static final float FADE_SPEED = 0.1f;
 
 	private final DDRMachineEntity entity;
 	private final long startTick;
+	private boolean fadeIn;
 
 	public DdrSoundInstance(Holder<JukeboxSong> track, DDRMachineEntity entity, long startTick) {
 		super(track.value().soundEvent().value(), SoundSource.RECORDS, SoundInstance.createUnseededRandom());
 		this.entity = entity;
 		this.startTick = startTick;
-		volume = VOLUME;
+		volume = 0.0f;
 		x = (float) entity.getX();
 		y = (float) entity.getY();
 		z = (float) entity.getZ();
+	}
+
+	@Override
+	public boolean canStartSilent() {
+		return true;
 	}
 
 	@Override
@@ -45,6 +52,15 @@ public class DdrSoundInstance extends AbstractTickableSoundInstance {
 		x = (float) entity.getX();
 		y = (float) entity.getY();
 		z = (float) entity.getZ();
+		if (fadeIn) {
+			volume = Math.min(volume + FADE_SPEED, VOLUME);
+		} else {
+			volume = Math.max(volume - FADE_SPEED, 0.0f);
+		}
+	}
+
+	public void setFadeIn(boolean fadeIn) {
+		this.fadeIn = fadeIn;
 	}
 
 	@Override

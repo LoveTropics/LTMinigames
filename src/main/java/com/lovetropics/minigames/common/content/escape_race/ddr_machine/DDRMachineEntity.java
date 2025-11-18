@@ -449,4 +449,8 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 	public DdrPlayerPoseState getPoseState() {
 		return Objects.requireNonNull(clientMachine).poseState();
 	}
+
+	public boolean isPlayingSound() {
+		return Objects.requireNonNull(clientMachine).isPlayingSound();
+	}
 }
