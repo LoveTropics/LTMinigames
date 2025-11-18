@@ -162,19 +162,37 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 	@Override
 	public InteractionResult interact(Player player, InteractionHand hand) {
 //		foldIntoBedState.start(this.tickCount);
-		if (!level().isClientSide && !player.isShiftKeyDown()) {
+
+		if (player.isPassengerOfSameVehicle(this)) {
+			if (level().isClientSide()) {
+				interactControlledClient(player);
+			}
+			return InteractionResult.SUCCESS;
+		}
+
+		if (!level().isClientSide() && !player.isShiftKeyDown()) {
 			player.startRiding(this);
 			return InteractionResult.SUCCESS;
-		} else if(!level().isClientSide && player.isShiftKeyDown()) {
+		} else if (!level().isClientSide() && player.isShiftKeyDown()) {
 			ejectPassengers();
-			if(getState() == DDRMachineState.MENU) {
+			if (getState() == DDRMachineState.MENU) {
 				setState(DDRMachineState.BEDS);
-			} else if(getState() == DDRMachineState.BEDS) {
+			} else if (getState() == DDRMachineState.BEDS) {
 				setState(DDRMachineState.MENU);
 			}
 		}
 
-		return !player.isPassengerOfSameVehicle(this) ? InteractionResult.SUCCESS : InteractionResult.PASS;
+		return InteractionResult.PASS;
+	}
+
+	private void interactControlledClient(Player player) {
+		if (!player.isLocalPlayer()) {
+			return;
+		}
+		Holder<DdrLevel> pickedLevel = pickLevel(player);
+		if (pickedLevel != null) {
+			ClientPacketDistributor.sendToServer(new ServerboundSelectDdrLevelPacket(pickedLevel));
+		}
 	}
 
 	@Override
@@ -233,17 +251,6 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 			return new Vec3(0f, 0.6f, 0.35f).yRot(-getYRot() * Mth.DEG_TO_RAD);
 		}
 		return super.getPassengerAttachmentPoint(entity, dimensions, partialTick);
-	}
-
-	@Override
-	public boolean hurtClient(DamageSource damageSource) {
-		if (damageSource.getEntity() instanceof Player player && player.isLocalPlayer()) {
-			Holder<DdrLevel> pickedLevel = pickLevel(player);
-			if (pickedLevel != null) {
-				ClientPacketDistributor.sendToServer(new ServerboundSelectDdrLevelPacket(pickedLevel));
-			}
-		}
-		return super.hurtClient(damageSource);
 	}
 
 	@Nullable

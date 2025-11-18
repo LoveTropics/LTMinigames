@@ -83,8 +83,12 @@ public class VendingMachineEntity extends Entity implements ContainerEntity {
 		return visualStack;
 	}
 
-	private void updateVisualItems() {
+	private void onItemsChanged() {
 		getEntityData().set(DATA_VISUAL_ITEMS, List.copyOf(Lists.transform(itemStacks.subList(0, VendingMachineSlots.COUNT), VendingMachineEntity::copyVisualStack)));
+		int selected = getSelected();
+		if (selected != NO_SLOT && itemStacks.get(selected).isEmpty()) {
+			getEntityData().set(DATA_SELECTED, NO_SLOT);
+		}
 	}
 
 	@Override
@@ -122,31 +126,17 @@ public class VendingMachineEntity extends Entity implements ContainerEntity {
 		if (droppingItem != null) {
 			return;
 		}
+		ItemStack selectedItem = getItem(itemIndex);
+		if (selectedItem.isEmpty()) {
+			return;
+		}
 		IGamePhase game = GamePhaseManager.get().getGamePhaseFor(player);
-		if (game != null && game.invoker(VendingMachineEvents.PURCHASE_ITEM).tryPurchaseItem(player, this, getItem(itemIndex)).isFalse()) {
+		if (game != null && game.invoker(VendingMachineEvents.PURCHASE_ITEM).tryPurchaseItem(player, this, selectedItem).isFalse()) {
 			playSound(SoundRegistry.INCORRECT.value());
 			return;
 		}
 		playSound(SoundRegistry.CORRECT.value());
-		startDropping(getItem(itemIndex).copyWithCount(1), itemIndex);
-	}
-
-	// TODO: Should this be in interaction logic?
-	@Override
-	public boolean hurtClient(DamageSource damageSource) {
-		if (damageSource.getEntity() instanceof Player player && player.isLocalPlayer()) {
-			Minecraft minecraft = Minecraft.getInstance();
-			Camera camera = minecraft.gameRenderer.getMainCamera();
-			VendingMachineEntityRenderer renderer = (VendingMachineEntityRenderer) minecraft.getEntityRenderDispatcher().getRenderer(this);
-			VendingMachineSlots.Picker picker = VendingMachineSlots.picker(camera, this);
-			int pickedSlot = picker.pickSlot();
-			if (pickedSlot != NO_SLOT) {
-				ClientPacketDistributor.sendToServer(new SelectVendingMachineItemMessage(getId(), pickedSlot));
-			} else if (picker.isPicked(renderer.getModel().buyButtonBounds())) {
-				ClientPacketDistributor.sendToServer(new ServerboundVendingMachinePurchasePacket(getId()));
-			}
-		}
-		return super.hurtClient(damageSource);
+		startDropping(selectedItem.copyWithCount(1), itemIndex);
 	}
 
 	@Override
@@ -171,7 +161,7 @@ public class VendingMachineEntity extends Entity implements ContainerEntity {
 	@Override
 	protected void readAdditionalSaveData(ValueInput valueInput) {
 		readChestVehicleSaveData(valueInput);
-		updateVisualItems();
+		onItemsChanged();
 	}
 
 	@Override
@@ -280,7 +270,7 @@ public class VendingMachineEntity extends Entity implements ContainerEntity {
 
 	@Override
 	public void setChanged() {
-		updateVisualItems();
+		onItemsChanged();
 	}
 
 	@Override
@@ -306,10 +296,34 @@ public class VendingMachineEntity extends Entity implements ContainerEntity {
 
 	@Override
 	public InteractionResult interact(Player player, InteractionHand hand) {
-		if (player.isShiftKeyDown() && player.canUseGameMasterBlocks()) {
-			player.openMenu(this);
+		if (player.isShiftKeyDown()) {
+			if (player.canUseGameMasterBlocks()) {
+				player.openMenu(this);
+				return InteractionResult.SUCCESS;
+			}
+			return InteractionResult.FAIL;
+		}
+
+		if (level().isClientSide()) {
+			interactClient(player);
 		}
 		return InteractionResult.SUCCESS;
+	}
+
+	private void interactClient(Player player) {
+		if (!player.isLocalPlayer()) {
+			return;
+		}
+		Minecraft minecraft = Minecraft.getInstance();
+		Camera camera = minecraft.gameRenderer.getMainCamera();
+		VendingMachineEntityRenderer renderer = (VendingMachineEntityRenderer) minecraft.getEntityRenderDispatcher().getRenderer(this);
+		VendingMachineSlots.Picker picker = VendingMachineSlots.picker(camera, this);
+		int pickedSlot = picker.pickSlot();
+		if (pickedSlot != NO_SLOT) {
+			ClientPacketDistributor.sendToServer(new SelectVendingMachineItemMessage(getId(), pickedSlot));
+		} else if (picker.isPicked(renderer.getModel().buyButtonBounds())) {
+			ClientPacketDistributor.sendToServer(new ServerboundVendingMachinePurchasePacket(getId()));
+		}
 	}
 
 	public List<ItemStack> getVisualItems() {
