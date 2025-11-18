@@ -23,7 +23,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
@@ -60,7 +59,7 @@ public class PositionPlayersBehavior implements IGameBehavior {
 	private Map<GameTeamKey, CycledSpawner> teamSpawners = Map.of();
 
 	@Nullable
-	private Vec3 facePos;
+	private BlockBox faceBox;
 
 	public PositionPlayersBehavior(String[] participantSpawnKeys, String[] spectatorSpawnKeys, String[] allSpawnKeys, Map<GameTeamKey, String[]> teamSpawnKeys, boolean splitByTeam, float angle, Optional<String> faceRegion) {
 		this.participantSpawnKeys = participantSpawnKeys;
@@ -76,7 +75,7 @@ public class PositionPlayersBehavior implements IGameBehavior {
 	public void register(IGamePhase game, EventRegistrar events) {
 		MapRegions regions = game.mapRegions();
 
-		faceRegion.ifPresent(key -> facePos = regions.getOrThrow(key).center());
+		faceRegion.ifPresent(key -> faceBox = regions.getOrThrow(key));
 
 		participantSpawner = new CycledSpawner(regions, participantSpawnKeys);
 		spectatorSpawner = new CycledSpawner(regions, spectatorSpawnKeys);
@@ -123,9 +122,11 @@ public class PositionPlayersBehavior implements IGameBehavior {
 		if (region != null) {
 			BlockPos pos = tryFindEmptyPos(game, game.level().getRandom(), region);
 			float angle = this.angle;
-			if (facePos != null) {
-				double deltaX = facePos.x - (pos.getX() + 0.5);
-				double deltaZ = facePos.z - (pos.getZ() + 0.5);
+			if (faceBox != null) {
+				int nearestX = Mth.clamp(pos.getX(), faceBox.min().getX(), faceBox.max().getX());
+				int nearestZ = Mth.clamp(pos.getZ(), faceBox.min().getZ(), faceBox.max().getZ());
+				double deltaX = nearestX - (pos.getX() + 0.5);
+				double deltaZ = nearestZ - (pos.getZ() + 0.5);
 				angle = (float) (Mth.atan2(deltaZ, deltaX) * Mth.RAD_TO_DEG - 90.0f);
 			}
 			spawn.teleportTo(game.level(), pos, angle);
