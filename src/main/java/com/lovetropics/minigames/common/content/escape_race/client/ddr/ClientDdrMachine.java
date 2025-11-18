@@ -82,11 +82,12 @@ public class ClientDdrMachine {
 		session = new RecordingSession(track, startedAtTime);
 	}
 
-	public void clearSession(DDRMachineEntity entity) {
-		if (entity.getControllingPassenger() instanceof LocalPlayer) {
-			Minecraft.getInstance().options.setCameraType(CameraType.FIRST_PERSON);
-		}
+	public void clearSession() {
 		session = null;
+	}
+
+	public void onDismount() {
+		Minecraft.getInstance().options.setCameraType(CameraType.FIRST_PERSON);
 	}
 
 	public Collection<TimedDdrInput> pendingInputs() {

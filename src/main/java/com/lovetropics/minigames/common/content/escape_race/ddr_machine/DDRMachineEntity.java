@@ -404,6 +404,8 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 			} else if (recordingSession != null) {
 				stopRecording(serverPlayer);
 			}
+		} else if (clientMachine != null && passenger instanceof Player player && player.isLocalPlayer()) {
+			clientMachine.onDismount();
 		}
 	}
 
@@ -417,7 +419,7 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 			} else if (session.recordingTrack().isPresent()) {
 				clientMachine.startRecording(this, session.recordingTrack().get(), session.startedAtTime());
 			} else {
-				clientMachine.clearSession(this);
+				clientMachine.clearSession();
 			}
 		}
 	}
