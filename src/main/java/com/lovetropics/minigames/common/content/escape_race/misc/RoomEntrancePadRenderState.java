@@ -17,6 +17,7 @@ public class RoomEntrancePadRenderState extends EntityRenderState {
 	public int cost;
 	public Component roomName;
 	public int color = 0xFF00FF00;
+	public boolean canAfford;
 
 	public ItemStackRenderState breakBuck = new ItemStackRenderState();
 

@@ -8,25 +8,28 @@ import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
+import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents;
 import com.lovetropics.minigames.common.core.game.client_state.GameClientState;
 import com.lovetropics.minigames.common.core.game.state.statistics.StatisticKey;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeamKey;
 import com.lovetropics.minigames.common.core.game.state.team.TeamState;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.ChatFormatting;
 import net.minecraft.SharedConstants;
+import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 
 public class BreakBucksBehaviour implements IGameBehavior {
 	public static final MapCodec<BreakBucksBehaviour> CODEC = MapCodec.unit(BreakBucksBehaviour::new);
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
+		TeamState teams = game.instanceState().getOrThrow(TeamState.KEY);
 		GameClientState.applyGlobally(game, events, SharedConstants.TICKS_PER_SECOND, EscapeRace.BREAK_BUCK_STATE.get(), player -> {
 			GameTeamKey teamForPlayer = teams.getTeamForPlayer(player);
-			int anInt = game.statistics().forTeam(teamForPlayer)
-					.getInt(StatisticKey.BREAK_BUCKS);
+			int anInt = teamForPlayer != null ? game.statistics().forTeam(teamForPlayer).getInt(StatisticKey.BREAK_BUCKS) : 0;
 			return new EscapeRaceClientBucksState(anInt);
 		});
 		events.listen(EscapeRaceEvents.DDR_LEVEL_COMPLETED, (player, level, score, bestStreak) -> {
@@ -36,11 +39,34 @@ public class BreakBucksBehaviour implements IGameBehavior {
 				DdrLevelDifficulty difficulty = level.value().difficulty();
 				int breakBucks = Math.round(difficulty.getScoreMultiplier() * score);
 				breakBucks += (int) ((bestStreak * 2) * difficulty.getScoreMultiplier());
-				game.statistics().forTeam(teamForPlayer).incrementInt(StatisticKey.BREAK_BUCKS, breakBucks);
-				teams.getPlayersForTeam(game, teamForPlayer)
-						.sendMessage(Component.translatable("ltminigames.minigame.escape_race.ddr.score.added", breakBucks)
-								.withStyle(ChatFormatting.GOLD));
+				addBreakBucks(game, teams, teamForPlayer, breakBucks);
 			}
 		});
+
+		events.listen(GamePhaseEvents.REGISTER_COMMANDS, (commands, buildContext) -> {
+			commands.register(Commands.literal("breakbucks")
+					.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+					.then(Commands.literal("add")
+							.then(Commands.argument("amount", IntegerArgumentType.integer())
+									.executes(context -> {
+										ServerPlayer player = context.getSource().getPlayerOrException();
+										GameTeamKey teamForPlayer = teams.getTeamForPlayer(player);
+										if (teamForPlayer != null) {
+											int amount = IntegerArgumentType.getInteger(context, "amount");
+											addBreakBucks(game, teams, teamForPlayer, amount);
+										}
+										return 1;
+									})
+							)
+					)
+			);
+		});
+	}
+
+	private void addBreakBucks(IGamePhase game, TeamState teams, GameTeamKey team, int amount) {
+		game.statistics().forTeam(team).incrementInt(StatisticKey.BREAK_BUCKS, amount);
+		teams.getPlayersForTeam(game, team).sendMessage(
+				Component.translatable("ltminigames.minigame.escape_race.ddr.score.added", amount).withStyle(ChatFormatting.GOLD)
+		);
 	}
 }

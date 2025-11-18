@@ -1,12 +1,13 @@
 package com.lovetropics.minigames.common.content.escape_race.misc;
 
 import com.lovetropics.minigames.LoveTropics;
+import com.lovetropics.minigames.client.game.ClientGameStateManager;
 import com.lovetropics.minigames.common.content.escape_race.EscapeRace;
+import com.lovetropics.minigames.common.content.escape_race.client.EscapeRaceClientBucksState;
 import com.lovetropics.minigames.common.content.escape_race.rooms.RoomStatus;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
-import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiSpriteManager;
@@ -64,6 +65,9 @@ public class RoomEntrancePadEntityRenderer extends EntityRenderer<RoomEntrancePa
 			case UNLOCKED -> 0xFF0000FF;
 			case COMPLETED -> 0xFF00FF00;
 		};
+		EscapeRaceClientBucksState breakBuckState = ClientGameStateManager.getOrNull(EscapeRace.BREAK_BUCK_STATE);
+		int breakBucks = breakBuckState != null ? breakBuckState.amount() : 0;
+		reusedState.canAfford = breakBucks >= entity.getCost();
 		itemModelResolver.updateForNonLiving(reusedState.breakBuck, breakBuck, ItemDisplayContext.FIXED, entity);
 	}
 
@@ -106,13 +110,14 @@ public class RoomEntrancePadEntityRenderer extends EntityRenderer<RoomEntrancePa
 			poseStack.translate(-totalWidth / 2.0f + buckWidth / 2.0f, 0.0f, 0.0f);
 			renderState.breakBuck.render(poseStack, bufferSource, packedLight, OverlayTexture.NO_OVERLAY);
 
+			int color = renderState.canAfford ? CommonColors.WHITE : CommonColors.SOFT_RED;
 			poseStack.translate(buckWidth, 0.0f, 0.0f);
 			poseStack.scale(textScale, -textScale, textScale);
 			font.drawInBatch(
 					costText,
 					0.0f,
 					-font.lineHeight / 2.0f,
-					CommonColors.WHITE, false, poseStack.last().pose(), bufferSource, Font.DisplayMode.NORMAL, backgroundColor, packedLight
+					color, false, poseStack.last().pose(), bufferSource, Font.DisplayMode.NORMAL, backgroundColor, packedLight
 			);
 			poseStack.popPose();
 		}
