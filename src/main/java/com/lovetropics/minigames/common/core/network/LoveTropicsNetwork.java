@@ -1,6 +1,7 @@
 package com.lovetropics.minigames.common.core.network;
 
 import com.lovetropics.minigames.LoveTropics;
+import com.lovetropics.minigames.client.gui.ClientFadeToBlack;
 import com.lovetropics.minigames.client.lobby.JoinLobbyPacket;
 import com.lovetropics.minigames.client.lobby.LeaveLobbyPacket;
 import com.lovetropics.minigames.client.lobby.ManageOrCreateLobbyPacket;
@@ -82,6 +83,8 @@ public final class LoveTropicsNetwork {
 		registrar.playToServer(ServerboundDdrInputPacket.TYPE, ServerboundDdrInputPacket.STREAM_CODEC, ServerboundDdrInputPacket::handle);
 		registrar.playToServer(ServerboundSelectDdrLevelPacket.TYPE, ServerboundSelectDdrLevelPacket.STREAM_CODEC, ServerboundSelectDdrLevelPacket::handle);
 		registrar.playToClient(ClientboundDdrInputHitPacket.TYPE, ClientboundDdrInputHitPacket.STREAM_CODEC);
+
+		registrar.playToClient(ClientboundFadeToBlackPacket.TYPE, ClientboundFadeToBlackPacket.STREAM_CODEC);
 	}
 
 	@SubscribeEvent
@@ -116,5 +119,7 @@ public final class LoveTropicsNetwork {
 
 		event.register(ClientboundDdrInputHitPacket.TYPE, ClientboundDdrInputHitPacket::handle);
 		event.register(ClientboundVendingMachineDropPacket.TYPE, ClientboundVendingMachineDropPacket::handle);
+
+		event.register(ClientboundFadeToBlackPacket.TYPE, ClientFadeToBlack::handle);
 	}
 }

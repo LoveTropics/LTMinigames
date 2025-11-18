@@ -4,6 +4,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.AbstractIterator;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
+import com.lovetropics.minigames.common.core.network.ClientboundFadeToBlackPacket;
 import net.minecraft.Util;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -96,6 +97,14 @@ public interface PlayerIterable extends PlayerOps, Iterable<ServerPlayer> {
 
 	default void showTitle(final Component title, final int fadeIn, final int stay, final int fadeOut) {
 		showTitle(title, null, fadeIn, stay, fadeOut);
+	}
+
+	default void fadeToBlack(final int fadeDuration) {
+		sendPacket(new ClientboundFadeToBlackPacket(true, fadeDuration));
+	}
+
+	default void fadeFromBlack(final int fadeDuration) {
+		sendPacket(new ClientboundFadeToBlackPacket(false, fadeDuration));
 	}
 
 	static Iterator<ServerPlayer> resolvingIterator(MinecraftServer server, Iterator<UUID> ids) {

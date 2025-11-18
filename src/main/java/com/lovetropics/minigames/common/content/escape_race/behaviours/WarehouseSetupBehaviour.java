@@ -60,6 +60,8 @@ public record WarehouseSetupBehaviour(
 ) implements IGameBehavior {
 	public static final MapCodec<WarehouseSetupBehaviour> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(RoomConfig.CODEC.listOf().fieldOf("rooms").forGetter(WarehouseSetupBehaviour::rooms)).apply(inst, WarehouseSetupBehaviour::new));
 
+	private static final int FADE_DURATION = SharedConstants.TICKS_PER_SECOND;
+
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		State state = new State();
@@ -76,6 +78,11 @@ public record WarehouseSetupBehaviour(
 			GameTeamKey teamForPlayer = teams.getTeamForPlayer(player);
 			return state.asClientState(teamForPlayer);
 		});
+
+		events.listen(GamePlayerEvents.ADD, player ->
+				// Fade back in if returning from a room
+				PlayerSet.of(player).fadeFromBlack(FADE_DURATION)
+		);
 
 		events.listen(GamePlayerEvents.JOIN, player -> {
 			GameTeamKey team = teams.getTeamForPlayer(player);
@@ -317,9 +324,11 @@ public record WarehouseSetupBehaviour(
 				return false;
 			}
 			if (pendingSubGame != null) {
+				PlayerSet.of(player).fadeToBlack(FADE_DURATION);
 				pendingSubGame.queuePlayer(player);
 				return true;
 			} else if (subGame != null) {
+				PlayerSet.of(player).fadeToBlack(FADE_DURATION);
 				topGame.transferPlayerTo(player, subGame);
 				return true;
 			}
@@ -330,24 +339,31 @@ public record WarehouseSetupBehaviour(
 			if (stopped) {
 				return false;
 			}
-			if (pendingSubGame == null && subGame == null) {
-				pendingSubGame = topGame.createSubPhase(room.subGameConfig);
-				pendingSubGame.whenCreated(this::onGameCreated);
-			}
-			if (pendingSubGame != null) {
-				pendingSubGame.queuePlayers(players);
-			} else if (subGame != null) {
-				topGame.transferPlayersTo(players, subGame);
-			}
+			players.fadeToBlack(FADE_DURATION);
+			topGame.scheduler().runAfterTicks(FADE_DURATION, () -> {
+				if (pendingSubGame == null && subGame == null) {
+					pendingSubGame = topGame.createSubPhase(room.subGameConfig);
+					pendingSubGame.whenCreated(this::onGameCreated);
+				}
+				if (pendingSubGame != null) {
+					pendingSubGame.queuePlayers(players);
+				} else if (subGame != null) {
+					topGame.transferPlayersTo(players, subGame);
+				}
+			});
 			return true;
 		}
 
 		private void onGameCreated(IGamePhase subGame, EventRegistrar subEvents) {
 			pendingSubGame = null;
 			this.subGame = subGame;
+			subEvents.listen(GamePlayerEvents.ADD, player ->
+					PlayerSet.of(player).fadeFromBlack(FADE_DURATION)
+			);
 			subEvents.listen(GamePhaseEvents.STOP, reason -> {
 				stopped = true;
 				this.subGame = null;
+				subGame.allPlayers().fadeToBlack(FADE_DURATION);
 				subGame.returnToParent(subGame.allPlayers());
 			});
 		}
