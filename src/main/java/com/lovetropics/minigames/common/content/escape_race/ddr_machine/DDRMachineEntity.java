@@ -433,6 +433,11 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 		}
 	}
 
+	@Override
+	public Vec3 getDismountLocationForPassenger(LivingEntity passenger) {
+		return position().add(getDirection().getUnitVec3().scale((getBbWidth() + passenger.getBbWidth()) / 2.0f));
+	}
+
 	public DDRMachineState getState() {
 		return getEntityData().get(DATA_STATE);
 	}
