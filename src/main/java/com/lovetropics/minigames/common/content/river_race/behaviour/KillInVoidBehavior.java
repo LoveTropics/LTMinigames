@@ -11,7 +11,12 @@ import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvent
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 public record KillInVoidBehavior(String voidBelowRegionKey) implements IGameBehavior {
@@ -21,16 +26,52 @@ public record KillInVoidBehavior(String voidBelowRegionKey) implements IGameBeha
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		BlockBox voidRegion = game.mapRegions().getOrThrow(voidBelowRegionKey);
-		int voidY = voidRegion.min().getY();
+		List<BlockBox> regions = game.mapRegions().getAll(voidBelowRegionKey);
+		if (regions.isEmpty()) {
+			throw new GameException(Component.literal("No " + voidBelowRegionKey + " region"));
+		}
+
+		if (regions.size() == 1) {
+			int minY = regions.getFirst().min().getY();
+			events.listen(GamePlayerEvents.TICK, player -> {
+				if (!shouldIgnorePlayer(player) && player.getY() < minY) {
+					player.kill(game.level());
+				}
+			});
+			return;
+		}
+
 		events.listen(GamePlayerEvents.TICK, player -> {
-			if (player.isSpectator() || player.isCreative()) {
+			if (shouldIgnorePlayer(player)) {
 				return;
 			}
-			if (player.getY() < voidY) {
+			BlockPos playerPos = player.blockPosition();
+			int closestDistance = Integer.MAX_VALUE;
+			BlockBox closestRegion = null;
+			for (BlockBox region : regions) {
+				int distance = getDistanceToEdge(region, playerPos.getX(), playerPos.getZ());
+				if (distance < closestDistance) {
+					closestRegion = region;
+					closestDistance = distance;
+					if (distance == 0) {
+						break;
+					}
+				}
+			}
+			if (closestRegion != null && player.getY() < closestRegion.min().getY()) {
 				player.kill(game.level());
 			}
 		});
+	}
+
+	private boolean shouldIgnorePlayer(ServerPlayer player) {
+		return player.isSpectator() || player.isCreative();
+	}
+
+	private int getDistanceToEdge(BlockBox region, int playerX, int playerZ) {
+		int nearestX = Mth.clamp(playerX, region.min().getX(), region.max().getX());
+		int nearestZ = Mth.clamp(playerZ, region.min().getZ(), region.max().getZ());
+		return Math.abs(nearestX - playerX) + Math.abs(nearestZ - playerZ);
 	}
 
 	@Override
