@@ -21,6 +21,7 @@ import com.mojang.serialization.MapCodec;
 import net.minecraft.ChatFormatting;
 import net.minecraft.SharedConstants;
 import net.minecraft.commands.Commands;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.TriState;
 
@@ -39,13 +40,15 @@ public class BreakBucksBehaviour implements IGameBehavior {
 			return new EscapeRaceClientBucksState(breakBucks);
 		});
 		events.listen(EscapeRaceEvents.DDR_LEVEL_COMPLETED, (player, level, score, bestStreak) -> {
-			GameTeamKey teamForPlayer = teams.getTeamForPlayer(player);
-			if(teamForPlayer != null){
+			GameTeamKey team = teams.getTeamForPlayer(player);
+			if (team != null) {
 				//Rough break bucks conversion....
 				DdrLevelDifficulty difficulty = level.value().difficulty();
 				int breakBucks = Math.round(difficulty.getScoreMultiplier() * score);
 				breakBucks += (int) ((bestStreak * 2) * difficulty.getScoreMultiplier());
-				addBreakBucks(game, teams, teamForPlayer, breakBucks);
+				addBreakBucks(game, team, breakBucks);
+				Component message = EscapeRaceTexts.DDR_SCORE_ADDED.apply(player.getDisplayName(), breakBucks).withStyle(ChatFormatting.GOLD);
+				teams.getPlayersForTeam(game, team).sendMessage(message);
 			}
 		});
 
@@ -58,6 +61,8 @@ public class BreakBucksBehaviour implements IGameBehavior {
 			int cost = item.getOrDefault(EscapeRace.VENDING_MACHINE_COST, 0);
 			int breakBucks = teamStatistics.getInt(StatisticKey.BREAK_BUCKS);
 			if (breakBucks >= cost) {
+				Component message = EscapeRaceTexts.SPENT_BREAK_BUCKS.apply(player.getDisplayName(), breakBucks).withStyle(ChatFormatting.GRAY);
+				teams.getPlayersForTeam(game, team).sendMessage(message);
 				teamStatistics.incrementInt(StatisticKey.BREAK_BUCKS, -cost);
 				return TriState.TRUE;
 			}
@@ -71,11 +76,8 @@ public class BreakBucksBehaviour implements IGameBehavior {
 							.then(Commands.argument("amount", IntegerArgumentType.integer())
 									.executes(context -> {
 										ServerPlayer player = context.getSource().getPlayerOrException();
-										GameTeamKey teamForPlayer = teams.getTeamForPlayer(player);
-										if (teamForPlayer != null) {
-											int amount = IntegerArgumentType.getInteger(context, "amount");
-											addBreakBucks(game, teams, teamForPlayer, amount);
-										}
+										int amount = IntegerArgumentType.getInteger(context, "amount");
+										giveBreakBucks(game, teams, player, amount);
 										return 1;
 									})
 							)
@@ -84,8 +86,16 @@ public class BreakBucksBehaviour implements IGameBehavior {
 		});
 	}
 
-	private void addBreakBucks(IGamePhase game, TeamState teams, GameTeamKey team, int amount) {
+	private void giveBreakBucks(IGamePhase game, TeamState teams, ServerPlayer player, int amount) {
+		GameTeamKey team = teams.getTeamForPlayer(player);
+		if (team != null) {
+			addBreakBucks(game, team, amount);
+			Component message = EscapeRaceTexts.GIVEN_BREAK_BUCKS.apply(amount).withStyle(ChatFormatting.GOLD);
+			teams.getPlayersForTeam(game, team).sendMessage(message);
+		}
+	}
+
+	private void addBreakBucks(IGamePhase game, GameTeamKey team, int amount) {
 		game.statistics().forTeam(team).incrementInt(StatisticKey.BREAK_BUCKS, amount);
-		teams.getPlayersForTeam(game, team).sendMessage(EscapeRaceTexts.DDR_SCORE_ADDED.apply(amount).withStyle(ChatFormatting.GOLD));
 	}
 }

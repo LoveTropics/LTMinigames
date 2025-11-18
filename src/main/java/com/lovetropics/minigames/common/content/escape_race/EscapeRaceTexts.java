@@ -24,7 +24,9 @@ public class EscapeRaceTexts {
 
 	public static final Component DDR_PERFECT_SCORE = KEYS.add("ddr.positive.perfect", "Perfect!");
 	public static final Component DDR_STREAK_BROKEN = KEYS.add("ddr.negative.streak_broken", "Streak Broken!").withStyle(ChatFormatting.RED);
-	public static final TranslationCollector.Fun1 DDR_SCORE_ADDED = KEYS.add1("ddr.score.added", "+%s Break Bucks");
+	public static final TranslationCollector.Fun2 DDR_SCORE_ADDED = KEYS.add2("ddr.score.added", "%s earned %s Break Bucks from DDR");
+	public static final TranslationCollector.Fun2 SPENT_BREAK_BUCKS = KEYS.add2("spent_break_bucks", "%s spent %s Break Bucks");
+	public static final TranslationCollector.Fun1 GIVEN_BREAK_BUCKS = KEYS.add1("given_break_bucks", "You have been given %s Break Bucks");
 
 	public static final TranslationCollector.Fun1 UNLOCKING = KEYS.add1("room.unlocking", "UNLOCKING - %s%%");
 	public static final TranslationCollector.Fun2 LOCKED_CANNOT_AFFORD = KEYS.add2("room.locked_cannot_afford", "LOCKED - %s/%s Break Bucks");
