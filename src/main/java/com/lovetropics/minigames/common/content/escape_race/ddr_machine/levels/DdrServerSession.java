@@ -1,5 +1,6 @@
 package com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels;
 
+import com.lovetropics.minigames.common.content.escape_race.EscapeRaceTexts;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DdrInput;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
@@ -15,20 +16,8 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
-import java.util.List;
 
 public class DdrServerSession {
-	private static final List<Component> POSITIVE_PHRASES = List.of(
-			Component.translatable("ltminigames.minigame.escape_race.ddr.positive.nice_one"),
-			Component.translatable("ltminigames.minigame.escape_race.ddr.positive.close_enough"),
-			Component.translatable("ltminigames.minigame.escape_race.ddr.positive.sick"),
-			Component.translatable("ltminigames.minigame.escape_race.ddr.positive.smashedit"),
-			Component.translatable("ltminigames.minigame.escape_race.ddr.positive.poppingoff"),
-			Component.translatable("ltminigames.minigame.escape_race.ddr.positive.incredible")
-	);
-	private static final Component PERFECT_SCORE_MESSAGE = Component.translatable("ltminigames.minigame.escape_race.ddr.positive.perfect");
-	private static final Component STREAK_BROKEN_MESSAGE = Component.translatable("ltminigames.minigame.escape_race.ddr.negative.streak_broken").withStyle(ChatFormatting.RED);
-
 	public static final int TICK_RANGE_EITHER_SIDE = 5;
 	private static final int SCORE_PER_TICK = 10;
 	private static final int PERFECT_SCORE = TICK_RANGE_EITHER_SIDE * SCORE_PER_TICK;
@@ -51,9 +40,9 @@ public class DdrServerSession {
 
 	private Component pickMessage(int score) {
 		if (score == PERFECT_SCORE) {
-			return PERFECT_SCORE_MESSAGE;
+			return EscapeRaceTexts.DDR_PERFECT_SCORE;
 		}
-		return Util.getRandom(POSITIVE_PHRASES, random);
+		return Util.getRandom(EscapeRaceTexts.DDR_POSITIVE_PHRASES, random);
 	}
 
 	public Holder<DdrLevel> level() {
@@ -92,7 +81,7 @@ public class DdrServerSession {
 			if (currentLevelStreak > 0) {
 				currentLevelStreak = 0;
 				sendSound(player, SoundEvents.SHIELD_BREAK.value());
-				player.sendSystemMessage(STREAK_BROKEN_MESSAGE, true);
+				player.sendSystemMessage(EscapeRaceTexts.DDR_STREAK_BROKEN, true);
 			}
 		}
 

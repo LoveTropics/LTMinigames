@@ -1,9 +1,15 @@
 package com.lovetropics.minigames.common.content.escape_race.misc;
 
+import com.lovetropics.minigames.client.game.ClientGameStateManager;
+import com.lovetropics.minigames.common.content.escape_race.EscapeRace;
+import com.lovetropics.minigames.common.content.escape_race.client.EscapeRaceRoomsState;
+import com.lovetropics.minigames.common.util.PredictedToggle;
+import net.minecraft.SharedConstants;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
@@ -22,6 +28,13 @@ public class RoomEntrancePadEntity extends Entity {
 	private static final EntityDataAccessor<Float> HEIGHT = SynchedEntityData.defineId(RoomEntrancePadEntity.class, EntityDataSerializers.FLOAT);
 	private static final EntityDataAccessor<Float> DEPTH = SynchedEntityData.defineId(RoomEntrancePadEntity.class, EntityDataSerializers.FLOAT);
 
+	public static final int TOTAL_UNLOCK_TICKS = 5 * SharedConstants.TICKS_PER_SECOND;
+
+	private static final EntityDataAccessor<PredictedToggle> UNLOCKING_TICKS = SynchedEntityData.defineId(RoomEntrancePadEntity.class, PredictedToggle.SERIALIZER.get());
+
+	private float lastUnlockProgress;
+	private float unlockProgress;
+
 	public RoomEntrancePadEntity(EntityType<?> entityType, Level level) {
 		super(entityType, level);
 	}
@@ -30,12 +43,22 @@ public class RoomEntrancePadEntity extends Entity {
 	protected void defineSynchedData(SynchedEntityData.Builder builder) {
 		builder.define(WIDTH, 1f)
 				.define(HEIGHT, 1f)
-				.define(DEPTH, 1f);
+				.define(DEPTH, 1f)
+				.define(UNLOCKING_TICKS, PredictedToggle.DISABLED);
 	}
 
 	@Override
 	public boolean canBeCollidedWith(@Nullable Entity entity) {
+		if (level().isClientSide()) {
+			return isBlockedClientSide();
+		}
 		return false;
+	}
+
+	private boolean isBlockedClientSide() {
+		EscapeRaceRoomsState roomsState = ClientGameStateManager.getOrDefault(EscapeRace.ROOMS_STATE, EscapeRaceRoomsState.EMPTY);
+		EscapeRaceRoomsState.Room room = roomsState.byEntrance(this);
+		return room != null && room.blocked();
 	}
 
 	@Override
@@ -44,13 +67,17 @@ public class RoomEntrancePadEntity extends Entity {
 	}
 
 	@Override
-	public boolean isPickable() {
-		return true;
+	public void tick() {
+		super.tick();
+		if (level().isClientSide()) {
+			lastUnlockProgress = unlockProgress;
+			unlockProgress = (float) getEntityData().get(UNLOCKING_TICKS).getCurrentTicks(level().getGameTime(), TOTAL_UNLOCK_TICKS) / TOTAL_UNLOCK_TICKS;
+		}
 	}
 
 	@Override
 	protected AABB makeBoundingBox(Vec3 position) {
-		return AABB.ofSize(position, getWidth(), getHeight(), getDepth());
+		return AABB.ofSize(position, getWidth(), getHeight(), getDepth()).move(0.0, getHeight() / 2.0, 0.0);
 	}
 
 	@Override
@@ -99,5 +126,13 @@ public class RoomEntrancePadEntity extends Entity {
 
 	public void setDepth(float depth) {
 		getEntityData().set(DEPTH, depth);
+	}
+
+	public void setUnlockingTicks(int unlockingTicks, boolean unlocking) {
+		getEntityData().set(UNLOCKING_TICKS, PredictedToggle.of(level().getGameTime(), unlockingTicks, unlocking));
+	}
+
+	public float getUnlockProgress(float partialTicks) {
+		return Mth.lerp(partialTicks, lastUnlockProgress, unlockProgress);
 	}
 }

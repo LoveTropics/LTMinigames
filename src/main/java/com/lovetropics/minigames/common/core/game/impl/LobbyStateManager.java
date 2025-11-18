@@ -67,7 +67,7 @@ final class LobbyStateManager {
 		GamePhase phase = state.phase;
 		if (phase != null) {
 			IGameDefinition definition = phase.definition();
-			return new LobbyState.Errored(definition, state.phaseType(), error);
+			return new LobbyState.Errored(definition, error);
 		} else {
 			return new LobbyState.Paused();
 		}

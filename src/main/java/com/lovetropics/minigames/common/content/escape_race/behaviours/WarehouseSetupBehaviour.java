@@ -2,35 +2,56 @@ package com.lovetropics.minigames.common.content.escape_race.behaviours;
 
 import com.lovetropics.lib.BlockBox;
 import com.lovetropics.minigames.common.content.escape_race.EscapeRace;
+import com.lovetropics.minigames.common.content.escape_race.EscapeRaceTexts;
 import com.lovetropics.minigames.common.content.escape_race.client.EscapeRaceRoomsState;
 import com.lovetropics.minigames.common.content.escape_race.misc.RoomEntrancePadEntity;
 import com.lovetropics.minigames.common.content.escape_race.rooms.RoomStatus;
 import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
+import com.lovetropics.minigames.common.core.game.PendingSubPhase;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorType;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents;
 import com.lovetropics.minigames.common.core.game.client_state.GameClientState;
+import com.lovetropics.minigames.common.core.game.command.GameCommandRegistrar;
+import com.lovetropics.minigames.common.core.game.config.GameConfig;
+import com.lovetropics.minigames.common.core.game.config.GameConfigs;
+import com.lovetropics.minigames.common.core.game.player.PlayerSet;
+import com.lovetropics.minigames.common.core.game.state.statistics.StatisticKey;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeamKey;
 import com.lovetropics.minigames.common.core.game.state.team.TeamState;
+import com.lovetropics.minigames.common.core.game.util.GameBossBar;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.SharedConstants;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.TriState;
+import net.minecraft.world.BossEvent;
 import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Supplier;
 
 public record WarehouseSetupBehaviour(
@@ -42,16 +63,11 @@ public record WarehouseSetupBehaviour(
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		State state = new State();
 		TeamState teams = game.instanceState().getOrThrow(TeamState.KEY);
+
 		events.listen(GamePhaseEvents.CREATE, () -> this.onGameStarted(game, state));
 		events.listen(GamePhaseEvents.TICK, () -> {
-			for (String roomEntranceRegion : state.rooms.keySet()) {
-				RoomState roomState = state.rooms.get(roomEntranceRegion);
-				BlockBox region = game.mapRegions().getOrThrow(roomEntranceRegion);
-				for (GameTeamKey teamKey : teams.getTeamKeys()) {
-					if (tickRoomForTeam(game, teamKey, roomState, teams, region)) {
-						break;
-					}
-				}
+			for (RoomInstance room : state.rooms.values()) {
+				tickRoom(game, teams, room);
 			}
 		});
 
@@ -59,49 +75,141 @@ public record WarehouseSetupBehaviour(
 			GameTeamKey teamForPlayer = teams.getTeamForPlayer(player);
 			return state.asClientState(teamForPlayer);
 		});
+
+		events.listen(GamePhaseEvents.REGISTER_COMMANDS, (commands, buildContext) ->
+				registerCommands(commands, state)
+		);
 	}
 
-	private boolean tickRoomForTeam(IGamePhase game, GameTeamKey teamKey, RoomState roomState, TeamState teams, BlockBox region) {
-		TeamRoomState teamRoomState = roomState.getTeamState(teamKey);
-		if (teamRoomState.status == RoomStatus.LOCKED) {
-			return tickLockedRoom(game, teamKey, teams, region, teamRoomState);
+	private void registerCommands(GameCommandRegistrar commands, State state) {
+		commands.register(Commands.literal("room")
+				.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+				.then(Commands.argument("room", StringArgumentType.word())
+						.suggests((context, builder) ->
+								SharedSuggestionProvider.suggest(state.rooms.keySet().stream(), builder)
+						)
+						.then(Commands.literal("cost").then(Commands.literal("set")
+								.then(Commands.argument("cost", IntegerArgumentType.integer(0))
+										.executes(context -> {
+											RoomInstance room = getRoomArgument(context, state);
+											room.cost = IntegerArgumentType.getInteger(context, "cost");
+											return 1;
+										})
+								)
+						))
+				)
+		);
+	}
+
+	private static RoomInstance getRoomArgument(CommandContext<CommandSourceStack> context, State state) throws CommandSyntaxException {
+		String roomId = StringArgumentType.getString(context, "room");
+		RoomInstance room = state.rooms.get(roomId);
+		if (room == null) {
+			throw new SimpleCommandExceptionType(Component.literal("No room with id: " + roomId)).create();
 		}
-		return false;
+		return room;
 	}
 
-	private boolean tickLockedRoom(IGamePhase game, GameTeamKey teamKey, TeamState teams, BlockBox region, TeamRoomState teamRoomState) {
-		boolean allInArea = teams.getPlayersForTeam(game, teamKey)
-				.stream().allMatch(t -> t.isCrouching() && region.contains(t.position()));
-		if (allInArea) {
-			teamRoomState.unlockingTicks++;
-			if (teamRoomState.unlockingTicks >= SharedConstants.TICKS_PER_SECOND * 5) {
-				teamRoomState.unlockingTicks = 0;
-				teamRoomState.status = RoomStatus.UNLOCKED;
+	private void tickRoom(IGamePhase game, TeamState teams, RoomInstance room) {
+		if (room.unlockingState != null) {
+			if (tickUnlocking(game, teams, room, room.unlockingState)) {
+				room.unlockingState = null;
 			}
-			return true;
-		} else if (teamRoomState.unlockingTicks > 0) {
-			teamRoomState.unlockingTicks--;
+		} else {
+			room.entrancePad.setUnlockingTicks(0, false);
 		}
-		return false;
+
+		for (GameTeamKey team : teams.getTeamKeys()) {
+			TeamRoomInstance teamState = room.getTeamState(team);
+			if (teamState.status != RoomStatus.LOCKED) {
+				teamState.unlockingBar.setPlayers(PlayerSet.EMPTY);
+				continue;
+			}
+
+			UnlockRequest unlockRequest = tryRequestUnlock(game, teams, room, team);
+			if (room.unlockingState == null && unlockRequest.isAccepted(room)) {
+				room.unlockingState = new UnlockingState(team);
+			}
+
+			updateUnlockingBar(room, team, teamState, unlockRequest);
+		}
+	}
+
+	private void updateUnlockingBar(RoomInstance room, GameTeamKey team, TeamRoomInstance teamState, UnlockRequest unlockRequest) {
+		GameBossBar bar = teamState.unlockingBar;
+		UnlockingState unlockingState = room.unlockingState;
+
+		if (unlockingState != null) {
+			float progress = (float) unlockingState.unlockingTicks / RoomEntrancePadEntity.TOTAL_UNLOCK_TICKS;
+			int percent = Math.round(progress * 100.0f);
+			boolean otherTeam = !unlockingState.team.equals(team);
+			BossEvent.BossBarColor color = otherTeam ? BossEvent.BossBarColor.RED : BossEvent.BossBarColor.GREEN;
+			bar.setTitle(EscapeRaceTexts.UNLOCKING.apply(percent));
+			bar.setProgress(progress);
+			bar.setStyle(color, BossEvent.BossBarOverlay.PROGRESS);
+		} else {
+			if (unlockRequest.breakBucks >= room.cost) {
+				int playersCrouching = unlockRequest.playersCrouching.size();
+				bar.setProgress((float) playersCrouching / unlockRequest.teamSize);
+				bar.setTitle(EscapeRaceTexts.LOCKED_NOT_ENOUGH_PLAYERS.apply(playersCrouching, unlockRequest.teamSize));
+				bar.setStyle(BossEvent.BossBarColor.YELLOW, BossEvent.BossBarOverlay.PROGRESS);
+			} else {
+				bar.setProgress((float) unlockRequest.breakBucks / room.cost);
+				bar.setTitle(EscapeRaceTexts.LOCKED_CANNOT_AFFORD.apply(unlockRequest.breakBucks, room.cost));
+				bar.setStyle(BossEvent.BossBarColor.RED, BossEvent.BossBarOverlay.PROGRESS);
+			}
+		}
+
+		bar.setPlayers(unlockRequest.playersInRegion);
+	}
+
+	private boolean tickUnlocking(IGamePhase game, TeamState teams, RoomInstance room, UnlockingState unlockingState) {
+		UnlockRequest unlockRequest = tryRequestUnlock(game, teams, room, unlockingState.team);
+		TriState result = unlockingState.tick(unlockRequest.isAccepted(room));
+
+		room.entrancePad.setUnlockingTicks(unlockingState.unlockingTicks, unlockingState.wasUnlocking);
+
+		TeamRoomInstance teamRoom = room.getTeamState(unlockingState.team);
+		if (result.isTrue()) {
+			teamRoom.status = RoomStatus.UNLOCKED;
+			game.statistics().forTeam(unlockingState.team).incrementInt(StatisticKey.BREAK_BUCKS, -room.cost);
+			teamRoom.sendToSubPhase(game, teams.getPlayersForTeam(game, unlockingState.team));
+		}
+
+		return !result.isDefault();
+	}
+
+	private UnlockRequest tryRequestUnlock(IGamePhase game, TeamState teams, RoomInstance room, GameTeamKey team) {
+		PlayerSet players = teams.getParticipantsForTeam(game, team);
+		PlayerSet playersInRegion = players.filter(player -> room.entranceBox.contains(player.position()));
+		PlayerSet playersCrouching = playersInRegion.filter(ServerPlayer::isCrouching);
+		int breakBucks = game.statistics().forTeam(team).getInt(StatisticKey.BREAK_BUCKS);
+		return new UnlockRequest(playersInRegion, playersCrouching, players.size(), breakBucks);
 	}
 
 	private void onGameStarted(IGamePhase game, State state) {
 		ServerLevel level = game.level();
 		for (RoomConfig room : rooms) {
-			RoomState roomState = new RoomState(room);
-			BlockBox blockBoxes = game.mapRegions().getOrThrow(room.entranceRegion);
+			GameConfig subGameConfig = GameConfigs.REGISTRY.get(room.gameId);
+			if (subGameConfig == null) {
+				throw new GameException(Component.literal("No game config with id: " + room.gameId));
+			}
+			BlockBox box = game.mapRegions().getOrThrow(room.entranceRegion);
 			RoomEntrancePadEntity pad = EscapeRace.ROOM_ENTRANCE_PAD.get().create(level, EntitySpawnReason.LOAD);
 			if (pad == null) {
 				throw new GameException(Component.literal("Could not spawn entrance pad"));
 			}
-			pad.snapTo(blockBoxes.center(), room.facing, 0.0f);
-			BlockPos size = blockBoxes.size();
+			RoomInstance roomInstance = new RoomInstance(room, subGameConfig, box, pad);
+			Vec3 center = box.center();
+			BlockPos size = box.size();
+			pad.snapTo(center.x(), box.min().getY(), center.z(), room.facing, 0.0f);
 			pad.setWidth(size.getX() - 0.01f);
 			pad.setHeight(size.getY());
 			pad.setDepth(size.getZ() - 0.01f);
-			roomState.setEntrancePad(pad);
 			level.addFreshEntity(pad);
-			state.rooms.put(room.entranceRegion, roomState);
+			state.rooms.put(room.entranceRegion, roomInstance);
+
+			level.getChunkSource().updateChunkForced(pad.chunkPosition(), true);
 		}
 	}
 
@@ -111,24 +219,21 @@ public record WarehouseSetupBehaviour(
 	}
 
 	public static class State {
-		public Map<String, RoomState> rooms;
+		public Map<String, RoomInstance> rooms;
 		public State() {
 			this.rooms = new HashMap<>();
 		}
 
 		public EscapeRaceRoomsState asClientState(@Nullable GameTeamKey team) {
 			Int2ObjectMap<EscapeRaceRoomsState.Room> rooms = new Int2ObjectOpenHashMap<>();
-			for (RoomState room : this.rooms.values()) {
-				RoomEntrancePadEntity pad = room.entrancePad;
-				if (pad == null) {
-					continue;
-				}
-				TeamRoomState teamState = team != null ? room.getTeamState(team) : null;
-				rooms.put(pad.getId(), new EscapeRaceRoomsState.Room(
+			for (RoomInstance room : this.rooms.values()) {
+				TeamRoomInstance teamState = team != null ? room.getTeamState(team) : null;
+				rooms.put(room.entrancePad.getId(), new EscapeRaceRoomsState.Room(
 						room.config.displayName,
 						// TODO: What do we show for spectators?
 						teamState != null ? teamState.status : RoomStatus.LOCKED,
-						room.config.cost
+						room.cost,
+						room.isBlockedFor(team)
 				));
 			}
 			return new EscapeRaceRoomsState(rooms);
@@ -138,41 +243,120 @@ public record WarehouseSetupBehaviour(
 	public record RoomConfig(
 			String entranceRegion,
 			float facing,
-			int cost,
-			Component displayName
+			int baseCost,
+			Component displayName,
+			ResourceLocation gameId
 	) {
-		public static final Codec<RoomConfig> CODEC = RecordCodecBuilder.create(inst ->
-				inst.group(Codec.STRING.fieldOf("entranceRegion").forGetter(RoomConfig::entranceRegion),
-						Codec.FLOAT.fieldOf("facing").forGetter(RoomConfig::facing),
-						Codec.INT.fieldOf("cost").forGetter(RoomConfig::cost),
-						ComponentSerialization.CODEC.fieldOf("displayName").forGetter(RoomConfig::displayName)
-				).apply(inst, RoomConfig::new));
+		public static final Codec<RoomConfig> CODEC = RecordCodecBuilder.create(i -> i.group(
+				Codec.STRING.fieldOf("entrance_region").forGetter(RoomConfig::entranceRegion),
+				Codec.FLOAT.fieldOf("facing").forGetter(RoomConfig::facing),
+				Codec.INT.fieldOf("cost").forGetter(RoomConfig::baseCost),
+				ComponentSerialization.CODEC.fieldOf("display_name").forGetter(RoomConfig::displayName),
+				ResourceLocation.CODEC.fieldOf("game").forGetter(RoomConfig::gameId)
+		).apply(i, RoomConfig::new));
 	}
 
-	public static class RoomState {
-		public RoomConfig config;
-		public final Map<GameTeamKey, TeamRoomState> teamStates = new HashMap<>();
-		private @Nullable RoomEntrancePadEntity entrancePad;
+	public static class RoomInstance {
+		private final RoomConfig config;
+		private final GameConfig subGameConfig;
+		private final BlockBox entranceBox;
+		private final RoomEntrancePadEntity entrancePad;
+		private int cost;
 
-		public RoomState(RoomConfig roomConfig) {
-			this.config = roomConfig;
-		}
+		public final Map<GameTeamKey, TeamRoomInstance> teamStates = new HashMap<>();
+		private @Nullable UnlockingState unlockingState;
 
-		public TeamRoomState getTeamState(GameTeamKey teamKey) {
-			return teamStates.computeIfAbsent(teamKey, k -> new TeamRoomState());
-		}
-
-		public RoomEntrancePadEntity getEntrancePad() {
-			return Objects.requireNonNull(entrancePad);
-		}
-
-		public void setEntrancePad(RoomEntrancePadEntity entrancePad) {
+		public RoomInstance(RoomConfig config, GameConfig subGameConfig, BlockBox entranceBox, RoomEntrancePadEntity entrancePad) {
+			this.config = config;
+			this.subGameConfig = subGameConfig;
+			this.entranceBox = entranceBox;
 			this.entrancePad = entrancePad;
+			cost = config.baseCost();
+		}
+
+		public TeamRoomInstance getTeamState(GameTeamKey teamKey) {
+			return teamStates.computeIfAbsent(teamKey, k -> new TeamRoomInstance(this));
+		}
+
+		public boolean isBlockedFor(@Nullable GameTeamKey team) {
+			return unlockingState != null && !unlockingState.team.equals(team);
 		}
 	}
 
-	public static class TeamRoomState {
+	public static class TeamRoomInstance {
+		private final RoomInstance room;
+		private final GameBossBar unlockingBar = new GameBossBar(CommonComponents.EMPTY, BossEvent.BossBarColor.RED, BossEvent.BossBarOverlay.PROGRESS);
 		private RoomStatus status = RoomStatus.LOCKED;
+
+		@Nullable
+		private PendingSubPhase pendingSubPhase;
+		@Nullable
+		private IGamePhase subPhase;
+		private boolean stopped;
+
+		public TeamRoomInstance(RoomInstance room) {
+			this.room = room;
+		}
+
+		public boolean sendToSubPhase(IGamePhase topGame, PlayerSet players) {
+			if (stopped) {
+				return false;
+			}
+			if (pendingSubPhase == null && subPhase == null) {
+				pendingSubPhase = topGame.createSubPhase(room.subGameConfig);
+				pendingSubPhase.whenCreated(this::onGameCreated);
+			}
+			if (pendingSubPhase != null) {
+				pendingSubPhase.queuePlayers(players);
+			} else if (subPhase != null) {
+				topGame.transferPlayersTo(players, subPhase);
+			}
+			return true;
+		}
+
+		private void onGameCreated(IGamePhase subGame, EventRegistrar subEvents) {
+			pendingSubPhase = null;
+			subPhase = subGame;
+			subEvents.listen(GamePhaseEvents.STOP, reason ->
+					stopped = true
+			);
+		}
+	}
+
+	private record UnlockRequest(
+			PlayerSet playersInRegion,
+			PlayerSet playersCrouching,
+			int teamSize,
+			int breakBucks
+	) {
+		public boolean isAccepted(RoomInstance room) {
+			return playersCrouching.size() >= teamSize && breakBucks >= room.cost;
+		}
+	}
+
+	private static class UnlockingState {
+		private final GameTeamKey team;
 		private int unlockingTicks;
+		private boolean wasUnlocking = true;
+
+		private UnlockingState(GameTeamKey team) {
+			this.team = team;
+		}
+
+		public TriState tick(boolean unlocking) {
+			wasUnlocking = unlocking;
+			if (unlocking) {
+				unlockingTicks++;
+				if (unlockingTicks >= RoomEntrancePadEntity.TOTAL_UNLOCK_TICKS) {
+					return TriState.TRUE;
+				}
+			} else {
+				unlockingTicks--;
+				if (unlockingTicks <= 0) {
+					return TriState.FALSE;
+				}
+			}
+			return TriState.DEFAULT;
+		}
 	}
 }

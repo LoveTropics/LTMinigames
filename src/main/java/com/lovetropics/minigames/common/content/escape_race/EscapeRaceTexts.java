@@ -5,6 +5,7 @@ import com.lovetropics.minigames.common.core.game.util.TranslationCollector;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 
+import java.util.List;
 import java.util.function.BiConsumer;
 
 public class EscapeRaceTexts {
@@ -12,15 +13,23 @@ public class EscapeRaceTexts {
 
 	public static final Component TERRY_TRASH = KEYS.add("terry_trash", "Terry's Trash").withStyle(ChatFormatting.GOLD);
 
+	public static final List<Component> DDR_POSITIVE_PHRASES = List.of(
+			KEYS.add("ddr.positive.nice_one", "Nice One!"),
+			KEYS.add("ddr.positive.close_enough", "Close Enough!"),
+			KEYS.add("ddr.positive.sick", "Sick Work!"),
+			KEYS.add("ddr.positive.smashedit", "Smashed It!"),
+			KEYS.add("ddr.positive.poppingoff", "Popping Off!"),
+			KEYS.add("ddr.positive.incredible", "Incredible!")
+	);
+
+	public static final Component DDR_PERFECT_SCORE = KEYS.add("ddr.positive.perfect", "Perfect!");
+	public static final Component DDR_STREAK_BROKEN = KEYS.add("ddr.negative.streak_broken", "Streak Broken!").withStyle(ChatFormatting.RED);
+
+	public static final TranslationCollector.Fun1 UNLOCKING = KEYS.add1("room.unlocking", "UNLOCKING - %s%%");
+	public static final TranslationCollector.Fun2 LOCKED_CANNOT_AFFORD = KEYS.add2("room.locked_cannot_afford", "LOCKED - %s/%s Break Bucks");
+	public static final TranslationCollector.Fun2 LOCKED_NOT_ENOUGH_PLAYERS = KEYS.add2("room.locked_not_enough_players", "LOCKED - %s/%s crouched");
+
 	public static void collectTranslations(BiConsumer<String, String> consumer){
-		KEYS.add("ddr.positive.nice_one", "Nice One!");
-		KEYS.add("ddr.positive.close_enough", "Close Enough!");
-		KEYS.add("ddr.positive.sick", "Sick Work!");
-		KEYS.add("ddr.positive.smashedit", "Smashed It!");
-		KEYS.add("ddr.positive.poppingoff", "Popping Off!");
-		KEYS.add("ddr.positive.incredible", "Incredible!");
-		KEYS.add("ddr.positive.perfect", "Perfect!");
-		KEYS.add("ddr.negative.streak_broken", "Streak Broken!");
 		KEYS.add("ddr.score.added", "+%s Break Bucks");
 		KEYS.add("donorbook.title", "%s's final thoughts");
 

@@ -1,10 +1,13 @@
 package com.lovetropics.minigames.common.core.game.util;
 
+import com.lovetropics.minigames.common.core.game.player.PlayerSet;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.BossEvent;
+
+import java.util.List;
 
 public final class GameBossBar implements GameWidget {
 	private static final float UPDATE_PROGRESS_THRESHOLD = 0.001f;
@@ -41,6 +44,15 @@ public final class GameBossBar implements GameWidget {
 	@Override
 	public void removePlayer(ServerPlayer player) {
 		bar.removePlayer(player);
+	}
+
+	public void setPlayers(PlayerSet players) {
+		for (ServerPlayer oldPlayer : List.copyOf(bar.getPlayers())) {
+			if (!players.contains(oldPlayer)) {
+				removePlayer(oldPlayer);
+			}
+		}
+		players.forEach(this::addPlayer);
 	}
 
 	@Override

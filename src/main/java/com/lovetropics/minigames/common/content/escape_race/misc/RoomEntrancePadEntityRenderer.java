@@ -31,6 +31,10 @@ import java.util.Objects;
 
 public class RoomEntrancePadEntityRenderer extends EntityRenderer<RoomEntrancePadEntity, RoomEntrancePadRenderState> {
 	private static final ResourceLocation TEXTURE = LoveTropics.location("textures/entity/room_entrance_pad.png");
+	private static final int LOCKED_COLOR = 0xFFFF0000;
+	private static final int UNLOCKED_COLOR = 0xFF0000FF;
+	private static final int COMPLETED_COLOR = 0xFF00FF00;
+
 	private final GuiSpriteManager guiSpriteManager;
 	private final ItemModelResolver itemModelResolver;
 	private final Font font;
@@ -57,19 +61,21 @@ public class RoomEntrancePadEntityRenderer extends EntityRenderer<RoomEntrancePa
 		super.extractRenderState(entity, reusedState, partialTick);
 		reusedState.yRot = entity.getYRot();
 		reusedState.depth = entity.getDepth();
-		reusedState.height = entity.getHeight();
+		reusedState.height = Math.min(entity.getHeight(), 1.0f);
 		reusedState.width = entity.getWidth();
 		reusedState.ticks = entity.tickCount;
-		EscapeRaceRoomsState roomsState = Objects.requireNonNullElse(ClientGameStateManager.getOrNull(EscapeRace.ROOMS_STATE), EscapeRaceRoomsState.EMPTY);
+		EscapeRaceRoomsState roomsState = ClientGameStateManager.getOrDefault(EscapeRace.ROOMS_STATE, EscapeRaceRoomsState.EMPTY);
 		EscapeRaceRoomsState.Room room = Objects.requireNonNullElse(roomsState.byEntrance(entity), EscapeRaceRoomsState.Room.EMPTY);
 		reusedState.roomStatus = room.status();
 		reusedState.cost = room.cost();
 		reusedState.roomName = room.name();
-		reusedState.color = switch(room.status()){
-			case LOCKED -> 0xFFFF0000;
-			case UNLOCKED -> 0xFF0000FF;
-			case COMPLETED -> 0xFF00FF00;
+		float unlockProgress = entity.getUnlockProgress(partialTick);
+		reusedState.color = switch (room.status()) {
+			case LOCKED -> ARGB.lerp(unlockProgress, LOCKED_COLOR, UNLOCKED_COLOR);
+			case UNLOCKED -> UNLOCKED_COLOR;
+			case COMPLETED -> COMPLETED_COLOR;
 		};
+		reusedState.height = Mth.lerp(unlockProgress, reusedState.height, entity.getHeight());
 		EscapeRaceClientBucksState breakBuckState = ClientGameStateManager.getOrNull(EscapeRace.BREAK_BUCK_STATE);
 		int breakBucks = breakBuckState != null ? breakBuckState.amount() : 0;
 		reusedState.canAfford = breakBucks >= room.cost();
@@ -79,16 +85,14 @@ public class RoomEntrancePadEntityRenderer extends EntityRenderer<RoomEntrancePa
 	@Override
 	public void render(RoomEntrancePadRenderState renderState, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
 		super.render(renderState, poseStack, bufferSource, packedLight);
-		poseStack.pushPose();
-		poseStack.translate(0.0, 0, 0.0); // Roughly get into the center of the place
-		poseStack.mulPose(Axis.YP.rotationDegrees(renderState.yRot)); // Facing
+
 		poseStack.pushPose();
 		poseStack.mulPose(Axis.ZP.rotationDegrees(180f)); // Turn upsidedown
 		float minX = -(renderState.width / 2);
-		float minY = -(renderState.height / 2);
+		float minY = -renderState.height;
 		float minZ = -(renderState.depth / 2);
 		float maxX = renderState.width / 2;
-		float maxY = renderState.height / 2;
+		float maxY = 0.0f;
 		float maxZ = renderState.depth / 2;
 		VertexConsumer buffer = bufferSource.getBuffer(RenderType.entityTranslucentEmissive(TEXTURE, false));
 		PoseStack.Pose last = poseStack.last();
@@ -98,10 +102,9 @@ public class RoomEntrancePadEntityRenderer extends EntityRenderer<RoomEntrancePa
 		renderFace(packedLight, buffer, last, renderState.color, maxX, minY, maxZ, maxX, maxY, minZ, renderState.ticks);
 		poseStack.popPose();
 
+		poseStack.pushPose();
 		int backgroundColor = ARGB.color(Minecraft.getInstance().options.getBackgroundOpacity(0.25F), CommonColors.BLACK);
-		poseStack.mulPose(Axis.YP.rotationDegrees(180)); // Facing
 		poseStack.translate(0.0f, 0.5f, 0.0f);
-		poseStack.mulPose(Mth.rotationAroundAxis(Mth.Y_AXIS, entityRenderDispatcher.camera.rotation(), new Quaternionf()));
 
 		if (renderState.roomStatus == RoomStatus.LOCKED) {
 			float textScale = 0.05f;
@@ -112,6 +115,7 @@ public class RoomEntrancePadEntityRenderer extends EntityRenderer<RoomEntrancePa
 			float totalWidth = buckWidth + costTextWidth * textScale;
 
 			poseStack.pushPose();
+			poseStack.mulPose(Mth.rotationAroundAxis(Mth.Y_AXIS, entityRenderDispatcher.camera.rotation(), new Quaternionf()));
 			poseStack.translate(-totalWidth / 2.0f + buckWidth / 2.0f, 0.0f, 0.0f);
 			renderState.breakBuck.render(poseStack, bufferSource, packedLight, OverlayTexture.NO_OVERLAY);
 
@@ -128,7 +132,8 @@ public class RoomEntrancePadEntityRenderer extends EntityRenderer<RoomEntrancePa
 		}
 
 		poseStack.pushPose();
-		poseStack.translate(0.0f, 1.5, 0.0f);
+		poseStack.mulPose(Axis.YP.rotationDegrees(renderState.yRot));
+		poseStack.translate(0.0f, 2.5f, -renderState.depth / 2.0f);
 		poseStack.scale(0.08f, -0.08f, 0.08f);
 		font.drawInBatch(
 				renderState.roomName,

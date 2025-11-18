@@ -11,6 +11,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 
 import javax.annotation.Nullable;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 @EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
@@ -51,6 +52,10 @@ public final class ClientGameStateManager {
 			return map.getOrNull(type.get());
 		}
 		return null;
+	}
+
+	public static <T extends GameClientState> T getOrDefault(Supplier<GameClientStateType<T>> type, T defaultValue) {
+		return Objects.requireNonNullElse(getOrNull(type), defaultValue);
 	}
 
 	@SubscribeEvent

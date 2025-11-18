@@ -70,19 +70,17 @@ abstract class LobbyState {
 
 	static final class Errored extends Paused {
 		final IGameDefinition game;
-		final GamePhaseType phaseType;
 		final Component error;
 
-		Errored(IGameDefinition game, GamePhaseType phaseType, Component error) {
+		Errored(IGameDefinition game, Component error) {
 			this.game = game;
-			this.phaseType = phaseType;
 			this.error = error;
 		}
 
 		@Override
 		protected ClientCurrentGame getClientCurrentGame() {
 			ClientGameDefinition definition = ClientGameDefinition.from(game);
-			return new ClientCurrentGame(definition, phaseType).withError(error);
+			return new ClientCurrentGame(definition, GamePhaseType.WAITING).withError(error);
 		}
 	}
 

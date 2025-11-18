@@ -86,6 +86,7 @@ import com.lovetropics.minigames.common.core.map.VoidChunkGenerator;
 import com.lovetropics.minigames.common.core.map.workspace.MapWorkspaceManager;
 import com.lovetropics.minigames.common.dev.DevPackSource;
 import com.lovetropics.minigames.common.role.StreamHosts;
+import com.lovetropics.minigames.common.util.PredictedToggle;
 import com.lovetropics.minigames.common.util.registry.LoveTropicsRegistrate;
 import com.lovetropics.minigames.common.util.world.gamedata.GameDataAccessor;
 import com.mojang.brigadier.CommandDispatcher;
@@ -226,6 +227,7 @@ public class LoveTropics {
 		VoidChunkGenerator.REGISTER.register(modBus);
 		EscapeRace.ENTITY_SERIALIZERS.register(modBus);
 		EscapeRace.DATA_COMPONENTS.register(modBus);
+		PredictedToggle.REGISTER.register(modBus);
 
 		LoveTropicsEntityOptions.register();
 

@@ -42,18 +42,21 @@ public record EscapeRaceRoomsState(
 	public record Room(
 			Component name,
 			RoomStatus status,
-			int cost
+			int cost,
+			boolean blocked
 	) {
 		public static final Room EMPTY = new Room(
 				CommonComponents.EMPTY,
 				RoomStatus.LOCKED,
-				0
+				0,
+				false
 		);
 
 		public static final StreamCodec<RegistryFriendlyByteBuf, Room> STREAM_CODEC = StreamCodec.composite(
 				ComponentSerialization.STREAM_CODEC, Room::name,
 				RoomStatus.STREAM_CODEC, Room::status,
 				ByteBufCodecs.VAR_INT, Room::cost,
+				ByteBufCodecs.BOOL, Room::blocked,
 				Room::new
 		);
 	}
