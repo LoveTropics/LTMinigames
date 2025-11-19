@@ -51,10 +51,10 @@ public final class BlockPartyBehavior implements IGameBehavior {
 			Codec.STRING.fieldOf("floor").forGetter(c -> c.floorRegionKey),
 			MoreCodecs.arrayOrUnit(MoreCodecs.BLOCK_STATE, BlockState[]::new).fieldOf("blocks").forGetter(c -> c.blocks),
 			Codec.INT.optionalFieldOf("quad_size", 3).forGetter(c -> c.quadSize),
-			Codec.LONG.optionalFieldOf("max_time", 20L * 5).forGetter(c -> c.maxTime),
-			Codec.LONG.optionalFieldOf("min_time", 20L * 2).forGetter(c -> c.minTime),
+			Codec.INT.optionalFieldOf("max_time", SharedConstants.TICKS_PER_SECOND * 5).forGetter(c -> c.maxTime),
+			Codec.INT.optionalFieldOf("min_time", SharedConstants.TICKS_PER_SECOND * 2).forGetter(c -> c.minTime),
 			Codec.INT.optionalFieldOf("time_decay_rounds", 5).forGetter(c -> c.timeDecayRounds),
-			Codec.LONG.optionalFieldOf("interval", 20L * 3).forGetter(c -> c.interval),
+			Codec.INT.optionalFieldOf("interval", SharedConstants.TICKS_PER_SECOND * 3).forGetter(c -> c.interval),
 			Codec.INT.optionalFieldOf("knockback_after_round", Integer.MAX_VALUE).forGetter(c -> c.knockbackAfterAround),
 			Codec.INT.optionalFieldOf("max_lives", 1).forGetter(c -> c.maxLives)
 	).apply(i, BlockPartyBehavior::new));
@@ -63,10 +63,10 @@ public final class BlockPartyBehavior implements IGameBehavior {
 	private final BlockState[] blocks;
 	private final int quadSize;
 
-	private final long maxTime;
-	private final long minTime;
+	private final int maxTime;
+	private final int minTime;
 	private final int timeDecayRounds;
-	private final long interval;
+	private final int interval;
 	private final int knockbackAfterAround;
 	private final int maxLives;
 
@@ -76,7 +76,7 @@ public final class BlockPartyBehavior implements IGameBehavior {
 	@Nullable
 	private State state;
 
-	public BlockPartyBehavior(String floorRegionKey, BlockState[] blocks, int quadSize, long maxTime, long minTime, int timeDecayRounds, long interval, int knockbackAfterAround, int maxLives) {
+	public BlockPartyBehavior(String floorRegionKey, BlockState[] blocks, int quadSize, int maxTime, int minTime, int timeDecayRounds, int interval, int knockbackAfterAround, int maxLives) {
 		this.floorRegionKey = floorRegionKey;
 		this.blocks = blocks;
 		this.quadSize = quadSize;
@@ -197,7 +197,7 @@ public final class BlockPartyBehavior implements IGameBehavior {
 			}
 
 			if (player.gameMode() != GameType.SPECTATOR) {
-				game.statistics().forPlayer(player).set(StatisticKey.ROUNDS_SURVIVED, round);
+				game.statistics().forPlayer(player).incrementInt(StatisticKey.ROUNDS_SURVIVED, 1);
 			} else {
 				SpawnBuilder spawn = new SpawnBuilder(player);
 				spawnPlayer(spawn);
@@ -206,9 +206,9 @@ public final class BlockPartyBehavior implements IGameBehavior {
 			}
 		}
 
-		float lerp = (float) round / timeDecayRounds;
-		long duration = Mth.floor(Mth.clampedLerp(maxTime, minTime, lerp));
-		return new CountingDown(round + 1, game.ticks() + duration, floor);
+		float alpha = 1.0f - Math.min((float) round / timeDecayRounds, 1.0f);
+		long duration = Mth.lerpInt(alpha, minTime, maxTime);
+		return new CountingDown(round, game.ticks() + duration, floor);
 	}
 
 	Interval startInterval(int round, Floor floor) {

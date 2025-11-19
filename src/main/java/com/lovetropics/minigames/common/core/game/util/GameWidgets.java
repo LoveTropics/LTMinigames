@@ -46,7 +46,7 @@ public final class GameWidgets implements IGameState {
 			}
 		});
 		events.listen(GamePhaseEvents.DESTROY, () -> {
-			for (GameWidget widget : allWidgets) {
+			for (GameWidget widget : List.copyOf(allWidgets)) {
 				widget.close();
 			}
 			allWidgets.clear();
