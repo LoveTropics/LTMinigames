@@ -109,7 +109,11 @@ public class SpleefBehavior implements IGameBehavior {
 		widgets = GameWidgets.getOrRegister(game, events);
 
 		for (int floor = 0; floor < floors; floor++) {
-			floorRegions[floor] = game.mapRegions().getOrThrow("floor" + (floor + 1));
+			// real f-it hours
+			floorRegions[floor] = game.mapRegions().getAny("floor_" + (floor + 1));
+			if (floorRegions[floor] == null) {
+				floorRegions[floor] = game.mapRegions().getOrThrow("floor" + (floor + 1));
+			}
 		}
 
 		deathRegion = game.mapRegions().getOrThrow("death");
