@@ -12,6 +12,7 @@ import com.lovetropics.minigames.common.core.game.state.statistics.Placement;
 import com.lovetropics.minigames.common.core.game.state.statistics.PlacementOrder;
 import com.lovetropics.minigames.common.core.game.state.statistics.PlayerKey;
 import com.lovetropics.minigames.common.core.game.state.statistics.StatisticKey;
+import com.lovetropics.minigames.common.core.game.state.statistics.StatisticsMap;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeam;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeamKey;
 import com.lovetropics.minigames.common.core.game.state.team.TeamState;
@@ -46,6 +47,8 @@ public record PlaceByStatisticBehavior(StatisticKey<Integer> statistic, Placemen
 		Placement.Score<PlayerKey, Integer> playerPlacement = Placement.fromPlayerScore(order, game, statistic);
 		playerPlacement.placeInto(game.statistics(), StatisticKey.PLACEMENT);
 
+		addReversePlacements(game);
+
 		Placement.Score<GameTeamKey, Integer> teamPlacement = Placement.fromTeamScore(order, game, statistic);
 		teamPlacement.placeInto(game.statistics(), StatisticKey.PLACEMENT);
 
@@ -60,6 +63,18 @@ public record PlaceByStatisticBehavior(StatisticKey<Integer> statistic, Placemen
 			return GameWinner.byPlayerKey(game, winningPlayerKey);
 		}
 		return new GameWinner.Nobody();
+	}
+
+	private void addReversePlacements(IGamePhase game) {
+		int participantCount = game.participants().size();
+		for (PlayerKey player : game.statistics().getPlayers()) {
+			StatisticsMap playerStatistics = game.statistics().forPlayer(player);
+			Integer placement = playerStatistics.get(StatisticKey.PLACEMENT);
+			if (placement == null) {
+				continue;
+			}
+			playerStatistics.set(StatisticKey.REVERSE_PLACEMENT, Math.max(participantCount - placement, 0));
+		}
 	}
 
 	@Override

@@ -31,6 +31,7 @@ public final class StatisticKey<T> {
 
 	// Generic - Per Player
 	public static final StatisticKey<Integer> PLACEMENT = ofInt("placement").displays(placement());
+	public static final StatisticKey<Integer> REVERSE_PLACEMENT = ofInt("reverse_placement"); // "How many players did I place above?"
 
 	public static final StatisticKey<Integer> KILLS = ofInt("kills").displays(unit("kills"));
 	public static final StatisticKey<Integer> POINTS = ofInt("points");
