@@ -137,6 +137,7 @@ public final class TerryTrashBehavior implements IGameBehavior {
 					world.setBlockAndUpdate(blockBox, codeCheck.clearState.getState(world.random, blockBox));
 				}
 				codeGood = allMatch;
+				return InteractionResult.SUCCESS_SERVER;
 			}
 			if (heldItem.isEmpty()) {
 				return InteractionResult.PASS;
@@ -148,12 +149,12 @@ public final class TerryTrashBehavior implements IGameBehavior {
 						heldItem.shrink(1);
 						game.statistics().global().incrementInt(StatisticKey.RECYCLED_TRASH, 1);
 						sidebar.set(buildSidebar(game));
-						return InteractionResult.SUCCESS;
+						return InteractionResult.SUCCESS_SERVER;
 					} else {
 						heldItem.shrink(1);
 						game.statistics().global().incrementInt(StatisticKey.WRONG_BIN, 1);
 						sidebar.set(buildSidebar(game));
-						return InteractionResult.SUCCESS;
+						return InteractionResult.SUCCESS_SERVER;
 					}
 				}
 			}
