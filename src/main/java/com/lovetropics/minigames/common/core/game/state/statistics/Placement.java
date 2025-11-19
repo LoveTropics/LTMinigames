@@ -87,9 +87,9 @@ public interface Placement<H extends StatisticHolder> extends Iterable<Placed<H>
 
 	void placeInto(GameStatistics output, StatisticKey<Integer> placementKey);
 
-	void sendTo(PlayerSet players, int length);
+	void sendTo(PlayerSet players, int maxLength);
 
-	void addToSidebar(List<Component> sidebar, int length);
+	void addToSidebar(List<Component> sidebar, int maxLength);
 
 	@Nullable
 	H getWinner();
@@ -110,11 +110,11 @@ public interface Placement<H extends StatisticHolder> extends Iterable<Placed<H>
 		}
 
 		@Override
-		public void sendTo(PlayerSet players, int length) {
+		public void sendTo(PlayerSet players, int maxLength) {
 			int i = 0;
 			Placed<PlayerKey> entry;
 
-			for (int place = 1; place <= length; place++) {
+			for (int place = 1; place <= maxLength && i < order.size(); place++) {
 				String headPrefix = " " + place + ". ";
 				String indentPrefix = StringUtils.repeat(' ', headPrefix.length());
 
@@ -133,8 +133,8 @@ public interface Placement<H extends StatisticHolder> extends Iterable<Placed<H>
 		}
 
 		@Override
-		public void addToSidebar(List<Component> sidebar, int length) {
-			length = Math.min(order.size(), length);
+		public void addToSidebar(List<Component> sidebar, int maxLength) {
+			int length = Math.min(order.size(), maxLength);
 			for (int i = 0; i < length; i++) {
 				Placed<PlayerKey> entry = order.get(i);
 				Component name = Component.literal(entry.value().name()).withStyle(ChatFormatting.AQUA);
@@ -174,11 +174,11 @@ public interface Placement<H extends StatisticHolder> extends Iterable<Placed<H>
 		}
 
 		@Override
-		public void sendTo(PlayerSet players, int length) {
+		public void sendTo(PlayerSet players, int maxLength) {
 			int i = 0;
 			Entry<H, T> entry;
 
-			for (int place = 1; place <= length; place++) {
+			for (int place = 1; place <= maxLength && i < entries.size(); place++) {
 				String headPrefix = " " + place + ". ";
 				String indentPrefix = StringUtils.repeat(' ', headPrefix.length());
 
@@ -198,8 +198,8 @@ public interface Placement<H extends StatisticHolder> extends Iterable<Placed<H>
 		}
 
 		@Override
-		public void addToSidebar(List<Component> sidebar, int length) {
-			length = Math.min(entries.size(), length);
+		public void addToSidebar(List<Component> sidebar, int maxLength) {
+			int length = Math.min(entries.size(), maxLength);
 			for (int i = 0; i < length; i++) {
 				Entry<H, T> entry = entries.get(i);
 				Component name = Component.empty().append(entry.holder.getName(game)).append(": ").withStyle(ChatFormatting.AQUA);
