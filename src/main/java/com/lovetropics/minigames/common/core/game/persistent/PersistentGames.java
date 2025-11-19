@@ -8,26 +8,32 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @EventBusSubscriber(modid = LoveTropics.ID)
 public class PersistentGames {
 	private static final List<PersistentGameInstance> RUNNING_GAMES = new ArrayList<>();
+	private static final Map<ResourceKey<Level>, List<PersistentGameInstance>> BY_LEVEL = new HashMap<>();
 
 	public static void start(MinecraftServer server, List<PersistentGameConfig> configs) {
 		for (PersistentGameInstance game : RUNNING_GAMES) {
 			game.invoker(GamePhaseEvents.STOP).stop(GameStopReason.reloading());
 		}
 
+		BY_LEVEL.clear();
 		RUNNING_GAMES.clear();
 
 		for (PersistentGameConfig config : configs) {
-			ServerLevel level = server.getLevel(ResourceKey.create(Registries.DIMENSION, config.dimension()));
+			ResourceKey<Level> key = ResourceKey.create(Registries.DIMENSION, config.dimension());
+			ServerLevel level = server.getLevel(key);
 			if (level == null) {
 				throw new IllegalStateException("Starting persistent game in non-existent world!");
 			}
@@ -42,6 +48,7 @@ public class PersistentGames {
 			game.invoker(GamePhaseEvents.START).start(null);
 
 			RUNNING_GAMES.add(game);
+			BY_LEVEL.computeIfAbsent(key, k -> new ArrayList<>()).add(game);
 		}
 	}
 
@@ -56,5 +63,9 @@ public class PersistentGames {
 				RUNNING_GAMES.remove(game);
 			}
 		}
+	}
+
+	public static List<PersistentGameInstance> in(Level level) {
+		return BY_LEVEL.getOrDefault(level.dimension(), List.of());
 	}
 }

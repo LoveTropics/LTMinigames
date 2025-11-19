@@ -5,6 +5,8 @@ import com.lovetropics.minigames.common.core.game.persistent.behavior.CompositeP
 import com.lovetropics.minigames.common.core.game.persistent.behavior.GameRegionBehavior;
 import com.lovetropics.minigames.common.core.game.persistent.behavior.MakeSpeedyBehavior;
 import com.lovetropics.minigames.common.core.game.persistent.behavior.NoOpBehavior;
+import com.lovetropics.minigames.common.core.game.persistent.behavior.crab.CrabGolfClubsBehavior;
+import com.lovetropics.minigames.common.core.game.persistent.behavior.crab.CrabGolfHoleBehavior;
 import com.lovetropics.minigames.common.util.registry.LoveTropicsRegistrate;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -27,6 +29,8 @@ public class PersistentGameBehaviors {
 	public static final PersistentGameBehaviorEntry<CompositePersistentBehavior> COMPOSITE = register("composite", CompositePersistentBehavior.MAP_CODEC);
 	public static final PersistentGameBehaviorEntry<GameRegionBehavior> GAME_REGION = register("game_region", GameRegionBehavior.CODEC);
 	public static final PersistentGameBehaviorEntry<MakeSpeedyBehavior> MAKE_SPEEDY = register("make_speedy", MakeSpeedyBehavior.CODEC);
+	public static final PersistentGameBehaviorEntry<CrabGolfHoleBehavior> CRAB_GOLF_HOLE = register("crab_golf_hole", CrabGolfHoleBehavior.CODEC);
+	public static final PersistentGameBehaviorEntry<CrabGolfClubsBehavior> CRAB_GOLF_CLUBS = register("crab_golf_clubs", CrabGolfClubsBehavior.CODEC);
 
 	public static <T extends PersistentGameBehavior> PersistentGameBehaviorEntry<T> register(final String name, final MapCodec<T> codec) {
 		return REGISTRATE.object(name).persistentBehavior(codec).register();

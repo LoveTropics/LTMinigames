@@ -7,6 +7,7 @@ import com.lovetropics.minigames.common.core.game.client_state.GameClientStateTy
 import com.lovetropics.minigames.common.core.game.client_state.GameClientStateTypes;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.level.GameType;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -28,12 +29,12 @@ public class BeSpeedyState implements GameClientState {
 		}
 
 		LocalPlayer player = Minecraft.getInstance().player;
-		if (player == null) {
+		if (player == null || player.gameMode() == GameType.SPECTATOR || player.gameMode() == GameType.CREATIVE) {
 			return;
 		}
 
 		double movementY = Math.abs(player.getDeltaMovement().y);
-		if (movementY < 0.1 && !player.isSteppingCarefully()) {
+		if (movementY < 0.1 && !player.isSteppingCarefully() && player.onGround()) {
 			double factor = 1.35 - movementY * 0.2; // TODO config
 			player.setDeltaMovement(player.getDeltaMovement().multiply(factor, 1.0, factor));
 		}

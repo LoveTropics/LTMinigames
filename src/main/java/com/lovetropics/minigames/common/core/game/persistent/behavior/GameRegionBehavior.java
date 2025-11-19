@@ -22,6 +22,7 @@ public class GameRegionBehavior implements PersistentGameBehavior {
 	public static final MapCodec<GameRegionBehavior> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 	        Codec.STRING.fieldOf("region").forGetter(b -> b.region)
 	).apply(instance, GameRegionBehavior::new));
+
 	private final String region;
 
 	private final List<BlockBox> regions = new ArrayList<>();
