@@ -122,9 +122,6 @@ public class RaceTrackBehavior implements IGameBehavior {
 
 		events.listen(GamePlayerEvents.TICK, player -> {
 			long gameTime = game.ticks();
-			if (gameTime % SIDEBAR_UPDATE_INTERVAL == 0) {
-				tickSidebar(player, sidebarTitle);
-			}
 
 			PlayerState state = states.get(player.getUUID());
 			if (gameTime < startTime || state == null) {
@@ -148,6 +145,13 @@ public class RaceTrackBehavior implements IGameBehavior {
 		events.listen(GamePlayerEvents.REMOVE, this::clearPlayerState);
 
 		events.listen(GamePhaseEvents.TICK, () -> {
+			long gameTime = game.ticks();
+			if (gameTime % SIDEBAR_UPDATE_INTERVAL == 0) {
+				for (ServerPlayer player : game.allPlayers()) {
+					tickSidebar(player, sidebarTitle);
+				}
+			}
+
 			if (finishTime != NO_FINISH_TIME && game.ticks() >= finishTime) {
 				triggerWin(game);
 			}
