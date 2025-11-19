@@ -10,6 +10,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.protocol.game.ClientboundSoundEntityPacket;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -31,7 +32,13 @@ public record PlaySoundAction(SoundEvent sound, float volume, float pitch, Sound
 			if (broadcast) {
 				target.level().playSound(null, target.getX(), target.getY(), target.getZ(), sound, source, volume, pitch);
 			} else {
-				target.playNotifySound(sound, source, volume, pitch);
+				target.connection.send(new ClientboundSoundEntityPacket(
+						BuiltInRegistries.SOUND_EVENT.wrapAsHolder(sound),
+						source,
+						target,
+						volume, pitch,
+						game.random().nextLong()
+				));
 			}
 			return true;
 		});
