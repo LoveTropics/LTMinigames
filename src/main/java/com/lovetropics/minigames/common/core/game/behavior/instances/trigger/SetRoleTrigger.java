@@ -14,10 +14,16 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.util.context.ContextMap;
 
+import java.util.Optional;
 import java.util.function.Supplier;
 
-public record SetRoleTrigger(PlayerRole role, GameActionList action) implements IGameBehavior {
+public record SetRoleTrigger(
+		Optional<PlayerRole> fromRole,
+		PlayerRole role,
+		GameActionList action
+) implements IGameBehavior {
 	public static final MapCodec<SetRoleTrigger> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+			PlayerRole.CODEC.optionalFieldOf("from_role").forGetter(SetRoleTrigger::fromRole),
 			PlayerRole.CODEC.fieldOf("role").forGetter(SetRoleTrigger::role),
 			GameActionList.MAP_CODEC.forGetter(SetRoleTrigger::action)
 	).apply(i, SetRoleTrigger::new));
@@ -26,7 +32,7 @@ public record SetRoleTrigger(PlayerRole role, GameActionList action) implements 
 	public void register(final IGamePhase game, final EventRegistrar events) throws GameException {
 		action.register(game, events);
 		events.listen(GamePlayerEvents.SET_ROLE, (player, role, lastRole) -> {
-			if (this.role == role) {
+			if (this.role == role && (fromRole.isEmpty() || fromRole.get() == lastRole)) {
 				action.apply(game, ContextMap.EMPTY, ActionSubjects.ofPlayer(player));
 			}
 		});
