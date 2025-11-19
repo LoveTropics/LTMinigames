@@ -55,7 +55,8 @@ public class RaceTrackBehavior implements IGameBehavior {
 			Codec.unboundedMap(Codec.STRING, GameActionList.CODEC).optionalFieldOf("checkpoint_regions", Map.of()).forGetter(b -> b.checkpointRegions),
 			Codec.INT.optionalFieldOf("lap_count", 1).forGetter(b -> b.lapCount),
 			Codec.INT.optionalFieldOf("winner_count", 3).forGetter(b -> b.winnerCount),
-			Codec.LONG.optionalFieldOf("start_time", 0L).forGetter(b -> b.startTime)
+			Codec.LONG.optionalFieldOf("start_time", 0L).forGetter(b -> b.startTime),
+			GameActionList.CODEC.optionalFieldOf("finish_action", GameActionList.EMPTY).forGetter(b -> b.finishAction)
 	).apply(i, RaceTrackBehavior::new));
 
 	private static final long NO_FINISH_TIME = -1;
@@ -75,6 +76,8 @@ public class RaceTrackBehavior implements IGameBehavior {
 	private final int winnerCount;
 	// TODO: Should be a phase / other kind of trigger
 	private final long startTime;
+	private final GameActionList finishAction;
+
 	private long finishTime = NO_FINISH_TIME;
 
 	private final Map<UUID, PlayerState> states = new Object2ObjectOpenHashMap<>();
@@ -87,17 +90,20 @@ public class RaceTrackBehavior implements IGameBehavior {
 
 	private final List<Checkpoint> checkpoints = new ArrayList<>();
 
-	private RaceTrackBehavior(PathData pathData, String finishRegion, Map<String, GameActionList> checkpointRegions, int lapCount, int winnerCount, long startTime) {
+	private RaceTrackBehavior(PathData pathData, String finishRegion, Map<String, GameActionList> checkpointRegions, int lapCount, int winnerCount, long startTime, GameActionList finishAction) {
 		this.pathData = pathData;
 		this.finishRegion = finishRegion;
 		this.checkpointRegions = checkpointRegions;
 		this.lapCount = lapCount;
 		this.winnerCount = winnerCount;
 		this.startTime = startTime;
+		this.finishAction = finishAction;
 	}
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
+		finishAction.register(game, events);
+
 		this.game = game;
 		path = pathData.compile(game.mapRegions(), lapCount > 1);
 
@@ -284,6 +290,8 @@ public class RaceTrackBehavior implements IGameBehavior {
 
 		game.setPlayerRole(player, PlayerRole.SPECTATOR);
 		clearPlayerState(player);
+
+		finishAction.apply(game, ContextMap.EMPTY, ActionSubjects.ofPlayer(player));
 
 		if (game.participants().isEmpty()) {
 			triggerWin(game);
