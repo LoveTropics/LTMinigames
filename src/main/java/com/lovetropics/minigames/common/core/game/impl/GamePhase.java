@@ -344,11 +344,12 @@ public class GamePhase implements IGamePhase {
 			throw new IllegalArgumentException("Cannot transfer player to phase that is not a direct child of this phase");
 		}
 		removePlayerDirectly(player, false);
-		// TODO: Should we always pass through roles like this, or do we want the game to decide?
+		GamePhase subGamePhase = (GamePhase) subPhase;
 		if (handlingJoin) {
-			subPhase.setPlayerRole(player, getRoleFor(player));
+			PlayerRole role = subGamePhase.selectRoleForJoin(player, getRoleFor(player));
+			subPhase.setPlayerRole(player, role);
 		}
-		((GamePhase) subPhase).addPlayerDirectly(player, handlingJoin);
+		subGamePhase.addPlayerDirectly(player, handlingJoin);
 	}
 
 	@Override
@@ -430,7 +431,7 @@ public class GamePhase implements IGamePhase {
 	}
 
 	@Nullable
-	private PlayerRole selectRoleForJoin(ServerPlayer player, PlayerRole requestedRole) {
+	private PlayerRole selectRoleForJoin(ServerPlayer player, @Nullable PlayerRole requestedRole) {
 		try {
 			// The player hasn't joined the game yet, so don't expose the player instance
 			return invoker(GamePlayerEvents.SELECT_ROLE_ON_JOIN).selectRole(PlayerKey.from(player), requestedRole);
