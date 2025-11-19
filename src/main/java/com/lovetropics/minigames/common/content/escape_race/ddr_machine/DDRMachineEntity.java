@@ -56,6 +56,8 @@ import java.util.function.IntFunction;
 public class DDRMachineEntity extends Entity implements PlayerRideable {
 	private static final int BED_COOLDOWN_TICKS = SharedConstants.TICKS_PER_SECOND * 2;
 
+	private static final String IS_LOCKED = "is_locked";
+
 	public enum DDRMachineState {
 		MENU(0),
 		PLAYING(1),
@@ -97,6 +99,7 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 	private ClientDdrMachine clientMachine;
 
 	private long canSwitchBedStateAfterTime;
+	private boolean isLocked = false;
 
 	public DDRMachineEntity(EntityType<? extends Entity> entityType, Level level) {
 		super(entityType, level);
@@ -129,11 +132,13 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 	}
 
 	@Override
-	protected void readAdditionalSaveData(ValueInput valueInput) {
+	protected void readAdditionalSaveData(ValueInput input) {
+		isLocked = input.getBooleanOr(IS_LOCKED, false);
 	}
 
 	@Override
-	protected void addAdditionalSaveData(ValueOutput valueOutput) {
+	protected void addAdditionalSaveData(ValueOutput output) {
+		output.putBoolean(IS_LOCKED, isLocked);
 	}
 
 	@Override
@@ -179,7 +184,7 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 		if (!level().isClientSide() && !player.isShiftKeyDown()) {
 			player.startRiding(this);
 			return InteractionResult.SUCCESS;
-		} else if (!level().isClientSide() && player.isShiftKeyDown()) {
+		} else if (!level().isClientSide() && player.isShiftKeyDown() && !isLocked) {
 			if (level().getGameTime() < canSwitchBedStateAfterTime) {
 				return InteractionResult.FAIL;
 			}
