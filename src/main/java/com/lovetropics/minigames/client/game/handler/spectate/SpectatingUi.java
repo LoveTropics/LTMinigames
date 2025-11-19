@@ -68,7 +68,7 @@ public final class SpectatingUi {
 	public static void onMouseScroll(InputEvent.MouseScrollingEvent event) {
 		SpectatingSession session = ClientSpectatingManager.INSTANCE.session;
 		Minecraft minecraft = Minecraft.getInstance();
-		if (session == null || minecraft.screen != null) {
+		if (session == null || minecraft.screen != null || minecraft.player == null || !minecraft.player.isSpectator()) {
 			return;
 		}
 
@@ -109,7 +109,8 @@ public final class SpectatingUi {
 	@SubscribeEvent
 	public static void onKeyInput(InputEvent.Key event) {
 		SpectatingSession session = ClientSpectatingManager.INSTANCE.session;
-		if (session == null || Minecraft.getInstance().screen != null || event.getAction() == GLFW.GLFW_RELEASE) {
+		Minecraft minecraft = Minecraft.getInstance();
+		if (session == null || minecraft.screen != null || minecraft.player == null || !minecraft.player.isSpectator() || event.getAction() == GLFW.GLFW_RELEASE) {
 			return;
 		}
 
@@ -127,7 +128,8 @@ public final class SpectatingUi {
 	@SubscribeEvent
 	public static void onMouseInput(InputEvent.MouseButton.Post event) {
 		SpectatingSession session = ClientSpectatingManager.INSTANCE.session;
-		if (session == null || Minecraft.getInstance().screen != null || event.getAction() == GLFW.GLFW_RELEASE) {
+		Minecraft minecraft = Minecraft.getInstance();
+		if (session == null || minecraft.screen != null || minecraft.player == null || !minecraft.player.isSpectator() || event.getAction() == GLFW.GLFW_RELEASE) {
 			return;
 		}
 
