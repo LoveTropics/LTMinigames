@@ -20,7 +20,7 @@ public record MapWorkspaceData(
 	).apply(i, MapWorkspaceData::new));
 
 	public MapWorkspace create(RuntimeDimensionHandle dimensionHandle) {
-		WorkspaceRegions regions = new WorkspaceRegions(dimensionHandle.asKey());
+		WorkspaceRegions regions = new WorkspaceRegions(dimensionHandle.asKey(), false);
 		regions.importFrom(this.regions);
 
 		return new MapWorkspace(id, dimension, worldSettings, regions, dimensionHandle);

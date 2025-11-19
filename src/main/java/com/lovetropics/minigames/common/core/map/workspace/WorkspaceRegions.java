@@ -14,7 +14,6 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
@@ -32,8 +31,9 @@ public final class WorkspaceRegions implements Iterable<WorkspaceRegions.Entry> 
 	private int nextId;
 	private boolean hidden;
 
-	public WorkspaceRegions(ResourceKey<Level> dimension) {
+	public WorkspaceRegions(ResourceKey<Level> dimension, boolean defaultHidden) {
 		this.dimension = dimension;
+		hidden = defaultHidden;
 	}
 
 	private int nextId() {

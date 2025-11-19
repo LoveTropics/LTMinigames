@@ -14,7 +14,7 @@ public record MapWorkspace(
 		RuntimeDimensionHandle dimensionHandle
 ) {
 	MapWorkspace(String id, WorkspaceDimensionConfig dimension, MapWorldSettings worldSettings, RuntimeDimensionHandle dimensionHandle) {
-		this(id, dimension, worldSettings, new WorkspaceRegions(dimensionHandle.asKey()), dimensionHandle);
+		this(id, dimension, worldSettings, new WorkspaceRegions(dimensionHandle.asKey(), false), dimensionHandle);
 	}
 
 	public ResourceKey<Level> dimensionKey() {
