@@ -15,6 +15,7 @@ import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvent
 import com.lovetropics.minigames.common.core.game.command.GameCommandRegistrar;
 import com.lovetropics.minigames.common.core.game.config.GameConfig;
 import com.lovetropics.minigames.common.core.game.config.GameConfigs;
+import com.lovetropics.minigames.common.core.game.state.Overlords;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.datafixers.util.Either;
 import com.mojang.logging.LogUtils;
@@ -71,8 +72,15 @@ public final class MinigameCompetitionBehavior implements IGameBehavior {
 	}
 
 	private void registerGlobalCommands(IGamePhase topGame, GameCommandRegistrar commands) {
+		Overlords overlords = Overlords.get(topGame);
 		commands.register(Commands.literal("competition")
-				.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+				.requires(source -> {
+					if (source.hasPermission(Commands.LEVEL_GAMEMASTERS)) {
+						return true;
+					}
+					ServerPlayer player = source.getPlayer();
+					return player != null && overlords.contains(player);
+				})
 				.then(Commands.literal("start").executes(context -> {
 					if (subGames.isPlaying()) {
 						context.getSource().sendFailure(Component.literal("Already playing games!"));

@@ -5,6 +5,7 @@ import com.lovetropics.minigames.common.content.box_hunt.DisguiseAsPlayerBoxBeha
 import com.lovetropics.minigames.common.content.box_hunt.UpdateWordBoxesInWorldBehaviour;
 import com.lovetropics.minigames.common.content.river_race.behaviour.KillInVoidBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.action.ApplyToAction;
+import com.lovetropics.minigames.common.core.game.behavior.instances.AddOverlordsBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.AddWeatherBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.CheckpointsBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.CompositeBehavior;
@@ -260,6 +261,7 @@ public class GameBehaviorTypes {
 	public static final GameBehaviorEntry<DisableCraftingBehavior> DISABLE_CRAFTING = register("disable_crafting", DisableCraftingBehavior.CODEC);
 	public static final GameBehaviorEntry<ProjectileKnockbackBehavior> PROJECTILE_KNOCKBACK = register("projectile_knockback", ProjectileKnockbackBehavior.CODEC);
 	public static final GameBehaviorEntry<InSubGamesBehavior> IN_SUB_GAMES = register("in_sub_games", InSubGamesBehavior.CODEC);
+	public static final GameBehaviorEntry<AddOverlordsBehavior> ADD_OVERLORDS = register("add_overlords", AddOverlordsBehavior.CODEC);
 
 	public static final GameBehaviorEntry<BindObjectiveToStatisticBehavior> BIND_OBJECTIVE_TO_STATISTIC = register("bind_objective_to_statistic", BindObjectiveToStatisticBehavior.CODEC);
 	public static final GameBehaviorEntry<PlaceByStatisticBehavior> PLACE_BY_STATISTIC = register("place_by_statistic", PlaceByStatisticBehavior.CODEC);
