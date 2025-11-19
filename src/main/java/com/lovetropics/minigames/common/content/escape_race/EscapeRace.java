@@ -3,6 +3,7 @@ package com.lovetropics.minigames.common.content.escape_race;
 import com.google.common.collect.Lists;
 import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.content.escape_race.behaviours.BreakBucksBehaviour;
+import com.lovetropics.minigames.common.content.escape_race.behaviours.ItemFrameCodeBehaviour;
 import com.lovetropics.minigames.common.content.escape_race.behaviours.WarehouseSetupBehaviour;
 import com.lovetropics.minigames.common.content.escape_race.client.EscapeRaceClientBucksState;
 import com.lovetropics.minigames.common.content.escape_race.client.EscapeRaceRoomsState;
@@ -143,6 +144,10 @@ public class EscapeRace {
 			.register();
 
 	public static final GameBehaviorEntry<WarehouseSetupBehaviour> WAREHOUSE_SETUP_BEHAVIOUR = REGISTRATE.object("escape_race/warehouse_setup").behavior(WarehouseSetupBehaviour.CODEC).register();
+
+	public static final GameBehaviorEntry<ItemFrameCodeBehaviour> ITEM_FRAME_CODE = REGISTRATE.object("item_frame_code")
+			.behavior(ItemFrameCodeBehaviour.CODEC)
+			.register();
 
 	public static final Holder<MobEffect> UPSET_STOMACH = REGISTRATE.object("upset_stomach")
 			.mobEffect(() -> new UpsetStomachEffect(MobEffectCategory.HARMFUL).addAttributeModifier(

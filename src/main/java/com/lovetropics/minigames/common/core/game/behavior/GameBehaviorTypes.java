@@ -172,6 +172,7 @@ import com.lovetropics.minigames.common.core.game.behavior.instances.world.FillC
 import com.lovetropics.minigames.common.core.game.behavior.instances.world.ForceLoadRegionBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.world.GenerateEntitiesBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.world.IncreaseRandomTickRateInRegionBehaviour;
+import com.lovetropics.minigames.common.core.game.behavior.instances.world.NicelyBreakRegionOfBlocksBehaviour;
 import com.lovetropics.minigames.common.core.game.behavior.instances.world.PreventCropGrowthInRegionBehaviour;
 import com.lovetropics.minigames.common.core.game.behavior.instances.world.PreventTramplingCropsBehaviour;
 import com.lovetropics.minigames.common.util.registry.GameBehaviorEntry;
@@ -364,6 +365,7 @@ public class GameBehaviorTypes {
 	public static final GameBehaviorEntry<MinigameCompetitionBehavior> MINIGAME_COMPETITION = register("minigame_competition", MinigameCompetitionBehavior.CODEC);
 	public static final GameBehaviorEntry<StatisticThresholdTrigger> STATISTIC_THRESHOLD = register("statistic_threshold", StatisticThresholdTrigger.CODEC);
 	public static final GameBehaviorEntry<PreventTramplingCropsBehaviour> PREVENT_TRAMPLING_CROPS = register("prevent_trampling_crops", PreventTramplingCropsBehaviour.CODEC);
+	public static final GameBehaviorEntry<NicelyBreakRegionOfBlocksBehaviour> NICELY_BREAK_REGION_OF_BLOCKS = register("nicely_break_region_of_blocks", NicelyBreakRegionOfBlocksBehaviour.CODEC);
 
 	public static final GameBehaviorEntry<SetupIntegrationsBehavior> SETUP_INTEGRATIONS = register("setup_integrations", SetupIntegrationsBehavior.CODEC);
 	public static final GameBehaviorEntry<JoinLateWithRoleBehavior> JOIN_LATE_WITH_ROLE = register("join_late_with_role", JoinLateWithRoleBehavior.CODEC);

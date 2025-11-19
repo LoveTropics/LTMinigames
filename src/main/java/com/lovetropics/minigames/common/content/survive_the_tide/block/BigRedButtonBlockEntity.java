@@ -104,7 +104,7 @@ public class BigRedButtonBlockEntity extends BlockEntity {
 		pressed = true;
 	}
 
-	private void trigger() {
+	public void trigger() {
 		BigRedButtonBlock.trigger(getBlockState(), level, getBlockPos());
 		if (triggerPos != null) {
 			BlockState triggerState = level.getBlockState(triggerPos);
@@ -112,6 +112,11 @@ public class BigRedButtonBlockEntity extends BlockEntity {
 				level.setBlockAndUpdate(triggerPos, triggerState.setValue(LootDispenserBlock.STATE, LootDispenserBlock.State.ACTIVE));
 			}
 		}
+	}
+
+	public void reset() {
+		pressed = false;
+		markUpdated();
 	}
 
 	@Override
