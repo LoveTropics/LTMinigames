@@ -46,6 +46,7 @@ public record ProjectileKnockbackBehavior(
 				double deltaZ = -projectile.getDeltaMovement().z;
 				target.knockback(strength, deltaX, deltaZ);
 				target.hurtMarked = true;
+				game.level().broadcastDamageEvent(target, target.damageSources().generic());
 			}
 		});
 	}
