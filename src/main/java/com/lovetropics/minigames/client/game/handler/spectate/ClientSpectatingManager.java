@@ -5,6 +5,7 @@ import com.lovetropics.minigames.client.game.handler.ClientGameStateHandler;
 import com.lovetropics.minigames.common.core.game.client_state.instance.SpectatingClientState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.spectator.SpectatorGui;
+import net.minecraft.client.player.LocalPlayer;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -54,40 +55,43 @@ public final class ClientSpectatingManager implements ClientGameStateHandler<Spe
 	@SubscribeEvent
 	public static void onClientTick(ClientTickEvent.Post event) {
 		Minecraft minecraft = Minecraft.getInstance();
-		if (minecraft.player != null) {
-			SpectatingSession session = INSTANCE.session;
-			if (session != null) {
+		SpectatingSession session = INSTANCE.session;
+		if (session != null) {
+			if (minecraft.player != null && minecraft.player.isSpectator()) {
 				session.tick();
 
 				// keep the vanilla spectator gui closed
 				SpectatorGui spectatorGui = minecraft.gui.getSpectatorGui();
 				spectatorGui.onSpectatorMenuClosed(null);
+			} else {
+				session.close();
 			}
 		}
 	}
 
 	@SubscribeEvent
 	public static void onRenderTick(RenderFrameEvent.Pre event) {
-		if (Minecraft.getInstance().player != null) {
-			SpectatingSession session = INSTANCE.session;
-			if (session != null) {
-				session.renderTick();
-			}
+		LocalPlayer player = Minecraft.getInstance().player;
+		SpectatingSession session = INSTANCE.session;
+		if (session != null && player != null && player.isSpectator()) {
+			session.renderTick();
 		}
 	}
 
 	@SubscribeEvent
 	public static void onPositionCamera(ViewportEvent.ComputeCameraAngles event) {
+		LocalPlayer player = Minecraft.getInstance().player;
 		SpectatingSession session = INSTANCE.session;
-		if (session != null) {
+		if (session != null && player != null && player.isSpectator()) {
 			session.applyToCamera(event.getCamera(), (float) event.getPartialTick(), event);
 		}
 	}
 
 	@SubscribeEvent
 	public static void onCalculateCameraDistance(CalculateDetachedCameraDistanceEvent event) {
+		LocalPlayer player = Minecraft.getInstance().player;
 		SpectatingSession session = INSTANCE.session;
-		if (session != null) {
+		if (session != null && player != null && player.isSpectator()) {
 			float partialTicks = event.getCamera().getPartialTickTime();
 			session.applyCameraDistance(event.getCamera(), partialTicks, event);
 		}

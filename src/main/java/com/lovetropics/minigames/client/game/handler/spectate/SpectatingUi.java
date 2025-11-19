@@ -181,7 +181,8 @@ public final class SpectatingUi {
 
 	public static void registerOverlays(RegisterGuiLayersEvent event) {
 		event.registerBelow(VanillaGuiLayers.DEBUG_OVERLAY, LoveTropics.location("minigame_spectator"), (graphics, deltaTracker) -> {
-			if (Minecraft.getInstance().options.hideGui) {
+			Minecraft minecraft = Minecraft.getInstance();
+			if (minecraft.options.hideGui || minecraft.player == null || !minecraft.player.isSpectator()) {
 				return;
 			}
 			SpectatingSession session = ClientSpectatingManager.INSTANCE.session;
