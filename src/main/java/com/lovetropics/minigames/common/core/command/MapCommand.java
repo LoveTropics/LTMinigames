@@ -227,8 +227,8 @@ public final class MapCommand {
 	}
 
 	private static int showHideRegions(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
-		MapWorkspace workspace = getCurrentWorkspace(context);
-		workspace.regions().showHide(context.getSource().getPlayerOrException());
+		WorkspaceRegions regions = getCurrentRegions(context);
+		regions.showHide(context.getSource().getPlayerOrException());
 
 		return Command.SINGLE_SUCCESS;
 	}
