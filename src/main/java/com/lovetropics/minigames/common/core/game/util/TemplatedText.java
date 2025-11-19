@@ -55,6 +55,9 @@ public record TemplatedText(Component template) {
 		Optional.ofNullable(context.getOptional(GameActionContextKeys.WINNER)).ifPresent(name ->
 				values.put("winner", name)
 		);
+		Optional.ofNullable(context.getOptional(GameActionContextKeys.CHANGE)).ifPresent(delta ->
+				values.put("change", Component.literal(String.valueOf(delta)))
+		);
 	}
 
 	public Component apply(Map<String, Component> values) {

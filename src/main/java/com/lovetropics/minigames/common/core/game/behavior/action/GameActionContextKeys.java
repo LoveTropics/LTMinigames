@@ -22,6 +22,7 @@ public class GameActionContextKeys<T> {
 	public static final ContextKey<GameTeam> TEAM = create("team");
 	public static final ContextKey<Component> NAME = create("name");
 	public static final ContextKey<Component> WINNER = create("winner");
+	public static final ContextKey<Integer> CHANGE = create("change");
 
 	private GameActionContextKeys() {
 	}
