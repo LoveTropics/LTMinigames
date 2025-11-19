@@ -395,6 +395,7 @@
   "ltminigames.minigame.donation.zombie_invasion_package.description": "Spawns Zombies all over the map - Walking Dead style!",
   "ltminigames.minigame.donation.zombie_invasion_package.toast": "%sender% started a ZOMBIE INVASION! Look out!",
   "ltminigames.minigame.eliminated": "☠ %s was eliminated!",
+  "ltminigames.minigame.eliminated_template": "☠ %killed% was eliminated!",
   "ltminigames.minigame.eruptive_spleef": "Eruptive Spleef",
   "ltminigames.minigame.eruptive_spleef_teams": "Eruptive Spleef (Teams)",
   "ltminigames.minigame.escape_race": "Escape Race",

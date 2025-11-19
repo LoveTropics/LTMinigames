@@ -3,7 +3,6 @@ package com.lovetropics.minigames.common.content.block_party;
 import com.lovetropics.lib.BlockBox;
 import com.lovetropics.lib.codec.MoreCodecs;
 import com.lovetropics.lib.entity.FireworkPalette;
-import com.lovetropics.minigames.common.content.MinigameTexts;
 import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.GameStopReason;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
@@ -13,7 +12,6 @@ import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameLogicEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
-import com.lovetropics.minigames.common.core.game.player.PlayerRole;
 import com.lovetropics.minigames.common.core.game.player.PlayerSet;
 import com.lovetropics.minigames.common.core.game.state.statistics.StatisticKey;
 import com.mojang.serialization.Codec;
@@ -102,9 +100,19 @@ public final class BlockPartyBehavior implements IGameBehavior {
 
 		events.listen(GamePhaseEvents.TICK, this::tick);
 
-		events.listen(GamePlayerEvents.DAMAGE_AMOUNT, (player, damageSource, amount, originalAmount) -> hasKnockback(state) ? 0.0f : amount);
+		events.listen(GamePlayerEvents.DAMAGE_AMOUNT, (player, damageSource, amount, originalAmount) -> {
+			if (damageSource.getEntity() instanceof Player) {
+				return hasKnockback(state) ? 0.0f : amount;
+			}
+			return amount;
+		});
 		events.listen(GamePlayerEvents.ATTACK, (player, target) -> target instanceof Player && !hasKnockback(state) ? TriState.FALSE : TriState.DEFAULT);
-		events.listen(GamePlayerEvents.DAMAGE, (player, damageSource, amount) -> hasKnockback(state) ? TriState.DEFAULT : TriState.FALSE);
+		events.listen(GamePlayerEvents.DAMAGE, (player, damageSource, amount) -> {
+			if (damageSource.getEntity() instanceof Player) {
+				return hasKnockback(state) ? TriState.DEFAULT : TriState.FALSE;
+			}
+			return TriState.DEFAULT;
+		});
 
 		events.listen(GameLogicEvents.GAME_OVER, winner -> {
 			game.allPlayers().playSound(SoundEvents.RESPAWN_ANCHOR_DEPLETE.value(), SoundSource.PLAYERS, 0.5f, 1.0f);
@@ -142,22 +150,6 @@ public final class BlockPartyBehavior implements IGameBehavior {
 
 		if (newState == null) {
 			game.requestStop(GameStopReason.finished());
-			return;
-		}
-
-		List<ServerPlayer> eliminated = new ArrayList<>();
-		PlayerSet participants = game.participants();
-		for (ServerPlayer player : participants) {
-			double y = player.getY();
-			if (y < player.level().getMinY() || y < floorRegion.box.min().getY() - 10) {
-				eliminated.add(player);
-			}
-		}
-
-		for (ServerPlayer player : eliminated) {
-			game.setPlayerRole(player, PlayerRole.SPECTATOR);
-			game.allPlayers().playSound(SoundEvents.ARROW_HIT_PLAYER, SoundSource.PLAYERS, 1.0f, 1.0f);
-			game.allPlayers().sendMessage(MinigameTexts.ELIMINATED.apply(player.getDisplayName()));
 		}
 	}
 

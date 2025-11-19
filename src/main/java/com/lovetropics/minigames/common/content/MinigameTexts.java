@@ -125,6 +125,7 @@ public final class MinigameTexts {
 	public static final Component REWARDS = KEYS.add("rewards_granted", "You got rewards for playing minigames!").withStyle(ChatFormatting.GOLD);
 	public static final TranslationCollector.Fun2 REWARD_ITEM = KEYS.add2("reward_item", " - %sx %s").withStyle(ChatFormatting.GRAY);
 	public static final TranslationCollector.Fun1 ELIMINATED = KEYS.add1("eliminated", "☠ %s was eliminated!").withStyle(ChatFormatting.GRAY);
+	public static final TranslationCollector.Fun1 ELIMINATED_TEMPLATE = KEYS.add1("eliminated_template", "☠ %killed% was eliminated!").withStyle(ChatFormatting.GRAY);
 
 	public static final Component UNKNOWN = KEYS.add("unknown", "Unknown");
 	public static final TranslationCollector.Fun2 POINT_SCORED = KEYS.add2("goal_scored", "%s scored for %s!").withStyle(ChatFormatting.GRAY);
