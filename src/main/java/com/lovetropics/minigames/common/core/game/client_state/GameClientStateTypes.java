@@ -12,6 +12,7 @@ import com.lovetropics.minigames.common.core.game.client_state.instance.FogClien
 import com.lovetropics.minigames.common.core.game.client_state.instance.GlowTeamMembersState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.HealthTagClientState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.HideNameTagsState;
+import com.lovetropics.minigames.common.core.game.client_state.instance.HidePlayersState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.HideRecipeBookClientState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.InvertControlsClientState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.PointTagClientState;
@@ -65,6 +66,7 @@ public final class GameClientStateTypes {
 	public static final GameClientTweakEntry<DisablePlayerMovementState> DISABLE_PLAYER_MOVEMENT = register("disable_player_movement", MapCodec.unit(DisablePlayerMovementState.INSTANCE), StreamCodec.unit(DisablePlayerMovementState.INSTANCE));
 	public static final GameClientTweakEntry<DisablePlayerCollision> DISABLE_PLAYER_COLLISION = register("disable_player_collision", MapCodec.unit(DisablePlayerCollision.INSTANCE), StreamCodec.unit(DisablePlayerCollision.INSTANCE));
 	public static final GameClientTweakEntry<SoundVolumeModifier> SOUND_VOLUME_MODIFIER = register("sound_volume_modifier", SoundVolumeModifier.CODEC, SoundVolumeModifier.STREAM_CODEC);
+	public static final GameClientTweakEntry<HidePlayersState> HIDE_PLAYERS = register("hide_players", HidePlayersState.CODEC, HidePlayersState.STREAM_CODEC);
 
 	public static <T extends GameClientState> GameClientTweakEntry<T> register(final String name, final MapCodec<T> codec) {
 		return REGISTRATE.object(name)

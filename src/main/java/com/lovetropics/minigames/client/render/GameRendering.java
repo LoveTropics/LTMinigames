@@ -7,12 +7,14 @@ import com.lovetropics.minigames.common.content.biodiversity_blitz.BiodiversityB
 import com.lovetropics.minigames.common.content.biodiversity_blitz.client_state.ClientBbMobSpawnState;
 import com.lovetropics.minigames.common.content.biodiversity_blitz.client_state.ClientBbScoreboardState;
 import com.lovetropics.minigames.common.core.game.client_state.GameClientStateTypes;
+import com.lovetropics.minigames.common.core.game.client_state.instance.HidePlayersState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.PointTagClientState;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderBuffers;
@@ -38,6 +40,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.event.RenderNameTagEvent;
+import net.neoforged.neoforge.client.event.RenderPlayerEvent;
 import net.neoforged.neoforge.client.renderstate.RegisterRenderStateModifiersEvent;
 
 import java.util.List;
@@ -246,6 +249,32 @@ public class GameRendering {
 		poseStack.popPose();
 
 		poseStack.popPose();
+	}
+
+	@SubscribeEvent
+	public static void renderPlayer(RenderPlayerEvent.Pre event) {
+		LocalPlayer localPlayer = Minecraft.getInstance().player;
+		if (localPlayer == null) {
+			return;
+		}
+		int entityId = event.getRenderState().id;
+		HidePlayersState hidePlayers = ClientGameStateManager.getOrDefault(GameClientStateTypes.HIDE_PLAYERS, HidePlayersState.EMPTY);
+		if (localPlayer.getId() != entityId && hidePlayers.playerIds().contains(entityId)) {
+			event.setCanceled(true);
+		}
+	}
+
+	@SubscribeEvent
+	public static void renderVehicleNameTag(RenderNameTagEvent.CanRender event) {
+		if (!(event.getEntity().getControllingPassenger() instanceof Player player)) {
+			return;
+		}
+		HidePlayersState hidePlayers = ClientGameStateManager.getOrDefault(GameClientStateTypes.HIDE_PLAYERS, HidePlayersState.EMPTY);
+		if (player.isLocalPlayer() || !hidePlayers.playerIds().contains(player.getId())) {
+			return;
+		}
+		event.setContent(player.getDisplayName());
+		event.setCanRender(TriState.TRUE);
 	}
 
 	private record PointTag(
