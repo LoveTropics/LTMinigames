@@ -19,6 +19,11 @@ public final class StatisticsMap {
 		return this;
 	}
 
+	public <T> StatisticsMap setIfAbsent(StatisticKey<T> key, T value) {
+		values.putIfAbsent(key, value);
+		return this;
+	}
+
 	@Nullable
 	@SuppressWarnings("unchecked")
 	public <T> T get(StatisticKey<T> key) {

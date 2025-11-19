@@ -9,6 +9,7 @@ import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvent
 import com.lovetropics.minigames.common.core.game.behavior.event.GameWorldEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.PickUpResult;
 import com.lovetropics.minigames.common.util.Scheduler;
+import com.lovetropics.minigames.mixin.EntityAccessor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
@@ -32,6 +33,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerExplosion;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
@@ -171,12 +173,14 @@ public final class GameEventDispatcher {
 		LivingEntity entity = event.getEntity();
 
 		IGamePhase game = gameLookup.getGamePhaseFor(entity);
+		boolean canceled = false;
+
 		if (game != null) {
-			if (entity instanceof ServerPlayer) {
+			if (entity instanceof ServerPlayer player) {
 				try {
-					TriState result = game.invoker(GamePlayerEvents.DEATH).onDeath((ServerPlayer) entity, event.getSource());
+					TriState result = game.invoker(GamePlayerEvents.DEATH).onDeath(player, event.getSource());
 					if (result.isFalse()) {
-						event.setCanceled(true);
+						canceled = true;
 					}
 				} catch (Exception e) {
 					LoveTropics.LOGGER.warn("Failed to dispatch player death event", e);
@@ -185,11 +189,24 @@ public final class GameEventDispatcher {
 				try {
 					TriState result = game.invoker(GameLivingEntityEvents.DEATH).onDeath(entity, event.getSource());
 					if (result.isFalse()) {
-						event.setCanceled(true);
+						canceled = true;
 					}
 				} catch (Exception e) {
 					LoveTropics.LOGGER.warn("Failed to dispatch entity death event", e);
 				}
+			}
+		}
+
+		if (canceled) {
+			event.setCanceled(true);
+			if (entity.isDeadOrDying()) {
+				entity.setHealth(entity.getMaxHealth());
+			}
+			entity.setDeltaMovement(Vec3.ZERO);
+			entity.fallDistance = 0.0f;
+			// If the entity was in lava, they are no longer in lava - please stop burning me :)
+			if (entity instanceof EntityAccessor entityAccessor) {
+				entityAccessor.invokeUpdateInWaterStateAndDoFluidPushing();
 			}
 		}
 	}

@@ -6,6 +6,7 @@ import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
 import com.lovetropics.minigames.common.core.game.client_state.GameClientState;
+import com.lovetropics.minigames.common.core.game.client_state.GameClientStateTypes;
 import com.lovetropics.minigames.common.core.game.client_state.instance.HidePlayersState;
 import com.lovetropics.minigames.common.core.game.player.PlayerRole;
 import com.mojang.serialization.Codec;
@@ -37,9 +38,10 @@ public record HidePlayersBehavior(
 		events.listen(GamePlayerEvents.SET_ROLE, (player, role, lastRole) ->
 				updateRole(game, player, role, lastRole, hiddenPlayersByRole)
 		);
-		events.listen(GamePlayerEvents.REMOVE, player ->
-				updateRole(game, player, null, game.getRoleFor(player), hiddenPlayersByRole)
-		);
+		events.listen(GamePlayerEvents.REMOVE, player -> {
+				updateRole(game, player, null, game.getRoleFor(player), hiddenPlayersByRole);
+				GameClientState.removeFromPlayer(GameClientStateTypes.HIDE_PLAYERS.get(), player);
+		});
 	}
 
 	private void updateRole(IGamePhase game, ServerPlayer player, @Nullable PlayerRole role, @Nullable PlayerRole lastRole, Map<PlayerRole, IntSet> hiddenPlayersByRole) {

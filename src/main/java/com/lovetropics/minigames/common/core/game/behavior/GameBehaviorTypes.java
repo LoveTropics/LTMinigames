@@ -104,6 +104,7 @@ import com.lovetropics.minigames.common.core.game.behavior.instances.statistics.
 import com.lovetropics.minigames.common.core.game.behavior.instances.statistics.PlaceByStatisticBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.statistics.SetWinnerStatisticBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.statistics.SetXpToStatisticBehavior;
+import com.lovetropics.minigames.common.core.game.behavior.instances.statistics.StatisticBossBarBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.statistics.StatisticTagBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.statistics.SumStatisticBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.statistics.TimeSurvivedTrackerBehavior;
@@ -267,6 +268,7 @@ public class GameBehaviorTypes {
 	public static final GameBehaviorEntry<SetXpToStatisticBehavior> SET_XP_TO_STATISTIC = register("set_xp_to_statistic", SetXpToStatisticBehavior.CODEC);
 	public static final GameBehaviorEntry<OnlyTickInPeriodBehavior> ONLY_TICK_IN_PERIOD = register("only_tick_in_period", OnlyTickInPeriodBehavior.CODEC);
 	public static final GameBehaviorEntry<SetWinnerStatisticBehavior> SET_WINNER_STATISTIC = register("set_winner_statistic", SetWinnerStatisticBehavior.CODEC);
+	public static final GameBehaviorEntry<StatisticBossBarBehavior<?>> STATISTIC_BOSS_BAR = register("statistic_boss_bar", StatisticBossBarBehavior.CODEC);
 
 	public static final GameBehaviorEntry<DisplayLeaderboardOnFinishBehavior<?>> DISPLAY_LEADERBOARD_ON_FINISH = register("display_leaderboard_on_finish", DisplayLeaderboardOnFinishBehavior.CODEC);
 

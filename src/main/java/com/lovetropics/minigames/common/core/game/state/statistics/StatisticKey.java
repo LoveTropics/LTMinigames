@@ -50,6 +50,7 @@ public final class StatisticKey<T> {
 	public static final StatisticKey<Float> DAMAGE_TAKEN = ofFloat("damage_taken").displays(unit("damage"));
 	public static final StatisticKey<Float> DAMAGE_DEALT = ofFloat("damage_dealt").displays(unit("damage"));
 
+	public static final StatisticKey<Integer> LIVES = ofInt("lives");
 	public static final StatisticKey<Integer> DEATHS = ofInt("deaths").displays(unit("deaths"));
 	public static final StatisticKey<Boolean> DEAD = ofBool("dead");
 

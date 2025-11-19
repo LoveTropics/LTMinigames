@@ -12,8 +12,10 @@ import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameLogicEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
+import com.lovetropics.minigames.common.core.game.player.PlayerRole;
 import com.lovetropics.minigames.common.core.game.player.PlayerSet;
 import com.lovetropics.minigames.common.core.game.state.statistics.StatisticKey;
+import com.lovetropics.minigames.common.core.game.state.statistics.StatisticsMap;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -34,6 +36,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.util.TriState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -52,7 +55,8 @@ public final class BlockPartyBehavior implements IGameBehavior {
 			Codec.LONG.optionalFieldOf("min_time", 20L * 2).forGetter(c -> c.minTime),
 			Codec.INT.optionalFieldOf("time_decay_rounds", 5).forGetter(c -> c.timeDecayRounds),
 			Codec.LONG.optionalFieldOf("interval", 20L * 3).forGetter(c -> c.interval),
-			Codec.INT.optionalFieldOf("knockback_after_round", Integer.MAX_VALUE).forGetter(c -> c.knockbackAfterAround)
+			Codec.INT.optionalFieldOf("knockback_after_round", Integer.MAX_VALUE).forGetter(c -> c.knockbackAfterAround),
+			Codec.INT.optionalFieldOf("max_lives", 1).forGetter(c -> c.maxLives)
 	).apply(i, BlockPartyBehavior::new));
 
 	private final String floorRegionKey;
@@ -64,6 +68,7 @@ public final class BlockPartyBehavior implements IGameBehavior {
 	private final int timeDecayRounds;
 	private final long interval;
 	private final int knockbackAfterAround;
+	private final int maxLives;
 
 	private IGamePhase game;
 	private FloorRegion floorRegion;
@@ -71,7 +76,7 @@ public final class BlockPartyBehavior implements IGameBehavior {
 	@Nullable
 	private State state;
 
-	public BlockPartyBehavior(String floorRegionKey, BlockState[] blocks, int quadSize, long maxTime, long minTime, int timeDecayRounds, long interval, int knockbackAfterAround) {
+	public BlockPartyBehavior(String floorRegionKey, BlockState[] blocks, int quadSize, long maxTime, long minTime, int timeDecayRounds, long interval, int knockbackAfterAround, int maxLives) {
 		this.floorRegionKey = floorRegionKey;
 		this.blocks = blocks;
 		this.quadSize = quadSize;
@@ -80,6 +85,7 @@ public final class BlockPartyBehavior implements IGameBehavior {
 		this.timeDecayRounds = timeDecayRounds;
 		this.interval = interval;
 		this.knockbackAfterAround = knockbackAfterAround;
+		this.maxLives = maxLives;
 	}
 
 	@Override
@@ -96,6 +102,11 @@ public final class BlockPartyBehavior implements IGameBehavior {
 			state = startCountingDown(0);
 		});
 
+		events.listen(GamePlayerEvents.SET_ROLE, (player, role, lastRole) -> {
+			if (role == PlayerRole.PARTICIPANT) {
+				game.statistics().forPlayer(player).set(StatisticKey.LIVES, maxLives);
+			}
+		});
 		events.listen(GamePlayerEvents.SPAWN, (playerId, spawn, role) -> spawnPlayer(spawn));
 
 		events.listen(GamePhaseEvents.TICK, this::tick);
@@ -106,12 +117,28 @@ public final class BlockPartyBehavior implements IGameBehavior {
 			}
 			return amount;
 		});
-		events.listen(GamePlayerEvents.ATTACK, (player, target) -> target instanceof Player && !hasKnockback(state) ? TriState.FALSE : TriState.DEFAULT);
 		events.listen(GamePlayerEvents.DAMAGE, (player, damageSource, amount) -> {
 			if (damageSource.getEntity() instanceof Player) {
 				return hasKnockback(state) ? TriState.DEFAULT : TriState.FALSE;
 			}
 			return TriState.DEFAULT;
+		});
+		events.listen(GamePlayerEvents.ATTACK, (player, target) -> target instanceof Player && !hasKnockback(state) ? TriState.FALSE : TriState.DEFAULT);
+
+		events.listen(GamePlayerEvents.DEATH, (player, damageSource) -> {
+			StatisticsMap playerStatistics = game.statistics().forPlayer(player);
+			int lives = playerStatistics.getInt(StatisticKey.LIVES);
+			int newLives = Math.max(lives - 1, 0);
+			if (newLives == 0) {
+				// Pass through to normal death logic
+				return TriState.DEFAULT;
+			}
+			playerStatistics.set(StatisticKey.LIVES, newLives);
+			SpawnBuilder spawn = new SpawnBuilder(player);
+			spawnPlayer(spawn);
+			player.setGameMode(GameType.SPECTATOR);
+			spawn.teleportAndApply(player);
+			return TriState.FALSE;
 		});
 
 		events.listen(GameLogicEvents.GAME_OVER, winner -> {
@@ -168,7 +195,15 @@ public final class BlockPartyBehavior implements IGameBehavior {
 			for (int i = 0; i < 9; i++) {
 				player.getInventory().setItem(i, targetStack.copy());
 			}
-			game.statistics().forPlayer(player).set(StatisticKey.ROUNDS_SURVIVED, round);
+
+			if (player.gameMode() != GameType.SPECTATOR) {
+				game.statistics().forPlayer(player).set(StatisticKey.ROUNDS_SURVIVED, round);
+			} else {
+				SpawnBuilder spawn = new SpawnBuilder(player);
+				spawnPlayer(spawn);
+				player.setGameMode(GameType.ADVENTURE);
+				spawn.teleportAndApply(player);
+			}
 		}
 
 		float lerp = (float) round / timeDecayRounds;

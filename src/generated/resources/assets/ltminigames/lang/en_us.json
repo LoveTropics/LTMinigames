@@ -185,6 +185,7 @@
   "ltminigames.minigame.block_party.break_in_seconds": "Break in %s seconds",
   "ltminigames.minigame.block_party.knockback_enabled.subtitle": "Knockback has been enabled",
   "ltminigames.minigame.block_party.knockback_enabled.title": "Look out!",
+  "ltminigames.minigame.block_party.lives_left": "%value% lives left",
   "ltminigames.minigame.block_party.stand_on_block": "Stand on %s",
   "ltminigames.minigame.block_party_teams": "Block Party Teams",
   "ltminigames.minigame.build_competition": "Build Competition",
