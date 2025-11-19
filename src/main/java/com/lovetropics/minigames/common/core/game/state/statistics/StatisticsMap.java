@@ -6,6 +6,7 @@ import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import org.jetbrains.annotations.Contract;
 
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -72,6 +73,15 @@ public final class StatisticsMap {
 			root.add(key.getKey(), key.serializeUnchecked(entry.getValue()));
 		}
 		return root;
+	}
+
+	public void copyFrom(StatisticsMap fromStatistics, List<StatisticKey<?>> keys) {
+		for (StatisticKey<?> key : keys) {
+			Object value = fromStatistics.values.get(key);
+			if (value != null) {
+				values.put(key, value);
+			}
+		}
 	}
 
 	public class WithDefault<T> {

@@ -10,6 +10,7 @@ import com.lovetropics.minigames.common.core.game.state.team.GameTeamKey;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.world.entity.player.Player;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -87,5 +88,15 @@ public final class GameStatistics implements IGameState {
 		}
 
 		return root;
+	}
+
+	public void copyFrom(GameStatistics fromStatistics, List<StatisticKey<?>> keys) {
+		global.copyFrom(fromStatistics.global, keys);
+		fromStatistics.byPlayer.forEach((player, fromPlayerStatistics) ->
+				forPlayer(player).copyFrom(fromPlayerStatistics, keys)
+		);
+		fromStatistics.byTeam.forEach((team, fromTeamStatistics) ->
+				forTeam(team).copyFrom(fromTeamStatistics, keys)
+		);
 	}
 }

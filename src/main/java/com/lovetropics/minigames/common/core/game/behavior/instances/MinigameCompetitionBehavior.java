@@ -16,6 +16,7 @@ import com.lovetropics.minigames.common.core.game.command.GameCommandRegistrar;
 import com.lovetropics.minigames.common.core.game.config.GameConfig;
 import com.lovetropics.minigames.common.core.game.config.GameConfigs;
 import com.lovetropics.minigames.common.core.game.state.Overlords;
+import com.lovetropics.minigames.common.core.game.state.statistics.StatisticKey;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.datafixers.util.Either;
 import com.mojang.logging.LogUtils;
@@ -43,32 +44,45 @@ public final class MinigameCompetitionBehavior implements IGameBehavior {
 	private static final Logger LOGGER = LogUtils.getLogger();
 
 	public static final MapCodec<MinigameCompetitionBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			ExtraCodecs.nonEmptyList(QueueEntry.CODEC.listOf()).fieldOf("queue").forGetter(b -> b.initialQueue)
+			ExtraCodecs.nonEmptyList(QueueEntry.CODEC.listOf()).fieldOf("queue").forGetter(b -> b.initialQueue),
+			StatisticKey.CODEC.listOf().optionalFieldOf("share_statistics", List.of()).forGetter(b -> b.shareStatistics)
 	).apply(i, MinigameCompetitionBehavior::new));
 
 	private final List<QueueEntry> initialQueue;
+	private final List<StatisticKey<?>> shareStatistics;
 
 	private final SubGameManager subGames = new SubGameManager();
 
-	public MinigameCompetitionBehavior(List<QueueEntry> initialQueue) {
+	public MinigameCompetitionBehavior(List<QueueEntry> initialQueue, List<StatisticKey<?>> shareStatistics) {
 		this.initialQueue = initialQueue;
+		this.shareStatistics = shareStatistics;
 	}
 
 	@Override
 	public void register(IGamePhase topGame, EventRegistrar events) throws GameException {
 		subGames.queueAll(initialQueue);
 
-		registerGlobalEvents(topGame, events);
+		events.listen(GamePhaseEvents.REGISTER_COMMANDS, (commands, buildContext) ->
+				registerGlobalCommands(topGame, commands)
+		);
 
 		events.listen(GamePlayerEvents.JOIN, player ->
 				subGames.onPlayerJoin(topGame, player)
 		);
 	}
 
-	private void registerGlobalEvents(IGamePhase topGame, EventRegistrar events) {
-		events.listen(GamePhaseEvents.REGISTER_COMMANDS, (commands, buildContext) ->
+	private void onCreateSubGame(IGamePhase topGame, IGamePhase subGame, EventRegistrar subEvents) {
+		subEvents.listen(GamePhaseEvents.REGISTER_COMMANDS, (commands, buildContext) ->
 				registerGlobalCommands(topGame, commands)
 		);
+
+		subGame.statistics().copyFrom(topGame.statistics(), shareStatistics);
+	}
+
+	private void onStopSubGame(IGamePhase topGame, IGamePhase subGame, GameStopReason reason) {
+		if (reason.isFinished()) {
+			topGame.statistics().copyFrom(subGame.statistics(), shareStatistics);
+		}
 	}
 
 	private void registerGlobalCommands(IGamePhase topGame, GameCommandRegistrar commands) {
@@ -229,10 +243,11 @@ public final class MinigameCompetitionBehavior implements IGameBehavior {
 			pendingGame.whenCreated((subGame, subEvents) -> {
 				pendingGame = null;
 				currentGame = subGame;
-				subEvents.listen(GamePhaseEvents.STOP, reason ->
-						startNextGame(topGame)
-				);
-				registerGlobalEvents(topGame, subEvents);
+				subEvents.listen(GamePhaseEvents.STOP, reason -> {
+							startNextGame(topGame);
+							onStopSubGame(topGame, subGame, reason);
+				});
+				onCreateSubGame(topGame, subGame, subEvents);
 			});
 			pendingGame.whenErrored(exception -> {
 				pendingGame = null;
