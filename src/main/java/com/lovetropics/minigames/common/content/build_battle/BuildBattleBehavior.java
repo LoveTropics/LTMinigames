@@ -185,6 +185,7 @@ public final class BuildBattleBehavior implements IGameBehavior {
 					return;
 				}
 			}
+			return;
 		}
 		var currentRevieweeId = reviewedPlayers.get(revieweeIndex);
 		revieweeIndex++;
@@ -197,6 +198,7 @@ public final class BuildBattleBehavior implements IGameBehavior {
 				}
 				playerPoints.put(currentRevieweeId, points);
 			}
+			this.overlordPoints.clear();
 
 			for (UUID playerId : playerPoints.keySet()) {
 				if (playerPoints.get(playerId) == -1) {
@@ -205,6 +207,10 @@ public final class BuildBattleBehavior implements IGameBehavior {
 					return;
 				}
 			}
+		}
+		if(revieweeIndex < reviewedPlayers.size()) {
+			refreshReviewee(game);
+			return;
 		}
 		revieweeIndex = -2;
 		announceWinner(game);
@@ -261,7 +267,7 @@ public final class BuildBattleBehavior implements IGameBehavior {
 			overlord.addItem(new ItemStack(Items.GOLD_BLOCK));
 		}
 
-		//TODO put participants in spectator and overlords in creative
+		//TODO put participants in spectator
 
 		var playerName = "unknown player";
 		var player = game.level().getPlayerByUUID(reviewedPlayers.get(revieweeIndex));
@@ -270,6 +276,7 @@ public final class BuildBattleBehavior implements IGameBehavior {
 		}
 
 		//TODO: translate
+		bar.close();
 		bar = new GameBossBar(Component.literal("Reviewing " + playerName + "..."), BossEvent.BossBarColor.YELLOW, BossEvent.BossBarOverlay.PROGRESS);
 		bar.setProgress(1.0f);
 		game.allPlayers().forEach(bar::addPlayer);
