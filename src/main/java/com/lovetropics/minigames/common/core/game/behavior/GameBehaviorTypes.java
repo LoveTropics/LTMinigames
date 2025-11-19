@@ -25,6 +25,7 @@ import com.lovetropics.minigames.common.core.game.behavior.instances.PointsSideb
 import com.lovetropics.minigames.common.core.game.behavior.instances.PositionPlayersBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.ProgressBarBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.ProjectileBreakBlockBehavior;
+import com.lovetropics.minigames.common.core.game.behavior.instances.ProjectileKnockbackBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.RisingFluidBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.ScoreMobInGoalBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.SetGameClientStateBehavior;
@@ -255,6 +256,7 @@ public class GameBehaviorTypes {
 	public static final GameBehaviorEntry<ProjectileBreakBlockBehavior> PROJECTILE_BREAK_BLOCK = register("projectile_break_block", ProjectileBreakBlockBehavior.CODEC);
 	public static final GameBehaviorEntry<HidePlayersBehavior> HIDE_PLAYERS = register("hide_players", HidePlayersBehavior.CODEC);
 	public static final GameBehaviorEntry<DisableCraftingBehavior> DISABLE_CRAFTING = register("disable_crafting", DisableCraftingBehavior.CODEC);
+	public static final GameBehaviorEntry<ProjectileKnockbackBehavior> PROJECTILE_KNOCKBACK = register("projectile_knockback", ProjectileKnockbackBehavior.CODEC);
 
 	public static final GameBehaviorEntry<BindObjectiveToStatisticBehavior> BIND_OBJECTIVE_TO_STATISTIC = register("bind_objective_to_statistic", BindObjectiveToStatisticBehavior.CODEC);
 	public static final GameBehaviorEntry<PlaceByStatisticBehavior> PLACE_BY_STATISTIC = register("place_by_statistic", PlaceByStatisticBehavior.CODEC);
