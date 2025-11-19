@@ -51,7 +51,8 @@ public class SpleefBehavior implements IGameBehavior {
 			Codec.INT.optionalFieldOf("break_count", 6).forGetter(c -> c.breakCount),
 			BuiltInRegistries.BLOCK.byNameCodec().optionalFieldOf("floor_material", Blocks.OBSIDIAN).forGetter(c -> c.floorMaterial),
 			BuiltInRegistries.BLOCK.byNameCodec().optionalFieldOf("floor_breaking_material", Blocks.PURPLE_CONCRETE).forGetter(c -> c.floorBreakingMaterial),
-			Codec.STRING.optionalFieldOf("flavor_text", "volcano").forGetter(c -> c.flavourText)
+			Codec.STRING.optionalFieldOf("flavor_text", "volcano").forGetter(c -> c.flavourText),
+			Codec.BOOL.optionalFieldOf("break_effects", true).forGetter(c -> c.breakEffects)
 	).apply(i, SpleefBehavior::new));
 
 	private final int forcedProgressionSeconds;
@@ -59,6 +60,7 @@ public class SpleefBehavior implements IGameBehavior {
 	private final int breakCount;
 	private final int floors;
 	private final String flavourText;
+	private final boolean breakEffects;
 	private GlobalGameWidgets widgets;
 
 	private GameBossBar bossBar;
@@ -88,7 +90,7 @@ public class SpleefBehavior implements IGameBehavior {
 
 	private boolean blockSinglePlayerWin = false;
 
-	public SpleefBehavior(int forcedProgressionSeconds, int floors, int breakInterval, int breakCount, Block floorMaterial, Block floorBreakingMaterial, String flavourText) {
+	public SpleefBehavior(int forcedProgressionSeconds, int floors, int breakInterval, int breakCount, Block floorMaterial, Block floorBreakingMaterial, String flavourText, boolean breakEffects) {
 		this.forcedProgressionSeconds = forcedProgressionSeconds;
 		this.floors = floors;
 		floorRegions = new BlockBox[floors];
@@ -97,6 +99,7 @@ public class SpleefBehavior implements IGameBehavior {
 		this.floorMaterial = floorMaterial;
 		this.floorBreakingMaterial = floorBreakingMaterial;
 		this.flavourText = flavourText;
+		this.breakEffects = breakEffects;
 		gameOver = false;
 	}
 
@@ -288,9 +291,13 @@ public class SpleefBehavior implements IGameBehavior {
 			BlockPlacer.replace(game.level(), floorRegions[currentFloor], floorBreakingMaterial, BlockPlacer.Mode.REPLACE, floorMaterial, game.scheduler(),
 					(pos) -> (game.level().random.nextInt(breakCount) * breakInterval),
 					(pos) -> {
-						game.scheduler().runAfterTicks(15 + game.level().random.nextInt(10), () ->
-								game.level().destroyBlock(pos, false)
-						);
+						game.scheduler().runAfterTicks(15 + game.level().random.nextInt(10), () -> {
+							if (breakEffects) {
+								game.level().destroyBlock(pos, false);
+							} else {
+								game.level().removeBlock(pos, false);
+							}
+						});
 					});
 			currentFloor++;
 		}
