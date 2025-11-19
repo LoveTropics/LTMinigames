@@ -145,6 +145,7 @@ import com.lovetropics.minigames.common.core.game.behavior.instances.tweak.Cance
 import com.lovetropics.minigames.common.core.game.behavior.instances.tweak.CancelPlayerDamageBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.tweak.CancelSelfDamageBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.tweak.DamageInWaterBehavior;
+import com.lovetropics.minigames.common.core.game.behavior.instances.tweak.DisableCraftingBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.tweak.DisableHungerBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.tweak.DisableThrowingItemsBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.tweak.DisableTntDestructionBehavior;
@@ -253,6 +254,7 @@ public class GameBehaviorTypes {
 	public static final GameBehaviorEntry<BlockInRegionTrigger> BLOCK_IN_REGION = register("block_in_region", BlockInRegionTrigger.CODEC);
 	public static final GameBehaviorEntry<ProjectileBreakBlockBehavior> PROJECTILE_BREAK_BLOCK = register("projectile_break_block", ProjectileBreakBlockBehavior.CODEC);
 	public static final GameBehaviorEntry<HidePlayersBehavior> HIDE_PLAYERS = register("hide_players", HidePlayersBehavior.CODEC);
+	public static final GameBehaviorEntry<DisableCraftingBehavior> DISABLE_CRAFTING = register("disable_crafting", DisableCraftingBehavior.CODEC);
 
 	public static final GameBehaviorEntry<BindObjectiveToStatisticBehavior> BIND_OBJECTIVE_TO_STATISTIC = register("bind_objective_to_statistic", BindObjectiveToStatisticBehavior.CODEC);
 	public static final GameBehaviorEntry<PlaceByStatisticBehavior> PLACE_BY_STATISTIC = register("place_by_statistic", PlaceByStatisticBehavior.CODEC);
