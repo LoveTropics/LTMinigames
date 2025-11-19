@@ -17,8 +17,10 @@ import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.ChatFormatting;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -44,8 +46,8 @@ public final class BuildBattleBehavior implements IGameBehavior {
 	private long reviewTime;
 
 	public static final MapCodec<BuildBattleBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			Codec.STRING.fieldOf("plot_name").forGetter(c -> c.plotRegionsName),
-			Codec.LONG.fieldOf("build_time").orElse((long) (10 * 60 * SharedConstants.TICKS_PER_SECOND)).forGetter(c -> c.buildTime)
+			Codec.STRING.fieldOf("plots_name").forGetter(c -> c.plotRegionsName),
+			Codec.LONG.fieldOf("build_time").orElse((long) (5 * 60 * SharedConstants.TICKS_PER_SECOND)).forGetter(c -> c.buildTime)
 	).apply(i, BuildBattleBehavior::new));
 
 	private static final Logger LOGGER = LogUtils.getLogger();
@@ -74,7 +76,7 @@ public final class BuildBattleBehavior implements IGameBehavior {
 		GameWidgets widgets = GameWidgets.getOrRegister(game, events);
 
 		events.listen(GamePhaseEvents.START, initiator -> {
-			bar = widgets.openBossBar(Component.empty(), BossEvent.BossBarColor.YELLOW, BossEvent.BossBarOverlay.NOTCHED_10);
+			bar = widgets.openBossBar(Component.empty(), BossEvent.BossBarColor.BLUE, BossEvent.BossBarOverlay.NOTCHED_10);
 			game.allPlayers().forEach(bar::addPlayer);
 			refreshBuildingTimeBar(0);
 			building = true;
@@ -88,22 +90,21 @@ public final class BuildBattleBehavior implements IGameBehavior {
 				refreshBuildingTimeBar(game.ticks());
 			}
 			if(game.ticks() == buildTime) {
-				game.allPlayers().sendMessage(Component.literal("Building phase has ended!")); //TODO: translate
+				game.allPlayers().sendMessage(BuildBattleTexts.BUILDING_END.copy().withStyle(ChatFormatting.YELLOW));
 				building = false;
 				bar.close();
-				//TODO: clear players inventory
+				for(var player : game.allPlayers()) {
+					player.getInventory().clearContent();
+				}
 			}
 			if(game.ticks() == (buildTime + 5 * SharedConstants.TICKS_PER_SECOND)) {
-				game.allPlayers().sendMessage(Component.literal("Time for the jury to review your wonderful creations..."));
+				game.allPlayers().sendMessage(BuildBattleTexts.REVIEW_TIME.copy().withStyle(ChatFormatting.YELLOW));
 
 				//TODO temporary for testing
 				game.participants().forEach(overlords::add);
 			}
 			if(game.ticks() == reviewTime) {
 				nextReviewee(game, widgets);
-			}
-			if(game.ticks() >= reviewTime) {
-				// review logic
 			}
 
 			game.participants().forEach(player -> {
@@ -173,8 +174,8 @@ public final class BuildBattleBehavior implements IGameBehavior {
 		var remaining = buildTime - ticks;
 		var minutes = (remaining / (60 * SharedConstants.TICKS_PER_SECOND)) % 60;
 		var seconds = (remaining / SharedConstants.TICKS_PER_SECOND) % 60;
-		//TODO: translate
-		bar.setTitle(Component.literal("Building time! " + String.format("%02d:%02d", minutes, seconds) + " remaining"));
+
+		bar.setTitle(BuildBattleTexts.BAR_BUILDING.copy().withStyle(ChatFormatting.AQUA).append(" ").append(BuildBattleTexts.COUNTDOWN.apply(String.format("%02d", minutes), String.format("%02d", seconds))));
 		bar.setProgress(buildTime > 0 ? (float) remaining / (float) buildTime : 0f);
 	}
 
@@ -232,14 +233,14 @@ public final class BuildBattleBehavior implements IGameBehavior {
 		var max = 5;
 		var leaderboard = new java.util.ArrayList<>(playerPoints.entrySet());
 		leaderboard.sort((a, b) -> b.getValue().compareTo(a.getValue()));
-		var message = Component.literal("Build Battle Results:\n"); //TODO: translate
+		var message = BuildBattleTexts.RESULTS.copy().append("\n").append("\n");
 		for(int i = 0; i < Math.min(max, leaderboard.size()); i++) {
 			var entry = leaderboard.get(i);
 			var playerName = "unknown player";
 			var player = game.level().getPlayerByUUID(entry.getKey());
 			if(player != null) {
 				playerName = player.getScoreboardName();
-				message.append(Component.literal(i + 1 + ". " + playerName + ": " + entry.getValue() + " points\n"));
+				message.append(Component.literal(String.valueOf(i + 1)).withStyle(ChatFormatting.GRAY).append(" ").append(BuildBattleTexts.POINTS_DISPLAY.apply(playerName, entry.getValue())).append("\n"));
 			}
 		}
 
@@ -263,10 +264,14 @@ public final class BuildBattleBehavior implements IGameBehavior {
 		}
 		for(var overlord : overlords) {
 			overlord.getInventory().clearContent();
-			overlord.addItem(new ItemStack(Items.SPONGE));
+			var previous = new ItemStack(Items.SPONGE);
+			previous.set(DataComponents.CUSTOM_NAME, BuildBattleTexts.ITEM_PREVIOUS);
+			overlord.addItem(previous);
 			if(revieweeIndex == reviewedPlayers.size() - 1) {
 				selectorItems.giveSelectorsTo(overlord);
 			}
+			var next = new ItemStack(Items.GOLD_BLOCK);
+			next.set(DataComponents.CUSTOM_NAME, BuildBattleTexts.ITEM_NEXT);
 			overlord.addItem(new ItemStack(Items.GOLD_BLOCK));
 		}
 
@@ -278,10 +283,9 @@ public final class BuildBattleBehavior implements IGameBehavior {
 			playerName = player.getScoreboardName();
 		}
 
-		//TODO: translate
 		bar.close();
-		bar = widgets.openBossBar(Component.literal("Reviewing " + playerName + "..."), BossEvent.BossBarColor.YELLOW, BossEvent.BossBarOverlay.PROGRESS);
-		bar.setProgress(1.0f);
+		bar = widgets.openBossBar(BuildBattleTexts.BAR_REVIEWING.apply(playerName).withStyle(ChatFormatting.YELLOW), BossEvent.BossBarColor.YELLOW, BossEvent.BossBarOverlay.PROGRESS);
+		bar.setProgress(revieweeIndex / (float) playerPoints.size());
 		game.allPlayers().forEach(bar::addPlayer);
 	}
 
@@ -310,7 +314,7 @@ public final class BuildBattleBehavior implements IGameBehavior {
 		public void onPlayerSelected(ServerPlayer player, Integer value) {
 			if (behavior.overlords.contains(player.getUUID())) {
 				behavior.overlordPoints.put(player.getUUID(), value);
-				player.displayClientMessage(Component.literal("You gave " + value + " points!"), false);
+				player.displayClientMessage(BuildBattleTexts.GIVE_POINTS.apply(value).withStyle(ChatFormatting.GOLD), false);
 			}
 		}
 
@@ -321,8 +325,7 @@ public final class BuildBattleBehavior implements IGameBehavior {
 
 		@Override
 		public Component getNameFor(Integer value) {
-			//TODO: translate
-			return Component.literal(value + " points");
+			return BuildBattleTexts.ITEM_POINTS.apply(value);
 		}
 
 		@Override
