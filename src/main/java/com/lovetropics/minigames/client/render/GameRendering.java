@@ -9,11 +9,13 @@ import com.lovetropics.minigames.common.content.biodiversity_blitz.client_state.
 import com.lovetropics.minigames.common.core.game.client_state.GameClientStateTypes;
 import com.lovetropics.minigames.common.core.game.client_state.instance.HidePlayersState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.PointTagClientState;
+import com.lovetropics.minigames.common.core.game.client_state.instance.StatisticOverlayState;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -38,11 +40,15 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.event.RenderNameTagEvent;
 import net.neoforged.neoforge.client.event.RenderPlayerEvent;
+import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import net.neoforged.neoforge.client.renderstate.RegisterRenderStateModifiersEvent;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 @EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
@@ -281,5 +287,46 @@ public class GameRendering {
 			Component points,
 			ItemStack icon
 	) {
+	}
+
+	@Nullable
+	private static StatisticOverlayState.Ticker statisticTicker;
+
+	@SubscribeEvent
+	public static void onClientTick(ClientTickEvent.Post event) {
+		StatisticOverlayState state = ClientGameStateManager.getOrNull(GameClientStateTypes.STATISTIC_OVERLAY);
+		if (state != null) {
+			statisticTicker = state.tick(statisticTicker);
+		} else {
+			statisticTicker = null;
+		}
+	}
+
+	@SubscribeEvent
+	public static void registerOverlays(RegisterGuiLayersEvent event) {
+		event.registerBelow(VanillaGuiLayers.DEBUG_OVERLAY, LoveTropics.location("statistic"), (graphics, deltaTracker) -> {
+			if (Minecraft.getInstance().options.hideGui) {
+				return;
+			}
+			if (statisticTicker != null) {
+				renderStatisticOverlay(graphics, statisticTicker);
+			}
+		});
+	}
+
+	private static void renderStatisticOverlay(GuiGraphics graphics, StatisticOverlayState.Ticker statisticOverlay) {
+		final int padding = 2;
+		final int itemSize = 16;
+
+		Font font = Minecraft.getInstance().font;
+		graphics.renderItem(statisticOverlay.icon(), padding, padding);
+
+		graphics.drawString(
+				font,
+				statisticOverlay.text(),
+				padding + itemSize + padding,
+				padding + 1 + (itemSize - font.lineHeight) / 2,
+				CommonColors.WHITE
+		);
 	}
 }

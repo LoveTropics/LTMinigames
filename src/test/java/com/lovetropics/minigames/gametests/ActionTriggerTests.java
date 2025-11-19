@@ -46,7 +46,7 @@ public class ActionTriggerTests implements MinigameTest {
 		generator.builder(gameId("start"))
 				.withPlayingPhase(new InlineMapProvider(Level.OVERWORLD), phaseBuilder -> phaseBuilder
 						.withBehavior(new StartGameTrigger(behaviors.applyToAllPlayers(
-								new SendMessageAction(new TemplatedText(Component.literal("hello world!")))
+								new SendMessageAction(new TemplatedText(Component.literal("hello world!")), false)
 						)), new PlaySoundAction(SoundEvents.ALLAY_HURT, 0.5f, 0.5f, SoundSource.AMBIENT, false)));
 
 		generator.builder(gameId("stop"))
