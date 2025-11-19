@@ -1,7 +1,6 @@
 package com.lovetropics.minigames.common.core.game;
 
 import com.lovetropics.minigames.common.core.game.behavior.event.GameEventType;
-import com.lovetropics.minigames.common.core.game.config.GameConfig;
 import com.lovetropics.minigames.common.core.game.player.PlayerIterable;
 import com.lovetropics.minigames.common.core.game.player.PlayerRole;
 import com.lovetropics.minigames.common.core.game.player.PlayerSet;
@@ -60,7 +59,7 @@ public interface IGamePhase {
 
 	GameResult<Unit> requestStop(GameStopReason reason);
 
-	PendingSubPhase createSubPhase(GameConfig subGameConfig);
+	PendingSubPhase createSubPhase(IGameDefinition subGameConfig);
 
 	void returnToParent(ServerPlayer player);
 

@@ -16,7 +16,6 @@ import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.SubGameEvents;
 import com.lovetropics.minigames.common.core.game.command.GameCommandSet;
-import com.lovetropics.minigames.common.core.game.config.GameConfig;
 import com.lovetropics.minigames.common.core.game.map.GameMap;
 import com.lovetropics.minigames.common.core.game.player.MutablePlayerSet;
 import com.lovetropics.minigames.common.core.game.player.PlayerIterable;
@@ -288,6 +287,23 @@ public class GamePhase implements IGamePhase {
 	}
 
 	private void registerSubPhase(PendingSubPhaseImpl pending) {
+		List<ServerPlayer> playersToAdd = new ArrayList<>();
+		for (ServerPlayer player : pending.queuedPlayers) {
+			if (allPlayers.contains(player)) {
+				removePlayerDirectly(player, false);
+				playersToAdd.add(player);
+			} else {
+				// Transfer horizontally if possible so that we don't need to pull players up into the top phase
+				for (GamePhase subPhase : subPhases) {
+					if (subPhase.allPlayers().contains(player)) {
+						subPhase.removePlayerDirectly(player, false);
+						playersToAdd.add(player);
+						break;
+					}
+				}
+			}
+		}
+
 		try {
 			GamePhase phase = pending.future.join();
 			pending.registered = true;
@@ -297,28 +313,17 @@ public class GamePhase implements IGamePhase {
 			invoker(SubGameEvents.CREATE).onCreateSubGame(phase, phase.events);
 
 			phase.roles.putAll(roles);
-
-			List<ServerPlayer> playersToAdd = new ArrayList<>();
-			for (ServerPlayer player : pending.queuedPlayers) {
-				if (allPlayers.contains(player)) {
-					removePlayerDirectly(player, false);
-					playersToAdd.add(player);
-				} else {
-					// Transfer horizontally if possible so that we don't need to pull players up into the top phase
-					for (GamePhase subPhase : subPhases) {
-						if (subPhase.allPlayers().contains(player)) {
-							subPhase.removePlayerDirectly(player, false);
-							playersToAdd.add(player);
-							break;
-						}
-					}
-				}
-			}
 			phase.addPlayersAndStart(PlayerIterable.from(playersToAdd), null);
 
 			subPhases.add(phase);
 		} catch (Exception e) {
 			LOGGER.error("Failed to create sub-phase", e);
+			for (ServerPlayer player : playersToAdd) {
+				addPlayerDirectly(player, false);
+			}
+			for (Consumer<Exception> errorHandler : pending.errorHandlers) {
+				errorHandler.accept(e);
+			}
 		}
 	}
 
@@ -347,7 +352,7 @@ public class GamePhase implements IGamePhase {
 	}
 
 	@Override
-	public PendingSubPhase createSubPhase(GameConfig subGameConfig) {
+	public PendingSubPhase createSubPhase(IGameDefinition subGameConfig) {
 		if (isStopped()) {
 			throw new IllegalStateException("Cannot create sub-phase for stopped game");
 		}
@@ -618,6 +623,7 @@ public class GamePhase implements IGamePhase {
 		private final CompletableFuture<GamePhase> future;
 		private final MutablePlayerSet queuedPlayers;
 		private final List<CreateHandler> createHandlers = new ArrayList<>();
+		private final List<Consumer<Exception>> errorHandlers = new ArrayList<>();
 		private boolean registered;
 
 		private PendingSubPhaseImpl(CompletableFuture<GamePhase> future, MinecraftServer server) {
@@ -644,6 +650,12 @@ public class GamePhase implements IGamePhase {
 		public void whenCreated(CreateHandler handler) {
 			checkPending();
 			createHandlers.add(handler);
+		}
+
+		@Override
+		public void whenErrored(Consumer<Exception> consumer) {
+			checkPending();
+			errorHandlers.add(consumer);
 		}
 	}
 }

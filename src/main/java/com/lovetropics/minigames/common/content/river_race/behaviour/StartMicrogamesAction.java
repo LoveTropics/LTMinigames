@@ -131,6 +131,10 @@ public record StartMicrogamesAction(
 			);
 			game.invoker(RiverRaceEvents.CREATE_MICROGAME).onCreateMicrogame(subGame, subEvents);
 		});
+		subPhase.whenErrored(exception -> {
+			activeMicrogame.setValue(null);
+			queueNextSubGame(game, gameQueue, activeMicrogame);
+		});
 	}
 
 	private static <T> List<T> pickCountRandomly(List<T> candidates, int count) {

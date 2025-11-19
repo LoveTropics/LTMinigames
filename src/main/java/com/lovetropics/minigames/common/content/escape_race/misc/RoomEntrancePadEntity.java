@@ -72,6 +72,11 @@ public class RoomEntrancePadEntity extends Entity {
 		if (level().isClientSide()) {
 			lastUnlockProgress = unlockProgress;
 			unlockProgress = (float) getEntityData().get(UNLOCKING_TICKS).getCurrentTicks(level().getGameTime(), TOTAL_UNLOCK_TICKS) / TOTAL_UNLOCK_TICKS;
+
+			// If players get inside before it is blocked, we should push them out
+			if (isBlockedClientSide()) {
+				level().getPushableEntities(this, getBoundingBox()).forEach(this::push);
+			}
 		}
 	}
 

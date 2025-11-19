@@ -84,6 +84,14 @@ public record WarehouseSetupBehaviour(
 				PlayerSet.of(player).fadeFromBlack(FADE_DURATION)
 		);
 
+		events.listen(GamePlayerEvents.REMOVE, player -> {
+			for (RoomInstance room : state.rooms.values()) {
+				for (TeamRoomInstance teamRoom : room.teamRooms.values()) {
+					teamRoom.unlockingBar.removePlayer(player);
+				}
+			}
+		});
+
 		events.listen(GamePlayerEvents.JOIN, player -> {
 			GameTeamKey team = teams.getTeamForPlayer(player);
 			if (team == null) {
@@ -142,7 +150,7 @@ public record WarehouseSetupBehaviour(
 
 		for (GameTeamKey team : teams.getTeamKeys()) {
 			TeamRoomInstance teamState = room.getTeamRoom(team);
-			if (teamState.status != RoomStatus.LOCKED) {
+			if (teamState.status != RoomStatus.LOCKED || room.hasTeamInRoom()) {
 				teamState.unlockingBar.setPlayers(PlayerSet.EMPTY);
 				continue;
 			}
@@ -208,6 +216,7 @@ public record WarehouseSetupBehaviour(
 		return new UnlockRequest(playersInRegion, playersCrouching, players.size(), breakBucks);
 	}
 
+	// TODO: Commands to control room states
 	private void onGameStarted(IGamePhase game, State state) {
 		ServerLevel level = game.level();
 		for (RoomConfig room : rooms) {
@@ -299,8 +308,21 @@ public record WarehouseSetupBehaviour(
 			return teamRooms.computeIfAbsent(teamKey, k -> new TeamRoomInstance(this));
 		}
 
+		// TODO: Present this state visually
 		public boolean isBlockedFor(@Nullable GameTeamKey team) {
-			return unlockingState != null && !unlockingState.team.equals(team);
+			if (unlockingState != null && !unlockingState.team.equals(team)) {
+				return true;
+			}
+			return hasTeamInRoom();
+		}
+
+		public boolean hasTeamInRoom() {
+			for (TeamRoomInstance teamRoom : teamRooms.values()) {
+				if (teamRoom.active) {
+					return true;
+				}
+			}
+			return false;
 		}
 	}
 
@@ -309,18 +331,19 @@ public record WarehouseSetupBehaviour(
 		private final GameBossBar unlockingBar = new GameBossBar(CommonComponents.EMPTY, BossEvent.BossBarColor.RED, BossEvent.BossBarOverlay.PROGRESS);
 		private RoomStatus status = RoomStatus.LOCKED;
 
+		private boolean active;
+		private boolean stopped;
 		@Nullable
 		private PendingSubPhase pendingSubGame;
 		@Nullable
 		private IGamePhase subGame;
-		private boolean stopped;
 
 		public TeamRoomInstance(RoomInstance room) {
 			this.room = room;
 		}
 
 		public boolean maybeTransferPlayer(IGamePhase topGame, ServerPlayer player) {
-			if (stopped) {
+			if (!active) {
 				return false;
 			}
 			if (pendingSubGame != null) {
@@ -339,11 +362,13 @@ public record WarehouseSetupBehaviour(
 			if (stopped) {
 				return false;
 			}
+			active = true;
 			players.fadeToBlack(FADE_DURATION);
 			topGame.scheduler().runAfterTicks(FADE_DURATION, () -> {
 				if (pendingSubGame == null && subGame == null) {
 					pendingSubGame = topGame.createSubPhase(room.subGameConfig);
 					pendingSubGame.whenCreated(this::onGameCreated);
+					pendingSubGame.whenErrored(exception -> onGameErrored(topGame));
 				}
 				if (pendingSubGame != null) {
 					pendingSubGame.queuePlayers(players);
@@ -361,11 +386,20 @@ public record WarehouseSetupBehaviour(
 					PlayerSet.of(player).fadeFromBlack(FADE_DURATION)
 			);
 			subEvents.listen(GamePhaseEvents.STOP, reason -> {
+				active = false;
 				stopped = true;
 				this.subGame = null;
 				subGame.allPlayers().fadeToBlack(FADE_DURATION);
 				subGame.returnToParent(subGame.allPlayers());
 			});
+		}
+
+		private void onGameErrored(IGamePhase topGame) {
+			pendingSubGame = null;
+			subGame = null;
+			active = false;
+			stopped = true;
+			topGame.allPlayers().sendMessage(Component.literal("An error occurred starting the last room"));
 		}
 	}
 
