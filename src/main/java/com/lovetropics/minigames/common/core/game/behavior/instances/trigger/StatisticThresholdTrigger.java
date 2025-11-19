@@ -33,6 +33,8 @@ public record StatisticThresholdTrigger(
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
+		actions.register(game, events);
+
 		// TODO: Ideally we would have an event for tracking statistic changes
 		TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
 
