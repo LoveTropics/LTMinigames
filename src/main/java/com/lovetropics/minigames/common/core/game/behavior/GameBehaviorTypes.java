@@ -74,6 +74,7 @@ import com.lovetropics.minigames.common.core.game.behavior.instances.action.SetP
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.SetStatisticAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.SetTabListOrderAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.SetTotalTimeAction;
+import com.lovetropics.minigames.common.core.game.behavior.instances.action.SetupPodiumAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.ShootProjectilesAroundPlayerAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.ShowTitleAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.SpawnEntitiesAroundPlayersAction;
@@ -316,6 +317,7 @@ public class GameBehaviorTypes {
 	public static final GameBehaviorEntry<DamageAction> DAMAGE = register("damage_player", DamageAction.CODEC); //TODO: rename (affects any entity)
 	public static final GameBehaviorEntry<SpectatorActivityAction> SPECTATOR_ACTIVITY = register("spectator_activity", SpectatorActivityAction.CODEC);
 	public static final GameBehaviorEntry<GiveRewardAction> GIVE_REWARD = register("give_reward", GiveRewardAction.CODEC);
+	public static final GameBehaviorEntry<SetupPodiumAction> SETUP_PODIUM = register("setup_podium", SetupPodiumAction.CODEC);
 	public static final GameBehaviorEntry<TopPlayerTrigger> TOP_PLAYER_TRIGGER = register("top_player_trigger", TopPlayerTrigger.CODEC);
 	public static final GameBehaviorEntry<SetRoleTrigger> SET_ROLE = register("set_role", SetRoleTrigger.CODEC);
 	public static final GameBehaviorEntry<SpawnTrigger> SPAWN = register("on_spawn", SpawnTrigger.CODEC);
