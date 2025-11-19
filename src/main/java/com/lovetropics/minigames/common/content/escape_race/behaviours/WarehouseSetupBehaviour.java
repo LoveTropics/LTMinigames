@@ -23,6 +23,7 @@ import com.lovetropics.minigames.common.core.game.state.statistics.StatisticKey;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeamKey;
 import com.lovetropics.minigames.common.core.game.state.team.TeamState;
 import com.lovetropics.minigames.common.core.game.util.GameBossBar;
+import com.lovetropics.minigames.common.core.game.util.GameWidgets;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -67,10 +68,12 @@ public record WarehouseSetupBehaviour(
 		State state = new State();
 		TeamState teams = game.instanceState().getOrThrow(TeamState.KEY);
 
+		GameWidgets widgets = GameWidgets.getOrRegister(game, events);
+
 		events.listen(GamePhaseEvents.CREATE, () -> this.onGameStarted(game, state));
 		events.listen(GamePhaseEvents.TICK, () -> {
 			for (RoomInstance room : state.rooms.values()) {
-				tickRoom(game, teams, room);
+				tickRoom(game, teams, room, widgets);
 			}
 		});
 
@@ -83,14 +86,6 @@ public record WarehouseSetupBehaviour(
 				// Fade back in if returning from a room
 				PlayerSet.of(player).fadeFromBlack(FADE_DURATION)
 		);
-
-		events.listen(GamePlayerEvents.REMOVE, player -> {
-			for (RoomInstance room : state.rooms.values()) {
-				for (TeamRoomInstance teamRoom : room.teamRooms.values()) {
-					teamRoom.unlockingBar.removePlayer(player);
-				}
-			}
-		});
 
 		events.listen(GamePlayerEvents.JOIN, player -> {
 			GameTeamKey team = teams.getTeamForPlayer(player);
@@ -139,7 +134,7 @@ public record WarehouseSetupBehaviour(
 		return room;
 	}
 
-	private void tickRoom(IGamePhase game, TeamState teams, RoomInstance room) {
+	private void tickRoom(IGamePhase game, TeamState teams, RoomInstance room, GameWidgets widgets) {
 		if (room.unlockingState != null) {
 			if (tickUnlocking(game, teams, room, room.unlockingState)) {
 				room.unlockingState = null;
@@ -151,7 +146,9 @@ public record WarehouseSetupBehaviour(
 		for (GameTeamKey team : teams.getTeamKeys()) {
 			TeamRoomInstance teamState = room.getTeamRoom(team);
 			if (teamState.status != RoomStatus.LOCKED || room.hasTeamInRoom()) {
-				teamState.unlockingBar.setPlayers(PlayerSet.EMPTY);
+				if (teamState.unlockingBar != null) {
+					teamState.unlockingBar.setPlayers(PlayerSet.EMPTY);
+				}
 				continue;
 			}
 
@@ -160,12 +157,12 @@ public record WarehouseSetupBehaviour(
 				room.unlockingState = new UnlockingState(team);
 			}
 
-			updateUnlockingBar(room, team, teamState, unlockRequest);
+			updateUnlockingBar(widgets, room, team, teamState, unlockRequest);
 		}
 	}
 
-	private void updateUnlockingBar(RoomInstance room, GameTeamKey team, TeamRoomInstance teamState, UnlockRequest unlockRequest) {
-		GameBossBar bar = teamState.unlockingBar;
+	private void updateUnlockingBar(GameWidgets widgets, RoomInstance room, GameTeamKey team, TeamRoomInstance teamState, UnlockRequest unlockRequest) {
+		GameBossBar bar = teamState.getOrCreateUnlockingBar(widgets);
 		UnlockingState unlockingState = room.unlockingState;
 
 		if (unlockingState != null) {
@@ -328,7 +325,8 @@ public record WarehouseSetupBehaviour(
 
 	public static class TeamRoomInstance {
 		private final RoomInstance room;
-		private final GameBossBar unlockingBar = new GameBossBar(CommonComponents.EMPTY, BossEvent.BossBarColor.RED, BossEvent.BossBarOverlay.PROGRESS);
+		@Nullable
+		private GameBossBar unlockingBar;
 		private RoomStatus status = RoomStatus.LOCKED;
 
 		private boolean active;
@@ -340,6 +338,13 @@ public record WarehouseSetupBehaviour(
 
 		public TeamRoomInstance(RoomInstance room) {
 			this.room = room;
+		}
+
+		public GameBossBar getOrCreateUnlockingBar(GameWidgets widgets) {
+			if (unlockingBar == null) {
+				unlockingBar = widgets.openBossBar(CommonComponents.EMPTY, BossEvent.BossBarColor.RED, BossEvent.BossBarOverlay.PROGRESS);
+			}
+			return unlockingBar;
 		}
 
 		public boolean maybeTransferPlayer(IGamePhase topGame, ServerPlayer player) {

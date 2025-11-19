@@ -17,6 +17,7 @@ import com.lovetropics.minigames.common.core.game.state.statistics.PlayerKey;
 import com.lovetropics.minigames.common.core.game.state.statistics.StatisticKey;
 import com.lovetropics.minigames.common.core.game.util.GameBossBar;
 import com.lovetropics.minigames.common.core.game.util.GameSidebar;
+import com.lovetropics.minigames.common.core.game.util.GameWidgets;
 import com.lovetropics.minigames.common.core.map.MapRegions;
 import com.lovetropics.minigames.common.role.StreamHosts;
 import com.lovetropics.minigames.common.util.Util;
@@ -85,6 +86,7 @@ public class RaceTrackBehavior implements IGameBehavior {
 	private final List<FinishEntry> finishedPlayers = new ArrayList<>();
 
 	private IGamePhase game;
+	private GameWidgets widgets;
 
 	private RaceTrackPath path;
 
@@ -105,6 +107,7 @@ public class RaceTrackBehavior implements IGameBehavior {
 		finishAction.register(game, events);
 
 		this.game = game;
+		widgets = GameWidgets.getOrRegister(game, events);
 		path = pathData.compile(game.mapRegions(), lapCount > 1);
 
 		registerCheckpoints(game, events);
@@ -154,7 +157,7 @@ public class RaceTrackBehavior implements IGameBehavior {
 	private void tickSidebar(ServerPlayer player, Component sidebarTitle) {
 		GameSidebar sidebar = sidebars.get(player.getUUID());
 		if (sidebar == null) {
-			sidebar = new GameSidebar(player.level().getServer(), sidebarTitle);
+			sidebar = widgets.openSidebar(sidebarTitle);
 			sidebar.addPlayer(player);
 			sidebars.put(player.getUUID(), sidebar);
 		}
@@ -260,7 +263,7 @@ public class RaceTrackBehavior implements IGameBehavior {
 		} else {
 			title = game.definition().name().copy().withStyle(ChatFormatting.AQUA);
 		}
-		state.updateBar(player, title, path.length());
+		state.updateBar(player, title, path.length(), widgets);
 
 		return false;
 	}
@@ -405,9 +408,9 @@ public class RaceTrackBehavior implements IGameBehavior {
 			trackedPosition = position;
 		}
 
-		public void updateBar(ServerPlayer player, Component text, float pathLength) {
+		public void updateBar(ServerPlayer player, Component text, float pathLength, GameWidgets widgets) {
 			if (bar == null) {
-				bar = new GameBossBar(text, BossEvent.BossBarColor.GREEN, BossEvent.BossBarOverlay.PROGRESS);
+				bar = widgets.openBossBar(text, BossEvent.BossBarColor.GREEN, BossEvent.BossBarOverlay.PROGRESS);
 				bar.addPlayer(player);
 			} else {
 				bar.setTitle(text);

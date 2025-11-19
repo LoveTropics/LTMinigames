@@ -13,7 +13,7 @@ import com.lovetropics.minigames.common.core.game.state.progress.ProgressChannel
 import com.lovetropics.minigames.common.core.game.state.progress.ProgressionPoint;
 import com.lovetropics.minigames.common.core.game.state.statistics.StatisticKey;
 import com.lovetropics.minigames.common.core.game.util.GameSidebar;
-import com.lovetropics.minigames.common.core.game.util.GlobalGameWidgets;
+import com.lovetropics.minigames.common.core.game.util.GameWidgets;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -115,7 +115,7 @@ public final class TerryTrashBehavior implements IGameBehavior {
 			game.mapRegions().getOrThrow(recyclingLocation.processRegion);
 		}
 
-		GameSidebar sidebar = GlobalGameWidgets.registerTo(game, events).openSidebar(EscapeRaceTexts.TERRY_TRASH);
+		GameSidebar sidebar = GameWidgets.getOrRegister(game, events).openGlobalSidebar(EscapeRaceTexts.TERRY_TRASH);
 
 		events.listen(GamePhaseEvents.TICK, () -> onGameTick(game, sidebar, itemSpawnBox, badTrashBox));
 

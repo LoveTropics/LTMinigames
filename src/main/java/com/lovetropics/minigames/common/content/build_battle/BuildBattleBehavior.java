@@ -11,6 +11,7 @@ import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvent
 import com.lovetropics.minigames.common.core.game.state.Overlords;
 import com.lovetropics.minigames.common.core.game.state.statistics.PlayerKey;
 import com.lovetropics.minigames.common.core.game.util.GameBossBar;
+import com.lovetropics.minigames.common.core.game.util.GameWidgets;
 import com.lovetropics.minigames.common.core.game.util.SelectorItems;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
@@ -70,8 +71,10 @@ public final class BuildBattleBehavior implements IGameBehavior {
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		selectorItems = new SelectorItems<>(new VoteItemsHandlers(this), new Integer[]{1,2,3,4,5,6});
 
+		GameWidgets widgets = GameWidgets.getOrRegister(game, events);
+
 		events.listen(GamePhaseEvents.START, initiator -> {
-			bar = new GameBossBar(Component.empty(), BossEvent.BossBarColor.YELLOW, BossEvent.BossBarOverlay.NOTCHED_10);
+			bar = widgets.openBossBar(Component.empty(), BossEvent.BossBarColor.YELLOW, BossEvent.BossBarOverlay.NOTCHED_10);
 			game.allPlayers().forEach(bar::addPlayer);
 			refreshBuildingTimeBar(0);
 			building = true;
@@ -97,7 +100,7 @@ public final class BuildBattleBehavior implements IGameBehavior {
 				game.participants().forEach(overlords::add);
 			}
 			if(game.ticks() == reviewTime) {
-				nextReviewee(game);
+				nextReviewee(game, widgets);
 			}
 			if(game.ticks() >= reviewTime) {
 				// review logic
@@ -115,7 +118,7 @@ public final class BuildBattleBehavior implements IGameBehavior {
 		events.listen(GamePlayerEvents.BREAK_BLOCK, (player, pos, state, hand) -> canInteract(player.getUUID(), pos) ? TriState.DEFAULT : TriState.FALSE);
 		events.listen(GamePlayerEvents.PLACE_BLOCK, (player, pos, placed, placedOn, placedItemStack) -> canInteract(player.getUUID(), pos)  ? TriState.DEFAULT : TriState.FALSE);
 		events.listen(GamePlayerEvents.USE_BLOCK, (player, level, pos, hand, result) -> canInteract(player.getUUID(), pos) ? InteractionResult.PASS : InteractionResult.FAIL);
-		events.listen(GamePlayerEvents.USE_ITEM, (player, hand) -> onUseItem(game, player, hand));
+		events.listen(GamePlayerEvents.USE_ITEM, (player, hand) -> onUseItem(game, player, hand, widgets));
 
 		selectorItems.applyTo(events);
 	}
@@ -175,13 +178,13 @@ public final class BuildBattleBehavior implements IGameBehavior {
 		bar.setProgress(buildTime > 0 ? (float) remaining / (float) buildTime : 0f);
 	}
 
-	private void nextReviewee(IGamePhase game) {
+	private void nextReviewee(IGamePhase game, GameWidgets widgets) {
 		if(revieweeIndex == -1) {
 			for (UUID playerId : playerPoints.keySet()) {
 				if (playerPoints.get(playerId) == -1) {
 					reviewedPlayers.add(playerId);
 					revieweeIndex = 0;
-					refreshReviewee(game);
+					refreshReviewee(game, widgets);
 					return;
 				}
 			}
@@ -203,25 +206,25 @@ public final class BuildBattleBehavior implements IGameBehavior {
 			for (UUID playerId : playerPoints.keySet()) {
 				if (playerPoints.get(playerId) == -1) {
 					reviewedPlayers.add(playerId);
-					refreshReviewee(game);
+					refreshReviewee(game, widgets);
 					return;
 				}
 			}
 		}
 		if(revieweeIndex < reviewedPlayers.size()) {
-			refreshReviewee(game);
+			refreshReviewee(game, widgets);
 			return;
 		}
 		revieweeIndex = -2;
 		announceWinner(game);
 	}
 
-	private void previousReviewee(IGamePhase game) {
+	private void previousReviewee(IGamePhase game, GameWidgets widgets) {
 		if(revieweeIndex <= 0) {
 			return;
 		}
 		revieweeIndex--;
-		refreshReviewee(game);
+		refreshReviewee(game, widgets);
 	}
 
 	private void announceWinner(IGamePhase game) {
@@ -252,7 +255,7 @@ public final class BuildBattleBehavior implements IGameBehavior {
 		// TODO: tp to plot of winning player
 	}
 
-	private void refreshReviewee(IGamePhase game) {
+	private void refreshReviewee(IGamePhase game, GameWidgets widgets) {
 		for(var player : game.allPlayers()) {
 			SpawnBuilder spawn = new SpawnBuilder(player);
 			game.invoker(GamePlayerEvents.SPAWN).onSpawn(player.getUUID(), spawn, null);
@@ -277,12 +280,12 @@ public final class BuildBattleBehavior implements IGameBehavior {
 
 		//TODO: translate
 		bar.close();
-		bar = new GameBossBar(Component.literal("Reviewing " + playerName + "..."), BossEvent.BossBarColor.YELLOW, BossEvent.BossBarOverlay.PROGRESS);
+		bar = widgets.openBossBar(Component.literal("Reviewing " + playerName + "..."), BossEvent.BossBarColor.YELLOW, BossEvent.BossBarOverlay.PROGRESS);
 		bar.setProgress(1.0f);
 		game.allPlayers().forEach(bar::addPlayer);
 	}
 
-	private InteractionResult onUseItem(IGamePhase game, ServerPlayer player, InteractionHand hand) {
+	private InteractionResult onUseItem(IGamePhase game, ServerPlayer player, InteractionHand hand, GameWidgets widgets) {
 		if(this.revieweeIndex < 0 || !overlords.contains(player.getUUID())) {
 			return InteractionResult.PASS;
 		}
@@ -291,11 +294,11 @@ public final class BuildBattleBehavior implements IGameBehavior {
 			return InteractionResult.PASS;
 		}
 		if(heldStack.is(Items.SPONGE)) {
-			previousReviewee(game);
+			previousReviewee(game, widgets);
 			return InteractionResult.SUCCESS;
 		}
 		if(heldStack.is(Items.GOLD_BLOCK)) {
-			nextReviewee(game);
+			nextReviewee(game, widgets);
 			return InteractionResult.SUCCESS;
 		}
 

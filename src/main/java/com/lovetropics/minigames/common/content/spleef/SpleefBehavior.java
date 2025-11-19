@@ -13,7 +13,7 @@ import com.lovetropics.minigames.common.core.game.player.PlayerIterable;
 import com.lovetropics.minigames.common.core.game.player.PlayerRole;
 import com.lovetropics.minigames.common.core.game.player.PlayerSet;
 import com.lovetropics.minigames.common.core.game.util.GameBossBar;
-import com.lovetropics.minigames.common.core.game.util.GlobalGameWidgets;
+import com.lovetropics.minigames.common.core.game.util.GameWidgets;
 import com.lovetropics.minigames.common.util.world.BlockPlacer;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -61,7 +61,7 @@ public class SpleefBehavior implements IGameBehavior {
 	private final int floors;
 	private final String flavourText;
 	private final boolean breakEffects;
-	private GlobalGameWidgets widgets;
+	private GameWidgets widgets;
 
 	private GameBossBar bossBar;
 
@@ -106,7 +106,7 @@ public class SpleefBehavior implements IGameBehavior {
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		this.game = game;
-		widgets = GlobalGameWidgets.registerTo(game, events);
+		widgets = GameWidgets.getOrRegister(game, events);
 
 		for (int floor = 0; floor < floors; floor++) {
 			floorRegions[floor] = game.mapRegions().getOrThrow("floor" + (floor + 1));
@@ -115,7 +115,7 @@ public class SpleefBehavior implements IGameBehavior {
 		deathRegion = game.mapRegions().getOrThrow("death");
 
 		Style style = Style.EMPTY.withColor(TextColor.fromRgb(0xACC12F)).withBold(true);
-		bossBar = widgets.openBossBar(MinigameTexts.SPLEEF_TITLE_PREPARE.copy().withStyle(style), BossEvent.BossBarColor.PURPLE, BossEvent.BossBarOverlay.PROGRESS);
+		bossBar = widgets.openGlobalBossBar(MinigameTexts.SPLEEF_TITLE_PREPARE.copy().withStyle(style), BossEvent.BossBarColor.PURPLE, BossEvent.BossBarOverlay.PROGRESS);
 
 		for (var floor : floorRegions) {
 			BlockPlacer.replace(game.level(), floor, floorMaterial, BlockPlacer.Mode.REPLACE, Blocks.WHITE_STAINED_GLASS);

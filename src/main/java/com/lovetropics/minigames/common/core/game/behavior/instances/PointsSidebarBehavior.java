@@ -12,7 +12,7 @@ import com.lovetropics.minigames.common.core.game.state.statistics.StatisticKey;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeamKey;
 import com.lovetropics.minigames.common.core.game.state.team.TeamState;
 import com.lovetropics.minigames.common.core.game.util.GameSidebar;
-import com.lovetropics.minigames.common.core.game.util.GlobalGameWidgets;
+import com.lovetropics.minigames.common.core.game.util.GameWidgets;
 import com.lovetropics.minigames.common.core.game.util.TemplatedText;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -48,7 +48,7 @@ public record PointsSidebarBehavior(
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		final GameSidebar sidebar = GlobalGameWidgets.registerTo(game, events).openSidebar(title);
+		final GameSidebar sidebar = GameWidgets.getOrRegister(game, events).openGlobalSidebar(title);
 		events.listen(GamePhaseEvents.TICK, () -> {
 			if (game.ticks() % REFRESH_INTERVAL == 0) {
 				sidebar.set(renderSidebar(game));

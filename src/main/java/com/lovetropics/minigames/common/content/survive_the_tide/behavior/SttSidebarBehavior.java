@@ -13,7 +13,7 @@ import com.lovetropics.minigames.common.core.game.state.progress.ProgressHolder;
 import com.lovetropics.minigames.common.core.game.state.progress.ProgressionPeriod;
 import com.lovetropics.minigames.common.core.game.state.weather.GameWeatherState;
 import com.lovetropics.minigames.common.core.game.util.GameSidebar;
-import com.lovetropics.minigames.common.core.game.util.GlobalGameWidgets;
+import com.lovetropics.minigames.common.core.game.util.GameWidgets;
 import com.lovetropics.minigames.common.core.game.weather.WeatherEventType;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -36,7 +36,7 @@ public class SttSidebarBehavior implements IGameBehavior {
 	private final ProgressionPeriod icebergGrowthPeriod;
 	private final ProgressionPeriod explosiveStormPeriod;
 
-	private GlobalGameWidgets widgets;
+	private GameWidgets widgets;
 	private GameSidebar sidebar;
 
 	private IGamePhase game;
@@ -58,13 +58,13 @@ public class SttSidebarBehavior implements IGameBehavior {
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		this.game = game;
-		widgets = GlobalGameWidgets.registerTo(game, events);
+		widgets = GameWidgets.getOrRegister(game, events);
 
 		progression = ProgressChannel.MAIN.getOrThrow(game);
 		weather = game.state().getOrThrow(GameWeatherState.KEY);
 
 		events.listen(GamePhaseEvents.START, initiator -> {
-			sidebar = widgets.openSidebar(game.definition().name().copy().withStyle(ChatFormatting.YELLOW, ChatFormatting.BOLD));
+			sidebar = widgets.openGlobalSidebar(game.definition().name().copy().withStyle(ChatFormatting.YELLOW, ChatFormatting.BOLD));
 			initialPlayerCount = game.participants().size();
 		});
 

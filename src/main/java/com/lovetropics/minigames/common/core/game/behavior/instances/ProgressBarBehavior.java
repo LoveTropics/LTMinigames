@@ -10,7 +10,7 @@ import com.lovetropics.minigames.common.core.game.state.progress.ProgressChannel
 import com.lovetropics.minigames.common.core.game.state.progress.ProgressHolder;
 import com.lovetropics.minigames.common.core.game.state.progress.ProgressionPeriod;
 import com.lovetropics.minigames.common.core.game.util.GameBossBar;
-import com.lovetropics.minigames.common.core.game.util.GlobalGameWidgets;
+import com.lovetropics.minigames.common.core.game.util.GameWidgets;
 import com.lovetropics.minigames.common.core.game.util.TemplatedText;
 import com.lovetropics.minigames.common.util.Util;
 import com.mojang.datafixers.util.Either;
@@ -53,7 +53,7 @@ public class ProgressBarBehavior implements IGameBehavior {
 	public void register(IGamePhase game, EventRegistrar events) {
 		progression = channel.getOrThrow(game);
 
-		GlobalGameWidgets widgets = GlobalGameWidgets.registerTo(game, events);
+		GameWidgets widgets = GameWidgets.getOrRegister(game, events);
 
 		events.listen(GamePhaseEvents.TICK, () -> {
 			if (game.ticks() % UPDATE_INTERVAL != 0) {
@@ -83,10 +83,10 @@ public class ProgressBarBehavior implements IGameBehavior {
 		return null;
 	}
 
-	private void updateVisibleBossBar(IGamePhase game, GlobalGameWidgets widgets, Entry entry) {
+	private void updateVisibleBossBar(IGamePhase game, GameWidgets widgets, Entry entry) {
 		Component text = getTitle(game, entry);
 		if (bossBar == null) {
-			bossBar = widgets.openBossBar(text, entry.color, BossEvent.BossBarOverlay.PROGRESS);
+			bossBar = widgets.openGlobalBossBar(text, entry.color, BossEvent.BossBarOverlay.PROGRESS);
 		} else {
 			bossBar.setTitle(text);
 			bossBar.setStyle(entry.color, BossEvent.BossBarOverlay.PROGRESS);

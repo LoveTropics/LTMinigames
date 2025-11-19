@@ -21,7 +21,7 @@ import com.lovetropics.minigames.common.core.game.state.team.GameTeam;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeamKey;
 import com.lovetropics.minigames.common.core.game.state.team.TeamState;
 import com.lovetropics.minigames.common.core.game.util.GameSidebar;
-import com.lovetropics.minigames.common.core.game.util.GlobalGameWidgets;
+import com.lovetropics.minigames.common.core.game.util.GameWidgets;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -101,7 +101,7 @@ public class VictoryPointsBehavior implements IGameBehavior {
 			acquiredPointsPerZone.put(team.key(), new Object2IntOpenHashMap<>());
 		}
 
-		GameSidebar sidebar = GlobalGameWidgets.registerTo(game, events).openSidebar(RiverRaceTexts.SIDEBAR_VICTORY_POINTS);
+		GameSidebar sidebar = GameWidgets.getOrRegister(game, events).openGlobalSidebar(RiverRaceTexts.SIDEBAR_VICTORY_POINTS);
 
 		events.listen(RiverRaceEvents.QUESTION_COMPLETED, this::onQuestionAnswered);
 		events.listen(RiverRaceEvents.COLLECTABLE_PLACED, this::onCollectablePlaced);

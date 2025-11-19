@@ -24,7 +24,7 @@ import com.lovetropics.minigames.common.core.game.state.team.GameTeamConfig;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeamKey;
 import com.lovetropics.minigames.common.core.game.state.team.TeamState;
 import com.lovetropics.minigames.common.core.game.util.GameBossBar;
-import com.lovetropics.minigames.common.core.game.util.GlobalGameWidgets;
+import com.lovetropics.minigames.common.core.game.util.GameWidgets;
 import com.lovetropics.minigames.common.core.game.util.TemplatedText;
 import com.lovetropics.minigames.common.util.Util;
 import com.mojang.math.Transformation;
@@ -140,7 +140,7 @@ public class CraftingBeeBehavior implements IGameBehavior {
 		teamStates = new HashMap<>();
 		teamsWithoutTime = new HashSet<>();
 
-		GlobalGameWidgets widgets = GlobalGameWidgets.registerTo(game, events);
+		GameWidgets widgets = GameWidgets.getOrRegister(game, events);
 		events.listen(GamePhaseEvents.START, initiator -> start(widgets));
 		events.listen(GamePhaseEvents.TICK, () -> tickRunning(game));
 		events.listen(GamePhaseEvents.DESTROY, () -> teamStates.values().forEach(b -> b.timerBar().close()));
@@ -163,7 +163,7 @@ public class CraftingBeeBehavior implements IGameBehavior {
 		});
 	}
 
-	private void start(GlobalGameWidgets widgets) {
+	private void start(GameWidgets widgets) {
 		for (GameTeam team : teams) {
 			var recipes = selectors.stream().map(selector -> selector.select(game.level()))
 					.map(recipe -> new CraftingTask(
@@ -177,10 +177,10 @@ public class CraftingBeeBehavior implements IGameBehavior {
 
 			List<TaskDisplay> taskDisplays = setupTaskDisplays(Objects.requireNonNull(teamRegions.get(team.key())), recipes);
 
-			GameBossBar timerBar = new GameBossBar(CommonComponents.EMPTY, BossEvent.BossBarColor.WHITE, BossEvent.BossBarOverlay.NOTCHED_10);
+			GameBossBar timerBar = widgets.openBossBar(CommonComponents.EMPTY, BossEvent.BossBarColor.WHITE, BossEvent.BossBarOverlay.NOTCHED_10);
 			teams.getPlayersForTeam(game, team.key()).forEach(timerBar::addPlayer);
 
-			GameBossBar taskBar = new GameBossBar(team.config().styledName(), team.config().bossBarColor(), BossEvent.BossBarOverlay.PROGRESS);
+			GameBossBar taskBar = widgets.openBossBar(team.config().styledName(), team.config().bossBarColor(), BossEvent.BossBarOverlay.PROGRESS);
 			taskBar.setProgress(0.0f);
 
 			teamStates.put(team.key(), new CraftingTeamState(
@@ -193,7 +193,7 @@ public class CraftingBeeBehavior implements IGameBehavior {
 		}
 
 		for (CraftingTeamState state : teamStates.values()) {
-			widgets.registerWidget(state.taskBar);
+			widgets.registerWidget(state.taskBar, true);
 		}
 	}
 

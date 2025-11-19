@@ -9,7 +9,7 @@ import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvent
 import com.lovetropics.minigames.common.core.game.player.PlayerRole;
 import com.lovetropics.minigames.common.core.game.state.statistics.StatisticKey;
 import com.lovetropics.minigames.common.core.game.util.GameBossBar;
-import com.lovetropics.minigames.common.core.game.util.GlobalGameWidgets;
+import com.lovetropics.minigames.common.core.game.util.GameWidgets;
 import com.lovetropics.minigames.common.core.game.util.TemplatedText;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -56,24 +56,25 @@ public record StatisticBossBarBehavior<T>(
 	}
 
 	private void registerGlobal(IGamePhase game, EventRegistrar events) {
-		GlobalGameWidgets widgets = GlobalGameWidgets.registerTo(game, events);
-		GameBossBar bossBar = widgets.openBossBar(CommonComponents.EMPTY, color, style);
+		GameWidgets widgets = GameWidgets.getOrRegister(game, events);
+		GameBossBar bossBar = widgets.openGlobalBossBar(CommonComponents.EMPTY, color, style);
 		events.listen(GamePhaseEvents.TICK, () ->
 				updateBossBar(bossBar, game.statistics().global().get(statistic))
 		);
 	}
 
 	private void registerPerPlayer(IGamePhase game, EventRegistrar events) {
+		GameWidgets widgets = GameWidgets.getOrRegister(game, events);
 		Map<UUID, GameBossBar> bossBars = new HashMap<>();
 		events.listen(GamePlayerEvents.SET_ROLE, (player, role, lastRole) -> {
 			if (lastRole == PlayerRole.PARTICIPANT) {
 				GameBossBar bossBar = bossBars.remove(player.getUUID());
 				if (bossBar != null) {
-					bossBar.removePlayer(player);
+					bossBar.close();
 				}
 			}
 			if (role == PlayerRole.PARTICIPANT) {
-				GameBossBar bossBar = new GameBossBar(CommonComponents.EMPTY, color, style);
+				GameBossBar bossBar = widgets.openBossBar(CommonComponents.EMPTY, color, style);
 				updateBossBar(bossBar, game.statistics().forPlayer(player).get(statistic));
 				bossBar.addPlayer(player);
 				bossBars.put(player.getUUID(), bossBar);
@@ -83,7 +84,7 @@ public record StatisticBossBarBehavior<T>(
 		events.listen(GamePlayerEvents.REMOVE, player -> {
 			GameBossBar bossBar = bossBars.remove(player.getUUID());
 			if (bossBar != null) {
-				bossBar.removePlayer(player);
+				bossBar.close();
 			}
 		});
 

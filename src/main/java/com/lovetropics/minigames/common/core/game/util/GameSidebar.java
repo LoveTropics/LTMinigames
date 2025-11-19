@@ -11,12 +11,14 @@ import net.minecraft.server.level.ServerPlayer;
 import java.util.Arrays;
 
 public final class GameSidebar implements GameWidget {
+	private final GameWidgets widgets;
 	private final MutablePlayerSet players;
 	private final Component title;
 
 	private Component[] display = new Component[0];
 
-	public GameSidebar(MinecraftServer server, Component title) {
+	public GameSidebar(GameWidgets widgets, MinecraftServer server, Component title) {
+		this.widgets = widgets;
 		players = new MutablePlayerSet(server);
 		this.title = title;
 	}
@@ -48,5 +50,6 @@ public final class GameSidebar implements GameWidget {
 	public void close() {
 		GameClientState.removeFromPlayers(GameClientStateTypes.SIDEBAR.get(), players);
 		players.clear();
+		widgets.remove(this);
 	}
 }

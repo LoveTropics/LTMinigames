@@ -12,9 +12,11 @@ import java.util.List;
 public final class GameBossBar implements GameWidget {
 	private static final float UPDATE_PROGRESS_THRESHOLD = 0.001f;
 
+	private final GameWidgets widgets;
 	private final ServerBossEvent bar;
 
-	public GameBossBar(Component title, BossEvent.BossBarColor color, BossEvent.BossBarOverlay overlay) {
+	/* package-private */ GameBossBar(GameWidgets widgets, Component title, BossEvent.BossBarColor color, BossEvent.BossBarOverlay overlay) {
+		this.widgets = widgets;
 		bar = new ServerBossEvent(title, color, overlay);
 		bar.setDarkenScreen(false);
 		bar.setCreateWorldFog(false);
@@ -59,5 +61,6 @@ public final class GameBossBar implements GameWidget {
 	public void close() {
 		bar.removeAllPlayers();
 		bar.setVisible(false);
+		widgets.remove(this);
 	}
 }
