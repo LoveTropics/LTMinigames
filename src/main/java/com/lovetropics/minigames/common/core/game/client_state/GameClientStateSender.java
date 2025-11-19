@@ -12,6 +12,7 @@ import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 
+import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -30,6 +31,12 @@ public final class GameClientStateSender {
 		return players.computeIfAbsent(player.getUUID(), id -> new PlayerEntry());
 	}
 
+	// TODO: It's very strange to expose client states on the server. Can we improve on this system?
+	@Nullable
+	public static <T extends GameClientState> T getOrNull(ServerPlayer player, GameClientStateType<T> type) {
+		return get().byPlayer(player).getOrNull(type);
+	}
+
 	@SubscribeEvent
 	public static void onPlayerTick(PlayerTickEvent.Post event) {
 		if (event.getEntity() instanceof ServerPlayer player) {
@@ -45,31 +52,36 @@ public final class GameClientStateSender {
 	}
 
 	public static final class PlayerEntry {
-		private final Map<GameClientStateType<?>, GameClientState> setQueue = new Object2ObjectOpenHashMap<>();
-		private final Set<GameClientStateType<?>> removeQueue = new ObjectOpenHashSet<>();
+		private final Map<GameClientStateType<?>, GameClientState> values = new Object2ObjectOpenHashMap<>();
+		private final Set<GameClientStateType<?>> changedValues = new ObjectOpenHashSet<>();
 
 		public <T extends GameClientState> void enqueueSet(T state) {
-			removeQueue.remove(state.getType());
-			setQueue.put(state.getType(), state);
+			values.put(state.getType(), state);
+			changedValues.add(state.getType());
 		}
 
 		public <T extends GameClientState> void enqueueRemove(GameClientStateType<T> type) {
-			setQueue.remove(type);
-			removeQueue.add(type);
+			values.remove(type);
+			changedValues.add(type);
+		}
+
+		@Nullable
+		@SuppressWarnings("unchecked")
+		public <T extends GameClientState> T getOrNull(GameClientStateType<T> type) {
+			return (T) values.get(type);
 		}
 
 		void tick(ServerPlayer player) {
-			if (!setQueue.isEmpty() || !removeQueue.isEmpty()) {
-				for (GameClientState state : setQueue.values()) {
-					sendSet(state, player);
+			if (!changedValues.isEmpty()) {
+				for (GameClientStateType<?> type : changedValues) {
+					GameClientState value = values.get(type);
+					if (value != null) {
+						sendSet(value, player);
+					} else {
+						sendRemove(type, player);
+					}
 				}
-
-				for (GameClientStateType<?> type : removeQueue) {
-					sendRemove(type, player);
-				}
-
-				setQueue.clear();
-				removeQueue.clear();
+				changedValues.clear();
 			}
 		}
 

@@ -14,6 +14,7 @@
     "RideCommandMixin",
     "ServerPlayerMixin",
     "chat.ServerGamePacketListenerImplMixin",
+    "AbstractBoatMixin",
     "client.PlayerMixin",
     "command.CommandsMixin",
     "command.ServerGamePacketListenerImplMixin",
