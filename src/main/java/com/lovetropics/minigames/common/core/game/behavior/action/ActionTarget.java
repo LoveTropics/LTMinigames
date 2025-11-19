@@ -48,19 +48,23 @@ public interface ActionTarget {
 		registry.put("specific_team", SpecificTeam.MAP_CODEC);
 	}
 
-	ActionSubjects<?> resolveTargets(IGamePhase game, ActionSubjects<?> sources);
+	default ActionSubjects<?> resolveTargets(IGamePhase game, ActionSubjects<?> sources) {
+		return modifyTargets(game, sources, sources);
+	}
+
+	ActionSubjects<?> modifyTargets(IGamePhase game, ActionSubjects<?> targets, ActionSubjects<?> sources);
 
 	MapCodec<? extends ActionTarget> codec();
 
 	enum Simple implements ActionTarget, StringRepresentable {
-		NONE("none", (game, sources) -> ActionSubjects.EMPTY),
-		SOURCE("source", (game, sources) -> sources),
-		ALL_PLAYERS("all_players", (game, sources) -> ActionSubjects.ofPlayers(game.allPlayers())),
-		PARTICIPANTS("participants", (game, sources) -> ActionSubjects.ofPlayers(game.participants())),
-		SPECTATORS("spectators", (game, sources) -> ActionSubjects.ofPlayers(game.spectators())),
-		WIDEN_TO_TEAM("widen_to_team", (game, sources) -> sources.coerceInto(game, ActionSubjectType.TEAM)),
-		WIDEN_TO_PLOT("widen_to_plot", (game, sources) -> sources.coerceInto(game, ActionSubjectType.PLOT)),
-		ALL_ENTITIES("all_entities", (game, sources) -> ActionSubjects.ofEntities(Lists.newArrayList(game.level().getAllEntities()))),
+		NONE("none", (game, targets, sources) -> ActionSubjects.EMPTY),
+		SOURCE("source", (game, targets, sources) -> sources),
+		ALL_PLAYERS("all_players", (game, targets, sources) -> ActionSubjects.ofPlayers(game.allPlayers())),
+		PARTICIPANTS("participants", (game, targets, sources) -> ActionSubjects.ofPlayers(game.participants())),
+		SPECTATORS("spectators", (game, targets, sources) -> ActionSubjects.ofPlayers(game.spectators())),
+		WIDEN_TO_TEAM("widen_to_team", (game, targets, sources) -> targets.coerceInto(game, ActionSubjectType.TEAM)),
+		WIDEN_TO_PLOT("widen_to_plot", (game, targets, sources) -> targets.coerceInto(game, ActionSubjectType.PLOT)),
+		ALL_ENTITIES("all_entities", (game, targets, sources) -> ActionSubjects.ofEntities(Lists.newArrayList(game.level().getAllEntities()))),
 		;
 
 		public static final Codec<Simple> CODEC = StringRepresentable.fromEnum(Simple::values);
@@ -75,8 +79,8 @@ public interface ActionTarget {
 		}
 
 		@Override
-		public ActionSubjects<?> resolveTargets(IGamePhase game, ActionSubjects<?> sources) {
-			return resolver.resolveTargets(game, sources);
+		public ActionSubjects<?> modifyTargets(IGamePhase game, ActionSubjects<?> targets, ActionSubjects<?> sources) {
+			return resolver.resolveTargets(game, targets, sources);
 		}
 
 		@Override
@@ -90,23 +94,23 @@ public interface ActionTarget {
 		}
 
 		interface Resolver {
-			ActionSubjects<?> resolveTargets(IGamePhase game, ActionSubjects<?> sources);
+			ActionSubjects<?> resolveTargets(IGamePhase game, ActionSubjects<?> targets, ActionSubjects<?> sources);
 		}
 	}
 
-	record Sequence(List<ActionTarget> targets) implements ActionTarget {
+	record Sequence(List<ActionTarget> sequence) implements ActionTarget {
 		public static final MapCodec<Sequence> MAP_CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-				ActionTarget.CODEC.listOf().fieldOf("sequence").forGetter(Sequence::targets)
+				ActionTarget.CODEC.listOf().fieldOf("sequence").forGetter(Sequence::sequence)
 		).apply(i, Sequence::new));
 
-		public static final Codec<Sequence> INLINE_CODEC = ActionTarget.CODEC.listOf().xmap(Sequence::new, Sequence::targets);
+		public static final Codec<Sequence> INLINE_CODEC = ActionTarget.CODEC.listOf().xmap(Sequence::new, Sequence::sequence);
 
 		@Override
-		public ActionSubjects<?> resolveTargets(IGamePhase game, ActionSubjects<?> sources) {
-			for (ActionTarget target : targets) {
-				sources = target.resolveTargets(game, sources);
+		public ActionSubjects<?> modifyTargets(IGamePhase game, ActionSubjects<?> targets, ActionSubjects<?> sources) {
+			for (ActionTarget modifier : sequence) {
+				targets = modifier.modifyTargets(game, targets, sources);
 			}
-			return sources;
+			return targets;
 		}
 
 		@Override
@@ -121,9 +125,9 @@ public interface ActionTarget {
 		).apply(i, Excluding::new));
 
 		@Override
-		public ActionSubjects<?> resolveTargets(IGamePhase game, ActionSubjects<?> sources) {
-			List<Entity> entities = new ArrayList<>(sources.asEntities(game));
-			entities.removeAll(excluding.resolveTargets(game, sources).asEntities(game));
+		public ActionSubjects<?> modifyTargets(IGamePhase game, ActionSubjects<?> targets, ActionSubjects<?> sources) {
+			List<Entity> entities = new ArrayList<>(targets.asEntities(game));
+			entities.removeAll(excluding.modifyTargets(game, targets, sources).asEntities(game));
 			return ActionSubjects.ofEntities(entities);
 		}
 
@@ -143,18 +147,18 @@ public interface ActionTarget {
 		).apply(i, PlayersAround::new));
 
 		@Override
-		public ActionSubjects<?> resolveTargets(IGamePhase game, ActionSubjects<?> sources) {
-			List<Entity> sourceEntities = sources.asEntities(game);
-			List<ServerPlayer> targets = new ArrayList<>();
+		public ActionSubjects<?> modifyTargets(IGamePhase game, ActionSubjects<?> targets, ActionSubjects<?> sources) {
+			List<Entity> inputEntities = targets.asEntities(game);
+			List<ServerPlayer> outputPlayers = new ArrayList<>();
 			for (final ServerPlayer otherPlayer : game.participants()) {
-				if (sourceEntities.contains(otherPlayer) && !includeSource) {
+				if (inputEntities.contains(otherPlayer) && !includeSource) {
 					continue;
 				}
-				if (sourceEntities.stream().anyMatch(target -> target.closerThan(otherPlayer, distance))) {
-					targets.add(otherPlayer);
+				if (inputEntities.stream().anyMatch(inputEntity -> inputEntity.closerThan(otherPlayer, distance))) {
+					outputPlayers.add(otherPlayer);
 				}
 			}
-			return ActionSubjects.ofPlayers(targets);
+			return ActionSubjects.ofPlayers(outputPlayers);
 		}
 
 		@Override
@@ -171,8 +175,8 @@ public interface ActionTarget {
 		).apply(i, FilterEntities::new));
 
 		@Override
-		public ActionSubjects<?> resolveTargets(IGamePhase game, ActionSubjects<?> sources) {
-			return ActionSubjects.ofEntities(List.copyOf(Collections2.filter(sources.asEntities(game), entity ->
+		public ActionSubjects<?> modifyTargets(IGamePhase game, ActionSubjects<?> targets, ActionSubjects<?> sources) {
+			return ActionSubjects.ofEntities(List.copyOf(Collections2.filter(targets.asEntities(game), entity ->
 					predicate.matches(game.level(), null, entity)
 			)));
 		}
@@ -191,8 +195,8 @@ public interface ActionTarget {
 		).apply(i, LimitEntities::new));
 
 		@Override
-		public ActionSubjects<?> resolveTargets(IGamePhase game, ActionSubjects<?> sources) {
-			List<Entity> entities = new ArrayList<>(sources.asEntities(game));
+		public ActionSubjects<?> modifyTargets(IGamePhase game, ActionSubjects<?> targets, ActionSubjects<?> sources) {
+			List<Entity> entities = new ArrayList<>(targets.asEntities(game));
 			Util.shuffle(entities, game.random());
 			return ActionSubjects.ofEntities(List.copyOf(entities.subList(0, Math.min(count, entities.size()))));
 		}
@@ -209,7 +213,7 @@ public interface ActionTarget {
 		).apply(i, SpecificPlayer::new));
 
 		@Override
-		public ActionSubjects<?> resolveTargets(IGamePhase game, ActionSubjects<?> sources) {
+		public ActionSubjects<?> modifyTargets(IGamePhase game, ActionSubjects<?> targets, ActionSubjects<?> sources) {
 			ServerPlayer player = game.allPlayers().getPlayerBy(id);
 			if (player != null) {
 				return ActionSubjects.ofPlayer(player);
@@ -229,7 +233,7 @@ public interface ActionTarget {
 		).apply(i, SpecificTeam::new));
 
 		@Override
-		public ActionSubjects<?> resolveTargets(IGamePhase game, ActionSubjects<?> sources) {
+		public ActionSubjects<?> modifyTargets(IGamePhase game, ActionSubjects<?> targets, ActionSubjects<?> sources) {
 			return ActionSubjects.ofTeam(team);
 		}
 
