@@ -34,7 +34,7 @@ public class CrabGolfClubsBehavior implements PersistentGameBehavior {
 		events.listen(CrabGolfEvents.START_GAME, (hole, player) -> {
 			for (ItemStack stack : stacks) {
 				ItemStack copy = stack.copy();
-				player.getInventory().add(copy);
+				player.getInventory().add(copy.copy());
 				added.computeIfAbsent(player, k -> new ArrayList<>()).add(copy);
 			}
 		});
@@ -43,7 +43,11 @@ public class CrabGolfClubsBehavior implements PersistentGameBehavior {
 			List<ItemStack> remove = added.remove(player);
 			if (remove != null) {
 				for (ItemStack stack : remove) {
-					player.getInventory().removeItem(stack);
+					for (ItemStack st : player.getInventory()) {
+						if (ItemStack.matches(stack, st)) {
+							player.getInventory().removeItem(st);
+						}
+					}
 				}
 			}
 		});
