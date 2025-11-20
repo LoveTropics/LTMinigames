@@ -2,6 +2,7 @@ package com.lovetropics.minigames.common.core.game.behavior;
 
 import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.content.box_hunt.DisguiseAsPlayerBoxBehaviour;
+import com.lovetropics.minigames.common.content.box_hunt.HitBlockCausesDamageBehaviour;
 import com.lovetropics.minigames.common.content.box_hunt.UpdateWordBoxesInWorldBehaviour;
 import com.lovetropics.minigames.common.content.river_race.behaviour.KillInVoidBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.action.ApplyToAction;
@@ -368,6 +369,7 @@ public class GameBehaviorTypes {
 	public static final GameBehaviorEntry<PreventTramplingCropsBehaviour> PREVENT_TRAMPLING_CROPS = register("prevent_trampling_crops", PreventTramplingCropsBehaviour.CODEC);
 	public static final GameBehaviorEntry<NicelyBreakRegionOfBlocksBehaviour> NICELY_BREAK_REGION_OF_BLOCKS = register("nicely_break_region_of_blocks", NicelyBreakRegionOfBlocksBehaviour.CODEC);
 	public static final GameBehaviorEntry<OrderedTrialSpawnerBehavior> ORDERED_TRIAL_SPAWNER = register("ordered_trial_spawner", OrderedTrialSpawnerBehavior.CODEC);
+	public static final GameBehaviorEntry<HitBlockCausesDamageBehaviour> HIT_BLOCK_CAUSE_DAMAGE = register("hit_block_cause_damage", HitBlockCausesDamageBehaviour.CODEC);
 
 	public static final GameBehaviorEntry<SetupIntegrationsBehavior> SETUP_INTEGRATIONS = register("setup_integrations", SetupIntegrationsBehavior.CODEC);
 	public static final GameBehaviorEntry<JoinLateWithRoleBehavior> JOIN_LATE_WITH_ROLE = register("join_late_with_role", JoinLateWithRoleBehavior.CODEC);

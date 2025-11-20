@@ -74,7 +74,8 @@ public class SpawnDonorUtils {
 				scale,
 				true,
 				Optional.empty(),
-				Optional.empty()
+				Optional.empty(),
+				false
 		);
 	}
 }
