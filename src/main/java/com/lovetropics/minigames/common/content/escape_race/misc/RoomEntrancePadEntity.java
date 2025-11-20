@@ -1,10 +1,10 @@
 package com.lovetropics.minigames.common.content.escape_race.misc;
 
-import com.lovetropics.minigames.client.game.ClientGameStateManager;
-import com.lovetropics.minigames.common.content.escape_race.EscapeRace;
-import com.lovetropics.minigames.common.content.escape_race.client.EscapeRaceRoomsState;
 import com.lovetropics.minigames.common.util.PredictedToggle;
 import net.minecraft.SharedConstants;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -27,6 +27,8 @@ public class RoomEntrancePadEntity extends Entity {
 	private static final EntityDataAccessor<Float> WIDTH = SynchedEntityData.defineId(RoomEntrancePadEntity.class, EntityDataSerializers.FLOAT);
 	private static final EntityDataAccessor<Float> HEIGHT = SynchedEntityData.defineId(RoomEntrancePadEntity.class, EntityDataSerializers.FLOAT);
 	private static final EntityDataAccessor<Float> DEPTH = SynchedEntityData.defineId(RoomEntrancePadEntity.class, EntityDataSerializers.FLOAT);
+	private static final EntityDataAccessor<Component> NAME = SynchedEntityData.defineId(RoomEntrancePadEntity.class, EntityDataSerializers.COMPONENT);
+	private static final EntityDataAccessor<Integer> COST = SynchedEntityData.defineId(RoomEntrancePadEntity.class, EntityDataSerializers.INT);
 
 	public static final int TOTAL_UNLOCK_TICKS = 5 * SharedConstants.TICKS_PER_SECOND;
 
@@ -44,21 +46,14 @@ public class RoomEntrancePadEntity extends Entity {
 		builder.define(WIDTH, 1f)
 				.define(HEIGHT, 1f)
 				.define(DEPTH, 1f)
-				.define(UNLOCKING_TICKS, PredictedToggle.DISABLED);
+				.define(UNLOCKING_TICKS, PredictedToggle.DISABLED)
+				.define(NAME, CommonComponents.EMPTY)
+				.define(COST, 0);
 	}
 
 	@Override
 	public boolean canBeCollidedWith(@Nullable Entity entity) {
-		if (level().isClientSide()) {
-			return isBlockedClientSide();
-		}
 		return false;
-	}
-
-	private boolean isBlockedClientSide() {
-		EscapeRaceRoomsState roomsState = ClientGameStateManager.getOrDefault(EscapeRace.ROOMS_STATE, EscapeRaceRoomsState.EMPTY);
-		EscapeRaceRoomsState.Room room = roomsState.byEntrance(this);
-		return room != null && room.blocked();
 	}
 
 	@Override
@@ -72,11 +67,6 @@ public class RoomEntrancePadEntity extends Entity {
 		if (level().isClientSide()) {
 			lastUnlockProgress = unlockProgress;
 			unlockProgress = (float) getEntityData().get(UNLOCKING_TICKS).getCurrentTicks(level().getGameTime(), TOTAL_UNLOCK_TICKS) / TOTAL_UNLOCK_TICKS;
-
-			// If players get inside before it is blocked, we should push them out
-			if (isBlockedClientSide()) {
-				level().getPushableEntities(this, getBoundingBox()).forEach(this::push);
-			}
 		}
 	}
 
@@ -100,6 +90,8 @@ public class RoomEntrancePadEntity extends Entity {
 		getEntityData().set(WIDTH, input.getFloatOr("width", 1));
 		getEntityData().set(HEIGHT, input.getFloatOr("height", 1));
 		getEntityData().set(DEPTH, input.getFloatOr("depth", 1));
+		getEntityData().set(NAME, input.read("room_name", ComponentSerialization.CODEC).orElse(CommonComponents.EMPTY));
+		getEntityData().set(COST, input.getIntOr("cost", 0));
 	}
 
 	@Override
@@ -107,6 +99,8 @@ public class RoomEntrancePadEntity extends Entity {
 		output.putFloat("width", getWidth());
 		output.putFloat("height", getHeight());
 		output.putFloat("depth", getDepth());
+		output.store("room_name", ComponentSerialization.CODEC, getRoomName());
+		output.putInt("cost", getCost());
 	}
 
 	public float getWidth() {
@@ -131,6 +125,22 @@ public class RoomEntrancePadEntity extends Entity {
 
 	public void setDepth(float depth) {
 		getEntityData().set(DEPTH, depth);
+	}
+
+	public void setRoomName(Component name) {
+		getEntityData().set(NAME, name);
+	}
+
+	public Component getRoomName() {
+		return getEntityData().get(NAME);
+	}
+
+	public void setCost(int cost) {
+		getEntityData().set(COST, cost);
+	}
+
+	public int getCost() {
+		return getEntityData().get(COST);
 	}
 
 	public void setUnlockingTicks(int unlockingTicks, boolean unlocking) {

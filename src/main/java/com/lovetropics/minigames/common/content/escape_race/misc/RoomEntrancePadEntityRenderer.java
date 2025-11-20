@@ -4,8 +4,6 @@ import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.client.game.ClientGameStateManager;
 import com.lovetropics.minigames.common.content.escape_race.EscapeRace;
 import com.lovetropics.minigames.common.content.escape_race.client.EscapeRaceClientBucksState;
-import com.lovetropics.minigames.common.content.escape_race.client.EscapeRaceRoomsState;
-import com.lovetropics.minigames.common.content.escape_race.rooms.RoomStatus;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -27,13 +25,10 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.joml.Quaternionf;
 
-import java.util.Objects;
-
 public class RoomEntrancePadEntityRenderer extends EntityRenderer<RoomEntrancePadEntity, RoomEntrancePadRenderState> {
 	private static final ResourceLocation TEXTURE = LoveTropics.location("textures/entity/room_entrance_pad.png");
 	private static final int LOCKED_COLOR = 0xFFFF0000;
 	private static final int UNLOCKED_COLOR = 0xFF0000FF;
-	private static final int COMPLETED_COLOR = 0xFF00FF00;
 
 	private final GuiSpriteManager guiSpriteManager;
 	private final ItemModelResolver itemModelResolver;
@@ -64,20 +59,13 @@ public class RoomEntrancePadEntityRenderer extends EntityRenderer<RoomEntrancePa
 		reusedState.height = Math.min(entity.getHeight(), 1.0f);
 		reusedState.width = entity.getWidth();
 		reusedState.ticks = entity.tickCount;
-		EscapeRaceRoomsState roomsState = ClientGameStateManager.getOrDefault(EscapeRace.ROOMS_STATE, EscapeRaceRoomsState.EMPTY);
-		EscapeRaceRoomsState.Room room = Objects.requireNonNullElse(roomsState.byEntrance(entity), EscapeRaceRoomsState.Room.EMPTY);
-		reusedState.roomStatus = room.status();
-		reusedState.cost = room.cost();
-		reusedState.roomName = room.name();
+		reusedState.cost = entity.getCost();
+		reusedState.roomName = entity.getRoomName();
 		float unlockProgress = entity.getUnlockProgress(partialTick);
-		reusedState.color = switch (room.status()) {
-			case LOCKED -> ARGB.lerp(unlockProgress, LOCKED_COLOR, UNLOCKED_COLOR);
-			case UNLOCKED -> UNLOCKED_COLOR;
-			case COMPLETED -> COMPLETED_COLOR;
-		};
+		reusedState.color = ARGB.lerp(unlockProgress, LOCKED_COLOR, UNLOCKED_COLOR);
 		reusedState.height = Mth.lerp(unlockProgress, reusedState.height, entity.getHeight());
 		EscapeRaceClientBucksState breakBuckState = ClientGameStateManager.getOrNull(EscapeRace.BREAK_BUCK_STATE);
-		reusedState.canAfford = breakBuckState == null || breakBuckState.amount() >= room.cost();
+		reusedState.canAfford = breakBuckState == null || breakBuckState.amount() >= entity.getCost();
 		itemModelResolver.updateForNonLiving(reusedState.breakBuck, breakBuck, ItemDisplayContext.FIXED, entity);
 	}
 
@@ -105,30 +93,31 @@ public class RoomEntrancePadEntityRenderer extends EntityRenderer<RoomEntrancePa
 		int backgroundColor = ARGB.color(Minecraft.getInstance().options.getBackgroundOpacity(0.25F), CommonColors.BLACK);
 		poseStack.translate(0.0f, 0.5f, 0.0f);
 
-		if (renderState.roomStatus == RoomStatus.LOCKED) {
-			float textScale = 0.05f;
-			String costText = renderState.cost + "x";
-			int costTextWidth = font.width(costText);
+		float textScale = 0.05f;
+		String costText = renderState.cost + "x";
+		int costTextWidth = font.width(costText);
 
-			float buckWidth = 0.7f;
-			float totalWidth = buckWidth + costTextWidth * textScale;
+		float buckWidth = 0.7f;
+		float totalWidth = buckWidth + costTextWidth * textScale;
 
-			poseStack.pushPose();
-			poseStack.mulPose(Mth.rotationAroundAxis(Mth.Y_AXIS, entityRenderDispatcher.camera.rotation(), new Quaternionf()));
-			poseStack.translate(-totalWidth / 2.0f + buckWidth / 2.0f, 0.0f, 0.0f);
-			renderState.breakBuck.render(poseStack, bufferSource, packedLight, OverlayTexture.NO_OVERLAY);
+		poseStack.pushPose();
+		poseStack.mulPose(Mth.rotationAroundAxis(Mth.Y_AXIS, entityRenderDispatcher.camera.rotation(), new Quaternionf()));
+		poseStack.translate(-totalWidth / 2.0f + buckWidth / 2.0f, 0.0f, 0.0f);
+		poseStack.pushPose();
+		poseStack.scale(-1.0f, 1.0f, -1.0f);
+		renderState.breakBuck.render(poseStack, bufferSource, packedLight, OverlayTexture.NO_OVERLAY);
+		poseStack.popPose();
 
-			int color = renderState.canAfford ? CommonColors.WHITE : CommonColors.SOFT_RED;
-			poseStack.translate(buckWidth, 0.0f, 0.0f);
-			poseStack.scale(textScale, -textScale, textScale);
-			font.drawInBatch(
-					costText,
-					0.0f,
-					-font.lineHeight / 2.0f,
-					color, false, poseStack.last().pose(), bufferSource, Font.DisplayMode.NORMAL, backgroundColor, packedLight
-			);
-			poseStack.popPose();
-		}
+		int color = renderState.canAfford ? CommonColors.WHITE : CommonColors.SOFT_RED;
+		poseStack.translate(buckWidth, 0.0f, 0.0f);
+		poseStack.scale(textScale, -textScale, textScale);
+		font.drawInBatch(
+				costText,
+				0.0f,
+				-font.lineHeight / 2.0f,
+				color, false, poseStack.last().pose(), bufferSource, Font.DisplayMode.NORMAL, backgroundColor, packedLight
+		);
+		poseStack.popPose();
 
 		poseStack.pushPose();
 		poseStack.mulPose(Axis.YP.rotationDegrees(renderState.yRot));

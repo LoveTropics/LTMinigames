@@ -6,7 +6,6 @@ import com.lovetropics.minigames.common.content.escape_race.behaviours.BreakBuck
 import com.lovetropics.minigames.common.content.escape_race.behaviours.ItemFrameCodeBehaviour;
 import com.lovetropics.minigames.common.content.escape_race.behaviours.WarehouseSetupBehaviour;
 import com.lovetropics.minigames.common.content.escape_race.client.EscapeRaceClientBucksState;
-import com.lovetropics.minigames.common.content.escape_race.client.EscapeRaceRoomsState;
 import com.lovetropics.minigames.common.content.escape_race.client.ddr.render.DDRMachineEntityRenderer;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DDRMachineEntity;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DdrInput;
@@ -132,9 +131,6 @@ public class EscapeRace {
 	public static final GameClientTweakEntry<EscapeRaceClientBucksState> BREAK_BUCK_STATE = REGISTRATE.object("break_buck_count")
 			.clientState(EscapeRaceClientBucksState.CODEC)
 			.register();
-	public static final GameClientTweakEntry<EscapeRaceRoomsState> ROOMS_STATE = REGISTRATE.object("rooms_state")
-			.clientState(EscapeRaceRoomsState.CODEC).streamCodec(EscapeRaceRoomsState.STREAM_CODEC)
-			.register();
 
 	public static final GameBehaviorEntry<BreakBucksBehaviour> BREAK_BUCKS_BEHAVIOUR = REGISTRATE.object("escape_race/break_bucks").behavior(BreakBucksBehaviour.CODEC).register();
 
@@ -173,6 +169,4 @@ public class EscapeRace {
 		register("ddr_input", DDR_INPUT);
 		register("ddr_session", DDR_SESSION);
 	}
-
-
 }
