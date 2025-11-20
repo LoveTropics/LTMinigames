@@ -61,7 +61,7 @@ public class BreakBucksBehaviour implements IGameBehavior {
 			int cost = item.getOrDefault(EscapeRace.VENDING_MACHINE_COST, 0);
 			int breakBucks = teamStatistics.getInt(StatisticKey.BREAK_BUCKS);
 			if (breakBucks >= cost) {
-				Component message = EscapeRaceTexts.SPENT_BREAK_BUCKS.apply(player.getDisplayName(), breakBucks).withStyle(ChatFormatting.GRAY);
+				Component message = EscapeRaceTexts.SPENT_BREAK_BUCKS.apply(player.getDisplayName(), cost).withStyle(ChatFormatting.GRAY);
 				teams.getPlayersForTeam(game, team).sendMessage(message);
 				teamStatistics.incrementInt(StatisticKey.BREAK_BUCKS, -cost);
 				return TriState.TRUE;
