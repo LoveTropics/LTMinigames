@@ -14,7 +14,7 @@ public class MinigameItems {
 	/** Powerups and Sabotages */
 	// Sabotages
 	public static final ItemEntry<PowerupItem> UPSET_STOMACH = REGISTRATE.item("upset_stomach", PowerupItem::new).register();
-	public static final ItemEntry<PowerupItem> COLADARAL_DAMAGE = REGISTRATE.item("coladaral_damage", PowerupItem::new).register();
+	public static final ItemEntry<PowerupItem> COLADARAL_DAMAGE = REGISTRATE.item("coladaral_damage", PowerupItem::new).lang("Colada-ral Damage").register();
 	public static final ItemEntry<PowerupItem> TAPIR_TAKEOVER = REGISTRATE.item("tapir_takeover", PowerupItem::new).register();
 	public static final ItemEntry<PowerupItem> SHRUGGY_ARMS = REGISTRATE.item("shruggy_arms", PowerupItem::new).register();
 	public static final ItemEntry<PowerupItem> CONTROL_INVERTER = REGISTRATE.item("control_inverter", PowerupItem::new).register();
