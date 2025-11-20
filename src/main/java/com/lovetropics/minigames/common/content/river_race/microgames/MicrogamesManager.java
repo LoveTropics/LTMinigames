@@ -123,6 +123,7 @@ public class MicrogamesManager implements IGameState {
 		} else if (microgame != null) {
 			microgame.returnToParent(microgame.allPlayers());
 			topGame.invoker(MicrogameEvents.MICROGAMES_ENDED).onMicrogamesEnded();
+			microgame = null;
 		}
 	}
 
@@ -137,6 +138,7 @@ public class MicrogamesManager implements IGameState {
 
 		pendingMicrogame.whenCreated((subGame, subEvents) -> {
 			microgame = subGame;
+			pendingMicrogame = null;
 			subEvents.listen(GamePhaseEvents.STOP, reason ->
 					moveToNextInQueue()
 			);
