@@ -82,6 +82,6 @@ public record SetupPodiumAction(
 	private static void teleportToRegion(IGamePhase game, ServerPlayer player, BlockBox region, BlockBox facingRegion) {
 		BlockPos pos = PositionPlayersBehavior.tryFindEmptyPos(game, player.getRandom(), region);
 		float angle = PositionPlayersBehavior.getAngleTo(pos, facingRegion);
-		player.teleportTo(player.level(), pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, Set.of(), angle, 0.0f, true);
+		player.teleportTo(game.level(), pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, Set.of(), angle, 0.0f, true);
 	}
 }
