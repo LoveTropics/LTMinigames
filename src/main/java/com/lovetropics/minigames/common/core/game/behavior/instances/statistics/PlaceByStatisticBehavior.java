@@ -6,6 +6,7 @@ import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorType;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorTypes;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
+import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameLogicEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents;
 import com.lovetropics.minigames.common.core.game.state.statistics.Placement;
@@ -41,6 +42,11 @@ public record PlaceByStatisticBehavior(StatisticKey<Integer> statistic, Placemen
 
 		// Just to make sure that the placement statistics are there, even if game_over was never triggered
 		events.listen(GamePhaseEvents.FINISH, () -> runPlacement(game));
+
+		events.listen(GameActionEvents.APPLY, (context, targets) -> {
+			runPlacement(game);
+			return true;
+		});
 	}
 
 	private GameWinner runPlacement(IGamePhase game) {
