@@ -10,7 +10,6 @@ import com.lovetropics.minigames.common.content.river_race.behaviour.RiverRaceMe
 import com.lovetropics.minigames.common.content.river_race.behaviour.RiverRaceSetupBehavior;
 import com.lovetropics.minigames.common.content.river_race.behaviour.RiverRaceSpawnsBehavior;
 import com.lovetropics.minigames.common.content.river_race.behaviour.RiverRaceZoneBehavior;
-import com.lovetropics.minigames.common.content.river_race.behaviour.StartMicrogamesAction;
 import com.lovetropics.minigames.common.content.river_race.behaviour.TriviaBehaviour;
 import com.lovetropics.minigames.common.content.river_race.behaviour.UnlockZoneAction;
 import com.lovetropics.minigames.common.content.river_race.behaviour.VictoryPointsBehavior;
@@ -62,7 +61,6 @@ public class RiverRace {
 	public static final GameBehaviorEntry<RiverRaceSpawnsBehavior> SPAWNS_BEHAVIOUR = REGISTRATE.object("river_race/spawns").behavior(RiverRaceSpawnsBehavior.CODEC).register();
 	public static final GameBehaviorEntry<ModifyMaxSpawnsAction> MODIFY_MAX_SPAWNS_ACTION = REGISTRATE.object("river_race/modify_max_spawns").behavior(ModifyMaxSpawnsAction.CODEC).register();
 	public static final GameBehaviorEntry<TriviaBehaviour> TRIVIA_BEHAVIOUR = REGISTRATE.object("trivia").behavior(TriviaBehaviour.CODEC).register();
-	public static final GameBehaviorEntry<StartMicrogamesAction> START_MICROGAMES_ACTION = REGISTRATE.object("start_microgames").behavior(StartMicrogamesAction.CODEC).register();
 	public static final GameBehaviorEntry<VictoryPointsBehavior> VICTORY_POINTS_BEHAVIOR = REGISTRATE.object("victory_points").behavior(VictoryPointsBehavior.CODEC).register();
 	public static final GameBehaviorEntry<RiverRaceMerchantBehavior> RIVER_RACE_MERCHANT_BEHAVIOR = REGISTRATE.object("river_race_merchant").behavior(RiverRaceMerchantBehavior.CODEC).register();
 	public static final GameBehaviorEntry<ProgressBehaviour> RIVER_RACE_PROGRESS_BEHAVIOUR = REGISTRATE.object("river_race_progress").behavior(ProgressBehaviour.CODEC).register();

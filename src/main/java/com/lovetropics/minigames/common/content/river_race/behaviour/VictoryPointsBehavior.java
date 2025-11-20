@@ -4,6 +4,7 @@ import com.lovetropics.minigames.common.content.river_race.RiverRaceState;
 import com.lovetropics.minigames.common.content.river_race.RiverRaceTexts;
 import com.lovetropics.minigames.common.content.river_race.block.TriviaType;
 import com.lovetropics.minigames.common.content.river_race.event.RiverRaceEvents;
+import com.lovetropics.minigames.common.content.river_race.microgames.MicrogameEvents;
 import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.GameWinner;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
@@ -133,7 +134,7 @@ public class VictoryPointsBehavior implements IGameBehavior {
 			}
 		});
 
-		events.listen(RiverRaceEvents.CREATE_MICROGAME, (subGame, subEvents) -> {
+		events.listen(MicrogameEvents.CREATE_MICROGAME, (subGame, subEvents) -> {
 			if (microgameSegment == null) {
 				microgameSegment = new MicrogameSegmentState();
 			}
@@ -143,7 +144,7 @@ public class VictoryPointsBehavior implements IGameBehavior {
 				onMicrogameWinTriggered(microgameId, winner, segment);
 			});
 		});
-		events.listen(RiverRaceEvents.MICROGAMES_ENDED, () -> {
+		events.listen(MicrogameEvents.MICROGAMES_ENDED, () -> {
 			if (microgameSegment != null) {
 				onMicrogamesCompleted(microgameSegment);
 				microgameSegment = null;

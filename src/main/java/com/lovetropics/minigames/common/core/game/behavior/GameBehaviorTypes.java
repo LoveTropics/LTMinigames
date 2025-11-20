@@ -5,6 +5,8 @@ import com.lovetropics.minigames.common.content.box_hunt.DisguiseAsPlayerBoxBeha
 import com.lovetropics.minigames.common.content.box_hunt.HitBlockCausesDamageBehaviour;
 import com.lovetropics.minigames.common.content.box_hunt.UpdateWordBoxesInWorldBehaviour;
 import com.lovetropics.minigames.common.content.river_race.behaviour.KillInVoidBehavior;
+import com.lovetropics.minigames.common.content.river_race.microgames.MicrogamesBehavior;
+import com.lovetropics.minigames.common.content.river_race.microgames.StartMicrogamesAction;
 import com.lovetropics.minigames.common.core.game.behavior.action.ApplyToAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.AddOverlordsBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.AddWeatherBehavior;
@@ -21,6 +23,7 @@ import com.lovetropics.minigames.common.core.game.behavior.instances.InSubGamesB
 import com.lovetropics.minigames.common.core.game.behavior.instances.JoinLateWithRoleBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.LastRemainingWinTrigger;
 import com.lovetropics.minigames.common.core.game.behavior.instances.MinigameCompetitionBehavior;
+import com.lovetropics.minigames.common.core.game.behavior.instances.ModifyLootTablesBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.OnlyTickInPeriodBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.OrderedTrialSpawnerBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.PermanentItemBehavior;
@@ -30,7 +33,6 @@ import com.lovetropics.minigames.common.core.game.behavior.instances.PositionPla
 import com.lovetropics.minigames.common.core.game.behavior.instances.ProgressBarBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.ProjectileBreakBlockBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.ProjectileKnockbackBehavior;
-import com.lovetropics.minigames.common.core.game.behavior.instances.ModifyLootTablesBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.RisingFluidBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.ScoreMobInGoalBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.SetGameClientStateBehavior;
@@ -53,6 +55,7 @@ import com.lovetropics.minigames.common.core.game.behavior.instances.action.Clos
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.CountdownAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.DamageAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.DelayedAction;
+import com.lovetropics.minigames.common.core.game.behavior.instances.action.DisplayLeaderboardAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.EndGameAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.ExtinguishPlayerFireAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.GiveEffectAction;
@@ -108,7 +111,6 @@ import com.lovetropics.minigames.common.core.game.behavior.instances.statistics.
 import com.lovetropics.minigames.common.core.game.behavior.instances.statistics.CampingTrackerBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.statistics.CauseOfDeathTrackerBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.statistics.DamageTrackerBehavior;
-import com.lovetropics.minigames.common.core.game.behavior.instances.action.DisplayLeaderboardAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.statistics.KillsTrackerBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.statistics.PlaceByDeathOrderBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.statistics.PlaceByStatisticBehavior;
@@ -384,6 +386,8 @@ public class GameBehaviorTypes {
 	public static final GameBehaviorEntry<ModifyLootTablesBehavior> MODIFY_LOOT_TABLES = register("modify_loot_tables", ModifyLootTablesBehavior.CODEC);
 	public static final GameBehaviorEntry<PreventTrapdoorTriggersBehaviour> PREVENT_TRAPDOOR_TRIGGERS = register("prevent_trapdoor_triggers", PreventTrapdoorTriggersBehaviour.CODEC);
 	public static final GameBehaviorEntry<ModifyEntityNBTBehaviour> MODIFY_ENTITY_NBT = register("modify_entity_nbt", ModifyEntityNBTBehaviour.CODEC);
+	public static final GameBehaviorEntry<MicrogamesBehavior> MICROGAMES = REGISTRATE.object("microgames").behavior(MicrogamesBehavior.CODEC).register();
+	public static final GameBehaviorEntry<StartMicrogamesAction> START_MICROGAMES = REGISTRATE.object("start_microgames").behavior(StartMicrogamesAction.CODEC).register();
 
 	public static final GameBehaviorEntry<SetupIntegrationsBehavior> SETUP_INTEGRATIONS = register("setup_integrations", SetupIntegrationsBehavior.CODEC);
 	public static final GameBehaviorEntry<JoinLateWithRoleBehavior> JOIN_LATE_WITH_ROLE = register("join_late_with_role", JoinLateWithRoleBehavior.CODEC);

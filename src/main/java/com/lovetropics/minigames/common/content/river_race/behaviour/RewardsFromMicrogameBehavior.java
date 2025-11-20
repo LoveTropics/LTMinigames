@@ -1,6 +1,6 @@
 package com.lovetropics.minigames.common.content.river_race.behaviour;
 
-import com.lovetropics.minigames.common.content.river_race.event.RiverRaceEvents;
+import com.lovetropics.minigames.common.content.river_race.microgames.MicrogameEvents;
 import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
@@ -14,7 +14,7 @@ public record RewardsFromMicrogameBehavior() implements IGameBehavior {
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		events.listen(RiverRaceEvents.MICROGAMES_ENDED, () -> {
+		events.listen(MicrogameEvents.MICROGAMES_ENDED, () -> {
 			GameRewardsMap rewards = game.instanceState().getOrThrow(GameRewardsMap.STATE);
 			for (ServerPlayer participant : game.participants()) {
 				rewards.grant(participant);
