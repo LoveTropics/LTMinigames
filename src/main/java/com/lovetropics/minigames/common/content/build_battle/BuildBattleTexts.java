@@ -9,6 +9,7 @@ public class BuildBattleTexts {
 
 	public static final TranslationCollector.Fun2 POINTS_DISPLAY = KEYS.add2("results.points_display", "%s - %d points");
 	public static final Component RESULTS = KEYS.add("results", "Results:");
+	public static final Component BUILDING_START = KEYS.add("building_start", "Time to build a tropical masterpiece!");
 	public static final Component BUILDING_END = KEYS.add("building_end", "Building phase has ended!");
 	public static final Component REVIEW_TIME = KEYS.add("review_time", "Time for the jury to review your wonderful creations...");
 	public static final TranslationCollector.Fun1 GIVE_POINTS = KEYS.add1("give_points", "You gave %d points!");

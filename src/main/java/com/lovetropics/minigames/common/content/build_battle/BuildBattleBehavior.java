@@ -81,6 +81,7 @@ public final class BuildBattleBehavior implements IGameBehavior {
 			refreshBuildingTimeBar(0);
 			building = true;
 			overlords = Overlords.get(game);
+			game.allPlayers().sendMessage(BuildBattleTexts.BUILDING_START.copy().withStyle(ChatFormatting.YELLOW));
 		});
 		events.listen(GamePhaseEvents.DESTROY, () -> {
 			bar.close();
@@ -99,16 +100,31 @@ public final class BuildBattleBehavior implements IGameBehavior {
 			}
 			if(game.ticks() == (buildTime + 5 * SharedConstants.TICKS_PER_SECOND)) {
 				game.allPlayers().sendMessage(BuildBattleTexts.REVIEW_TIME.copy().withStyle(ChatFormatting.YELLOW));
-
-				//TODO temporary for testing
-				game.participants().forEach(overlords::add);
 			}
 			if(game.ticks() == reviewTime) {
 				nextReviewee(game, widgets);
 			}
 
 			game.participants().forEach(player -> {
-				//TODO: force participants to stay inside plot
+				if(!playerPlots.containsKey(player.getUUID())) {
+					return;
+				}
+				SpawnBuilder spawn = new SpawnBuilder(player);
+				BlockBox plot;
+				if(this.revieweeIndex > -1) {
+					plot = playerPlots.getOrDefault(reviewedPlayers.get(revieweeIndex), null);
+				}
+				else {
+					plot = playerPlots.get(player.getUUID());
+				}
+				if(plot == null) {
+					LOGGER.error("Player {} has no plot assigned!", reviewedPlayers.get(revieweeIndex));
+					return;
+				}
+				if(!plot.contains(player.blockPosition())) {
+					game.invoker(GamePlayerEvents.SPAWN).onSpawn(player.getUUID(), spawn, null);
+					spawn.teleportAndApply(player);
+				}
 			});
 		});
 
