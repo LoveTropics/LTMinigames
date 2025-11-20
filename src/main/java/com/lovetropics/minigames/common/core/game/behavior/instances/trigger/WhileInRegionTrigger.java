@@ -1,6 +1,7 @@
 package com.lovetropics.minigames.common.core.game.behavior.instances.trigger;
 
 import com.lovetropics.lib.BlockBox;
+import com.lovetropics.minigames.common.content.biodiversity_blitz.entity.BbMobSpawner;
 import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
@@ -13,16 +14,22 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.util.context.ContextKeySet;
 import net.minecraft.util.context.ContextMap;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
-public record WhileInRegionTrigger(Map<String, GameActionList> regionActions, int interval, boolean runOnce) implements IGameBehavior {
+public record WhileInRegionTrigger(Map<String, GameActionList> regionActions, int interval, RunType runType) implements IGameBehavior {
 	public static final MapCodec<WhileInRegionTrigger> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			Codec.unboundedMap(Codec.STRING, GameActionList.CODEC).fieldOf("regions").forGetter(WhileInRegionTrigger::regionActions),
 			Codec.INT.optionalFieldOf("interval", 20).forGetter(WhileInRegionTrigger::interval),
-			Codec.BOOL.optionalFieldOf("run_once", false).forGetter(WhileInRegionTrigger::runOnce)
+			RunType.CODEC.optionalFieldOf("run_once", RunType.ALWAYS).forGetter(WhileInRegionTrigger::runType)
 	).apply(i, WhileInRegionTrigger::new));
 
 	@Override
@@ -33,7 +40,7 @@ public record WhileInRegionTrigger(Map<String, GameActionList> regionActions, in
 		}
 
 		events.listen(GamePlayerEvents.TICK, player -> {
-			if(runOnce && state.triggered) {
+			if((runType == RunType.ONCE && state.triggered) || (runType == RunType.ONCE_PER_PLAYER && state.triggeredPlayers.contains(player.getUUID()))){
 				return;
 			}
 			if (player.tickCount % interval != 0) {
@@ -48,6 +55,7 @@ public record WhileInRegionTrigger(Map<String, GameActionList> regionActions, in
 							.create(ContextKeySet.EMPTY);
 					actions.apply(game, context, ActionSubjects.ofPlayer(player));
 					state.triggered = true;
+					state.triggeredPlayers.add(player.getUUID());
 				}
 			}
 		});
@@ -64,5 +72,25 @@ public record WhileInRegionTrigger(Map<String, GameActionList> regionActions, in
 
 	private static class State {
 		public boolean triggered = false;
+		public Set<UUID> triggeredPlayers = new HashSet<>();
+	}
+
+	public enum RunType implements StringRepresentable {
+
+		ALWAYS("always"),
+		ONCE("once"),
+		ONCE_PER_PLAYER("once_per_player");
+
+		final String id;
+
+		public static final Codec<RunType> CODEC = StringRepresentable.fromEnum(RunType::values);
+		RunType(String id){
+			this.id = id;
+		}
+
+		@Override
+		public String getSerializedName() {
+			return id;
+		}
 	}
 }
