@@ -123,14 +123,19 @@ public class PositionPlayersBehavior implements IGameBehavior {
 			BlockPos pos = tryFindEmptyPos(game, game.level().getRandom(), region);
 			float angle = this.angle;
 			if (faceBox != null) {
-				int nearestX = Mth.clamp(pos.getX(), faceBox.min().getX(), faceBox.max().getX());
-				int nearestZ = Mth.clamp(pos.getZ(), faceBox.min().getZ(), faceBox.max().getZ());
-				double deltaX = nearestX - (pos.getX() + 0.5);
-				double deltaZ = nearestZ - (pos.getZ() + 0.5);
-				angle = (float) (Mth.atan2(deltaZ, deltaX) * Mth.RAD_TO_DEG - 90.0f);
+				angle = getAngleTo(pos, faceBox);
 			}
 			spawn.teleportTo(game.level(), pos, angle);
 		}
+	}
+
+	// TODO: Move to LTLib
+	public static float getAngleTo(BlockPos fromPos, BlockBox toBox) {
+		int nearestX = Mth.clamp(fromPos.getX(), toBox.min().getX(), toBox.max().getX());
+		int nearestZ = Mth.clamp(fromPos.getZ(), toBox.min().getZ(), toBox.max().getZ());
+		double deltaX = nearestX - (fromPos.getX() + 0.5);
+		double deltaZ = nearestZ - (fromPos.getZ() + 0.5);
+		return (float) (Mth.atan2(deltaZ, deltaX) * Mth.RAD_TO_DEG - 90.0f);
 	}
 
 	@Nullable
@@ -161,7 +166,7 @@ public class PositionPlayersBehavior implements IGameBehavior {
 		return participantSpawner.next();
 	}
 
-	private BlockPos tryFindEmptyPos(IGamePhase game, RandomSource random, BlockBox box) {
+	public static BlockPos tryFindEmptyPos(IGamePhase game, RandomSource random, BlockBox box) {
 		ServerLevel world = game.level();
 		for (int i = 0; i < 20; i++) {
 			BlockPos pos = box.sample(random);

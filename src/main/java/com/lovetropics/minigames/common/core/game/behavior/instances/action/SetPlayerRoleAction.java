@@ -6,15 +6,18 @@ import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.player.PlayerRole;
 import com.mojang.serialization.MapCodec;
 
-public record SetPlayerRoleAction(PlayerRole role) implements IGameBehavior {
-	public static final MapCodec<SetPlayerRoleAction> CODEC = PlayerRole.CODEC.fieldOf("role").xmap(SetPlayerRoleAction::new, SetPlayerRoleAction::role);
+import java.util.Optional;
+
+public record SetPlayerRoleAction(Optional<PlayerRole> role) implements IGameBehavior {
+	public static final MapCodec<SetPlayerRoleAction> CODEC = PlayerRole.CODEC.optionalFieldOf("role").xmap(SetPlayerRoleAction::new, SetPlayerRoleAction::role);
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
+		PlayerRole roleOrNull = role.orElse(null);
 		events.applyToPlayers(game, (context, target) -> {
-			if (game.getRoleFor(target) != role) {
-				game.setPlayerRole(target, role);
-				target.setHealth(20.0F);
+			if (game.getRoleFor(target) != roleOrNull) {
+				game.setPlayerRole(target, roleOrNull);
+				target.setHealth(target.getMaxHealth());
 				return true;
 			}
 			return false;
