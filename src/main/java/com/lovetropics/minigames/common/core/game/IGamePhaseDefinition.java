@@ -1,6 +1,6 @@
 package com.lovetropics.minigames.common.core.game;
 
-import com.lovetropics.minigames.common.core.game.behavior.BehaviorList;
+import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.map.IGameMapProvider;
 
 /**
@@ -9,5 +9,5 @@ import com.lovetropics.minigames.common.core.game.map.IGameMapProvider;
 public interface IGamePhaseDefinition {
 	IGameMapProvider getMap();
 
-	BehaviorList createBehaviors();
+	IGameBehavior createBehavior();
 }

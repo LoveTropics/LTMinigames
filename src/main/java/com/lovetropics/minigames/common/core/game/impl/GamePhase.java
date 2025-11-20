@@ -9,7 +9,7 @@ import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.PendingSubPhase;
 import com.lovetropics.minigames.common.core.game.PlayerIsolation;
 import com.lovetropics.minigames.common.core.game.SpawnBuilder;
-import com.lovetropics.minigames.common.core.game.behavior.BehaviorList;
+import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameEventListeners;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameEventType;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents;
@@ -91,7 +91,7 @@ public class GamePhase implements IGamePhase {
 	private GameStopReason stopReason;
 	private boolean destroyed;
 
-	/* package-private */ GamePhase(GameInstance game, @Nullable GamePhase parentPhase, GameMap map, IGameDefinition definition, BehaviorList behaviors) {
+	/* package-private */ GamePhase(GameInstance game, @Nullable GamePhase parentPhase, GameMap map, IGameDefinition definition, IGameBehavior behavior) {
 		this.game = game;
 		this.parentPhase = parentPhase;
 		this.definition = definition;
@@ -113,7 +113,8 @@ public class GamePhase implements IGamePhase {
 			statistics().global().set(StatisticKey.MAP, mapName);
 		}
 
-		behaviors.registerTo(this, events);
+		behavior.registerState(this, phaseState, instanceState());
+		behavior.register(this, events);
 		invoker(GamePhaseEvents.CREATE).create();
 
 		ResourceLocation introSlideshow = definition().introSlideshow();

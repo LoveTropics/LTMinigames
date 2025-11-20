@@ -3,6 +3,7 @@ package com.lovetropics.minigames.common.core.game.datagen;
 import com.google.common.base.Suppliers;
 import com.lovetropics.minigames.common.core.game.behavior.BehaviorTemplate;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
+import com.lovetropics.minigames.common.core.game.behavior.instances.CompositeBehavior;
 import com.lovetropics.minigames.common.core.game.config.GameConfig;
 import com.lovetropics.minigames.common.core.game.config.GamePhaseConfig;
 import com.lovetropics.minigames.common.core.game.map.IGameMapProvider;
@@ -11,6 +12,7 @@ import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.UnaryOperator;
@@ -100,21 +102,20 @@ public class GameBuilder {
 
 	public static final class PhaseBuilder {
 		private final IGameMapProvider map;
-		private final List<BehaviorTemplate> behaviors = new ArrayList<>();
+		private final List<IGameBehavior> behaviors = new ArrayList<>();
 
 		public PhaseBuilder(IGameMapProvider map) {
 			this.map = map;
 		}
 
 		public PhaseBuilder withBehavior(IGameBehavior... behavior) {
-			for (IGameBehavior b : behavior) {
-				behaviors.add(new BehaviorTemplate.Direct(Suppliers.ofInstance(b)));
-			}
+			Collections.addAll(behaviors, behavior);
 			return this;
 		}
 
 		public GamePhaseConfig create() {
-			return new GamePhaseConfig(map, behaviors);
+			CompositeBehavior composite = new CompositeBehavior(List.copyOf(behaviors));
+			return new GamePhaseConfig(map, new BehaviorTemplate.Direct(Suppliers.ofInstance(composite)));
 		}
 	}
 }

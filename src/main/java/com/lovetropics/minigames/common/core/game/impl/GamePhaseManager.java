@@ -5,7 +5,7 @@ import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.IGameDefinition;
 import com.lovetropics.minigames.common.core.game.IGameLookup;
 import com.lovetropics.minigames.common.core.game.IGamePhaseDefinition;
-import com.lovetropics.minigames.common.core.game.behavior.BehaviorList;
+import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.map.GameMap;
 import com.lovetropics.minigames.common.core.game.map.IGameMapProvider;
 import com.lovetropics.minigames.common.core.game.util.GameTexts;
@@ -61,11 +61,11 @@ public class GamePhaseManager implements IGameLookup {
 
 		CompletableFuture<GameMap> mapFuture = phaseDefinition.getMap().open(game.server());
 
-		BehaviorList behaviors = phaseDefinition.createBehaviors();
+		IGameBehavior behavior = phaseDefinition.createBehavior();
 
 		return mapFuture
 				.thenApplyAsync(map -> {
-					GamePhase phase = new GamePhase(game, parentPhase, map, definition, behaviors);
+					GamePhase phase = new GamePhase(game, parentPhase, map, definition, behavior);
 					queuedGames.add(phase);
 					return phase;
 				}, game.server())
