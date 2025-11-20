@@ -2,6 +2,7 @@ package com.lovetropics.minigames.common.core.game.state.statistics;
 
 import com.google.common.collect.Iterators;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
+import com.lovetropics.minigames.common.core.game.player.PlayerIterable;
 import com.lovetropics.minigames.common.core.game.player.PlayerSet;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeamKey;
 import com.lovetropics.minigames.common.core.game.state.team.TeamState;
@@ -87,7 +88,7 @@ public interface Placement<H extends StatisticHolder> extends Iterable<Placed<H>
 
 	void placeInto(GameStatistics output, StatisticKey<Integer> placementKey);
 
-	void sendTo(PlayerSet players, int maxLength);
+	void sendTo(PlayerIterable players, int maxLength);
 
 	void addToSidebar(List<Component> sidebar, int maxLength);
 
@@ -110,7 +111,7 @@ public interface Placement<H extends StatisticHolder> extends Iterable<Placed<H>
 		}
 
 		@Override
-		public void sendTo(PlayerSet players, int maxLength) {
+		public void sendTo(PlayerIterable players, int maxLength) {
 			int i = 0;
 			Placed<PlayerKey> entry;
 
@@ -174,7 +175,7 @@ public interface Placement<H extends StatisticHolder> extends Iterable<Placed<H>
 		}
 
 		@Override
-		public void sendTo(PlayerSet players, int maxLength) {
+		public void sendTo(PlayerIterable players, int maxLength) {
 			int i = 0;
 			Entry<H, T> entry;
 

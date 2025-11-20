@@ -105,7 +105,7 @@ import com.lovetropics.minigames.common.core.game.behavior.instances.statistics.
 import com.lovetropics.minigames.common.core.game.behavior.instances.statistics.CampingTrackerBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.statistics.CauseOfDeathTrackerBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.statistics.DamageTrackerBehavior;
-import com.lovetropics.minigames.common.core.game.behavior.instances.statistics.DisplayLeaderboardOnFinishBehavior;
+import com.lovetropics.minigames.common.core.game.behavior.instances.action.DisplayLeaderboardAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.statistics.KillsTrackerBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.statistics.PlaceByDeathOrderBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.statistics.PlaceByStatisticBehavior;
@@ -290,7 +290,7 @@ public class GameBehaviorTypes {
 	public static final GameBehaviorEntry<StatisticOverlayBehavior> STATISTIC_OVERLAY = register("statistic_overlay", StatisticOverlayBehavior.CODEC);
 	public static final GameBehaviorEntry<StatisticNotifierBehavior> STATISTIC_NOTIFIER = register("statistic_notifier", StatisticNotifierBehavior.CODEC);
 
-	public static final GameBehaviorEntry<DisplayLeaderboardOnFinishBehavior<?>> DISPLAY_LEADERBOARD_ON_FINISH = register("display_leaderboard_on_finish", DisplayLeaderboardOnFinishBehavior.CODEC);
+	public static final GameBehaviorEntry<DisplayLeaderboardAction<?>> DISPLAY_LEADERBOARD = register("display_leaderboard", DisplayLeaderboardAction.CODEC);
 
 	public static final GameBehaviorEntry<DonationPackageBehavior> DONATION_PACKAGE = register("donation_package", DonationPackageBehavior.CODEC);
 	public static final GameBehaviorEntry<DonationThresholdBehavior> DONATION_THRESHOLD = register("donation_threshold", DonationThresholdBehavior.CODEC);
