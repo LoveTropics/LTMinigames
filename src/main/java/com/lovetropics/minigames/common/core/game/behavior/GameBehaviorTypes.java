@@ -61,6 +61,7 @@ import com.lovetropics.minigames.common.core.game.behavior.instances.action.Give
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.IncrementStatisticAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.KillAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.LimitedTimeLootAction;
+import com.lovetropics.minigames.common.core.game.behavior.instances.action.ModifyEntityNBTBehaviour;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.NotificationToastAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.PlaySoundAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.RemoveClientStateAction;
@@ -382,6 +383,7 @@ public class GameBehaviorTypes {
 	public static final GameBehaviorEntry<PreventBlockInteractionBehaviour> PREVENT_BLOCK_INTERACTION = register("prevent_block_interaction", PreventBlockInteractionBehaviour.CODEC);
 	public static final GameBehaviorEntry<ModifyLootTablesBehavior> MODIFY_LOOT_TABLES = register("modify_loot_tables", ModifyLootTablesBehavior.CODEC);
 	public static final GameBehaviorEntry<PreventTrapdoorTriggersBehaviour> PREVENT_TRAPDOOR_TRIGGERS = register("prevent_trapdoor_triggers", PreventTrapdoorTriggersBehaviour.CODEC);
+	public static final GameBehaviorEntry<ModifyEntityNBTBehaviour> MODIFY_ENTITY_NBT = register("modify_entity_nbt", ModifyEntityNBTBehaviour.CODEC);
 
 	public static final GameBehaviorEntry<SetupIntegrationsBehavior> SETUP_INTEGRATIONS = register("setup_integrations", SetupIntegrationsBehavior.CODEC);
 	public static final GameBehaviorEntry<JoinLateWithRoleBehavior> JOIN_LATE_WITH_ROLE = register("join_late_with_role", JoinLateWithRoleBehavior.CODEC);
