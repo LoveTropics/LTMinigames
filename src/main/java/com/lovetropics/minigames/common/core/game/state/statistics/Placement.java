@@ -45,7 +45,7 @@ public interface Placement<H extends StatisticHolder> extends Iterable<Placed<H>
 
 	static <T extends Comparable<T>> Score<GameTeamKey, T> fromTeamScore(PlacementOrder order, IGamePhase game, StatisticKey<T> statistic) {
 		TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
-		return fromScore(game, game.statistics(), teams != null ? teams.getTeamKeys() : List.of(), statistic, order.asComparator());
+		return fromScore(game, game.statistics(), teams != null ? teams.getTeamKeys() : List.of(), statistic, order.asComparator(), true);
 	}
 
 	static <T extends Comparable<T>> Score<PlayerKey, T> fromPlayerScore(PlacementOrder order, IGamePhase game, StatisticKey<T> statistic, boolean onlyOnline) {
@@ -53,10 +53,10 @@ public interface Placement<H extends StatisticHolder> extends Iterable<Placed<H>
 		if (onlyOnline) {
 			players.removeIf(key -> !game.allPlayers().contains(key.id()));
 		}
-		return fromScore(game, game.statistics(), players, statistic, order.asComparator());
+		return fromScore(game, game.statistics(), players, statistic, order.asComparator(), false);
 	}
 
-	static <H extends StatisticHolder, T> Score<H, T> fromScore(IGamePhase game, GameStatistics statistics, Collection<H> scoreHolders, StatisticKey<T> scoreKey, Comparator<T> comparator) {
+	static <H extends StatisticHolder, T> Score<H, T> fromScore(IGamePhase game, GameStatistics statistics, Collection<H> scoreHolders, StatisticKey<T> scoreKey, Comparator<T> comparator, boolean teams) {
 		List<H> sortedHolders = new ArrayList<>(scoreHolders);
 		sortedHolders.sort(Comparator.comparing(
 				holder -> holder.getOwnStatistics(statistics).getOr(scoreKey, scoreKey.defaultValue()),
@@ -83,7 +83,7 @@ public interface Placement<H extends StatisticHolder> extends Iterable<Placed<H>
 			entries.add(new Score.Entry<>(holder, placement, score));
 		}
 
-		return new Score<>(game, scoreKey, entries);
+		return new Score<>(game, scoreKey, entries, teams);
 	}
 
 	void placeInto(GameStatistics output, StatisticKey<Integer> placementKey);
@@ -104,7 +104,7 @@ public interface Placement<H extends StatisticHolder> extends Iterable<Placed<H>
 
 		@Override
 		public void placeInto(GameStatistics output, StatisticKey<Integer> placementKey) {
-			output.clear(placementKey);
+			output.clearForPlayers(placementKey);
 			for (Placed<PlayerKey> placed : order) {
 				output.forPlayer(placed.value()).set(placementKey, placed.placement());
 			}
@@ -159,16 +159,23 @@ public interface Placement<H extends StatisticHolder> extends Iterable<Placed<H>
 		private final IGamePhase game;
 		private final StatisticKey<T> scoreKey;
 		private final List<Entry<H, T>> entries;
+		private final boolean teams;
 
-		Score(IGamePhase game, StatisticKey<T> scoreKey, List<Entry<H, T>> entries) {
+		Score(IGamePhase game, StatisticKey<T> scoreKey, List<Entry<H, T>> entries, boolean teams) {
 			this.game = game;
 			this.scoreKey = scoreKey;
 			this.entries = entries;
+			this.teams = teams;
 		}
 
 		@Override
 		public void placeInto(GameStatistics output, StatisticKey<Integer> placementKey) {
-			output.clear(placementKey);
+			// TODO: This is a terrible hack! Remove this teams argument
+			if (teams) {
+				output.clearForTeams(placementKey);
+			} else {
+				output.clearForPlayers(placementKey);
+			}
 			for (Entry<H, T> entry : entries) {
 				entry.holder.getOwnStatistics(output).set(placementKey, entry.placement);
 			}

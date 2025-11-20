@@ -189,7 +189,7 @@ public class VictoryPointsBehavior implements IGameBehavior {
 		}
 
 		game.allPlayers().sendMessage(RiverRaceTexts.MICROGAME_RESULTS);
-		Placement.fromScore(game, segmentStatistics, segmentStatistics.getTeams(), StatisticKey.VICTORY_POINTS, PlacementOrder.MAX.asComparator())
+		Placement.fromScore(game, segmentStatistics, segmentStatistics.getTeams(), StatisticKey.VICTORY_POINTS, PlacementOrder.MAX.asComparator(), true)
 				.sendTo(game.allPlayers(), 5);
 	}
 

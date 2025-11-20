@@ -59,6 +59,18 @@ public final class GameStatistics implements IGameState {
 		}
 	}
 
+	public void clearForPlayers(StatisticKey<?> key) {
+		for (StatisticsMap player : byPlayer.values()) {
+			player.remove(key);
+		}
+	}
+
+	public void clearForTeams(StatisticKey<?> key) {
+		for (StatisticsMap team : byTeam.values()) {
+			team.remove(key);
+		}
+	}
+
 	public JsonElement serialize() {
 		JsonObject root = new JsonObject();
 		root.add("global", global.serialize());
