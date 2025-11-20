@@ -12,6 +12,7 @@ import com.lovetropics.minigames.common.core.game.state.team.TeamState;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
@@ -19,9 +20,10 @@ import net.minecraft.world.item.ItemStack;
 import java.util.List;
 import java.util.Optional;
 
-public record GiveRewardAction(List<ItemStack> items, Optional<StatisticBinding> statisticBinding) implements IGameBehavior {
+public record GiveRewardAction(List<ItemStack> items, List<ResourceLocation> collectibles, Optional<StatisticBinding> statisticBinding) implements IGameBehavior {
 	public static final MapCodec<GiveRewardAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			MoreCodecs.ITEM_STACK.listOf().fieldOf("items").forGetter(GiveRewardAction::items),
+			MoreCodecs.ITEM_STACK.listOf().optionalFieldOf("items", List.of()).forGetter(GiveRewardAction::items),
+			ResourceLocation.CODEC.listOf().optionalFieldOf("collectibles", List.of()).forGetter(GiveRewardAction::collectibles),
 			StatisticBinding.CODEC.optionalFieldOf("statistic_binding").forGetter(GiveRewardAction::statisticBinding)
 	).apply(i, GiveRewardAction::new));
 
@@ -32,6 +34,9 @@ public record GiveRewardAction(List<ItemStack> items, Optional<StatisticBinding>
 			for (final ItemStack item : items) {
 				final int count = statisticBinding.map(binding -> binding.resolve(game, target)).orElse(item.getCount());
 				rewards.forPlayer(target).give(item.copyWithCount(count));
+			}
+			for (final ResourceLocation collectible : collectibles) {
+				rewards.forPlayer(target).giveCollectible(collectible);
 			}
 			return true;
 		});
