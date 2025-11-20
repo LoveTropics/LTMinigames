@@ -56,7 +56,7 @@ public class GameRewards {
 	}
 
 	public void grant(final ServerPlayer player) {
-		if (stacks.isEmpty()) {
+		if (stacks.isEmpty() && collectibleIds.isEmpty() && collectibleStacks.isEmpty()) {
 			return;
 		}
 		player.sendSystemMessage(MinigameTexts.REWARDS);
@@ -67,11 +67,18 @@ public class GameRewards {
 			));
 			player.getInventory().placeItemBackInInventory(item);
 		}
+		// TODO: Can we have a proper interface, so we can actually display that correctly?
+		int collectibleCount = collectibleIds.size() + collectibleStacks.size();
+		if (collectibleCount > 0) {
+			player.sendSystemMessage(MinigameTexts.REWARD_ITEM.apply(
+					Component.literal(String.valueOf(collectibleCount)),
+					Component.literal("Collectibles").withStyle(ChatFormatting.AQUA)
+			));
+		}
 		for (ResourceLocation id : collectibleIds) {
 			grantCollectible(player, id);
 		}
 		for (final ItemStack item : collectibleStacks) {
-			// TODO: Can we have a proper interface?
 			grantCollectible(player, item);
 		}
 	}
