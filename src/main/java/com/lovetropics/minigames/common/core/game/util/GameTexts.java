@@ -75,6 +75,7 @@ public final class GameTexts {
 
 		private static final TranslationCollector.Fun1 JOINED_LOBBY = KEYS.add1("joined_lobby", "You have joined %s!");
 		private static final TranslationCollector.Fun1 LEFT_LOBBY = KEYS.add1("left_lobby", "You have left %s!");
+		private static final TranslationCollector.Fun1 PLAYER_KICKED = KEYS.add1("player_kicked", "%s has been kicked from this lobby");
 
 		private static final TranslationCollector.Fun1 STARTED_GAME = KEYS.add1("started_game", "You have started %s!");
 		private static final TranslationCollector.Fun1 STOPPED_GAME = KEYS.add1("stopped_game", "You have stopped %s!");
@@ -110,6 +111,10 @@ public final class GameTexts {
 
 		public static MutableComponent leftLobby(GameLobby lobby) {
 			return formatNegative(LEFT_LOBBY.apply(lobbyName(lobby)));
+		}
+
+		public static MutableComponent playerKicked(ServerPlayer player) {
+			return formatNegative(PLAYER_KICKED.apply(player));
 		}
 
 		public static MutableComponent startedGame(IGameDefinition game) {
