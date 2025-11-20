@@ -73,6 +73,7 @@ import com.lovetropics.minigames.common.core.data.LoveTropicsAttachments;
 import com.lovetropics.minigames.common.core.dimension.RuntimeDimensions;
 import com.lovetropics.minigames.common.core.entity.MinigameEntities;
 import com.lovetropics.minigames.common.core.extension.LimitedSpawnerAttachment;
+import com.lovetropics.minigames.common.core.game.GameLootModifier;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorTypes;
 import com.lovetropics.minigames.common.core.game.client_state.GameClientStateTypes;
 import com.lovetropics.minigames.common.core.game.impl.GameEventDispatcher;
@@ -124,6 +125,8 @@ import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.living.MobSpawnEvent;
 import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
+import net.neoforged.neoforge.registries.RegisterEvent;
 import org.slf4j.Logger;
 
 import java.nio.file.Files;
@@ -240,6 +243,8 @@ public class LoveTropics {
 		GameEventDispatcher eventDispatcher = new GameEventDispatcher(GamePhaseManager.get());
 		NeoForge.EVENT_BUS.register(eventDispatcher);
 
+		modBus.addListener(this::registerLootModifiers);
+
 		modBus.addListener((RegisterGuiLayersEvent event) -> {
 			LobbyStateGui.registerOverlays(event);
 			GameSidebarRenderer.registerOverlays(event);
@@ -253,6 +258,10 @@ public class LoveTropics {
 		if (!FMLEnvironment.production) {
 			loadDevPacks(modBus);
 		}
+	}
+
+	private void registerLootModifiers(RegisterEvent event) {
+		event.register(NeoForgeRegistries.Keys.GLOBAL_LOOT_MODIFIER_SERIALIZERS, location("game"), () -> GameLootModifier.CODEC);
 	}
 
 	private void loadDevPacks(IEventBus modBus) {

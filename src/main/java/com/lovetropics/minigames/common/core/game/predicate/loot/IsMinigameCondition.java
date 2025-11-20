@@ -9,6 +9,7 @@ import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
 
+// TODO: Replace usages of this with modify_loot_tables behavior and remove
 public class IsMinigameCondition implements LootItemCondition {
 	public static final MapCodec<IsMinigameCondition> CODEC = RecordCodecBuilder.mapCodec(
 			builder -> builder

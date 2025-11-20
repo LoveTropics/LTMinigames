@@ -30,6 +30,7 @@ import com.lovetropics.minigames.common.core.game.behavior.instances.PositionPla
 import com.lovetropics.minigames.common.core.game.behavior.instances.ProgressBarBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.ProjectileBreakBlockBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.ProjectileKnockbackBehavior;
+import com.lovetropics.minigames.common.core.game.behavior.instances.ModifyLootTablesBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.RisingFluidBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.ScoreMobInGoalBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.SetGameClientStateBehavior;
@@ -378,6 +379,7 @@ public class GameBehaviorTypes {
 	public static final GameBehaviorEntry<OrderedTrialSpawnerBehavior> ORDERED_TRIAL_SPAWNER = register("ordered_trial_spawner", OrderedTrialSpawnerBehavior.CODEC);
 	public static final GameBehaviorEntry<HitBlockCausesDamageBehaviour> HIT_BLOCK_CAUSE_DAMAGE = register("hit_block_cause_damage", HitBlockCausesDamageBehaviour.CODEC);
 	public static final GameBehaviorEntry<PreventBlockInteractionBehaviour> PREVENT_BLOCK_INTERACTION = register("prevent_block_interaction", PreventBlockInteractionBehaviour.CODEC);
+	public static final GameBehaviorEntry<ModifyLootTablesBehavior> MODIFY_LOOT_TABLES = register("modify_loot_tables", ModifyLootTablesBehavior.CODEC);
 
 	public static final GameBehaviorEntry<SetupIntegrationsBehavior> SETUP_INTEGRATIONS = register("setup_integrations", SetupIntegrationsBehavior.CODEC);
 	public static final GameBehaviorEntry<JoinLateWithRoleBehavior> JOIN_LATE_WITH_ROLE = register("join_late_with_role", JoinLateWithRoleBehavior.CODEC);

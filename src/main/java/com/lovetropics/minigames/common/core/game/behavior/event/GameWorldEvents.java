@@ -1,6 +1,7 @@
 package com.lovetropics.minigames.common.core.game.behavior.event;
 
 import com.lovetropics.minigames.common.core.game.weather.WeatherEvent;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
@@ -19,6 +20,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.trialspawner.TrialSpawner;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.phys.HitResult;
 
 import javax.annotation.Nullable;
@@ -121,6 +123,13 @@ public final class GameWorldEvents {
 		return false;
 	});
 
+	public static final GameEventType<ModifyLootTable> MODIFY_LOOT_TABLE = GameEventType.create(ModifyLootTable.class, listeners -> (generatedLoot, context) -> {
+		for (ModifyLootTable listener : listeners) {
+			generatedLoot = listener.modify(generatedLoot, context);
+		}
+		return generatedLoot;
+	});
+
 	private GameWorldEvents() {
 	}
 
@@ -174,5 +183,9 @@ public final class GameWorldEvents {
 
 	public interface TrialSpawnerEjectLoot {
 		boolean onTrialSpawnerEjectLoot(BlockPos pos, TrialSpawner trialSpawner);
+	}
+
+	public interface ModifyLootTable {
+		ObjectArrayList<ItemStack> modify(ObjectArrayList<ItemStack> generatedLoot, LootContext context);
 	}
 }

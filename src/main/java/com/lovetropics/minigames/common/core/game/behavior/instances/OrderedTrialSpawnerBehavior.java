@@ -1,14 +1,13 @@
 package com.lovetropics.minigames.common.core.game.behavior.instances;
 
 import com.lovetropics.lib.BlockBox;
-import com.lovetropics.lib.codec.MoreCodecs;
 import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameWorldEvents;
+import com.lovetropics.minigames.common.util.Codecs;
 import com.lovetropics.minigames.mixin.TrialSpawnerAccess;
-import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -16,7 +15,6 @@ import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
-import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.TriState;
@@ -29,21 +27,13 @@ import net.minecraft.world.level.block.entity.TrialSpawnerBlockEntity;
 import net.minecraft.world.level.block.entity.trialspawner.TrialSpawner;
 import net.minecraft.world.level.block.entity.trialspawner.TrialSpawnerConfig;
 import net.minecraft.world.level.storage.loot.LootParams;
-import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraft.world.level.storage.loot.entries.LootItem;
-import net.minecraft.world.level.storage.loot.entries.LootPoolSingletonContainer;
-import net.minecraft.world.level.storage.loot.functions.SetComponentsFunction;
-import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
-import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.mutable.MutableInt;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
 
 public record OrderedTrialSpawnerBehavior(
 		Map<String, Holder<TrialSpawnerConfig>> spawnerRegions,
@@ -51,36 +41,9 @@ public record OrderedTrialSpawnerBehavior(
 		int targetCooldownLength,
 		int requiredPlayerRange
 ) implements IGameBehavior {
-	private static final Codec<Holder<LootTable>> LOOT_TABLE_CODEC = Codec.either(MoreCodecs.ITEM_STACK, LootTable.CODEC).xmap(
-			either -> either.map(
-					itemStack -> {
-						LootPoolSingletonContainer.Builder<?> item = LootItem.lootTableItem(itemStack.getItem());
-						for (Map.Entry<DataComponentType<?>, Optional<?>> entry : itemStack.getComponentsPatch().entrySet()) {
-							item = applyComponent(itemStack, item, entry.getKey());
-						}
-						return Holder.direct(LootTable.lootTable()
-								.withPool(LootPool.lootPool()
-										.setRolls(ConstantValue.exactly(1))
-										.add(item.apply(SetItemCountFunction.setCount(ConstantValue.exactly(itemStack.getCount()))))
-								)
-								.build());
-					},
-					Function.identity()
-			),
-			Either::right
-	);
-
-	private static <T> LootPoolSingletonContainer.Builder<?> applyComponent(ItemStack itemStack, LootPoolSingletonContainer.Builder<?> item, DataComponentType<T> component) {
-		T value = itemStack.get(component);
-		if (value == null) {
-			return item;
-		}
-		return item.apply(SetComponentsFunction.setComponent(component, value));
-	}
-
 	public static final MapCodec<OrderedTrialSpawnerBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			Codec.unboundedMap(Codec.STRING, TrialSpawnerConfig.CODEC).fieldOf("spawner_regions").forGetter(OrderedTrialSpawnerBehavior::spawnerRegions),
-			LOOT_TABLE_CODEC.listOf().fieldOf("loot_tables").forGetter(OrderedTrialSpawnerBehavior::lootTables),
+			Codecs.LOOT_TABLE.listOf().fieldOf("loot_tables").forGetter(OrderedTrialSpawnerBehavior::lootTables),
 			ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("target_cooldown_length", 36000).forGetter(OrderedTrialSpawnerBehavior::targetCooldownLength),
 			Codec.intRange(1, 128).optionalFieldOf("required_player_range", 14).forGetter(OrderedTrialSpawnerBehavior::requiredPlayerRange)
 	).apply(i, OrderedTrialSpawnerBehavior::new));
