@@ -20,6 +20,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.common.Tags;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
+
 public record NicelyBreakRegionOfBlocksBehaviour(
 		String region
 ) implements IGameBehavior {
@@ -30,9 +32,11 @@ public record NicelyBreakRegionOfBlocksBehaviour(
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		BlockBox regionToBreak = game.mapRegions().getOrThrow(region);
+		Collection<BlockBox> regionToBreak = game.mapRegions().getAll(region);
 		events.listen(GameActionEvents.APPLY, (context, targets) -> {
-			findNeighboursOfTypeAndDestroyWithinRegion(game.scheduler(), game.level(), regionToBreak.centerBlock(), null, regionToBreak);
+			regionToBreak.forEach(blockBox -> {
+				findNeighboursOfTypeAndDestroyWithinRegion(game.scheduler(), game.level(), blockBox.centerBlock(), null, blockBox);
+			});
 			return true;
 		});
 	}
