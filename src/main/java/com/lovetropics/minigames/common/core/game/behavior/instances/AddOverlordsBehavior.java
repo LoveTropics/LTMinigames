@@ -69,7 +69,7 @@ public record AddOverlordsBehavior(
 			if (shouldBeOverlord(roles, player)) {
 				return PlayerRole.SPECTATOR;
 			}
-			return requestedRole;
+			return null;
 		});
 		events.listen(GamePlayerEvents.ADD, player -> {
 			if (shouldBeOverlord(roles, PlayerKey.from(player))) {

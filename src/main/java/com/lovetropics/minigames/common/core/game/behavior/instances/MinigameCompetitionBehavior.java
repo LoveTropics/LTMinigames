@@ -17,8 +17,10 @@ import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvent
 import com.lovetropics.minigames.common.core.game.command.GameCommandRegistrar;
 import com.lovetropics.minigames.common.core.game.config.GameConfig;
 import com.lovetropics.minigames.common.core.game.config.GameConfigs;
+import com.lovetropics.minigames.common.core.game.player.PlayerRole;
 import com.lovetropics.minigames.common.core.game.state.Overlords;
 import com.lovetropics.minigames.common.core.game.state.statistics.StatisticKey;
+import com.lovetropics.minigames.common.role.StreamHosts;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.datafixers.util.Either;
 import com.mojang.logging.LogUtils;
@@ -57,6 +59,7 @@ public final class MinigameCompetitionBehavior implements IGameBehavior {
 	private final GameActionList returnToLobbyActions;
 
 	private final SubGameManager subGames = new SubGameManager();
+	private boolean participantsLocked;
 
 	public MinigameCompetitionBehavior(List<QueueEntry> initialQueue, List<StatisticKey<?>> shareStatistics, GameActionList returnToLobbyActions) {
 		this.initialQueue = initialQueue;
@@ -70,6 +73,18 @@ public final class MinigameCompetitionBehavior implements IGameBehavior {
 
 		subGames.queueAll(initialQueue);
 
+		int maxParticipants = topGame.definition().getMaximumParticipantCount();
+		events.listen(GamePlayerEvents.SELECT_ROLE_ON_JOIN, (player, requestedRole) -> {
+			if (participantsLocked || requestedRole != PlayerRole.PARTICIPANT) {
+				// Pass through to JoinLateWithRoleBehavior
+				return null;
+			}
+			if (StreamHosts.isHost(player) || topGame.participants().size() < maxParticipants) {
+				return PlayerRole.PARTICIPANT;
+			}
+			return PlayerRole.SPECTATOR;
+		});
+
 		events.listen(GamePhaseEvents.REGISTER_COMMANDS, (commands, buildContext) ->
 				registerGlobalCommands(topGame, topGame, commands)
 		);
@@ -80,6 +95,8 @@ public final class MinigameCompetitionBehavior implements IGameBehavior {
 	}
 
 	private void onCreateSubGame(IGamePhase topGame, IGamePhase subGame, EventRegistrar subEvents) {
+		participantsLocked = true;
+
 		subEvents.listen(GamePhaseEvents.REGISTER_COMMANDS, (commands, buildContext) ->
 				registerGlobalCommands(topGame, subGame, commands)
 		);
