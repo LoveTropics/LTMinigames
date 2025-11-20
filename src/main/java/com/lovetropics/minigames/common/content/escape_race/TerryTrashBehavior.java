@@ -137,7 +137,7 @@ public final class TerryTrashBehavior implements IGameBehavior {
 					world.setBlockAndUpdate(blockBox, codeCheck.clearState.getState(world.random, blockBox));
 				}
 				codeGood = allMatch;
-				return InteractionResult.SUCCESS_SERVER;
+				return InteractionResult.SUCCESS;
 			}
 			if (heldItem.isEmpty()) {
 				return InteractionResult.PASS;
