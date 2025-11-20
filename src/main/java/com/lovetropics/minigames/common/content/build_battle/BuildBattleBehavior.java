@@ -71,7 +71,7 @@ public final class BuildBattleBehavior implements IGameBehavior {
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		selectorItems = new SelectorItems<>(new VoteItemsHandlers(this), new Integer[]{1,2,3,4,5,6});
+		selectorItems = new SelectorItems<>(new VoteItemsHandlers(this), new Integer[]{1, 2, 3, 4, 5, 6});
 
 		GameWidgets widgets = GameWidgets.getOrRegister(game, events);
 
@@ -87,41 +87,40 @@ public final class BuildBattleBehavior implements IGameBehavior {
 			bar.close();
 		});
 		events.listen(GamePhaseEvents.TICK, () -> {
-			if(game.ticks() <= buildTime) {
+			if (game.ticks() <= buildTime) {
 				refreshBuildingTimeBar(game.ticks());
 			}
-			if(game.ticks() == buildTime) {
+			if (game.ticks() == buildTime) {
 				game.allPlayers().sendMessage(BuildBattleTexts.BUILDING_END.copy().withStyle(ChatFormatting.YELLOW));
 				building = false;
 				bar.close();
-				for(var player : game.allPlayers()) {
+				for (var player : game.allPlayers()) {
 					player.getInventory().clearContent();
 				}
 			}
-			if(game.ticks() == (buildTime + 5 * SharedConstants.TICKS_PER_SECOND)) {
+			if (game.ticks() == (buildTime + 5 * SharedConstants.TICKS_PER_SECOND)) {
 				game.allPlayers().sendMessage(BuildBattleTexts.REVIEW_TIME.copy().withStyle(ChatFormatting.YELLOW));
 			}
-			if(game.ticks() == reviewTime) {
+			if (game.ticks() == reviewTime) {
 				nextReviewee(game, widgets);
 			}
 
 			game.participants().forEach(player -> {
-				if(!playerPlots.containsKey(player.getUUID())) {
+				if (!playerPlots.containsKey(player.getUUID())) {
 					return;
 				}
 				SpawnBuilder spawn = new SpawnBuilder(player);
 				BlockBox plot;
-				if(this.revieweeIndex > -1) {
+				if (this.revieweeIndex > -1) {
 					plot = playerPlots.getOrDefault(reviewedPlayers.get(revieweeIndex), null);
-				}
-				else {
+				} else {
 					plot = playerPlots.get(player.getUUID());
 				}
-				if(plot == null) {
+				if (plot == null) {
 					LOGGER.error("Player {} has no plot assigned!", reviewedPlayers.get(revieweeIndex));
 					return;
 				}
-				if(!plot.contains(player.blockPosition())) {
+				if (!plot.contains(player.blockPosition())) {
 					game.invoker(GamePlayerEvents.SPAWN).onSpawn(player.getUUID(), spawn, null);
 					spawn.teleportAndApply(player);
 				}
@@ -133,7 +132,7 @@ public final class BuildBattleBehavior implements IGameBehavior {
 
 		// players cannot interact with blocks outside their plot
 		events.listen(GamePlayerEvents.BREAK_BLOCK, (player, pos, state, hand) -> canInteract(player.getUUID(), pos) ? TriState.DEFAULT : TriState.FALSE);
-		events.listen(GamePlayerEvents.PLACE_BLOCK, (player, pos, placed, placedOn, placedItemStack) -> canInteract(player.getUUID(), pos)  ? TriState.DEFAULT : TriState.FALSE);
+		events.listen(GamePlayerEvents.PLACE_BLOCK, (player, pos, placed, placedOn, placedItemStack) -> canInteract(player.getUUID(), pos) ? TriState.DEFAULT : TriState.FALSE);
 		events.listen(GamePlayerEvents.USE_BLOCK, (player, level, pos, hand, result) -> canInteract(player.getUUID(), pos) ? InteractionResult.PASS : InteractionResult.FAIL);
 		events.listen(GamePlayerEvents.USE_ITEM, (player, hand) -> onUseItem(game, player, hand, widgets));
 
@@ -141,7 +140,7 @@ public final class BuildBattleBehavior implements IGameBehavior {
 	}
 
 	public void assignPlots(Set<PlayerKey> players, Collection<BlockBox> plots) {
-		if(plots.size() < players.size()) {
+		if (plots.size() < players.size()) {
 			throw new GameException(Component.literal("Not enough plots for all players in Build Battle game (" + plots.size() + " plots named \"" + plotRegionsName + "\" for " + players.size() + " players)"));
 		}
 		var iterator = players.iterator();
@@ -160,9 +159,9 @@ public final class BuildBattleBehavior implements IGameBehavior {
 	}
 
 	private void spawnPlayer(ServerLevel level, UUID playerId, SpawnBuilder builder) {
-		if(this.revieweeIndex > -1) {
+		if (this.revieweeIndex > -1) {
 			var plot = playerPlots.getOrDefault(reviewedPlayers.get(revieweeIndex), null);
-			if(plot == null) {
+			if (plot == null) {
 				LOGGER.error("Player {} has no plot assigned!", reviewedPlayers.get(revieweeIndex));
 				return;
 			}
@@ -196,7 +195,7 @@ public final class BuildBattleBehavior implements IGameBehavior {
 	}
 
 	private void nextReviewee(IGamePhase game, GameWidgets widgets) {
-		if(revieweeIndex == -1) {
+		if (revieweeIndex == -1) {
 			for (UUID playerId : playerPoints.keySet()) {
 				if (playerPoints.get(playerId) == -1) {
 					reviewedPlayers.add(playerId);
@@ -210,10 +209,10 @@ public final class BuildBattleBehavior implements IGameBehavior {
 		var currentRevieweeId = reviewedPlayers.get(revieweeIndex);
 		revieweeIndex++;
 
-		if(revieweeIndex == reviewedPlayers.size()) {
-			if(currentRevieweeId != null) {
+		if (revieweeIndex == reviewedPlayers.size()) {
+			if (currentRevieweeId != null) {
 				var points = 0;
-				for(var overlordPoints : this.overlordPoints.entrySet()) {
+				for (var overlordPoints : this.overlordPoints.entrySet()) {
 					points += overlordPoints.getValue();
 				}
 				playerPoints.put(currentRevieweeId, points);
@@ -228,7 +227,7 @@ public final class BuildBattleBehavior implements IGameBehavior {
 				}
 			}
 		}
-		if(revieweeIndex < reviewedPlayers.size()) {
+		if (revieweeIndex < reviewedPlayers.size()) {
 			refreshReviewee(game, widgets);
 			return;
 		}
@@ -237,7 +236,7 @@ public final class BuildBattleBehavior implements IGameBehavior {
 	}
 
 	private void previousReviewee(IGamePhase game, GameWidgets widgets) {
-		if(revieweeIndex <= 0) {
+		if (revieweeIndex <= 0) {
 			return;
 		}
 		revieweeIndex--;
@@ -250,11 +249,11 @@ public final class BuildBattleBehavior implements IGameBehavior {
 		var leaderboard = new java.util.ArrayList<>(playerPoints.entrySet());
 		leaderboard.sort((a, b) -> b.getValue().compareTo(a.getValue()));
 		var message = BuildBattleTexts.RESULTS.copy().append("\n").append("\n");
-		for(int i = 0; i < Math.min(max, leaderboard.size()); i++) {
+		for (int i = 0; i < Math.min(max, leaderboard.size()); i++) {
 			var entry = leaderboard.get(i);
 			var playerName = "unknown player";
 			var player = game.level().getPlayerByUUID(entry.getKey());
-			if(player != null) {
+			if (player != null) {
 				playerName = player.getScoreboardName();
 				message.append(Component.literal(String.valueOf(i + 1)).withStyle(ChatFormatting.GRAY).append(" ").append(BuildBattleTexts.POINTS_DISPLAY.apply(playerName, entry.getValue())).append("\n"));
 			}
@@ -262,7 +261,7 @@ public final class BuildBattleBehavior implements IGameBehavior {
 
 		message.append(Component.literal("please close the game manually i haven't finished this yet")); //TODO
 
-		for(var player : game.allPlayers()) {
+		for (var player : game.allPlayers()) {
 			player.displayClientMessage(message, false);
 			player.getInventory().clearContent();
 		}
@@ -273,17 +272,17 @@ public final class BuildBattleBehavior implements IGameBehavior {
 	}
 
 	private void refreshReviewee(IGamePhase game, GameWidgets widgets) {
-		for(var player : game.allPlayers()) {
+		for (var player : game.allPlayers()) {
 			SpawnBuilder spawn = new SpawnBuilder(player);
 			game.invoker(GamePlayerEvents.SPAWN).onSpawn(player.getUUID(), spawn, null);
 			spawn.teleportAndApply(player);
 		}
-		for(var overlord : overlords) {
+		for (var overlord : overlords) {
 			overlord.getInventory().clearContent();
 			var previous = new ItemStack(Items.SPONGE);
 			previous.set(DataComponents.CUSTOM_NAME, BuildBattleTexts.ITEM_PREVIOUS);
 			overlord.addItem(previous);
-			if(revieweeIndex == reviewedPlayers.size() - 1) {
+			if (revieweeIndex == reviewedPlayers.size() - 1) {
 				selectorItems.giveSelectorsTo(overlord);
 			}
 			var next = new ItemStack(Items.GOLD_BLOCK);
@@ -295,7 +294,7 @@ public final class BuildBattleBehavior implements IGameBehavior {
 
 		var playerName = "unknown player";
 		var player = game.level().getPlayerByUUID(reviewedPlayers.get(revieweeIndex));
-		if(player != null) {
+		if (player != null) {
 			playerName = player.getScoreboardName();
 		}
 
@@ -306,18 +305,18 @@ public final class BuildBattleBehavior implements IGameBehavior {
 	}
 
 	private InteractionResult onUseItem(IGamePhase game, ServerPlayer player, InteractionHand hand, GameWidgets widgets) {
-		if(this.revieweeIndex < 0 || !overlords.contains(player.getUUID())) {
+		if (this.revieweeIndex < 0 || !overlords.contains(player.getUUID())) {
 			return InteractionResult.PASS;
 		}
 		ItemStack heldStack = player.getItemInHand(hand);
 		if (heldStack.isEmpty()) {
 			return InteractionResult.PASS;
 		}
-		if(heldStack.is(Items.SPONGE)) {
+		if (heldStack.is(Items.SPONGE)) {
 			previousReviewee(game, widgets);
 			return InteractionResult.SUCCESS;
 		}
-		if(heldStack.is(Items.GOLD_BLOCK)) {
+		if (heldStack.is(Items.GOLD_BLOCK)) {
 			nextReviewee(game, widgets);
 			return InteractionResult.SUCCESS;
 		}
