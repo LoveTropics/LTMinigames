@@ -11,6 +11,8 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectIterator;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceKey;
@@ -68,6 +70,23 @@ public final class WorkspaceRegions implements Iterable<WorkspaceRegions.Entry> 
 
 	public void add(@Nullable ServerLevel level, int id, String key, BlockBox region) {
 		add(level, new Entry(id, key, region));
+	}
+
+	public boolean rename(@Nullable ServerLevel level, String oldKey, String newKey, BlockPos atPosition) {
+		ObjectIterator<Int2ObjectMap.Entry<Entry>> iterator = entries.int2ObjectEntrySet().iterator();
+		while (iterator.hasNext()) {
+			Int2ObjectMap.Entry<Entry> entry = iterator.next();
+			String key = entry.getValue().key;
+			BlockBox region = entry.getValue().region;
+			if (!region.contains(atPosition) || !key.equals(oldKey)) {
+				continue;
+			}
+			sendMessage(level, new UpdateWorkspaceRegionMessage(entry.getIntKey(), Optional.empty()));
+			iterator.remove();
+			add(level, newKey, region);
+			return true;
+		}
+		return false;
 	}
 
 	void add(@Nullable ServerLevel level, Entry entry) {

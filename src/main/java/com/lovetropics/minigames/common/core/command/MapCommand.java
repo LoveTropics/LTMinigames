@@ -118,6 +118,13 @@ public final class MapCommand {
 								.executes(MapCommand::addRegionHere)
 						)
 					)
+					.then(literal("rename")
+							.then(argument("from", StringArgumentType.string())
+									.then(argument("to", StringArgumentType.string())
+											.executes(MapCommand::renameRegionHere)
+									)
+							)
+					)
 					.then(literal("hide")
 							.executes(MapCommand::showHideRegions))
 				)
@@ -222,6 +229,20 @@ public final class MapCommand {
 		String key = StringArgumentType.getString(context, "key");
 
 		regions.add(context.getSource().getLevel(), key, BlockBox.of(BlockPos.containing(pos)));
+
+		return Command.SINGLE_SUCCESS;
+	}
+
+	private static int renameRegionHere(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+		WorkspaceRegions regions = getCurrentRegions(context);
+		Vec3 pos = context.getSource().getPosition();
+		BlockPos blockPos = BlockPos.containing(pos);
+
+		String from = StringArgumentType.getString(context, "from");
+		String to = StringArgumentType.getString(context, "to");
+		if (!regions.rename(context.getSource().getLevel(), from, to, blockPos)) {
+			context.getSource().sendFailure(Component.literal("No region with name " + from + " at " + blockPos.toShortString()));
+		}
 
 		return Command.SINGLE_SUCCESS;
 	}
