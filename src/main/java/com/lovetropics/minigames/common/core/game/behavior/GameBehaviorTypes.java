@@ -170,6 +170,7 @@ import com.lovetropics.minigames.common.core.game.behavior.instances.tweak.SetGa
 import com.lovetropics.minigames.common.core.game.behavior.instances.tweak.SetMaxHealthBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.tweak.SetTimeSpeedBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.tweak.TntAutoFuseBehavior;
+import com.lovetropics.minigames.common.core.game.behavior.instances.world.DistributeLootBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.world.FillChestsByMarkerBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.world.ForceLoadRegionBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.world.GenerateEntitiesBehavior;
@@ -268,6 +269,7 @@ public class GameBehaviorTypes {
 	public static final GameBehaviorEntry<ProjectileKnockbackBehavior> PROJECTILE_KNOCKBACK = register("projectile_knockback", ProjectileKnockbackBehavior.CODEC);
 	public static final GameBehaviorEntry<InSubGamesBehavior> IN_SUB_GAMES = register("in_sub_games", InSubGamesBehavior.CODEC);
 	public static final GameBehaviorEntry<AddOverlordsBehavior> ADD_OVERLORDS = register("add_overlords", AddOverlordsBehavior.CODEC);
+	public static final GameBehaviorEntry<DistributeLootBehavior> DISTRIBUTE_LOOT = register("distribute_loot", DistributeLootBehavior.CODEC);
 
 	public static final GameBehaviorEntry<BindObjectiveToStatisticBehavior> BIND_OBJECTIVE_TO_STATISTIC = register("bind_objective_to_statistic", BindObjectiveToStatisticBehavior.CODEC);
 	public static final GameBehaviorEntry<PlaceByStatisticBehavior> PLACE_BY_STATISTIC = register("place_by_statistic", PlaceByStatisticBehavior.CODEC);
