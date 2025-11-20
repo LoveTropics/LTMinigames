@@ -8,6 +8,7 @@ import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameWorldEvents;
 import com.lovetropics.minigames.common.core.game.player.PlayerSet;
+import com.lovetropics.minigames.common.core.game.state.team.GameTeam;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeamKey;
 import com.lovetropics.minigames.common.core.game.state.team.TeamState;
 import com.mojang.serialization.Codec;
@@ -28,16 +29,22 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import java.util.Optional;
 
 public record UpdateWordBoxesInWorldBehaviour(
-		Holder<BlockEntityType<?>> blockEntityTypeHolder
+		Holder<BlockEntityType<?>> blockEntityTypeHolder,
+		String teamKey
 ) implements IGameBehavior {
 	public static final MapCodec<UpdateWordBoxesInWorldBehaviour> CODEC =
 			RecordCodecBuilder.mapCodec(inst ->
-					inst.group(BuiltInRegistries.BLOCK_ENTITY_TYPE.holderByNameCodec().fieldOf("block_entity_type").forGetter(UpdateWordBoxesInWorldBehaviour::blockEntityTypeHolder)).apply(inst, UpdateWordBoxesInWorldBehaviour::new));
+					inst.group(BuiltInRegistries.BLOCK_ENTITY_TYPE.holderByNameCodec().fieldOf("block_entity_type").forGetter(UpdateWordBoxesInWorldBehaviour::blockEntityTypeHolder),
+							Codec.STRING.optionalFieldOf("team", "hiders").forGetter(UpdateWordBoxesInWorldBehaviour::teamKey)).apply(inst, UpdateWordBoxesInWorldBehaviour::new));
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		TeamState teams = game.instanceState().getOrThrow(TeamState.KEY);
 		events.listen(GameWorldEvents.CHUNK_LOAD, (chunk) -> {
-			PlayerSet hiders = teams.getPlayersForTeam(game, teams.getTeamByKey("hiders").key());
+			GameTeam teamByKey = teams.getTeamByKey(teamKey);
+			if(teamByKey == null) {
+				throw new GameException(Component.literal("Bad team key!"));
+			}
+			PlayerSet hiders = teams.getPlayersForTeam(game, teamByKey.key());
 			chunk.getBlockEntitiesPos().forEach((pos) -> {
 				Optional<? extends BlockEntity> blockEntity = chunk.getBlockEntity(pos, blockEntityTypeHolder.value());
 				blockEntity.ifPresent(entity -> {
