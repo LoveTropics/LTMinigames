@@ -8,11 +8,11 @@ import com.lovetropics.minigames.common.core.game.behavior.event.GameLivingEntit
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameWorldEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.PickUpResult;
-import com.lovetropics.minigames.common.util.Scheduler;
 import com.lovetropics.minigames.mixin.EntityAccessor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -30,10 +30,12 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerListener;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerExplosion;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
@@ -58,13 +60,17 @@ import net.neoforged.neoforge.event.level.ExplosionEvent;
 import net.neoforged.neoforge.event.level.ExplosionKnockbackEvent;
 import net.neoforged.neoforge.event.level.block.CropGrowEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 import java.util.Objects;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public final class GameEventDispatcher {
 	public static GameEventDispatcher instance;
 
 	private final IGameLookup gameLookup;
+	private final Queue<LoadedChunk> loadedChunksQueue = new ConcurrentLinkedQueue<>();
 
 	public GameEventDispatcher(IGameLookup gameLookup) {
 		this.gameLookup = gameLookup;
@@ -75,15 +81,26 @@ public final class GameEventDispatcher {
 	public void onChunkLoad(ChunkEvent.Load event) {
 		if (event.getLevel() instanceof ServerLevelAccessor levelAccessor) {
 			ChunkAccess chunk = event.getChunk();
-			ServerLevel level = levelAccessor.getLevel();
-			BlockPos blockPos = chunk.getPos().getWorldPosition();
-			if (gameLookup.getGamePhaseAt(level, blockPos) != null) {
-				Scheduler.nextTick().run(server -> {
-					IGamePhase game = gameLookup.getGamePhaseAt(level, blockPos);
-					if (game != null) {
-						game.invoker(GameWorldEvents.CHUNK_LOAD).onChunkLoad(chunk);
-					}
-				});
+			ResourceKey<Level> dimension = levelAccessor.getLevel().dimension();
+			loadedChunksQueue.add(new LoadedChunk(dimension, chunk.getPos()));
+		}
+	}
+
+	// Bit hacky, would be nice to rethink - ensures that we run on the server thread, but also only after the game is initialised
+	@SubscribeEvent
+	public void onServerTickEnd(ServerTickEvent.Post event) {
+		LoadedChunk queuedChunk;
+		ResourceKey<Level> lastDimension = null;
+		IGamePhase game = null;
+		while ((queuedChunk = loadedChunksQueue.poll()) != null) {
+			if (lastDimension != queuedChunk.dimension) {
+				ServerLevel level = event.getServer().getLevel(queuedChunk.dimension);
+				lastDimension = queuedChunk.dimension;
+				game = level != null ? gameLookup.getGamePhaseInDimension(level) : null;
+			}
+			if (game != null) {
+				LevelChunk chunk = game.level().getChunk(queuedChunk.pos.x, queuedChunk.pos.z);
+				game.invoker(GameWorldEvents.CHUNK_LOAD).onChunkLoad(chunk);
 			}
 		}
 	}
@@ -609,5 +626,11 @@ public final class GameEventDispatcher {
 				case FALSE -> event.setResult(MobSpawnEvent.SpawnPlacementCheck.Result.FAIL);
 			}
 		}
+	}
+
+	private record LoadedChunk(
+			ResourceKey<Level> dimension,
+			ChunkPos pos
+	) {
 	}
 }
