@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.content.escape_race.behaviours.BreakBucksBehaviour;
 import com.lovetropics.minigames.common.content.escape_race.behaviours.ItemFrameCodeBehaviour;
+import com.lovetropics.minigames.common.content.escape_race.behaviours.VacationDaysBehaviour;
 import com.lovetropics.minigames.common.content.escape_race.behaviours.WarehouseSetupBehaviour;
 import com.lovetropics.minigames.common.content.escape_race.client.EscapeRaceClientBucksState;
 import com.lovetropics.minigames.common.content.escape_race.client.ddr.render.DDRMachineEntityRenderer;
@@ -133,7 +134,7 @@ public class EscapeRace {
 			.register();
 
 	public static final GameBehaviorEntry<BreakBucksBehaviour> BREAK_BUCKS_BEHAVIOUR = REGISTRATE.object("escape_race/break_bucks").behavior(BreakBucksBehaviour.CODEC).register();
-
+	public static final GameBehaviorEntry<VacationDaysBehaviour> VACATION_DAYS_BEHAVIOUR = REGISTRATE.object("escape_race/vacation_days").behavior(VacationDaysBehaviour.CODEC).register();
 
 	public static final GameBehaviorEntry<TerryTrashBehavior> TERRY_TRASH = REGISTRATE.object("terry_trash")
 			.behavior(TerryTrashBehavior.CODEC)
