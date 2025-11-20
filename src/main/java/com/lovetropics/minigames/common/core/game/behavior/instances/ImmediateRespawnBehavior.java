@@ -19,6 +19,10 @@ import net.minecraft.util.TriState;
 import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.Container;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.monster.warden.Warden;
+import net.minecraft.world.entity.monster.warden.WardenAi;
 import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 
@@ -45,6 +49,12 @@ public record ImmediateRespawnBehavior(Optional<PlayerRole> role, Optional<Playe
 
 	private TriState onPlayerDeath(IGamePhase game, ServerPlayer player, DamageSource source) {
 		destroyVanishingCursedItems(player.getInventory());
+
+		player.level().getEntities(EntityType.WARDEN, LivingEntity::isAlive).forEach(warden -> {
+			warden.clearAnger(player);
+			WardenAi.setDigCooldown(warden);
+		});
+
 		if (dropInventory) {
 			player.getInventory().dropAll();
 		}
