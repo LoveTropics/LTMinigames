@@ -13,10 +13,9 @@ import com.mojang.serialization.codecs.KeyDispatchCodec;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.RegistryCodecs;
-import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
@@ -26,8 +25,7 @@ import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Map;
-import java.util.Optional;
+import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -138,8 +136,9 @@ public class Codecs {
 			either -> either.map(
 					itemStack -> {
 						LootPoolSingletonContainer.Builder<?> item = LootItem.lootTableItem(itemStack.getItem());
-						for (Map.Entry<DataComponentType<?>, Optional<?>> entry : itemStack.getComponentsPatch().entrySet()) {
-							item = applyComponent(itemStack, item, entry.getKey());
+						DataComponentPatch componentsPatch = itemStack.getComponentsPatch();
+						if (!componentsPatch.isEmpty()) {
+							item = item.apply(() -> new SetComponentsFunction(List.of(), componentsPatch));
 						}
 						return Holder.direct(LootTable.lootTable()
 								.withPool(LootPool.lootPool()
@@ -152,12 +151,4 @@ public class Codecs {
 			),
 			Either::right
 	);
-
-	private static <T> LootPoolSingletonContainer.Builder<?> applyComponent(ItemStack itemStack, LootPoolSingletonContainer.Builder<?> item, DataComponentType<T> component) {
-		T value = itemStack.get(component);
-		if (value == null) {
-			return item;
-		}
-		return item.apply(SetComponentsFunction.setComponent(component, value));
-	}
 }
