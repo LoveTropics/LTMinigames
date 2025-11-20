@@ -17,13 +17,8 @@ import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvent
 import com.lovetropics.minigames.common.core.game.command.GameCommandRegistrar;
 import com.lovetropics.minigames.common.core.game.config.GameConfig;
 import com.lovetropics.minigames.common.core.game.config.GameConfigs;
-import com.lovetropics.minigames.common.core.game.player.PlayerSet;
 import com.lovetropics.minigames.common.core.game.state.Overlords;
-import com.lovetropics.minigames.common.core.game.state.statistics.Placement;
-import com.lovetropics.minigames.common.core.game.state.statistics.PlacementOrder;
 import com.lovetropics.minigames.common.core.game.state.statistics.StatisticKey;
-import com.lovetropics.minigames.common.core.game.state.statistics.StatisticsMap;
-import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.datafixers.util.Either;
 import com.mojang.logging.LogUtils;
@@ -32,7 +27,6 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.resources.ResourceLocation;
@@ -186,52 +180,6 @@ public final class MinigameCompetitionBehavior implements IGameBehavior {
 							), false);
 							return 1;
 						}))
-				)
-				// TODO: Absolute mess, and shouldn't be here
-				.then(Commands.literal("coins")
-						.then(Commands.literal("list")
-								.executes(context -> {
-									ServerPlayer player = context.getSource().getPlayerOrException();
-									Placement.fromPlayerScore(PlacementOrder.MAX, game, StatisticKey.POINTS).sendTo(PlayerSet.of(player), Integer.MAX_VALUE);
-									return 1;
-								})
-						)
-						.then(Commands.argument("player", EntityArgument.player())
-								.then(Commands.literal("add")
-										.then(Commands.argument("amount", IntegerArgumentType.integer())
-												.executes(context -> {
-													ServerPlayer player = EntityArgument.getPlayer(context, "player");
-													int amount = IntegerArgumentType.getInteger(context, "amount");
-													StatisticsMap statisticsMap = game.statistics().forPlayer(player);
-													statisticsMap.incrementInt(StatisticKey.POINTS, amount);
-													int newPoints = statisticsMap.getInt(StatisticKey.POINTS);
-													context.getSource().sendSuccess(() -> Component.translatable("%s now has %s coins", player.getDisplayName(), newPoints), false);
-													return newPoints;
-												})
-										)
-								)
-								.then(Commands.literal("set")
-										.then(Commands.argument("amount", IntegerArgumentType.integer())
-												.executes(context -> {
-													ServerPlayer player = EntityArgument.getPlayer(context, "player");
-													int amount = IntegerArgumentType.getInteger(context, "amount");
-													StatisticsMap statisticsMap = game.statistics().forPlayer(player);
-													statisticsMap.set(StatisticKey.POINTS, amount);
-													context.getSource().sendSuccess(() -> Component.translatable("%s now has %s coins", player.getDisplayName(), amount), false);
-													return amount;
-												})
-										)
-								)
-								.then(Commands.literal("get")
-										.executes(context -> {
-											ServerPlayer player = EntityArgument.getPlayer(context, "player");
-											StatisticsMap statisticsMap = game.statistics().forPlayer(player);
-											int points = statisticsMap.getInt(StatisticKey.POINTS);
-											context.getSource().sendSuccess(() -> Component.translatable("%s has %s coins", player.getDisplayName(), points), false);
-											return points;
-										})
-								)
-						)
 				)
 		);
 	}

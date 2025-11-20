@@ -69,6 +69,7 @@ public class BreakBucksBehaviour implements IGameBehavior {
 			return TriState.FALSE;
 		});
 
+		// TODO: Replace with PointControlCommandsBehavior (though we need to figure out notifications and team targeting!)
 		events.listen(GamePhaseEvents.REGISTER_COMMANDS, (commands, buildContext) -> {
 			commands.register(Commands.literal("breakbucks")
 					.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))

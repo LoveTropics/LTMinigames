@@ -92,6 +92,7 @@ import com.lovetropics.minigames.common.core.game.behavior.instances.action.Star
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.SwapPlayersAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.TransformPlayerTornadoAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.WeatherEventAction;
+import com.lovetropics.minigames.common.core.game.behavior.instances.command.PointControlCommandsBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.command.WeatherControlsBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.donation.BlockPackagesDuringPhaseBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.donation.DonationPackageBehavior;
@@ -368,6 +369,7 @@ public class GameBehaviorTypes {
 	public static final GameBehaviorEntry<PreventCropGrowthInRegionBehaviour> PREVENT_CROP_GROWTH_IN_REGION = register("prevent_crop_growth_in_region", PreventCropGrowthInRegionBehaviour.CODEC);
 	public static final GameBehaviorEntry<SpawnDonorsInRegionBehavior> SPAWN_DONORS_IN_REGION = register("spawn_donors_in_region", SpawnDonorsInRegionBehavior.CODEC);
 	public static final GameBehaviorEntry<MinigameCompetitionBehavior> MINIGAME_COMPETITION = register("minigame_competition", MinigameCompetitionBehavior.CODEC);
+	public static final GameBehaviorEntry<PointControlCommandsBehavior> POINT_CONTROL_COMMANDS = register("point_control_commands", PointControlCommandsBehavior.CODEC);
 	public static final GameBehaviorEntry<StatisticThresholdTrigger> STATISTIC_THRESHOLD = register("statistic_threshold", StatisticThresholdTrigger.CODEC);
 	public static final GameBehaviorEntry<PreventTramplingCropsBehaviour> PREVENT_TRAMPLING_CROPS = register("prevent_trampling_crops", PreventTramplingCropsBehaviour.CODEC);
 	public static final GameBehaviorEntry<NicelyBreakRegionOfBlocksBehaviour> NICELY_BREAK_REGION_OF_BLOCKS = register("nicely_break_region_of_blocks", NicelyBreakRegionOfBlocksBehaviour.CODEC);
