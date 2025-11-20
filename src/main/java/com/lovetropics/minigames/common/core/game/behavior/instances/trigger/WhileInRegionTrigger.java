@@ -18,19 +18,24 @@ import net.minecraft.util.context.ContextMap;
 
 import java.util.Map;
 
-public record WhileInRegionTrigger(Map<String, GameActionList> regionActions, int interval) implements IGameBehavior {
+public record WhileInRegionTrigger(Map<String, GameActionList> regionActions, int interval, boolean runOnce) implements IGameBehavior {
 	public static final MapCodec<WhileInRegionTrigger> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			Codec.unboundedMap(Codec.STRING, GameActionList.CODEC).fieldOf("regions").forGetter(WhileInRegionTrigger::regionActions),
-			Codec.INT.optionalFieldOf("interval", 20).forGetter(WhileInRegionTrigger::interval)
+			Codec.INT.optionalFieldOf("interval", 20).forGetter(WhileInRegionTrigger::interval),
+			Codec.BOOL.optionalFieldOf("run_once", false).forGetter(WhileInRegionTrigger::runOnce)
 	).apply(i, WhileInRegionTrigger::new));
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
+		State state = new State();
 		for (GameActionList actions : regionActions.values()) {
 			actions.register(game, events);
 		}
 
 		events.listen(GamePlayerEvents.TICK, player -> {
+			if(runOnce && state.triggered) {
+				return;
+			}
 			if (player.tickCount % interval != 0) {
 				return;
 			}
@@ -42,6 +47,7 @@ public record WhileInRegionTrigger(Map<String, GameActionList> regionActions, in
 							.withParameter(GameActionContextKeys.NAME, player.getDisplayName())
 							.create(ContextKeySet.EMPTY);
 					actions.apply(game, context, ActionSubjects.ofPlayer(player));
+					state.triggered = true;
 				}
 			}
 		});
@@ -54,5 +60,9 @@ public record WhileInRegionTrigger(Map<String, GameActionList> regionActions, in
 			}
 		}
 		return false;
+	}
+
+	private static class State {
+		public boolean triggered = false;
 	}
 }
