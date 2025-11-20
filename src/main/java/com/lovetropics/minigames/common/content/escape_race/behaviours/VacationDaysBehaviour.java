@@ -16,6 +16,7 @@ import com.lovetropics.minigames.common.core.game.state.team.TeamState;
 import com.lovetropics.minigames.common.core.game.util.GameSidebar;
 import com.lovetropics.minigames.common.core.game.util.GameWidgets;
 import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.SharedConstants;
@@ -30,9 +31,17 @@ import java.util.Iterator;
 import java.util.List;
 
 public class VacationDaysBehaviour implements IGameBehavior {
-	public static final MapCodec<VacationDaysBehaviour> CODEC = MapCodec.unit(VacationDaysBehaviour::new);
+	public static final MapCodec<VacationDaysBehaviour> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+			StatisticKey.CODEC.listOf().optionalFieldOf("share_statistics", List.of()).forGetter(b -> b.shareStatistics)
+	).apply(i, VacationDaysBehaviour::new));
 
 	private static final int SIDEBAR_INTERVAL = SharedConstants.TICKS_PER_SECOND / 2;
+
+	private final List<StatisticKey<?>> shareStatistics;
+
+	public VacationDaysBehaviour(List<StatisticKey<?>> shareStatistics) {
+		this.shareStatistics = shareStatistics;
+	}
 
 	private IGamePhase game;
 	private TeamState teams;
@@ -102,8 +111,6 @@ public class VacationDaysBehaviour implements IGameBehavior {
 		Iterator<GameTeam> iterator = teams.iterator();
 		GameTeam firstTeam = iterator.next();
 		GameTeam secondTeam = iterator.next();
-
-		sidebar.add(EscapeRaceTexts.VACATION_DAY);
 
 		sidebar.add(EscapeRaceTexts.SIDEBAR_HEADER.apply(
 				Component.literal(String.valueOf(game.statistics().forTeam(firstTeam.key()).getInt(StatisticKey.VACATION_DAYS))),

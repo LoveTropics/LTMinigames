@@ -95,10 +95,12 @@ public class Warehouse {
 		}
 	}
 
-	private void onRoomCreated(IGamePhase subGame, EventRegistrar subEvents) {
+	private void onRoomCreated(IGamePhase subGame, EventRegistrar subEvents, GameTeamKey team) {
 		subEvents.listen(GamePhaseEvents.REGISTER_COMMANDS, (commands, buildContext) ->
 				registerCommands(subGame, commands)
 		);
+
+		PlayingRoomState.copyStatisticForTeam(topGame, subGame, team, List.of(StatisticKey.VACATION_DAYS));
 	}
 
 	public void registerCommands(IGamePhase game, GameCommandRegistrar commands) {
@@ -343,13 +345,19 @@ public class Warehouse {
 			subEvents.listen(GamePlayerEvents.ADD, player ->
 					PlayerSet.of(player).fadeFromBlack(FADE_DURATION)
 			);
-			onRoomCreated(subGame, subEvents);
+			onRoomCreated(subGame, subEvents, team);
 			subEvents.listen(GamePhaseEvents.STOP, reason -> {
 				this.subGame = null;
 				subGame.allPlayers().fadeToBlack(FADE_DURATION);
 				subGame.returnToParent(subGame.allPlayers());
 				stopReason = reason;
+
+				PlayingRoomState.copyStatisticForTeam(subGame, topGame, team, List.of(StatisticKey.VACATION_DAYS));
 			});
+		}
+
+		private static void copyStatisticForTeam(IGamePhase from, IGamePhase to, GameTeamKey teamKey, List<StatisticKey<?>> statisticKeys) {
+			to.statistics().forTeam(teamKey).copyFrom(from.statistics().forTeam(teamKey), statisticKeys);
 		}
 
 		private void onGameErrored(IGamePhase topGame) {
