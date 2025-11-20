@@ -309,6 +309,8 @@ public class GamePhase implements IGamePhase {
 		try {
 			GamePhase phase = pending.future.join();
 			pending.registered = true;
+			subPhases.add(phase);
+
 			for (PendingSubPhase.CreateHandler handler : pending.createHandlers) {
 				handler.onCreate(phase, phase.events);
 			}
@@ -316,8 +318,6 @@ public class GamePhase implements IGamePhase {
 
 			phase.roles.putAll(roles);
 			phase.addPlayersAndStart(PlayerIterable.from(playersToAdd), null);
-
-			subPhases.add(phase);
 		} catch (Exception e) {
 			LOGGER.error("Failed to create sub-phase", e);
 			for (ServerPlayer player : playersToAdd) {
