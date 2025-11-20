@@ -10,13 +10,13 @@ import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvent
 import com.lovetropics.minigames.common.core.game.client_state.GameClientState;
 import com.lovetropics.minigames.common.core.game.client_state.GameClientStateTypes;
 import com.lovetropics.minigames.common.core.game.client_state.instance.PointTagClientState;
-import com.lovetropics.minigames.common.core.game.state.statistics.PlayerKey;
 import com.lovetropics.minigames.common.core.game.state.statistics.StatisticKey;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
@@ -46,9 +46,9 @@ public record StatisticTagBehavior(StatisticKey<Integer> statistic, Item icon) i
 
 	private boolean updateState(final IGamePhase game, final Object2IntMap<UUID> points) {
 		boolean changed = false;
-		for (final PlayerKey player : game.statistics().getPlayers()) {
+		for (ServerPlayer player : game.participants()) {
 			final int value = game.statistics().forPlayer(player).getInt(statistic);
-			if (points.put(player.id(), value) != value) {
+			if (points.put(player.getUUID(), value) != value) {
 				changed = true;
 			}
 		}

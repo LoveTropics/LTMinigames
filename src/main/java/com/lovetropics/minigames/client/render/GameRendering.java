@@ -241,7 +241,7 @@ public class GameRendering {
 		float left = -width / 2.0F;
 
 		poseStack.pushPose();
-		poseStack.scale(1.0F, -1.0F, 1.0F);
+		poseStack.scale(-1.0F, -1.0F, 1.0F);
 
 		float textX = left + itemSize + spacing;
 		float textY = -font.lineHeight / 2.0F;
@@ -249,7 +249,7 @@ public class GameRendering {
 		poseStack.popPose();
 
 		poseStack.pushPose();
-		poseStack.translate(left + (itemSize / 2.0f), 0.0F, 0.0F);
+		poseStack.translate(-(left + (itemSize / 2.0f)), 0.0F, 0.0F);
 		poseStack.scale(itemSize, itemSize, -itemSize);
 		items.renderStatic(icon, ItemDisplayContext.GUI, packedLight, OverlayTexture.NO_OVERLAY, poseStack, buffer, client.level, 0);
 		poseStack.popPose();
