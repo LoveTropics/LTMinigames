@@ -1,6 +1,7 @@
 package com.lovetropics.minigames.mixin;
 
 import com.lovetropics.minigames.common.core.game.impl.GameEventDispatcher;
+import com.lovetropics.minigames.common.core.game.impl.GameLobbyManager;
 import com.lovetropics.minigames.common.util.duck.ServerPlayerExtension;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
@@ -8,6 +9,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.portal.TeleportTransition;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -45,5 +47,13 @@ public abstract class ServerPlayerMixin extends Player implements ServerPlayerEx
 	@Unique
 	private void syncChange() {
 		getServer().getPlayerList().broadcastAll(new ClientboundPlayerInfoUpdatePacket(ClientboundPlayerInfoUpdatePacket.Action.UPDATE_LIST_ORDER, (ServerPlayer) (Object) this));
+	}
+
+	@Inject(method = "teleport(Lnet/minecraft/world/level/portal/TeleportTransition;)Lnet/minecraft/server/level/ServerPlayer;", at = @At("HEAD"), cancellable = true)
+	private void teleportTo(TeleportTransition transition, CallbackInfoReturnable<ServerPlayer> ci) {
+		ServerPlayer newPlayer = GameLobbyManager.onPlayerTeleport((ServerPlayer) (Object) this, transition);
+		if (newPlayer != null) {
+			ci.setReturnValue(newPlayer);
+		}
 	}
 }

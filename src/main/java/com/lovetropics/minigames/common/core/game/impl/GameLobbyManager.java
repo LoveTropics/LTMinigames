@@ -15,6 +15,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.portal.TeleportTransition;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.EntityTravelToDimensionEvent;
@@ -27,8 +28,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @EventBusSubscriber(modid = LoveTropics.ID)
@@ -210,22 +213,27 @@ public class GameLobbyManager {
 			return;
 		}
 
-		GamePhase playerPhase = GamePhaseManager.get().getGamePhaseFor(player);
-		GamePhase targetPhase = GamePhaseManager.get().getGamePhaseAt(targetLevel, player.position());
-		if (!canTravelBetweenPhases(playerPhase, targetPhase)) {
+		GameLobby lobby = INSTANCE.getLobbyFor(player);
+		GamePhase targetPhase = GamePhaseManager.get().getGamePhaseInDimension(targetLevel);
+		if (targetPhase != null && targetPhase.game.lobby() != lobby) {
 			player.displayClientMessage(GameTexts.Commands.cannotTeleportIntoGame(), true);
-
 			event.setCanceled(true);
 		}
 	}
 
-	private static boolean canTravelBetweenPhases(@Nullable GamePhase from, @Nullable GamePhase to) {
-		if (to == null) {
-			return true;
-		} else if (from == null) {
-			return false;
+	@Nullable
+	public static ServerPlayer onPlayerTeleport(ServerPlayer player, TeleportTransition transition) {
+		GameLobby lobby = INSTANCE.getLobbyFor(player);
+		GamePhase targetPhase = GamePhaseManager.get().getGamePhaseAt(transition.newLevel(), transition.position());
+		if (targetPhase != null && targetPhase.game.lobby() != lobby) {
+			player.displayClientMessage(GameTexts.Commands.cannotTeleportIntoGame(), true);
+			return player;
 		}
-		return from.game.lobby() == to.game.lobby();
+		GamePhase playerPhase = GamePhaseManager.get().getGamePhaseFor(player);
+		if (targetPhase == null || playerPhase == targetPhase) {
+			return null;
+		}
+		return targetPhase.teleportFrom(player, playerPhase);
 	}
 
 	@SubscribeEvent
@@ -234,14 +242,17 @@ public class GameLobbyManager {
 			return;
 		}
 
-		GamePhase phase = GamePhaseManager.get().getGamePhaseFor(player);
-		if (phase == null) {
+		GameLobby lobby = GameLobbyManager.get().getLobbyFor(player);
+		if (lobby == null) {
 			return;
 		}
 
-		ResourceKey<Level> dimension = phase.dimension();
-		if (event.getFrom() == dimension && event.getTo() != dimension) {
-			if (phase.game.lobby().getPlayers().remove(player, false)) {
+		Set<ResourceKey<Level>> validDimensions = lobby.allSubPhases()
+				.map(game -> game.level().dimension())
+				.collect(Collectors.toSet());
+
+		if (validDimensions.contains(event.getFrom()) && !validDimensions.contains(event.getTo())) {
+			if (lobby.getPlayers().remove(player, false)) {
 				player.displayClientMessage(GameTexts.Status.leftGameDimension(), false);
 			}
 		}

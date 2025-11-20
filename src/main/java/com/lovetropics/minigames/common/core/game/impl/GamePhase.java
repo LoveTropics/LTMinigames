@@ -53,6 +53,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Think of a GamePhase like an act in a play, where the play is a GameInstance
@@ -501,6 +502,16 @@ public class GamePhase implements IGamePhase {
 		return players;
 	}
 
+	// TODO: This doesn't respect sub-game hierarchy at all, and is extremely naive when it comes to passing through roles. Please re-evaluate.
+	/* package-private */ ServerPlayer teleportFrom(ServerPlayer player, @Nullable GamePhase fromPhase) {
+		if (fromPhase != null) {
+			PlayerRole oldRole = fromPhase.getRoleFor(player);
+			fromPhase.removePlayerDirectly(player, false);
+			roles.putIfAbsent(player.getUUID(), oldRole);
+		}
+		return addPlayerDirectly(player, false);
+	}
+
 	public void cancelWithError(Exception exception) {
 		LOGGER.error("Game canceled due to exception", exception);
 		requestStop(GameStopReason.errored(Component.literal("Game stopped due to exception: " + exception)));
@@ -619,6 +630,10 @@ public class GamePhase implements IGamePhase {
 
 	public GameCommandSet getCommandSet() {
 		return commandSet;
+	}
+
+	public Stream<GamePhase> allSubPhases() {
+		return Stream.concat(Stream.of(this), subPhases.stream().flatMap(GamePhase::allSubPhases));
 	}
 
 	private class PendingSubPhaseImpl implements PendingSubPhase {

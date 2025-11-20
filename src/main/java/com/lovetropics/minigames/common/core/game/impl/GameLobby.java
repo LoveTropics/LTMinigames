@@ -26,6 +26,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * This is what is created when the command /game create is run - it is not the 'waiting room' lobby, it is a game lobby, as in
@@ -84,6 +85,11 @@ public final class GameLobby {
 	@Nullable
 	public GamePhase getTopPhase() {
 		return state.getTopPhase();
+	}
+
+	public Stream<GamePhase> allSubPhases() {
+		GamePhase topPhase = getTopPhase();
+		return topPhase != null ? topPhase.allSubPhases() : Stream.empty();
 	}
 
 	@Nullable
