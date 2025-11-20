@@ -8,6 +8,7 @@ import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
+import com.lovetropics.minigames.common.core.game.player.PlayerRole;
 import com.lovetropics.minigames.common.core.game.state.Overlords;
 import com.lovetropics.minigames.common.core.game.state.statistics.PlayerKey;
 import com.lovetropics.minigames.common.core.game.util.GameBossBar;
@@ -99,6 +100,9 @@ public final class BuildBattleBehavior implements IGameBehavior {
 				}
 			}
 			if (game.ticks() == (buildTime + 5 * SharedConstants.TICKS_PER_SECOND)) {
+				for (ServerPlayer player : game.participants().shuffledCopy(game.random())) {
+					game.setPlayerRole(player, PlayerRole.SPECTATOR);
+				}
 				game.allPlayers().sendMessage(BuildBattleTexts.REVIEW_TIME.copy().withStyle(ChatFormatting.YELLOW));
 			}
 			if (game.ticks() == reviewTime) {
