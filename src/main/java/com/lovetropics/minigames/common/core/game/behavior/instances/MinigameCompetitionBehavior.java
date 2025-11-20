@@ -9,6 +9,8 @@ import com.lovetropics.minigames.common.core.game.PendingSubPhase;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorType;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorTypes;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
+import com.lovetropics.minigames.common.core.game.behavior.action.ActionSubjects;
+import com.lovetropics.minigames.common.core.game.behavior.action.GameActionList;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
@@ -37,6 +39,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.Unit;
+import net.minecraft.util.context.ContextMap;
 import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
@@ -51,21 +54,26 @@ public final class MinigameCompetitionBehavior implements IGameBehavior {
 
 	public static final MapCodec<MinigameCompetitionBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			ExtraCodecs.nonEmptyList(QueueEntry.CODEC.listOf()).fieldOf("queue").forGetter(b -> b.initialQueue),
-			StatisticKey.CODEC.listOf().optionalFieldOf("share_statistics", List.of()).forGetter(b -> b.shareStatistics)
+			StatisticKey.CODEC.listOf().optionalFieldOf("share_statistics", List.of()).forGetter(b -> b.shareStatistics),
+			GameActionList.CODEC.optionalFieldOf("return_to_lobby_actions", GameActionList.EMPTY).forGetter(b -> b.returnToLobbyActions)
 	).apply(i, MinigameCompetitionBehavior::new));
 
 	private final List<QueueEntry> initialQueue;
 	private final List<StatisticKey<?>> shareStatistics;
+	private final GameActionList returnToLobbyActions;
 
 	private final SubGameManager subGames = new SubGameManager();
 
-	public MinigameCompetitionBehavior(List<QueueEntry> initialQueue, List<StatisticKey<?>> shareStatistics) {
+	public MinigameCompetitionBehavior(List<QueueEntry> initialQueue, List<StatisticKey<?>> shareStatistics, GameActionList returnToLobbyActions) {
 		this.initialQueue = initialQueue;
 		this.shareStatistics = shareStatistics;
+		this.returnToLobbyActions = returnToLobbyActions;
 	}
 
 	@Override
 	public void register(IGamePhase topGame, EventRegistrar events) throws GameException {
+		returnToLobbyActions.register(topGame, events);
+
 		subGames.queueAll(initialQueue);
 
 		events.listen(GamePhaseEvents.REGISTER_COMMANDS, (commands, buildContext) ->
@@ -89,6 +97,10 @@ public final class MinigameCompetitionBehavior implements IGameBehavior {
 		if (reason.isFinished()) {
 			topGame.statistics().copyFrom(subGame.statistics(), shareStatistics);
 		}
+	}
+
+	private void onReturnToLobby(IGamePhase topGame) {
+		returnToLobbyActions.apply(topGame, ContextMap.EMPTY, ActionSubjects.EMPTY);
 	}
 
 	private void registerGlobalCommands(IGamePhase topGame, IGamePhase game, GameCommandRegistrar commands) {
@@ -281,6 +293,7 @@ public final class MinigameCompetitionBehavior implements IGameBehavior {
 			if (nextGameConfig == null) {
 				if (lastGame != null) {
 					lastGame.returnToParent(lastGame.allPlayers());
+					onReturnToLobby(topGame);
 				}
 				return;
 			}
