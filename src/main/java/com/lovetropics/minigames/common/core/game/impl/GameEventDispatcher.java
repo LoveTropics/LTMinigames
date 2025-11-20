@@ -21,6 +21,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
@@ -44,6 +45,7 @@ import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
+import net.neoforged.neoforge.event.entity.living.MobSpawnEvent;
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
 import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
@@ -591,6 +593,21 @@ public final class GameEventDispatcher {
 		IGamePhase gamePhase = gameLookup.getGamePhaseInDimension(event.getProjectile().level());
 		if (gamePhase != null) {
 			gamePhase.invoker(GameWorldEvents.PROJECTILE_IMPACT).onProjectileImpact(event.getProjectile(), event.getRayTraceResult());
+		}
+	}
+
+	@SubscribeEvent
+	public void onSpawnPlacementCheck(MobSpawnEvent.SpawnPlacementCheck event) {
+		if (event.getSpawnType() == EntitySpawnReason.CHUNK_GENERATION) {
+			// Not main thread, not safe!
+			return;
+		}
+		IGamePhase game = gameLookup.getGamePhaseAt(event.getLevel().getLevel(), event.getPos());
+		if (game != null) {
+			switch (game.invoker(GameWorldEvents.SPAWN_PLACEMENT_CHECK).canSpawn(event.getPos(), event.getSpawnType(), event.getEntityType())) {
+				case TRUE -> event.setResult(MobSpawnEvent.SpawnPlacementCheck.Result.SUCCEED);
+				case FALSE -> event.setResult(MobSpawnEvent.SpawnPlacementCheck.Result.FAIL);
+			}
 		}
 	}
 }

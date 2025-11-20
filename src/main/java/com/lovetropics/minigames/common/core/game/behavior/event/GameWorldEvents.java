@@ -8,12 +8,15 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.TriState;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.trialspawner.TrialSpawner;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.phys.HitResult;
@@ -99,6 +102,25 @@ public final class GameWorldEvents {
 		}
 	});
 
+	public static final GameEventType<SpawnPlacementCheck> SPAWN_PLACEMENT_CHECK = GameEventType.create(SpawnPlacementCheck.class, listeners -> (pos, reason, entityType) -> {
+		for (SpawnPlacementCheck listener : listeners) {
+			TriState result = listener.canSpawn(pos, reason, entityType);
+			if (!result.isDefault()) {
+				return result;
+			}
+		}
+		return TriState.DEFAULT;
+	});
+
+	public static final GameEventType<TrialSpawnerEjectLoot> TRIAL_SPAWNER_EJECT_LOOT = GameEventType.create(TrialSpawnerEjectLoot.class, listeners -> (pos, trialSpawner) -> {
+		for (TrialSpawnerEjectLoot listener : listeners) {
+			if (listener.onTrialSpawnerEjectLoot(pos, trialSpawner)) {
+				return true;
+			}
+		}
+		return false;
+	});
+
 	private GameWorldEvents() {
 	}
 
@@ -144,5 +166,13 @@ public final class GameWorldEvents {
 
 	public interface ProjectileImpact {
 		void onProjectileImpact(Projectile projectile, HitResult result);
+	}
+
+	public interface SpawnPlacementCheck {
+		TriState canSpawn(BlockPos pos, EntitySpawnReason reason, EntityType<?> entityType);
+	}
+
+	public interface TrialSpawnerEjectLoot {
+		boolean onTrialSpawnerEjectLoot(BlockPos pos, TrialSpawner trialSpawner);
 	}
 }

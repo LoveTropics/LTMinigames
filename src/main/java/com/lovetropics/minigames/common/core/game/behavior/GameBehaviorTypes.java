@@ -21,6 +21,7 @@ import com.lovetropics.minigames.common.core.game.behavior.instances.JoinLateWit
 import com.lovetropics.minigames.common.core.game.behavior.instances.LastRemainingWinTrigger;
 import com.lovetropics.minigames.common.core.game.behavior.instances.MinigameCompetitionBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.OnlyTickInPeriodBehavior;
+import com.lovetropics.minigames.common.core.game.behavior.instances.OrderedTrialSpawnerBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.PermanentItemBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.PlayerHeadRewardBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.PointsSidebarBehavior;
@@ -366,6 +367,7 @@ public class GameBehaviorTypes {
 	public static final GameBehaviorEntry<StatisticThresholdTrigger> STATISTIC_THRESHOLD = register("statistic_threshold", StatisticThresholdTrigger.CODEC);
 	public static final GameBehaviorEntry<PreventTramplingCropsBehaviour> PREVENT_TRAMPLING_CROPS = register("prevent_trampling_crops", PreventTramplingCropsBehaviour.CODEC);
 	public static final GameBehaviorEntry<NicelyBreakRegionOfBlocksBehaviour> NICELY_BREAK_REGION_OF_BLOCKS = register("nicely_break_region_of_blocks", NicelyBreakRegionOfBlocksBehaviour.CODEC);
+	public static final GameBehaviorEntry<OrderedTrialSpawnerBehavior> ORDERED_TRIAL_SPAWNER = register("ordered_trial_spawner", OrderedTrialSpawnerBehavior.CODEC);
 
 	public static final GameBehaviorEntry<SetupIntegrationsBehavior> SETUP_INTEGRATIONS = register("setup_integrations", SetupIntegrationsBehavior.CODEC);
 	public static final GameBehaviorEntry<JoinLateWithRoleBehavior> JOIN_LATE_WITH_ROLE = register("join_late_with_role", JoinLateWithRoleBehavior.CODEC);
