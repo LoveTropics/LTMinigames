@@ -130,6 +130,16 @@ public final class GameWorldEvents {
 		return generatedLoot;
 	});
 
+	public static final GameEventType<TrapdoorToggle> TRAPDOOR_TOGGLE = GameEventType.create(TrapdoorToggle.class, listeners -> (level, pos, blockState) -> {
+		for (TrapdoorToggle listener : listeners) {
+			TriState result = listener.onTrapDoorToggle(level, pos, blockState);
+			if (!result.isDefault()) {
+				return result;
+			}
+		}
+		return TriState.DEFAULT;
+	});
+
 	private GameWorldEvents() {
 	}
 
@@ -187,5 +197,9 @@ public final class GameWorldEvents {
 
 	public interface ModifyLootTable {
 		ObjectArrayList<ItemStack> modify(ObjectArrayList<ItemStack> generatedLoot, LootContext context);
+	}
+
+	public interface TrapdoorToggle {
+		TriState onTrapDoorToggle(ServerLevel world, BlockPos pos, BlockState state);
 	}
 }

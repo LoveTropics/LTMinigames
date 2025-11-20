@@ -30,6 +30,7 @@
     "event.ItemStackMixin",
     "event.LivingEntityMixin",
     "event.ServerLevelMixin",
+    "event.TrapdoorBlockMixin",
     "event.TrialSpawnerStateMixin",
     "fix.ServerwaypointManagerMixin",
     "gametest.GameTestHelperAccess",
