@@ -4,8 +4,12 @@ import com.lovetropics.minigames.common.content.MinigameTexts;
 import com.lovetropics.minigames.common.core.game.behavior.action.ActionSubjects;
 import com.lovetropics.minigames.common.core.game.state.statistics.PlayerKey;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeam;
+import com.lovetropics.minigames.common.core.game.state.team.GameTeamKey;
+import com.lovetropics.minigames.common.core.game.state.team.TeamState;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+
+import javax.annotation.Nullable;
 
 public sealed interface GameWinner {
 	static GameWinner byPlayerKey(IGamePhase game, PlayerKey key) {
@@ -16,6 +20,22 @@ public sealed interface GameWinner {
 	Component name();
 
 	ActionSubjects<?> resolveSubjects(IGamePhase game);
+
+	@Nullable
+	default GameTeamKey asTeam(IGamePhase game) {
+		return switch (this) {
+			case GameWinner.Player(ServerPlayer player) -> getTeamFor(game, PlayerKey.from(player));
+			case GameWinner.Team(GameTeam team) -> team.key();
+			case GameWinner.OfflinePlayer(PlayerKey playerKey, Component ignored) -> getTeamFor(game, playerKey);
+			case GameWinner.Nobody ignored -> null;
+		};
+	}
+
+	@Nullable
+	private static GameTeamKey getTeamFor(IGamePhase game, PlayerKey player) {
+		TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
+		return teams != null ? teams.getTeamForPlayer(player) : null;
+	}
 
 	record Nobody() implements GameWinner {
 		@Override

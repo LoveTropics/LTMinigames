@@ -5,6 +5,7 @@ import com.lovetropics.minigames.common.content.box_hunt.DisguiseAsPlayerBoxBeha
 import com.lovetropics.minigames.common.content.box_hunt.HitBlockCausesDamageBehaviour;
 import com.lovetropics.minigames.common.content.box_hunt.UpdateWordBoxesInWorldBehaviour;
 import com.lovetropics.minigames.common.content.river_race.behaviour.KillInVoidBehavior;
+import com.lovetropics.minigames.common.content.river_race.microgames.MicrogameScoringBehavior;
 import com.lovetropics.minigames.common.content.river_race.microgames.MicrogamesBehavior;
 import com.lovetropics.minigames.common.content.river_race.microgames.StartMicrogamesAction;
 import com.lovetropics.minigames.common.core.game.behavior.action.ApplyToAction;
@@ -388,6 +389,7 @@ public class GameBehaviorTypes {
 	public static final GameBehaviorEntry<ModifyEntityNBTBehaviour> MODIFY_ENTITY_NBT = register("modify_entity_nbt", ModifyEntityNBTBehaviour.CODEC);
 	public static final GameBehaviorEntry<MicrogamesBehavior> MICROGAMES = REGISTRATE.object("microgames").behavior(MicrogamesBehavior.CODEC).register();
 	public static final GameBehaviorEntry<StartMicrogamesAction> START_MICROGAMES = REGISTRATE.object("start_microgames").behavior(StartMicrogamesAction.CODEC).register();
+	public static final GameBehaviorEntry<MicrogameScoringBehavior> MICROGAME_SCORING = REGISTRATE.object("microgame_scoring").behavior(MicrogameScoringBehavior.CODEC).register();
 
 	public static final GameBehaviorEntry<SetupIntegrationsBehavior> SETUP_INTEGRATIONS = register("setup_integrations", SetupIntegrationsBehavior.CODEC);
 	public static final GameBehaviorEntry<JoinLateWithRoleBehavior> JOIN_LATE_WITH_ROLE = register("join_late_with_role", JoinLateWithRoleBehavior.CODEC);
