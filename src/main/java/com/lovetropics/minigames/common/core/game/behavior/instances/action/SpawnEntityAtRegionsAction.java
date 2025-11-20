@@ -4,6 +4,8 @@ import com.lovetropics.lib.BlockBox;
 import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
+import com.lovetropics.minigames.common.core.game.behavior.action.ActionSubjects;
+import com.lovetropics.minigames.common.core.game.behavior.action.GameActionList;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvents;
 import com.lovetropics.minigames.common.core.map.MapRegions;
@@ -14,6 +16,8 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
+import net.minecraft.util.context.ContextMap;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.levelgen.Heightmap;
 
 import javax.annotation.Nullable;
@@ -27,7 +31,8 @@ public class SpawnEntityAtRegionsAction implements IGameBehavior {
 			EntityTemplate.CODEC.fieldOf("entity").forGetter(c -> c.entity),
 			Codec.INT.optionalFieldOf("entity_count_per_region", 1).forGetter(c -> c.entityCountPerRegion),
 			Codec.BOOL.optionalFieldOf("at_heightmap", true).forGetter(c -> c.atHeightmap),
-			Codec.STRING.optionalFieldOf("face_region").forGetter(c -> c.faceRegion)
+			Codec.STRING.optionalFieldOf("face_region").forGetter(c -> c.faceRegion),
+			GameActionList.CODEC.optionalFieldOf("entity_spawn_actions").forGetter(c -> c.entitySpawnActions)
 	).apply(i, SpawnEntityAtRegionsAction::new));
 
 	private final List<String> regionsToSpawnAtKeys;
@@ -35,15 +40,17 @@ public class SpawnEntityAtRegionsAction implements IGameBehavior {
 	private final int entityCountPerRegion;
 	private final boolean atHeightmap;
 	private final Optional<String> faceRegion;
+	private final Optional<GameActionList> entitySpawnActions;
 	@Nullable
 	private BlockBox faceBox;
 
-	public SpawnEntityAtRegionsAction(final List<String> regionsToSpawnAtKeys, final EntityTemplate entity, final int entityCountPerRegion, boolean atHeightmap, final Optional<String> faceRegion) {
+	public SpawnEntityAtRegionsAction(final List<String> regionsToSpawnAtKeys, final EntityTemplate entity, final int entityCountPerRegion, boolean atHeightmap, final Optional<String> faceRegion, final Optional<GameActionList> entitySpawnActions) {
 		this.regionsToSpawnAtKeys = regionsToSpawnAtKeys;
 		this.entity = entity;
 		this.entityCountPerRegion = entityCountPerRegion;
 		this.atHeightmap = atHeightmap;
 		this.faceRegion = faceRegion;
+		this.entitySpawnActions = entitySpawnActions;
 	}
 
 	@Override
@@ -51,6 +58,7 @@ public class SpawnEntityAtRegionsAction implements IGameBehavior {
 		MapRegions regions = game.mapRegions();
 
 		faceRegion.ifPresent(key -> faceBox = regions.getOrThrow(key));
+		entitySpawnActions.ifPresent(actions -> actions.register(game, events));
 
 		List<BlockBox> regionsToSpawnAt = new ArrayList<>();
 		for (String key : regionsToSpawnAtKeys) {
@@ -77,7 +85,10 @@ public class SpawnEntityAtRegionsAction implements IGameBehavior {
 						double deltaZ = nearestZ - (pos.getZ() + 0.5);
 						angle = (float) (Mth.atan2(deltaZ, deltaX) * Mth.RAD_TO_DEG - 90.0f);
 					}
-					entity.spawn(world, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, angle, 0);
+					Entity e = entity.spawn(world, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, angle, 0);
+					if(e != null) {
+						entitySpawnActions.ifPresent(actions -> actions.apply(game, ContextMap.EMPTY, ActionSubjects.ofEntity(e)));
+					}
 				}
 			}
 
