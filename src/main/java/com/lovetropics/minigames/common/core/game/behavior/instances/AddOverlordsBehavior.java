@@ -75,8 +75,9 @@ public record AddOverlordsBehavior(
 			if (shouldBeOverlord(roles, PlayerKey.from(player))) {
 				overlords.add(player);
 			}
-
-			// This looks a bit funny, but this might run in a sub-game where overlords are inherited
+		});
+		events.listen(GamePlayerEvents.SET_ROLE, (player, role, lastRole) -> {
+			// This is stupid, but we need to run after the normal set_game_types
 			if (overlords.contains(player)) {
 				onAddOverlord(game, player);
 			}
