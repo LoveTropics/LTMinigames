@@ -83,6 +83,14 @@ public final class MapRegions {
 		return keys.stream().flatMap(key -> get(key).stream()).toList();
 	}
 
+	public List<BlockBox> getAllOrThrow(String key) {
+		List<BlockBox> boxes = getAll(key);
+		if (boxes.isEmpty()) {
+			throw new GameException(Component.literal("Missing expected region with key '" + key + "'"));
+		}
+		return boxes;
+	}
+
 	public BlockBox getOrThrow(String key) {
 		BlockBox box = getAny(key);
 		if (box == null) {
