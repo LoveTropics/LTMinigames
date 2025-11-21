@@ -11,6 +11,7 @@ import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvent
 import com.lovetropics.minigames.common.core.game.player.PlayerRole;
 import com.lovetropics.minigames.common.core.game.state.Overlords;
 import com.lovetropics.minigames.common.core.game.state.statistics.PlayerKey;
+import com.lovetropics.minigames.common.core.game.state.statistics.StatisticKey;
 import com.lovetropics.minigames.common.core.game.util.GameBossBar;
 import com.lovetropics.minigames.common.core.game.util.GameWidgets;
 import com.lovetropics.minigames.common.core.game.util.SelectorItems;
@@ -38,6 +39,7 @@ import org.slf4j.Logger;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -250,6 +252,13 @@ public final class BuildBattleBehavior implements IGameBehavior {
 	private void announceWinner(IGamePhase game) {
 		// display leaderboard
 		var max = 5;
+		for (Map.Entry<UUID, Integer> entry : playerPoints.entrySet()) {
+			ServerPlayer player = game.allPlayers().getPlayerBy(entry.getKey());
+			if (player != null) {
+				game.statistics().forPlayer(player).incrementInt(StatisticKey.POINTS, entry.getValue());
+			}
+		}
+
 		var leaderboard = new java.util.ArrayList<>(playerPoints.entrySet());
 		leaderboard.sort((a, b) -> b.getValue().compareTo(a.getValue()));
 		var message = BuildBattleTexts.RESULTS.copy().append("\n").append("\n");
@@ -289,7 +298,7 @@ public final class BuildBattleBehavior implements IGameBehavior {
 			}
 			var next = new ItemStack(Items.GOLD_BLOCK);
 			next.set(DataComponents.CUSTOM_NAME, BuildBattleTexts.ITEM_NEXT);
-			overlord.addItem(new ItemStack(Items.GOLD_BLOCK));
+			overlord.addItem(next);
 		}
 
 		//TODO put participants in spectator
