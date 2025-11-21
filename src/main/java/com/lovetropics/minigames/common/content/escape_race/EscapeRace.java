@@ -9,11 +9,10 @@ import com.lovetropics.minigames.common.content.escape_race.behaviours.ItemFrame
 import com.lovetropics.minigames.common.content.escape_race.behaviours.JoinTeamIntoRoomAction;
 import com.lovetropics.minigames.common.content.escape_race.behaviours.NamedStagesBehaviour;
 import com.lovetropics.minigames.common.content.escape_race.behaviours.RevealWinnerAction;
-import com.lovetropics.minigames.common.content.escape_race.behaviours.Room4WaterLevelAction;
 import com.lovetropics.minigames.common.content.escape_race.behaviours.StageProgressAction;
 import com.lovetropics.minigames.common.content.escape_race.behaviours.StageSkipToAction;
-import com.lovetropics.minigames.common.content.escape_race.behaviours.VacationDaysBehaviour;
 import com.lovetropics.minigames.common.content.escape_race.behaviours.TerryBossBehaviour;
+import com.lovetropics.minigames.common.content.escape_race.behaviours.VacationDaysBehaviour;
 import com.lovetropics.minigames.common.content.escape_race.behaviours.WarehouseSetupBehaviour;
 import com.lovetropics.minigames.common.content.escape_race.client.EscapeRaceClientBucksState;
 import com.lovetropics.minigames.common.content.escape_race.client.ddr.render.DDRMachineEntityRenderer;
@@ -157,7 +156,6 @@ public class EscapeRace {
 	public static final GameBehaviorEntry<JoinTeamIntoRoomAction> JOIN_TEAM_INTO_ROOM = REGISTRATE.object("escape_race/join_team_into_room").behavior(JoinTeamIntoRoomAction.CODEC).register();
 	public static final GameBehaviorEntry<CloseRoomsAction> CLOSE_ROOMS = REGISTRATE.object("escape_race/close_rooms").behavior(CloseRoomsAction.CODEC).register();
 	public static final GameBehaviorEntry<RevealWinnerAction> REVEAL_WINNER = REGISTRATE.object("escape_race/reveal_winner").behavior(RevealWinnerAction.CODEC).register();
-	public static final GameBehaviorEntry<Room4WaterLevelAction> ROOM4_WATER_LEVEL = REGISTRATE.object("escape_race/room4_water_level").behavior(Room4WaterLevelAction.CODEC).register();
 
 	public static final GameBehaviorEntry<ItemFrameCodeBehaviour> ITEM_FRAME_CODE = REGISTRATE.object("item_frame_code")
 			.behavior(ItemFrameCodeBehaviour.CODEC)

@@ -37,6 +37,7 @@ import com.lovetropics.minigames.common.core.game.behavior.instances.ProgressBar
 import com.lovetropics.minigames.common.core.game.behavior.instances.ProjectileBreakBlockBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.ProjectileKnockbackBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.RisingFluidBehavior;
+import com.lovetropics.minigames.common.core.game.behavior.instances.RisingFluidByStatisticBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.ScoreMobInGoalBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.SetGameClientStateBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.SetGameTypesBehavior;
@@ -363,6 +364,7 @@ public class GameBehaviorTypes {
 	public static final GameBehaviorEntry<PreventBreakBehavior> PREVENT_BREAK = register("prevent_break", PreventBreakBehavior.CODEC);
 	public static final GameBehaviorEntry<ForceHandsBehavior> FORCE_HANDS = register("force_hands", ForceHandsBehavior.CODEC);
 	public static final GameBehaviorEntry<RisingFluidBehavior> RISING_FLUID = register("rising_fluid", RisingFluidBehavior.CODEC);
+	public static final GameBehaviorEntry<RisingFluidByStatisticBehavior> RISING_FLUID_BY_STATISTIC = register("rising_fluid_by_statistic", RisingFluidByStatisticBehavior.CODEC);
 	public static final GameBehaviorEntry<EndGameAction> END_GAME = register("end_game", EndGameAction.CODEC);
 	public static final GameBehaviorEntry<CloseGameAction> CLOSE_GAME = register("close_game", CloseGameAction.CODEC);
 	public static final GameBehaviorEntry<CheckpointsBehavior> CHECKPOINTS = register("checkpoints", CheckpointsBehavior.CODEC);
