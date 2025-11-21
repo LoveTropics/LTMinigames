@@ -113,7 +113,7 @@ public class CrabGolfHoleBehavior implements PersistentGameBehavior {
 			updateWinnerRegion(game, highScore, uuid);
 		});
 
-		events.listen(CrabGolfEvents.WIN_GAME, (hole, player, score) -> {
+		events.listen(CrabGolfEvents.HIGH_SCORE, (hole, player, score) -> {
 			if (hole == this.hole) {
 				updateWinnerRegion(game, score, player.getUUID());
 			}
