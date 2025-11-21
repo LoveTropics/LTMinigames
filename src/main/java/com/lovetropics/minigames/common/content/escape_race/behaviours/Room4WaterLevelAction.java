@@ -1,20 +1,22 @@
-package com.lovetropics.minigames.common.core.game.behavior.instances;
+package com.lovetropics.minigames.common.content.escape_race.behaviours;
 
 import com.lovetropics.lib.BlockBox;
+import com.lovetropics.minigames.common.content.escape_race.EscapeRace;
 import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
+import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorType;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
-import com.lovetropics.minigames.common.core.game.behavior.event.GameLivingEntityEvents;
+import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents;
-import com.lovetropics.minigames.common.core.game.state.progress.ProgressChannel;
-import com.lovetropics.minigames.common.core.game.state.progress.ProgressHolder;
-import com.lovetropics.minigames.common.core.game.state.progress.ProgressionSpline;
+import com.lovetropics.minigames.common.core.game.behavior.instances.RisingFluidBehavior;
+import com.lovetropics.minigames.common.core.game.state.statistics.StatisticKey;
+import com.lovetropics.minigames.common.core.game.state.statistics.StatisticsMap;
+import com.lovetropics.minigames.common.core.game.state.team.GameTeamKey;
 import com.lovetropics.minigames.common.core.game.util.FluidFiller;
 import com.lovetropics.minigames.common.core.network.FillFluidPacket;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.longs.Long2IntMap;
 import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongArrays;
@@ -23,43 +25,28 @@ import it.unimi.dsi.fastutil.longs.LongIterator;
 import it.unimi.dsi.fastutil.longs.LongLinkedOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
-import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.neoforged.neoforge.network.PacketDistributor;
+import org.checkerframework.checker.units.qual.min;
 
-import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
-public class RisingFluidBehavior implements IGameBehavior {
-	public static final MapCodec<RisingFluidBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			Codec.STRING.fieldOf("region").forGetter(c -> c.regionKey),
-			ProgressionSpline.CODEC.fieldOf("fluid_levels").forGetter(c -> c.fluidLevels),
-			FluidFiller.Type.CODEC.fieldOf("fill_type").forGetter(b -> b.fillType)
-	).apply(i, RisingFluidBehavior::new));
+public class Room4WaterLevelAction implements IGameBehavior {
+	public static final MapCodec<Room4WaterLevelAction> CODEC = MapCodec.unit(Room4WaterLevelAction::new);
 
-	public static final int HIGH_PRIORITY_BUDGET_PER_TICK = 40;
-	public static final int LOW_PRIORITY_BUDGET_PER_TICK = 8;
+	private static final int BASE_WATER_LEVEL_FOR_THIS_MAP = 141;
 
-	public static final int HIGH_PRIORITY_DISTANCE_SQ = 64 * 64;
-
-	private final String regionKey;
-	private final ProgressionSpline fluidLevels;
-	private final FluidFiller.Type fillType;
-
+	private int fluidLevel = BASE_WATER_LEVEL_FOR_THIS_MAP;
+	private int targetFluidLevel = fluidLevel; // current target
+	private int targetLevel; // moving to
+	private int timeout = 10;
 	private BlockBox region;
-	private DoubleSupplier targetFluidLevel = () -> 0.0;
-	private int fluidLevel;
-
 	private ChunkPos minChunk;
 	private ChunkPos maxChunk;
 
@@ -67,84 +54,55 @@ public class RisingFluidBehavior implements IGameBehavior {
 	private final LongSet lowPriorityUpdates = new LongLinkedOpenHashSet();
 	private final Long2IntMap fluidLevelByChunk = new Long2IntOpenHashMap();
 
-	public RisingFluidBehavior(String regionKey, ProgressionSpline fluidLevels, FluidFiller.Type fillType) {
-		this.regionKey = regionKey;
-		this.fluidLevels = fluidLevels;
-		this.fillType = fillType;
-	}
-
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		region = game.mapRegions().getOrThrow(regionKey);
-		minChunk = new ChunkPos(SectionPos.blockToSectionCoord(region.min().getX()), SectionPos.blockToSectionCoord(region.min().getZ()));
-		maxChunk = new ChunkPos(SectionPos.blockToSectionCoord(region.max().getX()), SectionPos.blockToSectionCoord(region.max().getZ()));
-
-		ProgressHolder progression = ProgressChannel.MAIN.getOrThrow(game);
-		targetFluidLevel = fluidLevels.resolve(progression);
-
 		events.listen(GamePhaseEvents.START, initiator -> {
-			fluidLevel = Mth.floor(targetFluidLevel.getAsDouble());
-			fluidLevelByChunk.defaultReturnValue(fluidLevel);
+			region = game.mapRegions().getOrThrow("flood_area");
+			minChunk = new ChunkPos(SectionPos.blockToSectionCoord(region.min().getX()), SectionPos.blockToSectionCoord(region.min().getZ()));
+			maxChunk = new ChunkPos(SectionPos.blockToSectionCoord(region.max().getX()), SectionPos.blockToSectionCoord(region.max().getZ()));
 		});
 
-		if (fillType == FluidFiller.Type.WATER) {
-			events.listen(GameLivingEntityEvents.TICK, this::onLivingUpdateInWater);
-		}
-		events.listen(GamePhaseEvents.TICK, () -> tick(game));
-	}
-
-	private void onLivingUpdateInWater(LivingEntity entity) {
-		// NOTE: DO NOT REMOVE THIS CHECK, CAUSES FISH TO DIE AND SPAWN ITEMS ON DEATH
-		// FISH WILL KEEP SPAWNING, DYING AND COMPLETELY SLOW THE SERVER TO A CRAWL
-		if (!entity.canBreatheUnderwater()) {
-			if (entity.getY() <= fluidLevel + 1 && entity.isInWater() && entity.tickCount % 40 == 0) {
-				entity.hurt(entity.damageSources().drown(), 2.0F);
-			}
-		}
-	}
-
-	private void tick(IGamePhase game) {
-		tickFluidLevel(game);
-		processUpdates(game);
-		if (fillType == FluidFiller.Type.WATER) {
-			spawnWarningParticles(game);
-		}
-	}
-
-	private void spawnWarningParticles(IGamePhase game) {
-		ServerLevel world = game.level();
-		RandomSource random = world.random;
-		if (random.nextInt(3) != 0) {
-			return;
-		}
-
-		BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
-
-		for (ServerPlayer player : game.participants()) {
-			// only attempt to spawn particles if the player is near the water surface
-			if (Math.abs(player.getY() - fluidLevel) > 5) {
-				continue;
+		events.listen(GameActionEvents.APPLY, (context, targets) -> {
+			GameTeamKey team = targets.asTeams(game).getFirst();
+			StatisticsMap statistics = game.statistics().forTeam(team);
+			int points = statistics.getInt(StatisticKey.POINTS);
+			if (points == 2) {
+				targetLevel = 157;
+			} else if (points == 5) {
+				targetLevel = 163;
+			} else if (points == 7) {
+				targetLevel = 177;
 			}
 
-			int particleX = Mth.floor(player.getX()) - random.nextInt(5) + random.nextInt(5);
-			int particleZ = Mth.floor(player.getZ()) - random.nextInt(5) + random.nextInt(5);
-			mutablePos.set(particleX, fluidLevel, particleZ);
+			System.out.println(points + " -> " + targetLevel);
 
-			if (!world.isEmptyBlock(mutablePos) && world.isEmptyBlock(mutablePos.move(Direction.UP))) {
-				Packet<?> packet = new ClientboundLevelParticlesPacket(ParticleTypes.SPLASH, false, false, particleX, fluidLevel + 1, particleZ, 0.1F, 0.0F, 0.1F, 0.0F, 4);
-				player.connection.send(packet);
+			return true;
+		});
+
+		events.listen(GamePhaseEvents.TICK, () -> {
+			if (targetLevel > targetFluidLevel) {
+				timeout--;
+				if (timeout == 0) {
+					timeout = 10;
+					targetFluidLevel++;
+					System.out.println("!! " + targetFluidLevel);
+				}
 			}
-		}
+			tickFluidLevel(game);
+			processUpdates(game);
+		});
 	}
+
+	// Mostly copy&pasted RisingFluidBehavior - Sorry!!
 
 	private void processUpdates(IGamePhase game) {
 		if (highPriorityUpdates.isEmpty() && lowPriorityUpdates.isEmpty()) {
 			return;
 		}
 
-		int count = processUpdateQueue(game, highPriorityUpdates.iterator(), HIGH_PRIORITY_BUDGET_PER_TICK);
+		int count = processUpdateQueue(game, highPriorityUpdates.iterator(), RisingFluidBehavior.HIGH_PRIORITY_BUDGET_PER_TICK);
 		if (count <= 0) {
-			processUpdateQueue(game, lowPriorityUpdates.iterator(), LOW_PRIORITY_BUDGET_PER_TICK);
+			processUpdateQueue(game, lowPriorityUpdates.iterator(), RisingFluidBehavior.LOW_PRIORITY_BUDGET_PER_TICK);
 		}
 	}
 
@@ -174,8 +132,6 @@ public class RisingFluidBehavior implements IGameBehavior {
 	}
 
 	private void tickFluidLevel(final IGamePhase game) {
-		int targetFluidLevel = Mth.floor(this.targetFluidLevel.getAsDouble());
-
 		if (fluidLevel < targetFluidLevel) {
 			fluidLevel++;
 
@@ -184,7 +140,7 @@ public class RisingFluidBehavior implements IGameBehavior {
 				if (close) {
 					highPriorityUpdates.add(chunkPos);
 					int distanceSq = getChunkDistanceSq(game, ChunkPos.getX(chunkPos), ChunkPos.getZ(chunkPos));
-					if (distanceSq >= HIGH_PRIORITY_DISTANCE_SQ) {
+					if (distanceSq >= RisingFluidBehavior.HIGH_PRIORITY_DISTANCE_SQ) {
 						close = false;
 					}
 				} else {
@@ -237,14 +193,17 @@ public class RisingFluidBehavior implements IGameBehavior {
 
 		int targetLevel = fluidLevel;
 		int lastLevel = fluidLevelByChunk.put(chunkPos.toLong(), targetLevel);
+		if (lastLevel == 0) {
+			lastLevel = BASE_WATER_LEVEL_FOR_THIS_MAP;
+		}
 
 		if (targetLevel > lastLevel) {
 			BlockPos min = region.min();
 			BlockPos max = region.max();
-			long count = FluidFiller.fillChunk(fillType, min.getX(), min.getZ(), max.getX(), max.getZ(), chunk, lastLevel, targetLevel);
+			long count = FluidFiller.fillChunk(FluidFiller.Type.WATER, min.getX(), min.getZ(), max.getX(), max.getZ(), chunk, lastLevel, targetLevel);
 			if (count > 0) {
 				PacketDistributor.sendToPlayersTrackingChunk(level, chunk.getPos(), new FillFluidPacket(
-						fillType,
+						FluidFiller.Type.WATER,
 						new BlockPos(Math.max(min.getX(), chunkPos.getMinBlockX()), lastLevel, Math.max(min.getZ(), chunkPos.getMinBlockZ())),
 						new BlockPos(Math.min(max.getX(), chunkPos.getMaxBlockX()), targetLevel, Math.min(max.getZ(), chunkPos.getMaxBlockZ()))
 				));
@@ -253,5 +212,10 @@ public class RisingFluidBehavior implements IGameBehavior {
 		} else {
 			return 0;
 		}
+	}
+
+	@Override
+	public Supplier<? extends GameBehaviorType<?>> behaviorType() {
+		return EscapeRace.ROOM4_WATER_LEVEL;
 	}
 }
