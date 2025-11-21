@@ -253,7 +253,7 @@ public class Warehouse implements IGameState {
 
 		public void earlyExit(){
 			if(state instanceof PlayingRoomState playingRoom) {
-				playingRoom.close();
+				playingRoom.closeAndReturnToTop();
 			}
 		}
 
@@ -499,6 +499,13 @@ public class Warehouse implements IGameState {
 			topGame.allPlayers().sendMessage(Component.literal("An error occurred starting the last room"));
 			topGame.allPlayers().fadeFromBlack(FADE_DURATION);
 			stopReason = GameStopReason.canceled();
+		}
+
+		public void closeAndReturnToTop() {
+			if (subGame != null) {
+				subGame.returnToParent(subGame.allPlayers());
+			}
+			close();
 		}
 
 		@Override
