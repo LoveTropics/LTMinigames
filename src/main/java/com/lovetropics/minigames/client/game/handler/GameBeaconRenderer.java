@@ -46,12 +46,12 @@ public final class GameBeaconRenderer {
 		PoseStack poseStack = event.getPoseStack();
 
 		long gameTime = level.getGameTime();
-		float partialTick = event.getPartialTick().getGameTimeDeltaTicks();
+		float partialTick = event.getPartialTick().getGameTimeDeltaPartialTick(false);
 
 		for (BlockPos position : positions) {
 			poseStack.pushPose();
 			poseStack.translate(position.getX() - cameraPosition.x, position.getY() - cameraPosition.y, position.getZ() - cameraPosition.z);
-			BeaconRenderer.renderBeaconBeam(poseStack, bufferSource, BeaconRenderer.BEAM_LOCATION, partialTick, 0.0f, gameTime, 0, 256, COLOR, 0.15F, 0.175F);
+			BeaconRenderer.renderBeaconBeam(poseStack, bufferSource, BeaconRenderer.BEAM_LOCATION, partialTick, 1.0f, gameTime, 0, 256, COLOR, 0.15F, 0.175F);
 			poseStack.popPose();
 		}
 
