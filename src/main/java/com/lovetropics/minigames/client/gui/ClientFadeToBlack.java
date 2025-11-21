@@ -58,7 +58,8 @@ public class ClientFadeToBlack {
 	@SubscribeEvent
 	public static void onRenderScreen(ScreenEvent.Render.Post event) {
 		// Only render over the topmost layer
-		if (event.getScreen() == Minecraft.getInstance().screen) {
+		Screen screen = event.getScreen();
+		if (screen == Minecraft.getInstance().screen && isLoadingScreen(screen)) {
 			float partialTicks = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(true);
 			draw(event.getGuiGraphics(), partialTicks);
 		}
