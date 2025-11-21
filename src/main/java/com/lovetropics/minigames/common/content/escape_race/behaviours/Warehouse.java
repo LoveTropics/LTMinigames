@@ -32,18 +32,24 @@ import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.TriState;
 import net.minecraft.world.BossEvent;
 import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 
 public class Warehouse {
+	private static final String ROOM7 = "super_special_seven";
 	public static final int FADE_DURATION = SharedConstants.TICKS_PER_SECOND;
 
 	private final IGamePhase topGame;
@@ -62,10 +68,12 @@ public class Warehouse {
 			if (subGameConfig == null) {
 				throw new GameException(Component.literal("No game config with id: " + room.gameId()));
 			}
-			BlockBox box = topGame.mapRegions().getOrThrow(room.entranceRegion());
+			Optional<String> entrance = room.entranceRegion();
+			BlockBox box = entrance.map(e -> topGame.mapRegions().getOrThrow(e)).orElse(null);
 
-			RoomInstance roomInstance = new RoomInstance(room, subGameConfig, box);
-			rooms.put(room.entranceRegion(), roomInstance);
+			String name = entrance.orElse(ROOM7);
+			RoomInstance roomInstance = new RoomInstance(name, room, subGameConfig, box);
+			rooms.put(name, roomInstance);
 		}
 	}
 
@@ -95,12 +103,14 @@ public class Warehouse {
 		}
 	}
 
-	private void onRoomCreated(IGamePhase subGame, EventRegistrar subEvents, GameTeamKey team) {
+	private void onRoomCreated(IGamePhase subGame, EventRegistrar subEvents, @Nullable GameTeamKey team) {
 		subEvents.listen(GamePhaseEvents.REGISTER_COMMANDS, (commands, buildContext) ->
 				registerCommands(subGame, commands)
 		);
 
-		PlayingRoomState.copyStatisticForTeam(topGame, subGame, team, List.of(StatisticKey.VACATION_DAYS));
+		if (team != null) {
+			PlayingRoomState.copyStatisticForTeam(topGame, subGame, team, List.of(StatisticKey.VACATION_DAYS));
+		}
 	}
 
 	public void registerCommands(IGamePhase game, GameCommandRegistrar commands) {
@@ -135,6 +145,24 @@ public class Warehouse {
 									return 1;
 								})
 						)
+						.then(Commands.literal("join")
+								.executes(context -> {
+									RoomInstance room = getRoomArgument(context);
+									room.state.close();
+
+									GameTeamKey unlockingTeam = room.name.equals(ROOM7) ? null : teams.getTeamForPlayer(context.getSource().getPlayer());
+
+									PlayingRoomState playingRoom = new PlayingRoomState(unlockingTeam, room);
+									playingRoom.sendToSubPhase(topGame, unlockingTeam == null ? topGame.allPlayers() : teams.getPlayersForTeam(topGame, unlockingTeam));
+
+									if (unlockingTeam != null) {
+										topGame.statistics().forTeam(unlockingTeam).incrementInt(StatisticKey.BREAK_BUCKS, -room.cost);
+									}
+
+									room.state = playingRoom;
+									return 1;
+								})
+						)
 				)
 		);
 	}
@@ -149,20 +177,26 @@ public class Warehouse {
 	}
 
 	public class RoomInstance {
+		private final String name;
 		private final WarehouseSetupBehaviour.RoomConfig config;
 		private final GameConfig subGameConfig;
-		private final BlockBox entranceBox;
+		private final @Nullable BlockBox entranceBox;
 
 		private int cost;
 
 		private RoomState state;
 
-		public RoomInstance(WarehouseSetupBehaviour.RoomConfig config, GameConfig subGameConfig, BlockBox entranceBox) {
+		public RoomInstance(String name, WarehouseSetupBehaviour.RoomConfig config, GameConfig subGameConfig, @Nullable BlockBox entranceBox) {
+			this.name = name;
 			this.config = config;
 			this.subGameConfig = subGameConfig;
 			this.entranceBox = entranceBox;
 			cost = config.baseCost();
-			state = new LockedRoomState(this);
+			if (entranceBox != null) {
+				state = new LockedRoomState(this);
+			} else {
+				state = new EmptyRoomState();
+			}
 		}
 
 		public void setCost(int cost) {
@@ -184,6 +218,20 @@ public class Warehouse {
 		void close();
 	}
 
+	// Used for room 7's default behavior, since it is manual trigger
+	public static final class EmptyRoomState implements RoomState {
+
+		@Override
+		public RoomState tick() {
+			return this;
+		}
+
+		@Override
+		public void close() {
+
+		}
+	}
+
 	public final class LockedRoomState implements RoomState {
 		private final RoomInstance room;
 		private final RoomEntrancePadEntity pad;
@@ -199,6 +247,9 @@ public class Warehouse {
 			}
 			this.pad = pad;
 			BlockBox box = room.entranceBox;
+			if (box == null) {
+				throw new GameException(Component.literal("Regular room must have entrance!"));
+			}
 			Vec3 center = box.center();
 			BlockPos size = box.size();
 			pad.snapTo(center.x(), box.min().getY(), center.z(), room.config.facing(), 0.0f);
@@ -293,12 +344,12 @@ public class Warehouse {
 
 	public final class PlayingRoomState implements RoomState {
 		private final RoomInstance room;
-		private final GameTeamKey team;
+		private final @Nullable GameTeamKey team; // null for non team rooms, i.e. 7
 		private final PendingSubPhase pendingSubGame;
 		private @Nullable IGamePhase subGame;
 		private @Nullable GameStopReason stopReason;
 
-		public PlayingRoomState(GameTeamKey team, RoomInstance room) {
+		public PlayingRoomState(@Nullable GameTeamKey team, RoomInstance room) {
 			this.room = room;
 			this.team = team;
 			pendingSubGame = topGame.createSubPhase(room.subGameConfig);
@@ -313,7 +364,9 @@ public class Warehouse {
 					return new CompletedRoomState(team);
 				} else {
 					// Some kind of error? Give the team back their Break Bucks!
-					topGame.statistics().forTeam(team).incrementInt(StatisticKey.BREAK_BUCKS, room.cost);
+					if (team != null) {
+						topGame.statistics().forTeam(team).incrementInt(StatisticKey.BREAK_BUCKS, room.cost);
+					}
 					return new LockedRoomState(room);
 				}
 			}
@@ -342,17 +395,47 @@ public class Warehouse {
 
 		private void onGameCreated(IGamePhase subGame, EventRegistrar subEvents) {
 			this.subGame = subGame;
-			subEvents.listen(GamePlayerEvents.ADD, player ->
-					PlayerSet.of(player).fadeFromBlack(FADE_DURATION)
-			);
+			Map<UUID, Map<Integer, ItemStack>> stacks = new HashMap<>();
+
+			// Copy inventory for room 7
+			if (room.name.equals(ROOM7)) {
+				for (ServerPlayer participant : topGame.participants()) {
+					Map<Integer, ItemStack> inv = new HashMap<>();
+					for (int i = 0; i < participant.getInventory().getContainerSize(); i++) {
+						inv.put(i, participant.getInventory().getItem(i));
+					}
+
+					stacks.put(participant.getUUID(), inv);
+				}
+			}
+
+			subEvents.listen(GamePlayerEvents.ADD, player -> {
+				PlayerSet.of(player).fadeFromBlack(FADE_DURATION);
+
+				// Set inventory slots if we have them
+				Map<Integer, ItemStack> inv = stacks.get(player.getUUID());
+				if (inv != null) {
+					for (Map.Entry<Integer, ItemStack> e : inv.entrySet()) {
+						if (e.getValue().isEmpty()) {
+							continue;
+						}
+
+						player.getInventory().add(e.getKey(), e.getValue());
+					}
+				}
+			});
+
 			onRoomCreated(subGame, subEvents, team);
+
 			subEvents.listen(GamePhaseEvents.STOP, reason -> {
 				this.subGame = null;
 				subGame.allPlayers().fadeToBlack(FADE_DURATION);
 				subGame.returnToParent(subGame.allPlayers());
 				stopReason = reason;
 
-				PlayingRoomState.copyStatisticForTeam(subGame, topGame, team, List.of(StatisticKey.VACATION_DAYS));
+				if (team != null) {
+					PlayingRoomState.copyStatisticForTeam(subGame, topGame, team, List.of(StatisticKey.VACATION_DAYS));
+				}
 			});
 		}
 

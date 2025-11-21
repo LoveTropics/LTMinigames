@@ -19,6 +19,7 @@ import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 public record WarehouseSetupBehaviour(
@@ -53,14 +54,14 @@ public record WarehouseSetupBehaviour(
 	}
 
 	public record RoomConfig(
-			String entranceRegion,
+			Optional<String> entranceRegion,
 			float facing,
 			int baseCost,
 			Component displayName,
 			ResourceLocation gameId
 	) {
 		public static final Codec<RoomConfig> CODEC = RecordCodecBuilder.create(i -> i.group(
-				Codec.STRING.fieldOf("entrance_region").forGetter(RoomConfig::entranceRegion),
+				Codec.STRING.optionalFieldOf("entrance_region").forGetter(RoomConfig::entranceRegion),
 				Codec.FLOAT.fieldOf("facing").forGetter(RoomConfig::facing),
 				Codec.INT.fieldOf("cost").forGetter(RoomConfig::baseCost),
 				ComponentSerialization.CODEC.fieldOf("display_name").forGetter(RoomConfig::displayName),
