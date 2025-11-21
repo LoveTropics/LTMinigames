@@ -11,6 +11,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 import java.util.ArrayList;
@@ -62,6 +63,13 @@ public class PersistentGames {
 				game.invoker(GamePhaseEvents.STOP).stop(GameStopReason.errored(Component.literal("Error in tick: " + e.getMessage())));
 				RUNNING_GAMES.remove(game);
 			}
+		}
+	}
+
+	@SubscribeEvent
+	public static void onServerStopping(ServerStoppingEvent event) {
+		for (PersistentGameInstance game : new ArrayList<>(RUNNING_GAMES)) {
+			game.invoker(GamePhaseEvents.STOP).stop(GameStopReason.serverStopping());
 		}
 	}
 

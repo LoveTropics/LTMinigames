@@ -114,7 +114,9 @@ public class CrabGolfHoleBehavior implements PersistentGameBehavior {
 		});
 
 		events.listen(CrabGolfEvents.WIN_GAME, (hole, player, score) -> {
-			updateWinnerRegion(game, score, player.getUUID());
+			if (hole == this.hole) {
+				updateWinnerRegion(game, score, player.getUUID());
+			}
 		});
 
 		events.listen(GamePhaseEvents.STOP, initiator -> {
@@ -263,20 +265,16 @@ public class CrabGolfHoleBehavior implements PersistentGameBehavior {
 		}
 
 		nbt.put("profile", profile);
-		try {
-			if (score > 0) {
-				CompoundTag prefix = new CompoundTag();
-				prefix.putString("translate", "lt.golf.best_score");
-				prefix.putString("color", "green");
-				nbt.put("name_prefix", prefix);
+		if (score > 0) {
+			CompoundTag prefix = new CompoundTag();
+			prefix.putString("translate", "lt.golf.best_score");
+			prefix.putString("color", "green");
+			nbt.put("name_prefix", prefix);
 
-				CompoundTag suffix = new CompoundTag();
-				suffix.putString("text", "" + score);
-				suffix.putString("color", "green");
-				nbt.put("name_suffix", suffix);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
+			CompoundTag suffix = new CompoundTag();
+			suffix.putString("text", " - " + score);
+			suffix.putString("color", "green");
+			nbt.put("name_suffix", suffix);
 		}
 
 		Vec3 rcenter = winnerRegion.center();

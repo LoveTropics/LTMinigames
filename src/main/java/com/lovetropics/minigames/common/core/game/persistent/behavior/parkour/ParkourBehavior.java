@@ -66,6 +66,16 @@ public class ParkourBehavior implements PersistentGameBehavior {
 			}
 		});
 
+		events.listen(GamePhaseEvents.STOP, reason -> {
+			for (ServerPlayer player : lastCheckpoint.keySet()) {
+				for (ItemStack st : player.getInventory()) {
+					if (st.is(Parkour.PARKOUR_TELEPORTER.asItem())) {
+						player.getInventory().removeItem(st);
+					}
+				}
+			}
+		});
+
 		events.listen(GamePlayerEvents.USE_ITEM, (player, hand) ->  {
 			String checkpoint = lastCheckpoint.get(player);
 			if (checkpoint == null) {
@@ -78,6 +88,7 @@ public class ParkourBehavior implements PersistentGameBehavior {
 					Vec3 center = region.center();
 					center = center.add(0, -region.size().getY() / 2.0, 0);
 					player.teleportTo(center.x, center.y, center.z);
+					game.level().playSound(null, player.blockPosition(), SoundEvents.ARROW_HIT_PLAYER, SoundSource.BLOCKS, 0.4F, 1.0F);
 				}
 			}
 
