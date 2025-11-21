@@ -27,6 +27,7 @@ import com.lovetropics.minigames.common.content.crafting_bee.CraftingBee;
 import com.lovetropics.minigames.common.content.crafting_bee.CraftingBeeTexts;
 import com.lovetropics.minigames.common.content.de_a_coudre.DeACoudre;
 import com.lovetropics.minigames.common.content.escape_race.EscapeRace;
+import com.lovetropics.minigames.common.content.escape_race.EscapeRaceParticles;
 import com.lovetropics.minigames.common.content.escape_race.EscapeRaceTexts;
 import com.lovetropics.minigames.common.content.escape_race.client.EscapeRaceBucksRenderer;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DDRCommand;
@@ -235,6 +236,7 @@ public class LoveTropics {
 		EscapeRace.ENTITY_SERIALIZERS.register(modBus);
 		EscapeRace.DATA_COMPONENTS.register(modBus);
 		PredictedToggle.REGISTER.register(modBus);
+		EscapeRaceParticles.REGISTER.register(modBus);
 		Parkour.init();
 
 		LoveTropicsEntityOptions.register();
