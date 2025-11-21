@@ -11,6 +11,7 @@ import com.lovetropics.minigames.common.core.game.behavior.event.GamePackageEven
 import com.lovetropics.minigames.common.core.integration.GameInstanceIntegrations;
 import com.lovetropics.minigames.common.core.integration.game_actions.Donation;
 import com.lovetropics.minigames.common.core.integration.state.DonationScale;
+import com.lovetropics.minigames.common.util.EntityTemplate;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -24,17 +25,22 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.WritableBookContent;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 public record SpawnDonorsInRegionBehavior(
 	List<String> regions,
-	Optional<List<DonationScale>> scales
+	Optional<List<DonationScale>> scales,
+	// Todo clean this up I needed something quick :cry:
+	Optional<List<ItemStack>> donorBootItems
 ) implements IGameBehavior {
 
 	public static final MapCodec<SpawnDonorsInRegionBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			Codec.STRING.listOf().fieldOf("regions").forGetter(SpawnDonorsInRegionBehavior::regions),
-			DonationScale.LIST_CODEC.optionalFieldOf("scales").forGetter(SpawnDonorsInRegionBehavior::scales)
+			DonationScale.LIST_CODEC.optionalFieldOf("scales").forGetter(SpawnDonorsInRegionBehavior::scales),
+			ItemStack.CODEC.listOf().optionalFieldOf("donor_boot_items").forGetter(SpawnDonorsInRegionBehavior::donorBootItems)
 	).apply(i, SpawnDonorsInRegionBehavior::new));
 
 	@Override
@@ -49,7 +55,7 @@ public record SpawnDonorsInRegionBehavior(
 				if (result.isPresent()) {
 					final List<Donation> donations = result.get();
 					for (Donation donation : donations) {
-						SpawnDonorUtils.spawnDonorInRandomRegion(game, donation, regions, scales.orElse(List.of()));
+						SpawnDonorUtils.spawnDonorInRandomRegion(game, donation, regions, scales.orElse(List.of()), donorBootItems.orElse(Collections.emptyList()));
 
 					}
 				}
@@ -58,7 +64,7 @@ public record SpawnDonorsInRegionBehavior(
 
 		// Spawn throughout game
 		events.listen(GamePackageEvents.RECEIVE_DONATION, donation -> {
-			SpawnDonorUtils.spawnDonorInRandomRegion(game, donation, regions, scales.orElse(List.of()));
+			SpawnDonorUtils.spawnDonorInRandomRegion(game, donation, regions, scales.orElse(List.of()), donorBootItems.orElse(Collections.emptyList()));
 		});
 
 		// Drop sassy book on death
