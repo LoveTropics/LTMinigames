@@ -151,17 +151,17 @@
   },
   "escape_race.room_1.generic": {
     "sounds": [
-      "ltminigames:escape_race/oom_1.generic"
+      "ltminigames:escape_race/room_1.generic"
     ]
   },
   "escape_race.room_1.intro.1": {
     "sounds": [
-      "ltminigames:escape_race/oom_1.intro.1"
+      "ltminigames:escape_race/room_1.intro.1"
     ]
   },
   "escape_race.room_5.4": {
     "sounds": [
-      "ltminigames:escape_race/race.room_5.4"
+      "ltminigames:escape_race/room_5.4"
     ]
   },
   "escape_race.warehouse.2": {
@@ -243,5 +243,36 @@
     "sounds": [
       "ltminigames:escape_race/warehouse.17"
     ]
+  },
+  "escape_race.room_5.sound_1": {
+    "sounds": [
+      "ltminigames:escape_race/gary_gibnut/room_5.gary.1"
+    ]
+  },
+  "escape_race.room_5.sound_2": {
+    "sounds": [
+      "ltminigames:escape_race/gary_gibnut/room_5.gary.2"
+    ]
+  },
+  "escape_race.room_5.sound_3": {
+    "sounds": [
+      "ltminigames:escape_race/gary_gibnut/room_5.gary.3"
+    ]
+  },
+  "escape_race.room_5.sound_4": {
+    "sounds": [
+      "ltminigames:escape_race/gary_gibnut/room_5.gary.4"
+    ]
+  },
+  "escape_race.room_5.sound_5": {
+    "sounds": [
+      "ltminigames:escape_race/gary_gibnut/room_5.gary.5"
+    ]
+  },
+  "escape_race.room_5.sound_6": {
+    "sounds": [
+      "ltminigames:escape_race/gary_gibnut/room_5.gary.6"
+    ]
   }
+
 }
