@@ -54,6 +54,13 @@ public class SoundRegistry {
 	public static final Holder<SoundEvent> warehouse_16 = register("escape_race.warehouse.16");
 	public static final Holder<SoundEvent> warehouse_17 = register("escape_race.warehouse.17");
 
+	public static final Holder<SoundEvent> terry_trash_sound_1 = register("escape_race.terry_trash.sound_1");
+	public static final Holder<SoundEvent> terry_trash_sound_2 = register("escape_race.terry_trash.sound_2");
+	public static final Holder<SoundEvent> terry_trash_sound_3 = register("escape_race.terry_trash.sound_3");
+	public static final Holder<SoundEvent> terry_trash_sound_4 = register("escape_race.terry_trash.sound_4");
+	public static final Holder<SoundEvent> terry_trash_sound_5 = register("escape_race.terry_trash.sound_5");
+	public static final Holder<SoundEvent> terry_trash_sound_6 = register("escape_race.terry_trash.sound_6");
+
 	public static final Holder<SoundEvent> UPSET_STOMACH_FART = register("upset_stomach.fart");
 
 	private static Holder<SoundEvent> register(String name) {
