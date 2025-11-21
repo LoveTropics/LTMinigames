@@ -137,7 +137,7 @@ public class CrabGolfHoleBehavior implements PersistentGameBehavior {
 		events.listen(GamePlayerEvents.USE_BLOCK, (player, level, pos, hand, hit) -> {
 			if (isOk() && level.getBlockState(pos).is(BlockTags.BUTTONS) && buttonRegion.contains(pos)) {
 				// Already playing?
-				if (!game.invoker(CrabGolfEvents.QUERY_PLAYING).isPlaying(player)) {
+				if (!game.invoker(CrabGolfEvents.QUERY_PLAYING).isPlaying(player) && currentlyPlaying.isEmpty()) {
 					game.invoker(CrabGolfEvents.START_GAME).onStart(hole, player);
 				}
 			}
