@@ -114,7 +114,7 @@ public final class MinigameTexts {
 	);
 	private static final TranslationCollector.Fun2 PROGRESS_BAR_TIME = KEYS.add2("progress_bar.time", "%s (%s left)");
 
-	public static Component progressBarTime(Component text, int secondsLeft) {
+	public static Component progressBarTime(Component text, long secondsLeft) {
 		return PROGRESS_BAR_TIME.apply(text, Util.formatMinutesSeconds(secondsLeft));
 	}
 

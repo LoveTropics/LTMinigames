@@ -2,7 +2,6 @@ package com.lovetropics.minigames.common.core.game.behavior.instances.action;
 
 import com.lovetropics.lib.BlockBox;
 import com.lovetropics.lib.codec.MoreCodecs;
-import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
@@ -16,7 +15,6 @@ import it.unimi.dsi.fastutil.longs.LongSet;
 import net.minecraft.advancements.critereon.BlockPredicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.util.RandomSource;
@@ -68,11 +66,7 @@ public final class SetBlocksAction implements IGameBehavior {
 	public void register(IGamePhase game, EventRegistrar events) {
 		List<BlockBox> regions = new ArrayList<>();
 		for (String regionKey : regionKeys) {
-			regions.addAll(game.mapRegions().get(regionKey));
-		}
-
-		if (regions.isEmpty()) {
-			throw new GameException(Component.literal("Regions not specified for block set behavior with a set time!"));
+			regions.addAll(game.mapRegions().getAllOrThrow(regionKey));
 		}
 
 		events.listen(GameActionEvents.APPLY, (context, targets) -> {

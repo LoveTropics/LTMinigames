@@ -1,24 +1,28 @@
 package com.lovetropics.minigames.common.content.escape_race.behaviours;
 
+import com.lovetropics.lib.codec.MoreCodecs;
 import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionList;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents;
-import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.ScheduledActionsTrigger;
 import com.lovetropics.minigames.common.core.game.state.GameStateKey;
+import com.lovetropics.minigames.common.core.game.state.GameStateMap;
 import com.lovetropics.minigames.common.core.game.state.IGameState;
-import com.lovetropics.minigames.common.core.game.state.progress.ProgressionPoint;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMaps;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.context.ContextMap;
+import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
 import java.util.Map;
@@ -29,6 +33,8 @@ public record NamedStagesBehaviour(
 		String startingStage,
 		boolean autoStart
 ) implements IGameBehavior {
+	private static final Logger LOGGER = LogUtils.getLogger();
+
 	public static final MapCodec<NamedStagesBehaviour> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			Codec.unboundedMap(Codec.STRING, NamedStage.CODEC).fieldOf("stages").forGetter(NamedStagesBehaviour::stages),
 			Codec.STRING.fieldOf("starting_stage").forGetter(NamedStagesBehaviour::startingStage),
@@ -43,7 +49,7 @@ public record NamedStagesBehaviour(
 			Optional<GameActionList> endActions,
 			Optional<String> nextStage,
 			boolean autoMoveOn,
-			Map<String, GameActionList> tickActions,
+			Long2ObjectMap<GameActionList> tickActions,
 			boolean endAutoProgress
 	) {
 		public static final Codec<NamedStage> CODEC = RecordCodecBuilder.create(i -> i.group(
@@ -52,16 +58,21 @@ public record NamedStagesBehaviour(
 				GameActionList.CODEC.optionalFieldOf("end_actions").forGetter(NamedStage::endActions),
 				Codec.STRING.optionalFieldOf("next_stage").forGetter(NamedStage::nextStage),
 				Codec.BOOL.optionalFieldOf("auto_move_on", false).forGetter(NamedStage::autoMoveOn),
-				Codec.unboundedMap(Codec.STRING, GameActionList.CODEC).optionalFieldOf("tick_actions", Map.of())
-						.forGetter(NamedStage::tickActions),
+				MoreCodecs.long2Object(GameActionList.CODEC).optionalFieldOf("tick_actions", Long2ObjectMaps.emptyMap()).forGetter(NamedStage::tickActions),
 				Codec.BOOL.optionalFieldOf("end_auto_progress", true).forGetter(NamedStage::endAutoProgress)
 		).apply(i, NamedStage::new));
 
 	}
+
 	@Override
-	public void register(IGamePhase game, EventRegistrar events) throws GameException {
+	public void registerState(IGamePhase game, GameStateMap phaseState, GameStateMap instanceState) {
 		State state = new State(this, game);
 		game.instanceState().register(KEY, state);
+	}
+
+	@Override
+	public void register(IGamePhase game, EventRegistrar events) throws GameException {
+		State state = game.instanceState().getOrThrow(KEY);
 		stages.values().forEach(stage -> {
 			stage.startActions().ifPresent(actions -> {actions.register(game, events);});
 			stage.endActions().ifPresent(actions -> {actions.register(game, events);});
@@ -145,6 +156,7 @@ public record NamedStagesBehaviour(
 		private long pausedAt = -1;
 		private boolean running = false;
 		private @Nullable NamedStage currentStage;
+		private @Nullable String currentStageName;
 
 		private State(NamedStagesBehaviour parent, IGamePhase game) {
 			this.parent = parent;
@@ -174,27 +186,18 @@ public record NamedStagesBehaviour(
 			if(running) {
 				if (currentStage != null) {
 					if(currentStage.timerLengthTicks.isPresent()) {
-						String currentTick = Long.toString(currentStage.timerLengthTicks.get() - (currentStageEndTime - game.ticks()));
-						if (currentStage.tickActions.containsKey(currentTick)) {
-							currentStage.tickActions.get(currentTick).apply(game, ContextMap.EMPTY);
+						long currentTick = currentStage.timerLengthTicks.get() - (currentStageEndTime - game.ticks());
+						GameActionList actions = currentStage.tickActions.get(currentTick);
+						if (actions != null) {
+							actions.apply(game, ContextMap.EMPTY);
 						}
 						if (currentStage.autoMoveOn() && currentStage.nextStage().isPresent()) {
 							if (game.ticks() >= currentStageEndTime) {
-								progressToStage(parent.stages().get(currentStage.nextStage().get()));
+								progressToStage(currentStage.nextStage().get());
 							}
 						}
 					}
 				}
-			}
-		}
-
-		public void progressToStage(String stage){
-			progressToStage(stage, false);
-		}
-
-		public void progressToStage(String stage, boolean skipEndActions){
-			if(parent.stages().containsKey(stage)) {
-				progressToStage(parent.stages().get(stage), skipEndActions);
 			}
 		}
 
@@ -209,11 +212,16 @@ public record NamedStagesBehaviour(
 			progressToNext(false);
 		}
 
-		public void progressToStage(NamedStage stage){
+		public void progressToStage(String stage) {
 			progressToStage(stage, false);
 		}
 
-		public void progressToStage(NamedStage stage, boolean skipEndActions){
+		public void progressToStage(String stageName, boolean skipEndActions) {
+			NamedStage stage = parent.stages().get(stageName);
+			if (stage == null) {
+				LOGGER.warn("No stage with name: {}", stageName);
+				return;
+			}
 			if(currentStage != null && !skipEndActions){
 				currentStage.endActions.ifPresent(actions -> actions.apply(game, ContextMap.EMPTY));
 				if(currentStage.endActions().isPresent() && !currentStage.endAutoProgress) {
@@ -221,6 +229,7 @@ public record NamedStagesBehaviour(
 				}
 			}
 			currentStage = stage;
+			currentStageName = stageName;
 			currentStageStartTime = game.ticks();
 			if(currentStage.timerLengthTicks().isPresent()) {
 				currentStageEndTime = game.ticks() + currentStage.timerLengthTicks().get();
@@ -230,6 +239,24 @@ public record NamedStagesBehaviour(
 			currentStage.startActions.ifPresent(actions -> actions.apply(game, ContextMap.EMPTY));
 		}
 
+		public @Nullable StageState getCurrentStageState() {
+			if (currentStage == null | currentStageName == null) {
+				return null;
+			}
+			return new StageState(
+					currentStageName,
+					currentStage,
+					currentStageStartTime,
+					currentStageEndTime
+			);
+		}
 	}
 
+	public record StageState(
+			String id,
+			NamedStage stage,
+			long startTime,
+			long endTime
+	) {
+	}
 }

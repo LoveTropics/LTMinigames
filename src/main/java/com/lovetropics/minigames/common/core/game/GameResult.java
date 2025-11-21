@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.function.Function;
 
 public final class GameResult<T> {
@@ -47,6 +48,9 @@ public final class GameResult<T> {
 	}
 
 	public static <T> GameResult<T> fromException(String message, Throwable throwable) {
+		if (throwable instanceof CompletionException completionException && completionException.getCause() != null) {
+			throwable = completionException.getCause();
+		}
 		if (throwable instanceof GameException gameException) {
 			return error(gameException);
 		}

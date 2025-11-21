@@ -5,6 +5,7 @@ import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.content.escape_race.behaviours.BreakBucksBehaviour;
 import com.lovetropics.minigames.common.content.escape_race.behaviours.CloseRoomsAction;
 import com.lovetropics.minigames.common.content.escape_race.behaviours.EarlyExitRoomAction;
+import com.lovetropics.minigames.common.content.escape_race.behaviours.EscapeRaceStageBarBehavior;
 import com.lovetropics.minigames.common.content.escape_race.behaviours.ItemFrameCodeBehaviour;
 import com.lovetropics.minigames.common.content.escape_race.behaviours.JoinTeamIntoRoomAction;
 import com.lovetropics.minigames.common.content.escape_race.behaviours.NamedStagesBehaviour;
@@ -156,6 +157,7 @@ public class EscapeRace {
 	public static final GameBehaviorEntry<JoinTeamIntoRoomAction> JOIN_TEAM_INTO_ROOM = REGISTRATE.object("escape_race/join_team_into_room").behavior(JoinTeamIntoRoomAction.CODEC).register();
 	public static final GameBehaviorEntry<CloseRoomsAction> CLOSE_ROOMS = REGISTRATE.object("escape_race/close_rooms").behavior(CloseRoomsAction.CODEC).register();
 	public static final GameBehaviorEntry<RevealWinnerAction> REVEAL_WINNER = REGISTRATE.object("escape_race/reveal_winner").behavior(RevealWinnerAction.CODEC).register();
+	public static final GameBehaviorEntry<EscapeRaceStageBarBehavior> STAGE_BAR = REGISTRATE.object("escape_race/stage_bar").behavior(EscapeRaceStageBarBehavior.CODEC).register();
 
 	public static final GameBehaviorEntry<ItemFrameCodeBehaviour> ITEM_FRAME_CODE = REGISTRATE.object("item_frame_code")
 			.behavior(ItemFrameCodeBehaviour.CODEC)
