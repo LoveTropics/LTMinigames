@@ -3,6 +3,7 @@ package com.lovetropics.minigames.common.core.game.client_state;
 import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.core.game.client_state.instance.BeSpeedyState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.BeaconClientState;
+import com.lovetropics.minigames.common.core.game.client_state.instance.BreakDelayState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.CollidersClientState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.CraftingBeeCraftsClientState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.DisableBobbingState;
@@ -69,6 +70,7 @@ public final class GameClientStateTypes {
 	public static final GameClientTweakEntry<SoundVolumeModifier> SOUND_VOLUME_MODIFIER = register("sound_volume_modifier", SoundVolumeModifier.CODEC, SoundVolumeModifier.STREAM_CODEC);
 	public static final GameClientTweakEntry<HidePlayersState> HIDE_PLAYERS = register("hide_players", HidePlayersState.CODEC, HidePlayersState.STREAM_CODEC);
 	public static final GameClientTweakEntry<StatisticOverlayState> STATISTIC_OVERLAY = register("statistic_overlay", StatisticOverlayState.CODEC, StatisticOverlayState.STREAM_CODEC);
+	public static final GameClientTweakEntry<BreakDelayState> BREAK_DELAY = register("break_delay", MapCodec.unit(BreakDelayState.INSTANCE), StreamCodec.unit(BreakDelayState.INSTANCE));
 
 	public static <T extends GameClientState> GameClientTweakEntry<T> register(final String name, final MapCodec<T> codec) {
 		return REGISTRATE.object(name)

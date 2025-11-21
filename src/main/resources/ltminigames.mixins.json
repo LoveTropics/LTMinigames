@@ -17,6 +17,7 @@
     "ServerPlayerMixin",
     "TrialSpawnerAccess",
     "chat.ServerGamePacketListenerImplMixin",
+    "client.MultiPlayerGameModeMixin",
     "client.PlayerMixin",
     "command.CommandsMixin",
     "command.ServerGamePacketListenerImplMixin",
