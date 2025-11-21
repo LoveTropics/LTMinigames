@@ -86,7 +86,7 @@ public record CheckpointsBehavior(
 	) {
 		public static final Codec<CheckpointConfig> CODEC = RecordCodecBuilder.create(i -> i.group(
 				Codec.STRING.fieldOf("region").forGetter(CheckpointConfig::region),
-				Codec.STRING.optionalFieldOf("spawn_regions").forGetter(CheckpointConfig::spawnRegion),
+				Codec.STRING.optionalFieldOf("spawn_region").forGetter(CheckpointConfig::spawnRegion),
 				Codec.STRING.optionalFieldOf("face_region").forGetter(CheckpointConfig::faceRegion)
 		).apply(i, CheckpointConfig::new));
 
