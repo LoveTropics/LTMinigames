@@ -55,7 +55,13 @@ public class CrabGolfClubsBehavior implements PersistentGameBehavior {
 		events.listen(CrabGolfEvents.WIN_GAME, (hole, player, score) -> {
 			List<ItemStack> remove = added.remove(player);
 			if (remove != null) {
-
+				for (ItemStack stack : remove) {
+					for (ItemStack st : player.getInventory()) {
+						if (ItemStack.matches(stack, st)) {
+							player.getInventory().removeItem(st);
+						}
+					}
+				}
 			}
 		});
 	}
