@@ -491,6 +491,13 @@ public class GamePhase implements IGamePhase {
 	}
 
 	public List<ServerPlayer> removeAllPlayers() {
+		for (GamePhase subPhase : subPhases) {
+			for (ServerPlayer player : subPhase.allPlayers.shuffledCopy(random())) {
+				subPhase.removePlayerDirectly(player, false);
+				addPlayerDirectly(player, false);
+			}
+		}
+
 		List<ServerPlayer> players = Lists.newArrayList(allPlayers);
 		allPlayers.clear();
 
