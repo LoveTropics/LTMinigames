@@ -38,9 +38,16 @@ public final class EditRegionItem extends Item {
 	}
 
 	@Override
+	public InteractionResult use(Level level, Player player, InteractionHand hand) {
+		return doUse(level, player);
+	}
+
+	@Override
 	public InteractionResult onItemUseFirst(ItemStack stack, UseOnContext context) {
-		Level level = context.getLevel();
-		Player player = context.getPlayer();
+		return doUse(context.getLevel(), context.getPlayer());
+	}
+
+	private InteractionResult doUse(Level level, @Nullable Player player) {
 		if (level.isClientSide() && player != null && isClientPlayer(player)) {
 			RegionTraceTarget traceResult = MapWorkspaceTracer.trace(player);
 
