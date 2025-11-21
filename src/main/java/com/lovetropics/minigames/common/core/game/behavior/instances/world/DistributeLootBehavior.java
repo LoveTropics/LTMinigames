@@ -25,6 +25,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.chunk.LevelChunk;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public record DistributeLootBehavior(
@@ -42,9 +43,12 @@ public record DistributeLootBehavior(
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		BlockBox region = game.mapRegions().getOrThrow(this.region);
+		Collection<BlockBox> region = game.mapRegions().getAll(this.region);
 
-		LongSet pendingChunks = new LongOpenHashSet(region.asChunks());
+		LongSet pendingChunks = new LongOpenHashSet();
+		region.forEach(box -> {
+			pendingChunks.addAll(box.asChunks());
+		});
 		pendingChunks.forEach(chunkKey ->
 				game.level().getChunkSource().updateChunkForced(new ChunkPos(chunkKey), true)
 		);
@@ -57,20 +61,22 @@ public record DistributeLootBehavior(
 		});
 	}
 
-	private void onRegionFullyLoaded(IGamePhase game, BlockBox box) {
+	private void onRegionFullyLoaded(IGamePhase game, Collection<BlockBox> boxes) {
 		List<Container> containers = new ArrayList<>();
-		box.asChunks().forEach(chunkKey -> {
-			LevelChunk chunk = game.level().getChunk(ChunkPos.getX(chunkKey), ChunkPos.getZ(chunkKey));
-			for (BlockEntity blockEntity : chunk.getBlockEntities().values()) {
-				BlockPos pos = blockEntity.getBlockPos();
-				if (!box.contains(pos.getX(), box.min().getY(), pos.getZ())) {
-					return;
+		boxes.forEach(box -> {
+			box.asChunks().forEach(chunkKey -> {
+				LevelChunk chunk = game.level().getChunk(ChunkPos.getX(chunkKey), ChunkPos.getZ(chunkKey));
+				for (BlockEntity blockEntity : chunk.getBlockEntities().values()) {
+					BlockPos pos = blockEntity.getBlockPos();
+					if (!box.contains(pos.getX(), box.min().getY(), pos.getZ())) {
+						return;
+					}
+					if (blockEntity instanceof Container container && blockEntity.getType().equals(blockEntityType)) {
+						containers.add(container);
+					}
 				}
-				if (blockEntity instanceof Container container && blockEntity.getType().equals(blockEntityType)) {
-					containers.add(container);
-				}
-			}
-			game.level().getChunkSource().updateChunkForced(chunk.getPos(), false);
+				game.level().getChunkSource().updateChunkForced(chunk.getPos(), false);
+			});
 		});
 
 		RandomSource random = game.random();
