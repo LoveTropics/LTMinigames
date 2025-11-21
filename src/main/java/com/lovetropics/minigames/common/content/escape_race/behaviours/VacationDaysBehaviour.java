@@ -69,7 +69,7 @@ public class VacationDaysBehaviour implements IGameBehavior {
 
 		events.listen(GamePhaseEvents.TICK, () -> {
 			for (GameTeamKey teamKey : teams.getTeamKeys()) {
-				int newPoints = game.statistics().forTeam(teamKey).getInt(StatisticKey.VICTORY_POINTS);
+				int newPoints = game.statistics().forTeam(teamKey).getInt(StatisticKey.VACATION_DAYS);
 				int oldPoints = lastTeamPoints.put(teamKey, newPoints);
 				if (newPoints != oldPoints) {
 					game.invoker(EscapeRaceEvents.VACATION_DAYS_CHANGED).onVacationDaysChanged(teamKey, newPoints, oldPoints);

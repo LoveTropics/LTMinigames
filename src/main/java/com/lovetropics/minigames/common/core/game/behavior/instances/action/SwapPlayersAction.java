@@ -1,9 +1,13 @@
 package com.lovetropics.minigames.common.core.game.behavior.instances.action;
 
+import com.google.common.collect.Lists;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvents;
+import com.lovetropics.minigames.common.core.game.player.PlayerSet;
+import com.lovetropics.minigames.common.core.game.state.team.GameTeamKey;
+import com.lovetropics.minigames.common.core.game.state.team.TeamState;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -11,15 +15,30 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
-public record SwapPlayersAction(double distanceThreshold) implements IGameBehavior {
+public class SwapPlayersAction implements IGameBehavior {
 	public static final MapCodec<SwapPlayersAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			Codec.DOUBLE.optionalFieldOf("distance_threshold", Double.MAX_VALUE).forGetter(c -> c.distanceThreshold)
+			Codec.DOUBLE.optionalFieldOf("distance_threshold", Double.MAX_VALUE).forGetter(c -> c.distanceThreshold),
+			Codec.BOOL.optionalFieldOf("within_team", Boolean.FALSE).forGetter(c -> c.withinTeam)
 	).apply(i, SwapPlayersAction::new));
+
+	private final double distanceThreshold;
+	private final boolean withinTeam;
+
+	@Nullable
+	private TeamState teams;
+
+	public SwapPlayersAction(double distanceThreshold, boolean withinTeam) {
+		this.distanceThreshold = distanceThreshold;
+		this.withinTeam = withinTeam;
+	}
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
+		teams = game.instanceState().getOrNull(TeamState.KEY);
+
 		events.listen(GameActionEvents.APPLY, (context, targets) -> {
 			if (game.participants().size() <= 1) {
 				return false;
@@ -33,9 +52,7 @@ public record SwapPlayersAction(double distanceThreshold) implements IGameBehavi
 		});
 	}
 
-	private void shufflePlayers(IGamePhase game) {
-		List<ServerPlayer> players = game.participants().shuffledCopy(game.random());
-
+	private void shuffleSpecificPlayers(IGamePhase game, List<ServerPlayer> players) {
 		List<Vec3> playerPositions = players.stream()
 				.map(Entity::position)
 				.toList();
@@ -47,9 +64,33 @@ public record SwapPlayersAction(double distanceThreshold) implements IGameBehavi
 		}
 	}
 
-	private void swapNearbyPlayers(IGamePhase game) {
-		List<ServerPlayer> players = game.participants().shuffledCopy(game.random());
+	private void shufflePlayers(IGamePhase game) {
+		if (withinTeam && teams != null) {
+			for (final GameTeamKey key : teams.getTeamKeys()) {
+				PlayerSet players = teams.getPlayersForTeam(game, key);
+				List<ServerPlayer> swappable = Lists.newArrayList(players);
+				shuffleSpecificPlayers(game, swappable);
+			}
+		} else {
+			List<ServerPlayer> players = game.participants().shuffledCopy(game.random());
+			shuffleSpecificPlayers(game, players);
+		}
+	}
 
+	private void swapNearbyPlayers(IGamePhase game) {
+		if (withinTeam && teams != null) {
+			for (final GameTeamKey key : teams.getTeamKeys()) {
+				PlayerSet players = teams.getPlayersForTeam(game, key);
+				List<ServerPlayer> swappable = Lists.newArrayList(players);
+				swapNearbySpecificPlayers(swappable);
+			}
+		} else {
+			List<ServerPlayer> players = game.participants().shuffledCopy(game.random());
+			swapNearbySpecificPlayers(players);
+		}
+	}
+
+	private void swapNearbySpecificPlayers(List<ServerPlayer> players) {
 		List<Vec3> playerPositions = players.stream()
 				.map(Entity::position)
 				.toList();

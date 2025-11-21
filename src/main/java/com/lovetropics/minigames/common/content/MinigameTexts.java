@@ -218,6 +218,9 @@ public final class MinigameTexts {
 		KEYS.add("donation.seriously_shoebill", "Seriously, Shoebills?");
 		KEYS.add("donation.seriously_shoebill.description", "Turn all players into the fantastic Shoebill Stork.");
 		KEYS.add("donation.seriously_shoebill.toast", "%sender% has TURNED EVERYONE INTO SHOEBILL STORKS!");
+		KEYS.add("donation.happy_lil_ghast", "A Happy Lil' Ghast");
+		KEYS.add("donation.happy_lil_ghast.description", "Turn all players into a tiiiiny Happy Ghast");
+		KEYS.add("donation.happy_lil_ghast.toast", "%sender% has TURNED EVERYONE INTO SUPER CUTE HAPPY GHASTS!");
 		KEYS.add("donation.this_will_be_a_breeze", "This Will be a Breeze");
 		KEYS.add("donation.this_will_be_a_breeze.description", "I mean - the players, they will be Breezes! Includes 10 bonus Wind Charges!");
 		KEYS.add("donation.this_will_be_a_breeze.toast", "%sender% has TURNED EVERYONE INTO THE BREEZE!");
