@@ -2,7 +2,6 @@ package com.lovetropics.minigames.common.content.escape_race.event;
 
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels.DdrLevel;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameEventType;
-import com.lovetropics.minigames.common.core.game.state.team.GameTeamKey;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerPlayer;
 
@@ -14,17 +13,7 @@ public class EscapeRaceEvents {
 		}
 	});
 
-	public static final GameEventType<VacationDaysChanged> VACATION_DAYS_CHANGED = GameEventType.create(VacationDaysChanged.class, listeners -> (team, value, lastValue) -> {
-		for (VacationDaysChanged listener : listeners) {
-			listener.onVacationDaysChanged(team, value, lastValue);
-		}
-	});
-
 	public interface DDRLevelCompleted {
 		void onComplete(ServerPlayer player, Holder<DdrLevel> level, int score, int bestStreak);
-	}
-
-	public interface VacationDaysChanged {
-		void onVacationDaysChanged(GameTeamKey team, int value, int lastValue);
 	}
 }

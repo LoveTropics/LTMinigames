@@ -183,6 +183,9 @@ public class EscapeRace {
 			.mobEffect(() -> new TapirTakeoverMobEffect(MobEffectCategory.NEUTRAL))
 			.register();
 
+	// Literally just because we use items as icons for statistic overlays
+	public static final ItemEntry<Item> VACATION_DAY = REGISTRATE.item("vacation_day", Item::new).register();
+
 	public static void init() {
 		register("itemstack_list", ITEM_STACK_LIST);
 		register("ddr_state", DDR_STATE);

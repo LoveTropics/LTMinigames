@@ -39,13 +39,13 @@ public class EscapeRaceTexts {
 
 	public static final Component VACATION_DAY = Component.literal("\u0355").withStyle(Style.EMPTY.withColor(CommonColors.WHITE).withFont(ResourceLocation.fromNamespaceAndPath("lt", "ui")));
 	public static final Component SIDEBAR_VACATION_DAYS = KEYS.add("sidebar.vacation_days", "Vacation Days").withStyle(ChatFormatting.GOLD).copy().append(VACATION_DAY);
-	public static final TranslationCollector.Fun1 VACATION_DAYS_CHANGED = KEYS.add1("race.vacation_days_changed", "+%s Vacation Day(s)")
-			.withStyle(ChatFormatting.GREEN);
 	public static final TranslationCollector.Fun4 SIDEBAR_HEADER = KEYS.add4("sidebar.vacation_days_header", "%s %s | %s %s").withStyle(ChatFormatting.GRAY);
 
 
 	public static void collectTranslations(BiConsumer<String, String> consumer){
 		KEYS.add("donorbook.title", "%s's final thoughts");
+		KEYS.add("overlay.vacation_days", "%s Vacation Days");
+		KEYS.add("vacation_days_changed", "+%change% Vacation Day(s)");
 
 		KEYS.forEach(consumer);
 		consumer.accept(LoveTropics.ID + ".minigame.escape_race", "Escape Race");

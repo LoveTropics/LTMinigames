@@ -10,6 +10,7 @@ import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvent
 import com.lovetropics.minigames.common.core.game.state.statistics.StatisticKey;
 import com.lovetropics.minigames.common.core.game.state.statistics.StatisticsMap;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeamKey;
+import com.lovetropics.minigames.common.core.game.state.team.TeamState;
 import com.lovetropics.minigames.common.util.LinearSpline;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -18,6 +19,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.util.StringRepresentable;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -65,6 +67,19 @@ public record SetStatisticAction(
 
 		Scope(String name) {
 			this.name = name;
+		}
+
+		@Nullable
+		public StatisticsMap get(IGamePhase game, ServerPlayer player) {
+			return switch (this) {
+				case GLOBAL -> game.statistics().global();
+				case PLAYER -> game.statistics().forPlayer(player);
+				case TEAM -> {
+					TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
+					GameTeamKey team = teams != null ? teams.getTeamForPlayer(player) : null;
+					yield team != null ? game.statistics().forTeam(team) : null;
+				}
+			};
 		}
 
 		public boolean applyTo(IGamePhase game, ActionSubjects<?> targets, Consumer<StatisticsMap> consumer) {

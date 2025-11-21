@@ -315,7 +315,7 @@ public class GameRendering {
 	}
 
 	private static void renderStatisticOverlay(GuiGraphics graphics, StatisticOverlayState.Ticker statisticOverlay) {
-		final int padding = 2;
+		final int padding = 3;
 		final int itemSize = 16;
 
 		Font font = Minecraft.getInstance().font;

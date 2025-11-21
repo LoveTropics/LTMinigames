@@ -9,6 +9,7 @@ import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.SetStatisticAction;
+import com.lovetropics.minigames.common.core.game.player.PlayerIterable;
 import com.lovetropics.minigames.common.core.game.state.statistics.StatisticKey;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeamKey;
 import com.mojang.serialization.Codec;
@@ -16,24 +17,33 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.ExtraCodecs;
+import net.minecraft.util.Mth;
 import net.minecraft.util.context.ContextKeySet;
 import net.minecraft.util.context.ContextMap;
 import org.apache.commons.lang3.mutable.MutableInt;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public record StatisticNotifierBehavior(
 		StatisticKey<Integer> statistic,
 		boolean onlyIncrease,
 		GameActionList actions,
-		SetStatisticAction.Scope scope
+		SetStatisticAction.Scope scope,
+		Optional<IncreaseSound> increaseSound
 ) implements IGameBehavior {
 	public static final MapCodec<StatisticNotifierBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			StatisticKey.INT_CODEC.fieldOf("statistic").forGetter(StatisticNotifierBehavior::statistic),
 			Codec.BOOL.optionalFieldOf("only_increase", true).forGetter(StatisticNotifierBehavior::onlyIncrease),
 			GameActionList.MAP_CODEC.forGetter(StatisticNotifierBehavior::actions),
-			SetStatisticAction.Scope.CODEC.optionalFieldOf("scope", SetStatisticAction.Scope.PLAYER).forGetter(StatisticNotifierBehavior::scope)
+			SetStatisticAction.Scope.CODEC.optionalFieldOf("scope", SetStatisticAction.Scope.PLAYER).forGetter(StatisticNotifierBehavior::scope),
+			// TODO: Should really be its own action
+			IncreaseSound.CODEC.optionalFieldOf("increase_sound").forGetter(StatisticNotifierBehavior::increaseSound)
 	).apply(i, StatisticNotifierBehavior::new));
 
 	@Override
@@ -106,9 +116,39 @@ public record StatisticNotifierBehavior(
 		if (onlyIncrease && value < lastValue) {
 			return;
 		}
+
+		int increase = value - lastValue;
 		ContextMap context = new ContextMap.Builder()
-				.withParameter(GameActionContextKeys.CHANGE, value - lastValue)
+				.withParameter(GameActionContextKeys.CHANGE, increase)
 				.create(ContextKeySet.EMPTY);
 		actions.apply(game, context, subjects);
+
+		if (increaseSound.isPresent()) {
+			IncreaseSound config = increaseSound.get();
+			for (int i = 0; i < increase; i += config.step()) {
+				float pitch = Mth.lerp((float) i / increase, config.startPitch(), config.endPitch());
+				game.scheduler().runAfterTicks(config.initialDelay() + i * config.interval(), () ->
+						PlayerIterable.from(subjects.asPlayers(game)).playSound(config.sound().value(), SoundSource.NEUTRAL, 1.0f, pitch)
+				);
+			}
+		}
+	}
+
+	private record IncreaseSound(
+			Holder<SoundEvent> sound,
+			int step,
+			int initialDelay,
+			int interval,
+			float startPitch,
+			float endPitch
+	) {
+		public static final Codec<IncreaseSound> CODEC = RecordCodecBuilder.create(i -> i.group(
+				SoundEvent.CODEC.fieldOf("sound").forGetter(IncreaseSound::sound),
+				ExtraCodecs.POSITIVE_INT.optionalFieldOf("step", 1).forGetter(IncreaseSound::step),
+				ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("initial_delay", 5).forGetter(IncreaseSound::initialDelay),
+				ExtraCodecs.POSITIVE_INT.optionalFieldOf("interval", 3).forGetter(IncreaseSound::interval),
+				Codec.floatRange(0.2f, 5.0f).optionalFieldOf("start_pitch", 1.0f).forGetter(IncreaseSound::startPitch),
+				Codec.floatRange(0.2f, 5.0f).optionalFieldOf("end_pitch", 2.0f).forGetter(IncreaseSound::endPitch)
+		).apply(i, IncreaseSound::new));
 	}
 }

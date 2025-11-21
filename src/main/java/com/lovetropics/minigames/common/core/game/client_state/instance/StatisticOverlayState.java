@@ -17,12 +17,14 @@ import java.util.Optional;
 public record StatisticOverlayState(
 		ItemStack icon,
 		Optional<String> translationKey,
+		int valueChangeRate,
 		int value
 ) implements GameClientState {
 	public static final MapCodec<StatisticOverlayState> CODEC = Codecs.no();
 	public static final StreamCodec<RegistryFriendlyByteBuf, StatisticOverlayState> STREAM_CODEC = StreamCodec.composite(
 			ItemStack.STREAM_CODEC, StatisticOverlayState::icon,
 			ByteBufCodecs.STRING_UTF8.apply(ByteBufCodecs::optional), StatisticOverlayState::translationKey,
+			ByteBufCodecs.VAR_INT, StatisticOverlayState::valueChangeRate,
 			ByteBufCodecs.VAR_INT, StatisticOverlayState::value,
 			StatisticOverlayState::new
 	);
@@ -37,13 +39,11 @@ public record StatisticOverlayState(
 			return new Ticker(icon, translationKey, value);
 		}
 		ticker.targetValue = value;
-		ticker.tick();
+		ticker.tick(valueChangeRate);
 		return ticker;
 	}
 
 	public static class Ticker {
-		private static final int VALUE_CHANGE_RATE = 4;
-
 		private final ItemStack icon;
 		private final Optional<String> translationKey;
 
@@ -57,11 +57,11 @@ public record StatisticOverlayState(
 			targetValue = initialValue;
 		}
 
-		public void tick() {
+		public void tick(int valueChangeRate) {
 			if (value < targetValue) {
-				value = Math.min(value + VALUE_CHANGE_RATE, targetValue);
+				value = Math.min(value + valueChangeRate, targetValue);
 			} else if (value > targetValue) {
-				value = Math.max(value - VALUE_CHANGE_RATE, targetValue);
+				value = Math.max(value - valueChangeRate, targetValue);
 			}
 		}
 
