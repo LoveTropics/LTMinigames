@@ -24,6 +24,12 @@ public class CrabGolfEvents {
 		}
 	});
 
+	public static final GameEventType<WinGame> HIGH_SCORE = GameEventType.create(WinGame.class, listeners -> (hole, player, score) -> {
+		for (WinGame listener : listeners) {
+			listener.onWin(hole, player, score);
+		}
+	});
+
 	public static final GameEventType<QueryPlaying> QUERY_PLAYING = GameEventType.create(QueryPlaying.class, listeners -> (player) -> {
 		for (QueryPlaying listener : listeners) {
 			if (listener.isPlaying(player)) {

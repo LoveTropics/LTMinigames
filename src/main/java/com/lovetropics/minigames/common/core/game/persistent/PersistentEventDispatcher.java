@@ -3,12 +3,14 @@ package com.lovetropics.minigames.common.core.game.persistent;
 import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
+import com.lovetropics.minigames.common.core.game.impl.GameEventDispatcher;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.TriState;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
@@ -59,6 +61,27 @@ public class PersistentEventDispatcher {
 			if (res.isFalse()) {
 				event.setCanceled(true);
 				return;
+			}
+		}
+	}
+
+	@SubscribeEvent
+	public static void onPlayerRightClickItem(PlayerInteractEvent.RightClickItem event) {
+		Level level = event.getLevel();
+		if (!(event.getEntity() instanceof ServerPlayer player)) {
+			return;
+		}
+
+		for (PersistentGameInstance game : PersistentGames.in(level)) {
+			try {
+				InteractionResult result = game.invoker(GamePlayerEvents.USE_ITEM).onUseItem(player, event.getHand());
+				if (result.consumesAction()) {
+					event.setCancellationResult(result);
+					event.setCanceled(true);
+					GameEventDispatcher.resendPlayerHeldItem(player, event.getHand());
+				}
+			} catch (Exception e) {
+				LoveTropics.LOGGER.warn("Failed to dispatch player item use event", e);
 			}
 		}
 	}

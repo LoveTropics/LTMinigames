@@ -440,7 +440,7 @@ public final class GameEventDispatcher {
 		}
 	}
 
-	private void resendPlayerHeldItem(ServerPlayer player, InteractionHand hand) {
+	public static void resendPlayerHeldItem(ServerPlayer player, InteractionHand hand) {
 		int handSlot = hand == InteractionHand.MAIN_HAND ? player.getInventory().getSelectedSlot() : Inventory.SLOT_OFFHAND;
 		ItemStack handItem = player.getItemInHand(hand);
 		InventoryMenu inventory = player.inventoryMenu;

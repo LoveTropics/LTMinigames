@@ -79,6 +79,7 @@ import com.lovetropics.minigames.common.core.game.client_state.GameClientStateTy
 import com.lovetropics.minigames.common.core.game.impl.GameEventDispatcher;
 import com.lovetropics.minigames.common.core.game.impl.GamePhaseManager;
 import com.lovetropics.minigames.common.core.game.persistent.PersistentGameBehaviors;
+import com.lovetropics.minigames.common.core.game.persistent.behavior.parkour.Parkour;
 import com.lovetropics.minigames.common.core.game.predicate.entity.EntityPredicates;
 import com.lovetropics.minigames.common.core.game.predicate.loot.LootItemConditions;
 import com.lovetropics.minigames.common.core.game.util.GameTexts;
@@ -234,6 +235,7 @@ public class LoveTropics {
 		EscapeRace.ENTITY_SERIALIZERS.register(modBus);
 		EscapeRace.DATA_COMPONENTS.register(modBus);
 		PredictedToggle.REGISTER.register(modBus);
+		Parkour.init();
 
 		LoveTropicsEntityOptions.register();
 

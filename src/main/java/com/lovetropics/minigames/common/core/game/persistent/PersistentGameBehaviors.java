@@ -9,6 +9,7 @@ import com.lovetropics.minigames.common.core.game.persistent.behavior.crab.CrabG
 import com.lovetropics.minigames.common.core.game.persistent.behavior.crab.CrabGolfCrabBehavior;
 import com.lovetropics.minigames.common.core.game.persistent.behavior.crab.CrabGolfHoleBehavior;
 import com.lovetropics.minigames.common.core.game.persistent.behavior.crab.CrabGolfWinBehavior;
+import com.lovetropics.minigames.common.core.game.persistent.behavior.parkour.ParkourBehavior;
 import com.lovetropics.minigames.common.util.registry.LoveTropicsRegistrate;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -35,6 +36,7 @@ public class PersistentGameBehaviors {
 	public static final PersistentGameBehaviorEntry<CrabGolfClubsBehavior> CRAB_GOLF_CLUBS = register("crab_golf_clubs", CrabGolfClubsBehavior.CODEC);
 	public static final PersistentGameBehaviorEntry<CrabGolfCrabBehavior> CRAB_GOLF_CRAB = register("crab_golf_crab", CrabGolfCrabBehavior.CODEC);
 	public static final PersistentGameBehaviorEntry<CrabGolfWinBehavior> CRAB_GOLF_WIN = register("crab_golf_win", CrabGolfWinBehavior.CODEC);
+	public static final PersistentGameBehaviorEntry<ParkourBehavior> PARKOUR = register("parkour", ParkourBehavior.CODEC);
 
 	public static <T extends PersistentGameBehavior> PersistentGameBehaviorEntry<T> register(final String name, final MapCodec<T> codec) {
 		return REGISTRATE.object(name).persistentBehavior(codec).register();
