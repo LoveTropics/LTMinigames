@@ -65,6 +65,7 @@ public interface ActionTarget {
 		WIDEN_TO_TEAM("widen_to_team", (game, targets, sources) -> targets.coerceInto(game, ActionSubjectType.TEAM)),
 		WIDEN_TO_PLOT("widen_to_plot", (game, targets, sources) -> targets.coerceInto(game, ActionSubjectType.PLOT)),
 		ALL_ENTITIES("all_entities", (game, targets, sources) -> ActionSubjects.ofEntities(Lists.newArrayList(game.level().getAllEntities()))),
+		ALL_PLAYERS_AND_SUBPHASES("all_players_and_subphases", (game, targets, sources) -> ActionSubjects.ofPlayers(game.allPlayers(true))),
 		;
 
 		public static final Codec<Simple> CODEC = StringRepresentable.fromEnum(Simple::values);

@@ -15,6 +15,7 @@ import com.lovetropics.minigames.common.core.game.command.GameCommandRegistrar;
 import com.lovetropics.minigames.common.core.game.config.GameConfig;
 import com.lovetropics.minigames.common.core.game.config.GameConfigs;
 import com.lovetropics.minigames.common.core.game.player.PlayerSet;
+import com.lovetropics.minigames.common.core.game.state.IGameState;
 import com.lovetropics.minigames.common.core.game.state.statistics.StatisticKey;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeamKey;
 import com.lovetropics.minigames.common.core.game.state.team.TeamState;
@@ -48,7 +49,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
-public class Warehouse {
+public class Warehouse implements IGameState {
 	private static final String ROOM7 = "super_special_seven";
 	public static final int FADE_DURATION = SharedConstants.TICKS_PER_SECOND;
 
@@ -164,7 +165,9 @@ public class Warehouse {
 								})
 						)
 				)
+
 		);
+
 	}
 
 	private RoomInstance getRoomArgument(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
@@ -209,6 +212,24 @@ public class Warehouse {
 				return true;
 			}
 			return false;
+		}
+
+		public boolean isPlayingRoom() {
+			return state instanceof PlayingRoomState;
+		}
+
+		public void earlyExit(){
+			if(state instanceof PlayingRoomState playingRoom) {
+				playingRoom.close();
+			}
+		}
+
+		@Nullable
+		public GameTeamKey getTeam() {
+			if(state instanceof PlayingRoomState playingRoom) {
+				return playingRoom.team;
+			}
+			return null;
 		}
 	}
 

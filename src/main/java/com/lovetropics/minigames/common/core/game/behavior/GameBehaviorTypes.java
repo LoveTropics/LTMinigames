@@ -15,6 +15,8 @@ import com.lovetropics.minigames.common.core.game.behavior.instances.Checkpoints
 import com.lovetropics.minigames.common.core.game.behavior.instances.CompositeBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.CountdownEffectsBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.DebugModeBehavior;
+import com.lovetropics.minigames.common.core.game.behavior.instances.FadeFromBlackBehaviour;
+import com.lovetropics.minigames.common.core.game.behavior.instances.FadeToBlackBehaviour;
 import com.lovetropics.minigames.common.core.game.behavior.instances.FirstEmptyTeamWinTrigger;
 import com.lovetropics.minigames.common.core.game.behavior.instances.GameEndEffectsBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.GameProgressionBehavior;
@@ -96,6 +98,7 @@ import com.lovetropics.minigames.common.core.game.behavior.instances.action.Spaw
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.SpectatorActivityAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.StartProgressChannelAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.SwapPlayersAction;
+import com.lovetropics.minigames.common.core.game.behavior.instances.action.TeleportToRegionAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.TransformPlayerTornadoAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.WeatherEventAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.command.CustomCommandBehavior;
@@ -390,6 +393,9 @@ public class GameBehaviorTypes {
 	public static final GameBehaviorEntry<MicrogamesBehavior> MICROGAMES = REGISTRATE.object("microgames").behavior(MicrogamesBehavior.CODEC).register();
 	public static final GameBehaviorEntry<StartMicrogamesAction> START_MICROGAMES = REGISTRATE.object("start_microgames").behavior(StartMicrogamesAction.CODEC).register();
 	public static final GameBehaviorEntry<MicrogameScoringBehavior> MICROGAME_SCORING = REGISTRATE.object("microgame_scoring").behavior(MicrogameScoringBehavior.CODEC).register();
+	public static final GameBehaviorEntry<FadeFromBlackBehaviour> FADE_FROM_BLACK = REGISTRATE.object("fade_from_black").behavior(FadeFromBlackBehaviour.CODEC).register();
+	public static final GameBehaviorEntry<FadeToBlackBehaviour> FADE_TO_BLACk = REGISTRATE.object("fade_to_black").behavior(FadeToBlackBehaviour.CODEC).register();
+	public static final GameBehaviorEntry<TeleportToRegionAction> TELEPORT_TO_REGION = REGISTRATE.object("teleport_to_region").behavior(TeleportToRegionAction.CODEC).register();
 
 	public static final GameBehaviorEntry<SetupIntegrationsBehavior> SETUP_INTEGRATIONS = register("setup_integrations", SetupIntegrationsBehavior.CODEC);
 	public static final GameBehaviorEntry<JoinLateWithRoleBehavior> JOIN_LATE_WITH_ROLE = register("join_late_with_role", JoinLateWithRoleBehavior.CODEC);

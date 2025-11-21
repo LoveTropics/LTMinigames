@@ -9,6 +9,7 @@ import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
 import com.lovetropics.minigames.common.core.game.player.PlayerSet;
+import com.lovetropics.minigames.common.core.game.state.GameStateKey;
 import com.lovetropics.minigames.common.core.game.state.team.TeamState;
 import com.lovetropics.minigames.common.core.game.util.GameWidgets;
 import com.mojang.serialization.Codec;
@@ -27,6 +28,8 @@ public record WarehouseSetupBehaviour(
 ) implements IGameBehavior {
 	public static final MapCodec<WarehouseSetupBehaviour> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(RoomConfig.CODEC.listOf().fieldOf("rooms").forGetter(WarehouseSetupBehaviour::rooms)).apply(inst, WarehouseSetupBehaviour::new));
 
+	public static final GameStateKey<Warehouse> KEY = GameStateKey.create("warehouse");
+
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		TeamState teams = game.instanceState().getOrThrow(TeamState.KEY);
@@ -35,6 +38,7 @@ public record WarehouseSetupBehaviour(
 		Warehouse warehouse = new Warehouse(game, teams, widgets, rooms);
 
 		events.listen(GamePhaseEvents.TICK, warehouse::tick);
+		game.instanceState().register(KEY, warehouse);
 
 		events.listen(GamePlayerEvents.ADD, player ->
 				// Fade back in if returning from a room

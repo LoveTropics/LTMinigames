@@ -47,7 +47,9 @@ public interface IGamePhase {
 		return level().registryAccess();
 	}
 
-	PlayerSet allPlayers();
+	default PlayerSet allPlayers() {
+		return allPlayers(false);
+	}
 
 	IGameDefinition definition();
 
@@ -62,6 +64,8 @@ public interface IGamePhase {
 	PendingSubPhase createSubPhase(IGameDefinition subGameConfig);
 
 	void returnToParent(ServerPlayer player);
+
+	PlayerSet allPlayers(boolean includeSubPhases);
 
 	default void returnToParent(PlayerIterable players) {
 		players.forEach(this::returnToParent);

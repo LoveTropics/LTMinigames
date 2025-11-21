@@ -376,7 +376,10 @@ public class GamePhase implements IGamePhase {
 	}
 
 	@Override
-	public PlayerSet allPlayers() {
+	public PlayerSet allPlayers(boolean includeSubPhases) {
+		if (includeSubPhases) {
+			return PlayerSet.wrap(server(), roles.keySet());
+		}
 		return allPlayers;
 	}
 
