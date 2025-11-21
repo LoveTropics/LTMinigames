@@ -136,6 +136,7 @@ import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.App
 import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.BindControlsBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.BlockBreakTrigger;
 import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.BlockInRegionTrigger;
+import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.DelayedSequenceAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.GameFinishTrigger;
 import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.GeneralEventsTrigger;
 import com.lovetropics.minigames.common.core.game.behavior.instances.trigger.ItemPickedUpTrigger;
@@ -330,6 +331,7 @@ public class GameBehaviorTypes {
 	public static final GameBehaviorEntry<WeatherEventAction> WEATHER_EVENT = register("weather_event", WeatherEventAction.CODEC);
 	public static final GameBehaviorEntry<CountdownAction<?>> COUNTDOWN_ACTION = register("countdown_action", CountdownAction.CODEC);
 	public static final GameBehaviorEntry<DelayedAction> DELAYED = register("delayed", DelayedAction.CODEC);
+	public static final GameBehaviorEntry<DelayedSequenceAction> DELAYED_SEQUENCE = register("delayed_sequence", DelayedSequenceAction.CODEC);
 	public static final GameBehaviorEntry<SpawnFireworksAction> SPAWN_FIREWORKS = register("spawn_fireworks", SpawnFireworksAction.CODEC);
 	public static final GameBehaviorEntry<RunCommandsAction> RUN_COMMANDS = register("run_commands", RunCommandsAction.CODEC);
 	public static final GameBehaviorEntry<SendMessageAction> SEND_MESSAGE = register("send_message", SendMessageAction.CODEC);
