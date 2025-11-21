@@ -56,9 +56,11 @@ public record AddEquipmentAction(List<ItemStack> items, ItemStack head, ItemStac
 
 				if (teams != null) {
 					final GameTeamKey teamKey = teams.getTeamForPlayer(player);
-					final ItemStack hotbarItem = hotbarTeamItems.get(teamKey);
-					if (hotbarItem != null) {
-						player.getInventory().add(8, copyAndModify(livingEntity, teams, hotbarItem));
+					if (teamKey != null) {
+						final ItemStack hotbarItem = hotbarTeamItems.get(teamKey);
+						if (hotbarItem != null) {
+							player.getInventory().add(8, copyAndModify(livingEntity, teams, hotbarItem));
+						}
 					}
 				}
 			} else {
