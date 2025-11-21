@@ -138,6 +138,6 @@ public record ItemFrameCodeBehaviour(
 	}
 
 	private static class State {
-		public long lockoutStartTicks = 0;
+		public long lockoutStartTicks = -1;
 	}
 }
