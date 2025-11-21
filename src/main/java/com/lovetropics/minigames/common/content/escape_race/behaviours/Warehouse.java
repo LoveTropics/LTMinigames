@@ -106,7 +106,21 @@ public class Warehouse implements IGameState {
 		);
 
 		if (team != null) {
-			PlayingRoomState.copyStatisticForTeam(topGame, subGame, team, List.of(StatisticKey.VACATION_DAYS));
+			copyStatisticForTeam(topGame, subGame, team, List.of(StatisticKey.VACATION_DAYS));
+		}
+	}
+
+	private void onRoomStopped(IGamePhase subGame, @Nullable GameTeamKey team, GameStopReason reason) {
+		if (reason.isFinished()) {
+			copyStatisticForTeam(subGame, topGame, team, List.of(StatisticKey.VACATION_DAYS));
+		}
+	}
+
+	private static void copyStatisticForTeam(IGamePhase from, IGamePhase to, @Nullable GameTeamKey onlyTeam, List<StatisticKey<?>> statisticKeys) {
+		if (onlyTeam == null) {
+			to.statistics().copyFrom(from.statistics(), statisticKeys);
+		} else {
+			to.statistics().forTeam(onlyTeam).copyFrom(from.statistics().forTeam(onlyTeam), statisticKeys);
 		}
 	}
 
@@ -467,15 +481,8 @@ public class Warehouse implements IGameState {
 				subGame.allPlayers().fadeToBlack(FADE_DURATION);
 				subGame.returnToParent(subGame.allPlayers());
 				stopReason = reason;
-
-				if (team != null) {
-					PlayingRoomState.copyStatisticForTeam(subGame, topGame, team, List.of(StatisticKey.VACATION_DAYS));
-				}
+				onRoomStopped(subGame, team, reason);
 			});
-		}
-
-		private static void copyStatisticForTeam(IGamePhase from, IGamePhase to, GameTeamKey teamKey, List<StatisticKey<?>> statisticKeys) {
-			to.statistics().forTeam(teamKey).copyFrom(from.statistics().forTeam(teamKey), statisticKeys);
 		}
 
 		private void onGameErrored(IGamePhase topGame) {
