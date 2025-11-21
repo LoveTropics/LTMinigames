@@ -17,6 +17,9 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.ChatFormatting;
 import net.minecraft.SharedConstants;
+import net.minecraft.commands.CommandBuildContext;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.ComponentArgument;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
@@ -45,6 +48,14 @@ public record EscapeRaceStageBarBehavior(
 		events.listen(GamePhaseEvents.TICK, () -> {
 			NamedStagesBehaviour.StageState stageState = state.stages.getCurrentStageState();
 			BarConfig currentBar = stageState != null ? barByStage.get(stageState.id()) : null;
+			if (state.override != null) {
+				if (currentBar != null) {
+					currentBar = currentBar.withTitle(state.override);
+				} else {
+					currentBar = new BarConfig(state.override, BossEvent.BossBarColor.RED, true);
+				}
+			}
+
 			if (state.bar != null && !state.bar.config.equals(currentBar)) {
 				state.bar.close();
 				state.bar = null;
@@ -65,7 +76,7 @@ public record EscapeRaceStageBarBehavior(
 
 	private static void registerGlobalEvents(State state, IGamePhase game, EventRegistrar events) {
 		events.listen(GamePhaseEvents.REGISTER_COMMANDS, (commands, buildContext) ->
-				registerGlobalCommands(state, commands)
+				registerGlobalCommands(state, commands, buildContext)
 		);
 		events.listen(GamePlayerEvents.ADD, player -> {
 			if (state.bar != null) {
@@ -79,13 +90,32 @@ public record EscapeRaceStageBarBehavior(
 		});
 	}
 
-	private static void registerGlobalCommands(State state, GameCommandRegistrar commands) {
-
+	private static void registerGlobalCommands(State state, GameCommandRegistrar commands, CommandBuildContext buildContext) {
+		commands.register(Commands.literal("bar").then(Commands.literal("override")
+				.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+				.then(Commands.literal("set")
+						.then(Commands.argument("text", ComponentArgument.textComponent(buildContext))
+								.executes(context -> {
+									state.override = new TemplatedText(ComponentArgument.getRawComponent(context, "text"));
+									context.getSource().sendSuccess(() -> Component.literal("Added bar override"), true);
+									return 1;
+								})
+						)
+				)
+				.then(Commands.literal("clear")
+						.executes(context -> {
+							state.override = null;
+							context.getSource().sendSuccess(() -> Component.literal("Cleared bar override"), true);
+							return 1;
+						})
+				)
+		));
 	}
 
 	private static class State {
 		private final NamedStagesBehaviour.State stages;
 		private @Nullable Bar bar;
+		private @Nullable TemplatedText override;
 
 		private State(NamedStagesBehaviour.State stages) {
 			this.stages = stages;
@@ -114,7 +144,8 @@ public record EscapeRaceStageBarBehavior(
 				inner.setTitle(config.title.apply(Map.of("time", timeText)));
 			} else {
 				inner.setProgress(1.0f);
-				inner.setTitle(config.title.apply(Map.of()));
+				// Just in case an override has it, pass something for time
+				inner.setTitle(config.title.apply(Map.of("time", Component.literal("???"))));
 			}
 		}
 
@@ -134,5 +165,9 @@ public record EscapeRaceStageBarBehavior(
 				BossEvent.BossBarColor.CODEC.fieldOf("color").forGetter(BarConfig::color),
 				Codec.BOOL.optionalFieldOf("reversed", false).forGetter(BarConfig::reversed)
 		).apply(i, BarConfig::new));
+
+		public BarConfig withTitle(TemplatedText title) {
+			return new BarConfig(title, color, reversed);
+		}
 	}
 }
