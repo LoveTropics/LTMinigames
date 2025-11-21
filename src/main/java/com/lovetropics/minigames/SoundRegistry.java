@@ -26,6 +26,34 @@ public class SoundRegistry {
 	public static final Holder<SoundEvent> TERRY_TRASH_SOUND_5 = register("escape_race.terry_trash.sound_5");
 	public static final Holder<SoundEvent> TERRY_TRASH_SOUND_6 = register("escape_race.terry_trash.sound_6");
 
+	public static final Holder<SoundEvent> generic_no_1 = register("escape_race.generic.no.1");
+	public static final Holder<SoundEvent> generic_no_2 = register("escape_race.generic.no.2");
+	public static final Holder<SoundEvent> generic_no_3 = register("escape_race.generic.no.3");
+	public static final Holder<SoundEvent> generic_no_4 = register("escape_race.generic.no.4");
+	public static final Holder<SoundEvent> generic_yes_1 = register("escape_race.generic.yes.1");
+	public static final Holder<SoundEvent> generic_yes_2 = register("escape_race.generic.yes.2");
+	public static final Holder<SoundEvent> generic_yes_3 = register("escape_race.generic.yes.3");
+	public static final Holder<SoundEvent> generic_yes_4 = register("escape_race.generic.yes.4");
+	public static final Holder<SoundEvent> room_1_generic = register("escape_race.room_1.generic");
+	public static final Holder<SoundEvent> room_1_intro_1 = register("escape_race.room_1.intro.1");
+	public static final Holder<SoundEvent> room_5_4 = register("escape_race.room_5.4");
+	public static final Holder<SoundEvent> warehouse_2 = register("escape_race.warehouse.2");
+	public static final Holder<SoundEvent> warehouse_3 = register("escape_race.warehouse.3");
+	public static final Holder<SoundEvent> warehouse_4 = register("escape_race.warehouse.4");
+	public static final Holder<SoundEvent> warehouse_5 = register("escape_race.warehouse.5");
+	public static final Holder<SoundEvent> warehouse_6 = register("escape_race.warehouse.6");
+	public static final Holder<SoundEvent> warehouse_7 = register("escape_race.warehouse.7");
+	public static final Holder<SoundEvent> warehouse_8 = register("escape_race.warehouse.8");
+	public static final Holder<SoundEvent> warehouse_9 = register("escape_race.warehouse.9");
+	public static final Holder<SoundEvent> warehouse_10 = register("escape_race.warehouse.10");
+	public static final Holder<SoundEvent> warehouse_11 = register("escape_race.warehouse.11");
+	public static final Holder<SoundEvent> warehouse_12 = register("escape_race.warehouse.12");
+	public static final Holder<SoundEvent> warehouse_13 = register("escape_race.warehouse.13");
+	public static final Holder<SoundEvent> warehouse_14 = register("escape_race.warehouse.14");
+	public static final Holder<SoundEvent> warehouse_15 = register("escape_race.warehouse.15");
+	public static final Holder<SoundEvent> warehouse_16 = register("escape_race.warehouse.16");
+	public static final Holder<SoundEvent> warehouse_17 = register("escape_race.warehouse.17");
+
 	public static final Holder<SoundEvent> UPSET_STOMACH_FART = register("upset_stomach.fart");
 
 	private static Holder<SoundEvent> register(String name) {
