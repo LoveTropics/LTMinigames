@@ -263,8 +263,6 @@ public final class BuildBattleBehavior implements IGameBehavior {
 			}
 		}
 
-		message.append(Component.literal("please close the game manually i haven't finished this yet")); //TODO
-
 		for (var player : game.allPlayers()) {
 			player.displayClientMessage(message, false);
 			player.getInventory().clearContent();
