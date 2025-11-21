@@ -45,6 +45,10 @@ public class EscapeRaceBucksRenderer {
 	}
 
 	private static void renderOverlay(GuiGraphics graphics, EscapeRaceClientBucksState selfState) {
+		if (Minecraft.getInstance().options.hideGui) {
+			return;
+		}
+
 		Font font = Minecraft.getInstance().font;
 
 		final int left = PADDING;
