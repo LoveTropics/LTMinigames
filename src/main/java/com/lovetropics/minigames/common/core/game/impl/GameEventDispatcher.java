@@ -155,9 +155,33 @@ public final class GameEventDispatcher {
 		}
 	}
 
+	@SubscribeEvent
+	public void onPlayerAttack(LivingIncomingDamageEvent event) {
+		Entity target = event.getEntity();
+		DamageSource source = event.getSource();
+
+		IGamePhase game = gameLookup.getGamePhaseFor(target);
+		if (game != null && source.getEntity() instanceof ServerPlayer indirectSource) {
+
+			if (dispatchAttackDamageEvent(game, indirectSource, target, event.getAmount())) {
+				event.setCanceled(true);
+			}
+		}
+	}
+
 	private boolean dispatchAttackEvent(IGamePhase game, ServerPlayer player, Entity target) {
 		try {
 			TriState result = game.invoker(GamePlayerEvents.ATTACK).onAttack(player, target);
+			return result.isFalse();
+		} catch (Exception e) {
+			LoveTropics.LOGGER.warn("Failed to dispatch player attack event", e);
+		}
+		return false;
+	}
+
+	private boolean dispatchAttackDamageEvent(IGamePhase game, ServerPlayer player, Entity target, float amount) {
+		try {
+			TriState result = game.invoker(GamePlayerEvents.ATTACK_DAMAGE).onAttackDamage(player, target, amount);
 			return result.isFalse();
 		} catch (Exception e) {
 			LoveTropics.LOGGER.warn("Failed to dispatch player attack event", e);

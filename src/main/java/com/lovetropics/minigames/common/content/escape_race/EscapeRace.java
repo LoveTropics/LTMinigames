@@ -5,6 +5,7 @@ import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.content.escape_race.behaviours.BreakBucksBehaviour;
 import com.lovetropics.minigames.common.content.escape_race.behaviours.ItemFrameCodeBehaviour;
 import com.lovetropics.minigames.common.content.escape_race.behaviours.VacationDaysBehaviour;
+import com.lovetropics.minigames.common.content.escape_race.behaviours.TerryBossBehaviour;
 import com.lovetropics.minigames.common.content.escape_race.behaviours.WarehouseSetupBehaviour;
 import com.lovetropics.minigames.common.content.escape_race.client.EscapeRaceClientBucksState;
 import com.lovetropics.minigames.common.content.escape_race.client.ddr.render.DDRMachineEntityRenderer;
@@ -144,6 +145,10 @@ public class EscapeRace {
 
 	public static final GameBehaviorEntry<ItemFrameCodeBehaviour> ITEM_FRAME_CODE = REGISTRATE.object("item_frame_code")
 			.behavior(ItemFrameCodeBehaviour.CODEC)
+			.register();
+
+	public static final GameBehaviorEntry<TerryBossBehaviour> TERRY_BOSS = REGISTRATE.object("escape_race/terry_boss")
+			.behavior(TerryBossBehaviour.CODEC)
 			.register();
 
 	public static final Holder<MobEffect> UPSET_STOMACH = REGISTRATE.object("upset_stomach")

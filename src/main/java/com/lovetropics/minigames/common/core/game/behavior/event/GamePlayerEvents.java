@@ -118,6 +118,16 @@ public final class GamePlayerEvents {
 		return TriState.DEFAULT;
 	});
 
+	public static final GameEventType<AttackDamage> ATTACK_DAMAGE = GameEventType.create(AttackDamage.class, listeners -> (player, target, damage) -> {
+		for (AttackDamage listener : listeners) {
+			TriState result = listener.onAttackDamage(player, target, damage);
+			if (!result.isDefault()) {
+				return result;
+			}
+		}
+		return TriState.DEFAULT;
+	});
+
 	public static final GameEventType<InteractEntity> INTERACT_ENTITY = GameEventType.create(InteractEntity.class, listeners -> (player, target, hand) -> {
 		for (InteractEntity listener : listeners) {
 			InteractionResult result = listener.onInteractEntity(player, target, hand);
@@ -303,6 +313,10 @@ public final class GamePlayerEvents {
 
 	public interface Attack {
 		TriState onAttack(ServerPlayer player, Entity target);
+	}
+
+	public interface AttackDamage {
+		TriState onAttackDamage(ServerPlayer player, Entity target, float damage);
 	}
 
 	public interface InteractEntity {
