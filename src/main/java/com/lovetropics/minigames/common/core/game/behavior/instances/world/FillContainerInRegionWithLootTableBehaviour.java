@@ -58,8 +58,10 @@ public record FillContainerInRegionWithLootTableBehaviour(
 			for (long chunk : containerRegion.asChunks()) {
 				LevelChunk levelChunk = game.level().getChunk(ChunkPos.getX(chunk), ChunkPos.getZ(chunk));
 				for (BlockPos pos : levelChunk.getBlockEntitiesPos()) {
-					if (levelChunk.getBlockEntity(pos) instanceof RandomizableContainer container) {
-						container.setLootTable(lootTable, game.level().random.nextLong());
+					if(containerRegion.contains(pos)) {
+						if (levelChunk.getBlockEntity(pos) instanceof RandomizableContainer container) {
+							container.setLootTable(lootTable, game.level().random.nextLong());
+						}
 					}
 				}
 			}
