@@ -8,7 +8,9 @@ import com.lovetropics.minigames.common.core.game.behavior.action.GameActionList
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
+import com.lovetropics.minigames.common.core.game.behavior.instances.action.SetStatisticAction;
 import com.lovetropics.minigames.common.core.game.state.statistics.StatisticKey;
+import com.lovetropics.minigames.common.core.game.state.team.GameTeamKey;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -17,24 +19,34 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.context.ContextKeySet;
 import net.minecraft.util.context.ContextMap;
+import org.apache.commons.lang3.mutable.MutableInt;
 
 import java.util.UUID;
 
 public record StatisticNotifierBehavior(
 		StatisticKey<Integer> statistic,
 		boolean onlyIncrease,
-		GameActionList actions
+		GameActionList actions,
+		SetStatisticAction.Scope scope
 ) implements IGameBehavior {
 	public static final MapCodec<StatisticNotifierBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			StatisticKey.INT_CODEC.fieldOf("statistic").forGetter(StatisticNotifierBehavior::statistic),
 			Codec.BOOL.optionalFieldOf("only_increase", true).forGetter(StatisticNotifierBehavior::onlyIncrease),
-			GameActionList.MAP_CODEC.forGetter(StatisticNotifierBehavior::actions)
+			GameActionList.MAP_CODEC.forGetter(StatisticNotifierBehavior::actions),
+			SetStatisticAction.Scope.CODEC.optionalFieldOf("scope", SetStatisticAction.Scope.PLAYER).forGetter(StatisticNotifierBehavior::scope)
 	).apply(i, StatisticNotifierBehavior::new));
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
 		actions.register(game, events);
+		switch (scope) {
+			case PLAYER -> setupForPlayers(game, events);
+			case TEAM -> setupForTeams(game, events);
+			case GLOBAL -> setupGlobal(game, events);
+		}
+	}
 
+	private void setupForPlayers(IGamePhase game, EventRegistrar events) {
 		Object2IntMap<UUID> lastValues = new Object2IntOpenHashMap<>();
 
 		events.listen(GamePlayerEvents.ADD, player ->
@@ -47,16 +59,56 @@ public record StatisticNotifierBehavior(
 			for (ServerPlayer player : game.allPlayers()) {
 				int value = game.statistics().forPlayer(player).getInt(statistic);
 				int lastValue = lastValues.put(player.getUUID(), value);
-				if (onlyIncrease && value < lastValue) {
-					return;
-				}
 				if (lastValue != value) {
-					ContextMap context = new ContextMap.Builder()
-							.withParameter(GameActionContextKeys.CHANGE, value - lastValue)
-							.create(ContextKeySet.EMPTY);
-					actions.apply(game, context, ActionSubjects.ofPlayer(player));
+					onValueChange(game, value, lastValue, ActionSubjects.ofPlayer(player));
 				}
 			}
 		});
+	}
+
+	private void setupForTeams(IGamePhase game, EventRegistrar events) {
+		Object2IntMap<GameTeamKey> lastValues = new Object2IntOpenHashMap<>();
+
+		events.listen(GamePhaseEvents.START, players -> {
+			for (GameTeamKey team : game.statistics().getTeams()) {
+				lastValues.put(team, game.statistics().forTeam(team).getInt(statistic));
+			}
+		});
+
+		events.listen(GamePhaseEvents.TICK, () -> {
+			for (GameTeamKey team : game.statistics().getTeams()) {
+				int value = game.statistics().forTeam(team).getInt(statistic);
+				int lastValue = lastValues.put(team, value);
+				if (lastValue != value) {
+					onValueChange(game, value, lastValue, ActionSubjects.ofTeam(team));
+				}
+			}
+		});
+	}
+
+	private void setupGlobal(IGamePhase game, EventRegistrar events) {
+		MutableInt lastValue = new MutableInt();
+
+		events.listen(GamePhaseEvents.START, players ->
+				lastValue.setValue(game.statistics().global().getInt(statistic))
+		);
+
+		events.listen(GamePhaseEvents.TICK, () -> {
+			int value = game.statistics().global().getInt(statistic);
+			if (lastValue.getValue() != value) {
+				onValueChange(game, value, lastValue.getValue(), ActionSubjects.EMPTY);
+				lastValue.setValue(value);
+			}
+		});
+	}
+
+	private void onValueChange(IGamePhase game, int value, int lastValue, ActionSubjects<?> subjects) {
+		if (onlyIncrease && value < lastValue) {
+			return;
+		}
+		ContextMap context = new ContextMap.Builder()
+				.withParameter(GameActionContextKeys.CHANGE, value - lastValue)
+				.create(ContextKeySet.EMPTY);
+		actions.apply(game, context, subjects);
 	}
 }
