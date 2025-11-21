@@ -41,7 +41,8 @@ public record ApplyForTimeAction(
 		Optional<TemplatedText> indicator,
 		int seconds,
 		Optional<ResourceLocation> mutex,
-		boolean forceAcquireMutex
+		boolean forceAcquireMutex,
+		boolean splitByPlayer
 ) implements IGameBehavior {
 	public static final MapCodec<ApplyForTimeAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			GameActionList.CODEC.optionalFieldOf("apply", GameActionList.EMPTY).forGetter(ApplyForTimeAction::apply),
@@ -51,7 +52,9 @@ public record ApplyForTimeAction(
 			TemplatedText.CODEC.optionalFieldOf("indicator").forGetter(ApplyForTimeAction::indicator),
 			Codec.INT.fieldOf("seconds").forGetter(ApplyForTimeAction::seconds),
 			ResourceLocation.CODEC.optionalFieldOf("mutex").forGetter(ApplyForTimeAction::mutex),
-			Codec.BOOL.optionalFieldOf("force_acquire_mutex", false).forGetter(ApplyForTimeAction::forceAcquireMutex)
+			Codec.BOOL.optionalFieldOf("force_acquire_mutex", false).forGetter(ApplyForTimeAction::forceAcquireMutex),
+			// TODO: This feels easy to mess up
+			Codec.BOOL.optionalFieldOf("split_by_player", false).forGetter(ApplyForTimeAction::splitByPlayer)
 	).apply(i, ApplyForTimeAction::new));
 
 	@Override
@@ -101,6 +104,7 @@ public record ApplyForTimeAction(
 			tick.apply(game, ContextMap.EMPTY);
 			if (time >= action.finishTime) {
 				clear.apply(game, ContextMap.EMPTY);
+				action.releaseMutex();
 				return true;
 			}
 			return false;
@@ -124,6 +128,7 @@ public record ApplyForTimeAction(
 				if (player != null) {
 					clear.apply(game, ContextMap.EMPTY, ActionSubjects.ofPlayer(player));
 				}
+				action.releaseMutex();
 				return true;
 			} else {
 				if (player != null && indicator.isPresent()) {
@@ -144,12 +149,15 @@ public record ApplyForTimeAction(
 			long newFinishTime = game.ticks() + (long) seconds * SharedConstants.TICKS_PER_SECOND;
 
 			ActionMutexState mutexes = game.state().get(ActionMutexState.KEY);
-			boolean applied = tryApplyGlobal(game, mutexes, context, newFinishTime);
-			for (ServerPlayer player : targets.asPlayers(game)) {
-				applied |= tryApplyForPlayer(game, context, player, mutexes, newFinishTime);
+			if (splitByPlayer) {
+				boolean applied = false;
+				for (ServerPlayer player : targets.asPlayers(game)) {
+					applied |= tryApplyForPlayer(game, context, player, mutexes, newFinishTime);
+				}
+				return applied;
+			} else {
+				return tryApplyGlobal(game, mutexes, context, newFinishTime);
 			}
-
-			return applied;
 		}
 
 		private boolean tryApplyGlobal(IGamePhase game, ActionMutexState mutexes, ContextMap context, long newFinishTime) {
@@ -201,6 +209,12 @@ public record ApplyForTimeAction(
 		) {
 			public boolean isMutexValid() {
 				return mutex == null || mutex.isValid();
+			}
+
+			public void releaseMutex() {
+				if (mutex != null) {
+					mutex.close();
+				}
 			}
 		}
 	}
