@@ -141,26 +141,15 @@ public class Warehouse implements IGameState {
 						.then(Commands.literal("remove")
 								.executes(context -> {
 									RoomInstance room = getRoomArgument(context);
-									room.state.close();
-									room.state = new CompletedRoomState(null);
+									removeRoom(room);
 									return 1;
 								})
 						)
 						.then(Commands.literal("join")
 								.executes(context -> {
 									RoomInstance room = getRoomArgument(context);
-									room.state.close();
-
 									GameTeamKey unlockingTeam = room.name.equals(ROOM7) ? null : teams.getTeamForPlayer(context.getSource().getPlayer());
-
-									PlayingRoomState playingRoom = new PlayingRoomState(unlockingTeam, room);
-									playingRoom.sendToSubPhase(topGame, unlockingTeam == null ? topGame.allPlayers() : teams.getPlayersForTeam(topGame, unlockingTeam));
-
-									if (unlockingTeam != null) {
-										topGame.statistics().forTeam(unlockingTeam).incrementInt(StatisticKey.BREAK_BUCKS, -room.cost);
-									}
-
-									room.state = playingRoom;
+									joinIntoRoom(room, unlockingTeam);
 									return 1;
 								})
 						)
@@ -168,6 +157,36 @@ public class Warehouse implements IGameState {
 
 		);
 
+	}
+
+	public void removeRooms(List<String> roomNames) {
+		for (String room : roomNames) {
+			if(rooms.containsKey(room)) {
+				RoomInstance roomInstance = rooms.get(room);
+				if (!(roomInstance.state instanceof CompletedRoomState)) {
+					roomInstance.state.close();
+					roomInstance.state = new CompletedRoomState(null);
+				}
+			}
+		}
+	}
+
+	public void removeRoom(RoomInstance room) {
+		room.state.close();
+		room.state = new CompletedRoomState(null);
+	}
+
+	public void joinIntoRoom(RoomInstance room, @Nullable GameTeamKey team) {
+		room.state.close();
+
+		PlayingRoomState playingRoom = new PlayingRoomState(team, room);
+		playingRoom.sendToSubPhase(topGame, team == null ? topGame.allPlayers() : teams.getPlayersForTeam(topGame, team));
+
+		if (team != null) {
+			topGame.statistics().forTeam(team).incrementInt(StatisticKey.BREAK_BUCKS, -room.cost);
+		}
+
+		room.state = playingRoom;
 	}
 
 	private RoomInstance getRoomArgument(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
@@ -222,6 +241,14 @@ public class Warehouse implements IGameState {
 			if(state instanceof PlayingRoomState playingRoom) {
 				playingRoom.close();
 			}
+		}
+
+		public RoomState getState() {
+			return state;
+		}
+
+		public String getName() {
+			return name;
 		}
 
 		@Nullable
