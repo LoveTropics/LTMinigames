@@ -19,14 +19,16 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.resources.ResourceLocation;
 
-import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 
 public record WarehouseSetupBehaviour(
-		List<RoomConfig> rooms
+		Map<String, RoomConfig> rooms
 ) implements IGameBehavior {
-	public static final MapCodec<WarehouseSetupBehaviour> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(RoomConfig.CODEC.listOf().fieldOf("rooms").forGetter(WarehouseSetupBehaviour::rooms)).apply(inst, WarehouseSetupBehaviour::new));
+	public static final MapCodec<WarehouseSetupBehaviour> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+			Codec.unboundedMap(Codec.STRING, RoomConfig.CODEC).fieldOf("rooms").forGetter(WarehouseSetupBehaviour::rooms)
+	).apply(i, WarehouseSetupBehaviour::new));
 
 	public static final GameStateKey<Warehouse> KEY = GameStateKey.create("warehouse");
 
@@ -62,14 +64,18 @@ public record WarehouseSetupBehaviour(
 			float facing,
 			int baseCost,
 			Component displayName,
-			ResourceLocation gameId
+			ResourceLocation gameId,
+			boolean allTeams,
+			boolean copyInventory
 	) {
 		public static final Codec<RoomConfig> CODEC = RecordCodecBuilder.create(i -> i.group(
 				Codec.STRING.optionalFieldOf("entrance_region").forGetter(RoomConfig::entranceRegion),
-				Codec.FLOAT.fieldOf("facing").forGetter(RoomConfig::facing),
+				Codec.FLOAT.optionalFieldOf("facing", 0.0f).forGetter(RoomConfig::facing),
 				Codec.INT.fieldOf("cost").forGetter(RoomConfig::baseCost),
 				ComponentSerialization.CODEC.fieldOf("display_name").forGetter(RoomConfig::displayName),
-				ResourceLocation.CODEC.fieldOf("game").forGetter(RoomConfig::gameId)
+				ResourceLocation.CODEC.fieldOf("game").forGetter(RoomConfig::gameId),
+				Codec.BOOL.optionalFieldOf("all_teams", false).forGetter(RoomConfig::allTeams),
+				Codec.BOOL.optionalFieldOf("copy_inventory", false).forGetter(RoomConfig::copyInventory)
 		).apply(i, RoomConfig::new));
 	}
 }

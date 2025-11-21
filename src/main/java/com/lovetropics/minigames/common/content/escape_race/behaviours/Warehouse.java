@@ -33,7 +33,6 @@ import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.TriState;
 import net.minecraft.world.BossEvent;
@@ -45,12 +44,10 @@ import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
 public class Warehouse implements IGameState {
-	private static final String ROOM7 = "super_special_seven";
 	public static final int FADE_DURATION = SharedConstants.TICKS_PER_SECOND;
 
 	private final IGamePhase topGame;
@@ -59,12 +56,13 @@ public class Warehouse implements IGameState {
 
 	public final Map<String, RoomInstance> rooms = new HashMap<>();
 
-	public Warehouse(IGamePhase topGame, TeamState teams, GameWidgets widgets, List<WarehouseSetupBehaviour.RoomConfig> roomConfigs) {
+	public Warehouse(IGamePhase topGame, TeamState teams, GameWidgets widgets, Map<String, WarehouseSetupBehaviour.RoomConfig> roomConfigs) {
 		this.topGame = topGame;
 		this.teams = teams;
 		this.widgets = widgets;
 
-		for (WarehouseSetupBehaviour.RoomConfig room : roomConfigs) {
+		for (Map.Entry<String, WarehouseSetupBehaviour.RoomConfig> entry : roomConfigs.entrySet()) {
+			WarehouseSetupBehaviour.RoomConfig room = entry.getValue();
 			GameConfig subGameConfig = GameConfigs.REGISTRY.get(room.gameId());
 			if (subGameConfig == null) {
 				throw new GameException(Component.literal("No game config with id: " + room.gameId()));
@@ -72,9 +70,7 @@ public class Warehouse implements IGameState {
 			Optional<String> entrance = room.entranceRegion();
 			BlockBox box = entrance.map(e -> topGame.mapRegions().getOrThrow(e)).orElse(null);
 
-			String name = entrance.orElse(ROOM7);
-			RoomInstance roomInstance = new RoomInstance(name, room, subGameConfig, box);
-			rooms.put(name, roomInstance);
+			rooms.put(entry.getKey(), new RoomInstance(room, subGameConfig, box));
 		}
 	}
 
@@ -148,7 +144,7 @@ public class Warehouse implements IGameState {
 						.then(Commands.literal("join")
 								.executes(context -> {
 									RoomInstance room = getRoomArgument(context);
-									GameTeamKey unlockingTeam = room.name.equals(ROOM7) ? null : teams.getTeamForPlayer(context.getSource().getPlayer());
+									GameTeamKey unlockingTeam = room.config.allTeams() ? null : teams.getTeamForPlayer(context.getSource().getPlayer());
 									joinIntoRoom(room, unlockingTeam);
 									return 1;
 								})
@@ -156,17 +152,14 @@ public class Warehouse implements IGameState {
 				)
 
 		);
-
 	}
 
 	public void removeRooms(List<String> roomNames) {
 		for (String room : roomNames) {
-			if(rooms.containsKey(room)) {
-				RoomInstance roomInstance = rooms.get(room);
-				if (!(roomInstance.state instanceof CompletedRoomState)) {
-					roomInstance.state.close();
-					roomInstance.state = new CompletedRoomState(null);
-				}
+			RoomInstance roomInstance = rooms.get(room);
+			if (roomInstance != null && !(roomInstance.state instanceof CompletedRoomState)) {
+				roomInstance.state.close();
+				roomInstance.state = new CompletedRoomState(null);
 			}
 		}
 	}
@@ -199,7 +192,6 @@ public class Warehouse implements IGameState {
 	}
 
 	public class RoomInstance {
-		private final String name;
 		private final WarehouseSetupBehaviour.RoomConfig config;
 		private final GameConfig subGameConfig;
 		private final @Nullable BlockBox entranceBox;
@@ -208,8 +200,7 @@ public class Warehouse implements IGameState {
 
 		private RoomState state;
 
-		public RoomInstance(String name, WarehouseSetupBehaviour.RoomConfig config, GameConfig subGameConfig, @Nullable BlockBox entranceBox) {
-			this.name = name;
+		public RoomInstance(WarehouseSetupBehaviour.RoomConfig config, GameConfig subGameConfig, @Nullable BlockBox entranceBox) {
 			this.config = config;
 			this.subGameConfig = subGameConfig;
 			this.entranceBox = entranceBox;
@@ -245,10 +236,6 @@ public class Warehouse implements IGameState {
 
 		public RoomState getState() {
 			return state;
-		}
-
-		public String getName() {
-			return name;
 		}
 
 		@Nullable
@@ -446,11 +433,11 @@ public class Warehouse implements IGameState {
 			Map<UUID, Map<Integer, ItemStack>> stacks = new HashMap<>();
 
 			// Copy inventory for room 7
-			if (room.name.equals(ROOM7)) {
+			if (room.config.copyInventory()) {
 				for (ServerPlayer participant : topGame.participants()) {
 					Map<Integer, ItemStack> inv = new HashMap<>();
 					for (int i = 0; i < participant.getInventory().getContainerSize(); i++) {
-						inv.put(i, participant.getInventory().getItem(i));
+						inv.put(i, participant.getInventory().getItem(i).copy());
 					}
 
 					stacks.put(participant.getUUID(), inv);
