@@ -273,6 +273,72 @@
     "sounds": [
       "ltminigames:escape_race/gary_gibnut/room_5.gary.6"
     ]
+  },
+
+  "escape_race.bill_shoebill.00_hmm_i_wonder": {
+    "sounds": [
+      "ltminigames:escape_race/bill_shoebill/00_hmm_i_wonder"
+    ]
+  },
+  "escape_race.bill_shoebill.01_oh_hello_there": {
+    "sounds": [
+      "ltminigames:escape_race/bill_shoebill/01_oh_hello_there"
+    ]
+  },
+  "escape_race.bill_shoebill.02_oh_sorry": {
+    "sounds": [
+      "ltminigames:escape_race/bill_shoebill/02_oh_sorry"
+    ]
+  },
+  "escape_race.bill_shoebill.03_i_can_t_possibly": {
+    "sounds": [
+      "ltminigames:escape_race/bill_shoebill/03_i_can_t_possibly"
+    ]
+  },
+  "escape_race.bill_shoebill.04_anyway_find_me": {
+    "sounds": [
+      "ltminigames:escape_race/bill_shoebill/04_anyway_find_me"
+    ]
+  },
+  "escape_race.bill_shoebill.05_these_are_far_too_plane": {
+    "sounds": [
+      "ltminigames:escape_race/bill_shoebill/05_these_are_far_too_plane"
+    ]
+  },
+  "escape_race.bill_shoebill.06_ouchies": {
+    "sounds": [
+      "ltminigames:escape_race/bill_shoebill/06_ouchies"
+    ]
+  },
+  "escape_race.bill_shoebill.07_these_are_too_sparkly": {
+    "sounds": [
+      "ltminigames:escape_race/bill_shoebill/07_these_are_too_sparkly"
+    ]
+  },
+  "escape_race.bill_shoebill.08_scaly_shoes_": {
+    "sounds": [
+      "ltminigames:escape_race/bill_shoebill/08_scaly_shoes_"
+    ]
+  },
+  "escape_race.bill_shoebill.09_hmm_no_these": {
+    "sounds": [
+      "ltminigames:escape_race/bill_shoebill/09_hmm_no_these"
+    ]
+  },
+  "escape_race.bill_shoebill.10_nuh_uh_uh": {
+    "sounds": [
+      "ltminigames:escape_race/bill_shoebill/10_nuh_uh_uh"
+    ]
+  },
+  "escape_race.bill_shoebill.11_huh_what_s_this": {
+    "sounds": [
+      "ltminigames:escape_race/bill_shoebill/11_huh_what_s_this"
+    ]
+  },
+  "escape_race.bill_shoebill.12_now_these": {
+    "sounds": [
+      "ltminigames:escape_race/bill_shoebill/12_now_these"
+    ]
   }
 
 }

@@ -68,6 +68,21 @@ public class SoundRegistry {
 	public static final Holder<SoundEvent> escape_race_room_5_sound_5 = register("escape_race.room_5.sound_5");
 	public static final Holder<SoundEvent> escape_race_room_5_sound_6 = register("escape_race.room_5.sound_6");
 
+
+	public static final Holder<SoundEvent> escape_race_billy_sound_0 = register("escape_race.bill_shoebill.00_hmm_i_wonder");
+	public static final Holder<SoundEvent> escape_race_billy_sound_1 = register("escape_race.bill_shoebill.01_oh_hello_there");
+	public static final Holder<SoundEvent> escape_race_billy_sound_2 = register("escape_race.bill_shoebill.02_oh_sorry");
+	public static final Holder<SoundEvent> escape_race_billy_sound_3 = register("escape_race.bill_shoebill.03_i_can_t_possibly");
+	public static final Holder<SoundEvent> escape_race_billy_sound_4 = register("escape_race.bill_shoebill.04_anyway_find_me");
+	public static final Holder<SoundEvent> escape_race_billy_sound_5 = register("escape_race.bill_shoebill.05_these_are_far_too_plane");
+	public static final Holder<SoundEvent> escape_race_billy_sound_6 = register("escape_race.bill_shoebill.06_ouchies");
+	public static final Holder<SoundEvent> escape_race_billy_sound_7 = register("escape_race.bill_shoebill.07_these_are_too_sparkly");
+	public static final Holder<SoundEvent> escape_race_billy_sound_8 = register("escape_race.bill_shoebill.08_scaly_shoes_");
+	public static final Holder<SoundEvent> escape_race_billy_sound_9 = register("escape_race.bill_shoebill.09_hmm_no_these");
+	public static final Holder<SoundEvent> escape_race_billy_sound_10 = register("escape_race.bill_shoebill.10_nuh_uh_uh");
+	public static final Holder<SoundEvent> escape_race_billy_sound_11 = register("escape_race.bill_shoebill.11_huh_what_s_this");
+	public static final Holder<SoundEvent> escape_race_billy_sound_12 = register("escape_race.bill_shoebill.12_now_these");
+
 	public static final Holder<SoundEvent> UPSET_STOMACH_FART = register("upset_stomach.fart");
 
 	private static Holder<SoundEvent> register(String name) {
