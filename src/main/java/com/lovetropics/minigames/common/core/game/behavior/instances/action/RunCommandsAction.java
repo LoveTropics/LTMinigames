@@ -26,7 +26,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 public record RunCommandsAction(List<String> globalCommands, List<String> entityCommands) implements IGameBehavior {
-	private static final Codec<String> COMMAND_CODEC = Codec.STRING.xmap(
+	public static final Codec<String> COMMAND_CODEC = Codec.STRING.xmap(
 			command -> {
 				if (command.startsWith("/")) {
 					command = command.substring(1);

@@ -2,6 +2,7 @@ package com.lovetropics.minigames.common.core.game.persistent.behavior.crab;
 
 import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
+import com.lovetropics.minigames.common.core.game.behavior.instances.action.RunCommandsAction;
 import com.lovetropics.minigames.common.core.game.persistent.PersistentGame;
 import com.lovetropics.minigames.common.core.game.persistent.PersistentGameBehavior;
 import com.lovetropics.minigames.common.core.game.persistent.PersistentGameBehaviorType;
@@ -9,8 +10,12 @@ import com.lovetropics.minigames.common.core.game.persistent.PersistentGameBehav
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.commands.CommandSource;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -22,7 +27,9 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
+import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,19 +42,33 @@ import java.util.function.Supplier;
 public class CrabGolfWinBehavior implements PersistentGameBehavior {
 	public static final MapCodec<CrabGolfWinBehavior> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 			Codec.withAlternative(CompoundTag.CODEC, TagParser.FLATTENED_CODEC).fieldOf("firework").forGetter(b -> b.nbt),
-			ItemStack.CODEC.fieldOf("reward").forGetter(b -> b.reward)
+			ItemStack.CODEC.fieldOf("reward").forGetter(b -> b.reward),
+			RunCommandsAction.COMMAND_CODEC.fieldOf("on_start").forGetter(b -> b.onStart),
+			RunCommandsAction.COMMAND_CODEC.fieldOf("on_end").forGetter(b -> b.onEnd)
 	).apply(instance, CrabGolfWinBehavior::new));
 
 	private final CompoundTag nbt;
 	private final ItemStack reward;
+	private final String onStart;
+	private final String onEnd;
 
-	public CrabGolfWinBehavior(CompoundTag nbt, ItemStack reward) {
+	public CrabGolfWinBehavior(CompoundTag nbt, ItemStack reward, String onStart, String onEnd) {
 		this.nbt = nbt;
 		this.reward = reward;
+		this.onStart = onStart;
+		this.onEnd = onEnd;
 	}
 
 	@Override
 	public void register(PersistentGame game, EventRegistrar events) {
+		events.listen(CrabGolfEvents.START_GAME, (hole, player) -> {
+			if (!onStart.isEmpty()) {
+				Commands commands = game.level().getServer().getCommands();
+				CommandSourceStack targetSource = getCommandSourceStack(game, player);
+				commands.performPrefixedCommand(targetSource, onStart);
+			}
+		});
+
 		events.listen(CrabGolfEvents.WIN_GAME, (hole, player, score) -> {
 			if (score == -1) {
 				return;
@@ -68,7 +89,13 @@ public class CrabGolfWinBehavior implements PersistentGameBehavior {
 				game.invoker(CrabGolfEvents.HIGH_SCORE).onWin(hole, player, score);
 			}
 
-			game.level().playSound(null, player.blockPosition(), SoundEvents.GOAT_HORN_SOUND_VARIANTS.get(0).value(), SoundSource.BLOCKS, 0.4F, 1.0F);
+			if (!onEnd.isEmpty()) {
+				Commands commands = game.level().getServer().getCommands();
+				CommandSourceStack targetSource = getCommandSourceStack(game, player);
+				commands.performPrefixedCommand(targetSource, onEnd);
+			}
+
+			game.level().playSound(null, player.blockPosition(), SoundEvents.GOAT_HORN_SOUND_VARIANTS.get(0).value(), SoundSource.BLOCKS, 1F, 1.0F);
 
 			CompoundTag nbt = this.nbt.copy();
 			nbt.putString("id", "minecraft:firework_rocket");
@@ -82,6 +109,13 @@ public class CrabGolfWinBehavior implements PersistentGameBehavior {
 
 			player.level().tryAddFreshEntityWithPassengers(entity);
 		});
+	}
+
+	private static @NotNull CommandSourceStack getCommandSourceStack(PersistentGame game, ServerPlayer player) {
+		CommandSourceStack source = new CommandSourceStack(CommandSource.NULL, Vec3.ZERO, Vec2.ZERO, game.level(), Commands.LEVEL_OWNERS, "crabgolf", Component.literal("crabgolf"), game.level().getServer(), null);
+
+		CommandSourceStack targetSource = source.withEntity(player).withPosition(player.position());
+		return targetSource;
 	}
 
 	@Override
@@ -132,6 +166,11 @@ public class CrabGolfWinBehavior implements PersistentGameBehavior {
 			}
 
 			return null;
+		}
+
+		public void clearHole(int hole) {
+			data.remove(hole);
+			setDirty();
 		}
 
 		public int getHighScoreFor(int hole, ServerPlayer player) {

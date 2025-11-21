@@ -66,6 +66,7 @@ import com.lovetropics.minigames.common.core.command.game.GameActionCommand;
 import com.lovetropics.minigames.common.core.command.game.GamePackageCommand;
 import com.lovetropics.minigames.common.core.command.game.GameSetRoleCommand;
 import com.lovetropics.minigames.common.core.command.game.GameStatisticCommand;
+import com.lovetropics.minigames.common.core.command.game.GolfCommand;
 import com.lovetropics.minigames.common.core.command.game.JoinGameCommand;
 import com.lovetropics.minigames.common.core.command.game.LeaveGameCommand;
 import com.lovetropics.minigames.common.core.command.game.ManageGameLobbyCommand;
@@ -318,6 +319,7 @@ public class LoveTropics {
 		DDRCommand.register(dispatcher, event.getBuildContext());
 		GameStatisticCommand.register(dispatcher);
 		GameSetRoleCommand.register(dispatcher);
+		GolfCommand.register(dispatcher);
 	}
 
 	private void onServerAboutToStart(final ServerAboutToStartEvent event) {
