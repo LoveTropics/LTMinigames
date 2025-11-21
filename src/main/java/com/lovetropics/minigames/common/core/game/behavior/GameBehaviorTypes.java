@@ -183,6 +183,7 @@ import com.lovetropics.minigames.common.core.game.behavior.instances.tweak.SetTi
 import com.lovetropics.minigames.common.core.game.behavior.instances.tweak.TntAutoFuseBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.world.DistributeLootBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.world.FillChestsByMarkerBehavior;
+import com.lovetropics.minigames.common.core.game.behavior.instances.world.FillContainerInRegionWithLootTableBehaviour;
 import com.lovetropics.minigames.common.core.game.behavior.instances.world.ForceLoadRegionBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.world.GenerateEntitiesBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.world.IncreaseRandomTickRateInRegionBehaviour;
@@ -398,6 +399,7 @@ public class GameBehaviorTypes {
 	public static final GameBehaviorEntry<FadeFromBlackBehaviour> FADE_FROM_BLACK = REGISTRATE.object("fade_from_black").behavior(FadeFromBlackBehaviour.CODEC).register();
 	public static final GameBehaviorEntry<FadeToBlackBehaviour> FADE_TO_BLACk = REGISTRATE.object("fade_to_black").behavior(FadeToBlackBehaviour.CODEC).register();
 	public static final GameBehaviorEntry<TeleportToRegionAction> TELEPORT_TO_REGION = REGISTRATE.object("teleport_to_region").behavior(TeleportToRegionAction.CODEC).register();
+	public static final GameBehaviorEntry<FillContainerInRegionWithLootTableBehaviour> FILL_CONTAINER_IN_REGION_WITH_LOOT_TABLE = REGISTRATE.object("fill_container_in_region_with_loot_table").behavior(FillContainerInRegionWithLootTableBehaviour.CODEC).register();
 
 	public static final GameBehaviorEntry<SetupIntegrationsBehavior> SETUP_INTEGRATIONS = register("setup_integrations", SetupIntegrationsBehavior.CODEC);
 	public static final GameBehaviorEntry<JoinLateWithRoleBehavior> JOIN_LATE_WITH_ROLE = register("join_late_with_role", JoinLateWithRoleBehavior.CODEC);
