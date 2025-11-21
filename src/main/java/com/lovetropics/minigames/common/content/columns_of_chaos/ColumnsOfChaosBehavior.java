@@ -38,6 +38,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
@@ -88,15 +89,46 @@ public final class ColumnsOfChaosBehavior implements IGameBehavior {
 		ServerLevel level = game.level();
 		floorRegion = game.mapRegions().getOrThrow(floorRegionName);
 		TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
-		Map<GameTeamKey, CycledSpawner> teamSpawners = new HashMap<>();
-		events.listen(GameTeamEvents.TEAMS_ALLOCATED, participantTeams -> {
-			for (GameTeam team : teams) {
-				int teamSize = (int) participantTeams.values().stream()
-						.filter(team.key()::equals)
-						.count();
+		if (teams != null) {
+			Map<GameTeamKey, CycledSpawner> teamSpawners = new HashMap<>();
+			events.listen(GameTeamEvents.TEAMS_ALLOCATED, participantTeams -> {
+				for (GameTeam team : teams) {
+					int teamSize = (int) participantTeams.values().stream()
+							.filter(team.key()::equals)
+							.count();
+					List<BlockBox> spawnRegions = new ArrayList<>();
+					for (int i = 1; i <= teamSize; i++) {
+						String regionKey = team.key().id() + "_" + i;
+						BlockBox pillarBox = game.mapRegions().getOrThrow(regionKey);
+						level.setBlock(pillarBox.centerBlock(), Blocks.BEDROCK.defaultBlockState(), Block.UPDATE_CLIENTS);
+						for (int x = 1; x <= pillarHeight; x++) {
+							level.setBlock(pillarBox.centerBlock().offset(0, x, 0), Blocks.BEDROCK.defaultBlockState(), Block.UPDATE_CLIENTS);
+						}
+						spawnRegions.add(pillarBox.offset(0, pillarHeight + 1, 0));
+					}
+					teamSpawners.put(team.key(), new CycledSpawner(spawnRegions));
+				}
+			});
+			events.listen(GamePlayerEvents.SPAWN, (playerId, spawn, role) -> {
+				if (role == PlayerRole.PARTICIPANT) {
+					BlockBox spawnForPlayer = getSpawnForPlayer(playerId, teams, teamSpawners);
+					if (spawnForPlayer != null) {
+						spawn.teleportTo(game.level(), spawnForPlayer.centerBlock());
+					} else {
+						LOGGER.warn("Didn't find spawn for {} as {}", playerId, role);
+					}
+				} else {
+					spawn.teleportTo(game.level(), game.mapRegions().getOrThrow("spectator_spawn").centerBlock());
+				}
+			});
+		} else {
+			// TODO lol
+			MutableObject<CycledSpawner> spawner = new MutableObject<>();
+			events.listen(GamePlayerEvents.BEFORE_ADD_PLAYERS, (participants, spectators) -> {
+				int participantCount = participants.size();
 				List<BlockBox> spawnRegions = new ArrayList<>();
-				for (int i = 1; i <= teamSize; i++) {
-					String regionKey = team.key().id() + "_" + i;
+				for (int i = 1; i <= participantCount; i++) {
+					String regionKey = "red_" + i;
 					BlockBox pillarBox = game.mapRegions().getOrThrow(regionKey);
 					level.setBlock(pillarBox.centerBlock(), Blocks.BEDROCK.defaultBlockState(), Block.UPDATE_CLIENTS);
 					for (int x = 1; x <= pillarHeight; x++) {
@@ -104,21 +136,21 @@ public final class ColumnsOfChaosBehavior implements IGameBehavior {
 					}
 					spawnRegions.add(pillarBox.offset(0, pillarHeight + 1, 0));
 				}
-				teamSpawners.put(team.key(), new CycledSpawner(spawnRegions));
-			}
-		});
-		events.listen(GamePlayerEvents.SPAWN, (playerId, spawn, role) -> {
-			if (role == PlayerRole.PARTICIPANT) {
-				BlockBox spawnForPlayer = getSpawnForPlayer(playerId, teams, teamSpawners);
-				if (spawnForPlayer != null) {
-					spawn.teleportTo(game.level(), spawnForPlayer.centerBlock());
-				} else {
-					LOGGER.warn("Didn't find spawn for {} as {}", playerId, role);
+				spawner.setValue(new CycledSpawner(spawnRegions));
+			});
+			events.listen(GamePlayerEvents.SPAWN, (playerId, spawn, role) -> {
+				if (role == PlayerRole.PARTICIPANT) {
+					BlockBox spawnForPlayer = spawner.getValue() != null ? spawner.getValue().next() : null;
+					if (spawnForPlayer != null) {
+						spawn.teleportTo(game.level(), spawnForPlayer.centerBlock());
+						return;
+					} else {
+						LOGGER.warn("Didn't find spawn for {} as {}", playerId, role);
+					}
 				}
-			} else {
 				spawn.teleportTo(game.level(), game.mapRegions().getOrThrow("spectator_spawn").centerBlock());
-			}
-		});
+			});
+		}
 		events.listen(GamePhaseEvents.START, initiator -> {
 			state = startCountingDown(game, 0);
 		});
