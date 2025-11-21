@@ -34,6 +34,7 @@ public class EscapeRaceTexts {
 	public static final TranslationCollector.Fun1 UNLOCKING = KEYS.add1("room.unlocking", "UNLOCKING - %s%%");
 	public static final TranslationCollector.Fun2 LOCKED_CANNOT_AFFORD = KEYS.add2("room.locked_cannot_afford", "LOCKED - %s/%s Break Bucks");
 	public static final TranslationCollector.Fun2 LOCKED_NOT_ENOUGH_PLAYERS = KEYS.add2("room.locked_not_enough_players", "LOCKED - %s/%s crouched");
+	public static final Component ROOMS_BLOCKED = KEYS.add("room.blocked", "Rooms cannot be unlocked at this time!").withStyle(ChatFormatting.RED);
 
 	public static final TranslationCollector.Fun1 BREAK_BUCKS_COST = KEYS.add1("vending_machine.break_bucks_cost", "%s Break Bucks");
 

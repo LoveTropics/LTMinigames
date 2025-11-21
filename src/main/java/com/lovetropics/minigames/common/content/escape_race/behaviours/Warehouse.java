@@ -3,6 +3,7 @@ package com.lovetropics.minigames.common.content.escape_race.behaviours;
 import com.lovetropics.lib.BlockBox;
 import com.lovetropics.minigames.common.content.escape_race.EscapeRace;
 import com.lovetropics.minigames.common.content.escape_race.EscapeRaceTexts;
+import com.lovetropics.minigames.common.content.escape_race.event.EscapeRaceEvents;
 import com.lovetropics.minigames.common.content.escape_race.misc.RoomEntrancePadEntity;
 import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.GameStopReason;
@@ -65,6 +66,8 @@ public class Warehouse implements IGameState {
 
 	public final Map<String, RoomInstance> rooms = new HashMap<>();
 
+	private boolean roomsBlocked = true;
+
 	public Warehouse(IGamePhase topGame, TeamState teams, GameWidgets widgets, Map<String, WarehouseSetupBehaviour.RoomConfig> roomConfigs) {
 		this.topGame = topGame;
 		this.teams = teams;
@@ -83,12 +86,12 @@ public class Warehouse implements IGameState {
 		}
 	}
 
-	private UnlockRequest tryRequestUnlock(IGamePhase game, TeamState teams, RoomInstance room, GameTeamKey team) {
-		PlayerSet players = teams.getParticipantsForTeam(game, team);
-		PlayerSet playersInRegion = players.filter(player -> room.entranceBox.contains(player.position()));
+	private UnlockRequest tryRequestUnlock(RoomInstance room, GameTeamKey team) {
+		PlayerSet players = teams.getParticipantsForTeam(topGame, team);
+		PlayerSet playersInRegion = players.filter(player -> room.entranceBox != null && room.entranceBox.contains(player.position()));
 		PlayerSet playersCrouching = playersInRegion.filter(ServerPlayer::isCrouching);
-		int breakBucks = game.statistics().forTeam(team).getInt(StatisticKey.BREAK_BUCKS);
-		return new UnlockRequest(playersInRegion, playersCrouching, players.size(), breakBucks);
+		int breakBucks = topGame.statistics().forTeam(team).getInt(StatisticKey.BREAK_BUCKS);
+		return new UnlockRequest(playersInRegion, playersCrouching, players.size(), breakBucks, roomsBlocked);
 	}
 
 	public void tick() {
@@ -149,6 +152,18 @@ public class Warehouse implements IGameState {
 	}
 
 	public void registerCommands(IGamePhase game, GameCommandRegistrar commands) {
+		commands.register(Commands.literal("blockrooms")
+				.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+				.executes(context -> {
+					roomsBlocked = true;
+					return 1;
+				}));
+		commands.register(Commands.literal("unblockrooms")
+				.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+				.executes(context -> {
+					roomsBlocked = false;
+					return 1;
+				}));
 		commands.register(Commands.literal("room")
 				.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
 				.then(Commands.argument("room", StringArgumentType.word())
@@ -189,6 +204,13 @@ public class Warehouse implements IGameState {
 						)
 				)
 
+		);
+	}
+
+	public void registerListeners(EventRegistrar events) {
+		events.listen(GamePhaseEvents.TICK, this::tick);
+		events.listen(EscapeRaceEvents.BLOCK_ROOMS, blocked ->
+				roomsBlocked = blocked
 		);
 	}
 
@@ -341,7 +363,7 @@ public class Warehouse implements IGameState {
 
 			if (unlockingState != null) {
 				GameTeamKey unlockingTeam = unlockingState.team;
-				UnlockRequest unlockRequest = tryRequestUnlock(topGame, teams, room, unlockingTeam);
+				UnlockRequest unlockRequest = tryRequestUnlock(room, unlockingTeam);
 
 				TriState result = unlockingState.tick(unlockRequest.isAccepted(room));
 				pad.setUnlockingTicks(unlockingState.unlockingTicks, unlockingState.wasUnlocking);
@@ -359,7 +381,7 @@ public class Warehouse implements IGameState {
 			}
 
 			for (GameTeamKey team : teams.getTeamKeys()) {
-				UnlockRequest unlockRequest = tryRequestUnlock(topGame, teams, room, team);
+				UnlockRequest unlockRequest = tryRequestUnlock(room, team);
 				if (unlockingState == null && unlockRequest.isAccepted(room)) {
 					unlockingState = new UnlockingState(team);
 				}
@@ -394,7 +416,11 @@ public class Warehouse implements IGameState {
 				bar.setProgress(progress);
 				bar.setStyle(color, BossEvent.BossBarOverlay.PROGRESS);
 			} else {
-				if (unlockRequest.breakBucks >= room.cost) {
+				if (unlockRequest.blocked) {
+					bar.setProgress(0.0f);
+					bar.setTitle(EscapeRaceTexts.ROOMS_BLOCKED);
+					bar.setStyle(BossEvent.BossBarColor.RED, BossEvent.BossBarOverlay.PROGRESS);
+				} else if (unlockRequest.breakBucks >= room.cost) {
 					int playersCrouching = unlockRequest.playersCrouching.size();
 					bar.setProgress((float) playersCrouching / unlockRequest.teamSize);
 					bar.setTitle(EscapeRaceTexts.LOCKED_NOT_ENOUGH_PLAYERS.apply(playersCrouching, unlockRequest.teamSize));
@@ -553,9 +579,13 @@ public class Warehouse implements IGameState {
 			PlayerSet playersInRegion,
 			PlayerSet playersCrouching,
 			int teamSize,
-			int breakBucks
+			int breakBucks,
+			boolean blocked
 	) {
 		public boolean isAccepted(RoomInstance room) {
+			if (blocked) {
+				return false;
+			}
 			if (teamSize == 0) {
 				// The team is probably in another room
 				return false;

@@ -19,15 +19,19 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.resources.ResourceLocation;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
 
 public record WarehouseSetupBehaviour(
-		Map<String, RoomConfig> rooms
+		Map<String, RoomConfig> rooms,
+		Set<String> canUnlockInStages
 ) implements IGameBehavior {
 	public static final MapCodec<WarehouseSetupBehaviour> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			Codec.unboundedMap(Codec.STRING, RoomConfig.CODEC).fieldOf("rooms").forGetter(WarehouseSetupBehaviour::rooms)
+			Codec.unboundedMap(Codec.STRING, RoomConfig.CODEC).fieldOf("rooms").forGetter(WarehouseSetupBehaviour::rooms),
+			Codec.STRING.listOf().xmap(Set::copyOf, List::copyOf).optionalFieldOf("can_unlock_in_stages", Set.of()).forGetter(WarehouseSetupBehaviour::canUnlockInStages)
 	).apply(i, WarehouseSetupBehaviour::new));
 
 	public static final GameStateKey<Warehouse> KEY = GameStateKey.create("warehouse");
@@ -38,9 +42,9 @@ public record WarehouseSetupBehaviour(
 		GameWidgets widgets = GameWidgets.getOrRegister(game, events);
 
 		Warehouse warehouse = new Warehouse(game, teams, widgets, rooms);
-
-		events.listen(GamePhaseEvents.TICK, warehouse::tick);
 		game.instanceState().register(KEY, warehouse);
+
+		warehouse.registerListeners(events);
 
 		events.listen(GamePlayerEvents.ADD, player ->
 				// Fade back in if returning from a room

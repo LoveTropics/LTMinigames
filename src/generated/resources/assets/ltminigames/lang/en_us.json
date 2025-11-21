@@ -430,6 +430,7 @@
   "ltminigames.minigame.escape_race.donorbook.title": "%s's final thoughts",
   "ltminigames.minigame.escape_race.given_break_bucks": "You have been given %s Break Bucks",
   "ltminigames.minigame.escape_race.overlay.vacation_days": "%s Vacation Days",
+  "ltminigames.minigame.escape_race.room.blocked": "Rooms cannot be unlocked at this time!",
   "ltminigames.minigame.escape_race.room.locked_cannot_afford": "LOCKED - %s/%s Break Bucks",
   "ltminigames.minigame.escape_race.room.locked_not_enough_players": "LOCKED - %s/%s crouched",
   "ltminigames.minigame.escape_race.room.unlocking": "UNLOCKING - %s%%",

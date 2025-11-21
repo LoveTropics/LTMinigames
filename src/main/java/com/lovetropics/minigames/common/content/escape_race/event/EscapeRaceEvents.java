@@ -13,7 +13,17 @@ public class EscapeRaceEvents {
 		}
 	});
 
+	public static final GameEventType<BlockRooms> BLOCK_ROOMS = GameEventType.create(BlockRooms.class, listeners -> locked -> {
+		for (BlockRooms listener : listeners) {
+			listener.setRoomsBlocked(locked);
+		}
+	});
+
 	public interface DDRLevelCompleted {
 		void onComplete(ServerPlayer player, Holder<DdrLevel> level, int score, int bestStreak);
+	}
+
+	public interface BlockRooms {
+		void setRoomsBlocked(boolean blocked);
 	}
 }
