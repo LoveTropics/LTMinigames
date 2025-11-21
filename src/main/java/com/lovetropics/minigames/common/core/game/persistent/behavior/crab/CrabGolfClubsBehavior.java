@@ -1,6 +1,7 @@
 package com.lovetropics.minigames.common.core.game.persistent.behavior.crab;
 
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
+import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents;
 import com.lovetropics.minigames.common.core.game.persistent.PersistentGame;
 import com.lovetropics.minigames.common.core.game.persistent.PersistentGameBehavior;
 import com.lovetropics.minigames.common.core.game.persistent.PersistentGameBehaviorType;
@@ -39,16 +40,22 @@ public class CrabGolfClubsBehavior implements PersistentGameBehavior {
 			}
 		});
 
-		events.listen(CrabGolfEvents.WIN_GAME, (hole, player, score) -> {
-			List<ItemStack> remove = added.remove(player);
-			if (remove != null) {
-				for (ItemStack stack : remove) {
-					for (ItemStack st : player.getInventory()) {
+		events.listen(GamePhaseEvents.STOP, reason -> {
+			for (Map.Entry<ServerPlayer, List<ItemStack>> e : added.entrySet()) {
+				for (ItemStack stack : e.getValue()) {
+					for (ItemStack st : e.getKey().getInventory()) {
 						if (ItemStack.matches(stack, st)) {
-							player.getInventory().removeItem(st);
+							e.getKey().getInventory().removeItem(st);
 						}
 					}
 				}
+			}
+		});
+
+		events.listen(CrabGolfEvents.WIN_GAME, (hole, player, score) -> {
+			List<ItemStack> remove = added.remove(player);
+			if (remove != null) {
+
 			}
 		});
 	}
