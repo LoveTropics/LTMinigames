@@ -22,6 +22,8 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
+
 public class RoomEntrancePadEntity extends Entity {
 
 	private static final EntityDataAccessor<Float> WIDTH = SynchedEntityData.defineId(RoomEntrancePadEntity.class, EntityDataSerializers.FLOAT);
@@ -67,6 +69,13 @@ public class RoomEntrancePadEntity extends Entity {
 		if (level().isClientSide()) {
 			lastUnlockProgress = unlockProgress;
 			unlockProgress = (float) getEntityData().get(UNLOCKING_TICKS).getCurrentTicks(level().getGameTime(), TOTAL_UNLOCK_TICKS) / TOTAL_UNLOCK_TICKS;
+		} else {
+			List<Entity> entities = level().getEntities(this, getBoundingBox());
+			for (Entity entity : entities) {
+				if(entity.hasControllingPassenger()){
+					entity.ejectPassengers();
+				}
+			}
 		}
 	}
 
