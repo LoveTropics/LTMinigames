@@ -6,6 +6,7 @@ import com.lovetropics.minigames.client.map.RegionTraceTarget;
 import com.lovetropics.minigames.common.core.network.workspace.UpdateWorkspaceRegionMessage;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -13,26 +14,37 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
 
 public final class EditRegionItem extends Item {
+	private static final int USE_INTERVAL = 2;
+
 	private static Mode mode = Mode.RESIZE;
-	private static int useTick;
+	private static int nextUseTick;
 
 	public EditRegionItem(Properties properties) {
 		super(properties);
 	}
 
 	@Override
-	public InteractionResult use(Level level, Player player, InteractionHand hand) {
-		if (level.isClientSide() && isClientPlayer(player)) {
+	public boolean canDestroyBlock(ItemStack stack, BlockState state, Level level, BlockPos pos, LivingEntity entity) {
+		return false;
+	}
+
+	@Override
+	public InteractionResult onItemUseFirst(ItemStack stack, UseOnContext context) {
+		Level level = context.getLevel();
+		Player player = context.getPlayer();
+		if (level.isClientSide() && player != null && isClientPlayer(player)) {
 			RegionTraceTarget traceResult = MapWorkspaceTracer.trace(player);
 
-			useTick = player.tickCount;
+			nextUseTick = player.tickCount + USE_INTERVAL;
 
 			if (traceResult != null && mode == Mode.REMOVE) {
 				ClientPacketDistributor.sendToServer(new UpdateWorkspaceRegionMessage(traceResult.entry().id, Optional.empty()));
@@ -42,17 +54,19 @@ public final class EditRegionItem extends Item {
 			if (MapWorkspaceTracer.select(player, traceResult, target -> mode.createEdit(target))) {
 				return InteractionResult.SUCCESS;
 			} else {
-				return InteractionResult.PASS;
+				return InteractionResult.CONSUME;
 			}
 		}
 
-		return InteractionResult.PASS;
+		// DO NOT INTERACT (with blocks)
+		return InteractionResult.CONSUME;
 	}
 
 	@Override
 	public boolean onEntitySwing(ItemStack stack, LivingEntity entity, InteractionHand hand) {
-		if (entity.level().isClientSide() && entity.tickCount != useTick && isClientPlayer(entity)) {
+		if (entity.level().isClientSide() && entity.tickCount > nextUseTick && isClientPlayer(entity)) {
 			mode = mode.getNext();
+			nextUseTick = entity.tickCount + USE_INTERVAL;
 
 			MapWorkspaceTracer.stopEditing();
 
