@@ -127,10 +127,21 @@ public final class SetExtendingBlocksAction implements IGameBehavior {
 		int totalLength = direction.getAxis().choose(size.getX(), size.getY(), size.getZ());
 		int currentLength = Mth.floor(totalLength * progress);
 
+		// Left this as is!
+		if(direction.getAxis() == Direction.Axis.Y) {
+			if (direction.getAxisDirection() == Direction.AxisDirection.POSITIVE) {
+				return box.withMax(box.min().relative(direction, currentLength));
+			} else {
+				return box.withMin(box.max().relative(direction, currentLength));
+			}
+		}
+		// Rush - Not sure if this is right but it works for now!
 		if (direction.getAxisDirection() == Direction.AxisDirection.POSITIVE) {
-			return box.withMax(box.min().relative(direction, currentLength));
+			return box.withMax(box.min().relative(direction, currentLength)
+					.relative(direction.getCounterClockWise(), totalLength));
 		} else {
-			return box.withMin(box.max().relative(direction, currentLength));
+			return box.withMin(box.max().relative(direction, currentLength)
+					.relative(direction.getCounterClockWise(), totalLength));
 		}
 	}
 }
