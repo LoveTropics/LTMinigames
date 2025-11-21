@@ -55,7 +55,7 @@ public class LeaveGameCommand {
 		}
 		for (ServerPlayer player : players) {
 			if (lobby.getPlayers().remove(player, false)) {
-				context.getSource().sendSuccess(() -> GameTexts.Commands.playerKicked(player), false);
+				context.getSource().sendSuccess(() -> GameTexts.Commands.playerKicked(player), true);
 			}
 		}
 		return players.size();

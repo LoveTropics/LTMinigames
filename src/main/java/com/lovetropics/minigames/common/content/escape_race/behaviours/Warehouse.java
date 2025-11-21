@@ -16,6 +16,7 @@ import com.lovetropics.minigames.common.core.game.config.GameConfig;
 import com.lovetropics.minigames.common.core.game.config.GameConfigs;
 import com.lovetropics.minigames.common.core.game.player.PlayerSet;
 import com.lovetropics.minigames.common.core.game.state.IGameState;
+import com.lovetropics.minigames.common.core.game.state.statistics.GameStatistics;
 import com.lovetropics.minigames.common.core.game.state.statistics.StatisticKey;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeamKey;
 import com.lovetropics.minigames.common.core.game.state.team.TeamState;
@@ -26,11 +27,14 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
+import com.mojang.logging.LogUtils;
 import net.minecraft.SharedConstants;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -39,6 +43,7 @@ import net.minecraft.world.BossEvent;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
+import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
@@ -48,6 +53,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 public class Warehouse implements IGameState {
+	private static final Logger LOGGER = LogUtils.getLogger();
+
 	public static final int FADE_DURATION = SharedConstants.TICKS_PER_SECOND;
 
 	private final IGamePhase topGame;
@@ -114,6 +121,8 @@ public class Warehouse implements IGameState {
 		if (reason.isFinished()) {
 			copyStatisticForTeam(subGame, topGame, team, List.of(StatisticKey.VACATION_DAYS));
 		}
+		Tag statisticsTag = GameStatistics.CODEC.encodeStart(NbtOps.INSTANCE, topGame.statistics()).result().orElse(null);
+		LOGGER.debug("Stopped {} room. New statistics: {}", subGame.definition().name().getString(), statisticsTag);
 	}
 
 	private static void copyStatisticForTeam(IGamePhase from, IGamePhase to, @Nullable GameTeamKey onlyTeam, List<StatisticKey<?>> statisticKeys) {

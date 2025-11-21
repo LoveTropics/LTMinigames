@@ -1,8 +1,5 @@
 package com.lovetropics.minigames.common.core.game.state.statistics;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeamKey;
 import com.lovetropics.minigames.common.core.game.state.team.TeamState;
@@ -12,6 +9,7 @@ import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import com.mojang.authlib.yggdrasil.YggdrasilEnvironment;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -19,14 +17,22 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 
 import java.net.Proxy;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 public final class PlayerKey implements StatisticHolder {
 	private static final YggdrasilAuthenticationService AUTH_SERVICE = new YggdrasilAuthenticationService(Proxy.NO_PROXY, YggdrasilEnvironment.PROD.getEnvironment());
 	private static final MinecraftSessionService SESSION_SERVICE = AUTH_SERVICE.createMinecraftSessionService();
 
+	public static final Codec<PlayerKey> FULL_CODEC = RecordCodecBuilder.create(i -> i.group(
+			UUIDUtil.STRING_CODEC.fieldOf("id").forGetter(PlayerKey::id),
+			Codec.STRING.fieldOf("name").forGetter(PlayerKey::name),
+			SkinData.CODEC.optionalFieldOf("skin").forGetter(PlayerKey::skinData)
+	).apply(i, (id, name, skinData) -> new PlayerKey(new GameProfile(id, name))));
+
 	// TODO: We should probably update this format :(
-	public static final Codec<PlayerKey> UUID_CODEC = UUIDUtil.CODEC.xmap(
+	public static final Codec<PlayerKey> UUID_CODEC = UUIDUtil.STRING_CODEC.xmap(
 			uuid -> new PlayerKey(new GameProfile(uuid, "Unknown")),
 			PlayerKey::id
 	);
@@ -58,31 +64,25 @@ public final class PlayerKey implements StatisticHolder {
 		return profile.getName();
 	}
 
-	public JsonElement serializeProfile() {
-		JsonObject root = new JsonObject();
-		root.addProperty("id", profile.getId().toString());
-		root.addProperty("name", profile.getName());
-
+	private Optional<SkinData> skinData() {
 		MinecraftProfileTexture skinTexture = SESSION_SERVICE.getTextures(profile).skin();
 		if (skinTexture != null) {
-			JsonObject skinRoot = new JsonObject();
-			skinRoot.addProperty("url", skinTexture.getUrl());
-
-			String model = skinTexture.getMetadata("model");
-			if (model == null) {
-				model = "default";
-			}
-
-			skinRoot.addProperty("model", model);
-
-			root.add("skin", skinRoot);
+			return Optional.of(new SkinData(
+					skinTexture.getUrl(),
+					Objects.requireNonNullElse(skinTexture.getMetadata("model"), "default")
+			));
 		}
-
-		return root;
+		return Optional.empty();
 	}
 
-	public JsonElement serializeId() {
-		return new JsonPrimitive(profile.getId().toString());
+	public record SkinData(
+			String url,
+			String model
+	) {
+		public static final Codec<SkinData> CODEC = RecordCodecBuilder.create(i -> i.group(
+				Codec.STRING.fieldOf("url").forGetter(SkinData::url),
+				Codec.STRING.fieldOf("model").forGetter(SkinData::model)
+		).apply(i, SkinData::new));
 	}
 
 	@Override

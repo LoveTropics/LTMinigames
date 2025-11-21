@@ -1,6 +1,7 @@
 package com.lovetropics.minigames.common.core.integration;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.lovetropics.lib.techstack.Crud;
 import com.lovetropics.minigames.common.config.ConfigLT;
@@ -16,6 +17,7 @@ import com.lovetropics.minigames.common.core.game.behavior.instances.donation.Do
 import com.lovetropics.minigames.common.core.game.state.GamePackageState;
 import com.lovetropics.minigames.common.core.game.state.GameStateKey;
 import com.lovetropics.minigames.common.core.game.state.IGameState;
+import com.lovetropics.minigames.common.core.game.state.statistics.GameStatistics;
 import com.lovetropics.minigames.common.core.game.state.statistics.PlayerKey;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeam;
 import com.lovetropics.minigames.common.core.game.state.team.TeamState;
@@ -27,7 +29,6 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerPlayer;
 
 import javax.annotation.Nullable;
 import java.time.Instant;
@@ -101,7 +102,7 @@ public final class GameInstanceIntegrations implements IGameState {
 	private void sendMinigameStart(@Nullable PlayerKey initiator) {
 		JsonObject payload = new JsonObject();
 		if (initiator != null) {
-			payload.add("initiator", initiator.serializeProfile());
+			payload.add("initiator", PlayerKey.FULL_CODEC.encodeStart(JsonOps.INSTANCE, initiator).getOrThrow());
 		}
 		payload.add("participants", serializeParticipantsArray());
 		payload.add("teams", serializeTeamsArray());
@@ -143,7 +144,7 @@ public final class GameInstanceIntegrations implements IGameState {
 		if (phase == topLevelGame) {
 			JsonObject payload = new JsonObject();
 			payload.addProperty("finish_time_utc", Instant.now().getEpochSecond());
-			payload.add("statistics", phase.statistics().serialize());
+			payload.add("statistics", GameStatistics.CODEC.encodeStart(JsonOps.INSTANCE, phase.statistics()).getOrThrow());
 			payload.add("participants", serializeParticipantsArray());
 			payload.add("teams", serializeTeamsArray());
 
@@ -191,14 +192,12 @@ public final class GameInstanceIntegrations implements IGameState {
 		post(ConfigLT.INTEGRATIONS.minigamePlayerUpdateEndpoint.get(), payload);
 	}
 
-	private JsonArray serializeParticipantsArray() {
-		JsonArray participantsArray = new JsonArray();
-		for (IGamePhase game : allGames) {
-			for (ServerPlayer player : game.participants()) {
-				participantsArray.add(PlayerKey.from(player).serializeProfile());
-			}
-		}
-		return participantsArray;
+	private JsonElement serializeParticipantsArray() {
+		List<PlayerKey> players = allGames.stream()
+				.flatMap(game -> game.participants().stream())
+				.map(PlayerKey::from)
+				.toList();
+		return PlayerKey.FULL_CODEC.listOf().encodeStart(JsonOps.INSTANCE, players).getOrThrow();
 	}
 
 	private JsonArray serializeTeamsArray() {

@@ -78,7 +78,7 @@ public class MicrogamesManager implements IGameState {
 						.then(GameConfigArgument.argument("game").executes(context -> {
 							GameConfig config = GameConfigArgument.get(context, "game");
 							gameQueue.add(config);
-							context.getSource().sendSuccess(() -> Component.literal("Added " + config.id() + " to microgame queue"), false);
+							context.getSource().sendSuccess(() -> Component.literal("Added " + config.id() + " to microgame queue"), true);
 							return 1;
 						}))
 				)
@@ -99,7 +99,7 @@ public class MicrogamesManager implements IGameState {
 								context.getSource().sendFailure(Component.literal("The microgame queue is empty"));
 								return 1;
 							}
-							context.getSource().sendSuccess(() -> Component.literal("Starting next microgame"), false);
+							context.getSource().sendSuccess(() -> Component.literal("Starting next microgame"), true);
 							startMicrogame(config);
 							return 1;
 						})

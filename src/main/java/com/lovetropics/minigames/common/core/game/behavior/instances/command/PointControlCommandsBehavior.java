@@ -70,7 +70,7 @@ public record PointControlCommandsBehavior(
 											StatisticsMap statisticsMap = game.statistics().forPlayer(player);
 											statisticsMap.incrementInt(statistic, amount);
 											int newValue = statisticsMap.getInt(statistic);
-											context.getSource().sendSuccess(() -> Component.translatable("%s now has %s %s", player.getDisplayName(), newValue, statistic.getKey()), false);
+											context.getSource().sendSuccess(() -> Component.translatable("%s now has %s %s", player.getDisplayName(), newValue, statistic.getKey()), true);
 											return newValue;
 										})
 								)
@@ -82,7 +82,7 @@ public record PointControlCommandsBehavior(
 											int newValue = IntegerArgumentType.getInteger(context, "value");
 											StatisticsMap statisticsMap = game.statistics().forPlayer(player);
 											statisticsMap.set(statistic, newValue);
-											context.getSource().sendSuccess(() -> Component.translatable("%s now has %s %s", player.getDisplayName(), newValue, statistic.getKey()), false);
+											context.getSource().sendSuccess(() -> Component.translatable("%s now has %s %s", player.getDisplayName(), newValue, statistic.getKey()), true);
 											return newValue;
 										})
 								)
@@ -91,7 +91,7 @@ public record PointControlCommandsBehavior(
 								.executes(context -> {
 									ServerPlayer player = EntityArgument.getPlayer(context, "player");
 									int value = game.statistics().forPlayer(player).getInt(statistic);
-									context.getSource().sendSuccess(() -> Component.translatable("%s has %s %s", player.getDisplayName(), value, statistic.getKey()), false);
+									context.getSource().sendSuccess(() -> Component.translatable("%s has %s %s", player.getDisplayName(), value, statistic.getKey()), true);
 									return value;
 								})
 						)

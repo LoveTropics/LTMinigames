@@ -22,6 +22,8 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
+import net.minecraft.commands.arguments.NbtTagArgument;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
@@ -38,10 +40,22 @@ import static net.minecraft.commands.arguments.EntityArgument.player;
 public class GameStatisticCommand {
 	private static final SimpleCommandExceptionType NOT_IN_GAME = new SimpleCommandExceptionType(GameTexts.Commands.NOT_IN_GAME);
 	private static final DynamicCommandExceptionType NO_TEAM = new DynamicCommandExceptionType(GameTexts.Commands::noTeam);
+	private static final DynamicCommandExceptionType MALFORMED_STATISTICS = new DynamicCommandExceptionType(error -> Component.literal("Could not parse statistics: " + error));
 
 	public static void register(final CommandDispatcher<CommandSourceStack> dispatcher) {
 		dispatcher.register(literal("game").then(literal("stat")
-				.requires(s -> s.hasPermission(Commands.LEVEL_GAMEMASTERS))
+				.requires(source -> source.hasPermission(Commands.LEVEL_GAMEMASTERS))
+				.then(literal("import")
+						.then(Commands.argument("tag", NbtTagArgument.nbtTag())
+								.executes(context -> {
+									IGamePhase game = getGameFor(context.getSource());
+									GameStatistics statistics = GameStatistics.CODEC.parse(NbtOps.INSTANCE, NbtTagArgument.getNbtTag(context, "tag")).getOrThrow(MALFORMED_STATISTICS::create);
+									game.statistics().copyFrom(statistics);
+									context.getSource().sendSuccess(() -> Component.literal("Successfully imported statistics"), true);
+									return 1;
+								})
+						)
+				)
 				.then(StatisticKeyArgument.argument("statistic")
 						.then(literal("get")
 								.then(literal("player")
@@ -107,8 +121,8 @@ public class GameStatisticCommand {
 		));
 	}
 
-	private static IGamePhase getGameFor(CommandSourceStack context) throws CommandSyntaxException {
-		IGamePhase game = GamePhaseManager.get().getGamePhaseFor(context);
+	private static IGamePhase getGameFor(CommandSourceStack source) throws CommandSyntaxException {
+		IGamePhase game = GamePhaseManager.get().getGamePhaseFor(source);
 		if (game == null) {
 			throw NOT_IN_GAME.create();
 		}

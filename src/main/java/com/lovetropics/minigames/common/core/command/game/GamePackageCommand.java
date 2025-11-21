@@ -57,7 +57,7 @@ public class GamePackageCommand {
 			TriState result = game.invoker(GamePackageEvents.RECEIVE_PACKAGE).onReceivePackage(gamePackage);
 			switch (result) {
 				case TRUE ->
-						ctx.getSource().sendSuccess(() -> Component.translatable("Successfully sent '%s'", type), false);
+						ctx.getSource().sendSuccess(() -> Component.translatable("Successfully sent '%s'", type), true);
 				case DEFAULT -> ctx.getSource().sendFailure(Component.translatable("'%s' was not processed", type));
 				case FALSE -> ctx.getSource().sendFailure(Component.translatable("'%s' was rejected", type));
 			}

@@ -19,6 +19,7 @@ import com.lovetropics.minigames.common.core.game.config.GameConfig;
 import com.lovetropics.minigames.common.core.game.config.GameConfigs;
 import com.lovetropics.minigames.common.core.game.player.PlayerRole;
 import com.lovetropics.minigames.common.core.game.state.Overlords;
+import com.lovetropics.minigames.common.core.game.state.statistics.GameStatistics;
 import com.lovetropics.minigames.common.core.game.state.statistics.StatisticKey;
 import com.lovetropics.minigames.common.role.StreamHosts;
 import com.mojang.brigadier.context.CommandContext;
@@ -29,6 +30,8 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.resources.ResourceLocation;
@@ -108,6 +111,8 @@ public final class MinigameCompetitionBehavior implements IGameBehavior {
 		if (reason.isFinished()) {
 			topGame.statistics().copyFrom(subGame.statistics(), shareStatistics);
 		}
+		Tag statisticsTag = GameStatistics.CODEC.encodeStart(NbtOps.INSTANCE, topGame.statistics()).result().orElse(null);
+		LOGGER.debug("Stopped {} in minigame competition. New statistics: {}", subGame.definition().name().getString(), statisticsTag);
 	}
 
 	private void onReturnToLobby(IGamePhase topGame) {
@@ -134,7 +139,7 @@ public final class MinigameCompetitionBehavior implements IGameBehavior {
 				}))
 				.then(Commands.literal("backToLobby").executes(context -> {
 					if (subGames.backToLobby()) {
-						context.getSource().sendSuccess(() -> Component.literal("Returning to lobby - will resume this game after!"), false);
+						context.getSource().sendSuccess(() -> Component.literal("Returning to lobby - will resume this game after!"), true);
 					} else {
 						context.getSource().sendFailure(Component.literal("Not playing games!"));
 					}
@@ -143,7 +148,7 @@ public final class MinigameCompetitionBehavior implements IGameBehavior {
 				.then(Commands.literal("skipThis").executes(context -> {
 					IGameDefinition currentGame = subGames.cancelCurrentGame();
 					if (currentGame != null) {
-						context.getSource().sendSuccess(() -> Component.translatable("Skipping %s", currentGame.name()), false);
+						context.getSource().sendSuccess(() -> Component.translatable("Skipping %s", currentGame.name()), true);
 					} else {
 						context.getSource().sendFailure(Component.literal("There is no minigame currently active!"));
 					}
@@ -152,7 +157,7 @@ public final class MinigameCompetitionBehavior implements IGameBehavior {
 				.then(Commands.literal("restartThis").executes(context -> {
 					IGameDefinition currentGame = subGames.restartCurrentGame();
 					if (currentGame != null) {
-						context.getSource().sendSuccess(() -> Component.translatable("Restarting %s", currentGame.name()), false);
+						context.getSource().sendSuccess(() -> Component.translatable("Restarting %s", currentGame.name()), true);
 					} else {
 						context.getSource().sendFailure(Component.literal("There is no minigame currently active!"));
 					}
@@ -161,7 +166,7 @@ public final class MinigameCompetitionBehavior implements IGameBehavior {
 				.then(Commands.literal("queue")
 						.then(Commands.literal("addLobby").executes(context -> {
 							subGames.queueFirst(new Lobby());
-							context.getSource().sendSuccess(() -> Component.literal("Will return to lobby after this game!"), false);
+							context.getSource().sendSuccess(() -> Component.literal("Will return to lobby after this game!"), true);
 							return 1;
 						}))
 						.then(Commands.literal("addFirst")
@@ -178,7 +183,7 @@ public final class MinigameCompetitionBehavior implements IGameBehavior {
 								.then(GameConfigArgument.argument("game").executes(context -> {
 									GameConfig config = GameConfigArgument.get(context, "game");
 									if (subGames.removeFromQueue(new Game(config.id()))) {
-										context.getSource().sendSuccess(() -> Component.literal("Removed " + config.id() + " from queue"), false);
+										context.getSource().sendSuccess(() -> Component.literal("Removed " + config.id() + " from queue"), true);
 									} else {
 										context.getSource().sendFailure(Component.literal(config.id() + " is not in the queue"));
 									}
@@ -188,7 +193,7 @@ public final class MinigameCompetitionBehavior implements IGameBehavior {
 						.then(Commands.literal("clear").executes(context -> {
 							int queueSize = subGames.queue.size();
 							subGames.queue.clear();
-							context.getSource().sendSuccess(() -> Component.literal("Cleared " + queueSize + " games from the queue"), false);
+							context.getSource().sendSuccess(() -> Component.literal("Cleared " + queueSize + " games from the queue"), true);
 							return 1;
 						}))
 						.then(Commands.literal("list").executes(context -> {
@@ -207,7 +212,7 @@ public final class MinigameCompetitionBehavior implements IGameBehavior {
 		} else {
 			subGames.queueLast(new Game(config.id()));
 		}
-		context.getSource().sendSuccess(() -> Component.literal("Added " + config.id() + " to queue"), false);
+		context.getSource().sendSuccess(() -> Component.literal("Added " + config.id() + " to queue"), true);
 		return 1;
 	}
 

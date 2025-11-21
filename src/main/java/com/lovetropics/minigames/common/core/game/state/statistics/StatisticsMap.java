@@ -1,18 +1,26 @@
 package com.lovetropics.minigames.common.core.game.state.statistics;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import org.jetbrains.annotations.Contract;
 
 import javax.annotation.Nullable;
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
 public final class StatisticsMap {
+	public static final Codec<StatisticsMap> CODEC = Codec.<StatisticKey<?>, Object>dispatchedMap(StatisticKey.CODEC, StatisticKey::valueCodec).xmap(
+			values -> {
+				StatisticsMap statistics = new StatisticsMap();
+				statistics.values.putAll(values);
+				return statistics;
+			},
+			statistics -> statistics.values
+	);
+
 	private final Map<StatisticKey<?>, Object> values = new Reference2ObjectOpenHashMap<>();
 
 	public <T> StatisticsMap set(StatisticKey<T> key, T value) {
@@ -66,22 +74,17 @@ public final class StatisticsMap {
 		withDefault(key, () -> 0).apply(value -> value + increment);
 	}
 
-	public JsonElement serialize() {
-		JsonObject root = new JsonObject();
-		for (Map.Entry<StatisticKey<?>, Object> entry : values.entrySet()) {
-			StatisticKey<?> key = entry.getKey();
-			root.add(key.getKey(), key.serializeUnchecked(entry.getValue()));
-		}
-		return root;
-	}
-
-	public void copyFrom(StatisticsMap fromStatistics, List<StatisticKey<?>> keys) {
+	public void copyFrom(StatisticsMap fromStatistics, Collection<StatisticKey<?>> keys) {
 		for (StatisticKey<?> key : keys) {
 			Object value = fromStatistics.values.get(key);
 			if (value != null) {
 				values.put(key, value);
 			}
 		}
+	}
+
+	public void copyFrom(StatisticsMap fromStatistics) {
+		copyFrom(fromStatistics, fromStatistics.values.keySet());
 	}
 
 	public class WithDefault<T> {
