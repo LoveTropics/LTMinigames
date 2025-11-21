@@ -339,6 +339,20 @@
     "sounds": [
       "ltminigames:escape_race/bill_shoebill/12_now_these"
     ]
+  },
+  "escape_race.room_7.2": {
+    "sounds": [
+      "ltminigames:escape_race/race_room/room_7.2"
+    ]
+  },
+  "escape_race.room_7.3": {
+    "sounds": [
+      "ltminigames:escape_race/race_room/room_7.3"
+    ]
+  },
+  "escape_race.room_7.4": {
+    "sounds": [
+      "ltminigames:escape_race/race_room/room_7.4"
+    ]
   }
-
 }

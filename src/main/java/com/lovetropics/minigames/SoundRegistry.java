@@ -83,6 +83,10 @@ public class SoundRegistry {
 	public static final Holder<SoundEvent> escape_race_billy_sound_11 = register("escape_race.bill_shoebill.11_huh_what_s_this");
 	public static final Holder<SoundEvent> escape_race_billy_sound_12 = register("escape_race.bill_shoebill.12_now_these");
 
+	public static final Holder<SoundEvent> escape_race_room_7_race_room_2 = register("escape_race.room_7.2");
+	public static final Holder<SoundEvent> escape_race_room_7_race_room_3 = register("escape_race.room_7.3");
+	public static final Holder<SoundEvent> escape_race_room_7_race_room_4 = register("escape_race.room_7.4");
+
 	public static final Holder<SoundEvent> UPSET_STOMACH_FART = register("upset_stomach.fart");
 
 	private static Holder<SoundEvent> register(String name) {
