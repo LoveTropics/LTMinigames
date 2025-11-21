@@ -7,6 +7,8 @@ import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionList;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents;
+import com.lovetropics.minigames.common.core.game.behavior.event.SubGameEvents;
+import com.lovetropics.minigames.common.core.game.command.GameCommandRegistrar;
 import com.lovetropics.minigames.common.core.game.state.GameStateKey;
 import com.lovetropics.minigames.common.core.game.state.GameStateMap;
 import com.lovetropics.minigames.common.core.game.state.IGameState;
@@ -87,33 +89,44 @@ public record NamedStagesBehaviour(
 			}
 		});
 		events.listen(GamePhaseEvents.TICK, state::tick);
-		events.listen(GamePhaseEvents.REGISTER_COMMANDS, (commands, buildContext) -> {
-			commands.register(Commands.literal("stage")
-					.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
-					.then(Commands.literal("pause")
-							.executes(context -> {
-								if(state.running){
-									state.pause();
-									context.getSource().sendSuccess(() -> Component.literal("Current stage paused.").withStyle(ChatFormatting.GREEN), true);
-								} else {
-									context.getSource().sendFailure(Component.literal("Stage is not currently running.").withStyle(ChatFormatting.RED));
-								}
-								return 1;
-							}))
-					.then(Commands.literal("resume")
-							.executes(context -> {
-								if(!state.running){
-									state.start();
-									context.getSource().sendSuccess(() -> Component.literal("Current stage resumed.").withStyle(ChatFormatting.GREEN), true);
-								} else {
-									context.getSource().sendFailure(Component.literal("Stage is currently running.").withStyle(ChatFormatting.RED));
-								}
-								return 1;
-					}))
-					.then(Commands.literal("next")
+
+		events.listen(GamePhaseEvents.REGISTER_COMMANDS, (commands, buildContext) ->
+				registerCommands(commands, state)
+		);
+		events.listen(SubGameEvents.CREATE, (subGame, subEvents) -> {
+			subEvents.listen(GamePhaseEvents.REGISTER_COMMANDS, (commands, buildContext) ->
+					registerCommands(commands, state)
+			);
+		});
+	}
+
+	private void registerCommands(GameCommandRegistrar commands, State state) {
+		commands.register(Commands.literal("stage")
+				.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+				.then(Commands.literal("pause")
+						.executes(context -> {
+							if(state.running){
+								state.pause();
+								context.getSource().sendSuccess(() -> Component.literal("Current stage paused.").withStyle(ChatFormatting.GREEN), true);
+							} else {
+								context.getSource().sendFailure(Component.literal("Stage is not currently running.").withStyle(ChatFormatting.RED));
+							}
+							return 1;
+						}))
+				.then(Commands.literal("resume")
+						.executes(context -> {
+							if(!state.running){
+								state.start();
+								context.getSource().sendSuccess(() -> Component.literal("Current stage resumed.").withStyle(ChatFormatting.GREEN), true);
+							} else {
+								context.getSource().sendFailure(Component.literal("Stage is currently running.").withStyle(ChatFormatting.RED));
+							}
+							return 1;
+						}))
+				.then(Commands.literal("next")
 						.executes(context -> {
 							if(state.currentStage != null){
- 								if(state.currentStage.nextStage().isPresent()){
+								if(state.currentStage.nextStage().isPresent()){
 									String stage = state.currentStage.nextStage().get();
 									context.getSource().sendSuccess(() -> Component.translatable("Progressing on to %s", stage).withStyle(ChatFormatting.GREEN), true);
 									state.progressToStage(stage);
@@ -125,8 +138,8 @@ public record NamedStagesBehaviour(
 							}
 							return 1;
 						})
-					)
-					.then(Commands.literal("skip")
+				)
+				.then(Commands.literal("skip")
 						.then(Commands.argument("stage", StringArgumentType.string())
 								.suggests((context, builder) ->
 										SharedSuggestionProvider.suggest(stages.keySet().stream(), builder)
@@ -142,8 +155,7 @@ public record NamedStagesBehaviour(
 									return 1;
 								})
 						))
-			);
-		});
+		);
 	}
 
 	public static final class State implements IGameState {
