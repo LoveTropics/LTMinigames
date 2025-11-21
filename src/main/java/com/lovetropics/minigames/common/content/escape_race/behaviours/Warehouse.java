@@ -28,6 +28,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.logging.LogUtils;
+import net.minecraft.ChatFormatting;
 import net.minecraft.SharedConstants;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -46,6 +47,7 @@ import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -117,12 +119,25 @@ public class Warehouse implements IGameState {
 		}
 	}
 
-	private void onRoomStopped(IGamePhase subGame, @Nullable GameTeamKey team, GameStopReason reason) {
-		if (reason.isFinished()) {
-			copyStatisticForTeam(subGame, topGame, team, List.of(StatisticKey.VACATION_DAYS));
-		}
+	private void onRoomStopped(IGamePhase subGame, Collection<GameTeamKey> teamsFromRoom, GameStopReason reason) {
 		Tag statisticsTag = GameStatistics.CODEC.encodeStart(NbtOps.INSTANCE, topGame.statistics()).result().orElse(null);
 		LOGGER.debug("Stopped {} room. New statistics: {}", subGame.definition().name().getString(), statisticsTag);
+
+		if (reason.isErrored()) {
+			return;
+		}
+
+		// Note: cancelled is valid outcome that should still be tracked
+		for (GameTeamKey team : teamsFromRoom) {
+			int lastVacationDays = topGame.statistics().forTeam(team).getInt(StatisticKey.VACATION_DAYS);
+			int newVacationDays = subGame.statistics().forTeam(team).getInt(StatisticKey.VACATION_DAYS);
+			teams.getPlayersForTeam(topGame, team).showTitle(
+					reason.isCanceled() ? Component.literal("Room not completed").withStyle(ChatFormatting.RED) : Component.literal("Room completed!").withStyle(ChatFormatting.GREEN),
+					Component.translatable("You gained %s vacation days", Component.literal(String.valueOf(newVacationDays - lastVacationDays)).withStyle(ChatFormatting.AQUA)),
+					10, SharedConstants.TICKS_PER_SECOND * 3, 10
+			);
+			copyStatisticForTeam(subGame, topGame, team, List.of(StatisticKey.VACATION_DAYS));
+		}
 	}
 
 	private static void copyStatisticForTeam(IGamePhase from, IGamePhase to, @Nullable GameTeamKey onlyTeam, List<StatisticKey<?>> statisticKeys) {
@@ -422,7 +437,7 @@ public class Warehouse implements IGameState {
 					return new CompletedRoomState(team);
 				} else {
 					// Some kind of error? Give the team back their Break Bucks!
-					if (team != null) {
+					if (stopReason.isErrored() && team != null) {
 						topGame.statistics().forTeam(team).incrementInt(StatisticKey.BREAK_BUCKS, room.cost);
 					}
 					return new LockedRoomState(room);
@@ -468,7 +483,13 @@ public class Warehouse implements IGameState {
 			}
 
 			subEvents.listen(GamePlayerEvents.ADD, player -> {
-				PlayerSet.of(player).fadeFromBlack(FADE_DURATION);
+				PlayerSet players = PlayerSet.of(player);
+				players.fadeFromBlack(FADE_DURATION);
+				players.showTitle(
+						Component.literal("Entered room:"),
+						room.config.displayName().copy().withStyle(ChatFormatting.RED),
+						10, SharedConstants.TICKS_PER_SECOND * 2, 10
+				);
 
 				// Set inventory slots if we have them
 				Map<Integer, ItemStack> inv = stacks.get(player.getUUID());
@@ -490,7 +511,7 @@ public class Warehouse implements IGameState {
 				subGame.allPlayers().fadeToBlack(FADE_DURATION);
 				subGame.returnToParent(subGame.allPlayers());
 				stopReason = reason;
-				onRoomStopped(subGame, team, reason);
+				onRoomStopped(subGame, team != null ? List.of(team) : teams.getTeamKeys(), stopReason);
 			});
 		}
 
