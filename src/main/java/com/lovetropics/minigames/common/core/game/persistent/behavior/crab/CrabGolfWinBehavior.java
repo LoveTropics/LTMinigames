@@ -197,7 +197,7 @@ public class CrabGolfWinBehavior implements PersistentGameBehavior {
 				return true;
 			}
 
-			boolean betterEquals = d.highScore <= score;
+			boolean betterEquals = d.highScore >= score;
 			d.highScore = Math.min(d.highScore, score);
 			d.totalPlays++;
 			d.playerHighScores.merge(player.getUUID(), score, Math::min);

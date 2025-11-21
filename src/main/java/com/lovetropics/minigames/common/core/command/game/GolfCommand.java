@@ -23,7 +23,6 @@ public class GolfCommand {
 						.then(argument("target", EntityArgument.player())
 							.executes(ctx -> {
 								int hole = IntegerArgumentType.getInteger(ctx, "hole");
-								// FIXME: Why does it error???
 								ServerPlayer player = EntityArgument.getPlayer(ctx, "target");
 
 								int score = CrabGolfWinBehavior.GolfData.get(ctx.getSource().getLevel()).getHighScoreFor(hole, player);
