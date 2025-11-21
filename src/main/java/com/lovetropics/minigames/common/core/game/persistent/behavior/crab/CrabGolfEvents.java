@@ -40,9 +40,9 @@ public class CrabGolfEvents {
 		return false;
 	});
 
-	public static final GameEventType<SummonCrab> SUMMON_CRAB = GameEventType.create(SummonCrab.class, listeners -> (level, pos) -> {
+	public static final GameEventType<SummonCrab> SUMMON_CRAB = GameEventType.create(SummonCrab.class, listeners -> (level, player, pos) -> {
 		for (SummonCrab listener : listeners) {
-			LivingEntity summon = listener.summon(level, pos);
+			LivingEntity summon = listener.summon(level, player, pos);
 			if (summon != null) {
 				return summon;
 			}
@@ -60,7 +60,7 @@ public class CrabGolfEvents {
 	}
 
 	public interface SummonCrab {
-		LivingEntity summon(ServerLevel level, Vec3 pos);
+		LivingEntity summon(ServerLevel level, ServerPlayer owner, Vec3 pos);
 	}
 
 	public interface QueryData {

@@ -8,6 +8,7 @@ import com.lovetropics.minigames.common.core.game.persistent.PersistentGameBehav
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.world.entity.EntitySpawnReason;
@@ -29,9 +30,10 @@ public class CrabGolfCrabBehavior implements PersistentGameBehavior {
 
 	@Override
 	public void register(PersistentGame game, EventRegistrar events) {
-		events.listen(CrabGolfEvents.SUMMON_CRAB, (level, pos) -> {
+		events.listen(CrabGolfEvents.SUMMON_CRAB, (level, player, pos) -> {
 			CompoundTag nbt = this.nbt.copy();
 			nbt.putString("id", "tropicraft:fiddler_crab");
+			nbt.putIntArray("Owner", UUIDUtil.uuidToIntArray(player.getUUID()));
 
 			LivingEntity entity = (LivingEntity) EntityType.loadEntityRecursive(nbt, level, EntitySpawnReason.COMMAND, (e) -> {
 				e.snapTo(pos.x, pos.y, pos.z, e.getYRot(), e.getXRot());

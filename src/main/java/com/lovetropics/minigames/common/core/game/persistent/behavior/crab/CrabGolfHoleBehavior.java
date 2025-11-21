@@ -160,7 +160,7 @@ public class CrabGolfHoleBehavior implements PersistentGameBehavior {
 				// move to floor
 				Vec3 center = new Vec3(rcenter.x, rcenter.y - 0.5, rcenter.z);
 
-				LivingEntity entity = game.invoker(CrabGolfEvents.SUMMON_CRAB).summon(player.level(), center);
+				LivingEntity entity = game.invoker(CrabGolfEvents.SUMMON_CRAB).summon(player.level(), player, center);
 				if (entity == null) {
 					return;
 				}
