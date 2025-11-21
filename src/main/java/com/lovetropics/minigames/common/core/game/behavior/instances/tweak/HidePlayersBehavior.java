@@ -54,7 +54,12 @@ public record HidePlayersBehavior(
 			if (role != null && rolesToHide.contains(role)) {
 				hiddenPlayers.add(player.getId());
 			}
-			GameClientState.sendToPlayers(new HidePlayersState(new IntOpenHashSet(hiddenPlayers)), game.getPlayersWithRole(entry.getKey()));
+		}
+
+		for (ServerPlayer otherPlayer : game.allPlayers()) {
+			PlayerRole otherRole = game.getRoleFor(player);
+			IntSet hiddenPlayers = otherRole == null ? IntSet.of() : new IntOpenHashSet(hiddenPlayersByRole.get(otherRole));
+			GameClientState.sendToPlayer(new HidePlayersState(hiddenPlayers), otherPlayer);
 		}
 	}
 }
