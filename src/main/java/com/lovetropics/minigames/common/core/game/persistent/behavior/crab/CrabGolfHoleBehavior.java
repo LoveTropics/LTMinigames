@@ -185,6 +185,7 @@ public class CrabGolfHoleBehavior implements PersistentGameBehavior {
 
 				ServerPlayer player = e.getKey();
 				if (!game.level().players().contains(player)) {
+					entity.setHealth(-100);
 					entity.kill(game.level());
 					currentlyPlaying.remove(player);
 					continue;
@@ -197,6 +198,7 @@ public class CrabGolfHoleBehavior implements PersistentGameBehavior {
 
 						int score = this.hits.get(player);
 						player.sendSystemMessage(Component.literal("Score: " + score), true);
+						entity.setHealth(-100);
 						entity.kill(game.level());
 						currentlyPlaying.remove(player);
 						ticksLeft.remove(player);
@@ -229,6 +231,7 @@ public class CrabGolfHoleBehavior implements PersistentGameBehavior {
 				if (time == 0) {
 					// Ran out of time?
 
+					entity.setHealth(-100);
 					entity.kill(game.level());
 					currentlyPlaying.remove(player);
 					ticksLeft.remove(player);
