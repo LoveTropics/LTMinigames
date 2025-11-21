@@ -126,7 +126,7 @@ public record NamedStagesBehaviour(
 										context.getSource().sendFailure(Component.literal("No stage exists with that name").withStyle(ChatFormatting.RED));
 										return 0;
 									}
-									state.progressToStage(stageToSkipTo);
+									state.progressToStage(stageToSkipTo, true);
 									context.getSource().sendSuccess(() -> Component.translatable("Skipping on to %s", stageToSkipTo).withStyle(ChatFormatting.GREEN), true);
 									return 1;
 								})
