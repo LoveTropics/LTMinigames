@@ -26,6 +26,10 @@ public record CycleByEntityAction(
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
+		for (GameActionList action : actions) {
+			action.register(game, events);
+		}
+
 		Object2IntMap<UUID> assignedIndices = new Object2IntOpenHashMap<>();
 		AtomicInteger nextIndex = new AtomicInteger();
 
