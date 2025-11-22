@@ -246,13 +246,18 @@ public class GamePhase implements IGamePhase {
 			return false;
 		}
 
-		pendingSubPhases.removeIf(pending -> {
-			if (pending.future.isDone()) {
-				registerSubPhase(pending);
-				return true;
-			}
-			return false;
-		});
+		if (!pendingSubPhases.isEmpty()) {
+			List<PendingSubPhaseImpl> readySubPhases = new ArrayList<>();
+			pendingSubPhases.removeIf(pending -> {
+				if (pending.future.isDone()) {
+					readySubPhases.add(pending);
+					return true;
+				}
+				return false;
+			});
+			// Setting a sub-phase might have side effects (i.e. queuing a new sub-phase), run in a separate pass
+			readySubPhases.forEach(this::registerSubPhase);
+		}
 
 		try {
 			scheduler.tick();
