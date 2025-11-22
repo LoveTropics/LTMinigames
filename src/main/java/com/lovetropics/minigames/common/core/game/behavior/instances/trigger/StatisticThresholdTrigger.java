@@ -40,6 +40,7 @@ public record StatisticThresholdTrigger(
 
 		Set<UUID> triggeredPlayers = new HashSet<>();
 		Set<GameTeamKey> triggeredTeams = new HashSet<>();
+		final boolean[] globalTriggered = {false};
 
 		events.listen(GamePhaseEvents.TICK, () -> {
 			GameStatistics statistics = game.statistics();
@@ -60,6 +61,13 @@ public record StatisticThresholdTrigger(
 						actions.apply(game, ContextMap.EMPTY, ActionSubjects.ofTeam(team));
 					}
 				}
+			}
+			if(!globalTriggered[0]) {
+				if(statistics.global().getInt(statistic) < threshold){
+					return;
+				}
+				globalTriggered[0] = true;
+				actions.apply(game, ContextMap.EMPTY, ActionSubjects.ofPlayers(game.allPlayers()));
 			}
 		});
 	}
