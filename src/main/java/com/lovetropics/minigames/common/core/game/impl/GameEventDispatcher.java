@@ -216,40 +216,38 @@ public final class GameEventDispatcher {
 		LivingEntity entity = event.getEntity();
 
 		IGamePhase game = gameLookup.getGamePhaseFor(entity);
-		boolean canceled = false;
-
-		if (game != null) {
-			if (entity instanceof ServerPlayer player) {
-				try {
-					TriState result = game.invoker(GamePlayerEvents.DEATH).onDeath(player, event.getSource());
-					if (result.isFalse()) {
-						canceled = true;
-					}
-				} catch (Exception e) {
-					LoveTropics.LOGGER.warn("Failed to dispatch player death event", e);
-				}
-			} else {
-				try {
-					TriState result = game.invoker(GameLivingEntityEvents.DEATH).onDeath(entity, event.getSource());
-					if (result.isFalse()) {
-						canceled = true;
-					}
-				} catch (Exception e) {
-					LoveTropics.LOGGER.warn("Failed to dispatch entity death event", e);
-				}
-			}
+		if (game == null) {
+			return;
 		}
 
-		if (canceled) {
-			event.setCanceled(true);
-			if (entity.isDeadOrDying()) {
-				entity.setHealth(entity.getMaxHealth());
+		if (entity instanceof ServerPlayer player) {
+			try {
+				TriState result = game.invoker(GamePlayerEvents.DEATH).onDeath(player, event.getSource());
+				// There's never case that we want to allow players to go through the normal death process
+				event.setCanceled(true);
+
+				if (entity.isDeadOrDying()) {
+					entity.setHealth(entity.getMaxHealth());
+				}
+				entity.setDeltaMovement(Vec3.ZERO);
+				entity.fallDistance = 0.0f;
+				// If the entity was in lava, they are no longer in lava - please stop burning me :)
+				if (entity instanceof EntityAccessor entityAccessor) {
+					entityAccessor.invokeUpdateInWaterStateAndDoFluidPushing();
+				}
+
+				if (!result.isFalse()) {
+					// Respawn was not handled, just kick from game
+					game.returnToParent(player);
+				}
+			} catch (Exception e) {
+				LoveTropics.LOGGER.warn("Failed to dispatch player death event", e);
 			}
-			entity.setDeltaMovement(Vec3.ZERO);
-			entity.fallDistance = 0.0f;
-			// If the entity was in lava, they are no longer in lava - please stop burning me :)
-			if (entity instanceof EntityAccessor entityAccessor) {
-				entityAccessor.invokeUpdateInWaterStateAndDoFluidPushing();
+		} else {
+			try {
+				game.invoker(GameLivingEntityEvents.DEATH).onDeath(entity, event.getSource());
+			} catch (Exception e) {
+				LoveTropics.LOGGER.warn("Failed to dispatch entity death event", e);
 			}
 		}
 	}
