@@ -67,7 +67,8 @@ public class SoundRegistry {
 	public static final Holder<SoundEvent> escape_race_room_5_sound_4 = register("escape_race.room_5.sound_4");
 	public static final Holder<SoundEvent> escape_race_room_5_sound_5 = register("escape_race.room_5.sound_5");
 	public static final Holder<SoundEvent> escape_race_room_5_sound_6 = register("escape_race.room_5.sound_6");
-
+	public static final Holder<SoundEvent> escape_race_room_5_izzy_sound_1 = register("escape_race.room_5.izzy.sound_1");
+	public static final Holder<SoundEvent> escape_race_room_5_izzy_sound_2 = register("escape_race.room_5.izzy.sound_2");
 
 	public static final Holder<SoundEvent> escape_race_billy_sound_0 = register("escape_race.bill_shoebill.00_hmm_i_wonder");
 	public static final Holder<SoundEvent> escape_race_billy_sound_1 = register("escape_race.bill_shoebill.01_oh_hello_there");

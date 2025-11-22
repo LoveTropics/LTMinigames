@@ -274,7 +274,16 @@
       "ltminigames:escape_race/gary_gibnut/room_5.gary.6"
     ]
   },
-
+  "escape_race.room_5.izzy.sound_1": {
+    "sounds": [
+      "ltminigames:escape_race/gary_gibnut/room_5.izzy.1"
+    ]
+  },
+  "escape_race.room_5.izzy.sound_2": {
+    "sounds": [
+      "ltminigames:escape_race/izzy_illager/room_5.izzy.2"
+    ]
+  },
   "escape_race.bill_shoebill.00_hmm_i_wonder": {
     "sounds": [
       "ltminigames:escape_race/bill_shoebill/00_hmm_i_wonder"
