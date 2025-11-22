@@ -19,7 +19,9 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 
 import javax.annotation.Nullable;
@@ -113,10 +115,17 @@ public final class SetExtendingBlocksAction implements IGameBehavior {
 		}
 
 		for (BlockPos pos : extendingBox) {
+			BlockState state = set.getState(random, pos);
 			if (replace == null || replace.matches(world, pos)) {
-				BlockState state = set.getState(random, pos);
 				state = Block.updateFromNeighbourShapes(state, world, pos);
 				world.setBlock(pos, state, flags);
+			} else if (state.is(Blocks.WATER)) {
+				// Set waterlogged property
+				state = world.getBlockState(pos);
+				if (state.hasProperty(BlockStateProperties.WATERLOGGED)) {
+					state = state.setValue(BlockStateProperties.WATERLOGGED, true);
+					world.setBlock(pos, state, flags);
+				}
 			}
 		}
 	}

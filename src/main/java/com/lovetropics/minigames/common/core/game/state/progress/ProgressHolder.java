@@ -73,4 +73,9 @@ public final class ProgressHolder implements ProgressionPoint.NamedResolver {
 	public int getNamedPoint(String name) {
 		return namedPoints.getOrDefault(name, ProgressionPoint.UNRESOLVED);
 	}
+
+	@Override
+	public String toString() {
+		return "Progress(" + this.namedPoints + ", " + time + (paused ? "/paused" : "");
+	}
 }
