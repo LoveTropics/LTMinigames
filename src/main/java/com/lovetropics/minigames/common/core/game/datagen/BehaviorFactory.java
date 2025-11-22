@@ -25,7 +25,7 @@ public class BehaviorFactory {
 	}
 
 	public GameActionList applyToAllPlayers(IGameBehavior... behaviors) {
-		return new GameActionList(list(behaviors), ActionTarget.Simple.ALL_PLAYERS);
+		return new GameActionList(list(behaviors), ActionTarget.Simple.ALL_PLAYERS, 1);
 	}
 
 	public IGameBehavior applyToAllPlayersBehavior(IGameBehavior... behaviors) {
@@ -33,7 +33,7 @@ public class BehaviorFactory {
 	}
 
 	public GameActionList actions(ActionTarget target, IGameBehavior behaviors) {
-		return new GameActionList(list(behaviors), target);
+		return new GameActionList(list(behaviors), target, 1);
 	}
 
 	public IGameBehavior list(IGameBehavior... behaviors) {

@@ -12,21 +12,23 @@ import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.MapLike;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.context.ContextMap;
 
 import java.util.Optional;
 
 public class GameActionList {
-	public static final GameActionList EMPTY = new GameActionList(IGameBehavior.EMPTY, ActionTarget.PASS);
+	public static final GameActionList EMPTY = new GameActionList(IGameBehavior.EMPTY, ActionTarget.PASS, 1);
 
 	public static final MapCodec<GameActionList> MAP_CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			IGameBehavior.CODEC.fieldOf("actions").forGetter(list -> list.behavior),
-			ActionTarget.CODEC.optionalFieldOf("target", ActionTarget.PASS).forGetter(list -> list.target)
+			ActionTarget.CODEC.optionalFieldOf("target", ActionTarget.PASS).forGetter(list -> list.target),
+			ExtraCodecs.POSITIVE_INT.optionalFieldOf("max_runs", 1).forGetter(list -> list.maxRuns)
 	).apply(i, GameActionList::new));
 
 	private static final Codec<GameActionList> FULL_CODEC = MAP_CODEC.codec();
 	private static final Codec<GameActionList> SIMPLE_CODEC = IGameBehavior.CODEC.xmap(
-			behavior -> new GameActionList(behavior, ActionTarget.PASS),
+			behavior -> new GameActionList(behavior, ActionTarget.PASS, 1),
 			list -> list.behavior
 	);
 
@@ -43,7 +45,7 @@ public class GameActionList {
 
 		@Override
 		public <T> DataResult<T> encode(GameActionList list, DynamicOps<T> ops, T prefix) {
-			if (list.target.equals(ActionTarget.PASS)) {
+			if (list.target.equals(ActionTarget.PASS) && list.maxRuns == 1) {
 				return SIMPLE_CODEC.encode(list, ops, prefix);
 			}
 			return FULL_CODEC.encode(list, ops, prefix);
@@ -52,14 +54,17 @@ public class GameActionList {
 
 	private final IGameBehavior behavior;
 	private final ActionTarget target;
+	private final int maxRuns;
 
 	private final GameEventListeners listeners = new GameEventListeners();
 
 	private boolean registered;
+	private int runCount;
 
-	public GameActionList(IGameBehavior behavior, ActionTarget target) {
+	public GameActionList(IGameBehavior behavior, ActionTarget target, int maxRuns) {
 		this.behavior = behavior;
 		this.target = target;
+		this.maxRuns = maxRuns;
 	}
 
 	public void register(IGamePhase game, EventRegistrar events) {
@@ -83,6 +88,9 @@ public class GameActionList {
 		}
 		if (!registered) {
 			throw new IllegalStateException("Cannot dispatch action, GameActionList has not been registered");
+		}
+		if (++runCount > maxRuns) {
+			return false;
 		}
 		ActionSubjects<?> targets = target.resolveTargets(game, sources);
 		return listeners.invoker(GameActionEvents.APPLY).apply(context, targets);
