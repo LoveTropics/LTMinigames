@@ -39,6 +39,7 @@ public final class StatisticKey<T> {
 	public static final StatisticKey<Integer> VICTORY_POINTS = ofInt("victory_points").displays(unit("victory points"));
 	public static final StatisticKey<Integer> VACATION_DAYS = ofInt("vacation_days").displays(unit("vacation days"));
 	public static final StatisticKey<Integer> BREAK_BUCKS = ofInt("break_bucks").displays(unit("break bucks"));
+	public static final StatisticKey<Integer> CODE_ITEMS = ofInt("code_items");
 
 	public static final StatisticKey<Integer> TIME_SURVIVED = ofInt("time_survived").displays(minutesSeconds());
 	public static final StatisticKey<Integer> ROUNDS_SURVIVED = ofInt("rounds_survived").displays(unit("rounds"));
