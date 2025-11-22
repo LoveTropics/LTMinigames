@@ -36,8 +36,9 @@ public record DelayedSequenceAction(ActionTarget target, Long2ObjectMap<GameActi
 
 		Multimap<Long, ScheduledAction> scheduled = HashMultimap.create();
 		events.listen(GameActionEvents.APPLY, (context, targets) -> {
+			ActionSubjects<?> modifiedTargets = target.resolveTargets(game, targets);
 			for (Long2ObjectMap.Entry<GameActionList> entry : actions.long2ObjectEntrySet()) {
-				scheduled.put(game.ticks() + entry.getLongKey(), new ScheduledAction(entry.getValue(), context, targets));
+				scheduled.put(game.ticks() + entry.getLongKey(), new ScheduledAction(entry.getValue(), context, modifiedTargets));
 			}
 			return true;
 		});
