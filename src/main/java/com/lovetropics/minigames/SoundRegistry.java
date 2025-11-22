@@ -19,12 +19,12 @@ public class SoundRegistry {
 	public static final Holder<SoundEvent> INCORRECT = register("incorrect");
 	public static final Holder<SoundEvent> QUIET_EXPLOSION = register("quiet_explosion");
 
-	public static final Holder<SoundEvent> TERRY_TRASH_SOUND_1 = register("escape_race.terry_trash.room_2.intro.1");
-	public static final Holder<SoundEvent> TERRY_TRASH_SOUND_2 = register("escape_race.terry_trash.room_2.code_explainer");
-	public static final Holder<SoundEvent> TERRY_TRASH_SOUND_3 = register("escape_race.terry_trash.room_2.bomb_explainer");
-	public static final Holder<SoundEvent> TERRY_TRASH_SOUND_4 = register("escape_race.terry_trash.room_2.time_left.2m");
-	public static final Holder<SoundEvent> TERRY_TRASH_SOUND_5 = register("escape_race.terry_trash.room_2.time_left.30s");
-	public static final Holder<SoundEvent> TERRY_TRASH_SOUND_6 = register("escape_race.terry_trash.room_2.time_left.5s");
+	public static final Holder<SoundEvent> TERRY_TRASH_SOUND_1 = register("escape_race.terry_trash.intro.1");
+	public static final Holder<SoundEvent> TERRY_TRASH_SOUND_2 = register("escape_race.terry_trash.code_explainer");
+	public static final Holder<SoundEvent> TERRY_TRASH_SOUND_3 = register("escape_race.terry_trash.bomb_explainer");
+	public static final Holder<SoundEvent> TERRY_TRASH_SOUND_4 = register("escape_race.terry_trash.time_left.2m");
+	public static final Holder<SoundEvent> TERRY_TRASH_SOUND_5 = register("escape_race.terry_trash.time_left.30s");
+	public static final Holder<SoundEvent> TERRY_TRASH_SOUND_6 = register("escape_race.terry_trash.time_left.5s");
 
 	public static final Holder<SoundEvent> generic_no_1 = register("escape_race.generic.no.1");
 	public static final Holder<SoundEvent> generic_no_2 = register("escape_race.generic.no.2");
@@ -87,6 +87,28 @@ public class SoundRegistry {
 	public static final Holder<SoundEvent> escape_race_room_7_race_room_2 = register("escape_race.room_7.2");
 	public static final Holder<SoundEvent> escape_race_room_7_race_room_3 = register("escape_race.room_7.3");
 	public static final Holder<SoundEvent> escape_race_room_7_race_room_4 = register("escape_race.room_7.4");
+
+	public static final Holder<SoundEvent> escape_race_final_1 = register("escape_race.final.1");
+	public static final Holder<SoundEvent> escape_race_final_2 = register("escape_race.final.2");
+	public static final Holder<SoundEvent> escape_race_final_3 = register("escape_race.final.3");
+	public static final Holder<SoundEvent> escape_race_final_4 = register("escape_race.final.4");
+	public static final Holder<SoundEvent> escape_race_final_5 = register("escape_race.final.5");
+	public static final Holder<SoundEvent> escape_race_final_6 = register("escape_race.final.6");
+	public static final Holder<SoundEvent> escape_race_final_7 = register("escape_race.final.7");
+	public static final Holder<SoundEvent> escape_race_room_1_win = register("escape_race.room_1.win");
+	public static final Holder<SoundEvent> escape_race_room_3_intro_1 = register("escape_race.room_3.intro.1");
+	public static final Holder<SoundEvent> escape_race_room_3_intro_2 = register("escape_race.room_3.intro.2");
+	public static final Holder<SoundEvent> escape_race_room_4_1 = register("escape_race.room_4.1");
+	public static final Holder<SoundEvent> escape_race_room_4_2 = register("escape_race.room_4.2");
+	public static final Holder<SoundEvent> escape_race_room_4_3 = register("escape_race.room_4.3");
+	public static final Holder<SoundEvent> escape_race_room_4_4 = register("escape_race.room_4.4");
+	public static final Holder<SoundEvent> escape_race_room_7_1 = register("escape_race.room_7.1");
+	public static final Holder<SoundEvent> escape_race_room_7_5 = register("escape_race.room_7.5");
+	public static final Holder<SoundEvent> escape_race_room_7_6 = register("escape_race.room_7.6");
+	public static final Holder<SoundEvent> escape_race_room_7_7 = register("escape_race.room_7.7");
+	public static final Holder<SoundEvent> escape_race_room_7_8 = register("escape_race.room_7.8");
+	public static final Holder<SoundEvent> escape_race_room_7_9 = register("escape_race.room_7.9");
+	public static final Holder<SoundEvent> escape_race_room_7_10 = register("escape_race.room_7.10");
 
 	public static final Holder<SoundEvent> UPSET_STOMACH_FART = register("upset_stomach.fart");
 
