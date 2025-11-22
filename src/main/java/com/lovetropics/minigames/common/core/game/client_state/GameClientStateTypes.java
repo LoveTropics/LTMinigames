@@ -15,6 +15,7 @@ import com.lovetropics.minigames.common.core.game.client_state.instance.HealthTa
 import com.lovetropics.minigames.common.core.game.client_state.instance.HideNameTagsState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.HidePlayersState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.HideRecipeBookClientState;
+import com.lovetropics.minigames.common.core.game.client_state.instance.HighlightBlocksState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.InvertControlsClientState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.PointTagClientState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.ReplaceTexturesClientState;
@@ -58,6 +59,7 @@ public final class GameClientStateTypes {
 	public static final GameClientTweakEntry<GlowTeamMembersState> GLOW_TEAM_MEMBERS = register("glow_team_members", MapCodec.unit(GlowTeamMembersState.INSTANCE), StreamCodec.unit(GlowTeamMembersState.INSTANCE));
 	public static final GameClientTweakEntry<PointTagClientState> POINT_TAGS = register("point_tags", PointTagClientState.CODEC);
 	public static final GameClientTweakEntry<HideRecipeBookClientState> HIDE_RECIPE_BOOK = register("hide_recipe_book", HideRecipeBookClientState.CODEC);
+	public static final GameClientTweakEntry<HighlightBlocksState> HIGHLIGHT_BLOCKS = register("highlight_blocks", HighlightBlocksState.CODEC, HighlightBlocksState.STREAM_CODEC);
 	public static final GameClientTweakEntry<CraftingBeeCraftsClientState> CRAFTING_BEE_CRAFTS = register("crafting_bee_crafts", CraftingBeeCraftsClientState.CODEC);
 	public static final GameClientTweakEntry<InvertControlsClientState> INVERT_CONTROLS = register("invert_controls", InvertControlsClientState.CODEC);
 	public static final GameClientTweakEntry<SwapMovementClientState> SWAP_MOVEMENT = register("swap_movement", SwapMovementClientState.CODEC);

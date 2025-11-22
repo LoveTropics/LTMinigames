@@ -8,6 +8,7 @@ import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents;
+import com.lovetropics.minigames.common.core.game.util.FluidFiller;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -21,7 +22,6 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 
 import javax.annotation.Nullable;
@@ -115,15 +115,12 @@ public final class SetExtendingBlocksAction implements IGameBehavior {
 		}
 
 		for (BlockPos pos : extendingBox) {
-			BlockState state = set.getState(random, pos);
 			if (replace == null || replace.matches(world, pos)) {
-				state = Block.updateFromNeighbourShapes(state, world, pos);
-				world.setBlock(pos, state, flags);
-			} else if (state.is(Blocks.WATER)) {
-				// Set waterlogged property
-				state = world.getBlockState(pos);
-				if (state.hasProperty(BlockStateProperties.WATERLOGGED)) {
-					state = state.setValue(BlockStateProperties.WATERLOGGED, true);
+				BlockState state = set.getState(random, pos);
+				if (state.is(Blocks.WATER)) {
+					world.setBlock(pos, FluidFiller.WaterRule.mapBlockRisingWater(world.getBlockState(pos)), flags);
+				} else {
+					state = Block.updateFromNeighbourShapes(state, world, pos);
 					world.setBlock(pos, state, flags);
 				}
 			}

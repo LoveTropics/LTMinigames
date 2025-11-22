@@ -308,7 +308,7 @@ public class FluidFiller {
 			}
 		}
 
-		private static BlockState mapBlockRisingWater(BlockState state) {
+		public static BlockState mapBlockRisingWater(BlockState state) {
 			Block block = state.getBlock();
 
 			if (state.isAir() || !state.blocksMotion() || block == Blocks.BAMBOO || is(state, SAND_LAYER)) {

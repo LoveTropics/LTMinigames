@@ -19,13 +19,6 @@ public class SoundRegistry {
 	public static final Holder<SoundEvent> INCORRECT = register("incorrect");
 	public static final Holder<SoundEvent> QUIET_EXPLOSION = register("quiet_explosion");
 
-	public static final Holder<SoundEvent> TERRY_TRASH_SOUND_1 = register("escape_race.terry_trash.intro.1");
-	public static final Holder<SoundEvent> TERRY_TRASH_SOUND_2 = register("escape_race.terry_trash.code_explainer");
-	public static final Holder<SoundEvent> TERRY_TRASH_SOUND_3 = register("escape_race.terry_trash.bomb_explainer");
-	public static final Holder<SoundEvent> TERRY_TRASH_SOUND_4 = register("escape_race.terry_trash.time_left.2m");
-	public static final Holder<SoundEvent> TERRY_TRASH_SOUND_5 = register("escape_race.terry_trash.time_left.30s");
-	public static final Holder<SoundEvent> TERRY_TRASH_SOUND_6 = register("escape_race.terry_trash.time_left.5s");
-
 	public static final Holder<SoundEvent> generic_no_1 = register("escape_race.generic.no.1");
 	public static final Holder<SoundEvent> generic_no_2 = register("escape_race.generic.no.2");
 	public static final Holder<SoundEvent> generic_no_3 = register("escape_race.generic.no.3");

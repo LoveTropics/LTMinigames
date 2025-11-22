@@ -67,6 +67,7 @@ import com.lovetropics.minigames.common.core.game.behavior.instances.action.Exti
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.GiveEffectAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.GiveLootAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.GiveRewardAction;
+import com.lovetropics.minigames.common.core.game.behavior.instances.action.HighlightBlocksAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.IncrementStatisticAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.KillAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.LimitedTimeLootAction;
@@ -408,6 +409,7 @@ public class GameBehaviorTypes {
 	public static final GameBehaviorEntry<TeleportToRegionAction> TELEPORT_TO_REGION = REGISTRATE.object("teleport_to_region").behavior(TeleportToRegionAction.CODEC).register();
 	public static final GameBehaviorEntry<FillContainerInRegionWithLootTableBehaviour> FILL_CONTAINER_IN_REGION_WITH_LOOT_TABLE = REGISTRATE.object("fill_container_in_region_with_loot_table").behavior(FillContainerInRegionWithLootTableBehaviour.CODEC).register();
 	public static final GameBehaviorEntry<StandOnBlockTrigger> STANDING_ON_BLOCK_TRIGGER = REGISTRATE.object("stand_on_block").behavior(StandOnBlockTrigger.CODEC).register();
+	public static final GameBehaviorEntry<HighlightBlocksAction> HIGHLIGHT_BLOCKS = REGISTRATE.object("highlight_blocks").behavior(HighlightBlocksAction.CODEC).register();
 
 	public static final GameBehaviorEntry<SetupIntegrationsBehavior> SETUP_INTEGRATIONS = register("setup_integrations", SetupIntegrationsBehavior.CODEC);
 	public static final GameBehaviorEntry<JoinLateWithRoleBehavior> JOIN_LATE_WITH_ROLE = register("join_late_with_role", JoinLateWithRoleBehavior.CODEC);

@@ -434,6 +434,21 @@
       "ltminigames:escape_race/room_4.2"
     ]
   },
+  "escape_race.room_4.3": {
+    "sounds": [
+      "ltminigames:escape_race/room_4.3"
+    ]
+  },
+  "escape_race.room_4.4": {
+    "sounds": [
+      "ltminigames:escape_race/room_4.4"
+    ]
+  },
+  "escape_race.room_7.1": {
+    "sounds": [
+      "ltminigames:escape_race/room_7.1"
+    ]
+  },
   "escape_race.room_7.5": {
     "sounds": [
       "ltminigames:escape_race/room_7.5"
