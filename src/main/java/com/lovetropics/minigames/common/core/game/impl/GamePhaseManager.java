@@ -65,6 +65,7 @@ public class GamePhaseManager implements IGameLookup {
 
 		return mapFuture
 				.thenApplyAsync(map -> {
+					// TODO: Rather have the async CompletableFuture part only prepare the map - create the GamePhase only from the outside
 					GamePhase phase = new GamePhase(game, parentPhase, map, definition, behavior);
 					queuedGames.add(phase);
 					return phase;

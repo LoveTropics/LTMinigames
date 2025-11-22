@@ -76,27 +76,37 @@
   },
   "escape_race.terry_trash.sound_1": {
     "sounds": [
-      "ltminigames:escape_race/terry_trash/room_2.intro.1"
+      {
+        "name": "ltminigames:escape_race/terry_trash/room_2.intro.1"
+      }
     ]
   },
   "escape_race.terry_trash.sound_2": {
     "sounds": [
-      "ltminigames:escape_race/terry_trash/room_2.code_explainer"
+      {
+        "name": "ltminigames:escape_race/terry_trash/room_2.code_explainer"
+      }
     ]
   },
   "escape_race.terry_trash.sound_3": {
     "sounds": [
-      "ltminigames:escape_race/terry_trash/room_2.bomb_explainer"
+      {
+        "name": "ltminigames:escape_race/terry_trash/room_2.bomb_explainer"
+      }
     ]
   },
   "escape_race.terry_trash.sound_4": {
     "sounds": [
-      "ltminigames:escape_race/terry_trash/room_2.time_left.5s"
+      {
+        "name": "ltminigames:escape_race/terry_trash/room_2.time_left.2m"
+      }
     ]
   },
   "escape_race.terry_trash.sound_5": {
     "sounds": [
-      "ltminigames:escape_race/terry_trash/room_2.time_left.2m"
+      {
+        "name": "ltminigames:escape_race/terry_trash/room_2.time_left.30s"
+      }
     ]
   },
   "escape_race.terry_trash.sound_6": {
@@ -276,7 +286,7 @@
   },
   "escape_race.room_5.izzy.sound_1": {
     "sounds": [
-      "ltminigames:escape_race/gary_gibnut/room_5.izzy.1"
+      "ltminigames:escape_race/izzy_illager/room_5.izzy.1"
     ]
   },
   "escape_race.room_5.izzy.sound_2": {

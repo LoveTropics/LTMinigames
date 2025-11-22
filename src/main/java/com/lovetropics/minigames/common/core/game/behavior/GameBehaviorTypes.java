@@ -91,6 +91,7 @@ import com.lovetropics.minigames.common.core.game.behavior.instances.action.SetT
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.SetupPodiumAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.ShootProjectilesAroundPlayerAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.ShowTitleAction;
+import com.lovetropics.minigames.common.core.game.behavior.instances.action.SimpleDialogBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.SpawnEntitiesAroundPlayersAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.SpawnEntitiesAtRegionsOverTimeAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.SpawnEntityAtPlayerAction;
@@ -337,6 +338,7 @@ public class GameBehaviorTypes {
 	public static final GameBehaviorEntry<SpawnFireworksAction> SPAWN_FIREWORKS = register("spawn_fireworks", SpawnFireworksAction.CODEC);
 	public static final GameBehaviorEntry<RunCommandsAction> RUN_COMMANDS = register("run_commands", RunCommandsAction.CODEC);
 	public static final GameBehaviorEntry<SendMessageAction> SEND_MESSAGE = register("send_message", SendMessageAction.CODEC);
+	public static final GameBehaviorEntry<SimpleDialogBehavior> SIMPLE_DIALOG = register("simple_dialog", SimpleDialogBehavior.CODEC);
 	public static final GameBehaviorEntry<ShowTitleAction> SHOW_TITLE = register("show_title", ShowTitleAction.CODEC);
 	public static final GameBehaviorEntry<PlaySoundAction> PLAY_SOUND = register("play_sound", PlaySoundAction.CODEC);
 	public static final GameBehaviorEntry<SpawnParticlesAroundEntityAction> SPAWN_PARTICLES_AROUND_ENTITY = register("spawn_particles_around_player", SpawnParticlesAroundEntityAction.CODEC); //TODO: rename (affects any entity)
