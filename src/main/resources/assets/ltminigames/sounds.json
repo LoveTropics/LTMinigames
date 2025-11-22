@@ -373,5 +373,95 @@
     "sounds": [
       "ltminigames:escape_race/race_room/room_7.4"
     ]
+  },
+  "escape_race.final.1": {
+    "sounds": [
+      "ltminigames:escape_race/final.1"
+    ]
+  },
+  "escape_race.final.2": {
+    "sounds": [
+      "ltminigames:escape_race/final.2"
+    ]
+  },
+  "escape_race.final.3": {
+    "sounds": [
+      "ltminigames:escape_race/final.3"
+    ]
+  },
+  "escape_race.final.4": {
+    "sounds": [
+      "ltminigames:escape_race/final.4"
+    ]
+  },
+  "escape_race.final.5": {
+    "sounds": [
+      "ltminigames:escape_race/final.5"
+    ]
+  },
+  "escape_race.final.6": {
+    "sounds": [
+      "ltminigames:escape_race/final.6"
+    ]
+  },
+  "escape_race.final.7": {
+    "sounds": [
+      "ltminigames:escape_race/final.7"
+    ]
+  },
+  "escape_race.room_1.win": {
+    "sounds": [
+      "ltminigames:escape_race/room_1.win"
+    ]
+  },
+  "escape_race.room_3.intro.1": {
+    "sounds": [
+      "ltminigames:escape_race/room_3.intro.1"
+    ]
+  },
+  "escape_race.room_3.intro.2": {
+    "sounds": [
+      "ltminigames:escape_race/room_3.intro.2"
+    ]
+  },
+  "escape_race.room_4.1": {
+    "sounds": [
+      "ltminigames:escape_race/room_4.1"
+    ]
+  },
+  "escape_race.room_4.2": {
+    "sounds": [
+      "ltminigames:escape_race/room_4.2"
+    ]
+  },
+  "escape_race.room_7.5": {
+    "sounds": [
+      "ltminigames:escape_race/room_7.5"
+    ]
+  },
+  "escape_race.room_7.6": {
+    "sounds": [
+      "ltminigames:escape_race/room_7.6"
+    ]
+  },
+  "escape_race.room_7.7": {
+    "sounds": [
+      "ltminigames:escape_race/room_7.7"
+    ]
+  },
+  "escape_race.room_7.8": {
+    "sounds": [
+      "ltminigames:escape_race/room_7.8"
+    ]
+  },
+  "escape_race.room_7.9": {
+    "sounds": [
+      "ltminigames:escape_race/room_7.9"
+    ]
+  },
+  "escape_race.room_7.10": {
+    "sounds": [
+      "ltminigames:escape_race/room_7.10"
+    ]
   }
 }
