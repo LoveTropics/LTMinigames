@@ -21,7 +21,6 @@ import net.minecraft.world.Container;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.monster.warden.Warden;
 import net.minecraft.world.entity.monster.warden.WardenAi;
 import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
@@ -48,6 +47,14 @@ public record ImmediateRespawnBehavior(Optional<PlayerRole> role, Optional<Playe
 	}
 
 	private TriState onPlayerDeath(IGamePhase game, ServerPlayer player, DamageSource source) {
+		PlayerRole playerRole = game.getRoleFor(player);
+		if (playerRole == PlayerRole.SPECTATOR) {
+			SpawnBuilder spawn = new SpawnBuilder(player);
+			game.invoker(GamePlayerEvents.SPAWN).onSpawn(player.getUUID(), spawn, playerRole);
+			spawn.teleportAndApply(player);
+			return TriState.FALSE;
+		}
+
 		destroyVanishingCursedItems(player.getInventory());
 
 		player.level().getEntities(EntityType.WARDEN, LivingEntity::isAlive).forEach(warden -> {
@@ -59,7 +66,6 @@ public record ImmediateRespawnBehavior(Optional<PlayerRole> role, Optional<Playe
 			player.getInventory().dropAll();
 		}
 
-		PlayerRole playerRole = game.getRoleFor(player);
 		if (role.isEmpty() || role.get() == playerRole) {
 			respawnPlayer(game, player, playerRole, source);
 			sendDeathMessage(game, player);
