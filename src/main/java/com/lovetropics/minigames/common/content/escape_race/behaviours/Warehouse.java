@@ -34,12 +34,18 @@ import net.minecraft.SharedConstants;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
+import net.minecraft.commands.arguments.ResourceLocationArgument;
+import net.minecraft.commands.synchronization.SuggestionProviders;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.TriState;
 import net.minecraft.world.BossEvent;
 import net.minecraft.world.entity.EntitySpawnReason;
@@ -152,6 +158,7 @@ public class Warehouse implements IGameState {
 	}
 
 	public void registerCommands(IGamePhase game, GameCommandRegistrar commands) {
+		TeamState teamState = game.instanceState().getOrThrow(TeamState.KEY);
 		commands.register(Commands.literal("blockrooms")
 				.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
 				.executes(context -> {
@@ -160,6 +167,37 @@ public class Warehouse implements IGameState {
 				}));
 		commands.register(Commands.literal("unblockrooms")
 				.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+				.executes(context -> {
+					roomsBlocked = false;
+					return 1;
+				}));
+		commands.register(Commands.literal("sound")
+				.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+						.then(Commands.argument("target", StringArgumentType.word())
+								.suggests((context, builder)
+										-> builder.suggest("all").suggest("red").suggest("blue").buildFuture())
+								.then(Commands.argument("sound", ResourceLocationArgument.id())
+										.suggests(SuggestionProviders.cast(SuggestionProviders.AVAILABLE_SOUNDS))
+										.executes(context -> {
+											String target = StringArgumentType.getString(context, "target");
+											ResourceLocation sound = ResourceLocationArgument.getId(context, "sound");
+											SoundEvent soundEvent = SoundEvent.createVariableRangeEvent(sound);
+											PlayerSet players = switch (target) {
+												case "all" -> game.allPlayers(true);
+												case "red" -> game.allPlayers(true)
+														.filter(input ->
+																teamState.getTeamForPlayer(input).id().equalsIgnoreCase("red"));
+												case "blue" -> game.allPlayers(true)
+														.filter(input ->
+																teamState
+																		.getTeamForPlayer(input).id().equalsIgnoreCase("blue"));
+												default -> null;
+											};
+											if(players != null) {
+												players.playSound(soundEvent, SoundSource.VOICE, 1.0F, 1.0F);
+											}
+											return 1;
+										})))
 				.executes(context -> {
 					roomsBlocked = false;
 					return 1;
