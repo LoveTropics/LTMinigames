@@ -114,7 +114,7 @@ public final class GameTexts {
 		}
 
 		public static MutableComponent playerKicked(ServerPlayer player) {
-			return formatNegative(PLAYER_KICKED.apply(player));
+			return formatNegative(PLAYER_KICKED.apply(player.getDisplayName()));
 		}
 
 		public static MutableComponent startedGame(IGameDefinition game) {
