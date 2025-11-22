@@ -12,6 +12,8 @@ import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvent
 import com.lovetropics.minigames.common.core.game.state.progress.ProgressChannel;
 import com.lovetropics.minigames.common.core.game.state.progress.ProgressionPoint;
 import com.lovetropics.minigames.common.core.game.state.statistics.StatisticKey;
+import com.lovetropics.minigames.common.core.game.state.team.GameTeamKey;
+import com.lovetropics.minigames.common.core.game.state.team.TeamState;
 import com.lovetropics.minigames.common.core.game.util.GameSidebar;
 import com.lovetropics.minigames.common.core.game.util.GameWidgets;
 import com.mojang.serialization.Codec;
@@ -119,6 +121,9 @@ public final class TerryTrashBehavior implements IGameBehavior {
 
 		events.listen(GamePhaseEvents.TICK, () -> onGameTick(game, sidebar, itemSpawnBox, badTrashBox));
 
+
+		TeamState teams = game.instanceState().getOrThrow(TeamState.KEY);
+
 		events.listen(GamePlayerEvents.USE_BLOCK, ((player, world, pos, hand, traceResult) -> {
 			ItemStack heldItem = player.getItemInHand(hand);
 			if (game.mapRegions().getOrThrow(checkLever).contains(pos)) {
@@ -136,7 +141,14 @@ public final class TerryTrashBehavior implements IGameBehavior {
 					}
 					world.setBlockAndUpdate(blockBox, codeCheck.clearState.getState(world.random, blockBox));
 				}
+				boolean goodBefore = codeGood;
 				codeGood = allMatch;
+				if (goodBefore != codeGood && codeGood) {
+					GameTeamKey teamForPlayer = teams.getTeamForPlayer(player);
+					if (teamForPlayer != null) {
+						game.statistics().forTeam(teamForPlayer).incrementInt(StatisticKey.VACATION_DAYS, 2);
+					}
+				}
 				return InteractionResult.SUCCESS;
 			}
 			if (heldItem.isEmpty()) {
