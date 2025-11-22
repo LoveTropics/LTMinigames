@@ -74,6 +74,7 @@ public record BreakBucksBehaviour(
 				DdrLevelDifficulty difficulty = level.value().difficulty();
 				int breakBucks = Math.round(difficulty.getScoreMultiplier() * score);
 				breakBucks += (int) ((bestStreak * 2) * difficulty.getScoreMultiplier());
+				breakBucks = Math.round(breakBucks / 10f);
 				addBreakBucks(game, team, breakBucks);
 				Component message = EscapeRaceTexts.DDR_SCORE_ADDED.apply(player.getDisplayName(), breakBucks).withStyle(ChatFormatting.GOLD);
 				teams.getPlayersForTeam(game, team).sendMessage(message);
