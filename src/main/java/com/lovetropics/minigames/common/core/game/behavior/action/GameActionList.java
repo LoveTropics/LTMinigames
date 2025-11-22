@@ -20,15 +20,17 @@ import java.util.Optional;
 public class GameActionList {
 	public static final GameActionList EMPTY = new GameActionList(IGameBehavior.EMPTY, ActionTarget.PASS, 1);
 
+	private static final int NO_MAX_RUNS = Integer.MAX_VALUE;
+
 	public static final MapCodec<GameActionList> MAP_CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			IGameBehavior.CODEC.fieldOf("actions").forGetter(list -> list.behavior),
 			ActionTarget.CODEC.optionalFieldOf("target", ActionTarget.PASS).forGetter(list -> list.target),
-			ExtraCodecs.POSITIVE_INT.optionalFieldOf("max_runs", Integer.MAX_VALUE).forGetter(list -> list.maxRuns)
+			ExtraCodecs.POSITIVE_INT.optionalFieldOf("max_runs", NO_MAX_RUNS).forGetter(list -> list.maxRuns)
 	).apply(i, GameActionList::new));
 
 	private static final Codec<GameActionList> FULL_CODEC = MAP_CODEC.codec();
 	private static final Codec<GameActionList> SIMPLE_CODEC = IGameBehavior.CODEC.xmap(
-			behavior -> new GameActionList(behavior, ActionTarget.PASS, 1),
+			behavior -> new GameActionList(behavior, ActionTarget.PASS, NO_MAX_RUNS),
 			list -> list.behavior
 	);
 
@@ -45,7 +47,7 @@ public class GameActionList {
 
 		@Override
 		public <T> DataResult<T> encode(GameActionList list, DynamicOps<T> ops, T prefix) {
-			if (list.target.equals(ActionTarget.PASS) && list.maxRuns == 1) {
+			if (list.target.equals(ActionTarget.PASS) && list.maxRuns == NO_MAX_RUNS) {
 				return SIMPLE_CODEC.encode(list, ops, prefix);
 			}
 			return FULL_CODEC.encode(list, ops, prefix);
