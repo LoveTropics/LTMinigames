@@ -130,6 +130,9 @@ public final class TerryTrashBehavior implements IGameBehavior {
 		events.listen(GamePlayerEvents.USE_BLOCK, ((player, world, pos, hand, traceResult) -> {
 			ItemStack heldItem = player.getItemInHand(hand);
 			if (game.mapRegions().getOrThrow(checkLever).contains(pos)) {
+				if (codeGood) {
+					return InteractionResult.FAIL;
+				}
 				boolean allMatch = true;
 				for (CodeCheck codeCheck : codeChecks) {
 					BlockPos blockBox = game.mapRegions().getOrThrow(codeCheck.blockRegion).min();
@@ -144,9 +147,8 @@ public final class TerryTrashBehavior implements IGameBehavior {
 					}
 					world.setBlockAndUpdate(blockBox, codeCheck.clearState.getState(world.random, blockBox));
 				}
-				boolean goodBefore = codeGood;
-				codeGood = allMatch;
-				if (goodBefore != codeGood && codeGood) {
+				if (allMatch) {
+					codeGood = allMatch;
 					GameTeamKey teamForPlayer = teams.getTeamForPlayer(player);
 					if (teamForPlayer != null) {
 						game.statistics().forTeam(teamForPlayer).incrementInt(StatisticKey.VACATION_DAYS, 2);
