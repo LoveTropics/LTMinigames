@@ -58,6 +58,7 @@ import com.lovetropics.minigames.common.core.game.behavior.instances.action.Clea
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.ClearEffectsAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.CloseGameAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.CountdownAction;
+import com.lovetropics.minigames.common.core.game.behavior.instances.action.CycleByEntityAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.DamageAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.DelayedAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.DisplayLeaderboardAction;
@@ -332,6 +333,7 @@ public class GameBehaviorTypes {
 	public static final GameBehaviorEntry<CountdownAction<?>> COUNTDOWN_ACTION = register("countdown_action", CountdownAction.CODEC);
 	public static final GameBehaviorEntry<DelayedAction> DELAYED = register("delayed", DelayedAction.CODEC);
 	public static final GameBehaviorEntry<DelayedSequenceAction> DELAYED_SEQUENCE = register("delayed_sequence", DelayedSequenceAction.CODEC);
+	public static final GameBehaviorEntry<CycleByEntityAction> CYCLE_ACTION_BY_ENTITY = register("cycle_action_by_entity", CycleByEntityAction.CODEC);
 	public static final GameBehaviorEntry<SpawnFireworksAction> SPAWN_FIREWORKS = register("spawn_fireworks", SpawnFireworksAction.CODEC);
 	public static final GameBehaviorEntry<RunCommandsAction> RUN_COMMANDS = register("run_commands", RunCommandsAction.CODEC);
 	public static final GameBehaviorEntry<SendMessageAction> SEND_MESSAGE = register("send_message", SendMessageAction.CODEC);
