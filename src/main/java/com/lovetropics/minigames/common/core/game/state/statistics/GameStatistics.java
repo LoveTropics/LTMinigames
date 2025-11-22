@@ -110,6 +110,12 @@ public final class GameStatistics implements IGameState {
 		);
 	}
 
+	public void clear() {
+		global.clear();
+		byPlayer.clear();
+		byTeam.clear();
+	}
+
 	private record PlayerEntry(
 			PlayerKey profile,
 			StatisticsMap statistics

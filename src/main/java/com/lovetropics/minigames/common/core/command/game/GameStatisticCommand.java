@@ -19,12 +19,16 @@ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.NbtTagArgument;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
 import net.minecraft.server.level.ServerPlayer;
 
 import javax.annotation.Nullable;
@@ -44,17 +48,42 @@ public class GameStatisticCommand {
 
 	public static void register(final CommandDispatcher<CommandSourceStack> dispatcher) {
 		dispatcher.register(literal("game").then(literal("stat")
-				.requires(source -> source.hasPermission(Commands.LEVEL_GAMEMASTERS))
+				.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
 				.then(literal("import")
 						.then(Commands.argument("tag", NbtTagArgument.nbtTag())
 								.executes(context -> {
 									IGamePhase game = getGameFor(context.getSource());
+
+									Tag previousStatistics = GameStatistics.CODEC.encodeStart(NbtOps.INSTANCE, game.statistics()).getOrThrow(MALFORMED_STATISTICS::create);
+
 									GameStatistics statistics = GameStatistics.CODEC.parse(NbtOps.INSTANCE, NbtTagArgument.getNbtTag(context, "tag")).getOrThrow(MALFORMED_STATISTICS::create);
+									game.statistics().clear();
 									game.statistics().copyFrom(statistics);
-									context.getSource().sendSuccess(() -> Component.literal("Successfully imported statistics"), true);
+
+									ClickEvent.RunCommand restoreCommand = new ClickEvent.RunCommand("game stat import " + previousStatistics.toString());
+									context.getSource().sendSuccess(() -> Component.translatable("Successfully imported statistics: %s",
+											Component.literal("[Restore]").withStyle(Style.EMPTY.withColor(ChatFormatting.GRAY).withUnderlined(true).withClickEvent(restoreCommand))
+									), true);
+
 									return 1;
 								})
 						)
+				)
+				.then(literal("export")
+						.executes(context -> {
+							IGamePhase game = getGameFor(context.getSource());
+							Tag encodedStatistics = GameStatistics.CODEC.encodeStart(NbtOps.INSTANCE, game.statistics()).getOrThrow(MALFORMED_STATISTICS::create);
+
+							ClickEvent.RunCommand importCommand = new ClickEvent.RunCommand("game stat import " + encodedStatistics.toString());
+							ClickEvent.CopyToClipboard copyData = new ClickEvent.CopyToClipboard(encodedStatistics.toString());
+
+							context.getSource().sendSuccess(() -> Component.translatable("Exported game statistics: %s %s",
+									Component.literal("[Run Import]").withStyle(Style.EMPTY.withColor(ChatFormatting.GRAY).withUnderlined(true).withClickEvent(importCommand)),
+									Component.literal("[Copy Data]").withStyle(Style.EMPTY.withColor(ChatFormatting.GRAY).withUnderlined(true).withClickEvent(copyData))
+							), false);
+
+							return 1;
+						})
 				)
 				.then(StatisticKeyArgument.argument("statistic")
 						.then(literal("get")

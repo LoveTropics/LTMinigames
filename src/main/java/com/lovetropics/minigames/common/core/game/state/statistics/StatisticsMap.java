@@ -74,6 +74,10 @@ public final class StatisticsMap {
 		withDefault(key, () -> 0).apply(value -> value + increment);
 	}
 
+	public void clear() {
+		values.clear();
+	}
+
 	public void copyFrom(StatisticsMap fromStatistics, Collection<StatisticKey<?>> keys) {
 		for (StatisticKey<?> key : keys) {
 			Object value = fromStatistics.values.get(key);
