@@ -35,12 +35,15 @@ public record BreakBucksBehaviour(
 		float particleSpreadX,
 		float particleSpreadY,
 		float particleSpreadZ,
-		int buckMultiplier) implements IGameBehavior {
+		int buckMultiplier,
+		float ddrMultiplier
+) implements IGameBehavior {
 	public static final MapCodec<BreakBucksBehaviour> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 			Codec.FLOAT.optionalFieldOf("particle_spread_x", 1.5f).forGetter(BreakBucksBehaviour::particleSpreadX),
 			Codec.FLOAT.optionalFieldOf("particle_spread_y", 1.5f).forGetter(BreakBucksBehaviour::particleSpreadY),
 			Codec.FLOAT.optionalFieldOf("particle_spread_z", 1.5f).forGetter(BreakBucksBehaviour::particleSpreadZ),
-			Codec.INT.optionalFieldOf("buck_divider", 1).forGetter(BreakBucksBehaviour::buckMultiplier)
+			Codec.INT.optionalFieldOf("buck_divider", 1).forGetter(BreakBucksBehaviour::buckMultiplier),
+			Codec.FLOAT.optionalFieldOf("ddr_multiplier", 0.1f).forGetter(BreakBucksBehaviour::ddrMultiplier)
 	).apply(instance, BreakBucksBehaviour::new));
 
 	@Override
@@ -72,9 +75,7 @@ public record BreakBucksBehaviour(
 			if (team != null) {
 				//Rough break bucks conversion....
 				DdrLevelDifficulty difficulty = level.value().difficulty();
-				int breakBucks = Math.round(difficulty.getScoreMultiplier() * score);
-				breakBucks += (int) ((bestStreak * 2) * difficulty.getScoreMultiplier());
-				breakBucks = Math.round(breakBucks / 10f);
+				int breakBucks = Math.round(difficulty.getScoreMultiplier() * score * ddrMultiplier);
 				addBreakBucks(game, team, breakBucks);
 				Component message = EscapeRaceTexts.DDR_SCORE_ADDED.apply(player.getDisplayName(), breakBucks).withStyle(ChatFormatting.GOLD);
 				teams.getPlayersForTeam(game, team).sendMessage(message);
