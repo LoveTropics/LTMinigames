@@ -15,7 +15,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.Object2FloatArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
-import net.minecraft.advancements.critereon.EntityPredicate;
+import net.minecraft.advancements.critereon.NbtPredicate;
 import net.minecraft.util.Mth;
 import net.minecraft.util.TriState;
 
@@ -24,17 +24,17 @@ import java.util.function.Supplier;
 public final class TerryBossBehaviour implements IGameBehavior {
 
 	public static final MapCodec<TerryBossBehaviour> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			EntityPredicate.CODEC.fieldOf("entity_predicate").forGetter(tbb -> tbb.entityPredicate),
+			NbtPredicate.CODEC.fieldOf("entity_predicate").forGetter(tbb -> tbb.entityPredicate),
 			Codec.FLOAT.fieldOf("damage_amount").forGetter(tbb -> tbb.damageAmount),
 			Codec.INT.optionalFieldOf("days_to_give", 1).forGetter(tbb -> tbb.daysToGive)
 	).apply(i, TerryBossBehaviour::new));
 
-	private final EntityPredicate entityPredicate;
+	private final NbtPredicate entityPredicate;
 	private final float damageAmount;
 	private final int daysToGive;
 
 	public TerryBossBehaviour(
-			EntityPredicate entityPredicate,
+			NbtPredicate entityPredicate,
 			float damageAmount,
 			int daysToGive) {
 		this.entityPredicate = entityPredicate;
@@ -48,7 +48,7 @@ public final class TerryBossBehaviour implements IGameBehavior {
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		TeamState teams = game.instanceState().getOrThrow(TeamState.KEY);
 		events.listen(GamePlayerEvents.ATTACK_DAMAGE, (player, target, damage) -> {
-			if (!entityPredicate.matches(player, target)) {
+			if (!entityPredicate.matches(target)) {
 				return TriState.DEFAULT;
 			}
 			GameTeamKey team = teams.getTeamForPlayer(player);
