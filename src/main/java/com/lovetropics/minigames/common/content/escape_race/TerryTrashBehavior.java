@@ -30,10 +30,12 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.CommonColors;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.LeverBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 import net.minecraft.world.level.storage.loot.LootParams;
@@ -149,10 +151,14 @@ public final class TerryTrashBehavior implements IGameBehavior {
 				}
 				if (allMatch) {
 					codeGood = allMatch;
+					player.playNotifySound(SoundRegistry.CORRECT.value(), SoundSource.BLOCKS, 1.0f, 1.0f);
 					GameTeamKey teamForPlayer = teams.getTeamForPlayer(player);
 					if (teamForPlayer != null) {
 						game.statistics().forTeam(teamForPlayer).incrementInt(StatisticKey.VACATION_DAYS, 2);
 					}
+				} else {
+					player.playNotifySound(SoundRegistry.INCORRECT.value(), SoundSource.BLOCKS, 1.0f, 1.0f);
+					player.sendSystemMessage(Component.literal("Invalid Code!").withColor(CommonColors.RED));
 				}
 				return InteractionResult.SUCCESS;
 			}
