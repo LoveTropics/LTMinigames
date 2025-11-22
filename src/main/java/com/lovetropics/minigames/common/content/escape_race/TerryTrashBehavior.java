@@ -2,6 +2,7 @@ package com.lovetropics.minigames.common.content.escape_race;
 
 import com.lovetropics.lib.BlockBox;
 import com.lovetropics.lib.codec.MoreCodecs;
+import com.lovetropics.minigames.SoundRegistry;
 import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorType;
@@ -19,6 +20,7 @@ import com.lovetropics.minigames.common.core.game.util.GameWidgets;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.ChatFormatting;
 import net.minecraft.advancements.critereon.BlockPredicate;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.core.BlockPos;
@@ -27,6 +29,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
@@ -160,11 +163,13 @@ public final class TerryTrashBehavior implements IGameBehavior {
 					if (recyclingLocation.itemPredicate().test(heldItem)) {
 						heldItem.shrink(1);
 						game.statistics().global().incrementInt(StatisticKey.RECYCLED_TRASH, 1);
+						player.playNotifySound(SoundRegistry.CORRECT.value(), SoundSource.BLOCKS, 1.0f, 1.0f);
 						sidebar.set(buildSidebar(game));
 						return InteractionResult.SUCCESS_SERVER;
 					} else {
 						heldItem.shrink(1);
 						game.statistics().global().incrementInt(StatisticKey.WRONG_BIN, 1);
+						player.playNotifySound(SoundRegistry.INCORRECT.value(), SoundSource.BLOCKS, 1.0f, 1.0f);
 						sidebar.set(buildSidebar(game));
 						return InteractionResult.SUCCESS_SERVER;
 					}
@@ -204,9 +209,9 @@ public final class TerryTrashBehavior implements IGameBehavior {
 
 	private Component[] buildSidebar(IGamePhase game) {
 		List<Component> lines = new ArrayList<>();
-		lines.add(Component.literal("Recycled Trash: " + game.statistics().global().getInt(StatisticKey.RECYCLED_TRASH)));
-		lines.add(Component.literal("Wrong Bin: " + game.statistics().global().getInt(StatisticKey.WRONG_BIN)));
-		lines.add(Component.literal("Missed Trash: " + game.statistics().global().getInt(StatisticKey.MISSED_TRASH)));
+		lines.add(Component.literal("Recycled Trash: ").append(Component.literal(String.valueOf(game.statistics().global().getInt(StatisticKey.RECYCLED_TRASH))).withStyle(ChatFormatting.AQUA)));
+		lines.add(Component.literal("Wrong Bin: ").append(Component.literal(String.valueOf(game.statistics().global().getInt(StatisticKey.WRONG_BIN))).withStyle(ChatFormatting.RED)));
+		lines.add(Component.literal("Missed Trash: ").append(Component.literal(String.valueOf(game.statistics().global().getInt(StatisticKey.MISSED_TRASH))).withStyle(ChatFormatting.RED)));
 		lines.add(Component.literal("Code Status: " + (codeGood ? "Good" : "Bad")));
 		return lines.toArray(new Component[0]);
 	}
