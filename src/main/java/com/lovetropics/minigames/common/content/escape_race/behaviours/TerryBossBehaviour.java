@@ -13,11 +13,12 @@ import com.lovetropics.minigames.common.core.game.state.team.TeamState;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import it.unimi.dsi.fastutil.objects.Object2FloatArrayMap;
+import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import net.minecraft.advancements.critereon.EntityPredicate;
+import net.minecraft.util.Mth;
 import net.minecraft.util.TriState;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.function.Supplier;
 
 public final class TerryBossBehaviour implements IGameBehavior {
@@ -41,30 +42,26 @@ public final class TerryBossBehaviour implements IGameBehavior {
 		this.daysToGive = daysToGive;
 	}
 
-	private final Map<GameTeamKey, Integer> teamDamageMap = new HashMap<>();
+	private final Object2FloatMap<GameTeamKey> teamDamageMap = new Object2FloatArrayMap<>();
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		TeamState teams = game.instanceState().getOrThrow(TeamState.KEY);
 		events.listen(GamePlayerEvents.ATTACK_DAMAGE, (player, target, damage) -> {
-			if (entityPredicate.matches(player, target)) {
-				GameTeamKey team = teams.getTeamForPlayer(player);
-				if (team == null) {
-					return TriState.DEFAULT;
-				}
-				if (!teamDamageMap.containsKey(team)) {
-					teamDamageMap.put(team, 0);
-				}
-				int newDamageValue = teamDamageMap.get(team) + (int) damage;
-				int daysEarned = newDamageValue / (int) damageAmount;
-				if (daysEarned > 0) {
-					int oldPoints = game.statistics().forTeam(team).getInt(StatisticKey.VACATION_DAYS);
-					game.statistics().forTeam(team).set(StatisticKey.VACATION_DAYS, oldPoints + daysEarned);
-					newDamageValue -= daysEarned * (int) damageAmount;
-				}
-				teamDamageMap.put(team, newDamageValue);
+			if (!entityPredicate.matches(player, target)) {
 				return TriState.DEFAULT;
 			}
+			GameTeamKey team = teams.getTeamForPlayer(player);
+			if (team == null) {
+				return TriState.DEFAULT;
+			}
+			float newDamageValue = teamDamageMap.getFloat(team) + damage;
+			int daysEarned = Mth.floor(newDamageValue / damageAmount);
+			if (daysEarned > 0) {
+				game.statistics().forTeam(team).incrementInt(StatisticKey.VACATION_DAYS, daysEarned);
+				newDamageValue -= daysEarned * damageAmount;
+			}
+			teamDamageMap.put(team, newDamageValue);
 			return TriState.DEFAULT;
 		});
 	}

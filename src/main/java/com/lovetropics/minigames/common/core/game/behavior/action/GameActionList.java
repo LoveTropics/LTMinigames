@@ -23,7 +23,7 @@ public class GameActionList {
 	public static final MapCodec<GameActionList> MAP_CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			IGameBehavior.CODEC.fieldOf("actions").forGetter(list -> list.behavior),
 			ActionTarget.CODEC.optionalFieldOf("target", ActionTarget.PASS).forGetter(list -> list.target),
-			ExtraCodecs.POSITIVE_INT.optionalFieldOf("max_runs", 1).forGetter(list -> list.maxRuns)
+			ExtraCodecs.POSITIVE_INT.optionalFieldOf("max_runs", Integer.MAX_VALUE).forGetter(list -> list.maxRuns)
 	).apply(i, GameActionList::new));
 
 	private static final Codec<GameActionList> FULL_CODEC = MAP_CODEC.codec();

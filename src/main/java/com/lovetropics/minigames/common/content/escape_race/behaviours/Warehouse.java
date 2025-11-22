@@ -37,7 +37,6 @@ import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.commands.synchronization.SuggestionProviders;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.CommonComponents;
@@ -221,7 +220,11 @@ public class Warehouse implements IGameState {
 								.executes(context -> {
 									RoomInstance room = getRoomArgument(context);
 									room.state.close();
-									room.state = new LockedRoomState(room);
+									if (room.entranceBox == null) {
+										room.state = new EmptyRoomState();
+									} else {
+										room.state = new LockedRoomState(room);
+									}
 									return 1;
 								})
 						)

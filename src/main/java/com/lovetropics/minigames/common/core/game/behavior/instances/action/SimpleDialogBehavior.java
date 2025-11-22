@@ -103,7 +103,7 @@ public record SimpleDialogBehavior(
 		for (ServerPlayer player : players) {
 			entry.message.ifPresent(player::sendSystemMessage);
 			entry.sound.ifPresent(sound ->
-					PlaySoundAction.playToPlayer(player, sound.value(), SoundSource.PLAYERS, 1.0f, 1.0f)
+					PlaySoundAction.playToPlayer(player, sound.value(), SoundSource.VOICE, 1.0f, 1.0f)
 			);
 		}
 	}
