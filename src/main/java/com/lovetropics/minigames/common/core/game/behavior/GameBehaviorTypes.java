@@ -77,6 +77,7 @@ import com.lovetropics.minigames.common.core.game.behavior.instances.action.Limi
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.ModifyEntityNBTBehaviour;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.NotificationToastAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.PlaySoundAction;
+import com.lovetropics.minigames.common.core.game.behavior.instances.action.RandomizeAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.RemoveClientStateAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.RemoveCollidersAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.ResetHungerAction;
@@ -416,6 +417,7 @@ public class GameBehaviorTypes {
 	public static final GameBehaviorEntry<MinecraftBehavior> MINECRAFT = register("minecraft", MinecraftBehavior.CODEC);
 	public static final GameBehaviorEntry<GiveRespawnAction> GIVE_RESPAWN = register("give_respawn", GiveRespawnAction.CODEC);
 	public static final GameBehaviorEntry<BingoBehavior> BINGO = register("bingo", BingoBehavior.CODEC);
+	public static final GameBehaviorEntry<RandomizeAction> RANDOMIZE = register("randomize", RandomizeAction.CODEC);
 
 	public static final GameBehaviorEntry<SetupIntegrationsBehavior> SETUP_INTEGRATIONS = register("setup_integrations", SetupIntegrationsBehavior.CODEC);
 	public static final GameBehaviorEntry<JoinLateWithRoleBehavior> JOIN_LATE_WITH_ROLE = register("join_late_with_role", JoinLateWithRoleBehavior.CODEC);
