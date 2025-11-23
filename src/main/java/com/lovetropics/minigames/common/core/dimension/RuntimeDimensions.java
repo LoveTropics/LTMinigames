@@ -305,4 +305,9 @@ public final class RuntimeDimensions {
 	public Collection<ResourceKey<Level>> getTemporaryDimensions() {
 		return temporaryDimensions;
 	}
+
+	public static boolean isTemporaryDimension(ServerLevel level) {
+		RuntimeDimensions instance = getOrNull(level.getServer());
+		return instance != null && instance.isTemporaryDimension(level.dimension());
+	}
 }

@@ -33,6 +33,7 @@
     "event.ServerLevelMixin",
     "event.TrapdoorBlockMixin",
     "event.TrialSpawnerStateMixin",
+    "fix.GameRuleCommandMixin",
     "fix.ServerwaypointManagerMixin",
     "gametest.GameTestHelperAccess",
     "gametest.GameTestInfoAccess",

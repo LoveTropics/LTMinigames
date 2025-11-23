@@ -22,5 +22,6 @@ public final class GameMapProviders {
 		register("random", RandomMapProvider.CODEC);
 		register("inline", InlineMapProvider.CODEC);
 		register("void", VoidMapProvider.CODEC);
+		register("generator", GeneratorMapProvider.CODEC);
 	}
 }

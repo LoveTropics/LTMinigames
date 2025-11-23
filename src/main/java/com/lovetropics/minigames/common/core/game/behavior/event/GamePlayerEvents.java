@@ -16,7 +16,6 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
@@ -372,7 +371,7 @@ public final class GamePlayerEvents {
 	}
 
 	public interface Craft {
-		void onCraft(Player player, ItemStack crafted, Container craftingContainer);
+		void onCraft(ServerPlayer player, ItemStack crafted, Container craftingContainer);
 	}
 
 	public interface CraftResult {

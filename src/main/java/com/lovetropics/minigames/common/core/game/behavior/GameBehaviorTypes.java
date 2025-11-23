@@ -12,6 +12,7 @@ import com.lovetropics.minigames.common.content.river_race.microgames.StartMicro
 import com.lovetropics.minigames.common.core.game.behavior.action.ApplyToAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.AddOverlordsBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.AddWeatherBehavior;
+import com.lovetropics.minigames.common.core.game.behavior.instances.BingoBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.CheckpointsBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.CompositeBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.CountdownEffectsBehavior;
@@ -22,10 +23,12 @@ import com.lovetropics.minigames.common.core.game.behavior.instances.FirstEmptyT
 import com.lovetropics.minigames.common.core.game.behavior.instances.GameEndEffectsBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.GameProgressionBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.GiveItemsToKillerBehavior;
+import com.lovetropics.minigames.common.core.game.behavior.instances.GiveRespawnAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.ImmediateRespawnBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.InSubGamesBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.JoinLateWithRoleBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.LastRemainingWinTrigger;
+import com.lovetropics.minigames.common.core.game.behavior.instances.MinecraftBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.MinigameCompetitionBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.ModifyLootTablesBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.OnlyTickInPeriodBehavior;
@@ -410,6 +413,9 @@ public class GameBehaviorTypes {
 	public static final GameBehaviorEntry<FillContainerInRegionWithLootTableBehaviour> FILL_CONTAINER_IN_REGION_WITH_LOOT_TABLE = REGISTRATE.object("fill_container_in_region_with_loot_table").behavior(FillContainerInRegionWithLootTableBehaviour.CODEC).register();
 	public static final GameBehaviorEntry<StandOnBlockTrigger> STANDING_ON_BLOCK_TRIGGER = REGISTRATE.object("stand_on_block").behavior(StandOnBlockTrigger.CODEC).register();
 	public static final GameBehaviorEntry<HighlightBlocksAction> HIGHLIGHT_BLOCKS = REGISTRATE.object("highlight_blocks").behavior(HighlightBlocksAction.CODEC).register();
+	public static final GameBehaviorEntry<MinecraftBehavior> MINECRAFT = register("minecraft", MinecraftBehavior.CODEC);
+	public static final GameBehaviorEntry<GiveRespawnAction> GIVE_RESPAWN = register("give_respawn", GiveRespawnAction.CODEC);
+	public static final GameBehaviorEntry<BingoBehavior> BINGO = register("bingo", BingoBehavior.CODEC);
 
 	public static final GameBehaviorEntry<SetupIntegrationsBehavior> SETUP_INTEGRATIONS = register("setup_integrations", SetupIntegrationsBehavior.CODEC);
 	public static final GameBehaviorEntry<JoinLateWithRoleBehavior> JOIN_LATE_WITH_ROLE = register("join_late_with_role", JoinLateWithRoleBehavior.CODEC);

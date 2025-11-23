@@ -96,19 +96,32 @@ public class ProgressBarBehavior implements IGameBehavior {
 	}
 
 	private Component getTitle(IGamePhase game, Entry entry) {
-		int endTime = entry.period.end().resolve(progression);
-		int secondsLeft = Mth.positiveCeilDiv(endTime - progression.time(), SharedConstants.TICKS_PER_SECOND);
-		return entry.title.resolve(game, secondsLeft);
+		int seconds;
+		if (entry.textSinceStart) {
+			int startTime = entry.period.start().resolve(progression);
+			seconds = (progression.time() - startTime) / SharedConstants.TICKS_PER_SECOND;
+		} else {
+			int endTime = entry.period.end().resolve(progression);
+			seconds = Mth.positiveCeilDiv(endTime - progression.time(), SharedConstants.TICKS_PER_SECOND);
+		}
+		return entry.title.resolve(game, seconds);
 	}
 
-	private record Entry(ProgressionPeriod period, Title title, BossEvent.BossBarColor color, boolean reversed) {
+	private record Entry(
+			ProgressionPeriod period,
+			Title title,
+			BossEvent.BossBarColor color,
+			boolean reversed,
+			boolean textSinceStart
+	) {
 		private static final Codec<BossEvent.BossBarColor> BOSS_BAR_COLOR_CODEC = MoreCodecs.stringVariants(BossEvent.BossBarColor.values(), BossEvent.BossBarColor::getName);
 
 		public static final Codec<Entry> CODEC = RecordCodecBuilder.create(i -> i.group(
 				ProgressionPeriod.CODEC.fieldOf("period").forGetter(Entry::period),
 				Title.CODEC.forGetter(Entry::title),
 				BOSS_BAR_COLOR_CODEC.optionalFieldOf("color", BossEvent.BossBarColor.WHITE).forGetter(Entry::color),
-				Codec.BOOL.optionalFieldOf("reversed", false).forGetter(Entry::reversed)
+				Codec.BOOL.optionalFieldOf("reversed", false).forGetter(Entry::reversed),
+				Codec.BOOL.optionalFieldOf("text_since_start", false).forGetter(Entry::textSinceStart)
 		).apply(i, Entry::new));
 	}
 
@@ -121,7 +134,7 @@ public class ProgressBarBehavior implements IGameBehavior {
 				}
 		);
 
-		Component resolve(IGamePhase game, int secondsLeft);
+		Component resolve(IGamePhase game, int seconds);
 	}
 
 	private record Description(Component description, boolean includeTime) implements Title {
@@ -131,11 +144,11 @@ public class ProgressBarBehavior implements IGameBehavior {
 		).apply(i, Description::new));
 
 		@Override
-		public Component resolve(IGamePhase game, int secondsLeft) {
+		public Component resolve(IGamePhase game, int seconds) {
 			if (!includeTime) {
 				return description;
 			}
-			return MinigameTexts.progressBarTime(description, secondsLeft);
+			return MinigameTexts.progressBarTime(description, seconds);
 		}
 	}
 
@@ -143,8 +156,8 @@ public class ProgressBarBehavior implements IGameBehavior {
 		public static final MapCodec<Template> CODEC = TemplatedText.CODEC.fieldOf("template").xmap(Template::new, Template::template);
 
 		@Override
-		public Component resolve(IGamePhase game, int secondsLeft) {
-			Component timeText = Component.literal(Util.formatMinutesSeconds(secondsLeft)).withStyle(ChatFormatting.AQUA);
+		public Component resolve(IGamePhase game, int seconds) {
+			Component timeText = Component.literal(Util.formatMinutesSeconds(seconds)).withStyle(ChatFormatting.AQUA);
 			Component gameNameText = game.definition().name().copy().withStyle(ChatFormatting.AQUA);
 			return template.apply(Map.of("time", timeText, "game", gameNameText));
 		}
