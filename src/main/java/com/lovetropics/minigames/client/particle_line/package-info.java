@@ -1,9 +1,3 @@
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
-@FieldsAreNonnullByDefault
+@org.jspecify.annotations.NullMarked
 package com.lovetropics.minigames.client.particle_line;
 
-import net.minecraft.FieldsAreNonnullByDefault;
-import net.minecraft.MethodsReturnNonnullByDefault;
-
-import javax.annotation.ParametersAreNonnullByDefault;
