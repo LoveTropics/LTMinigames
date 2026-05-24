@@ -24,17 +24,18 @@ public class WorldGenSettingsMixin {
 	@Unique
 	private static final Codec<ResourceKey<Level>> KEY_CODEC = ResourceKey.codec(Registries.DIMENSION);
 
-	@Inject(method = "encode(Lcom/mojang/serialization/DynamicOps;Lnet/minecraft/world/level/levelgen/WorldOptions;Lnet/minecraft/world/level/levelgen/WorldDimensions;)Lcom/mojang/serialization/DataResult;", at = @At("RETURN"), cancellable = true)
-	private static <T> void encode(DynamicOps<T> ops, WorldOptions options, WorldDimensions dimensions, CallbackInfoReturnable<DataResult<T>> cir) {
-		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-		RuntimeDimensions runtimeDimensions = server != null ? RuntimeDimensions.getOrNull(server) : null;
-		if (runtimeDimensions == null) {
-			return;
-		}
-		cir.setReturnValue(cir.getReturnValue().map(tag -> ops.update(tag, "dimensions", dimensionsTag ->
-				removeTemporaryDimensions(ops, dimensionsTag, runtimeDimensions)
-		)));
-	}
+	// Todo 26.1 Port
+//	@Inject(method = "encode(Lcom/mojang/serialization/DynamicOps;Lnet/minecraft/world/level/levelgen/WorldOptions;Lnet/minecraft/world/level/levelgen/WorldDimensions;)Lcom/mojang/serialization/DataResult;", at = @At("RETURN"), cancellable = true)
+//	private static <T> void encode(DynamicOps<T> ops, WorldOptions options, WorldDimensions dimensions, CallbackInfoReturnable<DataResult<T>> cir) {
+//		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+//		RuntimeDimensions runtimeDimensions = server != null ? RuntimeDimensions.getOrNull(server) : null;
+//		if (runtimeDimensions == null) {
+//			return;
+//		}
+//		cir.setReturnValue(cir.getReturnValue().map(tag -> ops.update(tag, "dimensions", dimensionsTag ->
+//				removeTemporaryDimensions(ops, dimensionsTag, runtimeDimensions)
+//		)));
+//	}
 
 	@Unique
 	private static <T> T removeTemporaryDimensions(DynamicOps<T> ops, T tag, RuntimeDimensions runtimeDimensions) {

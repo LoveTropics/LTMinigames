@@ -41,9 +41,10 @@ public abstract class PlayerListMixin implements PlayerListAccess {
 	@Shadow
 	protected abstract void save(ServerPlayer player);
 
-	@Shadow
-	@Nullable
-	public abstract CompoundTag getSingleplayerData();
+	// Todo 26.1 Port
+//	@Shadow
+//	@Nullable
+//	public abstract CompoundTag getSingleplayerData();
 
 	@Inject(method = "save", at = @At("HEAD"), cancellable = true)
 	private void save(final ServerPlayer player, final CallbackInfo ci) {
@@ -56,15 +57,16 @@ public abstract class PlayerListMixin implements PlayerListAccess {
 	public void ltminigames$save(ServerPlayer player) {
 		save(player);
 
+		// Todo 26.1 Port
 		// We usually don't load the singleplayer player multiple times, so we need to overwrite this value with what we serialised
-		if (server.isSingleplayerOwner(player.getGameProfile())) {
-			CompoundTag loadedPlayerTag = server.getWorldData().getLoadedPlayerTag();
-			CompoundTag singleplayerData = getSingleplayerData();
-			if (loadedPlayerTag != null && singleplayerData != null) {
-				ltminigames$clear(loadedPlayerTag);
-				loadedPlayerTag.merge(singleplayerData);
-			}
-		}
+//		if (server.isSingleplayerOwner(player.nameAndId())) {
+//			CompoundTag loadedPlayerTag = server.getWorldData().getLoadedPlayerTag();
+//			CompoundTag singleplayerData = getSingleplayerData();
+//			if (loadedPlayerTag != null && singleplayerData != null) {
+//				ltminigames$clear(loadedPlayerTag);
+//				loadedPlayerTag.merge(singleplayerData);
+//			}
+//		}
 	}
 
 	@Unique
@@ -88,7 +90,7 @@ public abstract class PlayerListMixin implements PlayerListAccess {
 
 	@Override
 	public void ltminigames$firePlayerLoading(final ServerPlayer player) {
-		EventHooks.firePlayerLoadingEvent(player, playerIo.getPlayerDir(), player.getStringUUID());
+		EventHooks.firePlayerLoadingEvent(player, (PlayerList) (Object) (this), player.getStringUUID());
 	}
 
 	// We need to run the rest of the logic with the new player instance

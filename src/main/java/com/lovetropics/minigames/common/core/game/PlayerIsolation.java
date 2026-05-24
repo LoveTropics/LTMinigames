@@ -22,7 +22,7 @@ import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
-import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.level.storage.TagValueInput;
@@ -76,19 +76,20 @@ public final class PlayerIsolation {
 
 	private ServerPlayer reloadPlayerFromDisk(final ServerPlayer player) {
 		return reloadPlayer(player, (newPlayer, reporter) -> {
-			final MinecraftServer server = player.getServer();
+			final MinecraftServer server = player.level().getServer();
 			final PlayerList playerList = server.getPlayerList();
 
-			final Optional<ValueInput> playerTag = playerList.load(newPlayer, reporter);
-
-			final ServerLevel newLevel = playerTag
-					.flatMap(input -> input.read("Dimension", Level.RESOURCE_KEY_CODEC))
-					.map(server::getLevel)
-					.orElse(server.overworld());
-
-			newPlayer.setServerLevel(newLevel);
-
-			playerTag.ifPresent(newPlayer::loadGameTypes);
+			// Todo 26.1 Port
+//			final Optional<ValueInput> playerTag = playerList.load(newPlayer, reporter);
+//
+//			final ServerLevel newLevel = playerTag
+//					.flatMap(input -> input.read("Dimension", Level.RESOURCE_KEY_CODEC))
+//					.map(server::getLevel)
+//					.orElse(server.overworld());
+//
+//			newPlayer.setServerLevel(newLevel);
+//
+//			playerTag.ifPresent(newPlayer::loadGameTypes);
 		});
 	}
 
@@ -96,7 +97,7 @@ public final class PlayerIsolation {
 		return reloadPlayer(player, (newPlayer, reporter) -> {
 			final ValueInput input = TagValueInput.create(reporter, player.level().registryAccess(), tag);
 
-			final MinecraftServer server = player.getServer();
+			final MinecraftServer server = player.level().getServer();
 			final ServerLevel newLevel = input.read("Dimension", Level.RESOURCE_KEY_CODEC)
 					.map(server::getLevel)
 					.orElse(server.overworld());
@@ -104,7 +105,7 @@ public final class PlayerIsolation {
 			newPlayer.setServerLevel(newLevel);
 
 			newPlayer.load(input);
-			newPlayer.loadGameTypes(input);
+//			newPlayer.loadGameTypes(input); // Todo 26.1 Port
 			newPlayer.addTag(ISOLATED_TAG);
 		});
 	}
@@ -116,7 +117,7 @@ public final class PlayerIsolation {
 				return oldPlayer;
 			}
 
-			final MinecraftServer server = oldPlayer.getServer();
+			final MinecraftServer server = oldPlayer.level().getServer();
 			final PlayerList playerList = server.getPlayerList();
 
 			reloadingPlayers.add(oldPlayer.getUUID());
@@ -149,7 +150,7 @@ public final class PlayerIsolation {
 					(byte) 0
 			));
 			newPlayer.connection.teleport(newPlayer.getX(), newPlayer.getY(), newPlayer.getZ(), newPlayer.getYRot(), newPlayer.getXRot());
-			newPlayer.connection.send(new ClientboundSetDefaultSpawnPositionPacket(newLevel.getSharedSpawnPos(), newLevel.getSharedSpawnAngle()));
+			newPlayer.connection.send(new ClientboundSetDefaultSpawnPositionPacket(newLevel.getRespawnData()));
 			newPlayer.connection.send(new ClientboundChangeDifficultyPacket(levelData.getDifficulty(), levelData.isDifficultyLocked()));
 
 			sendGameRules(newPlayer, newLevel.getGameRules());
@@ -199,7 +200,7 @@ public final class PlayerIsolation {
 	}
 
 	private static ServerPlayer recreatePlayer(final ServerPlayer oldPlayer) {
-		final ServerPlayer newPlayer = new ServerPlayer(oldPlayer.getServer(), oldPlayer.level(), oldPlayer.getGameProfile(), oldPlayer.clientInformation());
+		final ServerPlayer newPlayer = new ServerPlayer(oldPlayer.level().getServer(), oldPlayer.level(), oldPlayer.getGameProfile(), oldPlayer.clientInformation());
 		newPlayer.connection = oldPlayer.connection;
 		newPlayer.connection.player = newPlayer;
 		newPlayer.setId(oldPlayer.getId());
@@ -212,12 +213,12 @@ public final class PlayerIsolation {
 	}
 
 	private static void sendGameRules(final ServerPlayer player, final GameRules gameRules) {
-		final boolean immediateRespawn = gameRules.getRule(GameRules.RULE_DO_IMMEDIATE_RESPAWN).get();
+		final boolean immediateRespawn = gameRules.get(GameRules.IMMEDIATE_RESPAWN);
 		player.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.IMMEDIATE_RESPAWN, immediateRespawn ? 1.0f : 0.0F));
 	}
 
 	public boolean isIsolated(final ServerPlayer player) {
-		return player.getTags().contains(ISOLATED_TAG);
+		return player.entityTags().contains(ISOLATED_TAG);
 	}
 
 	public boolean isReloading(final ServerPlayer player) {

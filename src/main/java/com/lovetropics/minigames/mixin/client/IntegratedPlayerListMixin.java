@@ -10,10 +10,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(IntegratedPlayerList.class)
 public class IntegratedPlayerListMixin {
-	@Inject(method = "save", at = @At("HEAD"), cancellable = true)
-	private void save(final ServerPlayer player, final CallbackInfo ci) {
-		if (PlayerIsolation.INSTANCE.isIsolated(player)) {
-			ci.cancel();
-		}
-	}
+	// Todo 26.1 Port
+//	@Inject(method = "save", at = @At("HEAD"), cancellable = true)
+//	private void save(final ServerPlayer player, final CallbackInfo ci) {
+//		if (PlayerIsolation.INSTANCE.isIsolated(player)) {
+//			ci.cancel();
+//		}
+//	}
 }

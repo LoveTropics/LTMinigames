@@ -7,7 +7,7 @@ import com.lovetropics.minigames.client.screen.list.AbstractLTList;
 import com.lovetropics.minigames.client.screen.list.LTListEntry;
 import com.lovetropics.minigames.common.core.game.util.GameTexts;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -15,29 +15,31 @@ import net.minecraft.util.CommonColors;
 
 import javax.annotation.Nullable;
 
+/*
+// Todo 26.1 Port
+I got this ported, and it seems to work, but I don't know if I broke anything.
+Maybe just the title part?
+
+Latter UnReal, well dragging stuff is broken to whoops
+* */
 public abstract class AbstractGameList extends AbstractLTList<AbstractGameList.Entry> {
 	private final Component title;
 
 	public AbstractGameList(Screen screen, Layout layout, Component title) {
-		super(screen, layout, Entry.HEIGHT, screen.getMinecraft().font.lineHeight + 4);
+		super(screen, layout, Entry.HEIGHT);
 		this.title = title;
 	}
 
-	@Override
-	protected void renderHeader(GuiGraphics graphics, int x, int y) {
-		Font font = minecraft.font;
-		graphics.drawString(font,
-				title,
-				x + (width - font.width(title)) / 2,
-				Math.min(getY() + 3, y),
-				CommonColors.WHITE
-		);
-	}
-
-	@Override
-	public boolean isSelectedItem(int index) {
-		return index >= 0 && index < getItemCount() && super.isSelectedItem(index);
-	}
+//	@Override
+//	protected void renderHeader(GuiGraphicsExtractor graphics, int x, int y) {
+//		Font font = minecraft.font;
+//		graphics.text(font,
+//				title,
+//				x + (width - font.width(title)) / 2,
+//				Math.min(getY() + 3, y),
+//				CommonColors.WHITE
+//		);
+//	}
 
 	public static final class Entry extends LTListEntry<Entry> {
 		public static final int HEIGHT = 32;
@@ -76,27 +78,32 @@ public abstract class AbstractGameList extends AbstractLTList<AbstractGameList.E
 		}
 
 		@Override
-		public void render(GuiGraphics graphics, int index, int top, int left, int width, int height, int mouseX, int mouseY, boolean hovered, float partialTicks) {
+		public void extractContent(GuiGraphicsExtractor graphics, int mouseX, int mouseY, boolean hovered, float a) {
 			Font font = screen.getMinecraft().font;
 			int fontHeight = font.lineHeight;
 
-			boolean selected = ((AbstractGameList) list).isSelectedItem(index);
+			boolean selected = list.getSelected() == this;
 			boolean outline = banner || selected;
 
+			int left = getContentX();
+			int right = getContentX() + getContentWidth();
+			int width = getContentWidth();
+			int height = getContentHeight();
+			int top = getContentY();
 			fillEntry(graphics, left, top, width, height, hovered, selected, outline);
 
 			int maxTextWidth = getMaxTextWidth(width);
 
 			if (subtitle != null) {
-				graphics.drawString(font, title.forWidth(font, maxTextWidth), left + PADDING, top + PADDING + 1, CommonColors.WHITE);
-				graphics.drawString(font, subtitle.forWidth(font, maxTextWidth), left + PADDING, top + height - PADDING - fontHeight, 0xff555555);
+				graphics.text(font, title.forWidth(font, maxTextWidth), left + PADDING, top + PADDING + 1, CommonColors.WHITE);
+				graphics.text(font, subtitle.forWidth(font, maxTextWidth), left + PADDING, top + height - PADDING - fontHeight, 0xff555555);
 			} else {
-				graphics.drawString(font, title.forWidth(font, maxTextWidth), left + PADDING, top + (height - fontHeight) / 2, CommonColors.WHITE);
+				graphics.text(font, title.forWidth(font, maxTextWidth), left + PADDING, top + (height - fontHeight) / 2, CommonColors.WHITE);
 			}
 		}
 
 		@Override
-		public void renderTooltips(GuiGraphics graphics, int width, int mouseX, int mouseY) {
+		public void renderTooltips(GuiGraphicsExtractor graphics, int width, int mouseX, int mouseY) {
 			super.renderTooltips(graphics, width, mouseX, mouseY);
 			TrimmedText subtitle = this.subtitle;
 			int maxTextWidth = getMaxTextWidth(width);
@@ -150,7 +157,7 @@ public abstract class AbstractGameList extends AbstractLTList<AbstractGameList.E
 			return width - 2 * PADDING;
 		}
 
-		void fillEntry(GuiGraphics graphics, int left, int top, int width, int height, boolean hovered, boolean selected, boolean outline) {
+		void fillEntry(GuiGraphicsExtractor graphics, int left, int top, int width, int height, boolean hovered, boolean selected, boolean outline) {
 			if (banner) {
 				top += 4;
 				height -= 8;
@@ -180,7 +187,7 @@ public abstract class AbstractGameList extends AbstractLTList<AbstractGameList.E
 			}
 		}
 
-		private void fillEntry(GuiGraphics graphics, int left, int top, int width, int height, int color) {
+		private void fillEntry(GuiGraphicsExtractor graphics, int left, int top, int width, int height, int color) {
 			graphics.fill(left, top, left + width, top + height, color);
 		}
 

@@ -14,12 +14,12 @@ import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.level.DataPackConfig;
-import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.LevelSettings;
 import net.minecraft.world.level.WorldDataConfiguration;
@@ -48,9 +48,9 @@ public class DevQuickPlay {
 	private static final Logger LOGGER = LogUtils.getLogger();
 
 	@Nullable
-	private static ResourceLocation quickPlayGameId;
+	private static Identifier quickPlayGameId;
 
-	public static void setQuickPlayGameId(@Nullable ResourceLocation quickPlayGameId) {
+	public static void setQuickPlayGameId(@Nullable Identifier quickPlayGameId) {
 		DevQuickPlay.quickPlayGameId = quickPlayGameId;
 	}
 
@@ -72,7 +72,7 @@ public class DevQuickPlay {
 
 	@SubscribeEvent
 	public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
-		if (!(event.getEntity() instanceof ServerPlayer player) || !player.getServer().isSingleplayerOwner(player.getGameProfile())) {
+		if (!(event.getEntity() instanceof ServerPlayer player) || !player.level().getServer().isSingleplayerOwner(player.nameAndId())) {
 			return;
 		}
 		GameConfig gameConfig = getQuickPlayGame();
@@ -104,11 +104,12 @@ public class DevQuickPlay {
 				minecraft.createWorldOpenFlows().openWorld(LEVEL_NAME, () -> minecraft.setScreen(new TitleScreen()));
 			} else {
 				GameRules gameRules = new GameRules(FeatureFlags.VANILLA_SET);
-				gameRules.getRule(GameRules.RULE_DAYLIGHT).set(false, null);
-				gameRules.getRule(GameRules.RULE_WEATHER_CYCLE).set(false, null);
+				gameRules.set(GameRules.ADVANCE_TIME, false, null);
+				gameRules.set(GameRules.ADVANCE_WEATHER, false, null);
+				// Todo 26.1 Port - Fix gamerules
 
 				WorldDataConfiguration dataConfiguration = new WorldDataConfiguration(DataPackConfig.DEFAULT, FeatureFlags.VANILLA_SET);
-				LevelSettings levelSettings = new LevelSettings(LEVEL_NAME, GameType.CREATIVE, false, Difficulty.NORMAL, true, gameRules, dataConfiguration);
+				LevelSettings levelSettings = new LevelSettings(LEVEL_NAME, GameType.CREATIVE, new LevelSettings.DifficultySettings(Difficulty.NORMAL, false, false), true, dataConfiguration);
 				WorldOptions worldOptions = new WorldOptions(0, false, false);
 				Function<HolderLookup.Provider, WorldDimensions> dimensionsProvider = registries -> {
 					Holder.Reference<WorldPreset> flatPreset = registries.lookupOrThrow(Registries.WORLD_PRESET).getOrThrow(WorldPresets.FLAT);

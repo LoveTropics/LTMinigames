@@ -93,9 +93,14 @@ public class BbZombieEntity extends Zombie implements BbMobEntity {
 	public boolean moveInFluid(FluidState state, Vec3 movementVector, double gravity) {
 		return super.moveInFluid(state, movementVector, gravity);
 	}
-		}
-		return super.updateFluidHeightAndDoFluidPushing(fluid, scale);
-	}
+// Todo 26.1 Port
+//	@Override
+//	public boolean updateFluidHeightAndDoFluidPushing(TagKey<Fluid> fluid, double scale) {
+//		if (fluid == FluidTags.WATER) {
+//			return false;
+//		}
+//		return super.updateFluidHeightAndDoFluidPushing(fluid, scale);
+//	}
 
 	@Override
 	public boolean isEyeInFluid(TagKey<Fluid> fluid) {

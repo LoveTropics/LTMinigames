@@ -16,8 +16,9 @@ import java.util.List;
 @Mixin(LevelRenderer.class)
 public class LevelRendererMixin {
 
-	@Inject(method = "collectVisibleEntities", at = @At("RETURN"), cancellable = true)
-	private void collectVisibleEntities(Camera camera, Frustum frustum, List<Entity> output, CallbackInfoReturnable<Boolean> cir) {
-		cir.setReturnValue(cir.getReturnValue() || ClientGameStateManager.getOrNull(GameClientStateTypes.HIGHLIGHT_BLOCKS) != null);
-	}
+	// Todo 26.1 Port
+//	@Inject(method = "collectVisibleEntities", at = @At("RETURN"), cancellable = true)
+//	private void collectVisibleEntities(Camera camera, Frustum frustum, List<Entity> output, CallbackInfoReturnable<Boolean> cir) {
+//		cir.setReturnValue(cir.getReturnValue() || ClientGameStateManager.getOrNull(GameClientStateTypes.HIGHLIGHT_BLOCKS) != null);
+//	}
 }

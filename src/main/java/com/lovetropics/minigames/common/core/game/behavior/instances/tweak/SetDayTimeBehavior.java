@@ -14,6 +14,7 @@ public record SetDayTimeBehavior(long time) implements IGameBehavior {
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
-		game.level().setDayTime(time);
+		// Todo 26.1 Port
+//		game.level().setDayTime(time);
 	}
 }

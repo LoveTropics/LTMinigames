@@ -1,9 +1,12 @@
 package com.lovetropics.minigames.client.screen.list;
 
 import com.lovetropics.minigames.client.screen.flex.Layout;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.util.Mth;
 import org.lwjgl.glfw.GLFW;
 
@@ -33,33 +36,21 @@ public abstract class AbstractLTList<T extends LTListEntry<T>> extends ObjectSel
 		setPosition(layout.background().left(), layout.background().top());
 	}
 
-	public AbstractLTList(Screen screen, Layout layout, int entryHeight, int headerHeight) {
-		super(
-				screen.getMinecraft(),
-				layout.background().width(), layout.background().height(),
-				layout.background().top(),
-				entryHeight,
-				headerHeight
-		);
-		this.screen = screen;
-		setPosition(layout.background().left(), layout.background().top());
-	}
-
-	public void renderOverlays(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+	public void renderOverlays(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
 		renderDragging(graphics, mouseX, mouseY, partialTicks);
 		renderTooltips(graphics, mouseX, mouseY);
 	}
 
-	protected void renderDragging(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+	protected void renderDragging(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
 		T dragging = draggingEntry;
 		if (dragging != null) {
 			int index = children().indexOf(dragging);
 			int y = getDraggingY(mouseY);
-			dragging.render(graphics, index, y, getRowLeft(), getRowWidth(), itemHeight, mouseX, mouseY, false, partialTicks);
+			dragging.extractContent(graphics, mouseX, mouseY, true, partialTicks);
 		}
 	}
 
-	protected void renderTooltips(GuiGraphics graphics, int mouseX, int mouseY) {
+	protected void renderTooltips(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
 		if (!isMouseOver(mouseX, mouseY) || draggingEntry != null) {
 			return;
 		}
@@ -69,12 +60,12 @@ public abstract class AbstractLTList<T extends LTListEntry<T>> extends ObjectSel
 
 		for (int index = 0; index < count; index++) {
 			int rowTop = getRowTop(index);
-			int rowBottom = rowTop + itemHeight;
+			T entry = children().get(index);
+			int rowBottom = rowTop + entry.getHeight();
 			if (rowBottom < getY() || rowTop > getY() + getHeight()) {
 				continue;
 			}
 
-			T entry = getEntry(index);
 			if (isMouseOverEntry(mouseX, mouseY, entry)) {
 				entry.renderTooltips(graphics, rowWidth, mouseX, mouseY);
 				break;
@@ -87,8 +78,10 @@ public abstract class AbstractLTList<T extends LTListEntry<T>> extends ObjectSel
 	}
 
 	private int getEntryIndexAt(int y) {
-		int contentY = y - getY() - headerHeight + (int) scrollAmount();
-		return contentY / itemHeight;
+		// Todo 26.1 Port
+		return 0;
+//		int contentY = y - getY() - headerHeight + (int) scrollAmount();
+//		return contentY / itemHeight;
 	}
 
 	public abstract void updateEntries();
@@ -110,8 +103,10 @@ public abstract class AbstractLTList<T extends LTListEntry<T>> extends ObjectSel
 
 	@Override
 	public int getRowTop(int index) {
-		return getY() + headerHeight - (int) scrollAmount()
-				+ index * itemHeight;
+		return super.getRowTop(index);
+//		return 0; // Todo 26.1 Port
+//		return getY() + headerHeight - (int) scrollAmount()
+//				+ index * itemHeight;
 	}
 
 	void drag(T entry, double mouseY) {
@@ -131,22 +126,22 @@ public abstract class AbstractLTList<T extends LTListEntry<T>> extends ObjectSel
 	}
 
 	@Override
-	public boolean mouseReleased(double mouseX, double mouseY, int button) {
+	public boolean mouseReleased(MouseButtonEvent event) {
 		T dragging = draggingEntry;
 		if (dragging != null) {
 			stopDragging(dragging);
 		}
-		return super.mouseReleased(mouseX, mouseY, button);
+		return super.mouseReleased(event);
 	}
 
 	@Override
-	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+	public boolean keyPressed(KeyEvent event) {
 		T selected = getSelected();
-		if (selected != null && selected.reorder != null && Screen.hasShiftDown()) {
+		if (selected != null && selected.reorder != null && Minecraft.getInstance().hasShiftDown()) {
 			int offset = 0;
-			if (keyCode == GLFW.GLFW_KEY_UP) {
+			if (event.key() == GLFW.GLFW_KEY_UP) {
 				offset = -1;
-			} else if (keyCode == GLFW.GLFW_KEY_DOWN) {
+			} else if (event.key() == GLFW.GLFW_KEY_DOWN) {
 				offset = 1;
 			}
 
@@ -159,18 +154,21 @@ public abstract class AbstractLTList<T extends LTListEntry<T>> extends ObjectSel
 			}
 		}
 
-		return super.keyPressed(keyCode, scanCode, modifiers);
+		return super.keyPressed(event);
 	}
 
 	protected int getDraggingY(int mouseY) {
-		int draggingY = mouseY + dragOffset;
-		int minY = getY() + headerHeight;
-		int maxY = getY() + getHeight() - itemHeight;
-		return Mth.clamp(draggingY, minY, maxY);
+		return 0; // Todo 26.1 Port
+//		int draggingY = mouseY + dragOffset;
+//		int minY = getY() + headerHeight;
+//		int maxY = getY() + getHeight() - contentHeight();
+//		return Mth.clamp(draggingY, minY, maxY);
 	}
 
 	private int getDragInsertIndex(int mouseY) {
-		return getEntryIndexAt(getDraggingY(mouseY) + itemHeight / 2);
+		// Todo 26.1 Port
+		return 0;
+//		return getEntryIndexAt(getDraggingY(mouseY) + get / 2);
 	}
 
 	private boolean tryReorderTo(T entry, int insertIndex) {
@@ -210,13 +208,11 @@ public abstract class AbstractLTList<T extends LTListEntry<T>> extends ObjectSel
 	}
 
 	@Override
-	protected void renderListItems(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+	protected void extractListItems(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
 		boolean listHovered = isMouseOver(mouseX, mouseY);
 
 		int count = getItemCount();
-		int left = getRowLeft();
-		int width = getRowWidth();
-		int height = itemHeight;
+		int height = getHeight();
 
 		boolean dragging = draggingEntry != null;
 
@@ -227,13 +223,13 @@ public abstract class AbstractLTList<T extends LTListEntry<T>> extends ObjectSel
 				continue;
 			}
 
-			T entry = getEntry(index);
+			T entry = children().get(index);
 			if (draggingEntry == entry) {
 				continue;
 			}
 
-			boolean entryHovered = !dragging && listHovered && mouseX >= left && mouseY >= top && mouseX < left + width && mouseY < bottom;
-			entry.render(graphics, index, top, left, width, height, mouseX, mouseY, entryHovered, partialTicks);
+			boolean entryHovered = !dragging && listHovered && entry.isMouseOver(mouseX, mouseY);
+			entry.extractContent(graphics, mouseX, mouseY, entryHovered, a);
 		}
 	}
 }

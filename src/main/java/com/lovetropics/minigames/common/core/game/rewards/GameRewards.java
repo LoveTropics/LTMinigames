@@ -5,7 +5,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.item.ItemInput;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackLinkedSet;
@@ -17,7 +17,7 @@ import java.util.Set;
 
 public class GameRewards {
 	private final List<ItemStack> stacks = new ArrayList<>();
-	private final Set<ResourceLocation> collectibleIds = new HashSet<>();
+	private final Set<Identifier> collectibleIds = new HashSet<>();
 	private final Set<ItemStack> collectibleStacks = ItemStackLinkedSet.createTypeAndComponentsSet();
 
 	public void give(final ItemStack item) {
@@ -27,7 +27,7 @@ public class GameRewards {
 		}
 	}
 
-	public void giveCollectible(final ResourceLocation id) {
+	public void giveCollectible(final Identifier id) {
 		collectibleIds.add(id);
 	}
 
@@ -75,7 +75,7 @@ public class GameRewards {
 					Component.literal("Collectibles").withStyle(ChatFormatting.AQUA)
 			));
 		}
-		for (ResourceLocation id : collectibleIds) {
+		for (Identifier id : collectibleIds) {
 			grantCollectible(player, id);
 		}
 		for (final ItemStack item : collectibleStacks) {
@@ -84,16 +84,20 @@ public class GameRewards {
 	}
 
 	private static void grantCollectible(final ServerPlayer player, final ItemStack item) {
-		grantCollectible(player, new ItemInput(item.getItemHolder(), item.getComponentsPatch()).serialize(player.registryAccess()));
+		/*
+		* Todo 26.1 Port
+		*  Maybe we should just have an api for this seems less messy
+		* */
+//		grantCollectible(player, new ItemInput(item.typeHolder(), item.getComponentsPatch()).serialize(player.registryAccess()));
 	}
 
-	private static void grantCollectible(final ServerPlayer player, final ResourceLocation id) {
+	private static void grantCollectible(final ServerPlayer player, final Identifier id) {
 		grantCollectible(player, id.toString());
 	}
 
 	private static void grantCollectible(final ServerPlayer player, String collectibleString) {
-		final CommandSourceStack source = player.getServer().createCommandSourceStack();
-		final String commandBuilder = "collectible give " + player.getGameProfile().getName() + " " + collectibleString;
-		player.getServer().getCommands().performPrefixedCommand(source, commandBuilder);
+		final CommandSourceStack source = player.level().getServer().createCommandSourceStack();
+		final String commandBuilder = "collectible give " + player.nameAndId().name() + " " + collectibleString;
+		player.level().getServer().getCommands().performPrefixedCommand(source, commandBuilder);
 	}
 }

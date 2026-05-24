@@ -6,6 +6,7 @@ import com.lovetropics.minigames.client.game.ClientGameStateManager;
 import com.lovetropics.minigames.common.content.biodiversity_blitz.BiodiversityBlitz;
 import com.lovetropics.minigames.common.content.biodiversity_blitz.client_state.ClientBbMobSpawnState;
 import com.lovetropics.minigames.common.content.biodiversity_blitz.client_state.ClientBbScoreboardState;
+import com.lovetropics.minigames.common.core.data.LoveTropicsAttachments;
 import com.lovetropics.minigames.common.core.game.client_state.GameClientStateTypes;
 import com.lovetropics.minigames.common.core.game.client_state.instance.HidePlayersState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.PointTagClientState;
@@ -14,27 +15,27 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.ClientAvatarEntity;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderBuffers;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
-import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.client.renderer.entity.player.PlayerRenderer;
-import net.minecraft.client.renderer.entity.state.PlayerRenderState;
+import net.minecraft.client.renderer.entity.state.AvatarRenderState;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.CommonColors;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.util.TriState;
 import net.minecraft.util.context.ContextKey;
+import net.minecraft.world.entity.Avatar;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemDisplayContext;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
@@ -46,6 +47,7 @@ import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.event.RenderNameTagEvent;
 import net.neoforged.neoforge.client.event.RenderPlayerEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
+import net.neoforged.neoforge.client.renderstate.AvatarRenderStateModifier;
 import net.neoforged.neoforge.client.renderstate.RegisterRenderStateModifiersEvent;
 
 import javax.annotation.Nullable;
@@ -59,33 +61,34 @@ public class GameRendering {
 
 	@SubscribeEvent
 	public static void render(RenderLevelStageEvent.AfterWeather event) {
-		PoseStack matrices = event.getPoseStack();
-		Vec3 cameraPos = event.getCamera().getPosition();
-		RenderBuffers buffers = Minecraft.getInstance().renderBuffers();
-		VertexConsumer cons = buffers.bufferSource().getBuffer(GameRenderTypes.TRANSLUCENT_NO_TEX);
-
-		ClientBbMobSpawnState state = ClientGameStateManager.getOrNull(BiodiversityBlitz.MOB_SPAWN);
-		if (state != null) {
-			for (BlockBox box : state.spawns()) {
-				BlockPos min = box.min();
-				BlockPos max = box.max();
-				float x0 = (float) (min.getX() - cameraPos.x);
-				float x1 = (float) (max.getX() + 1.0 - cameraPos.x);
-				float y0 = (float) (min.getY() - cameraPos.y);
-				float y1 = (float) (max.getY() + 1.0 - cameraPos.y);
-				float z0 = (float) (min.getZ() - cameraPos.z);
-				float z1 = (float) (max.getZ() + 1.0 - cameraPos.z);
-				buildBox(cons, matrices, x0, x1, y0, y1, z0, z1, MOB_SPAWN_COLOR);
-			}
-		}
-
-		ClientBbScoreboardState scoreboardState = ClientGameStateManager.getOrNull(BiodiversityBlitz.SCOREBOARD);
-		if (scoreboardState != null) {
-			renderScoreboardState(scoreboardState, matrices, cameraPos, buffers.bufferSource(), cons);
-		}
-
-		// Flush vertices
-		buffers.bufferSource().endBatch();
+		// Todo 26.1 Port
+//		PoseStack matrices = event.getPoseStack();
+//		Vec3 cameraPos = event.getCamera().getPosition();
+//		RenderBuffers buffers = Minecraft.getInstance().renderBuffers();
+//		VertexConsumer cons = buffers.bufferSource().getBuffer(GameRenderTypes.TRANSLUCENT_NO_TEX);
+//
+//		ClientBbMobSpawnState state = ClientGameStateManager.getOrNull(BiodiversityBlitz.MOB_SPAWN);
+//		if (state != null) {
+//			for (BlockBox box : state.spawns()) {
+//				BlockPos min = box.min();
+//				BlockPos max = box.max();
+//				float x0 = (float) (min.getX() - cameraPos.x);
+//				float x1 = (float) (max.getX() + 1.0 - cameraPos.x);
+//				float y0 = (float) (min.getY() - cameraPos.y);
+//				float y1 = (float) (max.getY() + 1.0 - cameraPos.y);
+//				float z0 = (float) (min.getZ() - cameraPos.z);
+//				float z1 = (float) (max.getZ() + 1.0 - cameraPos.z);
+//				buildBox(cons, matrices, x0, x1, y0, y1, z0, z1, MOB_SPAWN_COLOR);
+//			}
+//		}
+//
+//		ClientBbScoreboardState scoreboardState = ClientGameStateManager.getOrNull(BiodiversityBlitz.SCOREBOARD);
+//		if (scoreboardState != null) {
+//			renderScoreboardState(scoreboardState, matrices, cameraPos, buffers.bufferSource(), cons);
+//		}
+//
+//		// Flush vertices
+//		buffers.bufferSource().endBatch();
 	}
 
 	private static void renderScoreboardState(ClientBbScoreboardState state, PoseStack matrices, Vec3 camera, MultiBufferSource.BufferSource buffers, VertexConsumer cons) {
@@ -142,7 +145,7 @@ public class GameRendering {
 				buffers,
 				Font.DisplayMode.POLYGON_OFFSET,
 				0,
-				LightTexture.FULL_BRIGHT
+				LightCoordsUtil.FULL_BRIGHT
 		);
 	}
 
@@ -186,11 +189,27 @@ public class GameRendering {
 
 	@SubscribeEvent
 	public static void onRegisterRenderStateModifiers(RegisterRenderStateModifiersEvent event) {
-		event.registerEntityModifier(PlayerRenderer.class, (player, state) -> {
-			PointTagClientState pointTags = ClientGameStateManager.getOrNull(GameClientStateTypes.POINT_TAGS);
-			Component points = pointTags != null ? pointTags.getPointsTextFor(player.getUUID()) : null;
-			if (points != null) {
-				state.setRenderData(POINT_TAG_KEY, new PointTag(points, pointTags.icon()));
+		event.registerAvatarEntityModifier(new AvatarRenderStateModifier() {
+			@Override
+			public <T extends Avatar & ClientAvatarEntity> void accept(T avatar, AvatarRenderState renderState) {
+				PointTagClientState pointTags = ClientGameStateManager.getOrNull(GameClientStateTypes.POINT_TAGS);
+				Component points = pointTags != null ? pointTags.getPointsTextFor(avatar.getUUID()) : null;
+				if (points != null) {
+					ItemStackRenderState itemStackRenderState = new ItemStackRenderState();
+					Minecraft.getInstance().getItemModelResolver().updateForTopItem(itemStackRenderState, pointTags.icon().create(), ItemDisplayContext.GUI, avatar.level(), null, 0);
+					renderState.setRenderData(POINT_TAG_KEY, new PointTag(points, itemStackRenderState));
+				}
+			}
+		});
+
+		event.registerAvatarEntityModifier(new AvatarRenderStateModifier() {
+			@Override
+			public <T extends Avatar & ClientAvatarEntity> void accept(T avatar, AvatarRenderState renderState) {
+				if (avatar instanceof Player player) {
+					if (player.hasData(LoveTropicsAttachments.HIGHLIGHT_COLOR)) {
+						renderState.outlineColor = player.getData(LoveTropicsAttachments.HIGHLIGHT_COLOR);
+					}
+				}
 			}
 		});
 	}
@@ -204,15 +223,15 @@ public class GameRendering {
 
 	@SubscribeEvent
 	public static void onRenderPlayerName(RenderNameTagEvent.DoRender event) {
-		if (event.getEntityRenderState() instanceof PlayerRenderState playerState) {
-			PointTag pointTag = playerState.getRenderData(POINT_TAG_KEY);
-			if (playerState.nameTagAttachment != null && pointTag != null) {
-				renderPlayerPoints(event, playerState, pointTag.icon, pointTag.points);
+		if (event.getEntityRenderState() instanceof AvatarRenderState avatarRenderState) {
+			PointTag pointTag = avatarRenderState.getRenderData(POINT_TAG_KEY);
+			if (avatarRenderState.nameTagAttachment != null && pointTag != null) {
+				renderPlayerPoints(event, avatarRenderState, pointTag.icon, pointTag.points);
 			}
 		}
 	}
 
-	private static void renderPlayerPoints(RenderNameTagEvent.DoRender event, PlayerRenderState playerState, ItemStack icon, Component points) {
+	private static void renderPlayerPoints(RenderNameTagEvent.DoRender event, AvatarRenderState playerState, ItemStackRenderState icon, Component points) {
 		if (playerState.isDiscrete) {
 			return;
 		}
@@ -228,14 +247,13 @@ public class GameRendering {
 
 		poseStack.pushPose();
 		poseStack.translate(0.0, playerState.boundingBoxHeight + 0.75, 0.0);
-		poseStack.mulPose(renderDispatcher.cameraOrientation());
+		poseStack.mulPose(Minecraft.getInstance().getEntityRenderDispatcher().camera.rotation());
 		poseStack.scale(-0.0625F * textScale, 0.0625F * textScale, 0.0625F * textScale);
 
-		MultiBufferSource buffer = event.getMultiBufferSource();
-		int packedLight = event.getPackedLight();
+		SubmitNodeCollector collector = event.getSubmitNodeCollector();
+		int packedLight = event.getEntityRenderState().lightCoords;
 
 		Font font = event.getEntityRenderer().getFont();
-		ItemRenderer items = client.getItemRenderer();
 
 		float width = itemSize + spacing + font.width(points);
 		float left = -width / 2.0F;
@@ -245,20 +263,30 @@ public class GameRendering {
 
 		float textX = left + itemSize + spacing;
 		float textY = -font.lineHeight / 2.0F;
-		font.drawInBatch(points, textX, textY, CommonColors.WHITE, false, poseStack.last().pose(), buffer, Font.DisplayMode.NORMAL, 0, packedLight);
+		collector.submitText(
+				poseStack,
+				textX,
+				textY,
+				points.getVisualOrderText(),
+				false,
+				Font.DisplayMode.NORMAL,
+				packedLight,
+				CommonColors.WHITE,
+				0,
+				playerState.outlineColor);
 		poseStack.popPose();
 
 		poseStack.pushPose();
 		poseStack.translate(-(left + (itemSize / 2.0f)), 0.0F, 0.0F);
 		poseStack.scale(itemSize, itemSize, -itemSize);
-		items.renderStatic(icon, ItemDisplayContext.GUI, packedLight, OverlayTexture.NO_OVERLAY, poseStack, buffer, client.level, 0);
+		icon.submit(poseStack, collector, packedLight, OverlayTexture.NO_OVERLAY, playerState.outlineColor);
 		poseStack.popPose();
 
 		poseStack.popPose();
 	}
 
 	@SubscribeEvent
-	public static void renderPlayer(RenderPlayerEvent.Pre event) {
+	public static void renderPlayer(RenderPlayerEvent.Pre<AbstractClientPlayer> event) {
 		LocalPlayer localPlayer = Minecraft.getInstance().player;
 		if (localPlayer == null) {
 			return;
@@ -285,7 +313,7 @@ public class GameRendering {
 
 	private record PointTag(
 			Component points,
-			ItemStack icon
+			ItemStackRenderState icon
 	) {
 	}
 
@@ -304,7 +332,7 @@ public class GameRendering {
 
 	@SubscribeEvent
 	public static void registerOverlays(RegisterGuiLayersEvent event) {
-		event.registerBelow(VanillaGuiLayers.DEBUG_OVERLAY, LoveTropics.location("statistic"), (graphics, deltaTracker) -> {
+		event.registerBelow(VanillaGuiLayers.CONTEXTUAL_INFO_BAR_BACKGROUND, LoveTropics.location("statistic"), (graphics, deltaTracker) -> {
 			if (Minecraft.getInstance().options.hideGui) {
 				return;
 			}
@@ -314,14 +342,14 @@ public class GameRendering {
 		});
 	}
 
-	private static void renderStatisticOverlay(GuiGraphics graphics, StatisticOverlayState.Ticker statisticOverlay) {
+	private static void renderStatisticOverlay(GuiGraphicsExtractor graphics, StatisticOverlayState.Ticker statisticOverlay) {
 		final int padding = 3;
 		final int itemSize = 16;
 
 		Font font = Minecraft.getInstance().font;
-		graphics.renderItem(statisticOverlay.icon(), padding, padding);
+		graphics.item(statisticOverlay.icon(), padding, padding);
 
-		graphics.drawString(
+		graphics.text(
 				font,
 				statisticOverlay.text(),
 				padding + itemSize + padding,
