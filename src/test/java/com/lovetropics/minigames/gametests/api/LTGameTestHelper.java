@@ -8,7 +8,7 @@ import com.lovetropics.minigames.common.core.game.lobby.LobbyControls;
 import com.lovetropics.minigames.common.core.game.player.PlayerRole;
 import com.lovetropics.minigames.mixin.gametest.GameTestHelperAccess;
 import com.lovetropics.minigames.mixin.gametest.GameTestInfoAccess;
-import net.minecraft.MethodsReturnNonnullByDefault;
+import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -49,6 +49,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import javax.sound.sampled.Port;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
@@ -226,16 +227,6 @@ public class LTGameTestHelper extends GameTestHelper {
 	}
 
 	@Override
-	public void setNight() {
-		delegate.setNight();
-	}
-
-	@Override
-	public void setDayTime(int pTime) {
-		delegate.setDayTime(pTime);
-	}
-
-	@Override
 	public void assertBlockPresent(Block pBlock, int pX, int pY, int pZ) {
 		delegate.assertBlockPresent(pBlock, pX, pY, pZ);
 	}
@@ -350,11 +341,11 @@ public class LTGameTestHelper extends GameTestHelper {
 		delegate.moveTo(mob, x, y, z);
 	}
 
-	@Deprecated(forRemoval = true)
-	@Override
-	public ServerPlayer makeMockServerPlayerInLevel() {
-		return delegate.makeMockServerPlayerInLevel();
-	}
+//	@Deprecated(forRemoval = true)
+//	@Override
+//	public ServerPlayer makeMockServerPlayerInLevel() {
+//		return delegate.makeMockServerPlayerInLevel();
+//	}
 
 	@Override
 	public void assertBlockTag(TagKey<Block> tag, BlockPos pos) {
@@ -431,10 +422,10 @@ public class LTGameTestHelper extends GameTestHelper {
 		delegate.assertContainerContainsSingle(pos, item);
 	}
 
-	@Override
-	public void assertEntityPosition(Entity entity, AABB boundingBox, Component message) {
-		delegate.assertEntityPosition(entity, boundingBox, message);
-	}
+//	@Override
+//	public void assertEntityPosition(Entity entity, AABB boundingBox, Component message) {
+//		delegate.assertEntityPosition(entity, boundingBox, message);
+//	}
 
 	@Override
 	public <E extends Entity> void assertEntityProperty(E entity, Predicate<E> predicate, Component message) {
@@ -845,7 +836,7 @@ public class LTGameTestHelper extends GameTestHelper {
 		assertTrue(entity.getMaxHealth() == health, () -> "Entity max health did not match! Expected " + health + " but was " + entity.getMaxHealth());
 	}
 
-	public TestPermissionAPI.Roles getRoles(Entity entity) {
-		return LTMinigamesGameTests.PERMISSIONS.byEntity(entity);
-	}
+//	public TestPermissionAPI.Roles getRoles(Entity entity) {
+//		return LTMinigamesGameTests.PERMISSIONS.byEntity(entity);
+//	}
 }

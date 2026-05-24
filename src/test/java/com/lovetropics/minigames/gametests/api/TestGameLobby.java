@@ -6,7 +6,7 @@ import com.lovetropics.minigames.common.core.game.impl.GameLobby;
 import com.lovetropics.minigames.common.core.game.impl.LobbyGameQueue;
 import com.lovetropics.minigames.common.core.game.impl.LobbyPlayerManager;
 import com.lovetropics.minigames.common.core.game.lobby.QueuedGame;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import javax.annotation.Nullable;
 
@@ -24,7 +24,7 @@ public record TestGameLobby(GameLobby lobby) {
 		return lobby.getTopPhase();
 	}
 
-	public QueuedGame enqueue(ResourceLocation gameId) {
+	public QueuedGame enqueue(Identifier gameId) {
 		return getGameQueue().enqueue(GameConfigs.REGISTRY.get(gameId));
 	}
 }

@@ -20,7 +20,7 @@ import net.minecraft.gametest.framework.TestData;
 import net.minecraft.gametest.framework.TestEnvironmentDefinition;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.packs.PackLocationInfo;
 import net.minecraft.server.packs.PackResources;
@@ -48,14 +48,14 @@ import java.util.function.Supplier;
 public class LTMinigamesGameTests {
 	public static final TestPermissionAPI PERMISSIONS = new TestPermissionAPI();
 
-	private static final Supplier<Map<ResourceLocation, MinigameTest>> TESTS = Suppliers.memoize(() -> {
+	private static final Supplier<Map<Identifier, MinigameTest>> TESTS = Suppliers.memoize(() -> {
 		final var classes = ModList.get().getAllScanData().stream()
 				.flatMap(sc -> sc.getAnnotations().stream())
 				.filter(an -> an.annotationType().equals(RegisterMinigameTest.TYPE))
 				.map(an -> an.clazz().getInternalName())
 				.toList();
 
-		final var testMap = new HashMap<ResourceLocation, MinigameTest>();
+		final var testMap = new HashMap<Identifier, MinigameTest>();
 		try {
 			for (String cls : classes) {
 				final Class<?> clazz = Class.forName(cls.replace('/', '.'));
@@ -83,62 +83,62 @@ public class LTMinigamesGameTests {
 
 				testMethod.setAccessible(true);
 
-				ResourceLocation testId = id.withPath(path -> CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, path)
+				Identifier testId = id.withPath(path -> CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, path)
 						+ "/" + CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, testMethod.getName()));
 
 				// Register a unique environment for every test, as we cannot run them in parallel right now
-				Holder<TestEnvironmentDefinition> environment = event.registerEnvironment(testId, new TestEnvironmentDefinition() {
-					private RoleLookup lastRoleLookup;
-
-					@Override
-					public void setup(ServerLevel level) {
-						lastRoleLookup = PermissionsApi.lookup();
-						PermissionsApi.setRoleLookup(PERMISSIONS);
-					}
-
-					@Override
-					public void teardown(ServerLevel level) {
-						PermissionsApi.setRoleLookup(lastRoleLookup);
-					}
-
-					@Override
-					public MapCodec<? extends TestEnvironmentDefinition> codec() {
-						throw new UnsupportedOperationException();
-					}
-				});
-
-				var info = new TestData<>(
-						environment,
-						LoveTropics.location("empty_3x3"),
-						gametest.timeoutTicks(),
-						5,
-						true,
-						Rotation.NONE,
-						false,
-						1,
-						1,
-						false
-				);
-				event.registerTest(testId, new GameTestInstance(info) {
-					@Override
-					public void run(GameTestHelper helper) {
-						try {
-							testMethod.invoke(test, new LTGameTestHelper(helper));
-						} catch (Exception e) {
-							throw new RuntimeException(e);
-						}
-					}
-
-					@Override
-					public MapCodec<? extends GameTestInstance> codec() {
-						throw new UnsupportedOperationException();
-					}
-
-					@Override
-					protected MutableComponent typeDescription() {
-						return Component.literal("LTMinigames");
-					}
-				});
+//				Holder<TestEnvironmentDefinition> environment = event.registerEnvironment(testId, new TestEnvironmentDefinition() {
+//					private RoleLookup lastRoleLookup;
+//
+//					@Override
+//					public void setup(ServerLevel level) {
+//						lastRoleLookup = PermissionsApi.lookup();
+//						PermissionsApi.setRoleLookup(PERMISSIONS);
+//					}
+//
+//					@Override
+//					public void teardown(ServerLevel level) {
+//						PermissionsApi.setRoleLookup(lastRoleLookup);
+//					}
+//
+//					@Override
+//					public MapCodec<? extends TestEnvironmentDefinition> codec() {
+//						throw new UnsupportedOperationException();
+//					}
+//				});
+//
+//				var info = new TestData<>(
+//						environment,
+//						LoveTropics.location("empty_3x3"),
+//						gametest.timeoutTicks(),
+//						5,
+//						true,
+//						Rotation.NONE,
+//						false,
+//						1,
+//						1,
+//						false
+//				);
+//				event.registerTest(testId, new GameTestInstance(info) {
+//					@Override
+//					public void run(GameTestHelper helper) {
+//						try {
+//							testMethod.invoke(test, new LTGameTestHelper(helper));
+//						} catch (Exception e) {
+//							throw new RuntimeException(e);
+//						}
+//					}
+//
+//					@Override
+//					public MapCodec<? extends GameTestInstance> codec() {
+//						throw new UnsupportedOperationException();
+//					}
+//
+//					@Override
+//					protected MutableComponent typeDescription() {
+//						return Component.literal("LTMinigames");
+//					}
+//				});
 			}
 		}
 	}

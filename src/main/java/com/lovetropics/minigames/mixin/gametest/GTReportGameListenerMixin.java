@@ -9,7 +9,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(targets = "net.minecraft.gametest.framework.ReportGameListener")
 public class GTReportGameListenerMixin {
-	@Inject(at = @At("HEAD"), method = "lambda$say$3", cancellable = true)
+
+	@Inject(at = @At("HEAD"), method = "lambda$say$0", cancellable = true)
 	private static void dontSendToFakePlayers(ServerPlayer player, CallbackInfoReturnable<Boolean> cir) {
 		if (player instanceof LTGameTestFakePlayer) {
 			cir.setReturnValue(false);

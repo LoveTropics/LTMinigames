@@ -24,7 +24,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.network.protocol.game.ClientboundSystemChatPacket;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.context.ContextMap;
@@ -115,7 +115,7 @@ public class ActionTriggerTests implements MinigameTest {
 	}
 
 	@Override
-	public ResourceLocation id() {
-		return ResourceLocation.fromNamespaceAndPath("lttest", "action_trigger_test");
+	public Identifier id() {
+		return Identifier.fromNamespaceAndPath("lttest", "action_trigger_test");
 	}
 }

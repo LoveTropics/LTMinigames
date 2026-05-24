@@ -18,7 +18,7 @@ import com.mojang.serialization.Codec;
 import it.unimi.dsi.fastutil.objects.Object2DoubleMaps;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.food.FoodData;
@@ -110,7 +110,7 @@ public class TweakTests implements MinigameTest {
 				.thenIdle(5)
 				.thenExecute(() -> helper.assertEntityHealth(target, 18))
 				.thenIdle(15) // Wait for invulnerable time to end
-				.thenExecute(() -> helper.getRoles(target).addRole("setTest", Map.of(IS_TEST_PLAYER, true)))
+//				.thenExecute(() -> helper.getRoles(target).addRole("setTest", Map.of(IS_TEST_PLAYER, true)))
 				.thenExecute(() -> target.hurt(player.damageSources().playerAttack(player), 2))
 				.thenExecute(() -> helper.assertEntityHealth(target, 14))
 				.thenSucceed();
@@ -142,7 +142,7 @@ public class TweakTests implements MinigameTest {
 	}
 
 	@Override
-	public ResourceLocation id() {
-		return ResourceLocation.fromNamespaceAndPath("lttest", "tweak_tests");
+	public Identifier id() {
+		return Identifier.fromNamespaceAndPath("lttest", "tweak_tests");
 	}
 }

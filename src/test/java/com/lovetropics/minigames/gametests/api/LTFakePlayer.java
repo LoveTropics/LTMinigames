@@ -47,10 +47,10 @@ public class LTFakePlayer extends ServerPlayer implements LTGameTestFakePlayer {
 		connection.disconnect(Component.literal("Test finished"));
 	}
 
-	@Override
-	public void displayClientMessage(Component chatComponent, boolean actionBar) {
-
-	}
+//	@Override
+//	public void displayClientMessage(Component chatComponent, boolean actionBar) {
+//
+//	}
 
 	@Override
 	public void awardStat(Stat stat, int amount) {
