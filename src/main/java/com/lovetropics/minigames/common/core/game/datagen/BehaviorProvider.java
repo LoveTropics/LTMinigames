@@ -1,17 +1,13 @@
 package com.lovetropics.minigames.common.core.game.datagen;
 
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.concurrent.CompletableFuture;
 
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class BehaviorProvider implements DataProvider {
 
 	private final PackOutput output;

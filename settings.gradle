@@ -11,3 +11,4 @@ plugins {
 
 rootProject.name = 'LTMinigames'
 //includeBuild('../LTExtras')
+includeBuild('../LTDatapack')

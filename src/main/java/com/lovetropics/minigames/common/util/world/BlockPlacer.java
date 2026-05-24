@@ -26,22 +26,18 @@ public class BlockPlacer {
 	static final BlockInput HOLLOW_CORE = new BlockInput(Blocks.AIR.defaultBlockState(), Collections.emptySet(), null);
 
 	public enum Mode {
-		REPLACE((p_137433_, p_137434_, p_137435_, p_137436_) -> {
-			return p_137435_;
+		REPLACE((_, _, blockInput, _) -> blockInput),
+		OUTLINE((boundingBox, blockPos, blockInput, _) ->
+				blockPos.getX() != boundingBox.minX() && blockPos.getX() != boundingBox.maxX() && blockPos.getY() != boundingBox.minY() && blockPos.getY() != boundingBox.maxY() && blockPos.getZ() != boundingBox.minZ() && blockPos.getZ() != boundingBox.maxZ() ? null : blockInput),
+		HOLLOW((boundingBox, blockPos, blockInput, _) ->
+				blockPos.getX() != boundingBox.minX() && blockPos.getX() != boundingBox.maxX() && blockPos.getY() != boundingBox.minY() && blockPos.getY() != boundingBox.maxY() && blockPos.getZ() != boundingBox.minZ() && blockPos.getZ() != boundingBox.maxZ() ? HOLLOW_CORE : blockInput),
+		DESTROY((_, blockPos, blockInput, serverLevel) -> {
+			serverLevel.destroyBlock(blockPos, true);
+			return blockInput;
 		}),
-		OUTLINE((p_137428_, p_137429_, p_137430_, p_137431_) -> {
-			return p_137429_.getX() != p_137428_.minX() && p_137429_.getX() != p_137428_.maxX() && p_137429_.getY() != p_137428_.minY() && p_137429_.getY() != p_137428_.maxY() && p_137429_.getZ() != p_137428_.minZ() && p_137429_.getZ() != p_137428_.maxZ() ? null : p_137430_;
-		}),
-		HOLLOW((p_137423_, p_137424_, p_137425_, p_137426_) -> {
-			return p_137424_.getX() != p_137423_.minX() && p_137424_.getX() != p_137423_.maxX() && p_137424_.getY() != p_137423_.minY() && p_137424_.getY() != p_137423_.maxY() && p_137424_.getZ() != p_137423_.minZ() && p_137424_.getZ() != p_137423_.maxZ() ? HOLLOW_CORE : p_137425_;
-		}),
-		DESTROY((p_137418_, p_137419_, p_137420_, p_137421_) -> {
-			p_137421_.destroyBlock(p_137419_, true);
-			return p_137420_;
-		}),
-		DESTROY_NO_DROP((p_137418_, p_137419_, p_137420_, p_137421_) -> {
-			p_137421_.destroyBlock(p_137419_, false);
-			return p_137420_;
+		DESTROY_NO_DROP((_, blockPos, blockInput, serverLevel) -> {
+			serverLevel.destroyBlock(blockPos, false);
+			return blockInput;
 		});
 
 		public final FillCommand.Filter filter;
