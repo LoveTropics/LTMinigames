@@ -18,6 +18,7 @@ import net.minecraft.network.protocol.game.ClientboundExplodePacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.random.WeightedList;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.ServerExplosion;
@@ -76,9 +77,12 @@ public record ProximityBombPlantBehavior(double radius) implements IGameBehavior
 					Optional<Vec3> knockback = Optional.ofNullable(explosion.getHitPlayers().get(player));
 					player.connection.send(new ClientboundExplodePacket(
 							center,
+							1,
+							1,
 							knockback.map(k -> k.scale(2.0f)),
 							explosion.isSmall() ? ParticleTypes.EXPLOSION : ParticleTypes.EXPLOSION_EMITTER,
-							SoundEvents.GENERIC_EXPLODE
+							SoundEvents.GENERIC_EXPLODE,
+							WeightedList.of()
 					));
 				}
 			}

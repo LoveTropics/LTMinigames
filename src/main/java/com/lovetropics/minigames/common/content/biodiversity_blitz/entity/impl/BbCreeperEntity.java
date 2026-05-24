@@ -80,9 +80,12 @@ public class BbCreeperEntity extends Creeper implements BbMobEntity {
 					Optional<Vec3> knockback = Optional.ofNullable(explosion.getHitPlayers().get(player));
 					player.connection.send(new ClientboundExplodePacket(
 							center,
+							1,
+							1,
 							knockback.map(k -> k.scale(size * factor)),
 							explosion.isSmall() ? ParticleTypes.EXPLOSION : ParticleTypes.EXPLOSION_EMITTER,
-							SoundEvents.GENERIC_EXPLODE
+							SoundEvents.GENERIC_EXPLODE,
+							WeightedList.of()
 					));
 				}
 			}

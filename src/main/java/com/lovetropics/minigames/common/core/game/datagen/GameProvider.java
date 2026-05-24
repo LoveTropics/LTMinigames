@@ -1,20 +1,16 @@
 package com.lovetropics.minigames.common.core.game.datagen;
 
 import com.lovetropics.minigames.common.core.game.config.GameConfig;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public abstract class GameProvider implements DataProvider {
 	private final PackOutput output;
 	protected final BehaviorFactory behaviors;
@@ -55,6 +51,6 @@ public abstract class GameProvider implements DataProvider {
 	}
 
 	public interface GameGenerator {
-		GameBuilder builder(ResourceLocation id);
+		GameBuilder builder(Identifier id);
 	}
 }

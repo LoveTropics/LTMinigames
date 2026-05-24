@@ -12,17 +12,19 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.tooltip.TooltipRenderUtil;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.OutlineBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.CommonColors;
 import net.minecraft.util.Mth;
@@ -36,7 +38,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class VendingMachineEntityRenderer extends EntityRenderer<VendingMachineEntity, VendingMachineRenderState> {
-	private static final ResourceLocation TEXTURE = LoveTropics.location("textures/entity/vending_machine.png");
+	private static final Identifier TEXTURE = LoveTropics.location("textures/entity/vending_machine.png");
+
+	private static final int SELECTION_COLOR = ARGB.color(255, 0, 255, 0);
 
 	private final VendingMachineModel model;
 	private final ItemModelResolver itemModelResolver;
@@ -87,18 +91,19 @@ public class VendingMachineEntityRenderer extends EntityRenderer<VendingMachineE
 	}
 
 	@Override
-	public void render(VendingMachineRenderState renderState, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
-		super.render(renderState, poseStack, bufferSource, packedLight);
+	public void submit(VendingMachineRenderState renderState, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState camera) {
+		super.submit(renderState, poseStack, submitNodeCollector, camera);
+
 		poseStack.pushPose();
 		VendingMachineModel.applyModelTransform(poseStack, renderState.yRot);
 
 		model.setupAnim(renderState);
-		VertexConsumer builder = bufferSource.getBuffer(model.renderType(TEXTURE));
-		model.renderToBuffer(poseStack, builder, packedLight, OverlayTexture.NO_OVERLAY);
+		submitNodeCollector.submitModel(model, renderState, poseStack, model.renderType(TEXTURE), renderState.lightCoords, OverlayTexture.NO_OVERLAY, renderState.outlineColor, null);
 
 		if (renderState.hasSelection) {
 			OutlineBufferSource outlineBufferSource = Minecraft.getInstance().renderBuffers().outlineBufferSource();
-			outlineBufferSource.setColor(0, 255, 0, 255);
+
+			outlineBufferSource.setColor(SELECTION_COLOR);
 			model.renderBuyButtonOnly(poseStack, outlineBufferSource.getBuffer(model.renderType(TEXTURE)));
 		}
 
@@ -110,79 +115,79 @@ public class VendingMachineEntityRenderer extends EntityRenderer<VendingMachineE
 			poseStack.pushPose();
 			poseStack.translate(slotState.pos);
 			poseStack.scale(-1.0f, -1.0f, 1.0f);
-			renderSlot(poseStack, bufferSource, packedLight, slotState.selected, slotState.picked, renderState.anyHighlighted, slotState);
+			renderSlot(renderState, poseStack, submitNodeCollector, slotState.selected, slotState.picked, renderState.anyHighlighted, slotState);
 			poseStack.popPose();
 		}
 
 		if (!renderState.droppingItem.isEmpty()) {
 			VendingMachineRenderState.SlotState fromSlot = renderState.slots.get(renderState.droppingFromSlot);
-			renderDroppingItem(renderState, poseStack, bufferSource, packedLight, renderState.droppingItem, fromSlot);
+			renderDroppingItem(renderState, poseStack, submitNodeCollector, renderState.lightCoords, renderState.droppingItem, fromSlot);
 		}
 
 		poseStack.popPose();
 	}
 
-	private void renderSlot(PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, boolean selected, boolean highlighted, boolean anyHighlighted, VendingMachineRenderState.SlotState slot) {
+	private void renderSlot(VendingMachineRenderState state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, boolean selected, boolean highlighted, boolean anyHighlighted, VendingMachineRenderState.SlotState slot) {
 		float itemScale = computeItemScale(slot.item);
 
 		poseStack.pushPose();
 		poseStack.scale(itemScale, itemScale, itemScale);
 
-		renderBackgroundSlotItems(poseStack, bufferSource, packedLight, slot);
+		renderBackgroundSlotItems(state, poseStack, submitNodeCollector, slot);
 
 		if (selected || highlighted) {
 			poseStack.pushPose();
 			poseStack.scale(1.25f, 1.25f, 1.25f);
-			OutlineBufferSource outlineBufferSource = Minecraft.getInstance().renderBuffers().outlineBufferSource();
+			int color;
 			if (selected) {
-				outlineBufferSource.setColor(0, 255, 0, 255);
+				color = ARGB.color(255, 0, 255, 0);
 			} else {
-				outlineBufferSource.setColor(255, 255, 255, 255);
+				color = ARGB.color(255, 255, 255, 255);
 			}
-			slot.item.render(poseStack, outlineBufferSource, packedLight, OverlayTexture.NO_OVERLAY);
+			slot.item.submit(poseStack, submitNodeCollector, state.lightCoords, color, state.outlineColor);
 			poseStack.popPose();
 		} else {
-			slot.item.render(poseStack, bufferSource, packedLight, OverlayTexture.NO_OVERLAY);
+			slot.item.submit(poseStack, submitNodeCollector, state.lightCoords, OverlayTexture.NO_OVERLAY, state.outlineColor);
 		}
 
 		poseStack.popPose();
 
 		// TODO: Big hack to force the text to render in front!
-		if (bufferSource instanceof MultiBufferSource.BufferSource b) {
-			b.endBatch();
-		}
+		// Todo 26.1 Port
+//		if (bufferSource instanceof MultiBufferSource.BufferSource b) {
+//			b.endBatch();
+//		}
 
 		if ((selected && !anyHighlighted) || highlighted) {
 			int backgroundColor = ARGB.color(Minecraft.getInstance().options.getBackgroundOpacity(0.25f), CommonColors.BLACK);
 			poseStack.pushPose();
 			float scale = 0.15f / 16.0f;
 			poseStack.scale(-scale, -scale, scale);
-			font.drawInBatch(
-					slot.name,
+			submitNodeCollector.submitText(
+					poseStack,
 					-font.width(slot.name) / 2.0f,
 					-25.0f,
-					CommonColors.WHITE,
+					slot.name.getVisualOrderText(),
 					false,
-					poseStack.last().pose(),
-					bufferSource,
 					Font.DisplayMode.SEE_THROUGH,
+					state.lightCoords,
+					CommonColors.WHITE,
 					backgroundColor,
-					packedLight
-			);
+					state.outlineColor);
 			poseStack.popPose();
 		}
 	}
 
-	private void renderBackgroundSlotItems(PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, VendingMachineRenderState.SlotState slot) {
+	private void renderBackgroundSlotItems(VendingMachineRenderState state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, VendingMachineRenderState.SlotState slot) {
 		poseStack.pushPose();
 		for (int i = 0; i < 3; i++) {
 			poseStack.translate(0, 0, 0.5);
-			slot.item.render(poseStack, bufferSource, packedLight, OverlayTexture.NO_OVERLAY);
+			slot.item.submit(poseStack, submitNodeCollector, state.lightCoords, OverlayTexture.NO_OVERLAY, state.outlineColor);
 		}
 		poseStack.popPose();
 	}
 
-	private void renderDroppingItem(VendingMachineRenderState renderState, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, ItemStackRenderState item, VendingMachineRenderState.SlotState fromSlot) {
+	private void renderDroppingItem(VendingMachineRenderState renderState, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int packedLight, ItemStackRenderState item, VendingMachineRenderState.SlotState fromSlot) {
 		poseStack.pushPose();
 
 		float pushAmount = 0.15f;
@@ -204,7 +209,7 @@ public class VendingMachineEntityRenderer extends EntityRenderer<VendingMachineE
 		poseStack.translate(fromSlot.pos.x, y, z);
 		poseStack.mulPose(Axis.XN.rotation(yRot));
 		poseStack.scale(-itemScale, -itemScale, itemScale);
-		item.render(poseStack, bufferSource, packedLight, OverlayTexture.NO_OVERLAY);
+		item.submit(poseStack, submitNodeCollector, packedLight, OverlayTexture.NO_OVERLAY, renderState.outlineColor);
 		poseStack.popPose();
 	}
 
@@ -227,7 +232,7 @@ public class VendingMachineEntityRenderer extends EntityRenderer<VendingMachineE
 		});
 	}
 
-	private static void renderOverlay(GuiGraphics graphics) {
+	private static void renderOverlay(GuiGraphicsExtractor graphics) {
 		Minecraft minecraft = Minecraft.getInstance();
 		if (!(minecraft.hitResult instanceof EntityHitResult entityHitResult)) {
 			return;
@@ -267,10 +272,10 @@ public class VendingMachineEntityRenderer extends EntityRenderer<VendingMachineE
 		int top = centerY - height / 2;
 
 		int padding = 2;
-		TooltipRenderUtil.renderTooltipBackground(graphics, left - padding, top - padding, width + padding * 2, height + padding, null);
+		TooltipRenderUtil.extractTooltipBackground(graphics, left - padding, top - padding, width + padding * 2, height + padding, null);
 
 		for (Component line : lines) {
-			graphics.drawCenteredString(font, line, centerX, top, CommonColors.WHITE);
+			graphics.centeredText(font, line, centerX, top, CommonColors.WHITE);
 			top += font.lineHeight + 1;
 		}
 	}

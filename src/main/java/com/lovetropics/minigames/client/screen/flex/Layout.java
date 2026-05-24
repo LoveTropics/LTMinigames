@@ -1,6 +1,6 @@
 package com.lovetropics.minigames.client.screen.flex;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.neoforged.fml.loading.FMLEnvironment;
 
 import java.util.Objects;
@@ -61,25 +61,25 @@ public record Layout(Box content, Box padding, Box margin) {
 				&& Objects.equals(padding, other.padding);
 	}
 
-	private static final boolean inDev = !FMLEnvironment.production;
+	private static final boolean inDev = !FMLEnvironment.isProduction();
 
-	public void debugRender(GuiGraphics graphics) {
+	public void debugRender(GuiGraphicsExtractor graphics) {
 		if (!inDev) {
 			return;
 		}
-		graphics.vLine(margin().left(), margin().top(), margin().bottom() - 1, 0xFFF9CC9D);
-		graphics.vLine(margin().right() - 1, margin().top(), margin().bottom() - 1, 0xFFF9CC9D);
-		graphics.hLine(margin().left(), margin().right() - 1, margin().top(), 0xFFF9CC9D);
-		graphics.hLine(margin().left(), margin().right() - 1, margin().bottom() - 1, 0xFFF9CC9D);
+		graphics.verticalLine(margin().left(), margin().top(), margin().bottom() - 1, 0xFFF9CC9D);
+		graphics.verticalLine(margin().right() - 1, margin().top(), margin().bottom() - 1, 0xFFF9CC9D);
+		graphics.horizontalLine(margin().left(), margin().right() - 1, margin().top(), 0xFFF9CC9D);
+		graphics.horizontalLine(margin().left(), margin().right() - 1, margin().bottom() - 1, 0xFFF9CC9D);
 
-		graphics.vLine(padding().left(), padding().top(), padding().bottom() - 1, 0xFFC3D08B);
-		graphics.vLine(padding().right() - 1, padding().top(), padding().bottom() - 1, 0xFFC3D08B);
-		graphics.hLine(padding().left(), padding().right() - 1, padding().top(), 0xFFC3D08B);
-		graphics.hLine(padding().left(), padding().right() - 1, padding().bottom() - 1, 0xFFC3D08B);
+		graphics.verticalLine(padding().left(), padding().top(), padding().bottom() - 1, 0xFFC3D08B);
+		graphics.verticalLine(padding().right() - 1, padding().top(), padding().bottom() - 1, 0xFFC3D08B);
+		graphics.horizontalLine(padding().left(), padding().right() - 1, padding().top(), 0xFFC3D08B);
+		graphics.horizontalLine(padding().left(), padding().right() - 1, padding().bottom() - 1, 0xFFC3D08B);
 
-		graphics.vLine(content().left(), content().top(), content().bottom() - 1, 0xFF8CB6C0);
-		graphics.vLine(content().right() - 1, content().top(), content().bottom() - 1, 0xFF8CB6C0);
-		graphics.hLine(content().left(), content().right() - 1, content().top(), 0xFF8CB6C0);
-		graphics.hLine(content().left(), content().right() - 1, content().bottom() - 1, 0xFF8CB6C0);
+		graphics.verticalLine(content().left(), content().top(), content().bottom() - 1, 0xFF8CB6C0);
+		graphics.verticalLine(content().right() - 1, content().top(), content().bottom() - 1, 0xFF8CB6C0);
+		graphics.horizontalLine(content().left(), content().right() - 1, content().top(), 0xFF8CB6C0);
+		graphics.horizontalLine(content().left(), content().right() - 1, content().bottom() - 1, 0xFF8CB6C0);
 	}
 }

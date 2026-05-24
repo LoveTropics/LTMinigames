@@ -12,6 +12,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.random.WeightedList;
 import net.minecraft.util.valueproviders.IntProvider;
 import net.minecraft.util.valueproviders.IntProviders;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -126,9 +127,12 @@ public class LootDispenserBlockEntity extends BlockEntity {
 			if (player.position().closerThan(dispensePos, 64.0)) {
 				player.connection.send(new ClientboundExplodePacket(
 						dispensePos,
+						1,
+						1,
 						Optional.empty(),
 						ParticleTypes.EXPLOSION,
-						SoundEvents.GENERIC_EXPLODE
+						SoundEvents.GENERIC_EXPLODE,
+						WeightedList.of()
 				));
 			}
 		}

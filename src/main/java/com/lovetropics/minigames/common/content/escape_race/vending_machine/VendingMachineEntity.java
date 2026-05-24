@@ -286,8 +286,8 @@ public class VendingMachineEntity extends Entity implements ContainerEntity {
 
 	@Override
 	@Nullable
-	public AbstractContainerMenu createMenu(int containerId, Inventory playerInventory, Player p_38253_) {
-		if (lootTable != null && p_38253_.isSpectator()) {
+	public AbstractContainerMenu createMenu(int containerId, Inventory playerInventory, Player player) {
+		if (lootTable != null && player.isSpectator()) {
 			return null;
 		} else {
 			unpackChestVehicleLootTable(playerInventory.player);

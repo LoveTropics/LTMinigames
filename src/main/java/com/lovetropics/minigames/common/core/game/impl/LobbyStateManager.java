@@ -63,7 +63,7 @@ final class LobbyStateManager {
 	}
 
 	private LobbyState errored(LobbyState state, Component error) {
-		LOGGER.error("Encountered lobby error, pausing: {}", error.getString());
+		LOGGER.error("Encountered lobby error, pausing: {}", error.getString()); // Todo The main error message that causes this does not seem to passed to here currently
 		GamePhase phase = state.phase;
 		if (phase != null) {
 			IGameDefinition definition = phase.definition();

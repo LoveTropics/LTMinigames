@@ -6,6 +6,7 @@ import com.lovetropics.minigames.common.core.game.client_state.GameClientStateTy
 import com.lovetropics.minigames.common.core.game.client_state.instance.BeaconClientState;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Camera;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -17,6 +18,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.event.SubmitCustomGeometryEvent;
 
 import java.util.List;
 
@@ -25,7 +27,7 @@ public final class GameBeaconRenderer {
 	private static final int COLOR = DyeColor.WHITE.getTextureDiffuseColor();
 
 	@SubscribeEvent
-	public static void onRenderLevel(RenderLevelStageEvent.AfterWeather event) {
+	public static void onRenderLevel(SubmitCustomGeometryEvent event) {
 		BeaconClientState state = ClientGameStateManager.getOrNull(GameClientStateTypes.BEACON);
 		if (state == null || state.positions().isEmpty()) {
 			return;
@@ -42,16 +44,15 @@ public final class GameBeaconRenderer {
 
 		MultiBufferSource.BufferSource bufferSource = minecraft.renderBuffers().bufferSource();
 
-		Vec3 cameraPosition = camera.getPosition();
+		Vec3 cameraPosition = camera.position();
 		PoseStack poseStack = event.getPoseStack();
 
-		long gameTime = level.getGameTime();
-		float partialTick = event.getPartialTick().getGameTimeDeltaPartialTick(false);
+		float partialTick = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(false);
 
 		for (BlockPos position : positions) {
 			poseStack.pushPose();
 			poseStack.translate(position.getX() - cameraPosition.x, position.getY() - cameraPosition.y, position.getZ() - cameraPosition.z);
-			BeaconRenderer.renderBeaconBeam(poseStack, bufferSource, BeaconRenderer.BEAM_LOCATION, partialTick, 1.0f, gameTime, 0, 256, COLOR, 0.15F, 0.175F);
+			BeaconRenderer.submitBeaconBeam(poseStack, event.getSubmitNodeCollector(), BeaconRenderer.BEAM_LOCATION, partialTick, 1.0f,  0, 256, COLOR, 0.15F, 0.175F);
 			poseStack.popPose();
 		}
 

@@ -9,8 +9,10 @@ import com.mojang.blaze3d.platform.Window;
 import net.minecraft.ChatFormatting;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.ActiveTextCollector;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.TextAlignment;
 import net.minecraft.client.gui.components.AbstractStringWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.FocusableTextWidget;
@@ -38,16 +40,16 @@ public class TriviaQuestionScreen extends Screen {
 		}
 
 		@Override
-		public AutoUpdatingTextWidget setColor(int pColor) {
-			super.setColor(pColor);
-			return this;
+		public void visitLines(ActiveTextCollector output) {
+
 		}
 
 		@Override
-		protected void renderWidget(GuiGraphics graphics, int i, int i1, float v) {
+		public void extractScrollingStringOverContents(ActiveTextCollector output, Component message, int margin) {
+			super.extractScrollingStringOverContents(output, message, margin);
 			Component component = messageSupplier.get();
 			MultiLineLabel label = MultiLineLabel.create(getFont(), component);
-			label.renderCentered(graphics, getX(), getY(), 9, getColor());
+			label.visitLines(TextAlignment.CENTER, getX(), getY(), 9, output);
 		}
 	}
 
@@ -67,9 +69,11 @@ public class TriviaQuestionScreen extends Screen {
 		}
 
 		@Override
-		protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-			super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
+		protected void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+			extractDefaultSprite(graphics);
+			extractDefaultLabel(graphics.textRendererForWidget(this, GuiGraphicsExtractor.HoveredTextEffects.NONE));
 		}
+
 	}
 
 	private final TriviaBehaviour.TriviaQuestion question;
@@ -98,7 +102,7 @@ public class TriviaQuestionScreen extends Screen {
 			}
 			return Component.empty();
 		}, font));
-		layout.addChild(new FocusableTextWidget(maxWidth, question.question(), font));
+		layout.addChild(FocusableTextWidget.builder(question.question(), font).maxWidth(maxWidth).build());
 
 		boolean lockedOut = triviaBlockState.lockedOut();
 
@@ -130,7 +134,7 @@ public class TriviaQuestionScreen extends Screen {
 	@Override
 	public void tick() {
 		super.tick();
-		if (!Minecraft.getInstance().player.canInteractWithBlock(triviaBlockPos, 4.0)) {
+		if (!Minecraft.getInstance().player.isWithinBlockInteractionRange(triviaBlockPos, 4.0)) {
 			onClose();
 		}
 		if (triviaBlockState.lockedOut() && triviaBlockState.unlocksAt() <= Minecraft.getInstance().level.getGameTime()) {

@@ -75,7 +75,7 @@ public class GamePhaseManager implements IGameLookup {
 					if (gameException != null) {
 						throw new CompletionException(gameException);
 					}
-					throw new CompletionException(new GameException(Component.literal("An unexpected exception occurred while creating game phase"), throwable));
+					throw new CompletionException(new GameException(Component.literal("An unexpected exception occurred while creating game phase ").append(throwable.getMessage()), throwable)); // Todo I added the throwable message here, error does not seem to passed all the way done so I just did this for now - UnReal
 				});
 	}
 

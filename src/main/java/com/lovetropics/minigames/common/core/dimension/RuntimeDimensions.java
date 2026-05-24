@@ -4,13 +4,13 @@ import com.lovetropics.minigames.LoveTropics;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.RegistrationInfo;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -103,7 +103,7 @@ public final class RuntimeDimensions {
 		return null;
 	}
 
-	public RuntimeDimensionHandle getOrOpenPersistent(ResourceLocation key, Supplier<RuntimeDimensionConfig> config) {
+	public RuntimeDimensionHandle getOrOpenPersistent(Identifier key, Supplier<RuntimeDimensionConfig> config) {
 		ResourceKey<Level> worldKey = ResourceKey.create(Registries.DIMENSION, key);
 		ServerLevel world = server.getLevel(worldKey);
 		if (world != null) {
@@ -115,12 +115,12 @@ public final class RuntimeDimensions {
 	}
 
 	public RuntimeDimensionHandle openTemporary(RuntimeDimensionConfig config) {
-		ResourceLocation key = generateTemporaryDimensionKey();
+		Identifier key = generateTemporaryDimensionKey();
 		return openLevel(key, config, true);
 	}
 
 	@Nullable
-	public RuntimeDimensionHandle openTemporaryWithKey(ResourceLocation key, RuntimeDimensionConfig config) {
+	public RuntimeDimensionHandle openTemporaryWithKey(Identifier key, RuntimeDimensionConfig config) {
 		ResourceKey<Level> worldKey = ResourceKey.create(Registries.DIMENSION, key);
 		if (server.getLevel(worldKey) == null) {
 			return openLevel(key, config, true);
@@ -129,7 +129,7 @@ public final class RuntimeDimensions {
 		}
 	}
 
-	private RuntimeDimensionHandle openLevel(ResourceLocation key, RuntimeDimensionConfig config, boolean temporary) {
+	private RuntimeDimensionHandle openLevel(Identifier key, RuntimeDimensionConfig config, boolean temporary) {
 		ResourceKey<Level> levelKey = ResourceKey.create(Registries.DIMENSION, key);
 
 		MappedRegistry<LevelStem> dimensionsRegistry = getLevelStemRegistry(server);
@@ -138,17 +138,16 @@ public final class RuntimeDimensions {
 		dimensionsRegistry.freeze();
 
 		ServerLevel level = new ServerLevel(
-				server, Util.backgroundExecutor(), server.storageSource,
+				server,
+				Util.backgroundExecutor(),
+				server.storageSource,
 				config.worldInfo(),
 				levelKey,
 				config.dimension(),
-				VoidChunkStatusListener.INSTANCE,
 				false,
 				BiomeManager.obfuscateSeed(config.seed()),
 				List.of(),
-				false,
-				server.overworld().getRandomSequences()
-		) {
+				false) {
 			@Override
 			public void save(@Nullable ProgressListener progress, boolean flush, boolean skipSave) {
 				if (temporary) {
@@ -215,7 +214,7 @@ public final class RuntimeDimensions {
 	private void prepareForDeletion(ServerLevel level) {
 		LongSet forceLoadedChunks = new LongOpenHashSet(level.getChunkSource().getForceLoadedChunks());
 		forceLoadedChunks.forEach(chunkKey ->
-				level.getChunkSource().updateChunkForced(new ChunkPos(chunkKey), false)
+				level.getChunkSource().updateChunkForced(ChunkPos.unpack(chunkKey), false)
 		);
 		kickPlayersFrom(level);
 	}
@@ -226,12 +225,13 @@ public final class RuntimeDimensions {
 		}
 
 		ServerLevel overworld = server.overworld();
-		BlockPos spawnPos = overworld.getSharedSpawnPos();
-		float spawnAngle = overworld.getSharedSpawnAngle();
+		BlockPos spawnPos = overworld.getRespawnData().pos();
+		float spawnAngleYaw = overworld.getRespawnData().yaw();
+		float spawnAnglePitch = overworld.getRespawnData().pitch();
 
 		List<ServerPlayer> players = new ArrayList<>(level.players());
 		for (ServerPlayer player : players) {
-			player.teleportTo(overworld, spawnPos.getX() + 0.5, spawnPos.getY(), spawnPos.getZ() + 0.5, Set.of(), spawnAngle, 0.0F, true);
+			player.teleportTo(overworld, spawnPos.getX() + 0.5, spawnPos.getY(), spawnPos.getZ() + 0.5, Set.of(), spawnAngleYaw, spawnAnglePitch, true);
 		}
 	}
 
@@ -252,7 +252,7 @@ public final class RuntimeDimensions {
 			MappedRegistry<LevelStem> dimensionsRegistry = getLevelStemRegistry(server);
 
 			dimensionsRegistry.unfreeze(false);
-			RegistryEntryRemover.remove(dimensionsRegistry, dimensionKey.location());
+			RegistryEntryRemover.remove(dimensionsRegistry, dimensionKey.identifier());
 			dimensionsRegistry.freeze();
 
 			LevelStorageSource.LevelStorageAccess save = server.storageSource;
@@ -286,7 +286,7 @@ public final class RuntimeDimensions {
 		return (MappedRegistry<LevelStem>) server.registryAccess().lookupOrThrow(Registries.LEVEL_STEM);
 	}
 
-	private static ResourceLocation generateTemporaryDimensionKey() {
+	private static Identifier generateTemporaryDimensionKey() {
 		String random = RandomStringUtils.random(16, "abcdefghijklmnopqrstuvwxyz0123456789");
 		return LoveTropics.location("tmp_" + random);
 	}

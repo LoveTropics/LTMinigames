@@ -17,25 +17,29 @@ import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.OutlineBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.item.ItemModelResolver;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Holder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.CommonColors;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.phys.AABB;
 import org.joml.Matrix4f;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class DDRMachineEntityRenderer extends EntityRenderer<DDRMachineEntity, DDRMachineRenderState> {
-	private static final ResourceLocation TEXTURE = LoveTropics.location("textures/entity/ddr_machine.png");
+	private static final Identifier TEXTURE = LoveTropics.location("textures/entity/ddr_machine.png");
 	private static final float SELECTED_ITEM_SCALE = 1.25f;
 
 	private static final int INPUT_SIDE_WIDTH = 7 * 2;
@@ -103,25 +107,25 @@ public class DDRMachineEntityRenderer extends EntityRenderer<DDRMachineEntity, D
 		for (int i = 0; i < levels.size(); i++) {
 			DdrLevel level = levels.get(i).value();
 			DDRMachineLevelClientRenderState levelState = state.levels.get(i);
-			itemModelResolver.updateForNonLiving(levelState.iconState, level.icon(), ItemDisplayContext.FIXED, entity);
+			itemModelResolver.updateForNonLiving(levelState.iconState, level.icon().create(), ItemDisplayContext.FIXED, entity);
 			levelState.displayName = level.displayName();
 			levelState.selected = i == pickedLevel;
 		}
 	}
 
 	@Override
-	public void render(DDRMachineRenderState renderState, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
-		super.render(renderState, poseStack, bufferSource, packedLight);
+	public void submit(DDRMachineRenderState renderState, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState camera) {
+		super.submit(renderState, poseStack, submitNodeCollector, camera);
 
 		poseStack.pushPose();
 		applyModelTransform(poseStack, renderState.yRot);
 		model.setupAnim(renderState);
-		model.renderToBuffer(poseStack, bufferSource.getBuffer(model.renderType(TEXTURE)), packedLight, OverlayTexture.NO_OVERLAY);
+		submitNodeCollector.submitModel(model, renderState, poseStack, model.renderType(TEXTURE), renderState.lightCoords, OverlayTexture.NO_OVERLAY, renderState.outlineColor, null);
 		poseStack.popPose();
 
 		poseStack.pushPose();
 		screen.applyTransform(poseStack, renderState.yRot);
-		renderScreenContent(poseStack, bufferSource, packedLight, renderState);
+		renderScreenContent(poseStack, submitNodeCollector, renderState.lightCoords, renderState);
 		poseStack.popPose();
 	}
 
@@ -131,21 +135,21 @@ public class DDRMachineEntityRenderer extends EntityRenderer<DDRMachineEntity, D
 		poseStack.mulPose(Axis.YP.rotationDegrees(180.0f + yRot));
 	}
 
-	private void renderScreenContent(PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, DDRMachineRenderState state) {
+	private void renderScreenContent(PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int packedLight, DDRMachineRenderState state) {
 		switch (state.ddrMachineState) {
-			case DDRMachineEntity.DDRMachineState.MENU -> renderMenuScreen(poseStack, bufferSource, packedLight, state);
-			case DDRMachineEntity.DDRMachineState.PLAYING, DDRMachineEntity.DDRMachineState.RECORDING -> renderPlayingScreen(poseStack, bufferSource, packedLight, state);
+			case DDRMachineEntity.DDRMachineState.MENU -> renderMenuScreen(poseStack, submitNodeCollector, packedLight, state);
+			case DDRMachineEntity.DDRMachineState.PLAYING, DDRMachineEntity.DDRMachineState.RECORDING -> renderPlayingScreen(poseStack, submitNodeCollector, packedLight, state);
 		}
 	}
 
-	private void renderMenuScreen(PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, DDRMachineRenderState state) {
+	private void renderMenuScreen(PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int packedLight, DDRMachineRenderState state) {
 		DdrScreen.LevelArrangement arrangement = DdrScreen.LevelArrangement.forCount(state.levels.size());
 		for (int i = 0; i < state.levels.size(); i++) {
-			renderLevelIcon(poseStack, bufferSource, packedLight, state.levels.get(i), arrangement.getCenterX(i), arrangement.getCenterY(i));
+			renderLevelIcon(poseStack, submitNodeCollector, packedLight, state.levels.get(i), arrangement.getCenterX(i), arrangement.getCenterY(i), state);
 		}
 	}
 
-	private void renderLevelIcon(PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, DDRMachineLevelClientRenderState level, int x, int y) {
+	private void renderLevelIcon(PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int packedLight, DDRMachineLevelClientRenderState level, int x, int y, DDRMachineRenderState state) {
 		poseStack.pushPose();
 		poseStack.translate(x, y, 0.0f);
 
@@ -153,11 +157,9 @@ public class DDRMachineEntityRenderer extends EntityRenderer<DDRMachineEntity, D
 		poseStack.scale(16.0f, -16.0f, -16.0f);
 		if (level.selected) {
 			poseStack.scale(SELECTED_ITEM_SCALE, SELECTED_ITEM_SCALE, SELECTED_ITEM_SCALE);
-			OutlineBufferSource outlineBufferSource = Minecraft.getInstance().renderBuffers().outlineBufferSource();
-			outlineBufferSource.setColor(255, 255, 255, 255);
-			level.iconState.render(poseStack, outlineBufferSource, packedLight, OverlayTexture.NO_OVERLAY);
+			level.iconState.submit(poseStack, submitNodeCollector, packedLight, OverlayTexture.NO_OVERLAY, ARGB.color(255, 255, 255, 255));
 		} else {
-			level.iconState.render(poseStack, bufferSource, packedLight, OverlayTexture.NO_OVERLAY);
+			level.iconState.submit(poseStack, submitNodeCollector, packedLight, OverlayTexture.NO_OVERLAY, state.outlineColor);
 		}
 		poseStack.popPose();
 
@@ -165,23 +167,23 @@ public class DDRMachineEntityRenderer extends EntityRenderer<DDRMachineEntity, D
 		poseStack.scale(textScale, textScale, -textScale);
 
 		int backgroundColor = ARGB.color(Minecraft.getInstance().options.getBackgroundOpacity(0.25f), CommonColors.BLACK);
-		font.drawInBatch(
-				level.displayName,
+		submitNodeCollector.submitText(
+				poseStack,
 				-font.width(level.displayName) / 2.0f,
 				16.0f,
-				CommonColors.WHITE,
+				level.displayName.getVisualOrderText(),
 				false,
-				poseStack.last().pose(),
-				bufferSource,
 				Font.DisplayMode.NORMAL,
+				state.lightCoords,
+				CommonColors.WHITE,
 				backgroundColor,
-				packedLight
+				state.outlineColor
 		);
 
 		poseStack.popPose();
 	}
 
-	private void renderPlayingScreen(PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, DDRMachineRenderState state) {
+	private void renderPlayingScreen(PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int packedLight, DDRMachineRenderState state) {
 		DDRMachineSprites sprites = DDRMachineSprites.get();
 
 		int leftX = (DdrScreen.WIDTH - INPUT_SPACING * 4 + INPUT_SPACING) / 2;
@@ -201,47 +203,47 @@ public class DDRMachineEntityRenderer extends EntityRenderer<DDRMachineEntity, D
 			DdrInput levelTick = move.input();
 			float yPos = Mth.lerp((float) (tick - state.currentTick) / delay, bottomRowCenterY, INPUT_HEIGHT / 2.0f);
 			if (levelTick.left()) {
-				drawCenteredSprite(sprites.leftFilled(), leftX, yPos, INPUT_SIDE_WIDTH, INPUT_SIDE_HEIGHT, poseStack, bufferSource, packedLight);
+				drawCenteredSprite(sprites.leftFilled(), leftX, yPos, INPUT_SIDE_WIDTH, INPUT_SIDE_HEIGHT, poseStack, submitNodeCollector, packedLight);
 			}
 			if (levelTick.right()) {
-				drawCenteredSprite(sprites.rightFilled(), rightX, yPos, INPUT_SIDE_WIDTH, INPUT_SIDE_HEIGHT, poseStack, bufferSource, packedLight);
+				drawCenteredSprite(sprites.rightFilled(), rightX, yPos, INPUT_SIDE_WIDTH, INPUT_SIDE_HEIGHT, poseStack, submitNodeCollector, packedLight);
 			}
 			if (levelTick.forward()) {
-				drawCenteredSprite(sprites.upFilled(), forwardX, yPos, INPUT_UP_WIDTH, INPUT_UP_HEIGHT, poseStack, bufferSource, packedLight);
+				drawCenteredSprite(sprites.upFilled(), forwardX, yPos, INPUT_UP_WIDTH, INPUT_UP_HEIGHT, poseStack, submitNodeCollector, packedLight);
 			}
 			if (levelTick.back()) {
-				drawCenteredSprite(sprites.downFilled(), backX, yPos, INPUT_UP_WIDTH, INPUT_UP_HEIGHT, poseStack, bufferSource, packedLight);
+				drawCenteredSprite(sprites.downFilled(), backX, yPos, INPUT_UP_WIDTH, INPUT_UP_HEIGHT, poseStack, submitNodeCollector, packedLight);
 			}
 		}
 
-		drawCenteredSprite(state.input.left() ? sprites.leftFilled() : sprites.left(), leftX, bottomRowCenterY, INPUT_SIDE_WIDTH, INPUT_SIDE_HEIGHT, poseStack, bufferSource, packedLight);
-		drawCenteredSprite(state.input.forward() ? sprites.upFilled() : sprites.up(), forwardX, bottomRowCenterY, INPUT_UP_WIDTH, INPUT_UP_HEIGHT, poseStack, bufferSource, packedLight);
-		drawCenteredSprite(state.input.back() ? sprites.downFilled() : sprites.down(), backX, bottomRowCenterY, INPUT_UP_WIDTH, INPUT_UP_HEIGHT, poseStack, bufferSource, packedLight);
-		drawCenteredSprite(state.input.right() ? sprites.rightFilled() : sprites.right(), rightX, bottomRowCenterY, INPUT_SIDE_WIDTH, INPUT_SIDE_HEIGHT, poseStack, bufferSource, packedLight);
+		drawCenteredSprite(state.input.left() ? sprites.leftFilled() : sprites.left(), leftX, bottomRowCenterY, INPUT_SIDE_WIDTH, INPUT_SIDE_HEIGHT, poseStack, submitNodeCollector, packedLight);
+		drawCenteredSprite(state.input.forward() ? sprites.upFilled() : sprites.up(), forwardX, bottomRowCenterY, INPUT_UP_WIDTH, INPUT_UP_HEIGHT, poseStack, submitNodeCollector, packedLight);
+		drawCenteredSprite(state.input.back() ? sprites.downFilled() : sprites.down(), backX, bottomRowCenterY, INPUT_UP_WIDTH, INPUT_UP_HEIGHT, poseStack, submitNodeCollector, packedLight);
+		drawCenteredSprite(state.input.right() ? sprites.rightFilled() : sprites.right(), rightX, bottomRowCenterY, INPUT_SIDE_WIDTH, INPUT_SIDE_HEIGHT, poseStack, submitNodeCollector, packedLight);
 	}
 
-	private void drawCenteredSprite(TextureAtlasSprite sprite, float x, float y, int width, int height, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
-		drawSprite(sprite, x - width / 2.0f, y - height / 2.0f, width, height, poseStack, bufferSource, packedLight);
+	private void drawCenteredSprite(TextureAtlasSprite sprite, float x, float y, int width, int height, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int packedLight) {
+		drawSprite(sprite, x - width / 2.0f, y - height / 2.0f, width, height, poseStack, submitNodeCollector, packedLight);
 	}
 
-	private void drawSprite(TextureAtlasSprite sprite, float x, float y, int width, int height, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
-		VertexConsumer buffer = bufferSource.getBuffer(RenderType.text(sprite.atlasLocation()));
-		Matrix4f pose = poseStack.last().pose();
-		buffer.addVertex(pose, x, y + height, 0.0f)
-				.setColor(CommonColors.WHITE)
-				.setUv(sprite.getU0(), sprite.getV1())
-				.setLight(packedLight);
-		buffer.addVertex(pose, x + width, y + height, 0.0f)
-				.setColor(CommonColors.WHITE)
-				.setUv(sprite.getU1(), sprite.getV1())
-				.setLight(packedLight);
-		buffer.addVertex(pose, x + width, y, 0.0f)
-				.setColor(CommonColors.WHITE)
-				.setUv(sprite.getU1(), sprite.getV0())
-				.setLight(packedLight);
-		buffer.addVertex(pose, x, y, 0.0f)
-				.setColor(CommonColors.WHITE)
-				.setUv(sprite.getU0(), sprite.getV0())
-				.setLight(packedLight);
+	private void drawSprite(TextureAtlasSprite sprite, float x, float y, int width, int height, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int packedLight) {
+		submitNodeCollector.submitCustomGeometry(poseStack, RenderTypes.text(sprite.atlasLocation()), (pose, consumer) -> {
+			consumer.addVertex(pose, x, y + height, 0.0f)
+					.setColor(CommonColors.WHITE)
+					.setUv(sprite.getU0(), sprite.getV1())
+					.setLight(packedLight);
+			consumer.addVertex(pose, x + width, y + height, 0.0f)
+					.setColor(CommonColors.WHITE)
+					.setUv(sprite.getU1(), sprite.getV1())
+					.setLight(packedLight);
+			consumer.addVertex(pose, x + width, y, 0.0f)
+					.setColor(CommonColors.WHITE)
+					.setUv(sprite.getU1(), sprite.getV0())
+					.setLight(packedLight);
+			consumer.addVertex(pose, x, y, 0.0f)
+					.setColor(CommonColors.WHITE)
+					.setUv(sprite.getU0(), sprite.getV0())
+					.setLight(packedLight);
+		});
 	}
 }

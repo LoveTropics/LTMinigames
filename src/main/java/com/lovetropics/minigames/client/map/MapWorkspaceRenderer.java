@@ -8,19 +8,24 @@ import it.unimi.dsi.fastutil.HashCommon;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ShapeRenderer;
 import net.minecraft.client.renderer.debug.DebugRenderer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.gizmos.GizmoStyle;
+import net.minecraft.gizmos.Gizmos;
+import net.minecraft.gizmos.TextGizmo;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.CommonColors;
 import net.minecraft.util.Mth;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.event.SubmitCustomGeometryEvent;
 
+import java.util.OptionalDouble;
 import java.util.Set;
 
 @EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
@@ -38,17 +43,12 @@ public final class MapWorkspaceRenderer {
 			return;
 		}
 
-		if (!client.level.dimension().location().getNamespace().equals(LoveTropics.ID)) {
+		if (!client.level.dimension().identifier().getNamespace().equals(LoveTropics.ID)) {
 			// Don't render for survival or adventure players in persistent worlds
 			if (!client.player.isCreative() && !client.player.isSpectator()) {
 				return;
 			}
 		}
-
-		Vec3 view = camera.getPosition();
-
-		PoseStack poseStack = event.getPoseStack();
-		MultiBufferSource.BufferSource bufferSource = client.renderBuffers().bufferSource();
 
 		Set<ClientWorkspaceRegions.Entry> selectedRegions = MapWorkspaceTracer.getSelectedRegions();
 
@@ -64,7 +64,7 @@ public final class MapWorkspaceRenderer {
 			float alpha = 0.3F;
 
 			if (selectedRegions.contains(entry)) {
-				double time = client.level.getGameTime() + event.getPartialTick().getGameTimeDeltaTicks();
+				double time = client.level.getGameTime() + Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaTicks();
 				float animation = (float) ((Math.sin(time * 0.1) + 1.0) / 2.0);
 
 				alpha = 0.4F + animation * 0.15F;
@@ -76,15 +76,16 @@ public final class MapWorkspaceRenderer {
 			}
 
 			BlockBox region = entry.region;
-			double minX = region.min().getX() - view.x;
-			double minY = region.min().getY() - view.y;
-			double minZ = region.min().getZ() - view.z;
-			double maxX = region.max().getX() + 1.0 - view.x;
-			double maxY = region.max().getY() + 1.0 - view.y;
-			double maxZ = region.max().getZ() + 1.0 - view.z;
+			double minX = region.min().getX();
+			double minY = region.min().getY();
+			double minZ = region.min().getZ();
+			double maxX = region.max().getX() + 1.0;
+			double maxY = region.max().getY() + 1.0;
+			double maxZ = region.max().getZ() + 1.0;
 
-			DebugRenderer.renderFilledBox(poseStack, bufferSource, minX, minY, minZ, maxX, maxY, maxZ, red, green, blue, alpha);
-			ShapeRenderer.renderLineBox(poseStack, bufferSource.getBuffer(RenderType.lines()), minX, minY, minZ, maxX, maxY, maxZ, outlineRed, outlineGreen, outlineBlue, 1.0F);
+			AABB aabb = new AABB(minX, minY, minZ, maxX, maxY, maxZ);
+			Gizmos.cuboid(aabb, GizmoStyle.stroke(ARGB.colorFromFloat(alpha, red, green, blue)));
+			Gizmos.cuboid(aabb, GizmoStyle.fill(ARGB.colorFromFloat(0.5f, outlineRed, outlineGreen, outlineBlue)));
 		}
 
 		for (ClientWorkspaceRegions.Entry entry : regions) {
@@ -92,12 +93,11 @@ public final class MapWorkspaceRenderer {
 			BlockPos size = entry.region.size();
 
 			int minSize = Math.min(size.getX(), Math.min(size.getY(), size.getZ())) - 1;
-			float scale = Mth.clamp(minSize * 0.03125F, 0.03125F, 0.125F);
+			float scale = Mth.clamp(minSize * TextGizmo.Style.DEFAULT_SCALE, TextGizmo.Style.DEFAULT_SCALE, 0.125F);
 
-			DebugRenderer.renderFloatingText(poseStack, bufferSource, entry.key, center.x, center.y, center.z, CommonColors.WHITE, scale, true, 0.0F, true);
+			Gizmos.billboardText(entry.key, center, new TextGizmo.Style(CommonColors.WHITE, scale, OptionalDouble.empty()));
 		}
 
-		bufferSource.endLastBatch();
 	}
 
 	private static int colorForKey(String key) {

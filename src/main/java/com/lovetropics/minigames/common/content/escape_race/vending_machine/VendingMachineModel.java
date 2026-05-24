@@ -14,8 +14,8 @@ import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
-import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -24,8 +24,10 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
 import java.util.Set;
+import java.util.function.Consumer;
 
 @EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
 public class VendingMachineModel extends EntityModel<VendingMachineRenderState> {
@@ -66,8 +68,8 @@ public class VendingMachineModel extends EntityModel<VendingMachineRenderState> 
 			path[i].translateAndRotate(poseStack);
 		}
 		ModelPart part = path[path.length - 1];
-		Set<Vector3f> vertices = new ReferenceArraySet<>();
-		part.getExtentsForGui(poseStack, vertices);
+		Set<Vector3fc> vertices = new ReferenceArraySet<>();
+		part.getExtentsForGui(poseStack, vertices::add);
 		AABB.Builder bounds = new AABB.Builder();
 		vertices.forEach(bounds::include);
 		return bounds.build();
@@ -150,7 +152,7 @@ public class VendingMachineModel extends EntityModel<VendingMachineRenderState> 
 		root2.translateAndRotate(poseStack);
 		machine.translateAndRotate(poseStack);
 		control_panel.translateAndRotate(poseStack);
-		buy_button.render(poseStack, buffer, LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY);
+		buy_button.render(poseStack, buffer, LightCoordsUtil.FULL_BRIGHT, OverlayTexture.NO_OVERLAY);
 		poseStack.popPose();
 	}
 
