@@ -2,26 +2,16 @@ package com.lovetropics.minigames.gametests.api;
 
 import com.google.common.base.CaseFormat;
 import com.google.common.base.Suppliers;
-import com.lovetropics.lib.permission.PermissionsApi;
-import com.lovetropics.lib.permission.role.RoleLookup;
 import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.core.game.datagen.BehaviorFactory;
 import com.lovetropics.minigames.common.core.game.datagen.BehaviorProvider;
 import com.lovetropics.minigames.common.core.game.datagen.GameProvider;
-import com.mojang.serialization.MapCodec;
 import net.minecraft.SharedConstants;
-import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.metadata.PackMetadataGenerator;
-import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.gametest.framework.GameTestInstance;
-import net.minecraft.gametest.framework.TestData;
-import net.minecraft.gametest.framework.TestEnvironmentDefinition;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.Identifier;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.packs.PackLocationInfo;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PackSelectionConfig;
@@ -30,7 +20,6 @@ import net.minecraft.server.packs.PathPackResources;
 import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackSource;
-import net.minecraft.world.level.block.Rotation;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -159,31 +148,31 @@ public class LTMinigamesGameTests {
 		event.getGenerator()
 				.addProvider(true, new BehaviorProvider(out, behaviors, event.getLookupProvider()));
 
-		event.getGenerator().addProvider(true, new PackMetadataGenerator(out)
-				.add(PackMetadataSection.TYPE, new PackMetadataSection(Component.literal("LTMinigames testing"), SharedConstants.getCurrentVersion().packVersion(PackType.SERVER_DATA))));
+//		event.getGenerator().addProvider(true, new PackMetadataGenerator(out)
+//				.add(PackMetadataSection.TYPE, new PackMetadataSection(Component.literal("LTMinigames testing"), SharedConstants.getCurrentVersion().packVersion(PackType.SERVER_DATA))));
 	}
 
 	@SubscribeEvent
 	static void addFinders(final AddPackFindersEvent event) {
-		if (event.getPackType() == PackType.SERVER_DATA) {
-			PackLocationInfo info = new PackLocationInfo(TESTING_PACK, Component.literal("testing"), PackSource.BUILT_IN, Optional.empty());
-			final var resources = new PathPackResources(info, ModList.get()
-					.getModContainerById(LoveTropics.ID).orElseThrow()
-					.getModInfo().getOwningFile()
-					.getFile().findResource(TESTING_PACK));
-			event.addRepositorySource(onLoad -> onLoad.accept(Pack.readMetaAndCreate(
-					info, new Pack.ResourcesSupplier() {
-						@Override
-						public PackResources openPrimary(PackLocationInfo pLocation) {
-							return resources;
-						}
-
-						@Override
-						public PackResources openFull(PackLocationInfo pLocation, Pack.Metadata pMetadata) {
-							return resources;
-						}
-					}, PackType.SERVER_DATA, new PackSelectionConfig(true, Pack.Position.TOP, false)
-			)));
-		}
+//		if (event.getPackType() == PackType.SERVER_DATA) {
+//			PackLocationInfo info = new PackLocationInfo(TESTING_PACK, Component.literal("testing"), PackSource.BUILT_IN, Optional.empty());
+//			final var resources = new PathPackResources(info, ModList.get()
+//					.getModContainerById(LoveTropics.ID).orElseThrow()
+//					.getModInfo().getOwningFile()
+//					.getFile().findResource(TESTING_PACK));
+//			event.addRepositorySource(onLoad -> onLoad.accept(Pack.readMetaAndCreate(
+//					info, new Pack.ResourcesSupplier() {
+//						@Override
+//						public PackResources openPrimary(PackLocationInfo pLocation) {
+//							return resources;
+//						}
+//
+//						@Override
+//						public PackResources openFull(PackLocationInfo pLocation, Pack.Metadata pMetadata) {
+//							return resources;
+//						}
+//					}, PackType.SERVER_DATA, new PackSelectionConfig(true, Pack.Position.TOP, false)
+//			)));
+//		}
 	}
 }
