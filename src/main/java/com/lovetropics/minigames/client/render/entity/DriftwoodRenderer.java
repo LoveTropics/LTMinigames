@@ -15,18 +15,20 @@ import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 
 public final class DriftwoodRenderer extends EntityRenderer<DriftwoodEntity, DriftwoodRenderState> {
-	private static final ResourceLocation TEXTURE = LoveTropics.location("textures/entity/driftwood.png");
+	private static final Identifier TEXTURE = LoveTropics.location("textures/entity/driftwood.png");
 
 	private final DriftwoodModel model;
 
@@ -47,19 +49,17 @@ public final class DriftwoodRenderer extends EntityRenderer<DriftwoodEntity, Dri
 	}
 
 	@Override
-	public void render(DriftwoodRenderState state, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
-		super.render(state, poseStack, bufferSource, packedLight);
+	public void submit(DriftwoodRenderState renderState, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState camera) {
+		super.submit(renderState, poseStack, submitNodeCollector, camera);
 
 		poseStack.pushPose();
 		poseStack.translate(0.0, -0.5, 0.0);
-		poseStack.mulPose(Axis.YP.rotationDegrees(90.0F - state.yRot));
+		poseStack.mulPose(Axis.YP.rotationDegrees(90.0F - renderState.yRot));
 
-		VertexConsumer builder = bufferSource.getBuffer(model.renderType(TEXTURE));
-		model.renderToBuffer(poseStack, builder, packedLight, OverlayTexture.NO_OVERLAY);
+		submitNodeCollector.submitModel(model, renderState, poseStack, model.renderType(TEXTURE), renderState.lightCoords, OverlayTexture.NO_OVERLAY, renderState.outlineColor, null);
 
 		poseStack.popPose();
 	}
-
 	@EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
 	public static final class DriftwoodModel extends EntityModel<EntityRenderState> {
 		public static final ModelLayerLocation LAYER = new ModelLayerLocation(LoveTropics.location("driftwood"), "main");

@@ -1,6 +1,6 @@
 package com.lovetropics.minigames.common.core.game.state;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 
 import javax.annotation.Nullable;
@@ -11,19 +11,19 @@ import java.util.UUID;
 public class ActionMutexState implements IGameState {
 	public static final GameStateKey.Defaulted<ActionMutexState> KEY = GameStateKey.create("Action mutexes", ActionMutexState::new);
 
-	private final Map<ResourceLocation, MutexMap> mutexMaps = new HashMap<>();
+	private final Map<Identifier, MutexMap> mutexMaps = new HashMap<>();
 
-	private MutexMap getMutexMap(ResourceLocation id) {
+	private MutexMap getMutexMap(Identifier id) {
 		return mutexMaps.computeIfAbsent(id, k -> new MutexMap());
 	}
 
 	@Nullable
-	public ActionMutex acquireGlobal(ResourceLocation id, boolean force) {
+	public ActionMutex acquireGlobal(Identifier id, boolean force) {
 		return getMutexMap(id).acquireGlobal(force);
 	}
 
 	@Nullable
-	public ActionMutex acquireForPlayer(ServerPlayer player, ResourceLocation id, boolean force) {
+	public ActionMutex acquireForPlayer(ServerPlayer player, Identifier id, boolean force) {
 		return getMutexMap(id).acquireForPlayer(player, force);
 	}
 

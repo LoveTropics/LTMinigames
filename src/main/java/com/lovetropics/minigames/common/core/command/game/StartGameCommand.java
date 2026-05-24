@@ -24,7 +24,7 @@ public class StartGameCommand {
 
 	public static void register(final CommandDispatcher<CommandSourceStack> dispatcher) {
 		dispatcher.register(literal("game")
-				.then(literal("start").requires(s -> s.hasPermission(Commands.LEVEL_GAMEMASTERS))
+				.then(literal("start").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
 						.executes(StartGameCommand::start)
 						.then(GameConfigArgument.argument("game")
 								.executes(context -> enqueueAndStart(context, GameConfigArgument.get(context, "game")))

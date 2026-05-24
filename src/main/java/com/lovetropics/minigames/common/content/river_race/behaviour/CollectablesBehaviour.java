@@ -40,6 +40,7 @@ import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
@@ -124,7 +125,7 @@ public final class CollectablesBehaviour implements IGameBehavior {
 
 	private TriState tryPlaceCollectable(IGamePhase game, TeamState teams, ServerPlayer player, BlockPos pos, @Nullable RiverRaceState.Zone expectedCollectable, @Nullable RiverRaceState.Zone placedCollectable) {
 		if (placedCollectable == null || !Objects.equals(expectedCollectable, placedCollectable)) {
-			player.playNotifySound(SoundEvents.VILLAGER_NO, SoundSource.PLAYERS, 1.0f, 1.0f);
+			com.lovetropics.minigames.common.util.Util.sendNotifySound(player, SoundEvents.VILLAGER_NO, SoundSource.PLAYERS, 1.0f, 1.0f);
 			player.sendSystemMessage(RiverRaceTexts.CANT_PLACE_COLLECTABLE, true);
 			return TriState.FALSE;
 		}
@@ -160,7 +161,7 @@ public final class CollectablesBehaviour implements IGameBehavior {
 	}
 
 	private ItemStack createItem(RiverRaceState.Zone zone, CollectableConfig collectable) {
-		ItemStack item = collectable.baseItem.copy();
+		ItemStack item = collectable.baseItem.create();
 		item.set(DataComponents.ITEM_NAME, RiverRaceTexts.COLLECTABLE_NAME.apply(zone.displayName()));
 		item.set(RiverRace.COLLECTABLE_MARKER.get(), Unit.INSTANCE);
 		item.applyComponents(itemPatch);
@@ -168,12 +169,12 @@ public final class CollectablesBehaviour implements IGameBehavior {
 	}
 
 	public record CollectableConfig(
-			ItemStack baseItem,
+			ItemStackTemplate baseItem,
 			List<String> monumentSlotRegions,
 			GameActionList onCompleteAction
 	) {
 		public static final Codec<CollectableConfig> CODEC = RecordCodecBuilder.create(i -> i.group(
-				MoreCodecs.ITEM_STACK.fieldOf("item").forGetter(CollectableConfig::baseItem),
+				ItemStackTemplate.CODEC.fieldOf("item").forGetter(CollectableConfig::baseItem),
 				ExtraCodecs.nonEmptyList(Codec.STRING.listOf()).fieldOf("monument_slot_region").forGetter(CollectableConfig::monumentSlotRegions),
 				GameActionList.CODEC.fieldOf("on_complete").forGetter(CollectableConfig::onCompleteAction)
 		).apply(i, CollectableConfig::new));

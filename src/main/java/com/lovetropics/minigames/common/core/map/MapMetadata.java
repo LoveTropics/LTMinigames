@@ -4,11 +4,11 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
-public record MapMetadata(ResourceLocation id, MapWorldSettings settings, MapRegions regions) {
+public record MapMetadata(Identifier id, MapWorldSettings settings, MapRegions regions) {
 	public static final Codec<MapMetadata> CODEC = RecordCodecBuilder.create(i -> i.group(
-			ResourceLocation.CODEC.fieldOf("id").forGetter(MapMetadata::id),
+			Identifier.CODEC.fieldOf("id").forGetter(MapMetadata::id),
 			MapWorldSettings.CODEC.fieldOf("settings").forGetter(MapMetadata::settings),
 			MapRegions.CODEC.fieldOf("regions").forGetter(MapMetadata::regions)
 	).apply(i, MapMetadata::new));

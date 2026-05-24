@@ -13,12 +13,12 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.world.level.Level;
@@ -34,15 +34,15 @@ import java.util.concurrent.CompletableFuture;
 
 public record LoadMapProvider(
 		Optional<String> name,
-		ResourceLocation loadFrom,
+		Identifier loadFrom,
 		Optional<Holder<DimensionType>> dimensionType,
-		Optional<ResourceLocation> dimension
+		Optional<Identifier> dimension
 ) implements IGameMapProvider {
 	public static final MapCodec<LoadMapProvider> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			Codec.STRING.optionalFieldOf("name").forGetter(c -> c.name),
-			ResourceLocation.CODEC.fieldOf("load_from").forGetter(c -> c.loadFrom),
+			Identifier.CODEC.fieldOf("load_from").forGetter(c -> c.loadFrom),
 			DimensionType.CODEC.optionalFieldOf("dimension_type").forGetter(c -> c.dimensionType),
-			ResourceLocation.CODEC.optionalFieldOf("dimension").forGetter(c -> c.dimension)
+			Identifier.CODEC.optionalFieldOf("dimension").forGetter(c -> c.dimension)
 	).apply(i, LoadMapProvider::new));
 
 	private static final Logger LOGGER = LogManager.getLogger(LoadMapProvider.class);
@@ -91,7 +91,7 @@ public record LoadMapProvider(
 	}
 
 	private Pair<RuntimeDimensionHandle, MapMetadata> loadMapInto(MinecraftServer server, MapWorldSettings mapWorldSettings, RuntimeDimensionHandle handle) {
-		ResourceLocation path = loadFrom.withPath(p -> "maps/" + p + ".zip");
+		Identifier path = loadFrom.withPath(p -> "maps/" + p + ".zip");
 
 		Optional<Resource> resource = server.getResourceManager().getResource(path);
 		if (resource.isEmpty()) {
@@ -105,7 +105,7 @@ public record LoadMapProvider(
 				return Pair.of(handle, metadata);
 			}
 		} catch (IOException e) {
-			throw new GameException(Component.literal("Failed to load map from '" + path + "'"), e);
+			throw new GameException(Component.literal("Failed to load map from '" + path + "'" + e.getMessage()), e);
 		}
 	}
 }

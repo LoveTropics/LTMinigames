@@ -22,7 +22,7 @@ public record SelectVendingMachineItemMessage(int entityId, int itemId) implemen
 		if (!(player.level().getEntity(message.entityId) instanceof VendingMachineEntity vendingMachine)) {
 			return;
 		}
-		if (player.canInteractWithEntity(vendingMachine, ServerPlayer.ENTITY_INTERACTION_DISTANCE_VERIFICATION_BUFFER)) {
+		if (player.isWithinEntityInteractionRange(vendingMachine, ServerPlayer.ENTITY_INTERACTION_DISTANCE_VERIFICATION_BUFFER)) {
 			vendingMachine.trySelect(message.itemId);
 		}
 	}

@@ -22,7 +22,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.ChatFormatting;
 import net.minecraft.SharedConstants;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.RegistryCodecs;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -229,7 +229,7 @@ public final class ColumnsOfChaosBehavior implements IGameBehavior {
 		for (ServerPlayer participant : game.participants()) {
 			ItemStack item = getItemToGive(filteredItems, game.level());
 			participant.addItem(item.copy());
-			participant.playNotifySound(SoundEvents.ARROW_HIT_PLAYER, SoundSource.NEUTRAL, 1, 1);
+			com.lovetropics.minigames.common.util.Util.sendNotifySound(participant, SoundEvents.ARROW_HIT_PLAYER, SoundSource.NEUTRAL, 1, 1);
 		}
 		return new Interval(round, game.ticks() + itemInterval);
 	}

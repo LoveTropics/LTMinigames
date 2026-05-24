@@ -4,12 +4,12 @@ import com.lovetropics.lib.codec.CodecRegistry;
 import com.lovetropics.minigames.LoveTropics;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.function.Function;
 
 public final class GameMapProviders {
-	public static final CodecRegistry<ResourceLocation, MapCodec<? extends IGameMapProvider>> REGISTRY = CodecRegistry.resourceLocationKeys();
+	public static final CodecRegistry<Identifier, MapCodec<? extends IGameMapProvider>> REGISTRY = CodecRegistry.resourceLocationKeys();
 
 	public static final Codec<IGameMapProvider> CODEC = REGISTRY.dispatchStable(IGameMapProvider::getCodec, Function.identity());
 

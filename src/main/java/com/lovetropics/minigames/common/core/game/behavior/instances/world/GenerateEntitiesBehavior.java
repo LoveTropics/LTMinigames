@@ -37,7 +37,7 @@ public final class GenerateEntitiesBehavior extends ChunkGeneratingBehavior {
 		int minX = chunkPos.getMinBlockX();
 		int minZ = chunkPos.getMinBlockZ();
 
-		RandomSource random = level.random;
+		RandomSource random = level.getRandom();
 
 		int count = random.nextInt(maxPerChunk - minPerChunk + 1) + minPerChunk;
 		for (int i = 0; i < count; i++) {

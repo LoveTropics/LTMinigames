@@ -11,6 +11,7 @@ import net.minecraft.commands.Commands;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.Permissions;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public record ManageOrCreateLobbyPacket() implements CustomPacketPayload {
@@ -24,7 +25,7 @@ public record ManageOrCreateLobbyPacket() implements CustomPacketPayload {
 		if (!(context.player() instanceof ServerPlayer player)) {
 			return;
 		}
-		if (!player.hasPermissions(Commands.LEVEL_GAMEMASTERS)) {
+		if (!player.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER)) {
 			player.sendSystemMessage(GameTexts.Commands.NO_MANAGE_PERMISSION);
 			return;
 		}

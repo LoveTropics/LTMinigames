@@ -2,7 +2,7 @@ package com.lovetropics.minigames.common.content.escape_race.client.ddr.sound;
 
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DDRMachineEntity;
 import net.minecraft.SharedConstants;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance;
 import net.minecraft.client.resources.sounds.Sound;
 import net.minecraft.client.resources.sounds.SoundInstance;

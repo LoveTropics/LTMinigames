@@ -122,7 +122,7 @@ public class ClientDdrMachine {
 	}
 
 	private boolean shouldPlaySound(DDRMachineEntity entity) {
-		Entity cameraEntity = Minecraft.getInstance().cameraEntity;
+		Entity cameraEntity = Minecraft.getInstance().getCameraEntity();
 		if (cameraEntity == null) {
 			return false;
 		}

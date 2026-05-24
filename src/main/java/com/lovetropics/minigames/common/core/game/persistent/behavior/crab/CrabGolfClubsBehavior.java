@@ -11,6 +11,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,21 +21,21 @@ import java.util.function.Supplier;
 
 public class CrabGolfClubsBehavior implements PersistentGameBehavior {
 	public static final MapCodec<CrabGolfClubsBehavior> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-	        ItemStack.CODEC.listOf().fieldOf("clubs").forGetter(b -> b.stacks)
+	        ItemStackTemplate.CODEC.listOf().fieldOf("clubs").forGetter(b -> b.stacks)
 	).apply(instance, CrabGolfClubsBehavior::new));
 
-	private final List<ItemStack> stacks;
+	private final List<ItemStackTemplate> stacks;
 	private final Map<ServerPlayer, List<ItemStack>> added = new HashMap<>();
 
-	public CrabGolfClubsBehavior(List<ItemStack> stacks) {
+	public CrabGolfClubsBehavior(List<ItemStackTemplate> stacks) {
 		this.stacks = stacks;
 	}
 
 	@Override
 	public void register(PersistentGame game, EventRegistrar events) {
 		events.listen(CrabGolfEvents.START_GAME, (hole, player) -> {
-			for (ItemStack stack : stacks) {
-				ItemStack copy = stack.copy();
+			for (ItemStackTemplate stack : stacks) {
+				ItemStack copy = stack.create();
 				player.getInventory().add(copy.copy());
 				added.computeIfAbsent(player, k -> new ArrayList<>()).add(copy);
 			}

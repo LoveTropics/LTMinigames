@@ -89,7 +89,7 @@ public final class BbAssignPlotsBehavior implements IGameBehavior {
 	private void trySpawnParticipant(IGamePhase game, ServerPlayer player) {
 		GameTeamKey team = teams.getTeamForPlayer(player);
 		if (team == null) {
-			LOGGER.warn("{} joined as participant but without a team, setting as spectator", player.getGameProfile().getName());
+			LOGGER.warn("{} joined as participant but without a team, setting as spectator", player.getGameProfile().name());
 			game.setPlayerRole(player, PlayerRole.SPECTATOR);
 			return;
 		}

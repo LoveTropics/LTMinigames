@@ -6,15 +6,15 @@ import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Holder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 
-public record ClearAttributeModifierAction(Holder<Attribute> attribute, ResourceLocation id) implements IGameBehavior {
+public record ClearAttributeModifierAction(Holder<Attribute> attribute, Identifier id) implements IGameBehavior {
 	public static final MapCodec<ClearAttributeModifierAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			Attribute.CODEC.fieldOf("attribute").forGetter(ClearAttributeModifierAction::attribute),
-			ResourceLocation.CODEC.fieldOf("id").forGetter(ClearAttributeModifierAction::id)
+			Identifier.CODEC.fieldOf("id").forGetter(ClearAttributeModifierAction::id)
 	).apply(i, ClearAttributeModifierAction::new));
 
 	@Override

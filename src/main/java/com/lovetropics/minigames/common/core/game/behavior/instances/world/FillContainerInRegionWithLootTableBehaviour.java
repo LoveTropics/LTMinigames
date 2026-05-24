@@ -40,12 +40,12 @@ public record FillContainerInRegionWithLootTableBehaviour(
 			pendingChunks.addAll(box.asChunks());
 		});
 		pendingChunks.forEach(chunkKey ->
-				game.level().getChunkSource().updateChunkForced(new ChunkPos(chunkKey), true)
+				game.level().getChunkSource().updateChunkForced(ChunkPos.unpack(chunkKey), true)
 		);
 
 		events.listen(GameWorldEvents.CHUNK_LOAD, chunk -> {
 			ChunkPos chunkPos = chunk.getPos();
-			if (pendingChunks.remove(chunkPos.toLong()) && pendingChunks.isEmpty()) {
+			if (pendingChunks.remove(chunkPos.pack()) && pendingChunks.isEmpty()) {
 				onRegionFullyLoaded(game, containerRegions);
 			}
 		});
@@ -60,7 +60,7 @@ public record FillContainerInRegionWithLootTableBehaviour(
 				for (BlockPos pos : levelChunk.getBlockEntitiesPos()) {
 					if(containerRegion.contains(pos)) {
 						if (levelChunk.getBlockEntity(pos) instanceof RandomizableContainer container) {
-							container.setLootTable(lootTable, game.level().random.nextLong());
+							container.setLootTable(lootTable, game.level().getRandom().nextLong());
 						}
 					}
 				}

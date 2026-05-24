@@ -5,8 +5,8 @@ import com.lovetropics.minigames.common.content.escape_race.client.ddr.DdrPlayer
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DDRMachineEntity;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.model.PlayerCapeModel;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.player.PlayerCapeModel;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import net.minecraft.util.Mth;
@@ -81,7 +81,7 @@ public class DDRMachinePlayerHelper {
 		leftLeg.xRot += -58.31f * Mth.DEG_TO_RAD * remapLegAnimation(rightAndNotLeft * forward);
 
 		// Rotate the clip is it does not clip into the player model when leaning back
-		if (humanoidModel instanceof PlayerCapeModel<?> capeModel) {
+		if (humanoidModel instanceof PlayerCapeModel capeModel) {
 			if (capeModel.body.hasChild("cape")) {
 				capeModel.body.getChild("cape").xRot -= 0.5f * back;
 			}

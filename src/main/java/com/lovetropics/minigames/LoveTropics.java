@@ -105,7 +105,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.world.entity.EntitySpawnReason;
@@ -144,7 +144,7 @@ public class LoveTropics {
 
 	public static final String ID = "ltminigames";
 
-	private static final ResourceLocation TAB_ID = LoveTropics.location("ltminigames");
+	private static final Identifier TAB_ID = LoveTropics.location("ltminigames");
 	public static final ResourceKey<CreativeModeTab> TAB_KEY = ResourceKey.create(Registries.CREATIVE_MODE_TAB, TAB_ID);
 
 	private static final Supplier<LoveTropicsRegistrate> REGISTRATE = Suppliers.memoize(() -> {
@@ -260,7 +260,7 @@ public class LoveTropics {
 			VendingMachineEntityRenderer.registerOverlays(event);
 		});
 
-		if (!FMLEnvironment.production) {
+		if (!FMLEnvironment.isProduction()) {
 			loadDevPacks(modBus);
 		}
 	}
@@ -296,8 +296,8 @@ public class LoveTropics {
 		return REGISTRATE.get();
 	}
 
-	public static ResourceLocation location(String location) {
-		return ResourceLocation.fromNamespaceAndPath(ID, location);
+	public static Identifier location(String location) {
+		return Identifier.fromNamespaceAndPath(ID, location);
 	}
 
 	private void registerCommands(RegisterCommandsEvent event) {

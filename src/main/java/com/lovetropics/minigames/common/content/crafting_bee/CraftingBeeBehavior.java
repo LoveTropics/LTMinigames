@@ -39,7 +39,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -244,7 +244,7 @@ public class CraftingBeeBehavior implements IGameBehavior {
 
 		for (CraftingTask task : tasks) {
 			var ingredients = task.recipe.value().placementInfo().ingredients();
-			var items = ingredients.stream().flatMap(this::singleDecomposition).collect(net.minecraft.Util.toMutableList());
+			var items = ingredients.stream().flatMap(this::singleDecomposition).collect(net.minecraft.util.Util.toMutableList());
 			Collections.shuffle(items);
 
 			// Evenly distribute the items between the players
@@ -274,7 +274,7 @@ public class CraftingBeeBehavior implements IGameBehavior {
 		// We have reduced the ingredient to its most basic form, so now we just pick the first item of the ingredient
 		for (Holder<Item> item : ingredient.getValues()) {
 			// Prioritize vanilla items
-			if (item.unwrapKey().filter(k -> k.location().getNamespace().equals(ResourceLocation.DEFAULT_NAMESPACE)).isPresent()) {
+			if (item.unwrapKey().filter(k -> k.identifier().getNamespace().equals(Identifier.DEFAULT_NAMESPACE)).isPresent()) {
 				return Stream.of(new ItemStack(item));
 			}
 		}
@@ -291,7 +291,7 @@ public class CraftingBeeBehavior implements IGameBehavior {
 				.filter(stack -> !stack.isEmpty())
 				.map(stack -> stack.copyWithCount(1))
 				// .peek(s -> s.remove(CraftingBee.CRAFTED_USING)) // TODO - should we keep this?
-				.sorted(Comparator.comparing(s -> s.getItemHolder().getRegisteredName()))
+				.sorted(Comparator.comparing(s -> s.typeHolder().getRegisteredName()))
 				.toList());
 		result.set(CraftingBee.CRAFTED_USING, new CraftedUsing(
 				result.getCount(),
@@ -436,20 +436,20 @@ public class CraftingBeeBehavior implements IGameBehavior {
 		CraftedUsing craftedUsing = itemToRecycle.get(CraftingBee.CRAFTED_USING);
 		if (craftedUsing == null) {
 			player.sendSystemMessage(CraftingBeeTexts.CANNOT_RECYCLE, true);
-			player.playNotifySound(SoundEvents.AXE_SCRAPE, SoundSource.BLOCKS, 1.0f, 1.0f);
+			com.lovetropics.minigames.common.util.Util.sendNotifySound(player, SoundEvents.AXE_SCRAPE, SoundSource.BLOCKS, 1.0f, 1.0f);
 			return InteractionResult.FAIL;
 		}
 		if (itemToRecycle.getCount() < craftedUsing.count()) {
 			player.sendSystemMessage(CraftingBeeTexts.NOT_ENOUGH_TO_RECYCLE.apply(craftedUsing.count(), itemToRecycle.getHoverName()), true);
-			player.playNotifySound(SoundEvents.AXE_SCRAPE, SoundSource.BLOCKS, 1.0f, 1.0f);
+			com.lovetropics.minigames.common.util.Util.sendNotifySound(player, SoundEvents.AXE_SCRAPE, SoundSource.BLOCKS, 1.0f, 1.0f);
 			return InteractionResult.FAIL;
 		}
 
 		itemToRecycle.shrink(craftedUsing.count());
-		craftedUsing.items().stream().forEach(player::addItem);
+		craftedUsing.items().nonEmptyItemCopyStream().forEach(player::addItem);
 
 		applyTimePenalty(player, recyclingPenalty);
-		player.playNotifySound(SoundEvents.UI_STONECUTTER_TAKE_RESULT, SoundSource.BLOCKS, 1.0f, 1.0f);
+		com.lovetropics.minigames.common.util.Util.sendNotifySound(player, SoundEvents.UI_STONECUTTER_TAKE_RESULT, SoundSource.BLOCKS, 1.0f, 1.0f);
 
 		return InteractionResult.SUCCESS;
 	}

@@ -6,11 +6,11 @@ import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorType;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.state.GameStateMap;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.function.Supplier;
 
-public record DirectBehavior(ResourceLocation key, IGameBehavior delegate) implements IGameBehavior {
+public record DirectBehavior(Identifier key, IGameBehavior delegate) implements IGameBehavior {
 	@Override
 	public Supplier<? extends GameBehaviorType<?>> behaviorType() {
 		return delegate.behaviorType();

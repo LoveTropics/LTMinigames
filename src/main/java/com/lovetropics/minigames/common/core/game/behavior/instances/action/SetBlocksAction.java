@@ -12,7 +12,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.longs.LongIterator;
 import it.unimi.dsi.fastutil.longs.LongSet;
-import net.minecraft.advancements.critereon.BlockPredicate;
+import net.minecraft.advancements.criterion.BlockPredicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
@@ -81,7 +81,7 @@ public final class SetBlocksAction implements IGameBehavior {
 		ServerLevel world = game.level();
 		BlockPredicate replace = this.replace;
 		BlockStateProvider set = this.set;
-		RandomSource random = world.random;
+		RandomSource random = world.getRandom();
 
 		loadRegionChunks(region, world);
 
@@ -93,7 +93,7 @@ public final class SetBlocksAction implements IGameBehavior {
 
 		for (BlockPos pos : region) {
 			if (replace == null || replace.matches(world, pos)) {
-				BlockState state = set.getState(random, pos);
+				BlockState state = set.getState(world, random, pos);
 				world.setBlock(pos, state, flags);
 				blockEntityData.ifPresent(tag -> {
 					if (world.getBlockEntity(pos) instanceof BlockEntity be) {

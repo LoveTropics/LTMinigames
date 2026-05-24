@@ -8,6 +8,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.ParticleArgument;
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.core.particles.ParticleOptions;
@@ -22,7 +23,7 @@ public final class ParticleLineCommand {
 	public static void register(CommandBuildContext context, CommandDispatcher<CommandSourceStack> dispatcher) {
 		// @formatter:off
 		dispatcher.register(
-			literal("drawline").requires(source -> source.hasPermission(2))
+			literal("drawline").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
 				.then(argument("particle", ParticleArgument.particle(context))
 				.then(argument("from", Vec3Argument.vec3())
 				.then(argument("to", Vec3Argument.vec3())

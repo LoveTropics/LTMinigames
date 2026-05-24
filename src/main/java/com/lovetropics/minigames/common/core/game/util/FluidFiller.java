@@ -19,7 +19,7 @@ import net.minecraft.core.SectionPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -59,8 +59,8 @@ public class FluidFiller {
 
 	public FluidFiller(BlockBox region, Type fillType, int baseFluidLevel) {
 		this.region = region;
-		minChunk = new ChunkPos(region.min());
-		maxChunk = new ChunkPos(region.max());
+		minChunk = ChunkPos.containing(region.min());
+		maxChunk = ChunkPos.containing(region.max());
 		this.fillType = fillType;
 		fluidLevel = baseFluidLevel;
 		fluidLevelByChunk.defaultReturnValue(baseFluidLevel);
@@ -133,15 +133,15 @@ public class FluidFiller {
 				getChunkDistanceSq(game, ChunkPos.getX(pos2), ChunkPos.getZ(pos2))
 		);
 
-		int sizeX = maxChunk.x - minChunk.x + 1;
-		int sizeZ = maxChunk.z - minChunk.z + 1;
+		int sizeX = maxChunk.x() - minChunk.x() + 1;
+		int sizeZ = maxChunk.z() - minChunk.z() + 1;
 
 		long[] chunks = new long[sizeX * sizeZ];
 
 		int i = 0;
-		for (int z = minChunk.z; z <= maxChunk.z; z++) {
-			for (int x = minChunk.x; x <= maxChunk.x; x++) {
-				chunks[i++] = ChunkPos.asLong(x, z);
+		for (int z = minChunk.z(); z <= maxChunk.z(); z++) {
+			for (int x = minChunk.x(); x <= maxChunk.x(); x++) {
+				chunks[i++] = ChunkPos.pack(x, z);
 			}
 		}
 
@@ -169,7 +169,7 @@ public class FluidFiller {
 		ChunkPos chunkPos = chunk.getPos();
 
 		int targetLevel = fluidLevel;
-		int lastLevel = fluidLevelByChunk.put(chunkPos.toLong(), targetLevel);
+		int lastLevel = fluidLevelByChunk.put(chunkPos.pack(), targetLevel);
 
 		if (targetLevel > lastLevel) {
 			BlockPos min = region.min();
@@ -232,8 +232,8 @@ public class FluidFiller {
 
 			// Don't actually trigger light updates, but make sure the light engine has the information it needs if a block update does happen
 			if (section.hasOnlyAir()) {
-				lightEngine.updateSectionStatus(SectionPos.of(chunkPos.x, sectionY, chunkPos.z), false);
-				level.getChunkSource().onSectionEmptinessChanged(chunkPos.x, sectionY, chunkPos.z, false);
+				lightEngine.updateSectionStatus(SectionPos.of(chunkPos.x(), sectionY, chunkPos.z()), false);
+				level.getChunkSource().onSectionEmptinessChanged(chunkPos.x(), sectionY, chunkPos.z(), false);
 			}
 
 			boolean changed = false;
@@ -264,12 +264,12 @@ public class FluidFiller {
 				changed = true;
 			}
 
-			if (changed && level.isClientSide) {
-				markSectionForRerender(chunkPos.x, sectionY, chunkPos.z);
+			if (changed && level.isClientSide()) {
+				markSectionForRerender(chunkPos.x(), sectionY, chunkPos.z());
 			}
 		}
 
-		if (updatedBlocks > 0 && !level.isClientSide) {
+		if (updatedBlocks > 0 && !level.isClientSide()) {
 			// Make sure this chunk gets saved
 			chunk.markUnsaved();
 		}
@@ -296,8 +296,8 @@ public class FluidFiller {
 
 	public record WaterRule() implements Rule {
 		private static final BlockState WATER = Blocks.WATER.defaultBlockState();
-		private static final DeferredHolder<Block, Block> WATER_BARRIER = DeferredHolder.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath("ltextras", "water_barrier"));
-		private static final DeferredHolder<Block, Block> SAND_LAYER = DeferredHolder.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath("weather2", "sand_layer"));
+		private static final DeferredHolder<Block, Block> WATER_BARRIER = DeferredHolder.create(Registries.BLOCK, Identifier.fromNamespaceAndPath("ltextras", "water_barrier"));
+		private static final DeferredHolder<Block, Block> SAND_LAYER = DeferredHolder.create(Registries.BLOCK, Identifier.fromNamespaceAndPath("weather2", "sand_layer"));
 
 		@Override
 		public BlockState apply(BlockState state, int y, int fromLevel) {

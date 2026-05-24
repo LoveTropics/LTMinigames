@@ -159,7 +159,7 @@ public final class TeamsBehavior implements IGameBehavior {
 		Component teamName = team.config().name().copy()
 				.withStyle(ChatFormatting.BOLD, team.config().formatting());
 
-		player.displayClientMessage(MinigameTexts.ON_TEAM.apply(teamName), false);
+		player.sendSystemMessage(MinigameTexts.ON_TEAM.apply(teamName), false);
 	}
 
 	private void removePlayerFromTeams(IGamePhase game, ServerPlayer player) {

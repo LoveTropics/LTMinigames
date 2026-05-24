@@ -64,7 +64,7 @@ public final class WorkspacePositionTracker {
 			return;
 		}
 
-		MinecraftServer server = player.getServer();
+		MinecraftServer server = player.level().getServer();
 
 		ResourceKey<Level> from = player.level().dimension();
 
@@ -110,7 +110,7 @@ public final class WorkspacePositionTracker {
 		}
 
 		public void applyTo(ServerPlayer entity) {
-			ServerLevel level = entity.getServer().getLevel(dimension);
+			ServerLevel level = entity.level().getServer().getLevel(dimension);
 			entity.teleportTo(level, pos.x, pos.y, pos.z, Set.of(), yaw, pitch, false);
 		}
 

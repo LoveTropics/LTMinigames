@@ -8,7 +8,7 @@ import com.mojang.blaze3d.platform.Window;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.CommonColors;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
@@ -22,7 +22,7 @@ public final class GameSidebarRenderer {
 	private static final int MARGIN = 1;
 
 	public static void registerOverlays(RegisterGuiLayersEvent event) {
-		event.registerBelow(VanillaGuiLayers.DEBUG_OVERLAY, LoveTropics.location("minigame_sidebar"), (graphics, deltaTracker) -> {
+		event.registerBelow(VanillaGuiLayers.CONTEXTUAL_INFO_BAR_BACKGROUND, LoveTropics.location("minigame_sidebar"), (graphics, deltaTracker) -> {
 			if (Minecraft.getInstance().options.hideGui) {
 				return;
 			}
@@ -33,7 +33,7 @@ public final class GameSidebarRenderer {
 		});
 	}
 
-	private static void renderSidebar(GuiGraphics graphics, SidebarClientState sidebar) {
+	private static void renderSidebar(GuiGraphicsExtractor graphics, SidebarClientState sidebar) {
 		Component title = sidebar.title();
 		List<Component> lines = sidebar.lines();
 
@@ -60,11 +60,11 @@ public final class GameSidebarRenderer {
 		graphics.fill(left, headerBottom, right, bottom, options.getBackgroundColor(0.3f));
 
 		int textLeft = left + PADDING;
-		graphics.drawString(font, title, textLeft, top + PADDING, CommonColors.WHITE);
+		graphics.text(font, title, textLeft, top + PADDING, CommonColors.WHITE);
 
 		int y = headerBottom + 1;
 		for (Component line : lines) {
-			graphics.drawString(font, line, textLeft, y, CommonColors.WHITE);
+			graphics.text(font, line, textLeft, y, CommonColors.WHITE);
 			y += font.lineHeight;
 		}
 	}

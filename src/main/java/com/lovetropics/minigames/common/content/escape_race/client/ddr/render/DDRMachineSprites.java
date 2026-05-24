@@ -3,7 +3,7 @@ package com.lovetropics.minigames.common.content.escape_race.client.ddr.render;
 import com.lovetropics.minigames.LoveTropics;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -26,19 +26,19 @@ public record DDRMachineSprites(
 	@Nullable
 	private static DDRMachineSprites instance;
 
-	private static final ResourceLocation SCREEN_DOWN = LoveTropics.location("ddr/down_normal");
-	private static final ResourceLocation SCREEN_DOWN_FILLED = LoveTropics.location("ddr/down_filled");
-	private static final ResourceLocation SCREEN_UP = LoveTropics.location("ddr/up_normal");
-	private static final ResourceLocation SCREEN_UP_FILLED = LoveTropics.location("ddr/up_filled");
-	private static final ResourceLocation SCREEN_LEFT = LoveTropics.location("ddr/left_normal");
-	private static final ResourceLocation SCREEN_LEFT_FILLED = LoveTropics.location("ddr/left_filled");
-	private static final ResourceLocation SCREEN_RIGHT = LoveTropics.location("ddr/right_normal");
-	private static final ResourceLocation SCREEN_RIGHT_FILLED = LoveTropics.location("ddr/right_filled");
+	private static final Identifier SCREEN_DOWN = LoveTropics.location("ddr/down_normal");
+	private static final Identifier SCREEN_DOWN_FILLED = LoveTropics.location("ddr/down_filled");
+	private static final Identifier SCREEN_UP = LoveTropics.location("ddr/up_normal");
+	private static final Identifier SCREEN_UP_FILLED = LoveTropics.location("ddr/up_filled");
+	private static final Identifier SCREEN_LEFT = LoveTropics.location("ddr/left_normal");
+	private static final Identifier SCREEN_LEFT_FILLED = LoveTropics.location("ddr/left_filled");
+	private static final Identifier SCREEN_RIGHT = LoveTropics.location("ddr/right_normal");
+	private static final Identifier SCREEN_RIGHT_FILLED = LoveTropics.location("ddr/right_filled");
 
 	@SubscribeEvent
 	public static void onTextureStitched(TextureAtlasStitchedEvent event) {
 		TextureAtlas atlas = event.getAtlas();
-		if (!atlas.location().equals(ResourceLocation.withDefaultNamespace("textures/atlas/gui.png"))) {
+		if (!atlas.location().equals(Identifier.withDefaultNamespace("textures/atlas/gui.png"))) {
 			return;
 		}
 		instance = new DDRMachineSprites(

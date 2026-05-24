@@ -146,7 +146,7 @@ public class ConnectFourBehavior implements IGameBehavior {
 		PlacedPiece[] column = pieces[x];
 		if (column[column.length - 1] != null) {
 			// Column already filled
-			player.playNotifySound(SoundEvents.VILLAGER_NO, SoundSource.BLOCKS, 1.0f, 1.0f);
+			com.lovetropics.minigames.common.util.Util.sendNotifySound(player, SoundEvents.VILLAGER_NO, SoundSource.BLOCKS, 1.0f, 1.0f);
 			return TriState.FALSE;
 		}
 
@@ -256,7 +256,7 @@ public class ConnectFourBehavior implements IGameBehavior {
 
 		player.setGlowingTag(true);
 		PlayerSet.of(player).showTitle(ConnectFourTexts.IT_IS_YOUR_TURN_TITLE, ConnectFourTexts.IT_IS_YOUR_TURN_SUBTITLE, 10, 40, 10);
-		player.playNotifySound(SoundEvents.ANVIL_LAND, SoundSource.PLAYERS, 1.0f, 1.0f);
+		com.lovetropics.minigames.common.util.Util.sendNotifySound(player, SoundEvents.ANVIL_LAND, SoundSource.PLAYERS, 1.0f, 1.0f);
 	}
 
 	@Nullable

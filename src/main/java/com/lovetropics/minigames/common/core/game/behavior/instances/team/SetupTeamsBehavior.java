@@ -90,7 +90,7 @@ public final class SetupTeamsBehavior implements IGameBehavior {
 	private void onPlayerWaiting(ServerPlayer player) {
 		if (teamState.getPollingTeams().size() > 1) {
 			for (Component message : MinigameTexts.TEAMS_INTRO) {
-				player.displayClientMessage(message, false);
+				player.sendSystemMessage(message, false);
 			}
 			selectors.giveSelectorsTo(player);
 		}
@@ -100,6 +100,6 @@ public final class SetupTeamsBehavior implements IGameBehavior {
 		teamState.setPlayerPreference(player.getUUID(), team.key());
 
 		Component teamName = team.config().name().copy().withStyle(team.config().formatting(), ChatFormatting.BOLD);
-		player.displayClientMessage(MinigameTexts.JOINED_TEAM.apply(teamName), false);
+		player.sendSystemMessage(MinigameTexts.JOINED_TEAM.apply(teamName), false);
 	}
 }

@@ -27,7 +27,7 @@ public final class BrambleBlock extends BushBlock {
 	}
 
 	@Override
-	protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity, InsideBlockEffectApplier effectApplier) {
+	protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity, InsideBlockEffectApplier effectApplier, boolean isPrecis) {
 		if (!(entity instanceof LivingEntity) || entity.getType() == EntityType.PLAYER) {
 			return;
 		}
@@ -42,6 +42,6 @@ public final class BrambleBlock extends BushBlock {
 
 	@Override
 	public PathType getBlockPathType(BlockState state, BlockGetter level, BlockPos pos, @Nullable Mob mob) {
-		return PathType.DANGER_OTHER;
+		return PathType.DAMAGING_IN_NEIGHBOR;
 	}
 }

@@ -17,6 +17,9 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.LevelBasedPermissionSet;
+import net.minecraft.server.permissions.PermissionLevel;
+import net.minecraft.server.permissions.Permissions;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.util.context.ContextMap;
@@ -85,7 +88,7 @@ public record CustomCommandBehavior(
 		}
 
 		public boolean hasPermission(IGamePhase game, CommandSourceStack source) {
-			if (source.hasPermission(Commands.LEVEL_GAMEMASTERS)) {
+			if (source.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER)) {
 				return true;
 			}
 			ServerPlayer player = source.getPlayer();

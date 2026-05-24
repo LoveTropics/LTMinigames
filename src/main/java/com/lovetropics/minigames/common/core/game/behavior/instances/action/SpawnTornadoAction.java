@@ -25,7 +25,7 @@ public record SpawnTornadoAction(boolean sharknado) implements IGameBehavior {
 
 		InterModComms.sendTo("weather2", sharknado ? "sharknado" : "tornado", () -> {
 			CompoundTag tag = new CompoundTag();
-			tag.putString("dimension", game.level().dimension().location().toString());
+			tag.putString("dimension", game.level().dimension().identifier().toString());
 			return tag;
 		});
 

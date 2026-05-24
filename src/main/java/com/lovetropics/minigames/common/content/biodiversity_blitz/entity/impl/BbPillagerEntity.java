@@ -22,7 +22,7 @@ import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.RangedCrossbowAttackGoal;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
-import net.minecraft.world.entity.monster.Pillager;
+import net.minecraft.world.entity.monster.illager.Pillager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.raid.Raider;
 import net.minecraft.world.item.ItemStack;
@@ -43,7 +43,7 @@ public class BbPillagerEntity extends Pillager implements BbMobEntity {
 		mobBrain = new BbMobBrain(plot.walls);
 		this.plot = plot;
 
-		setPathfindingMalus(PathType.DANGER_OTHER, BERRY_BUSH_MALUS);
+		setPathfindingMalus(PathType.DAMAGING_IN_NEIGHBOR, BERRY_BUSH_MALUS);
 	}
 
 	@Override

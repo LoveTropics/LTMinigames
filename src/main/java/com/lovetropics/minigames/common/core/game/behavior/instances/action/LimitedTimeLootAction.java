@@ -71,9 +71,9 @@ public record LimitedTimeLootAction(
 					.withParameter(LootContextParams.BLOCK_STATE, blockState)
 					.create(LootContextParamSets.BLOCK);
 			for (ItemStack item : lootTable.getRandomItems(params)) {
-				double x = pos.getX() + 0.5 + Mth.nextDouble(level.random, -0.25, 0.25);
-				double y = pos.getY() + 0.5 + Mth.nextDouble(level.random, -0.25, 0.25) - EntityType.ITEM.getHeight() / 2.0;
-				double z = pos.getZ() + 0.5 + Mth.nextDouble(level.random, -0.25, 0.25);
+				double x = pos.getX() + 0.5 + Mth.nextDouble(level.getRandom(), -0.25, 0.25);
+				double y = pos.getY() + 0.5 + Mth.nextDouble(level.getRandom(), -0.25, 0.25) - EntityType.ITEM.getHeight() / 2.0;
+				double z = pos.getZ() + 0.5 + Mth.nextDouble(level.getRandom(), -0.25, 0.25);
 				ItemEntity entity = new ItemEntity(level, x, y, z, item);
 				entity.setDefaultPickUpDelay();
 				drops.add(entity);

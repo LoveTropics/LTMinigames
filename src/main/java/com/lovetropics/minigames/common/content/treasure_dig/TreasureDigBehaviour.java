@@ -55,7 +55,7 @@ public record TreasureDigBehaviour(
 				if (levelChunk.getBlockEntity(pos) instanceof ChestBlockEntity blockEntity) {
 					ResourceKey<LootTable> lootTable = lootTables().get(blockEntity.getBlockState().getBlock());
 					if (lootTable != null) {
-						blockEntity.setLootTable(lootTable, level.random.nextLong());
+						blockEntity.setLootTable(lootTable, level.getRandom().nextLong());
 					}
 				}
 			}
@@ -73,7 +73,7 @@ public record TreasureDigBehaviour(
 				return;
 			}
 			game.statistics().forPlayer(player).set(StatisticKey.POINTS, newPlayerScore);
-			player.playNotifySound(SoundEvents.ARROW_HIT_PLAYER, SoundSource.PLAYERS, 1.0f, 1.0f);
+			com.lovetropics.minigames.common.util.Util.sendNotifySound(player, SoundEvents.ARROW_HIT_PLAYER, SoundSource.PLAYERS, 1.0f, 1.0f);
 
 			game.statistics().forTeam(team).set(StatisticKey.POINTS, sumTeamScore(game, teams, team));
 		});
@@ -93,7 +93,7 @@ public record TreasureDigBehaviour(
 			if (itemStack.isEmpty()) {
 				continue;
 			}
-			score += pointsMap().getOrDefault(itemStack.getItemHolder(), 0) * itemStack.getCount();
+			score += pointsMap().getOrDefault(itemStack.typeHolder(), 0) * itemStack.getCount();
 		}
 		return score;
 	}

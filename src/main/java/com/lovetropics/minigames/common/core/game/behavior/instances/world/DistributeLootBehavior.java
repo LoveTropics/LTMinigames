@@ -12,13 +12,14 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -31,13 +32,13 @@ import java.util.List;
 public record DistributeLootBehavior(
 		String region,
 		BlockEntityType<?> blockEntityType,
-		ItemStack item,
+		ItemStackTemplate item,
 		int count
 ) implements IGameBehavior {
 	public static final MapCodec<DistributeLootBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			Codec.STRING.fieldOf("region").forGetter(DistributeLootBehavior::region),
 			BuiltInRegistries.BLOCK_ENTITY_TYPE.byNameCodec().fieldOf("block_entity_type").forGetter(DistributeLootBehavior::blockEntityType),
-			MoreCodecs.ITEM_STACK.fieldOf("item").forGetter(DistributeLootBehavior::item),
+			ItemStackTemplate.CODEC.fieldOf("item").forGetter(DistributeLootBehavior::item),
 			ExtraCodecs.POSITIVE_INT.fieldOf("count").forGetter(DistributeLootBehavior::count)
 	).apply(i, DistributeLootBehavior::new));
 
@@ -50,12 +51,12 @@ public record DistributeLootBehavior(
 			pendingChunks.addAll(box.asChunks());
 		});
 		pendingChunks.forEach(chunkKey ->
-				game.level().getChunkSource().updateChunkForced(new ChunkPos(chunkKey), true)
+				game.level().getChunkSource().updateChunkForced(ChunkPos.unpack(chunkKey), true)
 		);
 
 		events.listen(GameWorldEvents.CHUNK_LOAD, chunk -> {
 			ChunkPos chunkPos = chunk.getPos();
-			if (pendingChunks.remove(chunkPos.toLong()) && pendingChunks.isEmpty()) {
+			if (pendingChunks.remove(chunkPos.pack()) && pendingChunks.isEmpty()) {
 				onRegionFullyLoaded(game, region);
 			}
 		});
@@ -93,7 +94,7 @@ public record DistributeLootBehavior(
 		}
 
 		for (int i = 0; i < containers.size(); i++) {
-			containers.get(i).setItem(0, item.copyWithCount(countPerContainer[i]));
+			containers.get(i).setItem(0, item.create().copyWithCount(countPerContainer[i]));
 		}
 	}
 }

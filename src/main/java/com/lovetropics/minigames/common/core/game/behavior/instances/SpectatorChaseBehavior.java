@@ -18,7 +18,10 @@ import com.lovetropics.minigames.common.core.game.player.PlayerSet;
 import com.lovetropics.minigames.common.role.StreamHosts;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Util;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.scores.Team;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -30,12 +33,12 @@ import java.util.UUID;
 public final class SpectatorChaseBehavior implements IGameBehavior {
 	public static final MapCodec<SpectatorChaseBehavior> CODEC = MapCodec.unit(SpectatorChaseBehavior::new);
 
-	private static final NotificationStyle SPECTATING_NOTIFICATION_STYLE = new NotificationStyle(
-			NotificationIcon.item(new ItemStack(Items.ENDER_EYE)),
+	private static final NotificationStyle SPECTATING_NOTIFICATION_STYLE = Util.make(() -> new NotificationStyle(
+			NotificationIcon.item(new ItemStackTemplate(Items.ENDER_EYE)),
 			NotificationStyle.Sentiment.NEUTRAL,
 			NotificationStyle.Color.LIGHT,
 			10 * 1000
-	);
+	));
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {

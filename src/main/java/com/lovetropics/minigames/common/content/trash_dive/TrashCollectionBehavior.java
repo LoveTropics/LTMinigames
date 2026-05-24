@@ -79,7 +79,7 @@ public final class TrashCollectionBehavior implements IGameBehavior {
 		}
 
 		world.removeBlock(pos, false);
-		player.playNotifySound(SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 1.0F, 1.0F);
+		com.lovetropics.minigames.common.util.Util.sendNotifySound(player, SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 1.0F, 1.0F);
 
 		GameStatistics statistics = game.statistics();
 		statistics.forPlayer(player)

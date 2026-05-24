@@ -32,7 +32,7 @@ import com.mojang.logging.LogUtils;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -118,7 +118,7 @@ public class GamePhase implements IGamePhase {
 		behavior.register(this, events);
 		invoker(GamePhaseEvents.CREATE).create();
 
-		ResourceLocation introSlideshow = definition().introSlideshow();
+		Identifier introSlideshow = definition().introSlideshow();
 		if (introSlideshow != null) {
 			events.listen(GamePlayerEvents.JOIN, player ->
 					SlideshowApi.preload(player, introSlideshow)

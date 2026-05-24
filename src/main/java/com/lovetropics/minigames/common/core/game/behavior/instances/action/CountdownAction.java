@@ -74,8 +74,8 @@ public final class CountdownAction<T> implements IGameBehavior {
 		if (remainingTicks % SharedConstants.TICKS_PER_SECOND == 0) {
 			long remainingSeconds = remainingTicks / SharedConstants.TICKS_PER_SECOND;
 			MutableComponent timeText = Component.literal(String.valueOf(remainingSeconds)).withStyle(ChatFormatting.GOLD);
-			player.displayClientMessage(warning.apply(Map.of("time", timeText)), true);
-			player.playNotifySound(SoundEvents.ARROW_HIT_PLAYER, SoundSource.MASTER, 0.8F, 1.0F);
+			player.sendSystemMessage(warning.apply(Map.of("time", timeText)), true);
+			player.playSound(SoundEvents.ARROW_HIT_PLAYER, 0.8F, 1.0F);
 		}
 	}
 

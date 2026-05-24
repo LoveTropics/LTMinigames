@@ -22,6 +22,7 @@ import net.minecraft.util.TriState;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.WritableBookContent;
 
@@ -34,13 +35,13 @@ public record SpawnDonorsInRegionBehavior(
 	List<String> regions,
 	Optional<List<DonationScale>> scales,
 	// Todo clean this up I needed something quick :cry:
-	Optional<List<ItemStack>> donorBootItems
+	Optional<List<ItemStackTemplate>> donorBootItems
 ) implements IGameBehavior {
 
 	public static final MapCodec<SpawnDonorsInRegionBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			Codec.STRING.listOf().fieldOf("regions").forGetter(SpawnDonorsInRegionBehavior::regions),
 			DonationScale.LIST_CODEC.optionalFieldOf("scales").forGetter(SpawnDonorsInRegionBehavior::scales),
-			ItemStack.CODEC.listOf().optionalFieldOf("donor_boot_items").forGetter(SpawnDonorsInRegionBehavior::donorBootItems)
+			ItemStackTemplate.CODEC.listOf().optionalFieldOf("donor_boot_items").forGetter(SpawnDonorsInRegionBehavior::donorBootItems)
 	).apply(i, SpawnDonorsInRegionBehavior::new));
 
 	@Override
@@ -55,7 +56,8 @@ public record SpawnDonorsInRegionBehavior(
 				if (result.isPresent()) {
 					final List<Donation> donations = result.get();
 					for (Donation donation : donations) {
-						SpawnDonorUtils.spawnDonorInRandomRegion(game, donation, regions, scales.orElse(List.of()), donorBootItems.orElse(Collections.emptyList()));
+						List<ItemStack> itemStacks = donorBootItems.stream().flatMap(List::stream).map(ItemStackTemplate::create).toList();
+						SpawnDonorUtils.spawnDonorInRandomRegion(game, donation, regions, scales.orElse(List.of()), itemStacks);
 
 					}
 				}
@@ -64,7 +66,8 @@ public record SpawnDonorsInRegionBehavior(
 
 		// Spawn throughout game
 		events.listen(GamePackageEvents.RECEIVE_DONATION, donation -> {
-			SpawnDonorUtils.spawnDonorInRandomRegion(game, donation, regions, scales.orElse(List.of()), donorBootItems.orElse(Collections.emptyList()));
+			List<ItemStack> itemStacks = donorBootItems.stream().flatMap(List::stream).map(ItemStackTemplate::create).toList();
+			SpawnDonorUtils.spawnDonorInRandomRegion(game, donation, regions, scales.orElse(List.of()), itemStacks);
 		});
 
 		// Drop sassy book on death

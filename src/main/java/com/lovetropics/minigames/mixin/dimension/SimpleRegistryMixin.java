@@ -7,7 +7,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.RegistrationInfo;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -24,7 +24,7 @@ public class SimpleRegistryMixin<T> implements RegistryEntryRemover<T> {
 	private Reference2IntMap<T> toId;
 	@Shadow
 	@Final
-	private Map<ResourceLocation, Holder.Reference<T>> byLocation;
+	private Map<Identifier, Holder.Reference<T>> byLocation;
 	@Shadow
 	@Final
 	private Map<ResourceKey<T>, Holder.Reference<T>> byKey;
@@ -47,7 +47,7 @@ public class SimpleRegistryMixin<T> implements RegistryEntryRemover<T> {
 		final Holder.Reference<T> reference = byId.remove(rawId);
 		final ResourceKey<T> key = reference.key();
 
-		byLocation.remove(key.location());
+		byLocation.remove(key.identifier());
 		byKey.remove(key);
 		byValue.remove(entry);
 		registrationInfos.remove(entry);
@@ -64,7 +64,7 @@ public class SimpleRegistryMixin<T> implements RegistryEntryRemover<T> {
 	}
 
 	@Override
-	public boolean ltminigames$remove(ResourceLocation key) {
+	public boolean ltminigames$remove(Identifier key) {
 		Holder.Reference<T> entry = byLocation.get(key);
 		return entry != null && ltminigames$remove(entry.value());
 	}

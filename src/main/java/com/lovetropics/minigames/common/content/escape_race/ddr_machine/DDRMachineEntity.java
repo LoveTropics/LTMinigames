@@ -104,7 +104,7 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 	public DDRMachineEntity(EntityType<? extends Entity> entityType, Level level) {
 		super(entityType, level);
 		orderedLevels = level.registryAccess().lookupOrThrow(EscapeRace.DDR_LEVEL).listElements()
-				.sorted(Comparator.comparing(l -> l.key().location()))
+				.sorted(Comparator.comparing(l -> l.key().identifier()))
 				.map(l -> (Holder<DdrLevel>) l)
 				.toList();
 
@@ -168,7 +168,7 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 	}
 
 	@Override
-	public InteractionResult interact(Player player, InteractionHand hand) {
+	public InteractionResult interact(Player player, InteractionHand hand, Vec3 location) {
 //		foldIntoBedState.start(this.tickCount);
 		if (hand != InteractionHand.MAIN_HAND) {
 			return InteractionResult.PASS;

@@ -34,14 +34,14 @@ import net.minecraft.SharedConstants;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
-import net.minecraft.commands.arguments.ResourceLocationArgument;
+import net.minecraft.commands.arguments.IdentifierArgument;
 import net.minecraft.commands.synchronization.SuggestionProviders;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
@@ -175,11 +175,11 @@ public class Warehouse implements IGameState {
 						.then(Commands.argument("target", StringArgumentType.word())
 								.suggests((context, builder)
 										-> builder.suggest("all").suggest("red").suggest("blue").buildFuture())
-								.then(Commands.argument("sound", ResourceLocationArgument.id())
+								.then(Commands.argument("sound", IdentifierArgument.id())
 										.suggests(SuggestionProviders.cast(SuggestionProviders.AVAILABLE_SOUNDS))
 										.executes(context -> {
 											String target = StringArgumentType.getString(context, "target");
-											ResourceLocation sound = ResourceLocationArgument.getId(context, "sound");
+											Identifier sound = IdentifierArgument.getId(context, "sound");
 											SoundEvent soundEvent = SoundEvent.createVariableRangeEvent(sound);
 											PlayerSet players = switch (target) {
 												case "all" -> game.allPlayers(true);

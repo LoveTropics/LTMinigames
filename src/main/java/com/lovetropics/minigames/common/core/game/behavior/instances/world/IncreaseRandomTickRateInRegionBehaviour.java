@@ -33,7 +33,7 @@ public record IncreaseRandomTickRateInRegionBehaviour(
 					for (BlockPos pos : region) {
 						BlockState blockState = game.level().getBlockState(pos);
 						if (blockState.isRandomlyTicking()) {
-							blockState.randomTick(game.level(), pos, game.level().random);
+							blockState.randomTick(game.level(), pos, game.level().getRandom());
 						}
 					}
 				}

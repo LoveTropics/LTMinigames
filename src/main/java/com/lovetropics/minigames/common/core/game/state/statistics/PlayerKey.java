@@ -52,16 +52,16 @@ public final class PlayerKey implements StatisticHolder {
 	}
 
 	public UUID id() {
-		return profile.getId();
+		return profile.id();
 	}
 
 	public String name() {
-		return profile.getName();
+		return profile.name();
 	}
 
 	@Override
 	public String toString() {
-		return profile.getName();
+		return profile.name();
 	}
 
 	private Optional<SkinData> skinData() {
@@ -92,7 +92,7 @@ public final class PlayerKey implements StatisticHolder {
 		}
 
 		if (obj instanceof PlayerKey key) {
-			return profile.getId().equals(key.profile.getId());
+			return profile.id().equals(key.profile.id());
 		}
 
 		return false;
@@ -100,11 +100,11 @@ public final class PlayerKey implements StatisticHolder {
 
 	@Override
 	public int hashCode() {
-		return profile.getId().hashCode();
+		return profile.id().hashCode();
 	}
 
 	public boolean matches(Entity entity) {
-		return entity instanceof ServerPlayer && entity.getUUID().equals(profile.getId());
+		return entity instanceof ServerPlayer && entity.getUUID().equals(profile.id());
 	}
 
 	@Override

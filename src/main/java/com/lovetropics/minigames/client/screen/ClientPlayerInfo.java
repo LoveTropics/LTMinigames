@@ -5,8 +5,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.resources.DefaultPlayerSkin;
-import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.PlayerSkin;
 
 import javax.annotation.Nullable;
 import java.util.UUID;
@@ -23,7 +23,7 @@ public final class ClientPlayerInfo {
 		PlayerInfo info = get(uuid);
 		if (info != null) {
 			Component displayName = info.getTabListDisplayName();
-			return displayName != null ? displayName : Component.literal(info.getProfile().getName());
+			return displayName != null ? displayName : Component.literal(info.getProfile().name());
 		} else {
 			return null;
 		}

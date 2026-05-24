@@ -46,7 +46,7 @@ public abstract class ServerPlayerMixin extends Player implements ServerPlayerEx
 
 	@Unique
 	private void syncChange() {
-		getServer().getPlayerList().broadcastAll(new ClientboundPlayerInfoUpdatePacket(ClientboundPlayerInfoUpdatePacket.Action.UPDATE_LIST_ORDER, (ServerPlayer) (Object) this));
+		level().getServer().getPlayerList().broadcastAll(new ClientboundPlayerInfoUpdatePacket(ClientboundPlayerInfoUpdatePacket.Action.UPDATE_LIST_ORDER, (ServerPlayer) (Object) this));
 	}
 
 	@Inject(method = "teleport(Lnet/minecraft/world/level/portal/TeleportTransition;)Lnet/minecraft/server/level/ServerPlayer;", at = @At("HEAD"), cancellable = true)

@@ -5,10 +5,10 @@ import com.google.common.collect.ImmutableBiMap;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
@@ -104,6 +104,6 @@ public interface RecipeSelector {
 	}
 
 	private static boolean isVanilla(RecipeHolder<?> recipe) {
-		return recipe.id().location().getNamespace().equals(ResourceLocation.DEFAULT_NAMESPACE);
+		return recipe.id().identifier().getNamespace().equals(Identifier.DEFAULT_NAMESPACE);
 	}
 }

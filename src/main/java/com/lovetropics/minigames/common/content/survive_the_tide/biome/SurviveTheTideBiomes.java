@@ -5,6 +5,9 @@ import com.tterrag.registrate.providers.DataProviderInitializer;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.attribute.EnvironmentAttribute;
+import net.minecraft.world.attribute.EnvironmentAttributeMap;
+import net.minecraft.world.attribute.EnvironmentAttributes;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeGenerationSettings;
 import net.minecraft.world.level.biome.BiomeSpecialEffects;
@@ -31,11 +34,13 @@ public final class SurviveTheTideBiomes {
 
 	private static Biome createSurviveTheTide(final float temperature, final float downfall, int waterColor, int skyColor, int fogColor) {
 		final BiomeSpecialEffects.Builder effects = new BiomeSpecialEffects.Builder()
-				.fogColor(fogColor)
-				.skyColor(skyColor)
-				.waterColor(waterColor)
-				.waterFogColor(skyColor);
+				.waterColor(waterColor);
 		return new Biome.BiomeBuilder()
+				.putAttributes(EnvironmentAttributeMap.builder()
+						.set(EnvironmentAttributes.FOG_COLOR, fogColor)
+						.set(EnvironmentAttributes.SKY_COLOR, skyColor)
+						.set(EnvironmentAttributes.WATER_FOG_COLOR, skyColor)
+						.build())
 				.hasPrecipitation(true)
 				.temperature(temperature).downfall(downfall)
 				.generationSettings(BiomeGenerationSettings.EMPTY)

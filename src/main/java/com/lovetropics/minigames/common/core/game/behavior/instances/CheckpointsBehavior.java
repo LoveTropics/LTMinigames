@@ -15,7 +15,7 @@ import com.lovetropics.minigames.common.core.game.state.team.TeamState;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundEvents;
@@ -92,7 +92,7 @@ public record CheckpointsBehavior(
 				}
 				Checkpoint lastCheckpoint = lastCheckpointByPlayer.get(player.getUUID());
 				if (lastCheckpoint != atCheckpoint && (lastCheckpoint == null || atCheckpoint.group.order >= lastCheckpoint.group.order)) {
-					player.playNotifySound(SoundEvents.ARROW_HIT_PLAYER, SoundSource.PLAYERS, 1.0f, 1.0f);
+					com.lovetropics.minigames.common.util.Util.sendNotifySound(player, SoundEvents.ARROW_HIT_PLAYER, SoundSource.PLAYERS, 1.0f, 1.0f);
 					player.sendSystemMessage(MinigameTexts.CHECKPOINT_REACHED, true);
 					lastCheckpointByPlayer.put(player.getUUID(), atCheckpoint);
 					atCheckpoint.group.reachedActions.apply(game, ContextMap.EMPTY, ActionSubjects.ofPlayer(player));

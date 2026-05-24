@@ -7,19 +7,19 @@ import com.lovetropics.minigames.common.core.game.client_state.GameClientStateTy
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.StringRepresentable;
 
 import javax.annotation.Nullable;
 import java.util.Map;
 
-public record ReplaceTexturesClientState(Map<TextureType, ResourceLocation> textures) implements GameClientState {
+public record ReplaceTexturesClientState(Map<TextureType, Identifier> textures) implements GameClientState {
 	public static final MapCodec<ReplaceTexturesClientState> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			Codec.unboundedMap(TextureType.CODEC, ResourceLocation.CODEC).fieldOf("textures").forGetter(c -> c.textures)
+			Codec.unboundedMap(TextureType.CODEC, Identifier.CODEC).fieldOf("textures").forGetter(c -> c.textures)
 	).apply(i, ReplaceTexturesClientState::new));
 
 	@Nullable
-	public ResourceLocation getTexture(TextureType type) {
+	public Identifier getTexture(TextureType type) {
 		return textures.get(type);
 	}
 

@@ -16,7 +16,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
-import net.minecraft.world.entity.monster.Vindicator;
+import net.minecraft.world.entity.monster.illager.Vindicator;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.pathfinder.PathType;
@@ -33,7 +33,7 @@ public class BbVindicatorEntity extends Vindicator implements BbMobEntity {
 		this.plot = plot;
 
 		// Ignore sweet berry bushes and water
-		setPathfindingMalus(PathType.DANGER_OTHER, BERRY_BUSH_MALUS);
+		setPathfindingMalus(PathType.DAMAGING_IN_NEIGHBOR, BERRY_BUSH_MALUS);
 		setPathfindingMalus(PathType.WATER, -1.0F);
 	}
 

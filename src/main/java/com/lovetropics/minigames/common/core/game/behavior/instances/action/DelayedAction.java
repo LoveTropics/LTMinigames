@@ -11,6 +11,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.context.ContextMap;
 import net.minecraft.util.valueproviders.IntProvider;
+import net.minecraft.util.valueproviders.IntProviders;
 
 import java.util.Optional;
 
@@ -21,7 +22,7 @@ public record DelayedAction(
 		GameActionList actions
 ) implements IGameBehavior {
 	public static final MapCodec<DelayedAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			IntProvider.POSITIVE_CODEC.fieldOf("delay").forGetter(b -> b.delay),
+			IntProviders.POSITIVE_CODEC.fieldOf("delay").forGetter(b -> b.delay),
 			ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("initial_delay").forGetter(b -> b.initialDelay),
 			ExtraCodecs.POSITIVE_INT.optionalFieldOf("repetitions", 1).forGetter(b -> b.repetitions),
 			GameActionList.MAP_CODEC.forGetter(c -> c.actions)

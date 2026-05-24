@@ -27,6 +27,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.trading.ItemCost;
 import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.item.trading.MerchantOffers;
@@ -41,8 +42,8 @@ import java.util.UUID;
 public class RiverRaceMerchantBehavior implements IGameBehavior {
 	private static final Codec<MerchantOffer> OFFER_CODEC = RecordCodecBuilder.create(i -> i.group(
 			ItemCost.CODEC.fieldOf("input").forGetter(MerchantOffer::getItemCostA),
-			MoreCodecs.ITEM_STACK.fieldOf("output").forGetter(MerchantOffer::getResult)
-	).apply(i, (input, output) -> new MerchantOffer(input, output, Integer.MAX_VALUE, 0, 0)));
+			ItemStackTemplate.CODEC.fieldOf("output").forGetter(merchantOffer -> ItemStackTemplate.fromNonEmptyStack(merchantOffer.getResult()))
+	).apply(i, (input, output) -> new MerchantOffer(input, output.create(), Integer.MAX_VALUE, 0, 0)));
 
 	public static final MapCodec<RiverRaceMerchantBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			Codec.STRING.fieldOf("zone").forGetter(c -> c.region),

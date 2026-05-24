@@ -1,5 +1,6 @@
 package com.lovetropics.minigames.common.core.game.behavior.instances.statistics;
 
+import com.lovetropics.lib.codec.MoreCodecs;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorType;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorTypes;
@@ -19,15 +20,16 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-public record StatisticTagBehavior(StatisticKey<Integer> statistic, Item icon) implements IGameBehavior {
+public record StatisticTagBehavior(StatisticKey<Integer> statistic, ItemStackTemplate icon) implements IGameBehavior {
 	public static final MapCodec<StatisticTagBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			StatisticKey.INT_CODEC.fieldOf("statistic").forGetter(StatisticTagBehavior::statistic),
-			BuiltInRegistries.ITEM.byNameCodec().fieldOf("icon").forGetter(StatisticTagBehavior::icon)
+			MoreCodecs.SINGLE_STACK_TEMPLATE.fieldOf("icon").forGetter(StatisticTagBehavior::icon)
 	).apply(i, StatisticTagBehavior::new));
 
 	@Override
@@ -56,7 +58,7 @@ public record StatisticTagBehavior(StatisticKey<Integer> statistic, Item icon) i
 	}
 
 	private PointTagClientState createState(final Object2IntMap<UUID> points) {
-		return new PointTagClientState(new ItemStack(icon), Optional.empty(), points);
+		return new PointTagClientState(icon, Optional.empty(), points);
 	}
 
 	@Override

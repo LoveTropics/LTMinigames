@@ -49,7 +49,7 @@ public final class PlayerRoleSelections {
 			future = rootFuture.thenApplyAsync(role -> {
 				roles.put(player.getUUID(), role);
 				return role;
-			}, player.getServer());
+			}, player.level().getServer());
 			pendingResponses.put(player.getUUID(), future);
 		}
 		sendPromptTo(player);
@@ -58,7 +58,7 @@ public final class PlayerRoleSelections {
 
 	private void sendPromptTo(ServerPlayer player) {
 		PacketDistributor.sendToPlayer(player, new SelectRolePromptMessage(lobbyId.networkId()));
-		player.playNotifySound(SoundEvents.ARROW_HIT_PLAYER, SoundSource.MASTER, 1.0F, 1.0F);
+		com.lovetropics.minigames.common.util.Util.sendNotifySound(player, SoundEvents.ARROW_HIT_PLAYER, SoundSource.MASTER, 1.0F, 1.0F);
 	}
 
 	public void remove(ServerPlayer player) {

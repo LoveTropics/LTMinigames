@@ -19,15 +19,16 @@ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.NbtTagArgument;
-import net.minecraft.commands.arguments.ResourceLocationArgument;
+import net.minecraft.commands.arguments.IdentifierArgument;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.RegistryOps;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.entity.Entity;
 
@@ -43,8 +44,8 @@ public class GameActionCommand {
 
 	public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
 		dispatcher.register(literal("game")
-				.then(literal("action").requires(s -> s.hasPermission(2))
-						.then(argument("id", ResourceLocationArgument.id()).suggests(GameActionCommand::suggestBehaviors)
+				.then(literal("action").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+						.then(argument("id", IdentifierArgument.id()).suggests(GameActionCommand::suggestBehaviors)
 								.then(argument("data", NbtTagArgument.nbtTag())
 										.executes(ctx -> runAction(ctx, null))
 										.then(argument("targets", EntityArgument.entities())
@@ -78,7 +79,7 @@ public class GameActionCommand {
 	}
 
 	private static IGameBehavior parseBehavior(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
-		ResourceLocation id = ResourceLocationArgument.getId(ctx, "id");
+		Identifier id = IdentifierArgument.getId(ctx, "id");
 		Tag data = NbtTagArgument.getNbtTag(ctx, "data");
 		GameBehaviorType<?> type = GameBehaviorTypes.REGISTRY.getValue(id);
 		if (type == null) {

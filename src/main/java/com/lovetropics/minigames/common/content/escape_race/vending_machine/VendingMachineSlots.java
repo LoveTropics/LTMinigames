@@ -1,11 +1,12 @@
 package com.lovetropics.minigames.common.content.escape_race.vending_machine;
 
 import com.google.common.collect.ImmutableList;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.client.Camera;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
 import java.util.List;
 
@@ -33,7 +34,7 @@ public class VendingMachineSlots {
 	});
 
 	public static Picker picker(Camera camera, VendingMachineEntity vendingMachine) {
-		Vector3f lookVector = camera.getLookVector();
+		Vector3fc lookVector = camera.forwardVector();
 
 		Vec3 fromPos = VendingMachineModel.toModelSpace(
 				camera.position(),
@@ -41,7 +42,7 @@ public class VendingMachineSlots {
 				vendingMachine.getYRot()
 		);
 		Vec3 toPos = VendingMachineModel.toModelSpace(
-				camera.position().add(lookVector.x * PICK_RANGE, lookVector.y * PICK_RANGE, lookVector.z * PICK_RANGE),
+				camera.position().add(lookVector.x() * PICK_RANGE, lookVector.y() * PICK_RANGE, lookVector.z() * PICK_RANGE),
 				vendingMachine.position(),
 				vendingMachine.getYRot()
 		);

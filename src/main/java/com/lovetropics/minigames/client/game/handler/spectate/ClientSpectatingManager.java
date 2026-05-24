@@ -3,6 +3,7 @@ package com.lovetropics.minigames.client.game.handler.spectate;
 import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.client.game.handler.ClientGameStateHandler;
 import com.lovetropics.minigames.common.core.game.client_state.instance.SpectatingClientState;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.spectator.SpectatorGui;
 import net.minecraft.client.player.LocalPlayer;
@@ -92,7 +93,7 @@ public final class ClientSpectatingManager implements ClientGameStateHandler<Spe
 		LocalPlayer player = Minecraft.getInstance().player;
 		SpectatingSession session = INSTANCE.session;
 		if (session != null && player != null && player.isSpectator()) {
-			float partialTicks = event.getCamera().getPartialTickTime();
+			float partialTicks = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(false);
 			session.applyCameraDistance(event.getCamera(), partialTicks, event);
 		}
 	}

@@ -12,7 +12,7 @@ import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
-import net.minecraft.world.entity.monster.Skeleton;
+import net.minecraft.world.entity.monster.skeleton.Skeleton;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluid;
@@ -22,13 +22,13 @@ public class BbSkeletonEntity extends Skeleton implements BbMobEntity {
 	private final BbMobBrain mobBrain;
 	private final Plot plot;
 
-	public BbSkeletonEntity(EntityType<? extends Skeleton> p_33570_, Level level, Plot plot) {
-		super(p_33570_, level);
+	public BbSkeletonEntity(EntityType<? extends Skeleton> entityType, Level level, Plot plot) {
+		super(entityType, level);
 
 		mobBrain = new BbMobBrain(plot.walls);
 		this.plot = plot;
 
-		setPathfindingMalus(PathType.DANGER_OTHER, BERRY_BUSH_MALUS);
+		setPathfindingMalus(PathType.DAMAGING_IN_NEIGHBOR, BERRY_BUSH_MALUS);
 	}
 
 	@Override

@@ -273,7 +273,7 @@ public final class BuildBattleBehavior implements IGameBehavior {
 		}
 
 		for (var player : game.allPlayers()) {
-			player.displayClientMessage(message, false);
+			player.sendSystemMessage(message, false);
 			player.getInventory().clearContent();
 		}
 
@@ -340,7 +340,7 @@ public final class BuildBattleBehavior implements IGameBehavior {
 		public void onPlayerSelected(ServerPlayer player, Integer value) {
 			if (behavior.overlords.contains(player.getUUID())) {
 				behavior.overlordPoints.put(player.getUUID(), value);
-				player.displayClientMessage(BuildBattleTexts.GIVE_POINTS.apply(value).withStyle(ChatFormatting.GOLD), false);
+				player.sendSystemMessage(BuildBattleTexts.GIVE_POINTS.apply(value).withStyle(ChatFormatting.GOLD), false);
 			}
 		}
 

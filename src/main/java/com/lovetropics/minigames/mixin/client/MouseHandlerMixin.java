@@ -27,7 +27,7 @@ public class MouseHandlerMixin {
 			}
 
 			// Avoid allowing the bypass of the setting by modifying the options
-			if (state.yAxis() && !minecraft.options.invertYMouse().get()) {
+			if (state.yAxis() && !minecraft.options.invertMouseY().get()) {
 				dy = dy * -1;
 			}
 		}

@@ -11,7 +11,7 @@ import com.lovetropics.minigames.mixin.TrialSpawnerAccess;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -105,7 +105,7 @@ public record OrderedTrialSpawnerBehavior(
 
 	private record Spawner(BlockPos pos, Holder<TrialSpawnerConfig> config) {
 		public boolean isInChunk(ChunkPos chunkPos) {
-			return chunkPos.equals(new ChunkPos(pos));
+			return chunkPos.equals(ChunkPos.containing(pos));
 		}
 	}
 }

@@ -10,7 +10,7 @@ import net.minecraft.client.data.models.MultiVariant;
 import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
 import net.minecraft.client.data.models.blockstates.PropertyDispatch;
 import net.minecraft.client.data.models.model.ModelLocationUtils;
-import net.minecraft.client.renderer.block.model.VariantMutator;
+import net.minecraft.client.renderer.block.dispatch.VariantMutator;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -31,8 +31,7 @@ public class LoveTropicsBlocks {
 
 	public static final Map<TrashType, BlockEntry<TrashBlock>> TRASH = Arrays.stream(TrashType.values())
 			.collect(Collectors.toMap(Function.identity(), t -> REGISTRATE.block(t.getId(), p -> new TrashBlock(t, p))
-					.properties(p -> p.mapColor(MapColor.PLANT).pushReaction(PushReaction.DESTROY).noCollission().offsetType(BlockBehaviour.OffsetType.XZ))
-					.addLayer(() -> () -> ChunkSectionLayer.CUTOUT)
+					.properties(p -> p.mapColor(MapColor.PLANT).pushReaction(PushReaction.DESTROY).noCollision().offsetType(BlockBehaviour.OffsetType.XZ))
 					.blockstate(() -> Models::generateTrashBlock)
 					.simpleItem()
 					.register()

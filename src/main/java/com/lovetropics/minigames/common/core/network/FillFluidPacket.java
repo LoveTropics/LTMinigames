@@ -38,7 +38,7 @@ public record FillFluidPacket(FluidFiller.Type fillType, BlockPos min, BlockPos 
 			for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX++) {
 				final LevelChunk chunk = level.getChunk(chunkX, chunkZ);
 				final ChunkPos chunkPos = chunk.getPos();
-				if (chunkPos.x != chunkX || chunkPos.z != chunkZ) {
+				if (chunkPos.x() != chunkX || chunkPos.z() != chunkZ) {
 					// TODO: Some kind of race condition can happen here with leaving the dimension while rising is happening :(
 					LoveTropics.LOGGER.error("Tried to fill chunk with fluid, but position didn't match. Expected [{}, {}] but got {}", chunkX, chunkZ, chunkPos);
 					return;

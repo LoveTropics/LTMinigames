@@ -9,13 +9,13 @@ import com.lovetropics.minigames.common.core.integration.state.DonationScale;
 import com.lovetropics.minigames.common.core.map.MapRegions;
 import com.mojang.authlib.properties.PropertyMap;
 import com.mojang.logging.LogUtils;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.EntitySpawnReason;
@@ -23,28 +23,25 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.npc.Villager;
-import net.minecraft.world.entity.npc.VillagerProfession;
-import net.minecraft.world.item.Item;
+import net.minecraft.world.entity.npc.villager.Villager;
+import net.minecraft.world.entity.npc.villager.VillagerProfession;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.ResolvableProfile;
+import net.minecraft.world.item.component.TypedEntityData;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import org.lovetropics.peekaboo.api.Disguise;
 import org.lovetropics.peekaboo.api.EntityDisguiseHolder;
-import org.lovetropics.peekaboo.api.TypedEntityData;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 public class SpawnDonorUtils {
 
 	private static final Logger LOGGER = LogUtils.getLogger();
 
-	public static final ResourceLocation DUMMY_PLAYER = ResourceLocation.fromNamespaceAndPath("dummyplayers", "dummy_player");
+	public static final Identifier DUMMY_PLAYER = Identifier.fromNamespaceAndPath("dummyplayers", "dummy_player");
 	public static final DeferredHolder<EntityType<?>, EntityType<?>> DUMMY = DeferredHolder.create(Registries.ENTITY_TYPE, DUMMY_PLAYER);
 	public static final DeferredHolder<EntityType<?>, EntityType<?>> WALK_ = DeferredHolder.create(Registries.ENTITY_TYPE, DUMMY_PLAYER);
 
@@ -58,7 +55,7 @@ public class SpawnDonorUtils {
 		}
 
 		if (!donation.minecraftUuid().equals(Util.NIL_UUID)) {
-			final ResolvableProfile resolvableProfile = new ResolvableProfile(Optional.empty(), Optional.of(donation.minecraftUuid()), new PropertyMap());
+			final ResolvableProfile resolvableProfile = ResolvableProfile.createUnresolved(donation.minecraftUuid());
 			tag.put("profile", ResolvableProfile.CODEC.encodeStart(NbtOps.INSTANCE, resolvableProfile).getOrThrow());
 		}
 
@@ -68,7 +65,7 @@ public class SpawnDonorUtils {
 
 		DonationScale scale = DonationScale.getScale(donation.amount(), scales);
 		final float scaleAmount = (float) scale.scale();
-		Disguise disguise = getDisguise(scaleAmount).withEntity(Optional.of(new TypedEntityData(DUMMY.value(), tag)));
+		Disguise disguise = getDisguise(scaleAmount).withEntity(Optional.of(TypedEntityData.of(DUMMY.value(), tag)));
 		EntityDisguiseHolder.set(spawnedMob, disguise);
 
 		MapRegions mapRegions = game.mapRegions();

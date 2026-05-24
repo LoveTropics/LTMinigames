@@ -29,7 +29,7 @@ public record TransformPlayerTornadoAction(int timeTicks, boolean baby) implemen
 			tag.putString("uuid", player.getUUID().toString());
 			tag.putInt("time_ticks", timeTicks);
 			tag.putBoolean("baby", baby);
-			tag.putString("dimension", player.level().dimension().location().toString());
+			tag.putString("dimension", player.level().dimension().identifier().toString());
 			return tag;
 		});
 

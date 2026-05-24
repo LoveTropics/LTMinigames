@@ -13,14 +13,15 @@ import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.GameProfileArgument;
 import net.minecraft.commands.arguments.NbtPathArgument;
-import net.minecraft.commands.arguments.ResourceLocationArgument;
+import net.minecraft.commands.arguments.IdentifierArgument;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.commands.data.DataAccessor;
 import net.minecraft.server.commands.data.DataCommands;
+import net.minecraft.server.players.NameAndId;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
@@ -44,20 +45,20 @@ public class GameDataAccessor implements DataAccessor {
 	public static final Function<String, DataCommands.DataProvider> PROVIDER = (str) -> new DataCommands.DataProvider() {
 		@Override
 		public DataAccessor access(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
-			Collection<GameProfile> gameProfiles = GameProfileArgument.getGameProfiles(context, "player");
+			Collection<NameAndId> gameProfiles = GameProfileArgument.getGameProfiles(context, "player");
 			if (gameProfiles.size() != 1) {
 				throw EntityArgument.ERROR_NOT_SINGLE_PLAYER.create();
 			}
-			Optional<GameProfile> playerProfile = gameProfiles.stream().findFirst();
+			Optional<NameAndId> playerProfile = gameProfiles.stream().findFirst();
 			return new GameDataAccessor(context.getSource().getLevel(), getGameDataStorage(context),
-					ResourceLocationArgument.getId(context, str), playerProfile.get());
+					IdentifierArgument.getId(context, str), playerProfile.get());
 		}
 
 		@Override
 		public ArgumentBuilder<CommandSourceStack, ?> wrap(ArgumentBuilder<CommandSourceStack, ?> builder, Function<ArgumentBuilder<CommandSourceStack, ?>, ArgumentBuilder<CommandSourceStack, ?>> action) {
 			return builder.then(
 					Commands.literal("gamedata")
-							.then(Commands.argument(str, ResourceLocationArgument.id()).suggests(GameDataAccessor.SUGGEST_GAMEDATA)
+							.then(Commands.argument(str, IdentifierArgument.id()).suggests(GameDataAccessor.SUGGEST_GAMEDATA)
 									.then(action.apply(Commands.argument("player", GameProfileArgument.gameProfile()))))
 			);
 		}
@@ -70,10 +71,10 @@ public class GameDataAccessor implements DataAccessor {
 
 	private final Level level;
 	private final GameDataStorage gameDataStorage;
-	private final ResourceLocation id;
-	private final GameProfile player;
+	private final Identifier id;
+	private final NameAndId player;
 
-	public GameDataAccessor(Level level, GameDataStorage gameDataStorage, ResourceLocation id, GameProfile player) {
+	public GameDataAccessor(Level level, GameDataStorage gameDataStorage, Identifier id, NameAndId player) {
 		this.level = level;
 		this.gameDataStorage = gameDataStorage;
 		this.id = id;
@@ -82,26 +83,26 @@ public class GameDataAccessor implements DataAccessor {
 
 	@Override
 	public void setData(CompoundTag other) throws CommandSyntaxException {
-		gameDataStorage.set(id, player.getId(), other);
+		gameDataStorage.set(id, player.id(), other);
 	}
 
 	@Override
 	public CompoundTag getData() throws CommandSyntaxException {
-		return gameDataStorage.get(id, player.getId());
+		return gameDataStorage.get(id, player.id());
 	}
 
 	@Override
 	public Component getModifiedSuccess() {
-		return STORAGE_MODIFIED.apply(player.getName(), Component.translationArg(this.id));
+		return STORAGE_MODIFIED.apply(player.name(), Component.translationArg(this.id));
 	}
 
 	@Override
 	public Component getPrintSuccess(Tag nbt) {
-		return STORAGE_QUERY.apply(player.getName(), Component.translationArg(this.id), NbtUtils.toPrettyComponent(nbt));
+		return STORAGE_QUERY.apply(player.name(), Component.translationArg(this.id), NbtUtils.toPrettyComponent(nbt));
 	}
 
 	@Override
 	public Component getPrintSuccess(NbtPathArgument.NbtPath path, double scale, int value) {
-		return STORAGE_GET.apply(path.asString(), Component.translationArg(this.id), player.getName(), String.format(Locale.ROOT, "%.2f", scale), value);
+		return STORAGE_GET.apply(path.asString(), Component.translationArg(this.id), player.name(), String.format(Locale.ROOT, "%.2f", scale), value);
 	}
 }

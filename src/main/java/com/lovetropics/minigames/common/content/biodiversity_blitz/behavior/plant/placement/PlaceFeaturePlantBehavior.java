@@ -53,7 +53,7 @@ public record PlaceFeaturePlantBehavior(Holder<ConfiguredFeature<?, ?>> feature,
 		BlockCapturingWorld capturingWorld = new BlockCapturingWorld(world, blocks);
 
 		ChunkGenerator chunkGenerator = world.getChunkSource().getGenerator();
-		if (feature.place(capturingWorld, chunkGenerator, world.random, pos)) {
+		if (feature.place(capturingWorld, chunkGenerator, world.getRandom(), pos)) {
 			return capturingWorld.getCapturedBlocks();
 		} else {
 			return null;

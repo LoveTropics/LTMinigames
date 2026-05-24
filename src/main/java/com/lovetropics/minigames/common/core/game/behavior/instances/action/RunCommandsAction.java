@@ -17,6 +17,9 @@ import net.minecraft.commands.CommandSource;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.permissions.LevelBasedPermissionSet;
+import net.minecraft.server.permissions.Permission;
+import net.minecraft.server.permissions.Permissions;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
@@ -85,7 +88,7 @@ public record RunCommandsAction(List<String> globalCommands, List<String> entity
 		CommandSource source = debugMode ? game.server() : CommandSource.NULL;
 
 		Component name = game.definition().name();
-		return new CommandSourceStack(source, Vec3.ZERO, Vec2.ZERO, game.level(), Commands.LEVEL_OWNERS, name.getString(), name, game.server(), null);
+		return new CommandSourceStack(source, Vec3.ZERO, Vec2.ZERO, game.level(), LevelBasedPermissionSet.OWNER, name.getString(), name, game.server(), null);
 	}
 
 	@Override

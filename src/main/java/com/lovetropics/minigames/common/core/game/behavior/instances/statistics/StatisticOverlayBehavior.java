@@ -17,20 +17,21 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 
 import java.util.Optional;
 import java.util.function.Supplier;
 
 public record StatisticOverlayBehavior(
 		StatisticKey<Integer> statistic,
-		ItemStack icon,
+		ItemStackTemplate icon,
 		Optional<String> translationKey,
 		int valueChangeRate,
 		SetStatisticAction.Scope scope
 ) implements IGameBehavior {
 	public static final MapCodec<StatisticOverlayBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			StatisticKey.INT_CODEC.fieldOf("statistic").forGetter(StatisticOverlayBehavior::statistic),
-			MoreCodecs.ITEM_STACK.fieldOf("icon").forGetter(StatisticOverlayBehavior::icon),
+			ItemStackTemplate.CODEC.fieldOf("icon").forGetter(StatisticOverlayBehavior::icon),
 			Codec.STRING.optionalFieldOf("translation_key").forGetter(StatisticOverlayBehavior::translationKey),
 			Codec.INT.optionalFieldOf("value_change_rate", 4).forGetter(StatisticOverlayBehavior::valueChangeRate),
 			SetStatisticAction.Scope.CODEC.optionalFieldOf("scope", SetStatisticAction.Scope.PLAYER).forGetter(StatisticOverlayBehavior::scope)
@@ -44,7 +45,7 @@ public record StatisticOverlayBehavior(
 			if (value == 0 && game.getRoleFor(player) != PlayerRole.PARTICIPANT) {
 				return null;
 			}
-			return new StatisticOverlayState(icon, translationKey, valueChangeRate, value);
+			return new StatisticOverlayState(icon.create(), translationKey, valueChangeRate, value);
 		});
 	}
 

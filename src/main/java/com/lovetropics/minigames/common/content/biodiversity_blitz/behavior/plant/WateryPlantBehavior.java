@@ -100,7 +100,7 @@ public final class WateryPlantBehavior implements IGameBehavior {
 				}
 
 				for (int i = 0; i < waterCount; i++) {
-					Vec3 sample = random(aabb, world.random);
+					Vec3 sample = random(aabb, world.getRandom());
 					double d3 = random.nextGaussian() * 0.05;
 					double d1 = random.nextGaussian() * 0.1;
 					double d2 = random.nextGaussian() * 0.05;

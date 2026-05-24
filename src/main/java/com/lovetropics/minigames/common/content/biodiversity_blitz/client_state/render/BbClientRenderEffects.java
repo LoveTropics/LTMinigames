@@ -8,7 +8,7 @@ import com.lovetropics.minigames.common.content.biodiversity_blitz.client_state.
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.util.CommonColors;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
@@ -21,7 +21,7 @@ public final class BbClientRenderEffects {
 	private static final int ITEM_SIZE = 16;
 
 	public static void registerOverlays(RegisterGuiLayersEvent event) {
-		event.registerBelow(VanillaGuiLayers.DEBUG_OVERLAY, LoveTropics.location("biodiversity_blitz"), (graphics, deltaTracker) -> {
+		event.registerBelow(VanillaGuiLayers.CONTEXTUAL_INFO_BAR_BACKGROUND, LoveTropics.location("biodiversity_blitz"), (graphics, deltaTracker) -> {
 			if (Minecraft.getInstance().options.hideGui) {
 				return;
 			}
@@ -33,7 +33,7 @@ public final class BbClientRenderEffects {
 		});
 	}
 
-	private static void renderOverlay(GuiGraphics graphics, ClientBbSelfState selfState, @Nullable CurrencyTargetState currencyTarget) {
+	private static void renderOverlay(GuiGraphicsExtractor graphics, ClientBbSelfState selfState, @Nullable CurrencyTargetState currencyTarget) {
 		Font font = Minecraft.getInstance().font;
 
 		final int left = PADDING;
@@ -42,14 +42,14 @@ public final class BbClientRenderEffects {
 		int x = left;
 		int y = top;
 
-		graphics.renderItem(ClientGameStateManager.getOrNull(BiodiversityBlitz.CURRENCY_ITEM).item(), x, y);
+		graphics.item(ClientGameStateManager.getOrNull(BiodiversityBlitz.CURRENCY_ITEM).item(), x, y);
 
 		String currency = String.valueOf(selfState.currency());
 		if (currencyTarget != null) {
 			currency = ChatFormatting.GRAY + "Total: " + ChatFormatting.WHITE + currency + ChatFormatting.GRAY + "/" + currencyTarget.value();
 		}
 
-		graphics.drawString(
+		graphics.text(
 				font, currency,
 				x + ITEM_SIZE + PADDING,
 				y + (ITEM_SIZE - font.lineHeight) / 2,
@@ -62,11 +62,11 @@ public final class BbClientRenderEffects {
 		ChatFormatting incrementColor = gainingCurrency ? ChatFormatting.AQUA : ChatFormatting.RED;
 
 		String nextCurrencyIncrement = incrementColor + "+" + increment + ChatFormatting.GRAY + " next drop";
-		graphics.drawString(font, nextCurrencyIncrement, x, y, CommonColors.WHITE);
+		graphics.text(font, nextCurrencyIncrement, x, y, CommonColors.WHITE);
 		y += font.lineHeight;
 
 		if (!gainingCurrency) {
-			graphics.drawString(font, ChatFormatting.GRAY + "You must be in your plot to receive points!", x, y, CommonColors.WHITE);
+			graphics.text(font, ChatFormatting.GRAY + "You must be in your plot to receive points!", x, y, CommonColors.WHITE);
 		}
 	}
 }

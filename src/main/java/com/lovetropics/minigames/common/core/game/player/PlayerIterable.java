@@ -5,7 +5,7 @@ import com.google.common.collect.AbstractIterator;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.lovetropics.minigames.common.core.network.ClientboundFadeToBlackPacket;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
@@ -54,7 +54,7 @@ public interface PlayerIterable extends PlayerOps, Iterable<ServerPlayer> {
 	@Override
 	default void sendMessage(Component message, boolean actionBar) {
 		for (ServerPlayer player : this) {
-			player.displayClientMessage(message, actionBar);
+			player.sendSystemMessage(message, actionBar);
 		}
 	}
 
@@ -68,7 +68,7 @@ public interface PlayerIterable extends PlayerOps, Iterable<ServerPlayer> {
 	@Override
 	default void playSound(SoundEvent sound, SoundSource category, float volume, float pitch) {
 		for (ServerPlayer player : this) {
-			player.playNotifySound(sound, category, volume, pitch);
+			com.lovetropics.minigames.common.util.Util.sendNotifySound(player, sound, category, volume, pitch);
 		}
 	}
 

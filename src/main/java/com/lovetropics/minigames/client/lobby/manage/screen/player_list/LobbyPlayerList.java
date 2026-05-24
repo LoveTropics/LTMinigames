@@ -7,8 +7,8 @@ import com.lovetropics.minigames.client.screen.flex.Box;
 import com.lovetropics.minigames.client.screen.flex.Layout;
 import com.lovetropics.minigames.common.core.game.util.GameTexts;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.PlayerFaceRenderer;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.PlayerFaceExtractor;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -52,7 +52,7 @@ public final class LobbyPlayerList implements GuiEventListener, NarratableEntry 
 		);
 	}
 
-	public void render(GuiGraphics graphics, int mouseX, int mouseY) {
+	public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
 		// TODO: handling overflow with scrollbar
 		int i = 0;
 		for (ClientLobbyPlayer player : lobby.getPlayers()) {
@@ -63,7 +63,7 @@ public final class LobbyPlayerList implements GuiEventListener, NarratableEntry 
 		}
 	}
 
-	private void renderFace(GuiGraphics graphics, int mouseX, int mouseY, ClientLobbyPlayer player, int x, int y) {
+	private void renderFace(GuiGraphicsExtractor graphics, int mouseX, int mouseY, ClientLobbyPlayer player, int x, int y) {
 		boolean hovered = isFaceHovered(x, y, mouseX, mouseY);
 
 		graphics.fill(
@@ -71,10 +71,10 @@ public final class LobbyPlayerList implements GuiEventListener, NarratableEntry 
 				x + FACE_SIZE + 1, y + FACE_SIZE + 1,
 				hovered ? 0xFFF0F0F0 : 0xFF000000
 		);
-		PlayerFaceRenderer.draw(graphics, ClientPlayerInfo.getSkin(player.uuid()), x, y, FACE_SIZE);
+		PlayerFaceExtractor.extractRenderState(graphics, ClientPlayerInfo.getSkin(player.uuid()), x, y, FACE_SIZE);
 	}
 
-	public void renderTooltip(GuiGraphics graphics, int mouseX, int mouseY) {
+	public void renderTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
 		int index = hoveredFaceAt(mouseX, mouseY);
 		if (index != -1) {
 			ClientLobbyPlayer player = lobby.getPlayers().get(index);

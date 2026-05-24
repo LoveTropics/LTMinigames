@@ -3,10 +3,9 @@ package com.lovetropics.minigames.client.gui;
 import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.core.network.ClientboundFadeToBlackPacket;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.LevelLoadingScreen;
 import net.minecraft.client.gui.screens.ProgressScreen;
-import net.minecraft.client.gui.screens.ReceivingLevelScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.CommonColors;
@@ -71,7 +70,7 @@ public class ClientFadeToBlack {
 		alpha = 0.0f;
 	}
 
-	private static void draw(GuiGraphics graphics, float partialTicks) {
+	private static void draw(GuiGraphicsExtractor graphics, float partialTicks) {
 		float frameAlpha = Mth.lerp(partialTicks, lastAlpha, alpha);
 		if (frameAlpha > 0.0f) {
 			graphics.fill(0, 0, graphics.guiWidth(), graphics.guiHeight(), ARGB.color(frameAlpha, CommonColors.BLACK));
@@ -84,6 +83,6 @@ public class ClientFadeToBlack {
 	}
 
 	private static boolean isLoadingScreen(final @Nullable Screen screen) {
-		return screen instanceof ProgressScreen || screen instanceof ReceivingLevelScreen || screen instanceof LevelLoadingScreen;
+		return screen instanceof ProgressScreen || screen instanceof LevelLoadingScreen;
 	}
 }

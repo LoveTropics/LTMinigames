@@ -4,7 +4,7 @@ import com.lovetropics.minigames.LoveTropics;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
@@ -18,8 +18,8 @@ public class MinigameDataComponents {
 			builder -> builder.persistent(Codec.STRING)
 	);
 
-	public static final DeferredHolder<DataComponentType<?>, DataComponentType<ResourceLocation>> POWERUP = REGISTER.registerComponentType(
+	public static final DeferredHolder<DataComponentType<?>, DataComponentType<Identifier>> POWERUP = REGISTER.registerComponentType(
 			"powerup",
-			builder -> builder.persistent(ResourceLocation.CODEC).networkSynchronized(ResourceLocation.STREAM_CODEC).cacheEncoding()
+			builder -> builder.persistent(Identifier.CODEC).networkSynchronized(Identifier.STREAM_CODEC).cacheEncoding()
 	);
 }

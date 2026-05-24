@@ -7,7 +7,7 @@ import com.lovetropics.minigames.client.screen.flex.Box;
 import com.lovetropics.minigames.client.screen.flex.Layout;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.CommonColors;
@@ -45,8 +45,8 @@ public class TextLabel implements Renderable {
 	}
 
 	@Override
-	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+	public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
 		renderArea.debugRender(graphics);
-		graphics.drawString(fnt, text, renderArea.content().left(), renderArea.content().top(), CommonColors.WHITE);
+		graphics.text(fnt, text, renderArea.content().left(), renderArea.content().top(), CommonColors.WHITE);
 	}
 }

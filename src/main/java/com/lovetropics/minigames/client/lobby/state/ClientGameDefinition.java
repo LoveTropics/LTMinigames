@@ -6,17 +6,17 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public record ClientGameDefinition(
-		ResourceLocation id,
+		Identifier id,
 		Component name,
 		@Nullable Component subtitle,
-		@Nullable ResourceLocation icon,
+		@Nullable Identifier icon,
 		int maximumParticipants
 ) {
 	public static final StreamCodec<RegistryFriendlyByteBuf, ClientGameDefinition> STREAM_CODEC = StreamCodec.of((output, definition) -> definition.encode(output), ClientGameDefinition::decode);
@@ -39,16 +39,16 @@ public record ClientGameDefinition(
 	}
 
 	public static ClientGameDefinition decode(RegistryFriendlyByteBuf buffer) {
-		ResourceLocation id = buffer.readResourceLocation();
+		Identifier id = buffer.readIdentifier();
 		Component name = ComponentSerialization.STREAM_CODEC.decode(buffer);
 		Component subtitle = buffer.readBoolean() ? ComponentSerialization.STREAM_CODEC.decode(buffer) : null;
-		ResourceLocation icon = buffer.readBoolean() ? buffer.readResourceLocation() : null;
+		Identifier icon = buffer.readBoolean() ? buffer.readIdentifier() : null;
 		int maximumParticipants = buffer.readVarInt();
 		return new ClientGameDefinition(id, name, subtitle, icon, maximumParticipants);
 	}
 
 	public void encode(RegistryFriendlyByteBuf buffer) {
-		buffer.writeResourceLocation(id);
+		buffer.writeIdentifier(id);
 		ComponentSerialization.STREAM_CODEC.encode(buffer, name);
 		buffer.writeBoolean(subtitle != null);
 		if (subtitle != null) {
@@ -56,7 +56,7 @@ public record ClientGameDefinition(
 		}
 		buffer.writeBoolean(icon != null);
 		if (icon != null) {
-			buffer.writeResourceLocation(icon);
+			buffer.writeIdentifier(icon);
 		}
 		buffer.writeVarInt(maximumParticipants);
 	}

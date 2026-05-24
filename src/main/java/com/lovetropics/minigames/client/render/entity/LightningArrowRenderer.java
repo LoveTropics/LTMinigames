@@ -5,7 +5,7 @@ import net.minecraft.client.renderer.entity.ArrowRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.TippableArrowRenderer;
 import net.minecraft.client.renderer.entity.state.ArrowRenderState;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public class LightningArrowRenderer extends ArrowRenderer<LightningArrowEntity, ArrowRenderState> {
 	public LightningArrowRenderer(final EntityRendererProvider.Context context) {
@@ -18,7 +18,7 @@ public class LightningArrowRenderer extends ArrowRenderer<LightningArrowEntity, 
 	}
 
 	@Override
-	protected ResourceLocation getTextureLocation(ArrowRenderState renderState) {
+	protected Identifier getTextureLocation(ArrowRenderState renderState) {
 		return TippableArrowRenderer.NORMAL_ARROW_LOCATION;
 	}
 }

@@ -265,7 +265,7 @@ public class SpleefBehavior implements IGameBehavior {
 			title(player, MinigameTexts.SPLEEF_ELIMINATED.copy().withStyle(ChatFormatting.RED),
 					Component.translatable(getFlavourTextKey("eliminated")).withStyle(ChatFormatting.YELLOW),
 					20, 20 * 3, 20);
-			player.playNotifySound(SoundEvents.ANVIL_PLACE, SoundSource.MASTER, Integer.MAX_VALUE, 1);
+			com.lovetropics.minigames.common.util.Util.sendNotifySound(player, SoundEvents.ANVIL_PLACE, SoundSource.MASTER, Integer.MAX_VALUE, 1);
 		}
 		game.setPlayerRole(player, PlayerRole.SPECTATOR);
 	}
@@ -293,9 +293,9 @@ public class SpleefBehavior implements IGameBehavior {
 			progressionTimer = forcedProgressionSeconds;
 			spleefMessage(Component.translatable(getFlavourTextKey("forced_progression"), Component.translatable("ltminigames.minigame.position." + (currentFloor + 1))).withStyle(ChatFormatting.YELLOW));
 			BlockPlacer.replace(game.level(), floorRegions[currentFloor], floorBreakingMaterial, BlockPlacer.Mode.REPLACE, floorMaterial, game.scheduler(),
-					(pos) -> (game.level().random.nextInt(breakCount) * breakInterval),
+					(pos) -> (game.level().getRandom().nextInt(breakCount) * breakInterval),
 					(pos) -> {
-						game.scheduler().runAfterTicks(15 + game.level().random.nextInt(10), () -> {
+						game.scheduler().runAfterTicks(15 + game.level().getRandom().nextInt(10), () -> {
 							if (breakEffects) {
 								game.level().destroyBlock(pos, false);
 							} else {

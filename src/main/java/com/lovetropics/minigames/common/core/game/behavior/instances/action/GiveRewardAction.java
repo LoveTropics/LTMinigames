@@ -1,6 +1,5 @@
 package com.lovetropics.minigames.common.core.game.behavior.instances.action;
 
-import com.lovetropics.lib.codec.MoreCodecs;
 import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
@@ -12,18 +11,18 @@ import com.lovetropics.minigames.common.core.game.state.team.TeamState;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 
 import java.util.List;
 import java.util.Optional;
 
-public record GiveRewardAction(List<ItemStack> items, List<ResourceLocation> collectibles, Optional<StatisticBinding> statisticBinding) implements IGameBehavior {
+public record GiveRewardAction(List<ItemStackTemplate> items, List<Identifier> collectibles, Optional<StatisticBinding> statisticBinding) implements IGameBehavior {
 	public static final MapCodec<GiveRewardAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			MoreCodecs.ITEM_STACK.listOf().optionalFieldOf("items", List.of()).forGetter(GiveRewardAction::items),
-			ResourceLocation.CODEC.listOf().optionalFieldOf("collectibles", List.of()).forGetter(GiveRewardAction::collectibles),
+			ItemStackTemplate.CODEC.listOf().optionalFieldOf("items", List.of()).forGetter(GiveRewardAction::items),
+			Identifier.CODEC.listOf().optionalFieldOf("collectibles", List.of()).forGetter(GiveRewardAction::collectibles),
 			StatisticBinding.CODEC.optionalFieldOf("statistic_binding").forGetter(GiveRewardAction::statisticBinding)
 	).apply(i, GiveRewardAction::new));
 
@@ -31,11 +30,11 @@ public record GiveRewardAction(List<ItemStack> items, List<ResourceLocation> col
 	public void register(final IGamePhase game, final EventRegistrar events) throws GameException {
 		GameRewardsMap rewards = game.instanceState().getOrThrow(GameRewardsMap.STATE);
 		events.applyToPlayers(game, (context, target) -> {
-			for (final ItemStack item : items) {
-				final int count = statisticBinding.map(binding -> binding.resolve(game, target)).orElse(item.getCount());
-				rewards.forPlayer(target).give(item.copyWithCount(count));
+			for (final ItemStackTemplate item : items) {
+				final int count = statisticBinding.map(binding -> binding.resolve(game, target)).orElse(item.count());
+				rewards.forPlayer(target).give(item.create().copyWithCount(count));
 			}
-			for (final ResourceLocation collectible : collectibles) {
+			for (final Identifier collectible : collectibles) {
 				rewards.forPlayer(target).giveCollectible(collectible);
 			}
 			return true;

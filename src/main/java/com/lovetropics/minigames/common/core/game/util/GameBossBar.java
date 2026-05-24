@@ -8,6 +8,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.BossEvent;
 
 import java.util.List;
+import java.util.UUID;
 
 public final class GameBossBar implements GameWidget {
 	private static final float UPDATE_PROGRESS_THRESHOLD = 0.001f;
@@ -17,7 +18,7 @@ public final class GameBossBar implements GameWidget {
 
 	/* package-private */ GameBossBar(GameWidgets widgets, Component title, BossEvent.BossBarColor color, BossEvent.BossBarOverlay overlay) {
 		this.widgets = widgets;
-		bar = new ServerBossEvent(title, color, overlay);
+		bar = new ServerBossEvent(UUID.randomUUID(), title, color, overlay);
 		bar.setDarkenScreen(false);
 		bar.setCreateWorldFog(false);
 		bar.setPlayBossMusic(false);

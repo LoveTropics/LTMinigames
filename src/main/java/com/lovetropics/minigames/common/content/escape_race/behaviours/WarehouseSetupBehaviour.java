@@ -17,7 +17,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.List;
 import java.util.Map;
@@ -68,7 +68,7 @@ public record WarehouseSetupBehaviour(
 			float facing,
 			int baseCost,
 			Component displayName,
-			ResourceLocation gameId,
+			Identifier gameId,
 			boolean allTeams,
 			boolean copyInventory
 	) {
@@ -77,7 +77,7 @@ public record WarehouseSetupBehaviour(
 				Codec.FLOAT.optionalFieldOf("facing", 0.0f).forGetter(RoomConfig::facing),
 				Codec.INT.fieldOf("cost").forGetter(RoomConfig::baseCost),
 				ComponentSerialization.CODEC.fieldOf("display_name").forGetter(RoomConfig::displayName),
-				ResourceLocation.CODEC.fieldOf("game").forGetter(RoomConfig::gameId),
+				Identifier.CODEC.fieldOf("game").forGetter(RoomConfig::gameId),
 				Codec.BOOL.optionalFieldOf("all_teams", false).forGetter(RoomConfig::allTeams),
 				Codec.BOOL.optionalFieldOf("copy_inventory", false).forGetter(RoomConfig::copyInventory)
 		).apply(i, RoomConfig::new));

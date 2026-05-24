@@ -31,7 +31,7 @@ public class GamePackageCommand {
 	public static void register(final CommandDispatcher<CommandSourceStack> dispatcher) {
 		dispatcher.register(
 				literal("game")
-						.then(literal("package").requires(s -> s.hasPermission(Commands.LEVEL_GAMEMASTERS))
+						.then(literal("package").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
 								.then(argument("id", StringArgumentType.word())
 										.suggests(GamePackageCommand::suggestPackages)
 										.executes(ctx -> GamePackageCommand.spawnPackage(ctx, null))

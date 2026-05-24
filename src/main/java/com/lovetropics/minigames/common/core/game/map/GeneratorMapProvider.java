@@ -41,7 +41,7 @@ public record GeneratorMapProvider(
 		LevelStem dimension = new LevelStem(dimensionType, generator);
 
 		MapWorldInfo worldInfo = MapWorldInfo.create(server, new MapWorldSettings());
-		RuntimeDimensionConfig config = new RuntimeDimensionConfig(dimension, seed.orElseGet(() -> server.overworld().random.nextLong()), worldInfo);
+		RuntimeDimensionConfig config = new RuntimeDimensionConfig(dimension, seed.orElseGet(() -> server.overworld().getRandom().nextLong()), worldInfo);
 
 		return CompletableFuture.supplyAsync(() -> {
 			RuntimeDimensionHandle dimensionHandle = RuntimeDimensions.get(server).openTemporary(config);

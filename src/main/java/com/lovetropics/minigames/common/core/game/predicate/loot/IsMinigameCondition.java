@@ -4,27 +4,21 @@ import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.impl.GamePhaseManager;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
-import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
 
 // TODO: Replace usages of this with modify_loot_tables behavior and remove
 public class IsMinigameCondition implements LootItemCondition {
 	public static final MapCodec<IsMinigameCondition> CODEC = RecordCodecBuilder.mapCodec(
 			builder -> builder
 					.group(
-							ResourceLocation.CODEC.fieldOf("minigame_id").forGetter(idCondition -> idCondition.minigameId))
+							Identifier.CODEC.fieldOf("minigame_id").forGetter(idCondition -> idCondition.minigameId))
 					.apply(builder, IsMinigameCondition::new));
-	private final ResourceLocation minigameId;
+	private final Identifier minigameId;
 
-	private IsMinigameCondition(final ResourceLocation minigameId) {
+	private IsMinigameCondition(final Identifier minigameId) {
 		this.minigameId = minigameId;
-	}
-
-	@Override
-	public LootItemConditionType getType() {
-		return LootItemConditions.IS_MINIGAME.value();
 	}
 
 	@Override
@@ -34,5 +28,10 @@ public class IsMinigameCondition implements LootItemCondition {
 			return false;
 		}
 		return phase.definition().id().equals(minigameId);
+	}
+
+	@Override
+	public MapCodec<? extends LootItemCondition> codec() {
+		return CODEC;
 	}
 }

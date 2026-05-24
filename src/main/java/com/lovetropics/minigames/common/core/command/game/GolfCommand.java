@@ -7,7 +7,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.NbtTagArgument;
-import net.minecraft.commands.arguments.ResourceLocationArgument;
+import net.minecraft.commands.arguments.IdentifierArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
@@ -17,7 +17,7 @@ import static net.minecraft.commands.Commands.literal;
 public class GolfCommand {
 	public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
 		dispatcher.register(literal("persistentgame")
-			.then(literal("golf").requires(s -> s.hasPermission(2))
+			.then(literal("golf").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
 				.then(literal("highscore")
 					.then(argument("hole", IntegerArgumentType.integer())
 						.then(argument("target", EntityArgument.player())

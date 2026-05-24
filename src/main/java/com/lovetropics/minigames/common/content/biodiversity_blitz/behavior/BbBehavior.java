@@ -52,7 +52,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.FarmBlock;
+import net.minecraft.world.level.block.FarmlandBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 
@@ -253,7 +253,7 @@ public final class BbBehavior implements IGameBehavior {
 
 	private TriState onPlaceBlockInOwnPlot(ServerPlayer player, BlockPos pos, BlockState placed, Plot plot) {
 		if (placed.is(Blocks.FARMLAND)) {
-			player.level().setBlockAndUpdate(pos, Blocks.FARMLAND.defaultBlockState().setValue(FarmBlock.MOISTURE, 7));
+			player.level().setBlockAndUpdate(pos, Blocks.FARMLAND.defaultBlockState().setValue(FarmlandBlock.MOISTURE, FarmlandBlock.MAX_MOISTURE));
 			return TriState.DEFAULT;
 		}
 		// TODO: Data-drive
@@ -269,7 +269,7 @@ public final class BbBehavior implements IGameBehavior {
 	}
 
 	private void sendActionRejection(ServerPlayer player, Component message) {
-		player.displayClientMessage(message.copy().withStyle(ChatFormatting.RED), true);
+		player.sendSystemMessage(message.copy().withStyle(ChatFormatting.RED), true);
 		player.level().playSound(null, player.blockPosition(), SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 1.0F, 1.0F);
 	}
 
@@ -289,7 +289,7 @@ public final class BbBehavior implements IGameBehavior {
 		// Using the standard event system means it'll never be called due to us needing to fail the event, so we duplicate it.
 		game.invoker(BbEvents.BB_DEATH).onDeath(player, damageSource);
 
-		player.playNotifySound(SoundEvents.ARROW_HIT_PLAYER, SoundSource.PLAYERS, 0.18F, 1.0F);
+		com.lovetropics.minigames.common.util.Util.sendNotifySound(player, SoundEvents.ARROW_HIT_PLAYER, SoundSource.PLAYERS, 0.18F, 1.0F);
 		player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 80));
 		player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, 255, 80));
 

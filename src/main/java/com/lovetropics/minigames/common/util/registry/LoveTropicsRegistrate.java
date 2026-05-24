@@ -8,7 +8,7 @@ import com.mojang.serialization.MapCodec;
 import com.tterrag.registrate.AbstractRegistrate;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.ai.attributes.Attribute;
-import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
+import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.neoforged.fml.ModLoadingContext;
 
 import java.util.function.Function;
@@ -59,15 +59,15 @@ public final class LoveTropicsRegistrate extends AbstractRegistrate<LoveTropicsR
 		return entry(name, callback -> new EntityPredicateBuilder<>(this, parent, name, callback, codec));
 	}
 
-	public <T extends LootItemConditionType> LootItemConditionTypeBuilder<T, LoveTropicsRegistrate> lootItemConditionType(Supplier<T> lootItemConditionTypeSupplier) {
+	public <T extends MapCodec<? extends LootItemCondition>> LootItemConditionTypeBuilder<T, LoveTropicsRegistrate> lootItemConditionType(Supplier<T> lootItemConditionTypeSupplier) {
 		return lootItemConditionType(this, lootItemConditionTypeSupplier);
 	}
 
-	public <T extends LootItemConditionType, P> LootItemConditionTypeBuilder<T, P> lootItemConditionType(P parent, Supplier<T> lootItemConditionTypeSupplier) {
+	public <T extends MapCodec<? extends LootItemCondition>, P> LootItemConditionTypeBuilder<T, P> lootItemConditionType(P parent, Supplier<T> lootItemConditionTypeSupplier) {
 		return lootItemConditionType(parent, currentName(), lootItemConditionTypeSupplier);
 	}
 
-	public <T extends LootItemConditionType, P> LootItemConditionTypeBuilder<T, P> lootItemConditionType(P parent, String name, Supplier<T> lootItemConditionTypeSupplier) {
+	public <T extends MapCodec<? extends LootItemCondition>, P> LootItemConditionTypeBuilder<T, P> lootItemConditionType(P parent, String name, Supplier<T> lootItemConditionTypeSupplier) {
 		return entry(name, callback -> new LootItemConditionTypeBuilder<>(this, parent, name, callback, lootItemConditionTypeSupplier));
 	}
 

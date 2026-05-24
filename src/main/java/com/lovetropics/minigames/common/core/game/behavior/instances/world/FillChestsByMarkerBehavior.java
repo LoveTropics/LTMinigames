@@ -8,7 +8,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -59,7 +59,7 @@ public class FillChestsByMarkerBehavior extends ChunkGeneratingBehavior {
 			return;
 		}
 
-		RandomSource random = world.random;
+		RandomSource random = world.getRandom();
 		Util.shuffle(chests, random);
 
 		if (percentage < 1.0f) {
@@ -116,7 +116,7 @@ public class FillChestsByMarkerBehavior extends ChunkGeneratingBehavior {
 	private void setChest(ServerLevel world, BlockPos pos, Chest chest, ResourceKey<LootTable> lootTable) {
 		world.setBlockAndUpdate(pos, chest.blockState);
 		if (world.getBlockEntity(pos) instanceof RandomizableContainer blockEntity) {
-			blockEntity.setLootTable(lootTable, world.random.nextLong());
+			blockEntity.setLootTable(lootTable, world.getRandom().nextLong());
 		}
 		world.getChunkSource().getLightEngine().checkBlock(pos);
 	}

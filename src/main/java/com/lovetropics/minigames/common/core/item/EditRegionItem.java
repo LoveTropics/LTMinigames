@@ -80,7 +80,7 @@ public final class EditRegionItem extends Item {
 			if (entity instanceof Player player) {
 				Component message = Component.literal("Changed mode to: ")
 						.append(Component.literal(mode.key).withStyle(mode.color));
-				player.displayClientMessage(message, true);
+				player.sendOverlayMessage(message);
 			}
 		}
 

@@ -14,7 +14,7 @@ import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.BlockTags;
@@ -38,7 +38,7 @@ public class GrowCoconutsBehavior implements IGameBehavior {
 	public static final MapCodec<GrowCoconutsBehavior> CODEC = Codec.INT.fieldOf("interval")
 			.xmap(GrowCoconutsBehavior::new, b -> b.interval);
 
-	private static final DeferredHolder<Block, Block> COCONUT = DeferredHolder.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath("tropicraft", "coconut"));
+	private static final DeferredHolder<Block, Block> COCONUT = DeferredHolder.create(Registries.BLOCK, Identifier.fromNamespaceAndPath("tropicraft", "coconut"));
 	private final int interval;
 	private final WeakHashMap<Plant, List<Pair<BlockPos, Direction>>> candidatePositions = new WeakHashMap<>();
 

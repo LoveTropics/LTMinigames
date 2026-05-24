@@ -23,7 +23,7 @@ public record MinecraftBehavior(
 	public void register(IGamePhase game, EventRegistrar events) {
 		Set<UUID> playersToSpawnProperly = new HashSet<>();
 		events.listen(GamePlayerEvents.SPAWN, (playerId, spawn, role) -> {
-			spawn.teleportTo(game.level(), game.level().getSharedSpawnPos());
+			spawn.teleportTo(game.level(), game.level().getRespawnData().pos());
 			if (role == PlayerRole.PARTICIPANT) {
 				playersToSpawnProperly.add(playerId);
 			}
@@ -40,7 +40,7 @@ public record MinecraftBehavior(
 	private void spawnPlayer(IGamePhase game, ServerPlayer player) {
 		TeleportTransition respawn = player.findRespawnPositionAndUseSpawnBlock(false, TeleportTransition.DO_NOTHING);
 		if (respawn.missingRespawnBlock() || respawn.newLevel() == game.server().overworld()) {
-			BlockPos pos = player.adjustSpawnLocation(game.level(), game.level().getSharedSpawnPos());
+			BlockPos pos = player.adjustSpawnLocation(game.level(), game.level().getRespawnData().pos());
 			player.teleportTo(game.level(), pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, Set.of(), 0.0f, 0.0f, true);
 		} else {
 			player.teleport(respawn);

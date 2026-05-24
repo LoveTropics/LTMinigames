@@ -36,9 +36,10 @@ import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureMapping;
 import net.minecraft.client.data.models.model.TextureSlot;
 import net.minecraft.client.renderer.special.ChestSpecialRenderer;
+import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Unit;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -134,20 +135,20 @@ public class RiverRace {
 					ctx.get(),
 					new TextureMapping()
 							.put(TextureSlot.ALL, TextureMapping.getBlockTexture(ctx.get()))
-							.put(GLOW_SLOT, prov.modLoc("block/trivia_glow")),
+							.put(GLOW_SLOT, prov.modBlockTexture("trivia_glow")),
 					prov.modelOutput
 			));
 			MultiVariant inactiveVariant = plainVariant(ModelTemplates.CUBE_ALL.create(
 					ModelLocationUtils.getModelLocation(ctx.get(), "_inactive"),
-					useInactiveTexture ? TextureMapping.cube(prov.modLoc("block/trivia_inactive")) : TextureMapping.cube(ctx.get()),
+					useInactiveTexture ? TextureMapping.cube(prov.modBlockTexture("trivia_inactive")) : TextureMapping.cube(ctx.get()),
 					prov.modelOutput
 			));
 			prov.blockStateOutput.accept(MultiVariantGenerator.dispatch(ctx.get())
 					.with(createBooleanModelDispatch(TriviaBlock.ANSWERED, inactiveVariant, activeVariant)));
 		}
 
-		private static void generateChestItem(DataGenContext<Item, BlockItem> ctx, RegistrateItemModelGenerator prov, ResourceLocation texture, ResourceLocation particle) {
-			ResourceLocation baseModel = ModelTemplates.CHEST_INVENTORY.create(ctx.get(), TextureMapping.particle(particle), prov.modelOutput);
+		private static void generateChestItem(DataGenContext<Item, BlockItem> ctx, RegistrateItemModelGenerator prov, Identifier texture, Material particle) {
+			Identifier baseModel = ModelTemplates.CHEST_INVENTORY.create(ctx.get(), TextureMapping.particle(particle), prov.modelOutput);
 			prov.itemModelOutput.accept(ctx.get(), ItemModelUtils.specialModel(baseModel, new ChestSpecialRenderer.Unbaked(texture)));
 		}
 	}

@@ -20,7 +20,7 @@ public record SetBlockAtEntityAction(BlockStateProvider block) implements IGameB
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		events.applyToEntities(game, (context, entity) -> {
 			BlockPos pos = entity.blockPosition();
-			BlockState state = block.getState(entity.level().random, pos);
+			BlockState state = block.getState(game.level(), entity.level().getRandom(), pos);
 			entity.level().setBlockAndUpdate(pos, state);
 			return true;
 		});

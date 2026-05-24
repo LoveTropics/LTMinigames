@@ -16,9 +16,9 @@ public class UpsetStomachEffect extends MobEffect {
 
 	@Override
 	public boolean applyEffectTick(ServerLevel level, LivingEntity entity, int amplifier) {
-		if (level.random.nextFloat() < 0.05f && entity.getKnownMovement().lengthSqr() > 0.001f) {
-			level.playSound(null, entity.blockPosition(), SoundRegistry.UPSET_STOMACH_FART.value(), SoundSource.PLAYERS, 1f, level.random.triangle(0.4f, 1.4f));
-			level.sendParticles(ParticleTypes.CAMPFIRE_COSY_SMOKE, entity.position().x, entity.position().y + 0.5f, entity.position().z, level.random.nextInt(3) + 1, 0, 0, 0, 0.1f);
+		if (level.getRandom().nextFloat() < 0.05f && entity.getKnownMovement().lengthSqr() > 0.001f) {
+			level.playSound(null, entity.blockPosition(), SoundRegistry.UPSET_STOMACH_FART.value(), SoundSource.PLAYERS, 1f, level.getRandom().triangle(0.4f, 1.4f));
+			level.sendParticles(ParticleTypes.CAMPFIRE_COSY_SMOKE, entity.position().x, entity.position().y + 0.5f, entity.position().z, level.getRandom().nextInt(3) + 1, 0, 0, 0, 0.1f);
 			entity.hurtMarked = true;
 			final float uppies = entity.onGround() && entity.isCrouching() ? 0.5f : 0.4f;
 			entity.addDeltaMovement(entity.getKnownMovement().normalize().scale(0.2f).add(0, uppies, 0));

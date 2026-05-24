@@ -14,8 +14,9 @@ import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.RegistryFileCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.JukeboxSong;
 
 import java.nio.file.Path;
@@ -25,7 +26,7 @@ import java.util.List;
 
 public record DdrLevel(
 		Holder<JukeboxSong> track,
-		ItemStack icon,
+		ItemStackTemplate icon,
 		Component displayName,
 		List<TimedDdrInput> inputs,
 		DdrLevelDifficulty difficulty
@@ -46,7 +47,7 @@ public record DdrLevel(
 
 	public static final Codec<DdrLevel> DIRECT_CODEC = RecordCodecBuilder.create(i -> i.group(
 			JukeboxSong.CODEC.fieldOf("track").forGetter(DdrLevel::track),
-			ItemStack.CODEC.fieldOf("icon").forGetter(DdrLevel::icon),
+			ItemStackTemplate.CODEC.fieldOf("icon").forGetter(DdrLevel::icon),
 			ComponentSerialization.CODEC.fieldOf("display_name").forGetter(DdrLevel::displayName),
 			INPUTS_CODEC.fieldOf("ticks").forGetter(DdrLevel::inputs),
 			DdrLevelDifficulty.CODEC.fieldOf("difficulty").forGetter(DdrLevel::difficulty)
@@ -55,7 +56,7 @@ public record DdrLevel(
 
 	public static final StreamCodec<RegistryFriendlyByteBuf, DdrLevel> DIRECT_STREAM_CODEC = StreamCodec.composite(
 			JukeboxSong.STREAM_CODEC, DdrLevel::track,
-			ItemStack.STREAM_CODEC, DdrLevel::icon,
+			ItemStackTemplate.STREAM_CODEC, DdrLevel::icon,
 			ComponentSerialization.STREAM_CODEC, DdrLevel::displayName,
 			TimedDdrInput.STREAM_CODEC.apply(ByteBufCodecs.list()), DdrLevel::inputs,
 			DdrLevelDifficulty.STREAM_CODEC, DdrLevel::difficulty,
@@ -67,7 +68,7 @@ public record DdrLevel(
 		return track.value().lengthInTicks();
 	}
 
-	public static Path pathFor(ResourceLocation id) {
-		return Paths.get("export", id.getNamespace(), EscapeRace.DDR_LEVEL.location().getNamespace(), EscapeRace.DDR_LEVEL.location().getPath(), id.getPath() + ".json");
+	public static Path pathFor(Identifier id) {
+		return Paths.get("export", id.getNamespace(), EscapeRace.DDR_LEVEL.identifier().getNamespace(), EscapeRace.DDR_LEVEL.identifier().getPath(), id.getPath() + ".json");
 	}
 }

@@ -12,19 +12,27 @@ import net.neoforged.neoforge.client.settings.KeyModifier;
 
 @EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
 public class LobbyKeybinds {
+
 	public static final KeyMapping JOIN = create("join", InputConstants.KEY_J, KeyModifier.CONTROL);
 	public static final KeyMapping LEAVE = create("leave", InputConstants.KEY_L, KeyModifier.CONTROL);
 	public static final KeyMapping MANAGE = create("manage", InputConstants.KEY_G, KeyModifier.CONTROL);
+
+	// Todo Should we Unifi this one
+	public static final KeyMapping.Category LOBBY_CATEGORY = new KeyMapping.Category(LoveTropics.location("lobby"));
 
 	public static void init() {
 	}
 
 	private static KeyMapping create(String id, int key, KeyModifier modifier) {
-		return new KeyMapping("key." + LoveTropics.ID + "." + id, KeyConflictContext.IN_GAME, modifier, InputConstants.Type.KEYSYM.getOrCreate(key), "key.categories." + LoveTropics.ID + ".lobby");
+		final String modid = LoveTropics.ID;
+		String description = "key." + modid + "." + id;
+		return new KeyMapping(description, KeyConflictContext.IN_GAME, modifier, InputConstants.Type.KEYSYM, key, LOBBY_CATEGORY);
 	}
+
 
 	@SubscribeEvent
 	public static void registerBindings(RegisterKeyMappingsEvent event) {
+		event.registerCategory(LOBBY_CATEGORY);
 		event.register(JOIN);
 		event.register(LEAVE);
 		event.register(MANAGE);

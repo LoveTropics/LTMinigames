@@ -8,10 +8,11 @@ import com.lovetropics.minigames.client.screen.flex.FlexSolver;
 import com.lovetropics.minigames.client.screen.flex.Layout;
 import com.lovetropics.minigames.common.core.game.util.GameTexts;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nullable;
@@ -81,18 +82,18 @@ public final class InstalledGameList extends AbstractGameList {
 	}
 
 	@Override
-	public void renderOverlays(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+	public void renderOverlays(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
 		super.renderOverlays(graphics, mouseX, mouseY, partialTicks);
-		enqueueButton.render(graphics, mouseX, mouseY, partialTicks);
-		cancelButton.render(graphics, mouseX, mouseY, partialTicks);
+		enqueueButton.extractRenderState(graphics, mouseX, mouseY, partialTicks);
+		cancelButton.extractRenderState(graphics, mouseX, mouseY, partialTicks);
 	}
 
 	@Override
-	public boolean mouseClicked(double mouseX, double mouseY, int button) {
-		if (enqueueButton.mouseClicked(mouseX, mouseY, button) || cancelButton.mouseClicked(mouseX, mouseY, button)) {
+	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+		if (enqueueButton.mouseClicked(event, doubleClick) || cancelButton.mouseClicked(event, doubleClick)) {
 			return true;
 		}
-		return super.mouseClicked(mouseX, mouseY, button);
+		return super.mouseClicked(event, doubleClick);
 	}
 
 	@Override

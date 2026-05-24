@@ -46,7 +46,7 @@ public record SoundVolumeModifier(
 		if (soundModifier == null) {
 			return;
 		}
-		Holder.Reference<SoundEvent> soundEvent = BuiltInRegistries.SOUND_EVENT.get(sound.getLocation()).orElse(null);
+		Holder.Reference<SoundEvent> soundEvent = BuiltInRegistries.SOUND_EVENT.get(sound.getIdentifier()).orElse(null);
 		Float volumeModifier = soundModifier.volumes.get(soundEvent);
 		if (volumeModifier != null) {
 			AbstractSoundInstanceAccess soundAccess = (AbstractSoundInstanceAccess) sound;

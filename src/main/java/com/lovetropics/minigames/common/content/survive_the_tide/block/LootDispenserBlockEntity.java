@@ -13,6 +13,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.valueproviders.IntProvider;
+import net.minecraft.util.valueproviders.IntProviders;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -113,7 +114,7 @@ public class LootDispenserBlockEntity extends BlockEntity {
 			dropQueue.addAll(lootTable.getRandomItems(params));
 		}
 
-		ticksToNextDrop = loot.dropInterval.sample(level.random);
+		ticksToNextDrop = loot.dropInterval.sample(level.getRandom());
 		if (--dropsLeft == 0) {
 			addFailureEffects(level, getDispensePos(pos, state));
 			level.setBlock(pos, state.setValue(LootDispenserBlock.STATE, LootDispenserBlock.State.CLOGGED), Block.UPDATE_ALL);
@@ -162,7 +163,7 @@ public class LootDispenserBlockEntity extends BlockEntity {
 		public static final Codec<LootConfig> CODEC = RecordCodecBuilder.create(i -> i.group(
 				ResourceKey.codec(Registries.LOOT_TABLE).fieldOf("table").forGetter(LootConfig::lootTable),
 				ResourceKey.codec(Registries.LOOT_TABLE).optionalFieldOf("junk_table").forGetter(LootConfig::junkTable),
-				IntProvider.CODEC.fieldOf("drop_interval").forGetter(LootConfig::dropInterval),
+				IntProviders.CODEC.fieldOf("drop_interval").forGetter(LootConfig::dropInterval),
 				Codec.INT.fieldOf("player_range").orElse(5).forGetter(LootConfig::playerRange),
 				Codec.INT.fieldOf("max_player_count").orElse(1).forGetter(LootConfig::maxPlayerCount)
 		).apply(i, LootConfig::new));

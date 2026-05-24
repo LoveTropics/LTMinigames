@@ -16,7 +16,7 @@ import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.goal.ZombieAttackGoal;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
-import net.minecraft.world.entity.monster.Drowned;
+import net.minecraft.world.entity.monster.zombie.Drowned;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.material.Fluid;
@@ -34,7 +34,7 @@ public class BbDrownedEntity extends Drowned implements BbMobEntity {
 		mobBrain = new BbMobBrain(plot.walls);
 		this.plot = plot;
 
-		setPathfindingMalus(PathType.DANGER_OTHER, BERRY_BUSH_MALUS);
+		setPathfindingMalus(PathType.DAMAGING_IN_NEIGHBOR, BERRY_BUSH_MALUS);
 	}
 
 	@Override

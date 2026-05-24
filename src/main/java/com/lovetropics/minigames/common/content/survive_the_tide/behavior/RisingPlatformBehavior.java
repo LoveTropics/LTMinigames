@@ -44,7 +44,7 @@ public record RisingPlatformBehavior(
 			game.level().addFreshEntity(platform);
 
 			for (ServerPlayer participant : game.participants()) {
-				participant.startRiding(platform, true);
+				participant.startRiding(platform, true, false);
 			}
 
 			platform.lerpTo(center.x(), startY + height, center.z(), time);

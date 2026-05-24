@@ -38,7 +38,7 @@ public class BbZoglinEntity extends Zoglin implements BbMobEntity {
 		mobBrain = new BbMobBrain(plot.walls);
 		this.plot = plot;
 
-		setPathfindingMalus(PathType.DANGER_OTHER, 0.0F);
+		setPathfindingMalus(PathType.DAMAGING_IN_NEIGHBOR, 0.0F);
 	}
 
 	@Override

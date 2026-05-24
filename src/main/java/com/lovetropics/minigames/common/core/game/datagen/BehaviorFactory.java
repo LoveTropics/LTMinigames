@@ -5,7 +5,7 @@ import com.lovetropics.minigames.common.core.game.behavior.action.ActionTarget;
 import com.lovetropics.minigames.common.core.game.behavior.action.ApplyToAction;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionList;
 import com.lovetropics.minigames.common.core.game.behavior.instances.CompositeBehavior;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.HashMap;
 import java.util.List;
@@ -13,14 +13,14 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 public class BehaviorFactory {
-	private final Map<ResourceLocation, IGameBehavior> behaviors = new HashMap<>();
+	private final Map<Identifier, IGameBehavior> behaviors = new HashMap<>();
 
-	public IGameBehavior direct(ResourceLocation name, IGameBehavior behavior) {
+	public IGameBehavior direct(Identifier name, IGameBehavior behavior) {
 		behaviors.put(name, behavior);
 		return new DirectBehavior(name, behavior);
 	}
 
-	public Stream<Map.Entry<ResourceLocation, IGameBehavior>> stream() {
+	public Stream<Map.Entry<Identifier, IGameBehavior>> stream() {
 		return behaviors.entrySet().stream();
 	}
 

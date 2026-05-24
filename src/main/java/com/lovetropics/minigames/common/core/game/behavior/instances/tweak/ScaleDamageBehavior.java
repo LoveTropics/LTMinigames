@@ -8,7 +8,7 @@ import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvent
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.advancements.critereon.DamageSourcePredicate;
+import net.minecraft.advancements.criterion.DamageSourcePredicate;
 
 public record ScaleDamageBehavior(float factor, DamageSourcePredicate source) implements IGameBehavior {
 	public static final MapCodec<ScaleDamageBehavior> CODEC = RecordCodecBuilder.mapCodec(in -> in.group(

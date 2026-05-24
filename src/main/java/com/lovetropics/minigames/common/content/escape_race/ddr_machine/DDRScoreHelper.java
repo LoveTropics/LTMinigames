@@ -17,7 +17,7 @@ import net.minecraft.world.scores.criteria.ObjectiveCriteria;
 public class DDRScoreHelper {
 
 	public static void onGameFinished(ServerPlayer serverPlayer, Holder<DdrLevel> level, int score, int bestStreak) {
-		MinecraftServer server = serverPlayer.getServer();
+		MinecraftServer server = serverPlayer.level().getServer();
 		Holder<JukeboxSong> song = level.value().track();
 		String key = song.getRegisteredName();
 		String objectiveName = LoveTropics.ID + ".ddr." + key.replace(":", "_");

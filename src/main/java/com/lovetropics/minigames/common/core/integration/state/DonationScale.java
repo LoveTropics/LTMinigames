@@ -3,7 +3,7 @@ package com.lovetropics.minigames.common.core.integration.state;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.advancements.critereon.MinMaxBounds;
+import net.minecraft.advancements.criterion.MinMaxBounds;
 import net.minecraft.world.item.DyeColor;
 
 import java.util.List;

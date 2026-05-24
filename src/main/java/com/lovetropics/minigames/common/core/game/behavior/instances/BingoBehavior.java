@@ -13,9 +13,9 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.ChatFormatting;
-import net.minecraft.advancements.critereon.DataComponentMatchers;
-import net.minecraft.advancements.critereon.ItemPredicate;
-import net.minecraft.advancements.critereon.MinMaxBounds;
+import net.minecraft.advancements.criterion.DataComponentMatchers;
+import net.minecraft.advancements.criterion.ItemPredicate;
+import net.minecraft.advancements.criterion.MinMaxBounds;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.component.DataComponentExactPredicate;
 import net.minecraft.network.chat.Component;
@@ -23,6 +23,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import org.slf4j.Logger;
 
 import java.util.BitSet;
@@ -34,12 +35,12 @@ public record BingoBehavior(
 ) implements IGameBehavior {
 	private static final Codec<ItemPredicate> ITEM_OR_PREDICATE_CODEC = Codec.withAlternative(
 			ItemPredicate.CODEC,
-			MoreCodecs.ITEM_STACK,
+			ItemStackTemplate.CODEC,
 			itemStack -> new ItemPredicate(
-					Optional.of(HolderSet.direct(itemStack.getItemHolder())),
-					MinMaxBounds.Ints.atLeast(itemStack.getCount()),
+					Optional.of(HolderSet.direct(itemStack.typeHolder())),
+					MinMaxBounds.Ints.atLeast(itemStack.count()),
 					DataComponentMatchers.Builder.components()
-							.exact(DataComponentExactPredicate.allOf(itemStack.getComponentsPatch().split().added()))
+							.exact(DataComponentExactPredicate.allOf(itemStack.components().split().added()))
 							.build()
 			)
 	);

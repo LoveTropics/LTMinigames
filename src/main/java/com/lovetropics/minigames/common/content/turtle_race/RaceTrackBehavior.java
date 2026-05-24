@@ -289,7 +289,7 @@ public class RaceTrackBehavior implements IGameBehavior {
 
 	private void onPlayerFinish(IGamePhase game, ServerPlayer player) {
 		long time = game.ticks() - startTime;
-		finishedPlayers.add(new FinishEntry(player.getGameProfile().getName(), PlayerKey.from(player), time));
+		finishedPlayers.add(new FinishEntry(player.getGameProfile().name(), PlayerKey.from(player), time));
 
 		game.statistics().forPlayer(player)
 				.set(StatisticKey.PLACEMENT, finishedPlayers.size())
@@ -354,7 +354,7 @@ public class RaceTrackBehavior implements IGameBehavior {
 					PlayerState state = entry.getValue();
 					if (otherPlayer != null) {
 						float progress = state.trackedPosition / path.length();
-						String playerName = otherPlayer.getGameProfile().getName();
+						String playerName = otherPlayer.getGameProfile().name();
 						boolean self = player.getUUID().equals(otherPlayer.getUUID());
 						if (lapCount > 1) {
 							leaderboard.add(playerName, TurtleRaceTexts.lapProgress(state.lap, progress), self);

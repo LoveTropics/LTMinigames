@@ -14,7 +14,7 @@ import com.lovetropics.minigames.common.core.game.lobby.QueuedGame;
 import com.lovetropics.minigames.common.core.game.rewards.GameRewardsMap;
 import com.lovetropics.minigames.common.dev.DevQuickPlay;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import javax.annotation.Nullable;
 import java.util.Objects;
@@ -152,7 +152,7 @@ abstract class LobbyState {
 		}
 
 		private @Nullable SlideshowInstanceHandle openIntroSlideshow(GameLobby lobby, GameInstance game) {
-			ResourceLocation slideshowId = game.definition().introSlideshow();
+			Identifier slideshowId = game.definition().introSlideshow();
 			SlideshowInstanceHandle slideshow = slideshowId != null ? SlideshowApi.open(slideshowId) : null;
 			if (slideshow != null) {
 				slideshow.play();

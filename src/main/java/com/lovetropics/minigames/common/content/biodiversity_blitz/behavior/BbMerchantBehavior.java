@@ -31,6 +31,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.trading.ItemCost;
 import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.item.trading.MerchantOffers;
@@ -165,7 +166,7 @@ public final class BbMerchantBehavior implements IGameBehavior {
 	}
 
 	public static final class Output {
-		private static final Codec<Output> ITEM_CODEC = MoreCodecs.ITEM_STACK.xmap(Output::item, output -> output.item);
+		private static final Codec<Output> ITEM_CODEC = ItemStackTemplate.CODEC.xmap(Output::item, output -> output.item);
 		private static final Codec<Output> PLANT_CODEC = RecordCodecBuilder.create(i -> i.group(
 				PlantItemType.CODEC.fieldOf("plant").forGetter(c -> c.plant)
 		).apply(i, Output::plant));
@@ -177,16 +178,16 @@ public final class BbMerchantBehavior implements IGameBehavior {
 				);
 
 		@Nullable
-		private final ItemStack item;
+		private final ItemStackTemplate item;
 		@Nullable
 		private final PlantItemType plant;
 
-		private Output(@Nullable ItemStack item, @Nullable PlantItemType plant) {
+		private Output(@Nullable ItemStackTemplate item, @Nullable PlantItemType plant) {
 			this.item = item;
 			this.plant = plant;
 		}
 
-		private static Output item(ItemStack item) {
+		private static Output item(ItemStackTemplate item) {
 			return new Output(item, null);
 		}
 
@@ -196,7 +197,7 @@ public final class BbMerchantBehavior implements IGameBehavior {
 
 		private ItemStack build(IGamePhase game) {
 			if (item != null) {
-				return item;
+				return item.create();
 			} else if (plant != null) {
 				return game.invoker(BbEvents.CREATE_PLANT_ITEM).createPlantItem(plant);
 			}

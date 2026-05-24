@@ -10,7 +10,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
@@ -24,11 +24,13 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 public final class MapWorkspaceManager extends SavedData {
+	public static final Identifier ID = LoveTropics.location("map_workspace_manager");
+
 	private static final SavedDataType<MapWorkspaceManager> TYPE = new SavedDataType<>(
-			LoveTropics.ID + "_map_workspace_manager",
-			context -> new MapWorkspaceManager(context.levelOrThrow().getServer()),
+			ID,
+			context -> new MapWorkspaceManager(context.getServer()),
 			context -> Packed.CODEC.xmap(
-					packed -> MapWorkspaceManager.load(context.levelOrThrow().getServer(), packed),
+					packed -> MapWorkspaceManager.load(context.getServer(), packed),
 					MapWorkspaceManager::pack
 			)
 	);
@@ -79,7 +81,7 @@ public final class MapWorkspaceManager extends SavedData {
 
 	@Nullable
 	public MapWorkspace getWorkspace(ResourceKey<Level> dimension) {
-		ResourceLocation name = dimension.location();
+		Identifier name = dimension.identifier();
 		if (!name.getNamespace().equals(LoveTropics.ID)) {
 			return null;
 		}

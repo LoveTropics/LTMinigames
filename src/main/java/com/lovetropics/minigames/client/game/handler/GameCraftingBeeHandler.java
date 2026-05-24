@@ -11,16 +11,17 @@ import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.CraftingScreen;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
@@ -69,8 +70,8 @@ public class GameCraftingBeeHandler {
 		}
 	};
 
-	private static final ResourceLocation ITEMS_BAR_SPRITE = LoveTropics.location("minigames/crafting_bee/items_bar");
-	private static final ResourceLocation GRID_SPRITE = LoveTropics.location("minigames/crafting_bee/crafting_grid");
+	private static final Identifier ITEMS_BAR_SPRITE = LoveTropics.location("minigames/crafting_bee/items_bar");
+	private static final Identifier GRID_SPRITE = LoveTropics.location("minigames/crafting_bee/crafting_grid");
 
 	@EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
 	public static class ModSubscriber {
@@ -88,8 +89,8 @@ public class GameCraftingBeeHandler {
 				}
 
 				@Override
-				public void renderImage(Font font, int x, int y, int width, int height, GuiGraphics guiGraphics) {
-					guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, GRID_SPRITE, x, y, 54, 54);
+				public void extractImage(Font font, int x, int y, int w, int h, GuiGraphicsExtractor graphics) {
+					graphics.blitSprite(RenderPipelines.GUI_TEXTURED, GRID_SPRITE, x, y, 54, 54);
 					for (int i = 0; i < recipeHintState.grid().size(); i++) {
 						var ingredient = recipeHintState.grid.get(i);
 						if (ingredient.isEmpty()) {
@@ -98,7 +99,7 @@ public class GameCraftingBeeHandler {
 
 						var hintWidth = recipeHintState.width();
 
-						guiGraphics.renderFakeItem(
+						graphics.fakeItem(
 								ingredient,
 								x + 1 + 18 * (i % hintWidth),
 								y + 1 + 18 * (i / hintWidth)
@@ -115,18 +116,18 @@ public class GameCraftingBeeHandler {
 			return;
 		}
 
-		event.addListener(new AbstractWidget(screen.getGuiLeft() + 22, screen.getGuiTop() - 21, 132, 21, Component.empty()) {
+		event.addListener(new AbstractWidget(screen.getLeftPos() + 22, screen.getTopPos() - 21, 132, 21, Component.empty()) {
 			@Override
-			protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-				guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, ITEMS_BAR_SPRITE, this.getX(), this.getY(), 132, 21);
+			protected void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+				graphics.blitSprite(RenderPipelines.GUI_TEXTURED, ITEMS_BAR_SPRITE, this.getX(), this.getY(), 132, 21);
 				var crafts = getState().crafts();
 				for (int i = 0; i < crafts.size(); i++) {
 					var craft = crafts.get(i);
 					var x = getX() + 4 + i * 18;
 					int y = getY() + 4;
-					guiGraphics.renderFakeItem(craft.output(), x, y, 0);
+					graphics.fakeItem(craft.output(), x, y, 0);
 					if (craft.done()) {
-						guiGraphics.fill(x, y, x + 16, y + 16, 0xe5c6c6c6);
+						graphics.fill(x, y, x + 16, y + 16, 0xe5c6c6c6);
 					}
 
 					if (mouseX >= x && mouseX <= x + 16 && mouseY >= y && mouseY <= getY() + 20) {
@@ -139,16 +140,18 @@ public class GameCraftingBeeHandler {
 							tooltipLines.add(CraftingBeeTexts.HINT);
 							tooltipLines.add(CraftingBeeTexts.HINTS_LEFT.apply(hintsRemaining).withStyle(ChatFormatting.AQUA));
 						}
-						guiGraphics.setTooltipForNextFrame(Minecraft.getInstance().font, tooltipLines, Optional.<TooltipComponent>ofNullable(hint).filter($ -> !craft.done()), mouseX, mouseY);
+						graphics.setTooltipForNextFrame(Minecraft.getInstance().font, tooltipLines, Optional.<TooltipComponent>ofNullable(hint).filter($ -> !craft.done()), mouseX, mouseY);
 					}
 				}
 			}
 
 			@Override
-			public void onClick(double mouseX, double mouseY, int button) {
+			public void onClick(MouseButtonEvent event, boolean doubleClick) {
 				if (hintsRemaining <= 0) {
 					return;
 				}
+				double mouseX = event.x();
+				double mouseY = event.y();
 
 				var crafts = getState().crafts();
 
@@ -237,7 +240,7 @@ public class GameCraftingBeeHandler {
 		}
 		for (ItemStack item : candidates) {
 			// Prioritize vanilla items
-			if (item.getItem().builtInRegistryHolder().key().location().getNamespace().equals(ResourceLocation.DEFAULT_NAMESPACE)) {
+			if (item.getItem().builtInRegistryHolder().key().identifier().getNamespace().equals(Identifier.DEFAULT_NAMESPACE)) {
 				return item;
 			}
 		}

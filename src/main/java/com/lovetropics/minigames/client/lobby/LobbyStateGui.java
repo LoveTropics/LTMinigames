@@ -9,10 +9,10 @@ import com.lovetropics.minigames.common.core.game.LobbyStatus;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.CommonColors;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -55,7 +55,7 @@ public class LobbyStateGui {
 	}
 
 	public static void registerOverlays(RegisterGuiLayersEvent event) {
-		event.registerBelow(VanillaGuiLayers.DEBUG_OVERLAY, LoveTropics.location("minigame_lobby"), (graphics, deltaTracker) -> {
+		event.registerBelow(VanillaGuiLayers.CONTEXTUAL_INFO_BAR_BACKGROUND, LoveTropics.location("minigame_lobby"), (graphics, deltaTracker) -> {
 			if (Minecraft.getInstance().options.hideGui) {
 				return;
 			}
@@ -68,7 +68,7 @@ public class LobbyStateGui {
 		});
 	}
 
-	private static void renderLobbies(GuiGraphics graphics, @Nullable ClientLobbyState joinedLobby, Collection<ClientLobbyState> lobbies, boolean hasBossBar) {
+	private static void renderLobbies(GuiGraphicsExtractor graphics, @Nullable ClientLobbyState joinedLobby, Collection<ClientLobbyState> lobbies, boolean hasBossBar) {
 		if (joinedLobby != null) {
 			if (joinedLobby.getStatus() != LobbyStatus.PLAYING) {
 				render(graphics, PADDING, PADDING, joinedLobby, hasBossBar);
@@ -81,7 +81,7 @@ public class LobbyStateGui {
 		}
 	}
 
-	private static int render(GuiGraphics graphics, int left, int top, ClientLobbyState lobby, boolean hasBossBar) {
+	private static int render(GuiGraphicsExtractor graphics, int left, int top, ClientLobbyState lobby, boolean hasBossBar) {
 		Minecraft client = Minecraft.getInstance();
 
 		final int iconSize = 32;
@@ -89,7 +89,7 @@ public class LobbyStateGui {
 
 		int x = left;
 
-		ResourceLocation icon = getIcon(lobby);
+		Identifier icon = getIcon(lobby);
 		if (icon != null) {
 			graphics.blitSprite(RenderPipelines.GUI_TEXTURED, icon, x, top, 32, 32);
 			x += iconSize + PADDING * 2;
@@ -102,7 +102,7 @@ public class LobbyStateGui {
 		}
 	}
 
-	private static int renderFullText(GuiGraphics graphics, int lineHeight, ClientLobbyState lobby, int left, int top) {
+	private static int renderFullText(GuiGraphicsExtractor graphics, int lineHeight, ClientLobbyState lobby, int left, int top) {
 		Minecraft client = Minecraft.getInstance();
 
 		LobbyStatus status = lobby.getStatus();
@@ -119,7 +119,7 @@ public class LobbyStateGui {
 			line += ChatFormatting.GREEN + " [Joined]";
 		}
 
-		graphics.drawString(fnt, line, x, y, CommonColors.WHITE);
+		graphics.text(fnt, line, x, y, CommonColors.WHITE);
 		y += lineHeight;
 
 		String playerCount = formatPlayerCount(lobby, currentGame);
@@ -128,17 +128,17 @@ public class LobbyStateGui {
 				+ status.color + status.description
 				+ ChatFormatting.GRAY + " (" + playerCount + " players)";
 
-		graphics.drawString(fnt, line, x, y, CommonColors.WHITE);
+		graphics.text(fnt, line, x, y, CommonColors.WHITE);
 		y += lineHeight;
 
 		line = ChatFormatting.GRAY + keyBindsText(joined);
-		graphics.drawString(fnt, line, x, y, CommonColors.WHITE);
+		graphics.text(fnt, line, x, y, CommonColors.WHITE);
 		y += lineHeight + PADDING;
 
 		return y;
 	}
 
-	private static int renderCompactText(GuiGraphics graphics, int lineHeight, ClientLobbyState lobby, int left, int top) {
+	private static int renderCompactText(GuiGraphicsExtractor graphics, int lineHeight, ClientLobbyState lobby, int left, int top) {
 		Minecraft client = Minecraft.getInstance();
 
 		boolean joined = lobby == ClientLobbyManager.getJoined();
@@ -151,19 +151,19 @@ public class LobbyStateGui {
 
 		String line = getLobbyName(lobby);
 
-		graphics.drawString(fnt, line, x, y, CommonColors.WHITE);
+		graphics.text(fnt, line, x, y, CommonColors.WHITE);
 		y += lineHeight;
 
 		line = ChatFormatting.GRAY + "..." + lobby.getPlayerCount() + " "
 				+ status.color + status.description
 				+ ChatFormatting.GRAY;
 
-		graphics.drawString(fnt, line, x, y, CommonColors.WHITE);
+		graphics.text(fnt, line, x, y, CommonColors.WHITE);
 		y += lineHeight;
 
 		line = keyBindsText(joined);
 
-		graphics.drawString(fnt, line, x, y, CommonColors.WHITE);
+		graphics.text(fnt, line, x, y, CommonColors.WHITE);
 		y += lineHeight + PADDING;
 
 		return y;
@@ -180,7 +180,7 @@ public class LobbyStateGui {
 	}
 
 	@Nullable
-	private static ResourceLocation getIcon(ClientLobbyState lobby) {
+	private static Identifier getIcon(ClientLobbyState lobby) {
 		ClientCurrentGame currentGame = lobby.getCurrentGame();
 		if (currentGame != null) {
 			ClientGameDefinition definition = currentGame.definition();

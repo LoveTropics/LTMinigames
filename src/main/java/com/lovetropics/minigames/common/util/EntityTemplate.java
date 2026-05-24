@@ -45,7 +45,7 @@ public record EntityTemplate(EntityType<?> type, CompoundTag tag) {
 
 	@Nullable
 	public Entity spawn(ServerLevel level, double x, double y, double z) {
-		return spawn(level, x, y, z, level.random.nextFloat() * 360.0f, 0.0f);
+		return spawn(level, x, y, z, level.getRandom().nextFloat() * 360.0f, 0.0f);
 	}
 
 	@Nullable

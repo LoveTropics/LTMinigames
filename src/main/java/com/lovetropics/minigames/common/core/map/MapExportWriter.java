@@ -1,9 +1,9 @@
 package com.lovetropics.minigames.common.core.map;
 
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.io.BufferedOutputStream;
 import java.io.Closeable;
@@ -30,7 +30,7 @@ public final class MapExportWriter implements Closeable {
 		return new MapExportWriter(Util.ZIP_FILE_SYSTEM_PROVIDER.newFileSystem(path, Map.of("create", "true")));
 	}
 
-	public static Path pathFor(ResourceLocation id) {
+	public static Path pathFor(Identifier id) {
 		return Paths.get("export", id.getNamespace(), "maps", id.getPath() + ".zip");
 	}
 

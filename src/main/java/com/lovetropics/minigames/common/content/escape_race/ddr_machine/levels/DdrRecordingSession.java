@@ -5,14 +5,15 @@ import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DdrInput;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.JsonOps;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.RegistryOps;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.JukeboxSong;
 import org.slf4j.Logger;
@@ -64,7 +65,7 @@ public class DdrRecordingSession {
 		stopped = true;
 		return new Recording(new DdrLevel(
 				track,
-				new ItemStack(Items.MUSIC_DISC_PIGSTEP),
+				ItemStackTemplate.fromNonEmptyStack(new ItemStack(Items.MUSIC_DISC_PIGSTEP)),
 				displayName,
 				List.copyOf(inputs),
 				DdrLevelDifficulty.EASY
@@ -77,7 +78,7 @@ public class DdrRecordingSession {
 				RegistryOps<JsonElement> ops = registries.createSerializationContext(JsonOps.INSTANCE);
 				JsonElement output = DdrLevel.DIRECT_CODEC.encodeStart(ops, level).getOrThrow();
 				try {
-					ResourceLocation location = LoveTropics.location(level.track().unwrapKey().orElseThrow().location().getPath());
+					Identifier location = LoveTropics.location(level.track().unwrapKey().orElseThrow().identifier().getPath());
 					Path path = DdrLevel.pathFor(location);
 					Files.createDirectories(path.getParent());
 					Files.deleteIfExists(path);

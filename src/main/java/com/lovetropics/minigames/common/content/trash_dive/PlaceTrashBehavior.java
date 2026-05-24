@@ -17,12 +17,12 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongList;
 import it.unimi.dsi.fastutil.longs.LongListIterator;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.ChunkPos;
@@ -35,9 +35,9 @@ import java.nio.ByteBuffer;
 import java.nio.LongBuffer;
 import java.util.Optional;
 
-public record PlaceTrashBehavior(ResourceLocation positionData, int centerY, int range, int density) implements IGameBehavior {
+public record PlaceTrashBehavior(Identifier positionData, int centerY, int range, int density) implements IGameBehavior {
 	public static final MapCodec<PlaceTrashBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			ResourceLocation.CODEC.fieldOf("positionData").forGetter(c -> c.positionData),
+			Identifier.CODEC.fieldOf("positionData").forGetter(c -> c.positionData),
 			Codec.INT.optionalFieldOf("centerY", 75).forGetter(c -> c.centerY),
 			Codec.INT.optionalFieldOf("range", 50).forGetter(c -> c.range),
 			Codec.INT.optionalFieldOf("density", 4).forGetter(c -> c.density)
@@ -50,7 +50,7 @@ public record PlaceTrashBehavior(ResourceLocation positionData, int centerY, int
 		Long2ObjectMap<LongList> trashByChunk = loadTrashByChunk(game);
 
 		events.listen(GameWorldEvents.CHUNK_LOAD, (chunk) -> {
-			LongList positions = trashByChunk.remove(chunk.getPos().toLong());
+			LongList positions = trashByChunk.remove(chunk.getPos().pack());
 			if (positions == null) {
 				return;
 			}
@@ -96,7 +96,7 @@ public record PlaceTrashBehavior(ResourceLocation positionData, int centerY, int
 			long candidatePos = candidatePositions.get();
 
 			long sectionKey = SectionPos.blockToSection(candidatePos);
-			long chunkKey = ChunkPos.asLong(SectionPos.x(sectionKey), SectionPos.z(sectionKey));
+			long chunkKey = ChunkPos.pack(SectionPos.x(sectionKey), SectionPos.z(sectionKey));
 
 			trashByChunk.computeIfAbsent(chunkKey, l -> new LongArrayList()).add(candidatePos);
 		}

@@ -60,7 +60,7 @@ public class DdrScreen {
 			return null;
 		}
 
-		Vector3f cameraVector = modelWorldToScreen.transformDirection(camera.getLookVector(), new Vector3f());
+		Vector3f cameraVector = modelWorldToScreen.transformDirection(camera.forwardVector(), new Vector3f());
 		if (cameraVector.z() < Mth.EPSILON) {
 			return null;
 		}

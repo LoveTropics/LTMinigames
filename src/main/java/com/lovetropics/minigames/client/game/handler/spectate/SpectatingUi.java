@@ -10,16 +10,16 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.PlayerFaceRenderer;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.PlayerFaceExtractor;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.multiplayer.PlayerInfo;
-import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.CommonColors;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.player.PlayerSkin;
 import net.minecraft.world.scores.PlayerTeam;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -77,7 +77,7 @@ public final class SpectatingUi {
 		// Prevent adjusting the spectator fly speed
 		event.setCanceled(true);
 
-		if (!InputConstants.isKeyDown(minecraft.getWindow().getWindow(), InputConstants.KEY_LCONTROL)) {
+		if (!InputConstants.isKeyDown(minecraft.getWindow(), InputConstants.KEY_LCONTROL)) {
 			session.ui.onScrollSelection(delta);
 		} else {
 			if (session.state.allowsZoom()) {
@@ -182,7 +182,7 @@ public final class SpectatingUi {
 	}
 
 	public static void registerOverlays(RegisterGuiLayersEvent event) {
-		event.registerBelow(VanillaGuiLayers.DEBUG_OVERLAY, LoveTropics.location("minigame_spectator"), (graphics, deltaTracker) -> {
+		event.registerBelow(VanillaGuiLayers.CONTEXTUAL_INFO_BAR_BACKGROUND, LoveTropics.location("minigame_spectator"), (graphics, deltaTracker) -> {
 			Minecraft minecraft = Minecraft.getInstance();
 			if (minecraft.options.hideGui || minecraft.player == null || !minecraft.player.isSpectator()) {
 				return;
@@ -194,7 +194,7 @@ public final class SpectatingUi {
 		});
 	}
 
-	private void renderChasePlayerList(GuiGraphics graphics) {
+	private void renderChasePlayerList(GuiGraphicsExtractor graphics) {
 		int viewStart = scrollViewStart();
 		int viewEnd = scrollViewEnd();
 		int width = Math.min(entries.size(), scrollViewSize()) * ENTRY_WIDTH;
@@ -205,10 +205,10 @@ public final class SpectatingUi {
 		Font font = Minecraft.getInstance().font;
 		int textY = bottom - (ENTRY_HEIGHT + font.lineHeight) / 2;
 		if (viewStart > 0) {
-			graphics.drawString(font, "<", left - font.width("<") - 2, textY, CommonColors.WHITE);
+			graphics.text(font, "<", left - font.width("<") - 2, textY, CommonColors.WHITE);
 		}
 		if (viewEnd < entries.size() - 1) {
-			graphics.drawString(font, ">", right + 2, textY, CommonColors.WHITE);
+			graphics.text(font, ">", right + 2, textY, CommonColors.WHITE);
 		}
 
 		int x = left;
@@ -269,7 +269,7 @@ public final class SpectatingUi {
 		for (UUID player : players) {
 			Supplier<Component> name = () -> {
 				GameProfile profile = ClientPlayerInfo.getPlayerProfile(player);
-				return profile != null ? Component.literal(profile.getName()) : CommonComponents.ELLIPSIS;
+				return profile != null ? Component.literal(profile.name()) : CommonComponents.ELLIPSIS;
 			};
 
 			PlayerTeam team = getTeamFor(player);
@@ -300,7 +300,7 @@ public final class SpectatingUi {
 		private static final int HIGHLIGHTED_OUTLINE_COLOR = 0xa0000000;
 		private static final int TAB_COLOR = 0xff404040;
 
-		void render(GuiGraphics graphics, int left, int screenBottom, boolean selected, boolean highlighted, @Nullable PlayerEvent lastEvent) {
+		void render(GuiGraphicsExtractor graphics, int left, int screenBottom, boolean selected, boolean highlighted, @Nullable PlayerEvent lastEvent) {
 			int top = screenBottom - (highlighted ? HIGHLIGHTED_ENTRY_HEIGHT : ENTRY_HEIGHT);
 			int bottom = top + ENTRY_HEIGHT;
 			int right = left + ENTRY_WIDTH;
@@ -314,7 +314,7 @@ public final class SpectatingUi {
 			graphics.fill(left, bottom, right, screenBottom, TAB_COLOR);
 
 			PlayerSkin skin = ClientPlayerInfo.getSkin(playerIcon);
-			PlayerFaceRenderer.draw(graphics, skin, left + ENTRY_PADDING, top + ENTRY_PADDING, FACE_SIZE);
+			PlayerFaceExtractor.extractRenderState(graphics, skin, left + ENTRY_PADDING, top + ENTRY_PADDING, FACE_SIZE);
 
 			long now = System.currentTimeMillis();
 			if (lastEvent != null && (now - lastEvent.time) <= 500) {
@@ -329,7 +329,7 @@ public final class SpectatingUi {
 			}
 		}
 
-		private void renderName(GuiGraphics graphics, int left, int top, boolean selected) {
+		private void renderName(GuiGraphicsExtractor graphics, int left, int top, boolean selected) {
 			Font font = Minecraft.getInstance().font;
 			Component name = nameSupplier.get();
 			if (!selected) {
@@ -337,7 +337,7 @@ public final class SpectatingUi {
 			}
 
 			int nameLeft = left + (ENTRY_WIDTH - font.width(name)) / 2;
-			graphics.drawString(font, name, nameLeft, top - font.lineHeight - 1, CommonColors.WHITE);
+			graphics.text(font, name, nameLeft, top - font.lineHeight - 1, CommonColors.WHITE);
 		}
 	}
 

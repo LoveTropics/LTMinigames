@@ -216,7 +216,7 @@ public class GameLobbyManager {
 		GameLobby lobby = INSTANCE.getLobbyFor(player);
 		GamePhase targetPhase = GamePhaseManager.get().getGamePhaseInDimension(targetLevel);
 		if (targetPhase != null && targetPhase.game.lobby() != lobby) {
-			player.displayClientMessage(GameTexts.Commands.cannotTeleportIntoGame(), true);
+			player.sendSystemMessage(GameTexts.Commands.cannotTeleportIntoGame(), true);
 			event.setCanceled(true);
 		}
 	}
@@ -226,7 +226,7 @@ public class GameLobbyManager {
 		GameLobby lobby = INSTANCE.getLobbyFor(player);
 		GamePhase targetPhase = GamePhaseManager.get().getGamePhaseAt(transition.newLevel(), transition.position());
 		if (targetPhase != null && targetPhase.game.lobby() != lobby) {
-			player.displayClientMessage(GameTexts.Commands.cannotTeleportIntoGame(), true);
+			player.sendSystemMessage(GameTexts.Commands.cannotTeleportIntoGame(), true);
 			return player;
 		}
 		GamePhase playerPhase = GamePhaseManager.get().getGamePhaseFor(player);
@@ -253,7 +253,7 @@ public class GameLobbyManager {
 
 		if (validDimensions.contains(event.getFrom()) && !validDimensions.contains(event.getTo())) {
 			if (lobby.getPlayers().remove(player, false)) {
-				player.displayClientMessage(GameTexts.Status.leftGameDimension(), false);
+				player.sendSystemMessage(GameTexts.Status.leftGameDimension(), false);
 			}
 		}
 	}

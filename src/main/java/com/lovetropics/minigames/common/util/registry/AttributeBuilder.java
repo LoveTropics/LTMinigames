@@ -3,9 +3,9 @@ package com.lovetropics.minigames.common.util.registry;
 import com.tterrag.registrate.builders.AbstractBuilder;
 import com.tterrag.registrate.builders.BuilderCallback;
 import com.tterrag.registrate.util.entry.RegistryEntry;
-import net.minecraft.Util;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.Util;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.neoforged.neoforge.registries.DeferredHolder;
 
@@ -25,7 +25,7 @@ public final class AttributeBuilder<T extends Attribute, P> extends AbstractBuil
 
 	@Override
 	protected T createEntry() {
-		final ResourceLocation id = ResourceLocation.fromNamespaceAndPath(getOwner().getModid(), getName());
+		final Identifier id = Identifier.fromNamespaceAndPath(getOwner().getModid(), getName());
 		final String translationKey = Util.makeDescriptionId("attribute", id);
 		return factory.apply(translationKey);
 	}

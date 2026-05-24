@@ -5,9 +5,9 @@ import com.lovetropics.minigames.client.game.ClientGameStateManager;
 import com.lovetropics.minigames.common.content.escape_race.EscapeRace;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.CommonColors;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -21,7 +21,7 @@ import java.util.function.UnaryOperator;
 public class EscapeRaceBucksRenderer {
 	private static final int PADDING = 2;
 	private static final int ITEM_SIZE = 16;
-	private static final ResourceLocation HOTBAR_SPRITE = LoveTropics.location("break_bucks_holder");
+	private static final Identifier HOTBAR_SPRITE = LoveTropics.location("break_bucks_holder");
 
 	private static final UnaryOperator<GuiLayer> HIDE_IN_ESCAPE_RACE = (layer) -> ((guiGraphics, deltaTracker) -> {
 		EscapeRaceClientBucksState escapeRaceClientBucksState = ClientGameStateManager.getOrNull(EscapeRace.BREAK_BUCK_STATE);
@@ -44,7 +44,7 @@ public class EscapeRaceBucksRenderer {
 		event.wrapLayer(VanillaGuiLayers.ARMOR_LEVEL, HIDE_IN_ESCAPE_RACE);
 	}
 
-	private static void renderOverlay(GuiGraphics graphics, EscapeRaceClientBucksState selfState) {
+	private static void renderOverlay(GuiGraphicsExtractor graphics, EscapeRaceClientBucksState selfState) {
 		if (Minecraft.getInstance().options.hideGui) {
 			return;
 		}
@@ -61,7 +61,7 @@ public class EscapeRaceBucksRenderer {
 		graphics.pose().pushMatrix();
 //		graphics.pose().translate(x , y + 12.5f);
 //		graphics.pose().scale(0.4f,0.4f);
-		graphics.renderItem(EscapeRace.BREAK_BUCK.asStack(), x, y - 5);
+		graphics.item(EscapeRace.BREAK_BUCK.asStack(), x, y - 5);
 		graphics.pose().popMatrix();
 
 		String currency = String.format("%04d", selfState.amount());
@@ -69,7 +69,7 @@ public class EscapeRaceBucksRenderer {
 		graphics.pose().pushMatrix();
 		graphics.pose().translate(x, y + 12.5f);
 		graphics.pose().scale(0.7f,0.7f);
-		graphics.drawString(
+		graphics.text(
 				font, currency,
 				0,
 				0,

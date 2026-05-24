@@ -1,14 +1,20 @@
 package com.lovetropics.minigames.common.util;
 
 import com.lovetropics.lib.BlockBox;
+import com.mojang.authlib.GameProfile;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
+import net.minecraft.network.protocol.game.ClientboundSoundPacket;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.players.ProfileResolver;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
@@ -26,6 +32,9 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class Util {
 	public static final AABB INFINITE_AABB = new AABB(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
@@ -118,7 +127,7 @@ public class Util {
 	}
 
 	public static void spawnDamageParticles(Mob mob, BlockPos pos, int damage) {
-		RandomSource random = mob.level().random;
+		RandomSource random = mob.level().getRandom();
 		for (int i = 0; i < 2 + (damage / 2); ++i) {
 			double dx = random.nextGaussian() * 0.02;
 			double dy = random.nextGaussian() * 0.02;
@@ -170,5 +179,30 @@ public class Util {
 			return killerPlayer;
 		}
 		return null;
+	}
+
+	public static CompletableFuture<Optional<GameProfile>> getProfile(MinecraftServer server, UUID uuid) {
+		CompletableFuture<Optional<GameProfile>> future = new CompletableFuture<>();
+		ProfileResolver resolver = server.services().profileResolver();
+		net.minecraft.util.Util.nonCriticalIoPool().execute(() -> future.complete(resolver.fetchById(uuid)));
+		return future;
+	}
+
+	public static CompletableFuture<Optional<GameProfile>> getProfile(MinecraftServer server, String name) {
+		CompletableFuture<Optional<GameProfile>> future = new CompletableFuture<>();
+		ProfileResolver resolver = server.services().profileResolver();
+		net.minecraft.util.Util.nonCriticalIoPool().execute(() -> future.complete(resolver.fetchByName(name)));
+		return future;
+	}
+
+	public static void sendNotifySound(ServerPlayer serverPlayer, SoundEvent soundEvent, SoundSource soundSource, float f, float g) {
+		serverPlayer.connection.send(new ClientboundSoundPacket(
+				BuiltInRegistries.SOUND_EVENT.wrapAsHolder(soundEvent),
+				soundSource, serverPlayer.getX(),
+				serverPlayer.getY(),
+				serverPlayer.getZ(),
+				f,
+				g,
+				serverPlayer.getRandom().nextLong()));
 	}
 }

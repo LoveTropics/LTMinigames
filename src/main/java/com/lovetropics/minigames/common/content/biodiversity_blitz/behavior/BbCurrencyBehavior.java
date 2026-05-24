@@ -45,6 +45,7 @@ import net.minecraft.world.Difficulty;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 
 import java.util.stream.IntStream;
 
@@ -139,9 +140,9 @@ public final class BbCurrencyBehavior implements IGameBehavior {
 
 	private void giveCurrency(ServerPlayer player, int amount) {
 		int count = currency.add(player, amount);
-		player.displayClientMessage(BiodiversityBlitzTexts.currencyAddition(count), true);
+		player.sendSystemMessage(BiodiversityBlitzTexts.currencyAddition(count), true);
 		if (count > 0) {
-			player.playNotifySound(SoundEvents.ARROW_HIT_PLAYER, SoundSource.PLAYERS, 0.24F, 1.0F);
+			com.lovetropics.minigames.common.util.Util.sendNotifySound(player, SoundEvents.ARROW_HIT_PLAYER, SoundSource.PLAYERS, 0.24F, 1.0F);
 		}
 	}
 

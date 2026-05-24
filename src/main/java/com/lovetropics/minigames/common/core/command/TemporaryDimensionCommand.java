@@ -8,6 +8,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.DimensionArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
@@ -27,7 +28,7 @@ public class TemporaryDimensionCommand {
 		// @formatter:off
         dispatcher.register(
                 literal("temporary-dimension")
-                        .requires(source -> source.hasPermission(2))
+                        .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                         .then(literal("list")
                                 .executes(TemporaryDimensionCommand::listTemporaryDimensions))
                         .then(literal("close")
@@ -52,7 +53,7 @@ public class TemporaryDimensionCommand {
 			if (world == null) {
 				continue;
 			}
-			ctx.getSource().sendSuccess(() -> Component.literal(dimension.location() + ": " + world.players().size() + " players"), false);
+			ctx.getSource().sendSuccess(() -> Component.literal(dimension.identifier() + ": " + world.players().size() + " players"), false);
 		}
 
 		return Command.SINGLE_SUCCESS;
@@ -65,17 +66,17 @@ public class TemporaryDimensionCommand {
 		ServerLevel level = DimensionArgument.getDimension(ctx, "dimension");
 
 		if (!runtimeDimensions.isTemporaryDimension(level.dimension())) {
-			throw NOT_TEMPORARY_DIMENSION.create(level.dimension().location());
+			throw NOT_TEMPORARY_DIMENSION.create(level.dimension().identifier());
 		}
 
 		if (!force && !level.players().isEmpty()) {
-			throw DIMENSION_HAS_PLAYERS.create(level.dimension().location());
+			throw DIMENSION_HAS_PLAYERS.create(level.dimension().identifier());
 		}
 
 		RuntimeDimensionHandle handle = runtimeDimensions.handleForTemporaryDimension(level.dimension());
 		handle.delete();
 
-		ctx.getSource().sendSuccess(() -> Component.literal("Closed '" + level.dimension().location() + "'"), false);
+		ctx.getSource().sendSuccess(() -> Component.literal("Closed '" + level.dimension().identifier() + "'"), false);
 
 		return Command.SINGLE_SUCCESS;
 	}

@@ -19,6 +19,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.network.PacketDistributor;
 
@@ -33,7 +34,7 @@ public record DonationPackageNotification(
 ) {
 	public static final Codec<DonationPackageNotification> CODEC = RecordCodecBuilder.create(i -> i.group(
 			TemplatedText.CODEC.fieldOf("message").forGetter(c -> c.message),
-			NotificationIcon.CODEC.optionalFieldOf("icon", NotificationIcon.item(new ItemStack(Items.GRASS_BLOCK))).forGetter(c -> c.icon),
+			NotificationIcon.CODEC.optionalFieldOf("icon", NotificationIcon.item(new ItemStackTemplate(Items.GRASS_BLOCK))).forGetter(c -> c.icon),
 			NotificationStyle.Sentiment.CODEC.optionalFieldOf("sentiment", NotificationStyle.Sentiment.NEUTRAL).forGetter(c -> c.sentiment),
 			SoundEvent.CODEC.optionalFieldOf("sound", Holder.direct(SoundEvents.TOTEM_USE)).forGetter(c -> c.sound)
 	).apply(i, DonationPackageNotification::new));

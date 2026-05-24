@@ -29,7 +29,7 @@ public interface IGameLookup {
 
 	@Nullable
 	default IGamePhase getGamePhaseFor(Entity entity) {
-		if (entity.level().isClientSide) {
+		if (entity.level().isClientSide()) {
 			return null;
 		}
 		if (entity instanceof Player player) {

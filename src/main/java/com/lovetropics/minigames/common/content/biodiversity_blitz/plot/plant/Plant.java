@@ -75,7 +75,7 @@ public final class Plant {
 	}
 
 	public void spawnPoof(ServerLevel world, int count, double speed) {
-		RandomSource random = world.random;
+		RandomSource random = world.getRandom();
 
 		for (BlockPos pos : coverage) {
 			for (int i = 0; i < count; i++) {

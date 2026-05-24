@@ -52,9 +52,9 @@ public record PlayerHeadRewardBehavior() implements IGameBehavior {
 
 	private static CompletableFuture<ItemStack> createPlayerHead(final ServerPlayer player) {
 		final CompletableFuture<ItemStack> future = new CompletableFuture<>();
-		SkullBlockEntity.fetchGameProfile(player.getGameProfile().getId()).thenAccept(result -> {
+		Util.getProfile(player.level().getServer(), player.nameAndId().id()).thenAccept(result -> {
 			final ItemStack head = new ItemStack(Items.PLAYER_HEAD);
-			result.ifPresent(profile -> head.set(DataComponents.PROFILE, new ResolvableProfile(profile)));
+			result.ifPresent(profile -> head.set(DataComponents.PROFILE, ResolvableProfile.createResolved(profile)));
 			future.complete(head);
 		});
 		return future;

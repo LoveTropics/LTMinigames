@@ -48,7 +48,7 @@ public final class WeatherControllerManager {
 	}
 
 	private static void joinPlayerToDimension(Player player, ResourceKey<Level> dimension) {
-		MinecraftServer server = player.getServer();
+		MinecraftServer server = player.level().getServer();
 		if (server == null || !(player instanceof ServerPlayer)) {
 			return;
 		}

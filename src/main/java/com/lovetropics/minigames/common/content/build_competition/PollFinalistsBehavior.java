@@ -18,7 +18,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerScoreboard;
@@ -57,8 +57,8 @@ public record PollFinalistsBehavior(String finalistsTag, String winnerTag, Strin
 					PlayerList players = source.getServer().getPlayerList();
 					players.getPlayers().forEach(p -> p.removeTag(winnerTag));
 					ObjectArrayList<String> finalists = players.getPlayers().stream()
-							.filter(p -> p.getTags().contains(finalistsTag))
-							.map(p -> p.getGameProfile().getName())
+							.filter(p -> p.entityTags().contains(finalistsTag))
+							.map(p -> p.getGameProfile().name())
 							.collect(ObjectArrayList.toList());
 					Util.shuffle(finalists, RANDOM);
 					integrations.createPoll("Choose the best build!", pollDuration, finalists.toArray(String[]::new));
@@ -95,7 +95,7 @@ public record PollFinalistsBehavior(String finalistsTag, String winnerTag, Strin
 					String winner = Iterables.getLast(scores).owner();
 					for (ServerPlayer player : server.getPlayerList().getPlayers()) {
 						player.removeTag(finalistsTag);
-						if (player.getGameProfile().getName().equals(winner)) {
+						if (player.nameAndId().name().equals(winner)) {
 							player.addTag(winnerTag);
 						}
 					}
@@ -116,7 +116,7 @@ public record PollFinalistsBehavior(String finalistsTag, String winnerTag, Strin
 		int leaderVotes = 0;
 
 		for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-			String username = player.getGameProfile().getName();
+			String username = player.nameAndId().name();
 			int votes = votesByName.getInt(username);
 			if (votes >= 0) {
 				if (forceWinner) {

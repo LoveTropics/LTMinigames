@@ -14,10 +14,10 @@ import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.MapLike;
 import com.mojang.serialization.RecordBuilder;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.FileToIdConverter;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.StrictJsonParser;
@@ -46,8 +46,8 @@ import java.util.stream.Stream;
 public final class GameConfigs {
 	private static final Logger LOGGER = LogManager.getLogger(GameConfigs.class);
 
-	public static final CodecRegistry<ResourceLocation, GameConfig> REGISTRY = CodecRegistry.resourceLocationKeys();
-	public static final CodecRegistry<ResourceLocation, GameBehaviorType<?>> CUSTOM_BEHAVIORS = CodecRegistry.resourceLocationKeys();
+	public static final CodecRegistry<Identifier, GameConfig> REGISTRY = CodecRegistry.resourceLocationKeys();
+	public static final CodecRegistry<Identifier, GameBehaviorType<?>> CUSTOM_BEHAVIORS = CodecRegistry.resourceLocationKeys();
 
 	private static final FileToIdConverter GAME_LISTER = FileToIdConverter.json("games");
 	private static final FileToIdConverter BEHAVIOR_LISTER = FileToIdConverter.json("behaviors");
@@ -56,15 +56,15 @@ public final class GameConfigs {
 	public static void addReloadListener(AddServerReloadListenersEvent event) {
 		event.addListener(LoveTropics.location("game_configs"), new ContextAwareReloadListener() {
 			@Override
-			public CompletableFuture<Void> reload(PreparationBarrier barrier, ResourceManager resourceManager, Executor backgroundExecutor, Executor gameExecutor) {
-				return load(resourceManager, backgroundExecutor, getRegistryLookup())
-						.thenCompose(barrier::wait)
+			public CompletableFuture<Void> reload(SharedState currentReload, Executor taskExecutor, PreparationBarrier preparationBarrier, Executor reloadExecutor) {
+				return load(currentReload.resourceManager(), taskExecutor, getRegistryLookup())
+						.thenCompose(preparationBarrier::wait)
 						.thenAcceptAsync(configs -> {
 							REGISTRY.clear();
 							configs.stream()
 									.sorted(Comparator.comparing(config -> config.name().getString()))
 									.forEach(config -> REGISTRY.register(config.id(), config));
-						}, gameExecutor);
+						}, reloadExecutor);
 			}
 		});
 	}
@@ -88,7 +88,7 @@ public final class GameConfigs {
 	}
 
 	@Nullable
-	private static GameConfig tryLoadConfig(DynamicOps<JsonElement> ops, ResourceLocation path, Resource resource) {
+	private static GameConfig tryLoadConfig(DynamicOps<JsonElement> ops, Identifier path, Resource resource) {
 		try {
 			// TODO: Mark games that had only a partial result with a warning in the UI?
 			return loadConfig(ops, path, resource)
@@ -100,7 +100,7 @@ public final class GameConfigs {
 		}
 	}
 
-	private static DataResult<GameConfig> loadConfig(DynamicOps<JsonElement> ops, ResourceLocation path, Resource resource) throws IOException {
+	private static DataResult<GameConfig> loadConfig(DynamicOps<JsonElement> ops, Identifier path, Resource resource) throws IOException {
 		try (BufferedReader reader = resource.openAsReader()) {
 			JsonElement json = StrictJsonParser.parse(reader);
 			Codec<GameConfig> codec = GameConfig.codec(GAME_LISTER.fileToId(path));
@@ -108,8 +108,8 @@ public final class GameConfigs {
 		}
 	}
 
-	private static CompletableFuture<Map<ResourceLocation, GameBehaviorType<?>>> listBehaviors(ResourceManager resourceManager, Executor executor) {
-		List<CompletableFuture<Map.Entry<ResourceLocation, GameBehaviorType<?>>>> futures = BEHAVIOR_LISTER.listMatchingResources(resourceManager).entrySet().stream()
+	private static CompletableFuture<Map<Identifier, GameBehaviorType<?>>> listBehaviors(ResourceManager resourceManager, Executor executor) {
+		List<CompletableFuture<Map.Entry<Identifier, GameBehaviorType<?>>>> futures = BEHAVIOR_LISTER.listMatchingResources(resourceManager).entrySet().stream()
 				.map(entry -> CompletableFuture.supplyAsync(() -> tryLoadBehavior(entry.getValue(), entry.getKey()), executor))
 				.toList();
 		return Util.sequence(futures).thenApply(behaviors -> behaviors.stream()
@@ -119,11 +119,11 @@ public final class GameConfigs {
 	}
 
 	@Nullable
-	private static Map.Entry<ResourceLocation, GameBehaviorType<?>> tryLoadBehavior(Resource resource, ResourceLocation path) {
+	private static Map.Entry<Identifier, GameBehaviorType<?>> tryLoadBehavior(Resource resource, Identifier path) {
 		try {
 			try (BufferedReader reader = resource.openAsReader()) {
 				JsonElement json = StrictJsonParser.parse(reader);
-				ResourceLocation id = BEHAVIOR_LISTER.fileToId(path);
+				Identifier id = BEHAVIOR_LISTER.fileToId(path);
 				return Map.entry(id, new GameBehaviorType<>(createCustomBehaviorCodec(DynamicTemplate.parse(JsonOps.INSTANCE, json))));
 			}
 		} catch (Exception e) {

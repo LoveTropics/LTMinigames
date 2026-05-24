@@ -7,11 +7,11 @@ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
-import net.minecraft.commands.arguments.ResourceLocationArgument;
+import net.minecraft.commands.arguments.IdentifierArgument;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.dimension.LevelStem;
 
 public final class DimensionArgument {
@@ -19,8 +19,8 @@ public final class DimensionArgument {
 			Component.literal("Dimension does not exist with id: " + arg)
 	);
 
-	public static RequiredArgumentBuilder<CommandSourceStack, ResourceLocation> argument(String name) {
-		return Commands.argument(name, ResourceLocationArgument.id())
+	public static RequiredArgumentBuilder<CommandSourceStack, Identifier> argument(String name) {
+		return Commands.argument(name, IdentifierArgument.id())
 				.suggests((context, builder) -> {
 					CommandSourceStack source = context.getSource();
 					Registry<LevelStem> dimensions = source.getServer().registryAccess().lookupOrThrow(Registries.LEVEL_STEM);
@@ -32,7 +32,7 @@ public final class DimensionArgument {
 	}
 
 	public static LevelStem get(CommandContext<CommandSourceStack> context, String name) throws CommandSyntaxException {
-		ResourceLocation key = ResourceLocationArgument.getId(context, name);
+		Identifier key = IdentifierArgument.getId(context, name);
 
 		CommandSourceStack source = context.getSource();
 		Registry<LevelStem> dimensions = source.getServer().registryAccess().lookupOrThrow(Registries.LEVEL_STEM);

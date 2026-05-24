@@ -37,7 +37,7 @@ public record PowerUpIndicatorBehavior(Holder<MobEffect> effect, TemplatedText t
 					final int seconds = Mth.floorDiv(instance.getDuration(), SharedConstants.TICKS_PER_SECOND);
 					player.sendSystemMessage(text.apply(Map.of("seconds", Component.literal(String.valueOf(seconds)))), true);
 				} else if (instance.getDuration() == 1) {
-					player.playNotifySound(sound.sound(), sound.source(), sound.volume(), sound.pitch());
+					com.lovetropics.minigames.common.util.Util.sendNotifySound(player, sound.sound(), sound.source(), sound.volume(), sound.pitch());
 				}
 			}
 		});

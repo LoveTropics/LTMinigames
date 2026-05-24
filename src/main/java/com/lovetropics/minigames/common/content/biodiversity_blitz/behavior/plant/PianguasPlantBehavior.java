@@ -15,7 +15,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
@@ -29,7 +29,7 @@ public final class PianguasPlantBehavior implements IGameBehavior {
 			Codec.INT.fieldOf("radius").forGetter(b -> b.radius),
 			MoreCodecs.BLOCK_STATE.fieldOf("block").forGetter(c -> c.state)
 	).apply(i, PianguasPlantBehavior::new));
-	private static final TagKey<Block> MUD = TagKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath("tropicraft", "mud"));
+	private static final TagKey<Block> MUD = TagKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath("tropicraft", "mud"));
 	private static final int INTERVAL_TICKS = SharedConstants.TICKS_PER_SECOND * 15;
 
 	private final int radius;

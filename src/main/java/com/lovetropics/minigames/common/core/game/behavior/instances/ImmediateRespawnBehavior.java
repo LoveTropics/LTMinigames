@@ -126,7 +126,7 @@ public record ImmediateRespawnBehavior(
 		if (clearKillTracker) {
 			for (ServerPlayer otherPlayer : game.participants()) {
 				if (otherPlayer.getKillCredit() == player) {
-					otherPlayer.setLastHurtByPlayer(net.minecraft.Util.NIL_UUID, 0);
+					otherPlayer.setLastHurtByPlayer(net.minecraft.util.Util.NIL_UUID, 0);
 				}
 			}
 		}

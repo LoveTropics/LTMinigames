@@ -117,7 +117,7 @@ public final class DriftwoodEntity extends Entity {
 			player.getData(DriftwoodRider.ATTACHMENT).setRiding(this);
 		}
 
-		if (!level().isClientSide) {
+		if (!level().isClientSide()) {
 			tickSteering();
 			tickMovement();
 		} else {

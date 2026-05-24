@@ -296,7 +296,7 @@ public class VendingMachineEntity extends Entity implements ContainerEntity {
 	}
 
 	@Override
-	public InteractionResult interact(Player player, InteractionHand hand) {
+	public InteractionResult interact(Player player, InteractionHand hand, Vec3 location) {
 		if (player.isShiftKeyDown()) {
 			if (player.canUseGameMasterBlocks()) {
 				player.openMenu(this);

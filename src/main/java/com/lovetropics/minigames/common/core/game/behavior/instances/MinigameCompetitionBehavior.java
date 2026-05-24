@@ -34,8 +34,9 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.Permissions;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.Unit;
 import net.minecraft.util.context.ContextMap;
@@ -123,7 +124,7 @@ public final class MinigameCompetitionBehavior implements IGameBehavior {
 		Overlords overlords = Overlords.get(topGame);
 		commands.register(Commands.literal("competition")
 				.requires(source -> {
-					if (source.hasPermission(Commands.LEVEL_GAMEMASTERS)) {
+					if (source.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER)) {
 						return true;
 					}
 					ServerPlayer player = source.getPlayer();
@@ -345,9 +346,9 @@ public final class MinigameCompetitionBehavior implements IGameBehavior {
 		Component getName();
 	}
 
-	public record Game(ResourceLocation game) implements QueueEntry {
+	public record Game(Identifier game) implements QueueEntry {
 		public static final Codec<Game> CODEC = RecordCodecBuilder.create(i -> i.group(
-				ResourceLocation.CODEC.fieldOf("game").forGetter(Game::game)
+				Identifier.CODEC.fieldOf("game").forGetter(Game::game)
 		).apply(i, Game::new));
 
 		@Override

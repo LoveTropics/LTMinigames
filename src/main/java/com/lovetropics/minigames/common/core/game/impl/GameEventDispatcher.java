@@ -58,6 +58,7 @@ import net.neoforged.neoforge.event.level.BlockGrowFeatureEvent;
 import net.neoforged.neoforge.event.level.ChunkEvent;
 import net.neoforged.neoforge.event.level.ExplosionEvent;
 import net.neoforged.neoforge.event.level.ExplosionKnockbackEvent;
+import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 import net.neoforged.neoforge.event.level.block.CropGrowEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
@@ -99,7 +100,7 @@ public final class GameEventDispatcher {
 				game = level != null ? gameLookup.getGamePhaseInDimension(level) : null;
 			}
 			if (game != null) {
-				LevelChunk chunk = game.level().getChunk(queuedChunk.pos.x, queuedChunk.pos.z);
+				LevelChunk chunk = game.level().getChunk(queuedChunk.pos.x(), queuedChunk.pos.z());
 				game.invoker(GameWorldEvents.CHUNK_LOAD).onChunkLoad(chunk);
 			}
 		}
@@ -233,7 +234,7 @@ public final class GameEventDispatcher {
 				entity.fallDistance = 0.0f;
 				// If the entity was in lava, they are no longer in lava - please stop burning me :)
 				if (entity instanceof EntityAccessor entityAccessor) {
-					entityAccessor.invokeUpdateInWaterStateAndDoFluidPushing();
+//					entityAccessor.invokeUpdateInWaterStateAndDoFluidPushing(); // Todo 26.1 Port
 				}
 
 				if (!result.isFalse()) {
@@ -413,11 +414,10 @@ public final class GameEventDispatcher {
 	}
 
 	@SubscribeEvent
-	public void onPlayerBreakBlock(BlockEvent.BreakEvent event) {
+	public void onPlayerBreakBlock(BreakBlockEvent event) {
 		IGamePhase game = gameLookup.getGamePhaseFor(event.getPlayer());
-		if (game != null) {
+		if (game != null && event.getPlayer() instanceof ServerPlayer player) {
 			try {
-				ServerPlayer player = (ServerPlayer) event.getPlayer();
 				InteractionHand hand = player.getUsedItemHand();
 				TriState result = game.invoker(GamePlayerEvents.BREAK_BLOCK).onBreakBlock(player, event.getPos(), event.getState(), hand);
 				if (result.isFalse()) {

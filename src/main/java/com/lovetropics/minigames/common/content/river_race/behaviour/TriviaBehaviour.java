@@ -25,7 +25,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -105,14 +105,14 @@ public final class TriviaBehaviour implements IGameBehavior {
 			}
 			if (answer.correct()) {
 				player.sendSystemMessage(RiverRaceTexts.CORRECT_ANSWER);
-				player.playNotifySound(SoundRegistry.CORRECT.value(), SoundSource.BLOCKS, 1.0f, 1.0f);
+				com.lovetropics.minigames.common.util.Util.sendNotifySound(player, SoundRegistry.CORRECT.value(), SoundSource.BLOCKS, 1.0f, 1.0f);
 				if (triviaBlockEntity.markAsCorrect()) {
 					game.invoker(RiverRaceEvents.QUESTION_COMPLETED).onAnswer(player, triviaBlockEntity.getTriviaType(), pos);
 				}
 				PacketDistributor.sendToPlayer(player, new TriviaAnswerResponseMessage(pos, triviaBlockEntity.getState()));
 			} else {
 				player.sendSystemMessage(RiverRaceTexts.INCORRECT_ANSWER.apply(questionLockout));
-				player.playNotifySound(SoundRegistry.INCORRECT.value(), SoundSource.BLOCKS, 1.0f, 1.0f);
+				com.lovetropics.minigames.common.util.Util.sendNotifySound(player, SoundRegistry.INCORRECT.value(), SoundSource.BLOCKS, 1.0f, 1.0f);
 				lockedOutTriviaBlocks.put(triviaBlockEntity.lockout(questionLockout), pos);
 				PacketDistributor.sendToPlayer(player, new TriviaAnswerResponseMessage(pos, triviaBlockEntity.getState()));
 			}
@@ -148,7 +148,7 @@ public final class TriviaBehaviour implements IGameBehavior {
 	private InteractionResult useUnlockedTriviaBlock(IGamePhase game, ServerPlayer player, BlockPos pos, HasTrivia hasTrivia) {
 		return switch (hasTrivia.getTriviaType()) {
 			case GATE, VICTORY -> {
-				player.playNotifySound(SoundEvents.VILLAGER_NO, SoundSource.PLAYERS, 1.0f, 1.0f);
+				com.lovetropics.minigames.common.util.Util.sendNotifySound(player, SoundEvents.VILLAGER_NO, SoundSource.PLAYERS, 1.0f, 1.0f);
 				player.sendSystemMessage(RiverRaceTexts.TRIVIA_BLOCK_ALREADY_USED, true);
 				yield InteractionResult.FAIL;
 			}
@@ -204,7 +204,7 @@ public final class TriviaBehaviour implements IGameBehavior {
 		}
 		ServerPlayer playerWithCollectable = getPlayerWithCollectable(game, player, collectable);
 		if (playerWithCollectable != null) {
-			player.playNotifySound(SoundEvents.VILLAGER_NO, SoundSource.PLAYERS, 1.0f, 1.0f);
+			com.lovetropics.minigames.common.util.Util.sendNotifySound(player, SoundEvents.VILLAGER_NO, SoundSource.PLAYERS, 1.0f, 1.0f);
 			if (playerWithCollectable == player) {
 				player.sendSystemMessage(RiverRaceTexts.YOU_HAVE_COLLECTABLE, true);
 			} else {
@@ -213,11 +213,11 @@ public final class TriviaBehaviour implements IGameBehavior {
 			return false;
 		}
 		if (!player.addItem(collectable.copy())) {
-			player.playNotifySound(SoundEvents.VILLAGER_NO, SoundSource.PLAYERS, 1.0f, 1.0f);
+			com.lovetropics.minigames.common.util.Util.sendNotifySound(player, SoundEvents.VILLAGER_NO, SoundSource.PLAYERS, 1.0f, 1.0f);
 			player.sendSystemMessage(MinigameTexts.INVENTORY_FULL, true);
 			return false;
 		}
-		player.displayClientMessage(RiverRaceTexts.COLLECTABLE_GIVEN, false);
+		player.sendSystemMessage(RiverRaceTexts.COLLECTABLE_GIVEN, false);
 		return true;
 	}
 

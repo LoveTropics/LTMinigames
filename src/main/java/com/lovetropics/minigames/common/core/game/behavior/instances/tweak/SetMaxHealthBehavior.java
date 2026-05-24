@@ -17,7 +17,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
 import it.unimi.dsi.fastutil.objects.Object2DoubleOpenHashMap;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -31,7 +31,7 @@ public record SetMaxHealthBehavior(double maxHealth, Object2DoubleMap<GameTeamKe
 			MoreCodecs.object2Double(GameTeamKey.CODEC).fieldOf("max_health_by_team").orElseGet(Object2DoubleOpenHashMap::new).forGetter(c -> c.maxHealthByTeam)
 	).apply(i, SetMaxHealthBehavior::new));
 
-	private static final ResourceLocation ATTRIBUTE_ID = LoveTropics.location("minigame_max_health");
+	private static final Identifier ATTRIBUTE_ID = LoveTropics.location("minigame_max_health");
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {

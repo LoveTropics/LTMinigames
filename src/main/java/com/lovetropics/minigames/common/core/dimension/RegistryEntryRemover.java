@@ -1,11 +1,11 @@
 package com.lovetropics.minigames.common.core.dimension;
 
 import net.minecraft.core.MappedRegistry;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public interface RegistryEntryRemover<T> {
 	@SuppressWarnings("unchecked")
-	static <T> boolean remove(MappedRegistry<T> registry, ResourceLocation key) {
+	static <T> boolean remove(MappedRegistry<T> registry, Identifier key) {
 		return ((RegistryEntryRemover<T>) registry).ltminigames$remove(key);
 	}
 
@@ -16,5 +16,5 @@ public interface RegistryEntryRemover<T> {
 
 	boolean ltminigames$remove(T value);
 
-	boolean ltminigames$remove(ResourceLocation key);
+	boolean ltminigames$remove(Identifier key);
 }

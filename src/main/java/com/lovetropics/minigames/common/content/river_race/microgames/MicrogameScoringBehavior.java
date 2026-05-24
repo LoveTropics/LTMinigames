@@ -17,7 +17,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.ExtraCodecs;
 
 import javax.annotation.Nullable;
@@ -28,17 +28,17 @@ public class MicrogameScoringBehavior implements IGameBehavior {
 	public static final MapCodec<MicrogameScoringBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			StatisticKey.INT_CODEC.fieldOf("statistic").forGetter(c -> c.statistic),
 			ExtraCodecs.nonEmptyList(ExtraCodecs.compactListCodec(Codec.INT)).optionalFieldOf("points_per_game_won", List.of(3, 2, 1)).forGetter(c -> c.pointsPerGameWon),
-			Codec.unboundedMap(ResourceLocation.CODEC, Codec.INT).optionalFieldOf("special_points_per_game", Map.of()).forGetter(c -> c.specialPointsPerGame)
+			Codec.unboundedMap(Identifier.CODEC, Codec.INT).optionalFieldOf("special_points_per_game", Map.of()).forGetter(c -> c.specialPointsPerGame)
 	).apply(i, MicrogameScoringBehavior::new));
 
 	private final StatisticKey<Integer> statistic;
 	private final List<Integer> pointsPerGameWon;
-	private final Map<ResourceLocation, Integer> specialPointsPerGame;
+	private final Map<Identifier, Integer> specialPointsPerGame;
 
 	@Nullable
 	private MicrogameSegmentState microgameSegment;
 
-	public MicrogameScoringBehavior(StatisticKey<Integer> statistic, List<Integer> pointsPerGameWon, Map<ResourceLocation, Integer> specialPointsPerGame) {
+	public MicrogameScoringBehavior(StatisticKey<Integer> statistic, List<Integer> pointsPerGameWon, Map<Identifier, Integer> specialPointsPerGame) {
 		this.statistic = statistic;
 		this.pointsPerGameWon = pointsPerGameWon;
 		this.specialPointsPerGame = specialPointsPerGame;
@@ -52,7 +52,7 @@ public class MicrogameScoringBehavior implements IGameBehavior {
 			}
 			MicrogameSegmentState segment = microgameSegment;
 			subEvents.listen(GameLogicEvents.GAME_OVER, winner -> {
-				ResourceLocation microgameId = subGame.definition().id();
+				Identifier microgameId = subGame.definition().id();
 				onMicrogameWinTriggered(game, microgameId, winner, segment);
 			});
 		});
@@ -64,7 +64,7 @@ public class MicrogameScoringBehavior implements IGameBehavior {
 		});
 	}
 
-	private void onMicrogameWinTriggered(IGamePhase game, ResourceLocation microgameId, GameWinner winner, MicrogameSegmentState segmentState) {
+	private void onMicrogameWinTriggered(IGamePhase game, Identifier microgameId, GameWinner winner, MicrogameSegmentState segmentState) {
 		GameTeamKey winningTeam = winner.asTeam(game);
 		if (winningTeam != null) {
 			int winIndex = segmentState.winCountByTeam.addTo(winningTeam, 1);

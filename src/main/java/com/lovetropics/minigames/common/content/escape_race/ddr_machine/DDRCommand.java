@@ -8,6 +8,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.ResourceArgument;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
@@ -26,7 +27,7 @@ public final class DDRCommand {
 		// @formatter:off
         dispatcher.register(
             literal("ddr")
-				.requires(source -> source.hasPermission(2))
+				.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
 				.requires(CommandSourceStack::isPlayer)
 					.then(literal("level")
 							.then(literal("record")

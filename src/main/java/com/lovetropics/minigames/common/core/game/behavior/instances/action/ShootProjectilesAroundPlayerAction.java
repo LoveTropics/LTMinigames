@@ -14,7 +14,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.projectile.LargeFireball;
+import net.minecraft.world.entity.projectile.hurtingprojectile.LargeFireball;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
@@ -36,7 +36,7 @@ public class ShootProjectilesAroundPlayerAction implements IGameBehavior {
 			Codec.INT.optionalFieldOf("explosion_strength", 2).forGetter(c -> c.explosionStrength)
 	).apply(i, ShootProjectilesAroundPlayerAction::new));
 
-	//private final ResourceLocation entityId;
+	//private final Identifier entityId;
 	private final int entityCountPerPlayer;
 	private final int spawnDistanceMax;
 	private final int targetRandomness;
@@ -47,7 +47,7 @@ public class ShootProjectilesAroundPlayerAction implements IGameBehavior {
 	private final Object2IntMap<UUID> playerToAmountToSpawn = new Object2IntOpenHashMap<>();
 	private final Object2IntMap<UUID> playerToDelayToSpawn = new Object2IntOpenHashMap<>();
 
-	public ShootProjectilesAroundPlayerAction(/*final ResourceLocation entityId, */final int entityCount, final int spawnDistanceMax, final int spawnRangeY, final int spawnsPerTickBase, final int spawnsPerTickRandom, final int targetRandomness, final int explosionStrength) {
+	public ShootProjectilesAroundPlayerAction(/*final Identifier entityId, */final int entityCount, final int spawnDistanceMax, final int spawnRangeY, final int spawnsPerTickBase, final int spawnsPerTickRandom, final int targetRandomness, final int explosionStrength) {
 		//this.entityId = entityId;
 		entityCountPerPlayer = entityCount;
 		this.spawnDistanceMax = spawnDistanceMax;
@@ -119,7 +119,7 @@ public class ShootProjectilesAroundPlayerAction implements IGameBehavior {
 					case BLOCK -> onHitBlock((BlockHitResult) hitResult);
 				}
 
-				if (!level().isClientSide) {
+				if (!level().isClientSide()) {
 					boolean mobGriefing = EventHooks.canEntityGrief(world, getOwner());
 					level().explode(null, getX(), getY(), getZ(), explosionStrength, mobGriefing, Level.ExplosionInteraction.MOB);
 					discard();

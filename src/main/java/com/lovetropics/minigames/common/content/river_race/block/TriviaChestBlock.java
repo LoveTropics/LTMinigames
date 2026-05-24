@@ -129,7 +129,7 @@ public class TriviaChestBlock extends AbstractChestBlock<ChestBlockEntity> {
 	@Nullable
 	@Override
 	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
-		return level.isClientSide ? createTickerHelper(blockEntityType, this.blockEntityType.get(), ChestBlockEntity::lidAnimateTick) : null;
+		return level.isClientSide() ? createTickerHelper(blockEntityType, this.blockEntityType.get(), ChestBlockEntity::lidAnimateTick) : null;
 	}
 
 	@Override

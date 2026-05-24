@@ -20,7 +20,7 @@ public class TrapdoorBlockMixin {
 
 	@Inject(method = "neighborChanged", at=@At("HEAD"), cancellable = true)
 	public void onNeighbourChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock, Orientation orientation, boolean movedByPiston, CallbackInfo ci) {
-		if(!level.isClientSide){
+		if(!level.isClientSide()){
 			if(GamePhaseManager.get().getGamePhaseAt(level, pos) != null){
 				TriState result = GamePhaseManager.get().getGamePhaseAt(level, pos).invoker(GameWorldEvents.TRAPDOOR_TOGGLE)
 						.onTrapDoorToggle((ServerLevel) level, pos, state);

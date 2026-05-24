@@ -2,7 +2,7 @@ package com.lovetropics.minigames.common.core.map;
 
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.world.level.Level;
@@ -26,14 +26,14 @@ public final class MapExportReader implements Closeable {
 		this.input = input;
 	}
 
-	public static boolean exists(MinecraftServer server, ResourceLocation location) {
-		ResourceLocation path = location.withPath(p -> "maps/" + p + ".zip");
+	public static boolean exists(MinecraftServer server, Identifier location) {
+		Identifier path = location.withPath(p -> "maps/" + p + ".zip");
 		Optional<Resource> resource = server.getResourceManager().getResource(path);
 		return resource.isPresent();
 	}
 
-	public static MapExportReader open(MinecraftServer server, ResourceLocation location) throws IOException {
-		ResourceLocation path = location.withPath(p -> "maps/" + p + ".zip");
+	public static MapExportReader open(MinecraftServer server, Identifier location) throws IOException {
+		Identifier path = location.withPath(p -> "maps/" + p + ".zip");
 		Optional<Resource> resource = server.getResourceManager().getResource(path);
 		if (resource.isEmpty()) {
 			throw new IOException("Map at " + location + " did not exist");

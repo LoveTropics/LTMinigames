@@ -2,23 +2,25 @@ package com.lovetropics.minigames.common.core.game.behavior.instances.action;
 
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
+import com.lovetropics.minigames.common.core.game.behavior.SpawnDonorUtils;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionContextKeys;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
+import com.lovetropics.minigames.common.util.Util;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.players.GameProfileCache;
 import net.minecraft.util.StringUtil;
 import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.component.ResolvableProfile;
+import net.minecraft.world.item.component.TypedEntityData;
 import org.lovetropics.peekaboo.api.Disguise;
 import org.lovetropics.peekaboo.api.EntityDisguiseHolder;
-import org.lovetropics.peekaboo.api.TypedEntityData;
 import org.slf4j.Logger;
 
 import java.util.Optional;
@@ -33,7 +35,8 @@ public record SetDisguiseAction(Disguise disguise, boolean applyDonorName, boole
 
 	private static final Logger LOGGER = LogUtils.getLogger();
 
-	private static final ResourceLocation DUMMY_PLAYER = ResourceLocation.fromNamespaceAndPath("dummyplayers", "dummy_player");
+	private static final Identifier DUMMY_PLAYER = Identifier.fromNamespaceAndPath("dummyplayers", "dummy_player");
+
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
@@ -55,12 +58,12 @@ public record SetDisguiseAction(Disguise disguise, boolean applyDonorName, boole
 
 	private CompletableFuture<Disguise> resolveDisguise(final IGamePhase game, final ContextMap context) {
 		final String packageSender = context.getOptional(GameActionContextKeys.PACKAGE_SENDER);
-		final Optional<TypedEntityData> entityDisguise = disguise.entity();
+		final Optional<TypedEntityData<EntityType<?>>> entityDisguise = disguise.entity();
 		if (entityDisguise.isEmpty()) {
 			return CompletableFuture.completedFuture(disguise);
 		}
 
-		final ResourceLocation id = EntityType.getKey(entityDisguise.get().type());
+		final Identifier id = EntityType.getKey(entityDisguise.get().type());
 		if (applyDonorName && packageSender != null && DUMMY_PLAYER.equals(id)) {
 			return resolveDummyDisguise(game, entityDisguise.get(), packageSender).thenApply(entity -> disguise.withEntity(Optional.of(entity)));
 		}
@@ -68,17 +71,13 @@ public record SetDisguiseAction(Disguise disguise, boolean applyDonorName, boole
 		return CompletableFuture.completedFuture(disguise);
 	}
 
-	private CompletableFuture<TypedEntityData> resolveDummyDisguise(final IGamePhase game, final TypedEntityData entity, final String packageSender) {
-		final GameProfileCache profileCache = game.server().getProfileCache();
-		if (profileCache == null || !StringUtil.isValidPlayerName(packageSender)) {
-			return CompletableFuture.completedFuture(entity);
-		}
-		final CompletableFuture<TypedEntityData> future = new CompletableFuture<>();
-		profileCache.getAsync(packageSender).thenAcceptAsync(result -> result.ifPresent(profile -> {
-			LOGGER.debug("Got profile ID for package sender {}: {}", packageSender, profile.getId());
-			future.complete(new TypedEntityData(entity.data().update(tag ->
-					tag.put("profile", ResolvableProfile.CODEC.encodeStart(NbtOps.INSTANCE, new ResolvableProfile(profile)).getOrThrow())
-			)));
+	private CompletableFuture<TypedEntityData<EntityType<?>>> resolveDummyDisguise(final IGamePhase game, final TypedEntityData<EntityType<?>> entity, final String packageSender) {
+		CompletableFuture<TypedEntityData<EntityType<?>>> future = new CompletableFuture<>();
+		Util.getProfile(game.server(), packageSender).thenAcceptAsync(result -> result.ifPresent(profile -> {
+			LOGGER.debug("Got profile ID for package sender {}: {}", packageSender, profile.id());
+			CompoundTag tag = entity.getUnsafe().copy();
+			tag.put("profile", ResolvableProfile.CODEC.encodeStart(NbtOps.INSTANCE, ResolvableProfile.createResolved(profile)).getOrThrow());
+			future.complete(TypedEntityData.of(entity.type(), tag));
 		}), game.server());
 		return future;
 	}
@@ -91,7 +90,7 @@ public record SetDisguiseAction(Disguise disguise, boolean applyDonorName, boole
 			if (disguise.equals(this.disguise)) {
 				return resolvedDisguise;
 			} else {
-				LOGGER.debug("Skipping setting resolved disguise on {}, as their disguise has changed", player.getGameProfile().getName());
+				LOGGER.debug("Skipping setting resolved disguise on {}, as their disguise has changed", player.getGameProfile().name());
 			}
 			return disguise;
 		});

@@ -5,8 +5,9 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
-import net.minecraft.commands.arguments.ResourceLocationArgument;
+import net.minecraft.commands.arguments.IdentifierArgument;
 import net.minecraft.server.bossevents.CustomBossEvent;
 import net.minecraft.server.commands.BossBarCommands;
 import net.minecraft.server.level.ServerPlayer;
@@ -21,14 +22,14 @@ public final class ExtendedBossBarCommand {
 		// @formatter:off
 		dispatcher.register(
 			literal("bossbar")
-				.then(literal("players").requires(source -> source.hasPermission(2))
+				.then(literal("players").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
 					.then(literal("add")
-					.then(argument("id", ResourceLocationArgument.id()).suggests(BossBarCommands.SUGGEST_BOSS_BAR)
+					.then(argument("id", IdentifierArgument.id()).suggests(BossBarCommands.SUGGEST_BOSS_BAR)
 					.then(argument("players", EntityArgument.players())
 						.executes(ExtendedBossBarCommand::addPlayers)
 					)))
 					.then(literal("remove")
-					.then(argument("id", ResourceLocationArgument.id()).suggests(BossBarCommands.SUGGEST_BOSS_BAR)
+					.then(argument("id", IdentifierArgument.id()).suggests(BossBarCommands.SUGGEST_BOSS_BAR)
 					.then(argument("players", EntityArgument.players())
 						.executes(ExtendedBossBarCommand::removePlayers)
 					)))

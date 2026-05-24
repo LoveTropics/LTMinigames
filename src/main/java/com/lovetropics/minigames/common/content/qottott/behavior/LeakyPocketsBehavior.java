@@ -15,12 +15,13 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 
 import java.util.function.Supplier;
 
-public record LeakyPocketsBehavior(ItemStack item, StatisticKey<Integer> statistic, int interval) implements IGameBehavior {
+public record LeakyPocketsBehavior(ItemStackTemplate item, StatisticKey<Integer> statistic, int interval) implements IGameBehavior {
 	public static final MapCodec<LeakyPocketsBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			MoreCodecs.ITEM_STACK.fieldOf("item").forGetter(LeakyPocketsBehavior::item),
+			ItemStackTemplate.CODEC.fieldOf("item").forGetter(LeakyPocketsBehavior::item),
 			StatisticKey.INT_CODEC.fieldOf("statistic").forGetter(LeakyPocketsBehavior::statistic),
 			Codec.INT.optionalFieldOf("interval", 1).forGetter(LeakyPocketsBehavior::interval)
 	).apply(i, LeakyPocketsBehavior::new));
@@ -41,7 +42,7 @@ public record LeakyPocketsBehavior(ItemStack item, StatisticKey<Integer> statist
 			int dropAmount = sampleDropCount(count, random, chancePerCoin);
 			if (dropAmount > 0) {
 				statistics.incrementInt(statistic, -dropAmount);
-				CoinDropAttributeBehavior.spawnItems(game, player, dropAmount, item);
+				CoinDropAttributeBehavior.spawnItems(game, player, dropAmount, item.create());
 			}
 		});
 	}

@@ -58,6 +58,7 @@ import com.tterrag.registrate.providers.generators.RegistrateBlockModelGenerator
 import com.tterrag.registrate.util.entry.BlockEntry;
 import com.tterrag.registrate.util.entry.ItemEntry;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureMapping;
@@ -288,14 +289,13 @@ public final class BiodiversityBlitz {
 
 	public static final BlockEntry<DirtySandBlock> DIRTY_SAND = REGISTRATE.block("dirty_sand", DirtySandBlock::new)
 			.initialProperties(() -> Blocks.SAND)
-			.tag(BlockTags.DIRT, BlockTags.SAND, BlockTags.BAMBOO_PLANTABLE_ON, BlockTags.DRY_VEGETATION_MAY_PLACE_ON)
+			.tag(BlockTags.DIRT, BlockTags.SAND, BlockTags.SUPPORTS_BAMBOO, BlockTags.SUPPORTS_DRY_VEGETATION)
 			.blockstate(() -> (ctx, prov) -> Models.generateCubeLike(ctx, prov, Blocks.SAND))
 			.simpleItem()
 			.register();
 
 	public static final BlockEntry<BrambleBlock> BRAMBLE = REGISTRATE.block("bramble", BrambleBlock::new)
 			.initialProperties(() -> Blocks.SWEET_BERRY_BUSH)
-			.addLayer(() -> () -> ChunkSectionLayer.CUTOUT)
 			.blockstate(() -> (ctx, prov) ->
 					prov.createCrossBlock(ctx.get(), BlockModelGenerators.PlantType.NOT_TINTED)
 			)
@@ -338,7 +338,7 @@ public final class BiodiversityBlitz {
 					removedComponents.add(list.removeLast());
 				}
 
-				if (Screen.hasShiftDown()) {
+				if (Minecraft.getInstance().hasShiftDown()) {
 					list.addAll(shiftLore.styledLines());
 				} else {
 					list.add(BiodiversityBlitzTexts.SHIFT_FOR_MORE_INFORMATION.copy().withStyle(ChatFormatting.GOLD));

@@ -20,7 +20,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.SharedConstants;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.util.context.ContextMap;
@@ -40,7 +40,7 @@ public record ApplyForTimeAction(
 		IGameBehavior nested,
 		Optional<TemplatedText> indicator,
 		int seconds,
-		Optional<ResourceLocation> mutex,
+		Optional<Identifier> mutex,
 		boolean forceAcquireMutex,
 		boolean splitByPlayer
 ) implements IGameBehavior {
@@ -51,7 +51,7 @@ public record ApplyForTimeAction(
 			IGameBehavior.CODEC.optionalFieldOf("nested", IGameBehavior.EMPTY).forGetter(ApplyForTimeAction::nested),
 			TemplatedText.CODEC.optionalFieldOf("indicator").forGetter(ApplyForTimeAction::indicator),
 			Codec.INT.fieldOf("seconds").forGetter(ApplyForTimeAction::seconds),
-			ResourceLocation.CODEC.optionalFieldOf("mutex").forGetter(ApplyForTimeAction::mutex),
+			Identifier.CODEC.optionalFieldOf("mutex").forGetter(ApplyForTimeAction::mutex),
 			Codec.BOOL.optionalFieldOf("force_acquire_mutex", false).forGetter(ApplyForTimeAction::forceAcquireMutex),
 			// TODO: This feels easy to mess up
 			Codec.BOOL.optionalFieldOf("split_by_player", false).forGetter(ApplyForTimeAction::splitByPlayer)

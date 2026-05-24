@@ -3,7 +3,7 @@ package com.lovetropics.minigames.common.content.escape_race.effect;
 import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.content.escape_race.EscapeRace;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.CommonColors;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
@@ -21,7 +21,7 @@ import javax.annotation.Nullable;
 
 @EventBusSubscriber(modid = LoveTropics.ID)
 public class TapirTakeoverMobEffect extends MobEffect {
-	private static final DeferredHolder<EntityType<?>, EntityType<?>> TAPIR = DeferredHolder.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath("tropicraft", "tapir"));
+	private static final DeferredHolder<EntityType<?>, EntityType<?>> TAPIR = DeferredHolder.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath("tropicraft", "tapir"));
 
 	public TapirTakeoverMobEffect(MobEffectCategory category) {
 		super(category, CommonColors.WHITE);

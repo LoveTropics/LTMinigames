@@ -18,7 +18,7 @@ import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.util.TriState;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.gamerules.GameRules;
 
 public class SurviveTheTideRulesetBehavior implements IGameBehavior {
 	public static final MapCodec<SurviveTheTideRulesetBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
@@ -50,7 +50,7 @@ public class SurviveTheTideRulesetBehavior implements IGameBehavior {
 	}
 
 	private TriState onPlayerDeath(ServerPlayer player, DamageSource damageSource) {
-		if (forceDropItemsOnDeath && player.level().getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY)) {
+		if (forceDropItemsOnDeath && player.level().getGameRules().get(GameRules.KEEP_INVENTORY)) {
 			ImmediateRespawnBehavior.destroyVanishingCursedItems(player.getInventory());
 			player.getInventory().dropAll();
 		}

@@ -95,7 +95,7 @@ public class RisingFluidBehavior implements IGameBehavior {
 
 	private void spawnWarningParticles(IGamePhase game) {
 		ServerLevel world = game.level();
-		RandomSource random = world.random;
+		RandomSource random = world.getRandom();
 		if (random.nextInt(3) != 0) {
 			return;
 		}

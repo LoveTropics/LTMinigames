@@ -21,7 +21,8 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
+import net.minecraft.server.permissions.LevelBasedPermissionSet;
+import net.minecraft.util.Util;
 import net.minecraft.commands.CommandResultCallback;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -33,7 +34,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.ServerFunctionManager;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -56,16 +57,16 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-public record SpeedCarbGolfBehaviour(Map<ResourceLocation, String> potentialHoles, Map<GameTeamKey,
-		List<String>> holeRegions, ResourceLocation changeHoleNumberFunction, ResourceLocation startHoleFunction) implements IGameBehavior {
+public record SpeedCarbGolfBehaviour(Map<Identifier, String> potentialHoles, Map<GameTeamKey,
+		List<String>> holeRegions, Identifier changeHoleNumberFunction, Identifier startHoleFunction) implements IGameBehavior {
 	public static final MapCodec<SpeedCarbGolfBehaviour> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			Codec.unboundedMap(ResourceLocation.CODEC, Codec.STRING).fieldOf("possible_holes").forGetter(SpeedCarbGolfBehaviour::potentialHoles),
+			Codec.unboundedMap(Identifier.CODEC, Codec.STRING).fieldOf("possible_holes").forGetter(SpeedCarbGolfBehaviour::potentialHoles),
 			Codec.unboundedMap(GameTeamKey.CODEC, Codec.STRING.listOf()).optionalFieldOf("team_holes", Map.of()).forGetter(b -> b.holeRegions),
-			ResourceLocation.CODEC.optionalFieldOf("change_hole_number_function", ResourceLocation.fromNamespaceAndPath("lt", "world_games/minigolf/core/change_id")).forGetter(SpeedCarbGolfBehaviour::changeHoleNumberFunction),
-			ResourceLocation.CODEC.optionalFieldOf("start_hole_function", ResourceLocation.fromNamespaceAndPath("lt", "world_games/minigolf/core/start")).forGetter(SpeedCarbGolfBehaviour::startHoleFunction)
+			Identifier.CODEC.optionalFieldOf("change_hole_number_function", Identifier.fromNamespaceAndPath("lt", "world_games/minigolf/core/change_id")).forGetter(SpeedCarbGolfBehaviour::changeHoleNumberFunction),
+			Identifier.CODEC.optionalFieldOf("start_hole_function", Identifier.fromNamespaceAndPath("lt", "world_games/minigolf/core/start")).forGetter(SpeedCarbGolfBehaviour::startHoleFunction)
 	).apply(i, SpeedCarbGolfBehaviour::new));
 
-	private static final Holder<EntityType<?>> FIDDLER_CRAB = DeferredHolder.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath("tropicraft", "fiddler_crab"));
+	private static final Holder<EntityType<?>> FIDDLER_CRAB = DeferredHolder.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath("tropicraft", "fiddler_crab"));
 
 	private static final Logger LOGGER = LogManager.getLogger(SpeedCarbGolfBehaviour.class);
 
@@ -76,19 +77,19 @@ public record SpeedCarbGolfBehaviour(Map<ResourceLocation, String> potentialHole
 		CommandFunction<CommandSourceStack> changeHoleNumber = serverFunctionManager.get(changeHoleNumberFunction).orElseThrow();
 		CommandFunction<CommandSourceStack> startHole = serverFunctionManager.get(startHoleFunction).orElseThrow();
 		CommandSourceStack commandSourceStack = game.server().createCommandSourceStack().withLevel(level)
-				.withSuppressedOutput().withPermission(3).withSource(game.server());
+				.withSuppressedOutput().withPermission(LevelBasedPermissionSet.ADMIN).withSource(game.server());
 		TeamState teams = game.instanceState().getOrThrow(TeamState.KEY);
-		ResourceLocation blankHoleId = ResourceLocation.fromNamespaceAndPath("lt", "golf/blank");
-		List<ResourceLocation> holesToPickFrom = new ArrayList<>(potentialHoles.keySet());
+		Identifier blankHoleId = Identifier.fromNamespaceAndPath("lt", "golf/blank");
+		List<Identifier> holesToPickFrom = new ArrayList<>(potentialHoles.keySet());
 		int holesPerTeam = holeRegions.get(teams.iterator().next().key()).size();
-		List<ResourceLocation> pickedHoles = new ArrayList<>();
+		List<Identifier> pickedHoles = new ArrayList<>();
 		StructurePlaceSettings structureplacesettings = new StructurePlaceSettings().addProcessor(BlockIgnoreProcessor.AIR);
 		Map<String, UUID> assignedHoles = new HashMap<>();
 		Map<GameTeamKey, List<String>> teamProgress = new HashMap<>();
 		Map<String, HoleConfig> holeConfigs = new HashMap<>();
 		for (int i = 0; i < holesPerTeam; i++) {
 			Util.shuffle(holesToPickFrom, level.getRandom());
-			ResourceLocation pickedHole = holesToPickFrom.removeFirst();
+			Identifier pickedHole = holesToPickFrom.removeFirst();
 			pickedHoles.add(pickedHole);
 		}
 		// This is neat but is extra work!
@@ -112,7 +113,7 @@ public record SpeedCarbGolfBehaviour(Map<ResourceLocation, String> potentialHole
 //                    holeState.set(false);
 //                    tickCount.set(perTick);
 //                } else {
-//                    ResourceLocation pickedHole = pickedHoles.get(currentPlacedHole.getAndIncrement());
+//                    Identifier pickedHole = pickedHoles.get(currentPlacedHole.getAndIncrement());
 //                    for(GameTeam team : teams){
 //                        String regionKey = holeRegions.get(team.key()).get(regionToPlace.get());
 //                        BlockBox region = game.mapRegions().getOrThrow(regionKey);
@@ -133,9 +134,9 @@ public record SpeedCarbGolfBehaviour(Map<ResourceLocation, String> potentialHole
 //        });
 		events.listen(GameWorldEvents.ENTITY_REMOVED, (entity) -> {
 			if (entity.getType().builtInRegistryHolder().is(FIDDLER_CRAB)) {
-				if (entity.getTags().contains("golfCrab")) {
+				if (entity.entityTags().contains("golfCrab")) {
 					String hole = "";
-					for (String tag : entity.getTags()) {
+					for (String tag : entity.entityTags()) {
 						if (tag.startsWith("hole")) {
 							hole = tag;
 							break;
@@ -154,7 +155,7 @@ public record SpeedCarbGolfBehaviour(Map<ResourceLocation, String> potentialHole
 									if (player == null) {
 										return;
 									}
-									CompoundTag gameData = GameDataStorage.get(level).get(ResourceLocation.fromNamespaceAndPath("lt", "golf"), foundPlayer);
+									CompoundTag gameData = GameDataStorage.get(level).get(Identifier.fromNamespaceAndPath("lt", "golf"), foundPlayer);
 									GameTeamKey teamKey = teams.getTeamForPlayer(player);
 									game.statistics().forTeam(teamKey)
 											.incrementInt(StatisticKey.POINTS, gameData.getIntOr("hole" + hole, 0));
@@ -217,8 +218,8 @@ public record SpeedCarbGolfBehaviour(Map<ResourceLocation, String> potentialHole
 		});
 		events.listen(GameWorldEvents.ENTITY_ADDED, (entity) -> {
 			if (entity.getType() == EntityType.MARKER) {
-				if (entity.getTags().contains("golfStart") || entity.getTags().contains("golfEnd")) {
-					boolean isStart = entity.getTags().contains("golfStart");
+				if (entity.entityTags().contains("golfStart") || entity.entityTags().contains("golfEnd")) {
+					boolean isStart = entity.entityTags().contains("golfStart");
 					for (String s : game.mapRegions().keySet()) {
 						if (game.mapRegions().getOrThrow(s).contains(entity.blockPosition())) {
 							HoleConfig holeConfig = holeConfigs.get(s);
@@ -243,7 +244,7 @@ public record SpeedCarbGolfBehaviour(Map<ResourceLocation, String> potentialHole
 				List<String> holes = new ArrayList<>();
 				for (int i = 0; i < pickedHoles.size(); i++) {
 					String holeNumber = "1" + x + "0" + i;
-					ResourceLocation pickedHole = pickedHoles.get(i);
+					Identifier pickedHole = pickedHoles.get(i);
 					String regionKey = holeRegions.get(team.key()).get(i);
 					BlockBox region = game.mapRegions().getOrThrow(regionKey);
 					holeConfigs.put(regionKey, new HoleConfig(potentialHoles.get(pickedHole), holeNumber));
@@ -289,12 +290,12 @@ public record SpeedCarbGolfBehaviour(Map<ResourceLocation, String> potentialHole
 		startArgs.putString("hole", playerHole);
 		CommandSourceStack commandSourceStack1 = game.server().createCommandSourceStack().withLevel(level)
 				.withEntity(serverPlayer)
-				.withSuppressedOutput().withPermission(3).withSource(game.server());
+				.withSuppressedOutput().withPermission(LevelBasedPermissionSet.ADMIN).withSource(game.server());
 		executeFunction(startHole, startArgs, commandSourceStack1);
 	}
 
 	private void quickLoadGolfHole(GameTeam team, ServerLevel level,
-								   ResourceLocation pickedHole, BlockBox region,
+								   Identifier pickedHole, BlockBox region,
 								   StructurePlaceSettings structureplacesettings, String regionKey, boolean ignoreAir) {
 		Optional<StructureTemplate> structureTemplate = level.getStructureManager().get(pickedHole);
 		if (structureTemplate.isPresent()) {
@@ -318,7 +319,7 @@ public record SpeedCarbGolfBehaviour(Map<ResourceLocation, String> potentialHole
 		}
 	}
 
-	private void loadGolfHole(IGamePhase game, GameTeam team, ServerLevel level, ResourceLocation pickedHole,
+	private void loadGolfHole(IGamePhase game, GameTeam team, ServerLevel level, Identifier pickedHole,
 							  StructurePlaceSettings structureplacesettings, BlockBox region, String regionKey,
 							  String holeNumber, CommandFunction<CommandSourceStack> changeHoleNumber,
 							  CommandSourceStack commandSourceStack, boolean renameHole) {

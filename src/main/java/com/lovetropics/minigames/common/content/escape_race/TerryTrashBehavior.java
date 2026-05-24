@@ -21,8 +21,8 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.ChatFormatting;
-import net.minecraft.advancements.critereon.BlockPredicate;
-import net.minecraft.advancements.critereon.ItemPredicate;
+import net.minecraft.advancements.criterion.BlockPredicate;
+import net.minecraft.advancements.criterion.ItemPredicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -140,24 +140,24 @@ public final class TerryTrashBehavior implements IGameBehavior {
 					BlockPos blockBox = game.mapRegions().getOrThrow(codeCheck.blockRegion).min();
 					BlockPos lightBox = game.mapRegions().getOrThrow(codeCheck.lightRegion).min();
 					if (codeCheck.blockPredicate.matches(world, blockBox)) {
-						BlockState goodBlock = codeCheck.goodCode.getState(world.random, blockBox);
+						BlockState goodBlock = codeCheck.goodCode.getState(world, world.getRandom(), blockBox);
 						world.setBlockAndUpdate(lightBox, goodBlock);
 					} else {
-						BlockState badBlock = codeCheck.badCode.getState(world.random, blockBox);
+						BlockState badBlock = codeCheck.badCode.getState(world, world.getRandom(), blockBox);
 						world.setBlockAndUpdate(lightBox, badBlock);
 						allMatch = false;
 					}
-					world.setBlockAndUpdate(blockBox, codeCheck.clearState.getState(world.random, blockBox));
+					world.setBlockAndUpdate(blockBox, codeCheck.clearState.getState(world, world.getRandom(), blockBox));
 				}
 				if (allMatch) {
 					codeGood = allMatch;
-					player.playNotifySound(SoundRegistry.CORRECT.value(), SoundSource.BLOCKS, 1.0f, 1.0f);
+					com.lovetropics.minigames.common.util.Util.sendNotifySound(player, SoundRegistry.CORRECT.value(), SoundSource.BLOCKS, 1.0f, 1.0f);
 					GameTeamKey teamForPlayer = teams.getTeamForPlayer(player);
 					if (teamForPlayer != null) {
 						game.statistics().forTeam(teamForPlayer).incrementInt(StatisticKey.VACATION_DAYS, 2);
 					}
 				} else {
-					player.playNotifySound(SoundRegistry.INCORRECT.value(), SoundSource.BLOCKS, 1.0f, 1.0f);
+					com.lovetropics.minigames.common.util.Util.sendNotifySound(player, SoundRegistry.INCORRECT.value(), SoundSource.BLOCKS, 1.0f, 1.0f);
 					player.sendSystemMessage(Component.literal("Invalid Code!").withColor(CommonColors.RED));
 				}
 				return InteractionResult.SUCCESS;
@@ -171,13 +171,13 @@ public final class TerryTrashBehavior implements IGameBehavior {
 					if (recyclingLocation.itemPredicate().test(heldItem)) {
 						heldItem.shrink(1);
 						game.statistics().global().incrementInt(StatisticKey.RECYCLED_TRASH, 1);
-						player.playNotifySound(SoundRegistry.CORRECT.value(), SoundSource.BLOCKS, 1.0f, 1.0f);
+						com.lovetropics.minigames.common.util.Util.sendNotifySound(player, SoundRegistry.CORRECT.value(), SoundSource.BLOCKS, 1.0f, 1.0f);
 						sidebar.set(buildSidebar(game));
 						return InteractionResult.SUCCESS_SERVER;
 					} else {
 						heldItem.shrink(1);
 						game.statistics().global().incrementInt(StatisticKey.WRONG_BIN, 1);
-						player.playNotifySound(SoundRegistry.INCORRECT.value(), SoundSource.BLOCKS, 1.0f, 1.0f);
+						com.lovetropics.minigames.common.util.Util.sendNotifySound(player, SoundRegistry.INCORRECT.value(), SoundSource.BLOCKS, 1.0f, 1.0f);
 						sidebar.set(buildSidebar(game));
 						return InteractionResult.SUCCESS_SERVER;
 					}

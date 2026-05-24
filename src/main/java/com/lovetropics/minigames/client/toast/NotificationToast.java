@@ -4,14 +4,15 @@ import com.lovetropics.minigames.LoveTropics;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.toasts.Toast;
 import net.minecraft.client.gui.components.toasts.ToastManager;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.CommonColors;
 import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.world.item.ItemStackTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +26,7 @@ public final class NotificationToast implements Toast {
 
 	private final List<FormattedCharSequence> lines;
 	private final NotificationStyle style;
-	private final ResourceLocation backgroundSprite;
+	private final Identifier backgroundSprite;
 
 	private final int width;
 	private final int height;
@@ -48,13 +49,13 @@ public final class NotificationToast implements Toast {
 	}
 
 	@Override
-	public void render(GuiGraphics graphics, Font font, long visibilityTime) {
+	public void extractRenderState(GuiGraphicsExtractor graphics, Font font, long fullyVisibleForMs) {
 		graphics.blitSprite(RenderPipelines.GUI_TEXTURED, backgroundSprite, 0, 0, width, height);
 
 		drawText(graphics);
 		drawIcon(graphics);
 	}
-
+	
 	@Override
 	public void update(ToastManager toastManager, long visibilityTime) {
 		wantedVisibility = visibilityTime >= style.visibleTimeMs() ? Toast.Visibility.HIDE : Toast.Visibility.SHOW;
@@ -65,22 +66,22 @@ public final class NotificationToast implements Toast {
 		return wantedVisibility;
 	}
 
-	private void drawText(GuiGraphics graphics) {
+	private void drawText(GuiGraphicsExtractor graphics) {
 		List<FormattedCharSequence> lines = this.lines;
 		for (int i = 0; i < lines.size(); i++) {
 			FormattedCharSequence line = lines.get(i);
-			graphics.drawString(Minecraft.getInstance().font, line, TEXT_LEFT, 7 + (i * 12), style.color() == NotificationStyle.Color.LIGHT ? CommonColors.BLACK : CommonColors.WHITE, false);
+			graphics.text(Minecraft.getInstance().font, line, TEXT_LEFT, 7 + (i * 12), style.color() == NotificationStyle.Color.LIGHT ? CommonColors.BLACK : CommonColors.WHITE, false);
 		}
 	}
 
-	private void drawIcon(GuiGraphics graphics) {
+	private void drawIcon(GuiGraphicsExtractor graphics) {
 		int y = (height - ICON_SIZE) / 2;
 
 		NotificationIcon icon = style.icon();
 		if (icon.item != null) {
-			graphics.renderFakeItem(icon.item, 6, y);
+			graphics.item(icon.item.create(), 6, y);
 		} else if (icon.effect != null) {
-			ResourceLocation sprite = Gui.getMobEffectSprite(icon.effect);
+			Identifier sprite = Gui.getMobEffectSprite(icon.effect);
 			graphics.blitSprite(RenderPipelines.GUI_TEXTURED, sprite, 5, y, 18, 18);
 		}
 	}

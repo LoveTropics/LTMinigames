@@ -1,5 +1,6 @@
 package com.lovetropics.minigames.common.core.game.client_state.instance;
 
+import com.lovetropics.lib.codec.MoreCodecs;
 import com.lovetropics.minigames.common.core.game.client_state.GameClientState;
 import com.lovetropics.minigames.common.core.game.client_state.GameClientStateType;
 import com.lovetropics.minigames.common.core.game.client_state.GameClientStateTypes;
@@ -10,6 +11,7 @@ import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 
 import javax.annotation.Nullable;
 import java.util.Map;
@@ -17,9 +19,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 // TODO: consolidate all state types by using PartialUpdate system
-public record PointTagClientState(ItemStack icon, Optional<String> translationKey, Map<UUID, Integer> points) implements GameClientState {
+public record PointTagClientState(ItemStackTemplate icon, Optional<String> translationKey, Map<UUID, Integer> points) implements GameClientState {
 	public static final MapCodec<PointTagClientState> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			BuiltInRegistries.ITEM.byNameCodec().xmap(ItemStack::new, ItemStack::getItem).fieldOf("item").forGetter(PointTagClientState::icon),
+			MoreCodecs.SINGLE_STACK_TEMPLATE.fieldOf("item").forGetter(PointTagClientState::icon),
 			Codec.STRING.optionalFieldOf("translation_key").forGetter(PointTagClientState::translationKey),
 			Codec.unboundedMap(UUIDUtil.STRING_CODEC, Codec.INT).fieldOf("points").forGetter(PointTagClientState::points)
 	).apply(i, PointTagClientState::new));

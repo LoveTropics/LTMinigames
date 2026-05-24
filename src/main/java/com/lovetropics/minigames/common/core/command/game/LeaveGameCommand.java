@@ -26,7 +26,7 @@ public class LeaveGameCommand {
 						.then(unregisterBuilder("unregister"))
 						.then(unregisterBuilder("leave"))
 						.then(literal("kick")
-								.requires(source -> source.hasPermission(Commands.LEVEL_GAMEMASTERS))
+								.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
 								.then(argument("players", EntityArgument.players())
 										.executes(context ->
 												kickPlayers(context, EntityArgument.getPlayers(context, "players"))

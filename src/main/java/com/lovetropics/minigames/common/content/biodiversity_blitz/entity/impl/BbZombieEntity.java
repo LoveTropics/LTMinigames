@@ -16,10 +16,11 @@ import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.goal.ZombieAttackGoal;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
-import net.minecraft.world.entity.monster.Zombie;
+import net.minecraft.world.entity.monster.zombie.Zombie;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.phys.Vec3;
 
@@ -35,7 +36,7 @@ public class BbZombieEntity extends Zombie implements BbMobEntity {
 		this.plot = plot;
 
 		// Ignore sweet berry bushes and water
-		setPathfindingMalus(PathType.DANGER_OTHER, BERRY_BUSH_MALUS);
+		setPathfindingMalus(PathType.DAMAGING_IN_NEIGHBOR, BERRY_BUSH_MALUS);
 	}
 
 	@Override
@@ -89,9 +90,9 @@ public class BbZombieEntity extends Zombie implements BbMobEntity {
 	}
 
 	@Override
-	public boolean updateFluidHeightAndDoFluidPushing(TagKey<Fluid> fluid, double scale) {
-		if (fluid == FluidTags.WATER) {
-			return false;
+	public boolean moveInFluid(FluidState state, Vec3 movementVector, double gravity) {
+		return super.moveInFluid(state, movementVector, gravity);
+	}
 		}
 		return super.updateFluidHeightAndDoFluidPushing(fluid, scale);
 	}

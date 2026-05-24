@@ -11,6 +11,7 @@ import com.lovetropics.minigames.common.core.game.lobby.QueuedGame;
 import com.lovetropics.minigames.common.core.game.player.MutablePlayerSet;
 import com.lovetropics.minigames.common.util.Scheduler;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.PacketDistributor;
 
@@ -67,7 +68,7 @@ public final class LobbyManagement {
 	}
 
 	public boolean canManage(CommandSourceStack source) {
-		return source.hasPermission(2) || lobby.getMetadata().initiator().matches(source.getEntity());
+		return Commands.LEVEL_GAMEMASTERS.check(source.permissions()) || lobby.getMetadata().initiator().matches(source.getEntity());
 	}
 
 	public void setName(String name) {

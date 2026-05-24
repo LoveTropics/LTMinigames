@@ -129,11 +129,11 @@ public class WorldBorderGameBehavior implements IGameBehavior {
 
 		for (float step = 0; step <= 360; step += stepAmount) {
 			for (int yStep = yMin; yStep < particleHeight; yStep += yStepAmount) {
-				if (world.random.nextInt(particle.chance/*yMax - yMin*/) == 0) {
+				if (world.getRandom().nextInt(particle.chance/*yMax - yMin*/) == 0) {
 					float xVec = (float) -Math.sin(Math.toRadians(step)) * currentRadius;
 					float zVec = (float) Math.cos(Math.toRadians(step)) * currentRadius;
 					//world.addParticle(borderParticle, worldBorderCenter.getX() + xVec, worldBorderCenter.getY() + yStep, worldBorderCenter.getZ() + zVec, 0, 0, 0);
-					//IParticleData data = ForgeRegistries.PARTICLE_TYPES.getValue(new ResourceLocation("heart"));
+					//IParticleData data = ForgeRegistries.PARTICLE_TYPES.getValue(new Identifier("heart"));
 					world.sendParticles(particle.particle, worldBorderCenter.getX() + xVec, worldBorderCenter.getY() + yStep, worldBorderCenter
 							.getZ() + zVec, 1, 0, 0, 0, 1D);
 				}

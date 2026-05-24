@@ -12,7 +12,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.codec.StreamDecoder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public abstract class ServerLobbyUpdate extends PartialUpdate<LobbyManagement> {
 	public static final class Set extends AbstractSet<LobbyManagement> {
@@ -116,9 +116,9 @@ public abstract class ServerLobbyUpdate extends PartialUpdate<LobbyManagement> {
 	}
 
 	public static final class Enqueue extends ServerLobbyUpdate {
-		private final ResourceLocation definition;
+		private final Identifier definition;
 
-		Enqueue(ResourceLocation definition) {
+		Enqueue(Identifier definition) {
 			super(Type.ENQUEUE);
 			this.definition = definition;
 		}
@@ -133,11 +133,11 @@ public abstract class ServerLobbyUpdate extends PartialUpdate<LobbyManagement> {
 
 		@Override
 		protected void encode(RegistryFriendlyByteBuf buffer) {
-			buffer.writeResourceLocation(definition);
+			buffer.writeIdentifier(definition);
 		}
 
 		static Enqueue decode(FriendlyByteBuf buffer) {
-			return new Enqueue(buffer.readResourceLocation());
+			return new Enqueue(buffer.readIdentifier());
 		}
 	}
 

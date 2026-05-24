@@ -16,7 +16,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.SharedConstants;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
@@ -27,6 +27,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.random.WeightedList;
 import net.minecraft.util.valueproviders.IntProvider;
+import net.minecraft.util.valueproviders.IntProviders;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.level.block.Block;
@@ -44,7 +45,7 @@ public record ChestDropAction(String region, WeightedList<ResourceKey<LootTable>
 			Codec.STRING.fieldOf("region").forGetter(ChestDropAction::region),
 			WeightedList.codec(ResourceKey.codec(Registries.LOOT_TABLE)).fieldOf("loot_tables").forGetter(c -> c.lootTables),
 			Codec.INT.fieldOf("delay").forGetter(ChestDropAction::delay),
-			IntProvider.POSITIVE_CODEC.fieldOf("count").forGetter(ChestDropAction::count),
+			IntProviders.POSITIVE_CODEC.fieldOf("count").forGetter(ChestDropAction::count),
 			Codec.FLOAT.optionalFieldOf("glow_radius", 8.0f).forGetter(ChestDropAction::glowRadius)
 	).apply(i, ChestDropAction::new));
 
@@ -58,7 +59,7 @@ public record ChestDropAction(String region, WeightedList<ResourceKey<LootTable>
 		}
 
 		ServerLevel level = game.level();
-		RandomSource random = level.random;
+		RandomSource random = level.getRandom();
 		BeaconState beacons = game.state().get(BeaconState.KEY);
 
 		List<DelayedDrop> delayedDrops = new ArrayList<>();

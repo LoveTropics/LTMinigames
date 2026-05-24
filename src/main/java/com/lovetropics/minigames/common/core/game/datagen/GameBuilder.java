@@ -8,7 +8,7 @@ import com.lovetropics.minigames.common.core.game.config.GameConfig;
 import com.lovetropics.minigames.common.core.game.config.GamePhaseConfig;
 import com.lovetropics.minigames.common.core.game.map.IGameMapProvider;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -18,9 +18,9 @@ import java.util.Objects;
 import java.util.function.UnaryOperator;
 
 public class GameBuilder {
-	private final ResourceLocation id;
+	private final Identifier id;
 	@Nullable
-	private ResourceLocation backendId;
+	private Identifier backendId;
 	@Nullable
 	private String statisticsKey;
 	@Nullable
@@ -28,24 +28,24 @@ public class GameBuilder {
 	@Nullable
 	private Component subtitle;
 	@Nullable
-	private ResourceLocation icon;
+	private Identifier icon;
 	private int maximumParticipants = 50;
 	@Nullable
-	private ResourceLocation introSlideshow;
+	private Identifier introSlideshow;
 	@Nullable
 	private GamePhaseConfig waiting;
 	@Nullable
 	private GamePhaseConfig playing;
 	private boolean hideFromList;
 
-	public GameBuilder(ResourceLocation id) {
+	public GameBuilder(Identifier id) {
 		this.id = id;
 		backendId = id;
 		statisticsKey = id.getPath();
 		name = Component.literal(id.toString());
 	}
 
-	public GameBuilder setBackendId(ResourceLocation backendId) {
+	public GameBuilder setBackendId(Identifier backendId) {
 		this.backendId = backendId;
 		return this;
 	}
@@ -65,7 +65,7 @@ public class GameBuilder {
 		return this;
 	}
 
-	public GameBuilder setIcon(@Nullable ResourceLocation icon) {
+	public GameBuilder setIcon(@Nullable Identifier icon) {
 		this.icon = icon;
 		return this;
 	}
@@ -75,7 +75,7 @@ public class GameBuilder {
 		return this;
 	}
 
-	public GameBuilder setIntroSlideshow(@Nullable ResourceLocation introSlideshow) {
+	public GameBuilder setIntroSlideshow(@Nullable Identifier introSlideshow) {
 		this.introSlideshow = introSlideshow;
 		return this;
 	}

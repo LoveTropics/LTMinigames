@@ -13,7 +13,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import net.minecraft.advancements.critereon.ItemPredicate;
+import net.minecraft.advancements.criterion.ItemPredicate;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.inventory.CraftingContainer;
@@ -69,7 +69,7 @@ public record WhileInInventoryTrigger(
 
 	private int countInInventory(ServerPlayer player) {
 		CraftingContainer craftSlots = player.inventoryMenu.getCraftSlots();
-		return player.getInventory().clearOrCountMatchingItems(itemPredicate, 0, craftSlots);
+		return player.getInventory().clearOrCountMatchingItems(itemPredicate::test, 0, craftSlots);
 	}
 
 	@Override

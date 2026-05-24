@@ -307,7 +307,7 @@ public final class GameLobby {
 	static final class ChatNotifyListener implements LobbyStateListener {
 		@Override
 		public void onPlayerStartTracking(GameLobby lobby, ServerPlayer player) {
-			player.displayClientMessage(GameTexts.Status.lobbyOpened(lobby), false);
+			player.sendSystemMessage(GameTexts.Status.lobbyOpened(lobby), false);
 		}
 
 		@Override

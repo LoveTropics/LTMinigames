@@ -6,9 +6,9 @@ import com.lovetropics.minigames.common.content.river_race.RiverRace;
 import com.lovetropics.minigames.common.content.river_race.client_state.RiverRaceClientBarState;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -30,11 +30,11 @@ public final class RiverRaceBarRenderer {
 
 	private static final int POINTER_SIZE = 5;
 
-	private static final ResourceLocation MAP_SPRITE = LoveTropics.location("minigames/river_race/map");
-	private static final ResourceLocation BAR_SPRITE = LoveTropics.location("minigames/river_race/bar");
-	private static final ResourceLocation POINTER_TOP_SPRITE = LoveTropics.location("minigames/river_race/pointer_top");
-	private static final ResourceLocation POINTER_BOTTOM_SPRITE = LoveTropics.location("minigames/river_race/pointer_bottom");
-	private static final ResourceLocation LOCKED_SPRITE = LoveTropics.location("minigames/river_race/locked");
+	private static final Identifier MAP_SPRITE = LoveTropics.location("minigames/river_race/map");
+	private static final Identifier BAR_SPRITE = LoveTropics.location("minigames/river_race/bar");
+	private static final Identifier POINTER_TOP_SPRITE = LoveTropics.location("minigames/river_race/pointer_top");
+	private static final Identifier POINTER_BOTTOM_SPRITE = LoveTropics.location("minigames/river_race/pointer_bottom");
+	private static final Identifier LOCKED_SPRITE = LoveTropics.location("minigames/river_race/locked");
 
 	public static void registerOverlays(RegisterGuiLayersEvent event) {
 		event.registerAbove(VanillaGuiLayers.BOSS_OVERLAY, LoveTropics.location("river_race_bar"), (graphics, deltaTracker) -> {
@@ -64,7 +64,7 @@ public final class RiverRaceBarRenderer {
 		}
 	}
 
-	private static void render(GuiGraphics graphics, RiverRaceClientBarState barState) {
+	private static void render(GuiGraphicsExtractor graphics, RiverRaceClientBarState barState) {
 		int mapLeft = (graphics.guiWidth() - MAP_WIDTH) / 2;
 		int left = mapLeft + MAP_MARGIN_X;
 		renderTeamMarkers(graphics, barState.topTeam(), left, true);
@@ -78,7 +78,7 @@ public final class RiverRaceBarRenderer {
 		}
 	}
 
-	private static void renderTeamMarkers(GuiGraphics graphics, RiverRaceClientBarState.Team team, int left, boolean top) {
+	private static void renderTeamMarkers(GuiGraphicsExtractor graphics, RiverRaceClientBarState.Team team, int left, boolean top) {
 		int barY = top ? MAP_TOP + MAP_MARGIN_Y - BAR_HEIGHT - 1 : MAP_TOP + MAP_HEIGHT - MAP_MARGIN_Y + 1;
 		int pointerY = top ? 0 : MAP_TOP + MAP_HEIGHT - MAP_MARGIN_Y + BAR_HEIGHT;
 

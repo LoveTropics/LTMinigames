@@ -1,7 +1,7 @@
 package com.lovetropics.minigames.mixin;
 
 import com.lovetropics.minigames.common.util.world.gamedata.GameDataAccessor;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.server.commands.data.DataCommands;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;

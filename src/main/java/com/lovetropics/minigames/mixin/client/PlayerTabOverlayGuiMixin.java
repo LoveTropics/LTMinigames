@@ -21,7 +21,7 @@ public class PlayerTabOverlayGuiMixin {
 	private void getDisplayName(PlayerInfo info, MutableComponent displayName, CallbackInfoReturnable<Component> ci) {
 		ClientLobbyState lobby = ClientLobbyManager.getJoined();
 		if (lobby != null && lobby.getCurrentGame() != null) {
-			UUID id = info.getProfile().getId();
+			UUID id = info.getProfile().id();
 			if (lobby.getPlayers().contains(id)) {
 				if (info.getGameMode() != GameType.SPECTATOR) {
 					ci.setReturnValue(Component.literal("\uD83D\uDDE1 ").append(displayName));

@@ -13,7 +13,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.context.ContextMap;
 import org.apache.commons.lang3.mutable.MutableBoolean;
@@ -23,13 +23,13 @@ import java.util.Collections;
 import java.util.List;
 
 public record StartMicrogamesAction(
-		List<ResourceLocation> gameConfigIds,
+		List<Identifier> gameConfigIds,
 		int gamesPerRound,
 		GameActionList onComplete
 ) implements IGameBehavior {
 
 	public static final MapCodec<StartMicrogamesAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			ExtraCodecs.nonEmptyList(ResourceLocation.CODEC.listOf()).fieldOf("games").forGetter(StartMicrogamesAction::gameConfigIds),
+			ExtraCodecs.nonEmptyList(Identifier.CODEC.listOf()).fieldOf("games").forGetter(StartMicrogamesAction::gameConfigIds),
 			Codec.INT.optionalFieldOf("games_per_round", 1).forGetter(c -> c.gamesPerRound),
 			GameActionList.CODEC.optionalFieldOf("on_complete", GameActionList.EMPTY).forGetter(StartMicrogamesAction::onComplete)
 	).apply(i, StartMicrogamesAction::new));
@@ -41,7 +41,7 @@ public record StartMicrogamesAction(
 		onComplete.register(game, events);
 
 		List<GameConfig> gameConfigs = new ArrayList<>(gameConfigIds.size());
-		for (ResourceLocation configId : gameConfigIds) {
+		for (Identifier configId : gameConfigIds) {
 			GameConfig config = GameConfigs.REGISTRY.get(configId);
 			if (config == null) {
 				throw new GameException(Component.literal("Missing microgame config with id: " + configId));

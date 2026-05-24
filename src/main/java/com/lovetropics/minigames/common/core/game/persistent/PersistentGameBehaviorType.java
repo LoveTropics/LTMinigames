@@ -3,14 +3,14 @@ package com.lovetropics.minigames.common.core.game.persistent;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorTypes;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.mojang.serialization.MapCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.Objects;
 
 public record PersistentGameBehaviorType<T extends PersistentGameBehavior>(MapCodec<T> codec) {
 	@Override
 	public String toString() {
-		ResourceLocation key = PersistentGameBehaviors.REGISTRY.getKey(this);
+		Identifier key = PersistentGameBehaviors.REGISTRY.getKey(this);
 		return key != null ? key.toString() : "[unregistered]";
 	}
 

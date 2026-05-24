@@ -2,15 +2,16 @@ package com.lovetropics.minigames.common.content.escape_race.client.ddr;
 
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DdrInput;
 import net.minecraft.util.BinaryAnimator;
+import net.minecraft.util.Ease;
 import net.minecraft.util.Mth;
 
 public class DdrPlayerPoseState {
 	private static final int ANIMATION_LENGTH = 3;
 
-	private final BinaryAnimator forward = new BinaryAnimator(ANIMATION_LENGTH, Mth::easeInOutSine);
-	private final BinaryAnimator back = new BinaryAnimator(ANIMATION_LENGTH, Mth::easeInOutSine);
-	private final BinaryAnimator left = new BinaryAnimator(ANIMATION_LENGTH, Mth::easeInOutSine);
-	private final BinaryAnimator right = new BinaryAnimator(ANIMATION_LENGTH, Mth::easeInOutSine);
+	private final BinaryAnimator forward = new BinaryAnimator(ANIMATION_LENGTH, Ease::inOutSine);
+	private final BinaryAnimator back = new BinaryAnimator(ANIMATION_LENGTH, Ease::inOutSine);
+	private final BinaryAnimator left = new BinaryAnimator(ANIMATION_LENGTH, Ease::inOutSine);
+	private final BinaryAnimator right = new BinaryAnimator(ANIMATION_LENGTH, Ease::inOutSine);
 
 	public void tick(DdrInput input) {
 		forward.tick(input.forward());

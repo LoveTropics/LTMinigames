@@ -24,7 +24,7 @@ import net.minecraft.core.HolderSet;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
@@ -38,6 +38,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.ServerExplosion;
@@ -63,7 +64,7 @@ public record PaintPartyBehaviour(Map<GameTeamKey, TeamConfig> teamConfigs, Bloc
 			Codec.INT.optionalFieldOf("starting_ammo", 64).forGetter(PaintPartyBehaviour::startAmmo),
 			Codec.INT.optionalFieldOf("ammo_recharge_ticks", 2).forGetter(PaintPartyBehaviour::ammoRechargeTicks)
 	).apply(i, PaintPartyBehaviour::new));
-	private static final Holder<EntityType<?>> EXPLODING_COCONUT = DeferredHolder.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath("tropicraft", "exploding_coconut"));
+	private static final Holder<EntityType<?>> EXPLODING_COCONUT = DeferredHolder.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath("tropicraft", "exploding_coconut"));
 
 	private static final AttributeModifier SWIMMING_SPEED_MODIFIER = new AttributeModifier(
 			LoveTropics.location("paint_party/swimming_in_paint"),
@@ -85,12 +86,12 @@ public record PaintPartyBehaviour(Map<GameTeamKey, TeamConfig> teamConfigs, Bloc
 				}
 				TeamConfig teamConfig = teamConfigs.get(teamKey);
 				spawn.run(player ->
-						player.getInventory().add(teamConfig.ammoItem.copyWithCount(startAmmo))
+						player.getInventory().add(teamConfig.ammoItem.create().copyWithCount(startAmmo))
 				);
 			}
 		});
 		events.listen(GameWorldEvents.EXPLOSION_DETONATE, (explosion, affectedBlocks, affectedEntities) -> {
-			if ((explosion.getDirectSourceEntity().getType().is(HolderSet.direct(EXPLODING_COCONUT)) || explosion.getDirectSourceEntity() instanceof PaintBallEntity) && explosion.getIndirectSourceEntity() instanceof ServerPlayer throwingPlayer) {
+			if ((explosion.getDirectSourceEntity().is(EXPLODING_COCONUT) || explosion.getDirectSourceEntity() instanceof PaintBallEntity) && explosion.getIndirectSourceEntity() instanceof ServerPlayer throwingPlayer) {
 				GameTeamKey teamKey = teams.getTeamForPlayer(throwingPlayer);
 				if (teamKey == null) {
 					return;
@@ -148,7 +149,7 @@ public record PaintPartyBehaviour(Map<GameTeamKey, TeamConfig> teamConfigs, Bloc
 
 			TeamConfig teamConfig = getTeamConfig(teamKey);
 
-			if (stack.is(Items.DIAMOND_HOE) && player.getInventory().countItem(teamConfig.ammoItem.getItem()) >= 20) {
+			if (stack.is(Items.DIAMOND_HOE) && player.getInventory().countItem(teamConfig.ammoItem.item().value()) >= 20) {
 				removeFromInventory(player, teamConfig, 20);
 
 				player.getCooldowns().addCooldown(stack, 60);
@@ -157,7 +158,7 @@ public record PaintPartyBehaviour(Map<GameTeamKey, TeamConfig> teamConfigs, Bloc
 				paintball.setOwner(player);
 				paintball.setPos(player.getX(), player.getEyeY() - 0.1F, player.getZ());
 				paintball.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 0.75F, 1.0F);
-				paintball.setVisualItem(teamConfig.ammoItem);
+				paintball.setVisualItem(teamConfig.ammoItem.create());
 				player.level().addFreshEntity(paintball);
 
 				return InteractionResult.PASS;
@@ -196,13 +197,13 @@ public record PaintPartyBehaviour(Map<GameTeamKey, TeamConfig> teamConfigs, Bloc
 
 		List<Slot> slots = player.containerMenu.slots;
 		for (Slot slot : slots) {
-			remaining -= removeFromSlot(slot, i -> i.is(config.ammoItem().getItem()), remaining);
+			remaining -= removeFromSlot(slot, i -> i.is(config.ammoItem().item()), remaining);
 			if (remaining <= 0) {
 				break;
 			}
 		}
 
-		remaining -= ContainerHelper.clearOrCountMatchingItems(player.containerMenu.getCarried(), i -> i.is(config.ammoItem().getItem()), remaining, false);
+		remaining -= ContainerHelper.clearOrCountMatchingItems(player.containerMenu.getCarried(), i -> i.is(config.ammoItem().item()), remaining, false);
 
 		player.containerMenu.broadcastChanges();
 
@@ -237,8 +238,8 @@ public record PaintPartyBehaviour(Map<GameTeamKey, TeamConfig> teamConfigs, Bloc
 				PacketDistributor.sendToPlayer(player, new SetForcedPoseMessage(Optional.empty()));
 			} else {
 				if (game.ticks() % ammoRechargeTicks() == 0) {
-					if (player.getInventory().countItem(teamConfig.ammoItem.getItem()) < startAmmo) {
-						player.getInventory().add(teamConfig.ammoItem.copy());
+					if (player.getInventory().countItem(teamConfig.ammoItem.item().value()) < startAmmo) {
+						player.getInventory().add(teamConfig.ammoItem.create());
 						BlockParticleOption particle = new BlockParticleOption(ParticleTypes.BLOCK, teamConfig.blockType(), playerPos);
 						game.level().sendParticles(particle, playerPos.getX() + 0.5, playerPos.getY() + 1.5, playerPos.getZ() + 0.5, 150, 0, 0, 0, 0.15F);
 					}
@@ -313,14 +314,14 @@ public record PaintPartyBehaviour(Map<GameTeamKey, TeamConfig> teamConfigs, Bloc
 	public record TeamConfig(
 			String spawnRegion,
 			BlockState blockType,
-			ItemStack ammoItem,
+			ItemStackTemplate ammoItem,
 			TagKey<Block> blockTag,
 			TagKey<Item> itemTag
 	) {
 		public static final Codec<TeamConfig> CODEC = RecordCodecBuilder.create(i -> i.group(
 				Codec.STRING.fieldOf("spawn_region").forGetter(TeamConfig::spawnRegion),
 				MoreCodecs.BLOCK_STATE.fieldOf("block").forGetter(TeamConfig::blockType),
-				MoreCodecs.ITEM_STACK.fieldOf("ammo_item").forGetter(TeamConfig::ammoItem),
+				ItemStackTemplate.CODEC.fieldOf("ammo_item").forGetter(TeamConfig::ammoItem),
 				TagKey.hashedCodec(Registries.BLOCK).fieldOf("block_tag").forGetter(TeamConfig::blockTag),
 				TagKey.hashedCodec(Registries.ITEM).fieldOf("item_tag").forGetter(TeamConfig::itemTag)
 		).apply(i, TeamConfig::new));

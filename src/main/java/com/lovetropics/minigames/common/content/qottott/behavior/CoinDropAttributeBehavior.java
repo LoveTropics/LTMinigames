@@ -21,12 +21,13 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 
 import java.util.function.Supplier;
 
-public record CoinDropAttributeBehavior(ItemStack item, StatisticKey<Integer> statistic) implements IGameBehavior {
+public record CoinDropAttributeBehavior(ItemStackTemplate item, StatisticKey<Integer> statistic) implements IGameBehavior {
 	public static final MapCodec<CoinDropAttributeBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			MoreCodecs.ITEM_STACK.fieldOf("item").forGetter(CoinDropAttributeBehavior::item),
+			ItemStackTemplate.CODEC.fieldOf("item").forGetter(CoinDropAttributeBehavior::item),
 			StatisticKey.INT_CODEC.fieldOf("statistic").forGetter(CoinDropAttributeBehavior::statistic)
 	).apply(i, CoinDropAttributeBehavior::new));
 
@@ -40,7 +41,7 @@ public record CoinDropAttributeBehavior(ItemStack item, StatisticKey<Integer> st
 					final int amount = Mth.floor(statistics.getInt(statistic) * coinDrops);
 					if (amount > 0) {
 						statistics.incrementInt(statistic, -amount);
-						spawnItems(game, player, amount, item);
+						spawnItems(game, player, amount, item.create());
 					}
 				}
 			}
@@ -50,7 +51,7 @@ public record CoinDropAttributeBehavior(ItemStack item, StatisticKey<Integer> st
 
 	public static void spawnItems(final IGamePhase game, final Player player, final int amount, final ItemStack item) {
 		final ServerLevel level = game.level();
-		final RandomSource random = level.random;
+		final RandomSource random = level.getRandom();
 		for (int i = 0; i < amount; i++) {
 			final ItemEntity entity = new ItemEntity(level, player.getRandomX(1.0), player.getRandomY(), player.getRandomZ(1.0), item.copyWithCount(1));
 			entity.setDeltaMovement(random.triangle(0.0, 0.155), random.triangle(0.2, 0.155), random.triangle(0.0, 0.155));

@@ -1,6 +1,7 @@
 package com.lovetropics.minigames.common.core.integration;
 
 import com.google.common.base.Strings;
+import com.google.common.net.HttpHeaders;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
@@ -8,9 +9,8 @@ import com.lovetropics.minigames.common.config.ConfigLT;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.util.LenientJsonParser;
-import org.apache.http.HttpHeaders;
 import org.slf4j.Logger;
 
 import java.net.URI;

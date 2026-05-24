@@ -24,9 +24,10 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
+import net.minecraft.commands.Commands;
+import net.minecraft.util.Util;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.arguments.ResourceLocationArgument;
+import net.minecraft.commands.arguments.IdentifierArgument;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.ClickEvent;
@@ -34,7 +35,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -65,7 +66,7 @@ public final class MapCommand {
 		// @formatter:off
         dispatcher.register(
             literal("map")
-				.requires(source -> source.hasPermission(2))
+				.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                 .then(literal("open")
                     .then(argument("id", StringArgumentType.string())
 						.then(DimensionArgument.argument("dimension")
@@ -94,7 +95,7 @@ public final class MapCommand {
 					.executes(MapCommand::exportMap)
 				))
 				.then(literal("import")
-					.then(argument("location", ResourceLocationArgument.id())
+					.then(argument("location", IdentifierArgument.id())
 							.then(DimensionArgument.argument("dimension")
 							.executes(context ->{
 								LevelStem dimension = DimensionArgument.get(context, "dimension");
@@ -199,7 +200,7 @@ public final class MapCommand {
 		} else {
 			ResourceKey<Level> dimension = workspace.dimensionKey();
 			ServerLevel world = context.getSource().getServer().getLevel(dimension);
-			DimensionUtils.teleportPlayerNoPortal(player, dimension, world.getSharedSpawnPos());
+			DimensionUtils.teleportPlayerNoPortal(player, dimension, world.getRespawnData().pos());
 		}
 
 		if (player.getAbilities().mayfly) {
@@ -266,7 +267,7 @@ public final class MapCommand {
 			LevelStorageSource.LevelStorageAccess save = server.storageSource;
 			Path dimensionDirectory = save.getDimensionPath(workspace.dimensionKey());
 
-			ResourceLocation id = LoveTropics.location(workspace.id());
+			Identifier id = LoveTropics.location(workspace.id());
 			Path exportPath = MapExportWriter.pathFor(id);
 
 			try {
@@ -321,7 +322,7 @@ public final class MapCommand {
 	}
 
 	private static int importMap(CommandContext<CommandSourceStack> context, LevelStem dimension) throws CommandSyntaxException {
-		ResourceLocation location = ResourceLocationArgument.getId(context, "location");
+		Identifier location = IdentifierArgument.getId(context, "location");
 		String id = location.getPath();
 
 		CommandSourceStack source = context.getSource();

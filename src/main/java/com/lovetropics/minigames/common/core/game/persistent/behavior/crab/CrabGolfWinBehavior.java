@@ -16,8 +16,10 @@ import net.minecraft.commands.Commands;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.LevelBasedPermissionSet;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
@@ -25,6 +27,7 @@ import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
 import net.minecraft.world.phys.Vec2;
@@ -42,17 +45,17 @@ import java.util.function.Supplier;
 public class CrabGolfWinBehavior implements PersistentGameBehavior {
 	public static final MapCodec<CrabGolfWinBehavior> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 			Codec.withAlternative(CompoundTag.CODEC, TagParser.FLATTENED_CODEC).fieldOf("firework").forGetter(b -> b.nbt),
-			ItemStack.CODEC.fieldOf("reward").forGetter(b -> b.reward),
+			ItemStackTemplate.CODEC.fieldOf("reward").forGetter(b -> b.reward),
 			RunCommandsAction.COMMAND_CODEC.fieldOf("on_start").forGetter(b -> b.onStart),
 			RunCommandsAction.COMMAND_CODEC.fieldOf("on_end").forGetter(b -> b.onEnd)
 	).apply(instance, CrabGolfWinBehavior::new));
 
 	private final CompoundTag nbt;
-	private final ItemStack reward;
+	private final ItemStackTemplate reward;
 	private final String onStart;
 	private final String onEnd;
 
-	public CrabGolfWinBehavior(CompoundTag nbt, ItemStack reward, String onStart, String onEnd) {
+	public CrabGolfWinBehavior(CompoundTag nbt, ItemStackTemplate reward, String onStart, String onEnd) {
 		this.nbt = nbt;
 		this.reward = reward;
 		this.onStart = onStart;
@@ -77,12 +80,12 @@ public class CrabGolfWinBehavior implements PersistentGameBehavior {
 			GolfData data = GolfData.get(player.level());
 			if (data.getHighScoreFor(hole, player) == -1) {
 				// First time playing this hole?
-				player.addItem(reward.copy());
+				player.addItem(reward.create());
 			}
 			boolean highScore = data.submitNewScore(hole, player, score);
 			if (highScore) {
 				// Got high score for this hole?
-				player.addItem(reward.copy());
+				player.addItem(reward.create());
 			}
 
 			if (highScore) {
@@ -112,7 +115,7 @@ public class CrabGolfWinBehavior implements PersistentGameBehavior {
 	}
 
 	private static @NotNull CommandSourceStack getCommandSourceStack(PersistentGame game, ServerPlayer player) {
-		CommandSourceStack source = new CommandSourceStack(CommandSource.NULL, Vec3.ZERO, Vec2.ZERO, game.level(), Commands.LEVEL_OWNERS, "crabgolf", Component.literal("crabgolf"), game.level().getServer(), null);
+		CommandSourceStack source = new CommandSourceStack(CommandSource.NULL, Vec3.ZERO, Vec2.ZERO, game.level(), LevelBasedPermissionSet.OWNER, "crabgolf", Component.literal("crabgolf"), game.level().getServer(), null);
 
 		CommandSourceStack targetSource = source.withEntity(player).withPosition(player.position());
 		return targetSource;
@@ -124,12 +127,13 @@ public class CrabGolfWinBehavior implements PersistentGameBehavior {
 	}
 
 	public static class GolfData extends SavedData {
+		private static final Identifier ID = LoveTropics.location("crab_golf_data");
+
 		public static final Codec<GolfData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.unboundedMap(Codec.STRING.xmap(Integer::parseInt, Object::toString), HoleData.CODEC).fieldOf("data").forGetter(b -> b.data)
 		).apply(instance, GolfData::new));
 
-		private static final SavedDataType<GolfData> TYPE = new SavedDataType<>(
-				LoveTropics.ID + "_crab_golf", GolfData::new, CODEC);
+		private static final SavedDataType<GolfData> TYPE = new SavedDataType<>(ID, GolfData::new, CODEC);
 
 		private final Map<Integer, HoleData> data;
 

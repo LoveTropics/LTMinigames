@@ -40,7 +40,7 @@ public final class ForceLoadRegionBehavior implements IGameBehavior {
 		LongIterator iterator = acquiredChunks.iterator();
 		while (iterator.hasNext()) {
 			long chunkKey = iterator.nextLong();
-			chunkProvider.updateChunkForced(new ChunkPos(chunkKey), false);
+			chunkProvider.updateChunkForced(ChunkPos.unpack(chunkKey), false);
 		}
 	}
 
@@ -52,7 +52,7 @@ public final class ForceLoadRegionBehavior implements IGameBehavior {
 		LongIterator iterator = chunks.iterator();
 		while (iterator.hasNext()) {
 			long chunkKey = iterator.nextLong();
-			chunkProvider.updateChunkForced(new ChunkPos(chunkKey), true);
+			chunkProvider.updateChunkForced(ChunkPos.unpack(chunkKey), true);
 		}
 
 		iterator = chunks.iterator();

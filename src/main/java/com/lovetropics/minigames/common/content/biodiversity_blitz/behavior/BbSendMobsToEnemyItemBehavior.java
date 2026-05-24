@@ -70,7 +70,7 @@ public final class BbSendMobsToEnemyItemBehavior implements IGameBehavior {
 	}
 
 	private boolean tryUseMobItem(ServerPlayer player, ItemStack item, IGamePhase game, PlotsState plots, TeamState teams) {
-		if (!items.contains(item.getItemHolder())) {
+		if (!items.contains(item.typeHolder())) {
 			return false;
 		}
 

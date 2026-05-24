@@ -40,7 +40,7 @@ public class CraftingBee {
 			return ItemStack.EMPTY;
 		}
 		if (recipe instanceof ShapedRecipe || recipe instanceof ShapelessRecipe) {
-			return craftingRecipe.assemble(CraftingInput.EMPTY, registries);
+			return craftingRecipe.assemble(CraftingInput.EMPTY);
 		}
 		return ItemStack.EMPTY;
 	}

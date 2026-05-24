@@ -32,4 +32,9 @@ public record GameLootModifier() implements IGlobalLootModifier {
 	public MapCodec<GameLootModifier> codec() {
 		return CODEC;
 	}
+
+	@Override
+	public int priority() {
+		return IGlobalLootModifier.DEFAULT_PRIORITY;
+	}
 }

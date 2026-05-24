@@ -21,7 +21,7 @@ public record ServerboundSelectDdrLevelPacket(
 
 	public static void handle(final ServerboundSelectDdrLevelPacket packet, final IPayloadContext context) {
 		if (context.player() instanceof ServerPlayer player && player.getControlledVehicle() instanceof DDRMachineEntity ddrMachineEntity) {
-			if (player.canInteractWithEntity(ddrMachineEntity, ServerPlayer.ENTITY_INTERACTION_DISTANCE_VERIFICATION_BUFFER)) {
+			if (player.isWithinEntityInteractionRange(ddrMachineEntity, ServerPlayer.ENTITY_INTERACTION_DISTANCE_VERIFICATION_BUFFER)) {
 				ddrMachineEntity.startPlaying(player, packet.level());
 			}
 		}

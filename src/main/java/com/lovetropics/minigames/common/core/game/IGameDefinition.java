@@ -1,7 +1,7 @@
 package com.lovetropics.minigames.common.core.game;
 
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
@@ -19,9 +19,9 @@ public interface IGameDefinition {
 	 *
 	 * @return The identifier for this minigame definition.
 	 */
-	ResourceLocation id();
+	Identifier id();
 
-	default ResourceLocation backendId() {
+	default Identifier backendId() {
 		return id();
 	}
 
@@ -43,12 +43,12 @@ public interface IGameDefinition {
 	}
 
 	@Nullable
-	default ResourceLocation icon() {
+	default Identifier icon() {
 		return null;
 	}
 
 	@Nullable
-	default ResourceLocation introSlideshow() {
+	default Identifier introSlideshow() {
 		return null;
 	}
 

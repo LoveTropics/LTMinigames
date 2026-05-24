@@ -46,7 +46,7 @@ public record AddOverlordsBehavior(
 		List<Role> roles = this.roles.stream().map(id -> {
 			Role role = PermissionsApi.provider().get(id);
 			if (role == null) {
-				if (FMLEnvironment.production) {
+				if (FMLEnvironment.isProduction()) {
 					throw new GameException(Component.literal("No role with id: '" + id + "'"));
 				} else {
 					LOGGER.warn("No role with id: '{}'", id);

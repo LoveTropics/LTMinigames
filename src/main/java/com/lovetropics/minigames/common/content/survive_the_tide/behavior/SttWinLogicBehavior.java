@@ -51,8 +51,8 @@ public class SttWinLogicBehavior implements IGameBehavior {
 	private void spawnLightningBoltsEverywhere(IGamePhase game, final Level world) {
 		if (game.ticks() % lightningBoltSpawnTickRate == 0) {
 			for (ServerPlayer player : game.participants()) {
-				int xOffset = (7 + world.random.nextInt(5)) * (world.random.nextBoolean() ? 1 : -1);
-				int zOffset = (7 + world.random.nextInt(5)) * (world.random.nextBoolean() ? 1 : -1);
+				int xOffset = (7 + world.getRandom().nextInt(5)) * (world.getRandom().nextBoolean() ? 1 : -1);
+				int zOffset = (7 + world.getRandom().nextInt(5)) * (world.getRandom().nextBoolean() ? 1 : -1);
 
 				int posX = Mth.floor(player.getX()) + xOffset;
 				int posZ = Mth.floor(player.getZ()) + zOffset;

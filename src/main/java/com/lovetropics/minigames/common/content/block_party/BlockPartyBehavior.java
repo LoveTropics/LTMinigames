@@ -21,7 +21,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.ChatFormatting;
 import net.minecraft.SharedConstants;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
@@ -182,7 +182,7 @@ public final class BlockPartyBehavior implements IGameBehavior {
 
 	CountingDown startCountingDown(int round) {
 		ServerLevel level = game.level();
-		Floor floor = floorRegion.generateAndSet(level, level.random, blocks);
+		Floor floor = floorRegion.generateAndSet(level, level.getRandom(), blocks);
 
 		ItemStack targetStack = new ItemStack(floor.target.getBlock());
 
@@ -256,7 +256,7 @@ public final class BlockPartyBehavior implements IGameBehavior {
 
 			if (secondsLeft <= FINAL_COUNTDOWN_SECONDS && ticksLeft % SharedConstants.TICKS_PER_SECOND == 0) {
 				players.playSound(SoundEvents.NOTE_BLOCK_HARP.value(), SoundSource.PLAYERS, 1.0f, 1.0f);
-				int color = ARGB.lerp(
+				int color = ARGB.linearLerp(
 						Mth.inverseLerp(secondsLeft, FINAL_COUNTDOWN_SECONDS, 1),
 						0x55ff55, 0xffaa00
 				);

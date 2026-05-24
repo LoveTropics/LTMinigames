@@ -51,6 +51,6 @@ public class WorldGenSettingsMixin {
 	// TODO: Remove this, we're just cleaning up old data
 	@Unique
 	private static boolean looksLikeTemporaryDimension(ResourceKey<Level> dimension) {
-		return dimension.location().getNamespace().equals(LoveTropics.ID) && dimension.location().getPath().startsWith("tmp_");
+		return dimension.identifier().getNamespace().equals(LoveTropics.ID) && dimension.identifier().getPath().startsWith("tmp_");
 	}
 }

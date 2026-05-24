@@ -19,6 +19,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.valueproviders.IntProvider;
+import net.minecraft.util.valueproviders.IntProviders;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -28,7 +29,7 @@ import java.util.List;
 
 public record GrowPlantBehavior(IntProvider time, PlantType growInto) implements IGameBehavior {
 	public static final MapCodec<GrowPlantBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			IntProvider.NON_NEGATIVE_CODEC.fieldOf("time").forGetter(c -> c.time),
+			IntProviders.NON_NEGATIVE_CODEC.fieldOf("time").forGetter(c -> c.time),
 			PlantType.CODEC.fieldOf("grow_into").forGetter(c -> c.growInto)
 	).apply(i, GrowPlantBehavior::new));
 

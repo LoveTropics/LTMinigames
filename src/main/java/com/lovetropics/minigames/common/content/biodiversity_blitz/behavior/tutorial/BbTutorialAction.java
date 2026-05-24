@@ -31,7 +31,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.FarmBlock;
+import net.minecraft.world.level.block.FarmlandBlock;
 import net.minecraft.world.level.block.LevelEvent;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.common.util.FakePlayerFactory;
@@ -309,7 +309,7 @@ public class BbTutorialAction implements IGameBehavior {
 	public record SetFarmland(ServerPlayer target, BlockPos pos) implements Runnable {
 		@Override
 		public void run() {
-			target.level().setBlock(pos, Blocks.FARMLAND.defaultBlockState().setValue(FarmBlock.MOISTURE, 7), 3);
+			target.level().setBlock(pos, Blocks.FARMLAND.defaultBlockState().setValue(FarmlandBlock.MOISTURE, FarmlandBlock.MAX_MOISTURE), Block.UPDATE_ALL);
 			target.level().playSound(null, pos, SoundEvents.HOE_TILL, SoundSource.BLOCKS, 1.0F, 1.0F);
 		}
 	}
@@ -317,7 +317,7 @@ public class BbTutorialAction implements IGameBehavior {
 	public record SetGrass(ServerPlayer target, BlockPos pos) implements Runnable {
 		@Override
 		public void run() {
-			target.level().setBlock(pos, Blocks.GRASS_BLOCK.defaultBlockState(), 3);
+			target.level().setBlock(pos, Blocks.GRASS_BLOCK.defaultBlockState(), Block.UPDATE_ALL);
 			target.level().playSound(null, pos, SoundEvents.HOE_TILL, SoundSource.BLOCKS, 1.0F, 1.0F);
 		}
 	}

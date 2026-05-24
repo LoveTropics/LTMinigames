@@ -21,7 +21,7 @@ public record ServerboundVendingMachinePurchasePacket(int entityId) implements C
 		if (!(player.level().getEntity(message.entityId) instanceof VendingMachineEntity vendingMachine)) {
 			return;
 		}
-		if (player.canInteractWithEntity(vendingMachine, ServerPlayer.ENTITY_INTERACTION_DISTANCE_VERIFICATION_BUFFER)) {
+		if (player.isWithinEntityInteractionRange(vendingMachine, ServerPlayer.ENTITY_INTERACTION_DISTANCE_VERIFICATION_BUFFER)) {
 			int selected = vendingMachine.getSelected();
 			if (selected != VendingMachineEntity.NO_SLOT) {
 				vendingMachine.tryPurchase(player, selected);

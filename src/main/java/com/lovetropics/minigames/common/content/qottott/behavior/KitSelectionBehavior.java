@@ -20,8 +20,10 @@ import net.minecraft.util.TriState;
 import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.item.component.TypedEntityData;
 import net.minecraft.world.phys.Vec3;
-import org.lovetropics.peekaboo.api.TypedEntityData;
 import org.slf4j.Logger;
 
 import java.util.Collection;
@@ -53,7 +55,7 @@ public record KitSelectionBehavior(List<Kit> kits) implements IGameBehavior {
 					continue;
 				}
 				for (final BlockBox region : regions) {
-					final Entity entity = kit.entity().createEntity(game.level());
+					final Entity entity = kit.entity().type().create(game.level(), EntitySpawnReason.COMMAND);
 					if (entity == null) {
 						LOGGER.error("Unable to create entity for kit: {}", kit);
 						continue;
@@ -90,11 +92,11 @@ public record KitSelectionBehavior(List<Kit> kits) implements IGameBehavior {
 		return false;
 	}
 
-	private record Kit(String region, float angle, TypedEntityData entity, GameActionList apply) {
+	private record Kit(String region, float angle, TypedEntityData<EntityType<?>> entity, GameActionList apply) {
 		public static final Codec<Kit> CODEC = RecordCodecBuilder.create(i -> i.group(
 				Codec.STRING.fieldOf("region").forGetter(Kit::region),
 				Codec.FLOAT.optionalFieldOf("angle", 0.0f).forGetter(Kit::angle),
-				TypedEntityData.CODEC.fieldOf("entity").forGetter(Kit::entity),
+				TypedEntityData.codec(EntityType.CODEC).fieldOf("entity").forGetter(Kit::entity),
 				GameActionList.CODEC.fieldOf("apply").forGetter(Kit::apply)
 		).apply(i, Kit::new));
 	}

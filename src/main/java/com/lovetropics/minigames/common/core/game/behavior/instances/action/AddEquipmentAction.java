@@ -18,24 +18,26 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.component.DyedItemColor;
 
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Supplier;
 
-public record AddEquipmentAction(List<ItemStack> items, ItemStack head, ItemStack chest, ItemStack legs, ItemStack feet, ItemStack offhand, boolean clear, boolean colorByTeam, Map<GameTeamKey, ItemStack> hotbarTeamItems) implements IGameBehavior {
+public record AddEquipmentAction(List<ItemStackTemplate> items, Optional<ItemStackTemplate> head, Optional<ItemStackTemplate> chest, Optional<ItemStackTemplate> legs, Optional<ItemStackTemplate> feet, Optional<ItemStackTemplate> offhand, boolean clear, boolean colorByTeam, Map<GameTeamKey, ItemStackTemplate> hotbarTeamItems) implements IGameBehavior {
 	public static final MapCodec<AddEquipmentAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			MoreCodecs.ITEM_STACK.listOf().optionalFieldOf("items", List.of()).forGetter(AddEquipmentAction::items),
-			MoreCodecs.ITEM_STACK.optionalFieldOf("head", ItemStack.EMPTY).forGetter(AddEquipmentAction::head),
-			MoreCodecs.ITEM_STACK.optionalFieldOf("chest", ItemStack.EMPTY).forGetter(AddEquipmentAction::chest),
-			MoreCodecs.ITEM_STACK.optionalFieldOf("legs", ItemStack.EMPTY).forGetter(AddEquipmentAction::legs),
-			MoreCodecs.ITEM_STACK.optionalFieldOf("feet", ItemStack.EMPTY).forGetter(AddEquipmentAction::feet),
-			MoreCodecs.ITEM_STACK.optionalFieldOf("offhand", ItemStack.EMPTY).forGetter(AddEquipmentAction::offhand),
+			ItemStackTemplate.CODEC.listOf().optionalFieldOf("items", List.of()).forGetter(AddEquipmentAction::items),
+			ItemStackTemplate.CODEC.optionalFieldOf("head").forGetter(AddEquipmentAction::head),
+			ItemStackTemplate.CODEC.optionalFieldOf("chest").forGetter(AddEquipmentAction::chest),
+			ItemStackTemplate.CODEC.optionalFieldOf("legs").forGetter(AddEquipmentAction::legs),
+			ItemStackTemplate.CODEC.optionalFieldOf("feet").forGetter(AddEquipmentAction::feet),
+			ItemStackTemplate.CODEC.optionalFieldOf("offhand").forGetter(AddEquipmentAction::offhand),
 			Codec.BOOL.optionalFieldOf("clear", false).forGetter(AddEquipmentAction::clear),
 			Codec.BOOL.optionalFieldOf("color_by_team", false).forGetter(AddEquipmentAction::colorByTeam),
-			Codec.unboundedMap(GameTeamKey.CODEC, MoreCodecs.ITEM_STACK).optionalFieldOf("hotbar_team_items", Map.of()).forGetter(AddEquipmentAction::hotbarTeamItems)
+			Codec.unboundedMap(GameTeamKey.CODEC, ItemStackTemplate.CODEC).optionalFieldOf("hotbar_team_items", Map.of()).forGetter(AddEquipmentAction::hotbarTeamItems)
 	).apply(i, AddEquipmentAction::new));
 
 	@Override
@@ -50,16 +52,16 @@ public record AddEquipmentAction(List<ItemStack> items, ItemStack head, ItemStac
 				if (clear) {
 					player.getInventory().clearContent();
 				}
-				for (final ItemStack item : items) {
-					player.getInventory().add(copyAndModify(player, teams, item));
+				for (final ItemStackTemplate item : items) {
+					player.getInventory().add(copyAndModify(player, teams, item.create()));
 				}
 
 				if (teams != null) {
 					final GameTeamKey teamKey = teams.getTeamForPlayer(player);
 					if (teamKey != null) {
-						final ItemStack hotbarItem = hotbarTeamItems.get(teamKey);
+						final ItemStackTemplate hotbarItem = hotbarTeamItems.get(teamKey);
 						if (hotbarItem != null) {
-							player.getInventory().add(8, copyAndModify(livingEntity, teams, hotbarItem));
+							player.getInventory().add(8, copyAndModify(livingEntity, teams, hotbarItem.create()));
 						}
 					}
 				}
@@ -71,21 +73,11 @@ public record AddEquipmentAction(List<ItemStack> items, ItemStack head, ItemStac
 				}
 			}
 
-			if (!head.isEmpty()) {
-				livingEntity.setItemSlot(EquipmentSlot.HEAD, copyAndModify(livingEntity, teams, head));
-			}
-			if (!chest.isEmpty()) {
-				livingEntity.setItemSlot(EquipmentSlot.CHEST, copyAndModify(livingEntity, teams, chest));
-			}
-			if (!legs.isEmpty()) {
-				livingEntity.setItemSlot(EquipmentSlot.LEGS, copyAndModify(livingEntity, teams, legs));
-			}
-			if (!feet.isEmpty()) {
-				livingEntity.setItemSlot(EquipmentSlot.FEET, copyAndModify(livingEntity, teams, feet));
-			}
-			if (!offhand.isEmpty()) {
-				addOrReplaceInSlot(livingEntity, EquipmentSlot.OFFHAND, copyAndModify(livingEntity, teams, offhand));
-			}
+			head.ifPresent(stack -> livingEntity.setItemSlot(EquipmentSlot.HEAD, copyAndModify(livingEntity, teams, stack.create())));
+			chest.ifPresent(stack -> livingEntity.setItemSlot(EquipmentSlot.CHEST, copyAndModify(livingEntity, teams, stack.create())));
+			legs.ifPresent(stack -> livingEntity.setItemSlot(EquipmentSlot.LEGS, copyAndModify(livingEntity, teams, stack.create())));
+			feet.ifPresent(stack -> livingEntity.setItemSlot(EquipmentSlot.FEET, copyAndModify(livingEntity, teams, stack.create())));
+			offhand.ifPresent(stack -> addOrReplaceInSlot(livingEntity, EquipmentSlot.OFFHAND, copyAndModify(livingEntity, teams, stack.create())));
 
 			return true;
 		});
@@ -117,7 +109,7 @@ public record AddEquipmentAction(List<ItemStack> items, ItemStack head, ItemStac
 		if (!colorByTeam) {
 			return result;
 		}
-		if (result.is(ItemTags.DYEABLE) && teams != null) {
+		if (result.has(DataComponents.DYED_COLOR) && teams != null) {
 			final GameTeamKey teamKey = entity instanceof ServerPlayer player ? teams.getTeamForPlayer(player) : null;
 			final GameTeam team = teamKey != null ? teams.getTeamByKey(teamKey) : null;
 			if (team != null) {

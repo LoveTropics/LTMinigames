@@ -10,12 +10,13 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Block;
@@ -40,7 +41,7 @@ import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
 
 public class ScanAreaCommand {
-	private static final DeferredHolder<Block, Block> PURIFIED_SAND = DeferredHolder.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath("tropicraft", "purified_sand"));
+	private static final DeferredHolder<Block, Block> PURIFIED_SAND = DeferredHolder.create(Registries.BLOCK, Identifier.fromNamespaceAndPath("tropicraft", "purified_sand"));
 
 	private static final SimpleCommandExceptionType NO_WATER = new SimpleCommandExceptionType(
 			Component.translatable("commands.ltminigames.scan.nowater.fail"));
@@ -51,7 +52,7 @@ public class ScanAreaCommand {
 
 	public static void register(final CommandDispatcher<CommandSourceStack> dispatcher) {
 		dispatcher.register(literal("game")
-				.then(literal("scan").requires(s -> s.hasPermission(4))
+				.then(literal("scan").requires(Commands.hasPermission(Commands.LEVEL_OWNERS))
 						.then(argument("name", StringArgumentType.word())
 								.executes(ctx -> scanArea(ctx.getSource(), StringArgumentType.getString(ctx, "name"))))
 						.executes(ctx -> scanArea(ctx.getSource(), "scan_result"))));
@@ -93,7 +94,7 @@ public class ScanAreaCommand {
 					if (pos.distToCenterSqr(source.getPosition()) > 400 * 400) {
 						throw TOO_FAR.create();
 					}
-					LevelChunk chunk = chunkCache.computeIfAbsent(new ChunkPos(pos), p -> world.getChunk(p.x, p.z));
+					LevelChunk chunk = chunkCache.computeIfAbsent(ChunkPos.containing(pos), p -> world.getChunk(p.x(), p.z()));
 					if (!edges.contains(chunk.getBlockState(pos).getBlock())) {
 						queue.add(pos.immutable());
 					}

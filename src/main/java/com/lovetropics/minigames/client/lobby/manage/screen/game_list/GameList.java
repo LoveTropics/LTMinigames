@@ -3,12 +3,15 @@ package com.lovetropics.minigames.client.lobby.manage.screen.game_list;
 import com.lovetropics.minigames.client.lobby.manage.state.ClientLobbyManageState;
 import com.lovetropics.minigames.client.screen.flex.Layout;
 import net.minecraft.client.gui.ComponentPath;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.navigation.FocusNavigationEvent;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -81,11 +84,11 @@ public final class GameList implements GuiEventListener, NarratableEntry {
 		active.updateEntries();
 	}
 
-	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-		active.render(graphics, mouseX, mouseY, partialTicks);
+	public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+		active.extractRenderState(graphics, mouseX, mouseY, partialTicks);
 	}
 
-	public void renderOverlays(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+	public void renderOverlays(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
 		active.renderOverlays(graphics, mouseX, mouseY, partialTicks);
 	}
 
@@ -95,18 +98,18 @@ public final class GameList implements GuiEventListener, NarratableEntry {
 	}
 
 	@Override
-	public boolean mouseClicked(double mouseX, double mouseY, int button) {
-		return active.mouseClicked(mouseX, mouseY, button);
+	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+		return active.mouseClicked(event, doubleClick);
 	}
 
 	@Override
-	public boolean mouseReleased(double mouseX, double mouseY, int button) {
-		return active.mouseReleased(mouseX, mouseY, button);
+	public boolean mouseReleased(MouseButtonEvent event) {
+		return active.mouseReleased(event);
 	}
 
 	@Override
-	public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
-		return active.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+	public boolean mouseDragged(MouseButtonEvent event, double dx, double dy) {
+		return active.mouseDragged(event, dx, dy);
 	}
 
 	@Override
@@ -115,18 +118,18 @@ public final class GameList implements GuiEventListener, NarratableEntry {
 	}
 
 	@Override
-	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-		return active.keyPressed(keyCode, scanCode, modifiers);
+	public boolean keyPressed(KeyEvent event) {
+		return active.keyPressed(event);
 	}
 
 	@Override
-	public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
-		return active.keyReleased(keyCode, scanCode, modifiers);
+	public boolean keyReleased(KeyEvent event) {
+		return active.keyReleased(event);
 	}
 
 	@Override
-	public boolean charTyped(char codePoint, int modifiers) {
-		return active.charTyped(codePoint, modifiers);
+	public boolean charTyped(CharacterEvent event) {
+		return active.charTyped(event);
 	}
 
 	@Nullable

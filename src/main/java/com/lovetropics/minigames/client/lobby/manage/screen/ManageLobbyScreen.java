@@ -5,7 +5,6 @@ import com.lovetropics.minigames.client.lobby.manage.screen.game_list.GameList;
 import com.lovetropics.minigames.client.lobby.manage.screen.player_list.LobbyPlayerList;
 import com.lovetropics.minigames.client.lobby.manage.state.ClientLobbyManageState;
 import com.lovetropics.minigames.client.lobby.manage.state.ClientLobbyQueue;
-import com.lovetropics.minigames.client.lobby.manage.state.ClientLobbyQueuedGame;
 import com.lovetropics.minigames.client.lobby.state.ClientGameDefinition;
 import com.lovetropics.minigames.client.screen.FlexUi;
 import com.lovetropics.minigames.client.screen.flex.Box;
@@ -13,7 +12,7 @@ import com.lovetropics.minigames.client.screen.flex.Layout;
 import com.lovetropics.minigames.common.core.game.lobby.LobbyControls;
 import com.lovetropics.minigames.common.core.game.util.GameTexts;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -199,8 +198,8 @@ public final class ManageLobbyScreen extends Screen {
 	}
 
 	@Override
-	public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-		super.renderBackground(graphics, mouseX, mouseY, partialTicks);
+	protected void extractMenuBackground(GuiGraphicsExtractor graphics, int x, int y, int width, int height) {
+		super.extractMenuBackground(graphics, x, y, width, height);
 
 		for (Layout marginal : layout.marginals) {
 			FlexUi.fill(marginal, graphics, 0xFF101010);
@@ -208,21 +207,21 @@ public final class ManageLobbyScreen extends Screen {
 	}
 
 	@Override
-	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-		super.render(graphics, mouseX, mouseY, partialTicks);
+	public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+		super.extractRenderState(graphics, mouseX, mouseY, partialTicks);
 
-		gameList.render(graphics, mouseX, mouseY, partialTicks);
+		gameList.extractRenderState(graphics, mouseX, mouseY, partialTicks);
 
 		gameList.renderOverlays(graphics, mouseX, mouseY, partialTicks);
 
 		// TODO: make this name rendering better
-		graphics.drawString(font, nameField.getMessage(), nameField.getX(), nameField.getY() - font.lineHeight - 2, CommonColors.WHITE);
-		nameField.render(graphics, mouseX, mouseY, partialTicks);
+		graphics.text(font, nameField.getMessage(), nameField.getX(), nameField.getY() - font.lineHeight - 2, CommonColors.WHITE);
+		nameField.extractRenderState(graphics, mouseX, mouseY, partialTicks);
 
 		playerList.render(graphics, mouseX, mouseY);
 
 		Box header = layout.header.content();
-		graphics.drawCenteredString(font, title, header.centerX(), header.centerY(), CommonColors.WHITE);
+		graphics.centeredText(font, title, header.centerX(), header.centerY(), CommonColors.WHITE);
 
 		playerList.renderTooltip(graphics, mouseX, mouseY);
 	}

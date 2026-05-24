@@ -23,24 +23,25 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.TriState;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.block.state.BlockState;
 
 public final class PlantItemBehavior implements IGameBehavior {
 	public static final MapCodec<PlantItemBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			PlantItemType.CODEC.fieldOf("id").forGetter(c -> c.itemType),
 			PlantType.CODEC.fieldOf("places").forGetter(c -> c.places),
-			MoreCodecs.ITEM_STACK.fieldOf("item").forGetter(c -> c.item)
+			ItemStackTemplate.CODEC.fieldOf("item").forGetter(c -> c.item)
 	).apply(i, PlantItemBehavior::new));
 
 	private final PlantItemType itemType;
 	private final PlantType places;
-	private final ItemStack item;
+	private final ItemStackTemplate item;
 
 	private IGamePhase game;
 	private PlotsState plots;
 	private TutorialState tutorial;
 
-	public PlantItemBehavior(PlantItemType itemType, PlantType places, ItemStack item) {
+	public PlantItemBehavior(PlantItemType itemType, PlantType places, ItemStackTemplate item) {
 		this.itemType = itemType;
 		this.places = places;
 		this.item = item;
@@ -80,8 +81,8 @@ public final class PlantItemBehavior implements IGameBehavior {
 			return switch (game.invoker(BbEvents.PLACE_PLANT).placePlant(player, plot, pos, places)) {
 				case PlacePlantResult.Success ignored -> TriState.TRUE;
 				case PlacePlantResult.CannotFit ignored -> {
-					player.displayClientMessage(BiodiversityBlitzTexts.PLANT_CANNOT_FIT.copy().withStyle(ChatFormatting.RED), true);
-					player.playNotifySound(SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 1.0F, 1.0F);
+					player.sendSystemMessage(BiodiversityBlitzTexts.PLANT_CANNOT_FIT.copy().withStyle(ChatFormatting.RED), true);
+					com.lovetropics.minigames.common.util.Util.sendNotifySound(player, SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 1.0F, 1.0F);
 					yield TriState.FALSE;
 				}
 				case PlacePlantResult.Fail ignored -> TriState.FALSE;
@@ -94,7 +95,7 @@ public final class PlantItemBehavior implements IGameBehavior {
 
 	private ItemStack createPlantDrop(PlantItemType itemType) {
 		if (this.itemType.equals(itemType)) {
-			ItemStack dropItem = item.copy();
+			ItemStack dropItem = item.create();
 			dropItem.set(BiodiversityBlitz.PLANT_COMPONENT, this.itemType);
 
 			return dropItem;

@@ -18,20 +18,21 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 
 import java.util.List;
 
 public final class IdleDropItemPlantBehavior implements IGameBehavior {
 	public static final MapCodec<IdleDropItemPlantBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			MoreCodecs.ITEM_STACK.fieldOf("item").forGetter(b -> b.item),
+			ItemStackTemplate.CODEC.fieldOf("item").forGetter(b -> b.item),
 			Codec.INT.fieldOf("interval").forGetter(b -> b.interval)
 	).apply(i, IdleDropItemPlantBehavior::new));
-	private final ItemStack item;
+	private final ItemStackTemplate item;
 	private final int interval;
 
 	private IGamePhase game;
 
-	public IdleDropItemPlantBehavior(ItemStack item, int interval) {
+	public IdleDropItemPlantBehavior(ItemStackTemplate item, int interval) {
 		this.item = item;
 		this.interval = interval;
 	}
@@ -57,7 +58,7 @@ public final class IdleDropItemPlantBehavior implements IGameBehavior {
 
 			for (int i = 0; i < 8; i++) {
 				if (world.getBlockState(pos).isAir()) {
-					world.addFreshEntity(new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), item.copy()));
+					world.addFreshEntity(new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), item.create()));
 					break;
 				}
 

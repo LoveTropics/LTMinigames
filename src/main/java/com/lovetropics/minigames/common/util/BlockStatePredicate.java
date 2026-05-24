@@ -5,6 +5,7 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.MapCodec;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.RegistryCodecs;
 import net.minecraft.core.registries.Registries;
@@ -91,7 +92,7 @@ public interface BlockStatePredicate extends Predicate<BlockState> {
 	}
 
 	final class Any implements BlockStatePredicate {
-		public static final Codec<Any> CODEC = Codec.unit(Any::new);
+		public static final Codec<Any> CODEC = MapCodec.unitCodec(Any::new);
 
 		@Override
 		public boolean test(BlockState state) {

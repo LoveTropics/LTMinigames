@@ -17,6 +17,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 
@@ -25,16 +26,16 @@ public final class RemoveFromBlockBehavior implements IGameBehavior {
 	public static final MapCodec<RemoveFromBlockBehavior> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 			MoreCodecs.BLOCK_STATE.fieldOf("in").forGetter(b -> b.in),
 			MoreCodecs.BLOCK_STATE.fieldOf("out").forGetter(b -> b.out),
-			MoreCodecs.ITEM_STACK.fieldOf("drop").forGetter(b -> b.drop)
+			ItemStackTemplate.CODEC.fieldOf("drop").forGetter(b -> b.drop)
 	).apply(instance, RemoveFromBlockBehavior::new));
 
 	private final BlockState in;
 	private final BlockState out;
-	private final ItemStack drop;
+	private final ItemStackTemplate drop;
 
 	private PlotsState plots;
 
-	public RemoveFromBlockBehavior(BlockState in, BlockState out, ItemStack drop) {
+	public RemoveFromBlockBehavior(BlockState in, BlockState out, ItemStackTemplate drop) {
 		this.in = in;
 		this.out = out;
 		this.drop = drop;
@@ -54,7 +55,7 @@ public final class RemoveFromBlockBehavior implements IGameBehavior {
 				world.setBlockAndUpdate(pos, out);
 
 				BlockPos spawnPos = pos.relative(result.getDirection());
-				world.addFreshEntity(new ItemEntity(world, spawnPos.getX() + 0.5, spawnPos.getY() + 0.5, spawnPos.getZ() + 0.5, drop.copy()));
+				world.addFreshEntity(new ItemEntity(world, spawnPos.getX() + 0.5, spawnPos.getY() + 0.5, spawnPos.getZ() + 0.5, drop.create()));
 
 				return InteractionResult.SUCCESS;
 			}

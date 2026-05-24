@@ -26,8 +26,8 @@ public record UpdateWorkspaceRegionMessage(int id, Optional<BlockBox> region) im
 
 	public void handleServerbound(IPayloadContext context) {
 		ServerPlayer sender = (ServerPlayer) context.player();
-		MapWorkspaceManager workspaceManager = MapWorkspaceManager.get(sender.getServer());
-		WorkspaceRegions regions = workspaceManager.getRegions(sender.getServer(), sender.level().dimension());
+		MapWorkspaceManager workspaceManager = MapWorkspaceManager.get(sender.level().getServer());
+		WorkspaceRegions regions = workspaceManager.getRegions(sender.level().getServer(), sender.level().dimension());
 		if (regions != null) {
 			regions.set(sender.level(), id, region.orElse(null));
 		}

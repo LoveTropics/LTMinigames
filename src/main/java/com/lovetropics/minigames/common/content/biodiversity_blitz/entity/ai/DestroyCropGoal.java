@@ -26,7 +26,7 @@ public class DestroyCropGoal extends MoveToBlockGoal {
 		double distance2 = mob.position().distanceToSqr(targetPos.getX() + 0.5, targetPos.getY() + 0.5, targetPos.getZ() + 0.5);
 		if (distance2 <= getDistanceSq(mob.level().getBlockState(targetPos))) {
 			ticksAtTarget--;
-			if (mob.level().random.nextInt(4) == 0) {
+			if (mob.level().getRandom().nextInt(4) == 0) {
 				Util.spawnDamageParticles(mob, targetPos, 0);
 			}
 

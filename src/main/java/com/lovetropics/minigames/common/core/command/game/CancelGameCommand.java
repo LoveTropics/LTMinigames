@@ -9,6 +9,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Player;
@@ -20,7 +21,7 @@ public class CancelGameCommand {
 		// @formatter:off
 		dispatcher.register(
 				literal("game")
-						.then(literal("cancel").requires(s -> s.hasPermission(2))
+						.then(literal("cancel").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
 								.executes(context -> cancel(context, false))
 								.then(literal("confirm")
 										.executes(context -> cancel(context, true))

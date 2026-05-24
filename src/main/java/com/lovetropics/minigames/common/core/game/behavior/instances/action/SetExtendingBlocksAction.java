@@ -12,7 +12,7 @@ import com.lovetropics.minigames.common.core.game.util.FluidFiller;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.advancements.critereon.BlockPredicate;
+import net.minecraft.advancements.criterion.BlockPredicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -106,7 +106,7 @@ public final class SetExtendingBlocksAction implements IGameBehavior {
 		ServerLevel world = game.level();
 		BlockPredicate replace = this.replace;
 		BlockStateProvider set = this.set;
-		RandomSource random = world.random;
+		RandomSource random = world.getRandom();
 
 		int flags = Block.UPDATE_ALL;
 		if (!notifyNeighbors) {
@@ -116,7 +116,7 @@ public final class SetExtendingBlocksAction implements IGameBehavior {
 
 		for (BlockPos pos : extendingBox) {
 			if (replace == null || replace.matches(world, pos)) {
-				BlockState state = set.getState(random, pos);
+				BlockState state = set.getState(world, random, pos);
 				if (state.is(Blocks.WATER)) {
 					world.setBlock(pos, FluidFiller.WaterRule.mapBlockRisingWater(world.getBlockState(pos)), flags);
 				} else {
