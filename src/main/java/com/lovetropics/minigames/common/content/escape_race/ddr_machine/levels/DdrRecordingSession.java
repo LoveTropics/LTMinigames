@@ -78,7 +78,7 @@ public class DdrRecordingSession {
 				RegistryOps<JsonElement> ops = registries.createSerializationContext(JsonOps.INSTANCE);
 				JsonElement output = DdrLevel.DIRECT_CODEC.encodeStart(ops, level).getOrThrow();
 				try {
-					Identifier location = LoveTropics.location(level.track().unwrapKey().orElseThrow().identifier().getPath());
+					Identifier location = LoveTropics.id(level.track().unwrapKey().orElseThrow().identifier().getPath());
 					Path path = DdrLevel.pathFor(location);
 					Files.createDirectories(path.getParent());
 					Files.deleteIfExists(path);

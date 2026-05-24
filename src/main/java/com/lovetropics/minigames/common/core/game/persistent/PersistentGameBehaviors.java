@@ -19,7 +19,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 public class PersistentGameBehaviors {
-	public static final ResourceKey<Registry<PersistentGameBehaviorType<?>>> REGISTRY_KEY = ResourceKey.createRegistryKey(LoveTropics.location("persistent_behaviors"));
+	public static final ResourceKey<Registry<PersistentGameBehaviorType<?>>> REGISTRY_KEY = ResourceKey.createRegistryKey(LoveTropics.id("persistent_behaviors"));
 
 	public static final DeferredRegister<PersistentGameBehaviorType<?>> REGISTER = DeferredRegister.create(REGISTRY_KEY, LoveTropics.ID);
 	public static final Registry<PersistentGameBehaviorType<?>> REGISTRY = REGISTER.makeRegistry(builder -> builder.sync(false));

@@ -39,7 +39,7 @@ public class ClientFadeToBlack {
 
 	@SubscribeEvent
 	public static void registerGuiLayers(RegisterGuiLayersEvent event) {
-		event.registerAboveAll(LoveTropics.location("fade_to_black"), (graphics, deltaTracker) -> {
+		event.registerAboveAll(LoveTropics.id("fade_to_black"), (graphics, deltaTracker) -> {
 			if (!isLoadingScreen(Minecraft.getInstance().screen)) {
 				draw(graphics, deltaTracker.getGameTimeDeltaPartialTick(true));
 			}

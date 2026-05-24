@@ -11,7 +11,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public record ServerboundDdrInputPacket(DdrInput input, long inputTick) implements CustomPacketPayload {
-	public static final Type<ServerboundDdrInputPacket> TYPE = new Type<>(LoveTropics.location("ddr_input"));
+	public static final Type<ServerboundDdrInputPacket> TYPE = new Type<>(LoveTropics.id("ddr_input"));
 	public static final StreamCodec<ByteBuf, ServerboundDdrInputPacket> STREAM_CODEC = StreamCodec.composite(
 			DdrInput.STREAM_CODEC, ServerboundDdrInputPacket::input,
 			ByteBufCodecs.VAR_LONG, ServerboundDdrInputPacket::inputTick,

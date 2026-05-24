@@ -12,7 +12,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import java.util.UUID;
 
 public record SpectatorPlayerActivityMessage(UUID player, int color) implements CustomPacketPayload {
-	public static final Type<SpectatorPlayerActivityMessage> TYPE = new Type<>(LoveTropics.location("spectator_player_activity"));
+	public static final Type<SpectatorPlayerActivityMessage> TYPE = new Type<>(LoveTropics.id("spectator_player_activity"));
 
 	public static final StreamCodec<ByteBuf, SpectatorPlayerActivityMessage> STREAM_CODEC = StreamCodec.composite(
 			UUIDUtil.STREAM_CODEC, SpectatorPlayerActivityMessage::player,

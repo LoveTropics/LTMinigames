@@ -18,11 +18,11 @@ import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 @EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
 public class MinigameGuiOverlays {
 
-	private static final Identifier COLADARAL_DAMAGE_OVERLAY = LoveTropics.location("textures/gui/coladaral_damage_outline.png");
+	private static final Identifier COLADARAL_DAMAGE_OVERLAY = LoveTropics.id("textures/gui/coladaral_damage_outline.png");
 
 	@SubscribeEvent
 	public static void registerGuiLayers(RegisterGuiLayersEvent event) {
-		event.registerBelow(VanillaGuiLayers.CAMERA_OVERLAYS, LoveTropics.location("coladaral_damage"), MinigameGuiOverlays::renderColadaralDamage);
+		event.registerBelow(VanillaGuiLayers.CAMERA_OVERLAYS, LoveTropics.id("coladaral_damage"), MinigameGuiOverlays::renderColadaralDamage);
 	}
 
 	private static void renderColadaralDamage(GuiGraphicsExtractor graphics, DeltaTracker tracker) {

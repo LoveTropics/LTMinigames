@@ -34,7 +34,7 @@ public record TurtleBoostBehavior(float amount, int duration) implements IGameBe
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		Multimap<Holder<Attribute>, AttributeModifier> modifiers = ImmutableMultimap.<Holder<Attribute>, AttributeModifier>builder()
-				.put(Attributes.MOVEMENT_SPEED, new AttributeModifier(LoveTropics.location("turtle_boost"), amount, AttributeModifier.Operation.ADD_VALUE))
+				.put(Attributes.MOVEMENT_SPEED, new AttributeModifier(LoveTropics.id("turtle_boost"), amount, AttributeModifier.Operation.ADD_VALUE))
 				.build();
 
 		Object2LongMap<UUID> boostEndTimes = new Object2LongArrayMap<>();

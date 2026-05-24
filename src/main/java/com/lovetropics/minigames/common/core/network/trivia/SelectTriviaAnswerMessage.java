@@ -15,7 +15,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public record SelectTriviaAnswerMessage(BlockPos triviaBlock, int selectedAnswer) implements CustomPacketPayload {
-	public static final Type<SelectTriviaAnswerMessage> TYPE = new Type<>(LoveTropics.location("select_trivia_answer"));
+	public static final Type<SelectTriviaAnswerMessage> TYPE = new Type<>(LoveTropics.id("select_trivia_answer"));
 	public static final StreamCodec<ByteBuf, SelectTriviaAnswerMessage> STREAM_CODEC = StreamCodec.composite(
 			BlockPos.STREAM_CODEC, SelectTriviaAnswerMessage::triviaBlock,
 			ByteBufCodecs.VAR_INT, SelectTriviaAnswerMessage::selectedAnswer,

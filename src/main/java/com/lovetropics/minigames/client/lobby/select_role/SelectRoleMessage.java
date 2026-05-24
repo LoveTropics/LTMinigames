@@ -12,7 +12,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public record SelectRoleMessage(int lobbyId, boolean play) implements CustomPacketPayload {
-	public static final Type<SelectRoleMessage> TYPE = new Type<>(LoveTropics.location("select_role"));
+	public static final Type<SelectRoleMessage> TYPE = new Type<>(LoveTropics.id("select_role"));
 
 	public static final StreamCodec<ByteBuf, SelectRoleMessage> STREAM_CODEC = StreamCodec.composite(
 			ByteBufCodecs.VAR_INT, SelectRoleMessage::lobbyId,

@@ -13,7 +13,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import java.util.Optional;
 
 public record LobbyUpdateMessage(int id, Optional<Update> update) implements CustomPacketPayload {
-	public static final Type<LobbyUpdateMessage> TYPE = new Type<>(LoveTropics.location("lobby_update"));
+	public static final Type<LobbyUpdateMessage> TYPE = new Type<>(LoveTropics.id("lobby_update"));
 
 	public static final StreamCodec<RegistryFriendlyByteBuf, LobbyUpdateMessage> STREAM_CODEC = StreamCodec.composite(
 			ByteBufCodecs.VAR_INT, LobbyUpdateMessage::id,

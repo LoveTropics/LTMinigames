@@ -144,7 +144,7 @@ public class LoveTropics {
 
 	public static final String ID = "ltminigames";
 
-	private static final Identifier TAB_ID = LoveTropics.location("ltminigames");
+	private static final Identifier TAB_ID = LoveTropics.id("ltminigames");
 	public static final ResourceKey<CreativeModeTab> TAB_KEY = ResourceKey.create(Registries.CREATIVE_MODE_TAB, TAB_ID);
 
 	private static final Supplier<LoveTropicsRegistrate> REGISTRATE = Suppliers.memoize(() -> {
@@ -266,7 +266,7 @@ public class LoveTropics {
 	}
 
 	private void registerLootModifiers(RegisterEvent event) {
-		event.register(NeoForgeRegistries.Keys.GLOBAL_LOOT_MODIFIER_SERIALIZERS, location("game"), () -> GameLootModifier.CODEC);
+		event.register(NeoForgeRegistries.Keys.GLOBAL_LOOT_MODIFIER_SERIALIZERS, id("game"), () -> GameLootModifier.CODEC);
 	}
 
 	private void loadDevPacks(IEventBus modBus) {
@@ -296,7 +296,7 @@ public class LoveTropics {
 		return REGISTRATE.get();
 	}
 
-	public static Identifier location(String location) {
+	public static Identifier id(String location) {
 		return Identifier.fromNamespaceAndPath(ID, location);
 	}
 

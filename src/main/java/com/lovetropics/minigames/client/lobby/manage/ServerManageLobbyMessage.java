@@ -15,7 +15,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import java.util.Optional;
 
 public record ServerManageLobbyMessage(int id, Optional<ServerLobbyUpdate.Set> updates) implements CustomPacketPayload {
-	public static final Type<ServerManageLobbyMessage> TYPE = new Type<>(LoveTropics.location("server_manage_lobby"));
+	public static final Type<ServerManageLobbyMessage> TYPE = new Type<>(LoveTropics.id("server_manage_lobby"));
 
 	public static final StreamCodec<RegistryFriendlyByteBuf, ServerManageLobbyMessage> STREAM_CODEC = StreamCodec.composite(
 			ByteBufCodecs.VAR_INT, ServerManageLobbyMessage::id,

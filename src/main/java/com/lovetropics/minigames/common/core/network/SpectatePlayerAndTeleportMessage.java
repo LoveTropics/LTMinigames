@@ -13,7 +13,7 @@ import java.util.Set;
 import java.util.UUID;
 
 public record SpectatePlayerAndTeleportMessage(UUID player) implements CustomPacketPayload {
-	public static final Type<SpectatePlayerAndTeleportMessage> TYPE = new Type<>(LoveTropics.location("spectate_player_and_teleport"));
+	public static final Type<SpectatePlayerAndTeleportMessage> TYPE = new Type<>(LoveTropics.id("spectate_player_and_teleport"));
 
 	public static final StreamCodec<ByteBuf, SpectatePlayerAndTeleportMessage> STREAM_CODEC = StreamCodec.composite(
 			UUIDUtil.STREAM_CODEC, SpectatePlayerAndTeleportMessage::player,

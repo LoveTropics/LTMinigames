@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public class GameDataStorage extends SavedData {
-	private static final Identifier ID = LoveTropics.location("gamedata");
+	private static final Identifier ID = LoveTropics.id("gamedata");
 
 	public record NamespacedData(Map<UUID, CompoundTag> playerData) {
 		public static final Codec<NamespacedData> CODEC = RecordCodecBuilder.create(i -> i.group(

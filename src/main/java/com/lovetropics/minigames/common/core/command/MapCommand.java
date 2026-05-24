@@ -267,7 +267,7 @@ public final class MapCommand {
 			LevelStorageSource.LevelStorageAccess save = server.storageSource;
 			Path dimensionDirectory = save.getDimensionPath(workspace.dimensionKey());
 
-			Identifier id = LoveTropics.location(workspace.id());
+			Identifier id = LoveTropics.id(workspace.id());
 			Path exportPath = MapExportWriter.pathFor(id);
 
 			try {

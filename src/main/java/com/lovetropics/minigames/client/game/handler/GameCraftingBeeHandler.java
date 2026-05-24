@@ -5,7 +5,6 @@ import com.lovetropics.minigames.client.game.ClientGameStateManager;
 import com.lovetropics.minigames.common.content.crafting_bee.CraftingBeeTexts;
 import com.lovetropics.minigames.common.core.game.client_state.GameClientStateTypes;
 import com.lovetropics.minigames.common.core.game.client_state.instance.CraftingBeeCraftsClientState;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.ChatFormatting;
@@ -48,7 +47,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
-import java.util.UUID;
 
 @EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
 public class GameCraftingBeeHandler {
@@ -70,8 +68,8 @@ public class GameCraftingBeeHandler {
 		}
 	};
 
-	private static final Identifier ITEMS_BAR_SPRITE = LoveTropics.location("minigames/crafting_bee/items_bar");
-	private static final Identifier GRID_SPRITE = LoveTropics.location("minigames/crafting_bee/crafting_grid");
+	private static final Identifier ITEMS_BAR_SPRITE = LoveTropics.id("minigames/crafting_bee/items_bar");
+	private static final Identifier GRID_SPRITE = LoveTropics.id("minigames/crafting_bee/crafting_grid");
 
 	@EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
 	public static class ModSubscriber {

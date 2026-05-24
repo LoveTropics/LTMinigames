@@ -7,7 +7,6 @@ import com.lovetropics.minigames.common.core.game.impl.GameLobby;
 import com.lovetropics.minigames.common.core.game.impl.GameLobbyManager;
 import com.lovetropics.minigames.common.core.game.util.GameTexts;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.commands.Commands;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
@@ -15,7 +14,7 @@ import net.minecraft.server.permissions.Permissions;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public record ManageOrCreateLobbyPacket() implements CustomPacketPayload {
-	public static final Type<ManageOrCreateLobbyPacket> TYPE = new Type<>(LoveTropics.location("lobby_manage"));
+	public static final Type<ManageOrCreateLobbyPacket> TYPE = new Type<>(LoveTropics.id("lobby_manage"));
 
 	public static final ManageOrCreateLobbyPacket INSTANCE = new ManageOrCreateLobbyPacket();
 

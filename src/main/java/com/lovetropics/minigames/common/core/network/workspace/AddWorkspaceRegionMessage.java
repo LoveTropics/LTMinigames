@@ -10,7 +10,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public record AddWorkspaceRegionMessage(int id, String key, BlockBox region) implements CustomPacketPayload {
-	public static final CustomPacketPayload.Type<AddWorkspaceRegionMessage> TYPE = new CustomPacketPayload.Type<>(LoveTropics.location("add_workspace_region"));
+	public static final CustomPacketPayload.Type<AddWorkspaceRegionMessage> TYPE = new CustomPacketPayload.Type<>(LoveTropics.id("add_workspace_region"));
 
 	public static final StreamCodec<ByteBuf, AddWorkspaceRegionMessage> STREAM_CODEC = StreamCodec.composite(
 			ByteBufCodecs.VAR_INT, AddWorkspaceRegionMessage::id,

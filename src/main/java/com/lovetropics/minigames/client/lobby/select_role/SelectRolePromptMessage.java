@@ -8,7 +8,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public record SelectRolePromptMessage(int lobbyId) implements CustomPacketPayload {
-	public static final Type<SelectRolePromptMessage> TYPE = new Type<>(LoveTropics.location("select_role_prompt"));
+	public static final Type<SelectRolePromptMessage> TYPE = new Type<>(LoveTropics.id("select_role_prompt"));
 
 	public static final StreamCodec<ByteBuf, SelectRolePromptMessage> STREAM_CODEC = ByteBufCodecs.VAR_INT.map(SelectRolePromptMessage::new, SelectRolePromptMessage::lobbyId);
 

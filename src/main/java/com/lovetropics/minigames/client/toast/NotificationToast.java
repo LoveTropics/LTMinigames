@@ -12,7 +12,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.CommonColors;
 import net.minecraft.util.FormattedCharSequence;
-import net.minecraft.world.item.ItemStackTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +44,7 @@ public final class NotificationToast implements Toast {
 
 		this.lines = lines;
 		this.style = style;
-		backgroundSprite = LoveTropics.location("toast/" + style.color().getName() + "_" + style.sentiment().getName());
+		backgroundSprite = LoveTropics.id("toast/" + style.color().getName() + "_" + style.sentiment().getName());
 	}
 
 	@Override

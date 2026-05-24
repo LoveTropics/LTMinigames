@@ -55,7 +55,7 @@ public class LobbyStateGui {
 	}
 
 	public static void registerOverlays(RegisterGuiLayersEvent event) {
-		event.registerBelow(VanillaGuiLayers.CONTEXTUAL_INFO_BAR_BACKGROUND, LoveTropics.location("minigame_lobby"), (graphics, deltaTracker) -> {
+		event.registerBelow(VanillaGuiLayers.CONTEXTUAL_INFO_BAR_BACKGROUND, LoveTropics.id("minigame_lobby"), (graphics, deltaTracker) -> {
 			if (Minecraft.getInstance().options.hideGui) {
 				return;
 			}

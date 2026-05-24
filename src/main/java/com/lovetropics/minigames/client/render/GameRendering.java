@@ -1,10 +1,7 @@
 package com.lovetropics.minigames.client.render;
 
-import com.lovetropics.lib.BlockBox;
 import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.client.game.ClientGameStateManager;
-import com.lovetropics.minigames.common.content.biodiversity_blitz.BiodiversityBlitz;
-import com.lovetropics.minigames.common.content.biodiversity_blitz.client_state.ClientBbMobSpawnState;
 import com.lovetropics.minigames.common.content.biodiversity_blitz.client_state.ClientBbScoreboardState;
 import com.lovetropics.minigames.common.core.data.LoveTropicsAttachments;
 import com.lovetropics.minigames.common.core.game.client_state.GameClientStateTypes;
@@ -55,7 +52,7 @@ import java.util.List;
 
 @EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
 public class GameRendering {
-	private static final ContextKey<PointTag> POINT_TAG_KEY = new ContextKey<>(LoveTropics.location("point_tag"));
+	private static final ContextKey<PointTag> POINT_TAG_KEY = new ContextKey<>(LoveTropics.id("point_tag"));
 
 	private static final int MOB_SPAWN_COLOR = ARGB.color(160, CommonColors.RED);
 
@@ -332,7 +329,7 @@ public class GameRendering {
 
 	@SubscribeEvent
 	public static void registerOverlays(RegisterGuiLayersEvent event) {
-		event.registerBelow(VanillaGuiLayers.CONTEXTUAL_INFO_BAR_BACKGROUND, LoveTropics.location("statistic"), (graphics, deltaTracker) -> {
+		event.registerBelow(VanillaGuiLayers.CONTEXTUAL_INFO_BAR_BACKGROUND, LoveTropics.id("statistic"), (graphics, deltaTracker) -> {
 			if (Minecraft.getInstance().options.hideGui) {
 				return;
 			}

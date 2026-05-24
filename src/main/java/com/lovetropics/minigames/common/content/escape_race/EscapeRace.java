@@ -69,7 +69,7 @@ import static net.minecraft.world.level.storage.loot.LootTable.lootTable;
 public class EscapeRace {
 	private static final LoveTropicsRegistrate REGISTRATE = LoveTropics.registrate();
 
-	public static final ResourceKey<Registry<DdrLevel>> DDR_LEVEL = ResourceKey.createRegistryKey(LoveTropics.location("ddr_level"));
+	public static final ResourceKey<Registry<DdrLevel>> DDR_LEVEL = ResourceKey.createRegistryKey(LoveTropics.id("ddr_level"));
 
 	public static final DeferredRegister<EntityDataSerializer<?>> ENTITY_SERIALIZERS = DeferredRegister.create(NeoForgeRegistries.ENTITY_DATA_SERIALIZERS, LoveTropics.ID);
 	public static final DeferredRegister.DataComponents DATA_COMPONENTS = DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, LoveTropics.ID);
@@ -172,7 +172,7 @@ public class EscapeRace {
 	public static final Holder<MobEffect> UPSET_STOMACH = REGISTRATE.object("upset_stomach")
 			.mobEffect(() -> new UpsetStomachEffect(MobEffectCategory.HARMFUL).addAttributeModifier(
 					Attributes.MOVEMENT_SPEED,
-					LoveTropics.location("upset_stomach_slowdown"),
+					LoveTropics.id("upset_stomach_slowdown"),
 					-0.35,
 					AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL
 			))

@@ -13,7 +13,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 public record ServerboundSelectDdrLevelPacket(
 		Holder<DdrLevel> level
 ) implements CustomPacketPayload {
-	public static final Type<ServerboundSelectDdrLevelPacket> TYPE = new Type<>(LoveTropics.location("select_ddr_menu_item_message"));
+	public static final Type<ServerboundSelectDdrLevelPacket> TYPE = new Type<>(LoveTropics.id("select_ddr_menu_item_message"));
 	public static final StreamCodec<RegistryFriendlyByteBuf, ServerboundSelectDdrLevelPacket> STREAM_CODEC = StreamCodec.composite(
 			DdrLevel.STREAM_CODEC, ServerboundSelectDdrLevelPacket::level,
 			ServerboundSelectDdrLevelPacket::new

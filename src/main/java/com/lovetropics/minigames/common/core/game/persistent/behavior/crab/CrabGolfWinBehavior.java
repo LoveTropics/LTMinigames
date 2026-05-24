@@ -25,8 +25,6 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
@@ -127,7 +125,7 @@ public class CrabGolfWinBehavior implements PersistentGameBehavior {
 	}
 
 	public static class GolfData extends SavedData {
-		private static final Identifier ID = LoveTropics.location("crab_golf_data");
+		private static final Identifier ID = LoveTropics.id("crab_golf_data");
 
 		public static final Codec<GolfData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.unboundedMap(Codec.STRING.xmap(Integer::parseInt, Object::toString), HoleData.CODEC).fieldOf("data").forGetter(b -> b.data)

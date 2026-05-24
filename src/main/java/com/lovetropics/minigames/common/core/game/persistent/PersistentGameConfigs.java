@@ -23,7 +23,6 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.AddServerReloadListenersEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.resource.ContextAwareReloadListener;
-import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -53,7 +52,7 @@ public class PersistentGameConfigs {
 
 	@SubscribeEvent
 	public static void addReloadListener(AddServerReloadListenersEvent event) {
-		event.addListener(LoveTropics.location("persistent_game_configs"), new ContextAwareReloadListener() {
+		event.addListener(LoveTropics.id("persistent_game_configs"), new ContextAwareReloadListener() {
 			@Override
 			public CompletableFuture<Void> reload(SharedState currentReload, Executor taskExecutor, PreparationBarrier preparationBarrier, Executor reloadExecutor) {
 				return load(currentReload.resourceManager(), taskExecutor, getRegistryLookup())

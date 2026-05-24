@@ -11,7 +11,7 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public record ClientboundVendingMachineDropPacket(int entityId, ItemStack itemStack, int fromSlot) implements CustomPacketPayload {
-	public static final Type<ClientboundVendingMachineDropPacket> TYPE = new Type<>(LoveTropics.location("vending_machine_drop"));
+	public static final Type<ClientboundVendingMachineDropPacket> TYPE = new Type<>(LoveTropics.id("vending_machine_drop"));
 	public static final StreamCodec<RegistryFriendlyByteBuf, ClientboundVendingMachineDropPacket> STREAM_CODEC = StreamCodec.composite(
 			ByteBufCodecs.VAR_INT, ClientboundVendingMachineDropPacket::entityId,
 			ItemStack.STREAM_CODEC, ClientboundVendingMachineDropPacket::itemStack,

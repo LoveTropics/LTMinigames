@@ -9,7 +9,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public record ClientboundDdrInputHitPacket(int entityId, long inputTick) implements CustomPacketPayload {
-	public static final Type<ClientboundDdrInputHitPacket> TYPE = new Type<>(LoveTropics.location("ddr_input_hit"));
+	public static final Type<ClientboundDdrInputHitPacket> TYPE = new Type<>(LoveTropics.id("ddr_input_hit"));
 	public static final StreamCodec<ByteBuf, ClientboundDdrInputHitPacket> STREAM_CODEC = StreamCodec.composite(
 			ByteBufCodecs.VAR_INT, ClientboundDdrInputHitPacket::entityId,
 			ByteBufCodecs.VAR_LONG, ClientboundDdrInputHitPacket::inputTick,

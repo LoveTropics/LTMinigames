@@ -26,14 +26,14 @@ public record DDRMachineSprites(
 	@Nullable
 	private static DDRMachineSprites instance;
 
-	private static final Identifier SCREEN_DOWN = LoveTropics.location("ddr/down_normal");
-	private static final Identifier SCREEN_DOWN_FILLED = LoveTropics.location("ddr/down_filled");
-	private static final Identifier SCREEN_UP = LoveTropics.location("ddr/up_normal");
-	private static final Identifier SCREEN_UP_FILLED = LoveTropics.location("ddr/up_filled");
-	private static final Identifier SCREEN_LEFT = LoveTropics.location("ddr/left_normal");
-	private static final Identifier SCREEN_LEFT_FILLED = LoveTropics.location("ddr/left_filled");
-	private static final Identifier SCREEN_RIGHT = LoveTropics.location("ddr/right_normal");
-	private static final Identifier SCREEN_RIGHT_FILLED = LoveTropics.location("ddr/right_filled");
+	private static final Identifier SCREEN_DOWN = LoveTropics.id("ddr/down_normal");
+	private static final Identifier SCREEN_DOWN_FILLED = LoveTropics.id("ddr/down_filled");
+	private static final Identifier SCREEN_UP = LoveTropics.id("ddr/up_normal");
+	private static final Identifier SCREEN_UP_FILLED = LoveTropics.id("ddr/up_filled");
+	private static final Identifier SCREEN_LEFT = LoveTropics.id("ddr/left_normal");
+	private static final Identifier SCREEN_LEFT_FILLED = LoveTropics.id("ddr/left_filled");
+	private static final Identifier SCREEN_RIGHT = LoveTropics.id("ddr/right_normal");
+	private static final Identifier SCREEN_RIGHT_FILLED = LoveTropics.id("ddr/right_filled");
 
 	@SubscribeEvent
 	public static void onTextureStitched(TextureAtlasStitchedEvent event) {

@@ -5,7 +5,6 @@ import com.tterrag.registrate.providers.DataProviderInitializer;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.attribute.EnvironmentAttribute;
 import net.minecraft.world.attribute.EnvironmentAttributeMap;
 import net.minecraft.world.attribute.EnvironmentAttributes;
 import net.minecraft.world.level.biome.Biome;
@@ -50,6 +49,6 @@ public final class SurviveTheTideBiomes {
 	}
 
 	private static ResourceKey<Biome> createKey(String key) {
-		return ResourceKey.create(Registries.BIOME, LoveTropics.location(key));
+		return ResourceKey.create(Registries.BIOME, LoveTropics.id(key));
 	}
 }

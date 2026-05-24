@@ -28,6 +28,6 @@ public class GameActionContextKeys<T> {
 	}
 
 	private static <T> ContextKey<T> create(String name) {
-		return new ContextKey<>(LoveTropics.location(name));
+		return new ContextKey<>(LoveTropics.id(name));
 	}
 }

@@ -11,7 +11,7 @@ import net.minecraft.world.level.saveddata.SavedDataType;
 
 // WorkspaceRegions for persistent worlds
 public class SavedRegions extends SavedData {
-	public static final Identifier ID = LoveTropics.location("saved_regions");
+	public static final Identifier ID = LoveTropics.id("saved_regions");
 
 	public static final Codec<SavedRegions> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			MapRegions.CODEC.fieldOf("regions").forGetter(SavedRegions::compile)

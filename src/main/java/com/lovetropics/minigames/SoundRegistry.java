@@ -106,6 +106,6 @@ public class SoundRegistry {
 	public static final Holder<SoundEvent> UPSET_STOMACH_FART = register("upset_stomach.fart");
 
 	private static Holder<SoundEvent> register(String name) {
-		return REGISTER.register(name, () -> SoundEvent.createVariableRangeEvent(LoveTropics.location(name)));
+		return REGISTER.register(name, () -> SoundEvent.createVariableRangeEvent(LoveTropics.id(name)));
 	}
 }

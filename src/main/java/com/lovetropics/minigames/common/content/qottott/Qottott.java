@@ -52,32 +52,32 @@ public class Qottott {
 
 	public static final Holder<MobEffect> COIN_MULTIPLIER_POWER_UP = REGISTRATE.object("coin_multiplier_power_up").mobEffect(() -> new CustomMobEffect(MobEffectCategory.BENEFICIAL).addAttributeModifier(
 			COIN_MULTIPLIER,
-			LoveTropics.location("coin_multiplier_power_up_effect"),
+			LoveTropics.id("coin_multiplier_power_up_effect"),
 			1.0,
 			AttributeModifier.Operation.ADD_MULTIPLIED_BASE
 	)).lang("Coin Multiplier Power-up").register();
 	public static final Holder<MobEffect> PICKUP_PRIORITY_POWER_UP = REGISTRATE.object("pickup_priority_power_up").mobEffect(() -> new CustomMobEffect(MobEffectCategory.BENEFICIAL).addAttributeModifier(
 			PICKUP_PRIORITY,
-			LoveTropics.location("pickup_priority_power_up_effect"),
+			LoveTropics.id("pickup_priority_power_up_effect"),
 			1.0,
 			AttributeModifier.Operation.ADD_VALUE
 	)).lang("Pickup Priority Power-up").register();
 	public static final Holder<MobEffect> KNOCKBACK_RESISTANCE_POWER_UP = REGISTRATE.object("knockback_resistance_power_up").mobEffect(() -> new CustomMobEffect(MobEffectCategory.BENEFICIAL).addAttributeModifier(
 			Attributes.KNOCKBACK_RESISTANCE,
-			LoveTropics.location("knockback_resistance_power_up_effect"),
+			LoveTropics.id("knockback_resistance_power_up_effect"),
 			1.0,
 			AttributeModifier.Operation.ADD_VALUE
 	)).lang("Knockback Resistance Power-Up").register();
 	public static final Holder<MobEffect> SPEED_POWER_UP = REGISTRATE.object("speed_power_up").mobEffect(() -> new CustomMobEffect(MobEffectCategory.BENEFICIAL).addAttributeModifier(
 			Attributes.MOVEMENT_SPEED,
-			LoveTropics.location("speed_power_up_effect"),
+			LoveTropics.id("speed_power_up_effect"),
 			0.05,
 			AttributeModifier.Operation.ADD_VALUE
 	)).lang("Speed Power-up").register();
 
 	public static final Holder<MobEffect> LEAKY_POCKETS_EFFECT = REGISTRATE.object("leaky_pockets").mobEffect(() -> new CustomMobEffect(MobEffectCategory.HARMFUL).addAttributeModifier(
 			LEAKY_POCKETS,
-			LoveTropics.location("leaky_pockets_effect"),
+			LoveTropics.id("leaky_pockets_effect"),
 			0.005,
 			AttributeModifier.Operation.ADD_VALUE
 	)).lang("Leaky Pockets").register();

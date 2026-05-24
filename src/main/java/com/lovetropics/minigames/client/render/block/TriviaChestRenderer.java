@@ -29,9 +29,9 @@ import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
 public class TriviaChestRenderer implements BlockEntityRenderer<TriviaChestBlockEntity, TriviaChestBlockEntityRenderState> {
-	private static final SpriteId MATERIAL = new SpriteId(Sheets.CHEST_SHEET, LoveTropics.location("entity/chest/trivia"));
-	private static final SpriteId GLOW_MATERIAL = new SpriteId(Sheets.CHEST_SHEET, LoveTropics.location("entity/chest/trivia_glow"));
-	private static final SpriteId INACTIVE_MATERIAL = new SpriteId(Sheets.CHEST_SHEET, LoveTropics.location("entity/chest/trivia_inactive"));
+	private static final SpriteId MATERIAL = new SpriteId(Sheets.CHEST_SHEET, LoveTropics.id("entity/chest/trivia"));
+	private static final SpriteId GLOW_MATERIAL = new SpriteId(Sheets.CHEST_SHEET, LoveTropics.id("entity/chest/trivia_glow"));
+	private static final SpriteId INACTIVE_MATERIAL = new SpriteId(Sheets.CHEST_SHEET, LoveTropics.id("entity/chest/trivia_inactive"));
 
 	private final ModelPart lid;
 	private final ModelPart bottom;

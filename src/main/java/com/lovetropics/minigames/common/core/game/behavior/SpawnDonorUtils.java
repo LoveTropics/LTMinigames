@@ -7,17 +7,13 @@ import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.integration.game_actions.Donation;
 import com.lovetropics.minigames.common.core.integration.state.DonationScale;
 import com.lovetropics.minigames.common.core.map.MapRegions;
-import com.mojang.authlib.properties.PropertyMap;
 import com.mojang.logging.LogUtils;
 import net.minecraft.util.Util;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.effect.MobEffect;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -78,7 +74,7 @@ public class SpawnDonorUtils {
 
 		spawnedMob.getAttribute(Attributes.MOVEMENT_SPEED).addTransientModifier(
 				new AttributeModifier(
-						LoveTropics.location("donor_movement_speed"),
+						LoveTropics.id("donor_movement_speed"),
 						0.1,
 						AttributeModifier.Operation.ADD_VALUE
 				)

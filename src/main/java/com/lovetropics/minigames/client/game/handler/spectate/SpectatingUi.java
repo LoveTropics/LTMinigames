@@ -182,7 +182,7 @@ public final class SpectatingUi {
 	}
 
 	public static void registerOverlays(RegisterGuiLayersEvent event) {
-		event.registerBelow(VanillaGuiLayers.CONTEXTUAL_INFO_BAR_BACKGROUND, LoveTropics.location("minigame_spectator"), (graphics, deltaTracker) -> {
+		event.registerBelow(VanillaGuiLayers.CONTEXTUAL_INFO_BAR_BACKGROUND, LoveTropics.id("minigame_spectator"), (graphics, deltaTracker) -> {
 			Minecraft minecraft = Minecraft.getInstance();
 			if (minecraft.options.hideGui || minecraft.player == null || !minecraft.player.isSpectator()) {
 				return;

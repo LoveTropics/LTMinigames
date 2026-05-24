@@ -106,7 +106,7 @@ public class RiverRace {
 			.build()
 			.item()
 			.model(() -> (ctx, prov) ->
-					Models.generateChestItem(ctx, prov, LoveTropics.location("trivia"), TextureMapping.getBlockTexture(TRIVIA_VICTORY.get()))
+					Models.generateChestItem(ctx, prov, LoveTropics.id("trivia"), TextureMapping.getBlockTexture(TRIVIA_VICTORY.get()))
 			)
 			.build()
 			.addMiscData(ProviderType.LANG, prov -> prov.add(LoveTropics.ID + ".container.triviaChest", "Trivia Chest"))
@@ -128,7 +128,7 @@ public class RiverRace {
 	private static class Models {
 		private static final TextureSlot GLOW_SLOT = TextureSlot.create("glow");
 
-		private static final ModelTemplate CUBE_GLOW_TEMPLATE = ModelTemplates.create(LoveTropics.location("cube_glow").toString(), TextureSlot.ALL, GLOW_SLOT);
+		private static final ModelTemplate CUBE_GLOW_TEMPLATE = ModelTemplates.create(LoveTropics.id("cube_glow").toString(), TextureSlot.ALL, GLOW_SLOT);
 
 		private static void generateTriviaBlock(DataGenContext<Block, ?> ctx, RegistrateBlockModelGenerator prov, boolean useInactiveTexture) {
 			MultiVariant activeVariant = plainVariant(CUBE_GLOW_TEMPLATE.create(

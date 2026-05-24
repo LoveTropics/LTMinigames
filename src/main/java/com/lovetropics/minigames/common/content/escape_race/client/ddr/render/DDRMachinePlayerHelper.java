@@ -16,7 +16,7 @@ import net.minecraft.world.entity.Pose;
 
 public class DDRMachinePlayerHelper {
 
-	private static final ContextKey<DdrPose> KEY_POSE = new ContextKey<>(LoveTropics.location("ddr/pose"));
+	private static final ContextKey<DdrPose> KEY_POSE = new ContextKey<>(LoveTropics.id("ddr/pose"));
 
 	public static <T extends LivingEntity, S extends LivingEntityRenderState> void updateLivingEntityRenderState(T entity, S renderState) {
 		if (entity.getVehicle() instanceof DDRMachineEntity ddrMachineEntity) {

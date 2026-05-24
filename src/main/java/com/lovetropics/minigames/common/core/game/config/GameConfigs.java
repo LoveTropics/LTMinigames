@@ -54,7 +54,7 @@ public final class GameConfigs {
 
 	@SubscribeEvent
 	public static void addReloadListener(AddServerReloadListenersEvent event) {
-		event.addListener(LoveTropics.location("game_configs"), new ContextAwareReloadListener() {
+		event.addListener(LoveTropics.id("game_configs"), new ContextAwareReloadListener() {
 			@Override
 			public CompletableFuture<Void> reload(SharedState currentReload, Executor taskExecutor, PreparationBarrier preparationBarrier, Executor reloadExecutor) {
 				return load(currentReload.resourceManager(), taskExecutor, getRegistryLookup())

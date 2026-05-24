@@ -212,7 +212,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 public class GameBehaviorTypes {
-	public static final ResourceKey<Registry<GameBehaviorType<?>>> REGISTRY_KEY = ResourceKey.createRegistryKey(LoveTropics.location("minigame_behaviours"));
+	public static final ResourceKey<Registry<GameBehaviorType<?>>> REGISTRY_KEY = ResourceKey.createRegistryKey(LoveTropics.id("minigame_behaviours"));
 	public static final DeferredRegister<GameBehaviorType<?>> REGISTER = DeferredRegister.create(REGISTRY_KEY, LoveTropics.ID);
 
 	public static final Registry<GameBehaviorType<?>> REGISTRY = REGISTER.makeRegistry(builder -> builder.sync(false));

@@ -20,7 +20,6 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
-import net.minecraft.core.HolderSet;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
@@ -67,7 +66,7 @@ public record PaintPartyBehaviour(Map<GameTeamKey, TeamConfig> teamConfigs, Bloc
 	private static final Holder<EntityType<?>> EXPLODING_COCONUT = DeferredHolder.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath("tropicraft", "exploding_coconut"));
 
 	private static final AttributeModifier SWIMMING_SPEED_MODIFIER = new AttributeModifier(
-			LoveTropics.location("paint_party/swimming_in_paint"),
+			LoveTropics.id("paint_party/swimming_in_paint"),
 			0.5,
 			AttributeModifier.Operation.ADD_VALUE
 	);

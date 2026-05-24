@@ -11,7 +11,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public record JoinLobbyPacket() implements CustomPacketPayload {
-	public static final Type<JoinLobbyPacket> TYPE = new Type<>(LoveTropics.location("join_lobby"));
+	public static final Type<JoinLobbyPacket> TYPE = new Type<>(LoveTropics.id("join_lobby"));
 
 	public static final JoinLobbyPacket INSTANCE = new JoinLobbyPacket();
 

@@ -6,7 +6,6 @@ import com.lovetropics.minigames.common.content.escape_race.EscapeRace;
 import com.lovetropics.minigames.common.content.escape_race.EscapeRaceTexts;
 import com.lovetropics.minigames.common.content.escape_race.client.EscapeRaceClientBucksState;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Camera;
@@ -14,7 +13,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.tooltip.TooltipRenderUtil;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.OutlineBufferSource;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderer;
@@ -38,7 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class VendingMachineEntityRenderer extends EntityRenderer<VendingMachineEntity, VendingMachineRenderState> {
-	private static final Identifier TEXTURE = LoveTropics.location("textures/entity/vending_machine.png");
+	private static final Identifier TEXTURE = LoveTropics.id("textures/entity/vending_machine.png");
 
 	private static final int SELECTION_COLOR = ARGB.color(255, 0, 255, 0);
 
@@ -224,7 +222,7 @@ public class VendingMachineEntityRenderer extends EntityRenderer<VendingMachineE
 	}
 
 	public static void registerOverlays(RegisterGuiLayersEvent event) {
-		event.registerAbove(VanillaGuiLayers.EXPERIENCE_LEVEL, LoveTropics.location("vending_machine_info"), (graphics, deltaTracker) -> {
+		event.registerAbove(VanillaGuiLayers.EXPERIENCE_LEVEL, LoveTropics.id("vending_machine_info"), (graphics, deltaTracker) -> {
 			if (Minecraft.getInstance().options.hideGui) {
 				return;
 			}

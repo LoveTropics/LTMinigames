@@ -18,7 +18,7 @@ public class LobbyKeybinds {
 	public static final KeyMapping MANAGE = create("manage", InputConstants.KEY_G, KeyModifier.CONTROL);
 
 	// Todo Should we Unifi this one
-	public static final KeyMapping.Category LOBBY_CATEGORY = new KeyMapping.Category(LoveTropics.location("lobby"));
+	public static final KeyMapping.Category LOBBY_CATEGORY = new KeyMapping.Category(LoveTropics.id("lobby"));
 
 	public static void init() {
 	}

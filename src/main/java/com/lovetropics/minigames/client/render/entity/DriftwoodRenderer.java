@@ -4,7 +4,6 @@ import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.client.render.entity.state.DriftwoodRenderState;
 import com.lovetropics.minigames.common.content.survive_the_tide.entity.DriftwoodEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
@@ -14,7 +13,6 @@ import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -28,7 +26,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 
 public final class DriftwoodRenderer extends EntityRenderer<DriftwoodEntity, DriftwoodRenderState> {
-	private static final Identifier TEXTURE = LoveTropics.location("textures/entity/driftwood.png");
+	private static final Identifier TEXTURE = LoveTropics.id("textures/entity/driftwood.png");
 
 	private final DriftwoodModel model;
 
@@ -62,7 +60,7 @@ public final class DriftwoodRenderer extends EntityRenderer<DriftwoodEntity, Dri
 	}
 	@EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
 	public static final class DriftwoodModel extends EntityModel<EntityRenderState> {
-		public static final ModelLayerLocation LAYER = new ModelLayerLocation(LoveTropics.location("driftwood"), "main");
+		public static final ModelLayerLocation LAYER = new ModelLayerLocation(LoveTropics.id("driftwood"), "main");
 
 		public DriftwoodModel(ModelPart root) {
 			super(root);

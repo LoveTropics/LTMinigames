@@ -12,7 +12,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public record ShowTriviaMessage(BlockPos triviaBlock, TriviaBehaviour.TriviaQuestion question, TriviaBlockEntity.TriviaBlockState triviaBlockState) implements CustomPacketPayload {
 
-	public static final Type<ShowTriviaMessage> TYPE = new Type<>(LoveTropics.location("show_trivia"));
+	public static final Type<ShowTriviaMessage> TYPE = new Type<>(LoveTropics.id("show_trivia"));
 	public static final StreamCodec<RegistryFriendlyByteBuf, ShowTriviaMessage> STREAM_CODEC = StreamCodec.composite(
 			BlockPos.STREAM_CODEC, ShowTriviaMessage::triviaBlock,
 			TriviaBehaviour.TriviaQuestion.STREAM_CODEC, ShowTriviaMessage::question,

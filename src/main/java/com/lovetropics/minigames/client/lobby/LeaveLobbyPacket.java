@@ -12,7 +12,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public record LeaveLobbyPacket() implements CustomPacketPayload {
-	public static final Type<LeaveLobbyPacket> TYPE = new Type<>(LoveTropics.location("leave_lobby"));
+	public static final Type<LeaveLobbyPacket> TYPE = new Type<>(LoveTropics.id("leave_lobby"));
 
 	public static final LeaveLobbyPacket INSTANCE = new LeaveLobbyPacket();
 

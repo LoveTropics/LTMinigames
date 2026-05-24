@@ -7,7 +7,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
 public record ClientboundFadeToBlackPacket(boolean fadeIn, int duration) implements CustomPacketPayload {
-	public static final Type<ClientboundFadeToBlackPacket> TYPE = new Type<>(LoveTropics.location("fade_to_black"));
+	public static final Type<ClientboundFadeToBlackPacket> TYPE = new Type<>(LoveTropics.id("fade_to_black"));
 
 	public static final StreamCodec<ByteBuf, ClientboundFadeToBlackPacket> STREAM_CODEC = StreamCodec.composite(
 			ByteBufCodecs.BOOL, ClientboundFadeToBlackPacket::fadeIn,

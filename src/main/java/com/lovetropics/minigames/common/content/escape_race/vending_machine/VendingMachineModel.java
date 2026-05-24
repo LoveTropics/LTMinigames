@@ -27,12 +27,11 @@ import org.joml.Vector3f;
 import org.joml.Vector3fc;
 
 import java.util.Set;
-import java.util.function.Consumer;
 
 @EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
 public class VendingMachineModel extends EntityModel<VendingMachineRenderState> {
 	// This layer location should be baked with EntityRendererProvider.Context in the entity renderer and passed into this model's constructor
-	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(LoveTropics.location("vending_machine"), "main");
+	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(LoveTropics.id("vending_machine"), "main");
 	private final ModelPart root;
 	private final ModelPart root2;
 	private final ModelPart machine;

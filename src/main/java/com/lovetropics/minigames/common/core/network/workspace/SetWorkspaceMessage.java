@@ -12,7 +12,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import javax.annotation.Nullable;
 
 public class SetWorkspaceMessage implements CustomPacketPayload {
-	public static final Type<SetWorkspaceMessage> TYPE = new Type<>(LoveTropics.location("set_workspace"));
+	public static final Type<SetWorkspaceMessage> TYPE = new Type<>(LoveTropics.id("set_workspace"));
 
 	public static final StreamCodec<FriendlyByteBuf, SetWorkspaceMessage> STREAM_CODEC = StreamCodec.ofMember(SetWorkspaceMessage::encode, SetWorkspaceMessage::decode);
 

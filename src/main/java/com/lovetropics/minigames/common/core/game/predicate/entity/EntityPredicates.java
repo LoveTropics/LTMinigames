@@ -10,7 +10,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 public class EntityPredicates {
-	public static final ResourceKey<Registry<MapCodec<? extends EntityPredicate>>> REGISTRY_KEY = ResourceKey.createRegistryKey(LoveTropics.location("entity_predicates"));
+	public static final ResourceKey<Registry<MapCodec<? extends EntityPredicate>>> REGISTRY_KEY = ResourceKey.createRegistryKey(LoveTropics.id("entity_predicates"));
 	public static final DeferredRegister<MapCodec<? extends EntityPredicate>> REGISTER = DeferredRegister.create(REGISTRY_KEY, LoveTropics.ID);
 
 	public static final Registry<MapCodec<? extends EntityPredicate>> REGISTRY = REGISTER.makeRegistry(builder -> builder.sync(false));

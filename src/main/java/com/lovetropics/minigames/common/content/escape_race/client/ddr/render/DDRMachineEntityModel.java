@@ -15,7 +15,7 @@ import net.minecraft.client.model.geom.builders.PartDefinition;
 public class DDRMachineEntityModel extends EntityModel<DDRMachineRenderState> {
 
 	// This layer location should be baked with EntityRendererProvider.Context in the entity renderer and passed into this model's constructor
-	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(LoveTropics.location("ddr_machine"), "main");
+	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(LoveTropics.id("ddr_machine"), "main");
 	private final ModelPart bed_rail1;
 	private final ModelPart bed_rail2;
 	private final ModelPart base;

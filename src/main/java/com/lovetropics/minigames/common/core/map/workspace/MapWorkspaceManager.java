@@ -24,7 +24,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 public final class MapWorkspaceManager extends SavedData {
-	public static final Identifier ID = LoveTropics.location("map_workspace_manager");
+	public static final Identifier ID = LoveTropics.id("map_workspace_manager");
 
 	private static final SavedDataType<MapWorkspaceManager> TYPE = new SavedDataType<>(
 			ID,
@@ -59,7 +59,7 @@ public final class MapWorkspaceManager extends SavedData {
 	}
 
 	private RuntimeDimensionHandle getOrCreateDimension(String id, WorkspaceDimensionConfig dimensionConfig, MapWorldSettings mapSettings) {
-		return RuntimeDimensions.get(server).getOrOpenPersistent(LoveTropics.location(id), () -> {
+		return RuntimeDimensions.get(server).getOrOpenPersistent(LoveTropics.id(id), () -> {
 			MapWorldInfo worldInfo = MapWorldInfo.create(server, mapSettings);
 			return dimensionConfig.toRuntimeConfig(worldInfo);
 		});

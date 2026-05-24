@@ -14,7 +14,7 @@ public final class GameMapProviders {
 	public static final Codec<IGameMapProvider> CODEC = REGISTRY.dispatchStable(IGameMapProvider::getCodec, Function.identity());
 
 	private static void register(final String name, final MapCodec<? extends IGameMapProvider> codec) {
-		REGISTRY.register(LoveTropics.location(name), codec);
+		REGISTRY.register(LoveTropics.id(name), codec);
 	}
 
 	static {

@@ -30,14 +30,14 @@ public final class RiverRaceBarRenderer {
 
 	private static final int POINTER_SIZE = 5;
 
-	private static final Identifier MAP_SPRITE = LoveTropics.location("minigames/river_race/map");
-	private static final Identifier BAR_SPRITE = LoveTropics.location("minigames/river_race/bar");
-	private static final Identifier POINTER_TOP_SPRITE = LoveTropics.location("minigames/river_race/pointer_top");
-	private static final Identifier POINTER_BOTTOM_SPRITE = LoveTropics.location("minigames/river_race/pointer_bottom");
-	private static final Identifier LOCKED_SPRITE = LoveTropics.location("minigames/river_race/locked");
+	private static final Identifier MAP_SPRITE = LoveTropics.id("minigames/river_race/map");
+	private static final Identifier BAR_SPRITE = LoveTropics.id("minigames/river_race/bar");
+	private static final Identifier POINTER_TOP_SPRITE = LoveTropics.id("minigames/river_race/pointer_top");
+	private static final Identifier POINTER_BOTTOM_SPRITE = LoveTropics.id("minigames/river_race/pointer_bottom");
+	private static final Identifier LOCKED_SPRITE = LoveTropics.id("minigames/river_race/locked");
 
 	public static void registerOverlays(RegisterGuiLayersEvent event) {
-		event.registerAbove(VanillaGuiLayers.BOSS_OVERLAY, LoveTropics.location("river_race_bar"), (graphics, deltaTracker) -> {
+		event.registerAbove(VanillaGuiLayers.BOSS_OVERLAY, LoveTropics.id("river_race_bar"), (graphics, deltaTracker) -> {
 			if (Minecraft.getInstance().options.hideGui) {
 				return;
 			}

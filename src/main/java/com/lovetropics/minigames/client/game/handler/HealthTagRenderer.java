@@ -4,12 +4,10 @@ import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.client.game.ClientGameStateManager;
 import com.lovetropics.minigames.common.core.game.client_state.GameClientStateTypes;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.ClientAvatarEntity;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
@@ -32,15 +30,13 @@ import net.neoforged.neoforge.client.ClientHooks;
 import net.neoforged.neoforge.client.event.RenderPlayerEvent;
 import net.neoforged.neoforge.client.renderstate.AvatarRenderStateModifier;
 import net.neoforged.neoforge.client.renderstate.RegisterRenderStateModifiersEvent;
-import org.jetbrains.annotations.UnknownNullability;
-import org.spongepowered.asm.mixin.injection.At;
 
 @EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
 public final class HealthTagRenderer {
 	private static final SpriteId HEART_CONTAINER_SPRITE = new SpriteId(AtlasIds.GUI, Identifier.withDefaultNamespace("hud/heart/container"));
 	private static final SpriteId HEART_SPRITE = new SpriteId(AtlasIds.GUI, Identifier.withDefaultNamespace("hud/heart/full"));
 
-	private static final ContextKey<Float> HEALTH_TAG_KEY = new ContextKey<>(LoveTropics.location("health_tag"));
+	private static final ContextKey<Float> HEALTH_TAG_KEY = new ContextKey<>(LoveTropics.id("health_tag"));
 
 	@SubscribeEvent
 	public static void onRegisterRenderStateModifiers(RegisterRenderStateModifiersEvent event) {

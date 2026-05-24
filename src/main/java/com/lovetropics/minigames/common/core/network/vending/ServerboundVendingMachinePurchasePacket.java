@@ -10,7 +10,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public record ServerboundVendingMachinePurchasePacket(int entityId) implements CustomPacketPayload {
-	public static final Type<ServerboundVendingMachinePurchasePacket> TYPE = new Type<>(LoveTropics.location("vending_machine_purchase"));
+	public static final Type<ServerboundVendingMachinePurchasePacket> TYPE = new Type<>(LoveTropics.id("vending_machine_purchase"));
 	public static final StreamCodec<ByteBuf, ServerboundVendingMachinePurchasePacket> STREAM_CODEC = StreamCodec.composite(
 			ByteBufCodecs.VAR_INT, ServerboundVendingMachinePurchasePacket::entityId,
 			ServerboundVendingMachinePurchasePacket::new

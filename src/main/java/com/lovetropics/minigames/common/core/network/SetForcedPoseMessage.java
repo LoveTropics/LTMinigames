@@ -13,7 +13,7 @@ import java.util.Optional;
 
 public record SetForcedPoseMessage(Optional<Pose> pose) implements CustomPacketPayload {
 
-	public static final Type<SetForcedPoseMessage> TYPE = new Type<>(LoveTropics.location("set_forced_pose"));
+	public static final Type<SetForcedPoseMessage> TYPE = new Type<>(LoveTropics.id("set_forced_pose"));
 	public static final StreamCodec<ByteBuf, SetForcedPoseMessage> STREAM_CODEC = StreamCodec.composite(
 			Pose.STREAM_CODEC.apply(ByteBufCodecs::optional), SetForcedPoseMessage::pose,
 			SetForcedPoseMessage::new

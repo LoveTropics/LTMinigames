@@ -21,7 +21,7 @@ import java.util.function.UnaryOperator;
 public class EscapeRaceBucksRenderer {
 	private static final int PADDING = 2;
 	private static final int ITEM_SIZE = 16;
-	private static final Identifier HOTBAR_SPRITE = LoveTropics.location("break_bucks_holder");
+	private static final Identifier HOTBAR_SPRITE = LoveTropics.id("break_bucks_holder");
 
 	private static final UnaryOperator<GuiLayer> HIDE_IN_ESCAPE_RACE = (layer) -> ((guiGraphics, deltaTracker) -> {
 		EscapeRaceClientBucksState escapeRaceClientBucksState = ClientGameStateManager.getOrNull(EscapeRace.BREAK_BUCK_STATE);
