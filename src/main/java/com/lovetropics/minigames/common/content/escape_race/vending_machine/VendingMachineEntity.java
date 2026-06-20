@@ -43,6 +43,7 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import javax.annotation.Nullable;
+import javax.sound.sampled.Port;
 import java.util.List;
 
 public class VendingMachineEntity extends Entity implements ContainerEntity {
@@ -316,7 +317,7 @@ public class VendingMachineEntity extends Entity implements ContainerEntity {
 			return;
 		}
 		Minecraft minecraft = Minecraft.getInstance();
-		Camera camera = minecraft.gameRenderer.getMainCamera();
+		Camera camera = minecraft.gameRenderer.mainCamera();
 		VendingMachineEntityRenderer renderer = (VendingMachineEntityRenderer) minecraft.getEntityRenderDispatcher().getRenderer(this);
 		VendingMachineSlots.Picker picker = VendingMachineSlots.picker(camera, this);
 		int pickedSlot = picker.pickSlot();

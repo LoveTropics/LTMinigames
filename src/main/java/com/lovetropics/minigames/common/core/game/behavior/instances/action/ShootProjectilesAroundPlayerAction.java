@@ -14,6 +14,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.projectile.hurtingprojectile.LargeFireball;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
@@ -111,7 +112,7 @@ public class ShootProjectilesAroundPlayerAction implements IGameBehavior {
 	}
 
 	private LargeFireball createFireball(ServerLevel world, BlockPos spawn, BlockPos target) {
-		LargeFireball fireball = new LargeFireball(EntityType.FIREBALL, world) {
+		LargeFireball fireball = new LargeFireball(EntityTypes.FIREBALL, world) {
 			@Override
 			protected void onHit(final HitResult hitResult) {
 				switch (hitResult.getType()) {

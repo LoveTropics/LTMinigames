@@ -18,6 +18,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.phys.AABB;
@@ -66,7 +67,7 @@ public final class LightningPlantBehavior implements IGameBehavior {
 
 				BlockPos pos = target.blockPosition();
 				// TODO: custom lightning bolt class to prevent too loud sounds and fire!
-				LightningBolt lightningbolt = EntityType.LIGHTNING_BOLT.create(world, EntitySpawnReason.COMMAND);
+				LightningBolt lightningbolt = EntityTypes.LIGHTNING_BOLT.create(world, EntitySpawnReason.COMMAND);
 				lightningbolt.snapTo(Vec3.atBottomCenterOf(pos));
 				lightningbolt.setCause(null);
 				world.addFreshEntity(lightningbolt);

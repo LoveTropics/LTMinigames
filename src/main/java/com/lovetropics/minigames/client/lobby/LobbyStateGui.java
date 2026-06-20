@@ -56,7 +56,7 @@ public class LobbyStateGui {
 
 	public static void registerOverlays(RegisterGuiLayersEvent event) {
 		event.registerBelow(VanillaGuiLayers.CONTEXTUAL_INFO_BAR_BACKGROUND, LoveTropics.id("minigame_lobby"), (graphics, deltaTracker) -> {
-			if (Minecraft.getInstance().options.hideGui) {
+			if (Minecraft.getInstance().gui.hud.isHidden()) {
 				return;
 			}
 			ClientLobbyState joinedLobby = ClientLobbyManager.getJoined();

@@ -11,6 +11,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.InterpolationHandler;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.player.Player;
@@ -173,7 +174,7 @@ public final class DriftwoodEntity extends Entity {
 	private List<Player> collectRiders() {
 		AABB bounds = getBoundingBox();
 		AABB ridingBounds = new AABB(bounds.minX, bounds.maxY, bounds.minZ, bounds.maxX, bounds.maxY + 0.2, bounds.maxZ);
-		return level().getEntities(EntityType.PLAYER, ridingBounds, EntitySelector.NO_SPECTATORS);
+		return level().getEntities(EntityTypes.PLAYER, ridingBounds, EntitySelector.NO_SPECTATORS);
 	}
 
 	private float getFloatHeight() {

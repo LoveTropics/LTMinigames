@@ -10,7 +10,19 @@ plugins {
 }
 
 rootProject.name = 'LTMinigames'
-//includeBuild('../LTExtras')
+//includeBuild('../LTExtras') {
+//    dependencySubstitution {
+//        substitute(module("org.lovetropics:LTExtras"))
+//                .using(project(":"))
+//    }
+//}
+
+//includeBuild('../Tropicraft') {
+//    dependencySubstitution {
+//        substitute(module("org.lovetropics:LTExtras"))
+//                .using(project(":"))
+//    }
+//}
 if (file('../LTDatapack').exists()) {
     includeBuild('../LTDatapack')
 }

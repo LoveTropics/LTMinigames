@@ -12,6 +12,7 @@ import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.EntitySpawnRequest;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 
@@ -21,6 +22,8 @@ public class CrabGolfCrabBehavior implements PersistentGameBehavior {
 	public static final MapCodec<CrabGolfCrabBehavior> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 			Codec.withAlternative(CompoundTag.CODEC, TagParser.FLATTENED_CODEC).fieldOf("nbt").forGetter(b -> b.nbt)
 	).apply(instance, CrabGolfCrabBehavior::new));
+
+	private static final EntitySpawnRequest SPAWN_REQUEST = new EntitySpawnRequest(EntitySpawnReason.COMMAND, false);
 
 	private final CompoundTag nbt;
 
@@ -35,7 +38,7 @@ public class CrabGolfCrabBehavior implements PersistentGameBehavior {
 			nbt.putString("id", "tropicraft:fiddler_crab");
 			nbt.putIntArray("Owner", UUIDUtil.uuidToIntArray(player.getUUID()));
 
-			LivingEntity entity = (LivingEntity) EntityType.loadEntityRecursive(nbt, level, EntitySpawnReason.COMMAND, (e) -> {
+			LivingEntity entity = (LivingEntity) EntityType.loadEntityRecursive(nbt, level, SPAWN_REQUEST, (e) -> {
 				e.snapTo(pos.x, pos.y, pos.z, e.getYRot(), e.getXRot());
 				return e;
 			});

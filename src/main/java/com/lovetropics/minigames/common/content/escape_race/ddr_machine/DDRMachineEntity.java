@@ -259,7 +259,7 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 			return null;
 		}
 		DdrScreen screen = renderer.getScreen();
-		int index = screen.pickLevelIndex(minecraft.gameRenderer.getMainCamera(), position(), getYRot(), orderedLevels.size());
+		int index = screen.pickLevelIndex(minecraft.gameRenderer.mainCamera(), position(), getYRot(), orderedLevels.size());
 		return index != DdrScreen.NO_LEVEL_PICKED ? orderedLevels.get(index) : null;
 	}
 

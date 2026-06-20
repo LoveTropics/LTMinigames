@@ -55,7 +55,7 @@ public class PlatformEntity extends Entity {
 	@Override
 	protected void defineSynchedData(SynchedEntityData.Builder builder) {
 		builder.define(DATA_WIDTH_ID, 1);
-		builder.define(DATA_BLOCK_STATE, Blocks.GRAY_CONCRETE.defaultBlockState());
+		builder.define(DATA_BLOCK_STATE, Blocks.CONCRETE.gray().defaultBlockState());
 	}
 
 	@Override

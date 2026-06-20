@@ -112,7 +112,7 @@ public final class PlayerKey implements StatisticHolder {
 		TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
 		GameTeamKey team = teams != null ? teams.getTeamForPlayer(id()) : null;
 		if (team != null) {
-			return Component.literal(name()).withStyle(teams.getTeamOrThrow(team).config().formatting());
+			return Component.literal(name()).withColor(teams.getTeamOrThrow(team).config().teamColor().textColor());
 		}
 		return Component.literal(name());
 	}

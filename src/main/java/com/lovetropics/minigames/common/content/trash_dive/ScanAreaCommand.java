@@ -76,7 +76,7 @@ public class ScanAreaCommand {
 		queue.add(pos.immutable());
 		seen.add(pos.asLong());
 
-		final Set<Block> edges = Sets.newHashSet(Blocks.DIRT, Blocks.GRASS_BLOCK, Blocks.STONE, Blocks.SAND, Blocks.BROWN_STAINED_GLASS);
+		final Set<Block> edges = Sets.newHashSet(Blocks.DIRT, Blocks.GRASS_BLOCK, Blocks.STONE, Blocks.SAND, Blocks.STAINED_GLASS.brown());
 		if (PURIFIED_SAND.isBound()) {
 			edges.add(PURIFIED_SAND.value());
 		}

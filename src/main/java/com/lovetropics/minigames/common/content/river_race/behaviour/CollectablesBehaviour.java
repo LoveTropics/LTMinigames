@@ -38,6 +38,7 @@ import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
@@ -87,7 +88,7 @@ public final class CollectablesBehaviour implements IGameBehavior {
 
 		events.listen(GamePhaseEvents.CREATE, () -> monumentSlots.forEach((pos, zone) -> {
 			if (zone.collectable() != null) {
-				spawnCollectableDisplay(game, zone.collectable(), pos.getCenter());
+				spawnCollectableDisplay(game, zone.collectable(), Vec3.atCenterOf(pos));
 			}
 		}));
 		events.listen(GamePlayerEvents.PLACE_BLOCK, (player, pos, placed, placedOn, placedItemStack) -> {
@@ -116,7 +117,7 @@ public final class CollectablesBehaviour implements IGameBehavior {
 	}
 
 	private void spawnCollectableDisplay(IGamePhase game, ItemStack collectable, Vec3 position) {
-		Display.ItemDisplay itemDisplay = EntityType.ITEM_DISPLAY.create(game.level(), EntitySpawnReason.COMMAND);
+		Display.ItemDisplay itemDisplay = EntityTypes.ITEM_DISPLAY.create(game.level(), EntitySpawnReason.COMMAND);
 		itemDisplay.setPos(position);
 		itemDisplay.setItemStack(collectable.copy());
 		itemDisplay.setTransformation(new Transformation(null, null, new Vector3f(0.2f, 0.2f, 0.2f), null));

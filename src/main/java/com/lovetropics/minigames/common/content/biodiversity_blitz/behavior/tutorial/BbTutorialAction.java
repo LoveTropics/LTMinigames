@@ -28,6 +28,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -100,7 +101,7 @@ public class BbTutorialAction implements IGameBehavior {
 			actions.put(ticks, () -> {
 				BlockPos pos = sample.relative(playerPlot.forward, 12);
 
-				Mob entity = new BbTutorialHuskEntity(EntityType.HUSK, game.level(), playerPlot);
+				Mob entity = new BbTutorialHuskEntity(EntityTypes.HUSK, game.level(), playerPlot);
 
 				Direction direction = playerPlot.forward.getOpposite();
 				entity.snapTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, direction.toYRot(), 0);

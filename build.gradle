@@ -132,15 +132,15 @@ dependencies {
     runtimeOnly 'maven.modrinth:tropicraft:9.10.0+26.1'
 
     // TODO: HACK - We get Registrate at runtime through JarJar from Tropicraft. We should rather prefer to depend on the slim jar.
-    jarJar(compileOnly("com.tterrag.registrate:Registrate:MC26.1-${registrate_version}") {
+    jarJar(compileOnly("com.tterrag.registrate:Registrate:MC26.2-${registrate_version}") {
         version {
-            strictly "[MC26.1-${registrate_version},MC26.2)"
-            prefer "MC26.1-${registrate_version}"
+            strictly "[MC26.2-${registrate_version},MC26.3)"
+            prefer "MC26.2-${registrate_version}"
         }
     })
 
     jarJar(implementation("org.lovetropics:LTLib:$ltlib_version"))
-    runtimeOnly("org.lovetropics:LTLib:$ltlib_version")
+//    runtimeOnly("org.lovetropics:LTLib:$ltlib_version")
 
     runtimeOnly "org.lovetropics:LTExtras:$ltextras_version"
 
@@ -205,4 +205,8 @@ tasks.withType(JavaCompile) {
 
 tasks.withType(ProcessResources).configureEach {
     outputs.upToDateWhen { false }
+}
+
+tasks.named("build") {
+    dependsOn(gradle.includedBuild("LTExtras").task(":build"))
 }

@@ -56,7 +56,7 @@ public record TeamChatBehavior(ResourceKey<ChatType> chatType, boolean includeSp
 
 	private void broadcastToTeam(ServerPlayer player, PlayerChatMessage signedMessage, IGamePhase game, GameTeam team) {
 		ChatType.Bound chatType = ChatType.bind(this.chatType, player)
-				.withTargetName(team.config().name().copy().withStyle(team.config().formatting()));
+				.withTargetName(team.config().name().copy().withColor(team.config().teamColor().textColor()));
 
 		player.level().getServer().logChatMessage(signedMessage.decoratedContent(), chatType, null);
 		OutgoingChatMessage message = OutgoingChatMessage.create(signedMessage);

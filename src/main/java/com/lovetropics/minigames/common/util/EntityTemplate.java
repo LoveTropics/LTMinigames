@@ -8,7 +8,9 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.EntitySpawnRequest;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.phys.Vec3;
@@ -19,6 +21,8 @@ public record EntityTemplate(EntityType<?> type, CompoundTag tag) {
 			BuiltInRegistries.ENTITY_TYPE.byNameCodec().fieldOf("type").forGetter(EntityTemplate::type),
 			CompoundTag.CODEC.optionalFieldOf("tag", new CompoundTag()).forGetter(EntityTemplate::tag)
 	).apply(i, EntityTemplate::new));
+
+	private static final EntitySpawnRequest SPAWN_REQUEST = new EntitySpawnRequest(EntitySpawnReason.COMMAND, false);
 
 	public static final Codec<EntityTemplate> CODEC = Codec.withAlternative(
 			MAP_CODEC.codec(),
@@ -34,7 +38,7 @@ public record EntityTemplate(EntityType<?> type, CompoundTag tag) {
 	public Entity create(ServerLevel level, double x, double y, double z, float yRot, float xRot) {
 		CompoundTag tag = this.tag.copy();
 		tag.putString("id", EntityType.getKey(type).toString());
-		return EntityType.loadEntityRecursive(tag, level, EntitySpawnReason.COMMAND, e -> {
+		return EntityType.loadEntityRecursive(tag, level, SPAWN_REQUEST, e -> {
 			e.snapTo(x, y, z, yRot, xRot);
 			e.setYRot(yRot);
 			e.setYBodyRot(yRot);
@@ -55,7 +59,7 @@ public record EntityTemplate(EntityType<?> type, CompoundTag tag) {
 
 	@Nullable
 	public Entity spawn(ServerLevel level, double x, double y, double z, float yRot, float xRot, EntitySpawnReason spawnType) {
-		if (type == EntityType.LIGHTNING_BOLT) {
+		if (type == EntityTypes.LIGHTNING_BOLT) {
 			return spawnLightningBolt(level, x, y, z);
 		}
 
@@ -72,7 +76,7 @@ public record EntityTemplate(EntityType<?> type, CompoundTag tag) {
 
 	@Nullable
 	private static LightningBolt spawnLightningBolt(ServerLevel level, double x, double y, double z) {
-		LightningBolt entity = EntityType.LIGHTNING_BOLT.create(level, EntitySpawnReason.COMMAND);
+		LightningBolt entity = EntityTypes.LIGHTNING_BOLT.create(level, EntitySpawnReason.COMMAND);
 		if (entity != null) {
 			entity.snapTo(new Vec3(x, y, z));
 			level.addFreshEntity(entity);

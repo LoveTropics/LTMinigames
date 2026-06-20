@@ -133,7 +133,7 @@ public final class ClientLobbyManagement {
 			if (screen == null) {
 				screen = new ManageLobbyScreen(this);
 			}
-			Minecraft.getInstance().setScreen(screen);
+			Minecraft.getInstance().setScreenAndShow(screen);
 		}
 
 		public void handleName(String name) {

@@ -26,6 +26,7 @@ import net.minecraft.util.TriState;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.EntitySpawnRequest;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -57,6 +58,9 @@ public class CrabGolfHoleBehavior implements PersistentGameBehavior {
 			Codec.FLOAT.fieldOf("winner_rotation").forGetter(b -> b.winnerRotation),
 			TeleportTarget.CODEC.listOf().optionalFieldOf("teleporters").forGetter(b -> Optional.of(b.teleporters))
 	).apply(instance, CrabGolfHoleBehavior::new));
+
+	private static final EntitySpawnRequest SPAWN_REQUEST = new EntitySpawnRequest(EntitySpawnReason.COMMAND, false);
+
 
 	private final int hole;
 	private final String mainRegionName;
@@ -284,7 +288,7 @@ public class CrabGolfHoleBehavior implements PersistentGameBehavior {
 		// move to floor
 		Vec3 pos = new Vec3(rcenter.x, rcenter.y - 0.5, rcenter.z);
 
-		LivingEntity entity = (LivingEntity) EntityType.loadEntityRecursive(nbt, level, EntitySpawnReason.COMMAND, (e) -> {
+		LivingEntity entity = (LivingEntity) EntityType.loadEntityRecursive(nbt, level, SPAWN_REQUEST, (e) -> {
 			e.snapTo(pos.x, pos.y, pos.z, winnerRotation, e.getXRot());
 			return e;
 		});

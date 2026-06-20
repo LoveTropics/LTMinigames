@@ -16,6 +16,7 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -39,13 +40,12 @@ public class SpawnDonorUtils {
 
 	public static final Identifier DUMMY_PLAYER = Identifier.fromNamespaceAndPath("dummyplayers", "dummy_player");
 	public static final DeferredHolder<EntityType<?>, EntityType<?>> DUMMY = DeferredHolder.create(Registries.ENTITY_TYPE, DUMMY_PLAYER);
-	public static final DeferredHolder<EntityType<?>, EntityType<?>> WALK_ = DeferredHolder.create(Registries.ENTITY_TYPE, DUMMY_PLAYER);
 
 	public static void spawnDonorInRandomRegion(IGamePhase game, final Donation donation, final List<String> regions, List<DonationScale> scales, List<ItemStack> bootItems) {
 		CompoundTag tag = new CompoundTag();
 		tag.putBoolean("NoBasePlate", true);
 
-		final Villager spawnedMob = EntityType.VILLAGER.create(game.level(), EntitySpawnReason.MOB_SUMMONED);
+		final Villager spawnedMob = EntityTypes.VILLAGER.create(game.level(), EntitySpawnReason.MOB_SUMMONED);
 		if (spawnedMob == null) {
 			return;
 		}

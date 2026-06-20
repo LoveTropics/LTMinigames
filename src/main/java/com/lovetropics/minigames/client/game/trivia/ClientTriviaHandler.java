@@ -13,7 +13,7 @@ public class ClientTriviaHandler {
 			return;
 		}
 		Minecraft minecraft = Minecraft.getInstance();
-		minecraft.setScreen(new TriviaQuestionScreen(message.triviaBlock(), message.question(), message.triviaBlockState()));
+		minecraft.setScreenAndShow(new TriviaQuestionScreen(message.triviaBlock(), message.question(), message.triviaBlockState()));
 	}
 
 	public static void handleResponse(TriviaAnswerResponseMessage message) {
@@ -22,7 +22,7 @@ public class ClientTriviaHandler {
 			return;
 		}
 		Minecraft minecraft = Minecraft.getInstance();
-		if (minecraft.screen instanceof TriviaQuestionScreen triviaQuestionScreen) {
+		if (minecraft.gui.screen() instanceof TriviaQuestionScreen triviaQuestionScreen) {
 			triviaQuestionScreen.handleAnswerResponse(message.triviaBlockState());
 		}
 	}

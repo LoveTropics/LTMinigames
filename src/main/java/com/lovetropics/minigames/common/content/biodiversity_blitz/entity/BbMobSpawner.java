@@ -23,6 +23,7 @@ import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
@@ -81,37 +82,37 @@ public final class BbMobSpawner {
 		boolean isWater = plotIndex == 2 || plotIndex == 3;
 
 		if (!isWater && random.nextInt(6) == 0 && waveIndex > 4 && plot.nextCurrencyIncrement >= 4) {
-			return new BbZoglinEntity(EntityType.ZOGLIN, world, plot);
+			return new BbZoglinEntity(EntityTypes.ZOGLIN, world, plot);
 		}
 
 		if (!isWater && random.nextInt(5) == 0 && waveIndex > 4 && plot.nextCurrencyIncrement >= 3) {
-			return new BbVindicatorEntity(EntityType.VINDICATOR, world, plot);
+			return new BbVindicatorEntity(EntityTypes.VINDICATOR, world, plot);
 		}
 
 		if (!isWater && random.nextInt(5) == 0 && waveIndex > 4 && plot.nextCurrencyIncrement >= 2) {
-			return new BbZombiePiglinEntity(EntityType.ZOMBIFIED_PIGLIN, world, plot);
+			return new BbZombiePiglinEntity(EntityTypes.ZOMBIFIED_PIGLIN, world, plot);
 		}
 
 		if (random.nextInt(6) == 0 && waveIndex > 4 && plot.nextCurrencyIncrement >= 3) {
-			return new BbCreeperEntity(EntityType.CREEPER, world, plot);
+			return new BbCreeperEntity(EntityTypes.CREEPER, world, plot);
 		}
 
 		if (random.nextInt(3) == 0 && waveIndex > 2 && plot.nextCurrencyIncrement >= 2) {
-			return new BbPillagerEntity(EntityType.PILLAGER, world, plot);
+			return new BbPillagerEntity(EntityTypes.PILLAGER, world, plot);
 		}
 
 		// Zombies in jungle
 		if (isJungle) {
-			return new BbZombieEntity(EntityType.ZOMBIE, world, plot);
+			return new BbZombieEntity(EntityTypes.ZOMBIE, world, plot);
 		}
 
 		// Drowned in water
 		if (plotIndex == 2 || plotIndex == 3) {
-			return new BbDrownedEntity(EntityType.DROWNED, world, plot);
+			return new BbDrownedEntity(EntityTypes.DROWNED, world, plot);
 		}
 
 		// Husks in desert
-		return new BbHuskEntity(EntityType.HUSK, world, plot);
+		return new BbHuskEntity(EntityTypes.HUSK, world, plot);
 	}
 
 	@FunctionalInterface
@@ -120,12 +121,12 @@ public final class BbMobSpawner {
 	}
 
 	public enum BbEntityTypes implements StringRepresentable {
-		CREEPER(EntityType.CREEPER, BbCreeperEntity::new, "Creeper"),
-		PILLAGER(EntityType.PILLAGER, BbPillagerEntity::new, "Pillager"),
-		VINDICATOR(EntityType.VINDICATOR, BbVindicatorEntity::new, "Vindicator"),
-		PIGMAN(EntityType.ZOMBIFIED_PIGLIN, BbZombiePiglinEntity::new, "Piglin"),
-		ZOGLIN(EntityType.ZOGLIN, BbZoglinEntity::new, "Zoglin"),
-		HUSK(EntityType.HUSK, BbHuskEntity::new, "Husk");
+		CREEPER(EntityTypes.CREEPER, BbCreeperEntity::new, "Creeper"),
+		PILLAGER(EntityTypes.PILLAGER, BbPillagerEntity::new, "Pillager"),
+		VINDICATOR(EntityTypes.VINDICATOR, BbVindicatorEntity::new, "Vindicator"),
+		PIGMAN(EntityTypes.ZOMBIFIED_PIGLIN, BbZombiePiglinEntity::new, "Piglin"),
+		ZOGLIN(EntityTypes.ZOGLIN, BbZoglinEntity::new, "Zoglin"),
+		HUSK(EntityTypes.HUSK, BbHuskEntity::new, "Husk");
 
 		public static final Codec<BbEntityTypes> CODEC = StringRepresentable.fromEnum(BbEntityTypes::values);
 

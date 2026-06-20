@@ -53,29 +53,12 @@ public final class SetupTeamsBehavior implements IGameBehavior {
 
 			@Override
 			public Component getNameFor(GameTeam team) {
-				return MinigameTexts.JOIN_TEAM.apply(team.config().name()).withStyle(team.config().formatting());
+				return MinigameTexts.JOIN_TEAM.apply(team.config().name()).withColor(team.config().teamColor().textColor());
 			}
 
 			@Override
 			public Item getItemFor(GameTeam team) {
-				return switch (team.config().dye()) {
-					case WHITE -> Items.WHITE_WOOL;
-					case ORANGE -> Items.ORANGE_WOOL;
-					case MAGENTA -> Items.MAGENTA_WOOL;
-					case LIGHT_BLUE -> Items.LIGHT_BLUE_WOOL;
-					case YELLOW -> Items.YELLOW_WOOL;
-					case LIME -> Items.LIME_WOOL;
-					case PINK -> Items.PINK_WOOL;
-					case GRAY -> Items.GRAY_WOOL;
-					case LIGHT_GRAY -> Items.LIGHT_GRAY_WOOL;
-					case CYAN -> Items.CYAN_WOOL;
-					case PURPLE -> Items.PURPLE_WOOL;
-					case BLUE -> Items.BLUE_WOOL;
-					case BROWN -> Items.BROWN_WOOL;
-					case GREEN -> Items.GREEN_WOOL;
-					case RED -> Items.RED_WOOL;
-					case BLACK -> Items.BLACK_WOOL;
-				};
+				return Items.WOOL.pick(team.config().dye());
 			}
 		};
 
@@ -99,7 +82,7 @@ public final class SetupTeamsBehavior implements IGameBehavior {
 	private void onRequestJoinTeam(ServerPlayer player, GameTeam team) {
 		teamState.setPlayerPreference(player.getUUID(), team.key());
 
-		Component teamName = team.config().name().copy().withStyle(team.config().formatting(), ChatFormatting.BOLD);
+		Component teamName = team.config().name().copy().withColor(team.config().teamColor().textColor()).withStyle(ChatFormatting.BOLD);
 		player.sendSystemMessage(MinigameTexts.JOINED_TEAM.apply(teamName), false);
 	}
 }

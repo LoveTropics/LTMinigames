@@ -16,6 +16,7 @@ import net.minecraft.util.CommonColors;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -87,10 +88,10 @@ public class Qottott {
 
 	@SubscribeEvent
 	public static void onModifyDefaultAttributes(final EntityAttributeModificationEvent event) {
-		event.add(EntityType.PLAYER, COIN_MULTIPLIER);
-		event.add(EntityType.PLAYER, PICKUP_PRIORITY);
-		event.add(EntityType.PLAYER, COIN_DROPS);
-		event.add(EntityType.PLAYER, LEAKY_POCKETS);
+		event.add(EntityTypes.PLAYER, COIN_MULTIPLIER);
+		event.add(EntityTypes.PLAYER, PICKUP_PRIORITY);
+		event.add(EntityTypes.PLAYER, COIN_DROPS);
+		event.add(EntityTypes.PLAYER, LEAKY_POCKETS);
 	}
 
 	private static class CustomMobEffect extends MobEffect {

@@ -16,11 +16,13 @@ import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextColor;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.CommonColors;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.PlayerSkin;
 import net.minecraft.world.scores.PlayerTeam;
+import net.minecraft.world.scores.TeamColor;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -68,7 +70,7 @@ public final class SpectatingUi {
 	public static void onMouseScroll(InputEvent.MouseScrollingEvent event) {
 		SpectatingSession session = ClientSpectatingManager.INSTANCE.session;
 		Minecraft minecraft = Minecraft.getInstance();
-		if (session == null || minecraft.screen != null || minecraft.player == null || !minecraft.player.isSpectator()) {
+		if (session == null || minecraft.gui.screen() != null || minecraft.player == null || !minecraft.player.isSpectator()) {
 			return;
 		}
 
@@ -110,7 +112,7 @@ public final class SpectatingUi {
 	public static void onKeyInput(InputEvent.Key event) {
 		SpectatingSession session = ClientSpectatingManager.INSTANCE.session;
 		Minecraft minecraft = Minecraft.getInstance();
-		if (session == null || minecraft.screen != null || minecraft.player == null || !minecraft.player.isSpectator() || event.getAction() == GLFW.GLFW_RELEASE) {
+		if (session == null || minecraft.gui.screen() != null || minecraft.player == null || !minecraft.player.isSpectator() || event.getAction() == GLFW.GLFW_RELEASE) {
 			return;
 		}
 
@@ -129,7 +131,7 @@ public final class SpectatingUi {
 	public static void onMouseInput(InputEvent.MouseButton.Post event) {
 		SpectatingSession session = ClientSpectatingManager.INSTANCE.session;
 		Minecraft minecraft = Minecraft.getInstance();
-		if (session == null || minecraft.screen != null || minecraft.player == null || !minecraft.player.isSpectator() || event.getAction() == GLFW.GLFW_RELEASE) {
+		if (session == null || minecraft.gui.screen() != null || minecraft.player == null || !minecraft.player.isSpectator() || event.getAction() == GLFW.GLFW_RELEASE) {
 			return;
 		}
 
@@ -184,7 +186,7 @@ public final class SpectatingUi {
 	public static void registerOverlays(RegisterGuiLayersEvent event) {
 		event.registerBelow(VanillaGuiLayers.CONTEXTUAL_INFO_BAR_BACKGROUND, LoveTropics.id("minigame_spectator"), (graphics, deltaTracker) -> {
 			Minecraft minecraft = Minecraft.getInstance();
-			if (minecraft.options.hideGui || minecraft.player == null || !minecraft.player.isSpectator()) {
+			if (minecraft.gui.hud.isHidden() || minecraft.player == null || !minecraft.player.isSpectator()) {
 				return;
 			}
 			SpectatingSession session = ClientSpectatingManager.INSTANCE.session;
@@ -264,7 +266,7 @@ public final class SpectatingUi {
 
 	List<Entry> createEntriesFor(List<UUID> players) {
 		List<Entry> entries = new ArrayList<>(players.size() + 1);
-		entries.add(new Entry(Minecraft.getInstance().player.getUUID(), () -> FREE_CAMERA_TEXT, ChatFormatting.RESET, SpectatingState.FREE_CAMERA));
+		entries.add(new Entry(Minecraft.getInstance().player.getUUID(), () -> FREE_CAMERA_TEXT, null, SpectatingState.FREE_CAMERA));
 
 		for (UUID player : players) {
 			Supplier<Component> name = () -> {
@@ -273,9 +275,8 @@ public final class SpectatingUi {
 			};
 
 			PlayerTeam team = getTeamFor(player);
-			ChatFormatting color = team != null ? team.getColor() : ChatFormatting.RESET;
 
-			entries.add(new Entry(player, name, color, new SpectatingState.SelectedPlayer(player)));
+			entries.add(new Entry(player, name, team.getColor().map(TeamColor::textColor).orElse(null), new SpectatingState.SelectedPlayer(player)));
 		}
 
 		return entries;
@@ -295,7 +296,7 @@ public final class SpectatingUi {
 		return null;
 	}
 
-	record Entry(UUID playerIcon, Supplier<Component> nameSupplier, ChatFormatting tagColor, SpectatingState selectionState) {
+	record Entry(UUID playerIcon, Supplier<Component> nameSupplier, @org.jspecify.annotations.Nullable TextColor tagColor, SpectatingState selectionState) {
 		private static final int SELECTED_OUTLINE_COLOR = CommonColors.WHITE;
 		private static final int HIGHLIGHTED_OUTLINE_COLOR = 0xa0000000;
 		private static final int TAB_COLOR = 0xff404040;
@@ -309,7 +310,7 @@ public final class SpectatingUi {
 				graphics.fill(left, top, right, bottom, selected ? SELECTED_OUTLINE_COLOR : HIGHLIGHTED_OUTLINE_COLOR);
 			}
 
-			int color = tagColor.getColor() != null ? ARGB.opaque(tagColor.getColor()) : 0xffa0a0a0;
+			int color = tagColor != null ? ARGB.opaque(tagColor.getValue()) : 0xffa0a0a0;
 			graphics.fill(left, bottom - ENTRY_TAG_HEIGHT, right, bottom, color);
 			graphics.fill(left, bottom, right, screenBottom, TAB_COLOR);
 

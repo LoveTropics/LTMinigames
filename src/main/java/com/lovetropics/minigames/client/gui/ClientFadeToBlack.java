@@ -32,7 +32,7 @@ public class ClientFadeToBlack {
 		lastAlpha = alpha;
 		if (enabled) {
 			alpha = Math.min(alpha + speed, 1.0f);
-		} else if (!isLoadingScreen(Minecraft.getInstance().screen)) {
+		} else if (!isLoadingScreen(Minecraft.getInstance().gui.screen())) {
 			alpha = Math.max(alpha - speed, 0.0f);
 		}
 	}
@@ -40,7 +40,7 @@ public class ClientFadeToBlack {
 	@SubscribeEvent
 	public static void registerGuiLayers(RegisterGuiLayersEvent event) {
 		event.registerAboveAll(LoveTropics.id("fade_to_black"), (graphics, deltaTracker) -> {
-			if (!isLoadingScreen(Minecraft.getInstance().screen)) {
+			if (!isLoadingScreen(Minecraft.getInstance().gui.screen())) {
 				draw(graphics, deltaTracker.getGameTimeDeltaPartialTick(true));
 			}
 		});
@@ -58,7 +58,7 @@ public class ClientFadeToBlack {
 	public static void onRenderScreen(ScreenEvent.Render.Post event) {
 		// Only render over the topmost layer
 		Screen screen = event.getScreen();
-		if (screen == Minecraft.getInstance().screen && isLoadingScreen(screen)) {
+		if (screen == Minecraft.getInstance().gui.screen() && isLoadingScreen(screen)) {
 			float partialTicks = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(true);
 			draw(event.getGuiGraphics(), partialTicks);
 		}

@@ -6,21 +6,18 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextColor;
 import net.minecraft.util.ARGB;
-import net.minecraft.util.CommonColors;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.ButtonBlock;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.AttachFace;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
@@ -29,8 +26,8 @@ public class BigRedButtonBlockEntityRenderer implements BlockEntityRenderer<BigR
 	private static final int TEXT_PADDING = 4;
 	private static final float Z_OFFSET = 0.01f;
 
-	private static final int START_COLOR = ChatFormatting.GOLD.getColor();
-	private static final int TRIGGERED_COLOR = ChatFormatting.GREEN.getColor();
+	private static final int START_COLOR = TextColor.GOLD.getValue();
+	private static final int TRIGGERED_COLOR = TextColor.GREEN.getValue();
 
 	private final Font font;
 

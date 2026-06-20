@@ -17,7 +17,6 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
@@ -88,63 +87,64 @@ public class GameRendering {
 //		buffers.bufferSource().endBatch();
 	}
 
-	private static void renderScoreboardState(ClientBbScoreboardState state, PoseStack matrices, Vec3 camera, MultiBufferSource.BufferSource buffers, VertexConsumer cons) {
-		AABB b = new AABB(state.start(), state.end());
-		PoseStack.Pose entry = matrices.last();
+//	private static void renderScoreboardState(ClientBbScoreboardState state, PoseStack matrices, Vec3 camera, MultiBufferSource.BufferSource buffers, VertexConsumer cons) {
+//		AABB b = new AABB(state.start(), state.end());
+//		PoseStack.Pose entry = matrices.last();
+//
+//		if (state.side()) {
+//			buildEastFacing(cons, entry, (float) (b.minY - camera.y), (float) (b.maxY - camera.y), (float) (b.minZ - camera.z), (float) (b.maxZ - camera.z), (float) (b.minX - camera.x), ARGB.color(30, CommonColors.BLACK), ARGB.color(60, CommonColors.BLACK));
+//
+//			int diff = (int) (b.maxZ - b.minZ) * 25;
+//
+//			matrices.pushPose();
+//
+//			matrices.translate(b.minX - camera.x(), b.maxY - camera.y(), b.maxZ - camera.z());
+//			matrices.mulPose(Axis.XN.rotationDegrees(180));
+//			// TODO: this must be -Y or +Y based on map. Make it configurable!
+//			matrices.mulPose(Axis.YN.rotationDegrees(90));
+//			matrices.scale(0.04f, 0.04f, 0.04f);
+//			int voff = 1;
+//			Component header = state.header();
+//			//Port 26.2
+////			drawComponent(matrices, buffers, (diff - Minecraft.getInstance().font.width(header)) / 2, voff, header.getStyle().getColor().getValue(), header);
+//
+//			List<Component> content = state.content();
+//			for (int i = 0; i < content.size(); i++) {
+//				Component comp = content.get(i);
+//				int di = i + 2 >> 1; // di = (i + 2) / 2;
+//				int mi = i & 1; // mi = i % 2;
+//
+//				voff = 10 * di + 1;
+//
+//				int hoff = 1;
+//				if (mi == 1) {
+//					hoff = diff - Minecraft.getInstance().font.width(comp) - 1;
+//				}
+//
+//				TextColor col = comp.getStyle().getColor();
+//				drawComponent(matrices, buffers, hoff, voff, col == null ? CommonColors.WHITE : ARGB.opaque(col.getValue()), comp);
+//			}
+//
+//			matrices.popPose();
+//		} else {
+//			buildNorthFacing(cons, entry, (float) (b.minX - camera.x), (float) (b.maxX - camera.x), (float) (b.minY - camera.y), (float) (b.maxY - camera.y), (float) (b.minZ - camera.z), ARGB.color(30, CommonColors.BLACK), ARGB.color(60, CommonColors.BLACK));
+//		}
+//	}
 
-		if (state.side()) {
-			buildEastFacing(cons, entry, (float) (b.minY - camera.y), (float) (b.maxY - camera.y), (float) (b.minZ - camera.z), (float) (b.maxZ - camera.z), (float) (b.minX - camera.x), ARGB.color(30, CommonColors.BLACK), ARGB.color(60, CommonColors.BLACK));
-
-			int diff = (int) (b.maxZ - b.minZ) * 25;
-
-			matrices.pushPose();
-
-			matrices.translate(b.minX - camera.x(), b.maxY - camera.y(), b.maxZ - camera.z());
-			matrices.mulPose(Axis.XN.rotationDegrees(180));
-			// TODO: this must be -Y or +Y based on map. Make it configurable!
-			matrices.mulPose(Axis.YN.rotationDegrees(90));
-			matrices.scale(0.04f, 0.04f, 0.04f);
-			int voff = 1;
-			Component header = state.header();
-			drawComponent(matrices, buffers, (diff - Minecraft.getInstance().font.width(header)) / 2, voff, header.getStyle().getColor().getValue(), header);
-
-			List<Component> content = state.content();
-			for (int i = 0; i < content.size(); i++) {
-				Component comp = content.get(i);
-				int di = i + 2 >> 1; // di = (i + 2) / 2;
-				int mi = i & 1; // mi = i % 2;
-
-				voff = 10 * di + 1;
-
-				int hoff = 1;
-				if (mi == 1) {
-					hoff = diff - Minecraft.getInstance().font.width(comp) - 1;
-				}
-
-				TextColor col = comp.getStyle().getColor();
-				drawComponent(matrices, buffers, hoff, voff, col == null ? CommonColors.WHITE : ARGB.opaque(col.getValue()), comp);
-			}
-
-			matrices.popPose();
-		} else {
-			buildNorthFacing(cons, entry, (float) (b.minX - camera.x), (float) (b.maxX - camera.x), (float) (b.minY - camera.y), (float) (b.maxY - camera.y), (float) (b.minZ - camera.z), ARGB.color(30, CommonColors.BLACK), ARGB.color(60, CommonColors.BLACK));
-		}
-	}
-
-	private static void drawComponent(PoseStack matrices, MultiBufferSource buffers, int hoff, int voff, int color, Component comp) {
-		Minecraft.getInstance().font.drawInBatch(
-				comp,
-				hoff,
-				voff,
-				color,
-				false,
-				matrices.last().pose(),
-				buffers,
-				Font.DisplayMode.POLYGON_OFFSET,
-				0,
-				LightCoordsUtil.FULL_BRIGHT
-		);
-	}
+//	private static void drawComponent(PoseStack matrices, MultiBufferSource buffers, int hoff, int voff, int color, Component comp) {
+//		Minecraft.getInstance().font.drawInBatch(
+//				comp,
+//				hoff,
+//				voff,
+//				color,
+//				false,
+//				matrices.last().pose(),
+//				buffers,
+//				Font.DisplayMode.POLYGON_OFFSET,
+//				0,
+//				LightCoordsUtil.FULL_BRIGHT
+//		);
+//	}
 
 	public static void buildBox(VertexConsumer buffer, PoseStack poseStack, float x1, float x2, float y1, float y2, float z1, float z2, int color) {
 		PoseStack.Pose pose = poseStack.last();
@@ -330,7 +330,7 @@ public class GameRendering {
 	@SubscribeEvent
 	public static void registerOverlays(RegisterGuiLayersEvent event) {
 		event.registerBelow(VanillaGuiLayers.CONTEXTUAL_INFO_BAR_BACKGROUND, LoveTropics.id("statistic"), (graphics, deltaTracker) -> {
-			if (Minecraft.getInstance().options.hideGui) {
+			if (Minecraft.getInstance().gui.hud.isHidden()) {
 				return;
 			}
 			if (statisticTicker != null) {

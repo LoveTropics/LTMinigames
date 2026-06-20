@@ -80,7 +80,7 @@ public final class NotificationToast implements Toast {
 		if (icon.item != null) {
 			graphics.item(icon.item.create(), 6, y);
 		} else if (icon.effect != null) {
-			Identifier sprite = Gui.getMobEffectSprite(icon.effect);
+			Identifier sprite = Minecraft.getInstance().gui.hud.getMobEffectSprite(icon.effect);
 			graphics.blitSprite(RenderPipelines.GUI_TEXTURED, sprite, 5, y, 18, 18);
 		}
 	}

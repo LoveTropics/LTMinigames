@@ -10,6 +10,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -34,7 +35,7 @@ public class MinecraftMixin {
 
 	@Inject(at = @At("HEAD"), method = "shouldEntityAppearGlowing", cancellable = true)
 	private void ltminigames$glowingTeamMembers(Entity entity, CallbackInfoReturnable<Boolean> cir) {
-		if (entity.getType() == EntityType.PLAYER && ClientGameStateManager.getOrNull(GameClientStateTypes.GLOW_TEAM_MEMBERS) != null) {
+		if (entity.getType() == EntityTypes.PLAYER && ClientGameStateManager.getOrNull(GameClientStateTypes.GLOW_TEAM_MEMBERS) != null) {
 			final var team = ClientGameStateManager.getOrNull(GameClientStateTypes.TEAM_MEMBERS);
 
 			if (team != null && (team.teamMembers().contains(entity.getUUID()) || player == entity)) {

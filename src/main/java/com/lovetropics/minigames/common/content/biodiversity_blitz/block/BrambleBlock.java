@@ -5,6 +5,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.InsideBlockEffectApplier;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -28,7 +29,7 @@ public final class BrambleBlock extends BushBlock {
 
 	@Override
 	protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity, InsideBlockEffectApplier effectApplier, boolean isPrecis) {
-		if (!(entity instanceof LivingEntity) || entity.getType() == EntityType.PLAYER) {
+		if (!(entity instanceof LivingEntity) || entity.getType() == EntityTypes.PLAYER) {
 			return;
 		}
 		entity.makeStuckInBlock(state, new Vec3(0.8F, 0.75D, 0.8F));

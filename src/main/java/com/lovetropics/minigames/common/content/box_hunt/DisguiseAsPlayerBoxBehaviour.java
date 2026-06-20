@@ -12,6 +12,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.item.component.TypedEntityData;
 import net.minecraft.world.phys.Vec3;
 import org.lovetropics.peekaboo.api.Disguise;
@@ -39,7 +40,7 @@ public class DisguiseAsPlayerBoxBehaviour implements IGameBehavior {
 			tileData.put("components", components);
 			entityData.put("TileEntityData", tileData);
 			Disguise boxDisguise = new Disguise(Optional.of(TypedEntityData.of(
-					EntityType.FALLING_BLOCK,
+					EntityTypes.FALLING_BLOCK,
 					entityData
 			)), 1.0f, false, Optional.empty(), Optional.empty(), true);
 			disguiseHolder.set(boxDisguise);
@@ -55,7 +56,7 @@ public class DisguiseAsPlayerBoxBehaviour implements IGameBehavior {
 				EntityDisguiseHolder disguise = EntityDisguiseHolder.getOrNull(participant);
 				if (disguise != null && disguise.disguise().entity().isPresent()) {
 					Optional<TypedEntityData<EntityType<?>>> entity = disguise.disguise().entity();
-					if (entity.get().type().equals(EntityType.FALLING_BLOCK)) {
+					if (entity.get().type().equals(EntityTypes.FALLING_BLOCK)) {
 						Vec3 vec3 = Vec3.atBottomCenterOf(participant.blockPosition());
 						participant.teleportTo(vec3.x, vec3.y, vec3.z);
 					}

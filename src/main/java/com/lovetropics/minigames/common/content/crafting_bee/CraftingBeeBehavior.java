@@ -53,6 +53,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -224,7 +225,7 @@ public class CraftingBeeBehavior implements IGameBehavior {
 	}
 
 	private Display.ItemDisplay spawnItemDisplay(BlockPos displayPos, ItemStack displayItem) {
-		Display.ItemDisplay itemDisplay = EntityType.ITEM_DISPLAY.create(game.level(), EntitySpawnReason.COMMAND);
+		Display.ItemDisplay itemDisplay = EntityTypes.ITEM_DISPLAY.create(game.level(), EntitySpawnReason.COMMAND);
 		itemDisplay.setPos(Vec3.atCenterOf(displayPos));
 		itemDisplay.setItemStack(displayItem.copy());
 		itemDisplay.setTransformation(new Transformation(null, null, new Vector3f(0.5f), null));

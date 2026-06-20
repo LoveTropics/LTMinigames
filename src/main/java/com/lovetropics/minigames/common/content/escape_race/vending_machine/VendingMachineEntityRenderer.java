@@ -13,7 +13,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.tooltip.TooltipRenderUtil;
-import net.minecraft.client.renderer.OutlineBufferSource;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -32,6 +31,7 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 
+import javax.sound.sampled.Port;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,7 +64,7 @@ public class VendingMachineEntityRenderer extends EntityRenderer<VendingMachineE
 	public void extractRenderState(VendingMachineEntity entity, VendingMachineRenderState reusedState, float partialTick) {
 		super.extractRenderState(entity, reusedState, partialTick);
 		Minecraft minecraft = Minecraft.getInstance();
-		Camera camera = minecraft.gameRenderer.getMainCamera();
+		Camera camera = minecraft.gameRenderer.mainCamera();
 		VendingMachineSlots.Picker picker = VendingMachineSlots.picker(camera, entity);
 		int pickedSlot = picker.pickSlot();
 		int selectedSlot = minecraft.crosshairPickEntity == entity ? entity.getSelected() : VendingMachineEntity.NO_SLOT;
@@ -223,7 +223,7 @@ public class VendingMachineEntityRenderer extends EntityRenderer<VendingMachineE
 
 	public static void registerOverlays(RegisterGuiLayersEvent event) {
 		event.registerAbove(VanillaGuiLayers.EXPERIENCE_LEVEL, LoveTropics.id("vending_machine_info"), (graphics, deltaTracker) -> {
-			if (Minecraft.getInstance().options.hideGui) {
+			if (Minecraft.getInstance().gui.hud.isHidden()) {
 				return;
 			}
 			renderOverlay(graphics);
@@ -239,7 +239,7 @@ public class VendingMachineEntityRenderer extends EntityRenderer<VendingMachineE
 			return;
 		}
 
-		Camera camera = minecraft.gameRenderer.getMainCamera();
+		Camera camera = minecraft.gameRenderer.mainCamera();
 		VendingMachineSlots.Picker picker = VendingMachineSlots.picker(camera, entity);
 
 		int pickedSlot = picker.pickSlot();

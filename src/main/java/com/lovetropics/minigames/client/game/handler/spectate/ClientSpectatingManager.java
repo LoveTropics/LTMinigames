@@ -62,7 +62,7 @@ public final class ClientSpectatingManager implements ClientGameStateHandler<Spe
 				session.tick();
 
 				// keep the vanilla spectator gui closed
-				SpectatorGui spectatorGui = minecraft.gui.getSpectatorGui();
+				SpectatorGui spectatorGui = minecraft.gui.hud.getSpectatorGui();
 				spectatorGui.onSpectatorMenuClosed(null);
 			} else {
 				session.close();

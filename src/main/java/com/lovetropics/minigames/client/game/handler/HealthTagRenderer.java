@@ -47,7 +47,7 @@ public final class HealthTagRenderer {
 					Minecraft minecraft = Minecraft.getInstance();
 
 					if (!player.isCreative() && !player.isSpectator()) {
-						if (player == minecraft.getCameraEntity() || !Minecraft.renderNames()) {
+						if (player == minecraft.getCameraEntity() || !Minecraft.getInstance().gui.hud.isHidden()) {
 							return;
 						}
 

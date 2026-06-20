@@ -15,6 +15,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.Level;
 
@@ -47,6 +48,6 @@ public class SpawnSurpriseWaveBehavior implements IGameBehavior {
 	}
 
 	private static Mob selectEntityForWave(RandomSource random, Level level, Plot plot, int plotIndex, int waveIndex) {
-		return new BbCreeperEntity(EntityType.CREEPER, level, plot);
+		return new BbCreeperEntity(EntityTypes.CREEPER, level, plot);
 	}
 }

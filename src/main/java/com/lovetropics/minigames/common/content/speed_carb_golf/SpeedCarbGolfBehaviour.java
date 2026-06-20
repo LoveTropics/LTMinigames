@@ -39,6 +39,7 @@ import net.minecraft.server.ServerFunctionManager;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.levelgen.structure.templatesystem.BlockIgnoreProcessor;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
@@ -217,7 +218,7 @@ public record SpeedCarbGolfBehaviour(Map<Identifier, String> potentialHoles, Map
 			}
 		});
 		events.listen(GameWorldEvents.ENTITY_ADDED, (entity) -> {
-			if (entity.getType() == EntityType.MARKER) {
+			if (entity.getType() == EntityTypes.MARKER) {
 				if (entity.entityTags().contains("golfStart") || entity.entityTags().contains("golfEnd")) {
 					boolean isStart = entity.entityTags().contains("golfStart");
 					for (String s : game.mapRegions().keySet()) {

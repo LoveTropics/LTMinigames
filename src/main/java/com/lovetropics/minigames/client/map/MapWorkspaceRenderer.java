@@ -3,13 +3,9 @@ package com.lovetropics.minigames.client.map;
 import com.lovetropics.lib.BlockBox;
 import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.core.map.workspace.ClientWorkspaceRegions;
-import com.mojang.blaze3d.vertex.PoseStack;
 import it.unimi.dsi.fastutil.HashCommon;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.ShapeRenderer;
-import net.minecraft.client.renderer.debug.DebugRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gizmos.GizmoStyle;
 import net.minecraft.gizmos.Gizmos;
@@ -23,7 +19,6 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
-import net.neoforged.neoforge.client.event.SubmitCustomGeometryEvent;
 
 import java.util.OptionalDouble;
 import java.util.Set;
@@ -38,7 +33,7 @@ public final class MapWorkspaceRenderer {
 		}
 
 		Minecraft client = Minecraft.getInstance();
-		Camera camera = client.gameRenderer.getMainCamera();
+		Camera camera = client.gameRenderer.mainCamera();
 		if (!camera.isInitialized()) {
 			return;
 		}

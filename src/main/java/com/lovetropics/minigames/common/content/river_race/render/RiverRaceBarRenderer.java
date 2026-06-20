@@ -38,7 +38,7 @@ public final class RiverRaceBarRenderer {
 
 	public static void registerOverlays(RegisterGuiLayersEvent event) {
 		event.registerAbove(VanillaGuiLayers.BOSS_OVERLAY, LoveTropics.id("river_race_bar"), (graphics, deltaTracker) -> {
-			if (Minecraft.getInstance().options.hideGui) {
+			if (Minecraft.getInstance().gui.hud.isHidden()) {
 				return;
 			}
 			RiverRaceClientBarState barState = ClientGameStateManager.getOrNull(RiverRace.BAR_STATE);

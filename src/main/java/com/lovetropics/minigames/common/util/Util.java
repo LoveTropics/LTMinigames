@@ -23,6 +23,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -40,8 +41,8 @@ public class Util {
 	public static final AABB INFINITE_AABB = new AABB(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
 
 	public static boolean spawnEntity(EntityType<?> entityType, Level world, double x, double y, double z, EntitySpawnReason reason) {
-		if (entityType == EntityType.LIGHTNING_BOLT) {
-			LightningBolt entity = EntityType.LIGHTNING_BOLT.create(world, reason);
+		if (entityType == EntityTypes.LIGHTNING_BOLT) {
+			LightningBolt entity = EntityTypes.LIGHTNING_BOLT.create(world, reason);
 			entity.snapTo(new Vec3(x, y, z));
 			world.addFreshEntity(entity);
 			return true;

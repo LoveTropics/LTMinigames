@@ -13,6 +13,7 @@ import it.unimi.dsi.fastutil.longs.LongIterator;
 import it.unimi.dsi.fastutil.longs.LongLinkedOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
@@ -39,6 +40,7 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.registries.DeferredHolder;
+import org.jspecify.annotations.Nullable;
 
 public class FluidFiller {
 	public static final int HIGH_PRIORITY_BUDGET_PER_TICK = 40;
@@ -286,8 +288,11 @@ public class FluidFiller {
 	}
 
 	private static void markSectionForRerender(int sectionX, int sectionY, int sectionZ) {
-		final LevelRenderer levelRenderer = Minecraft.getInstance().levelRenderer;
-		levelRenderer.setSectionDirtyWithNeighbors(sectionX, sectionY, sectionZ);
+		final @Nullable ClientLevel level = Minecraft.getInstance().level;
+		if (level == null) {
+			return;
+		}
+		level.setSectionDirtyWithNeighbors(sectionX, sectionY, sectionZ);
 	}
 
 	public interface Rule {
@@ -328,9 +333,9 @@ public class FluidFiller {
 				return (WATER_BARRIER.isBound() ? WATER_BARRIER.value() : Blocks.BARRIER).defaultBlockState();
 			}
 
-			if (block == Blocks.BLACK_CONCRETE_POWDER) {
+			if (block == Blocks.CONCRETE_POWDER.black()) {
 				// adding to the amazing list of hardcoded replacements.. yes!
-				return Blocks.BLACK_CONCRETE.defaultBlockState();
+				return Blocks.CONCRETE_POWDER.black().defaultBlockState();
 			}
 
 			return state;

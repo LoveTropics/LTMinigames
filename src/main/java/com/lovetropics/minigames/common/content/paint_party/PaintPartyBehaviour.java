@@ -59,7 +59,7 @@ import java.util.stream.Collectors;
 public record PaintPartyBehaviour(Map<GameTeamKey, TeamConfig> teamConfigs, BlockState neutralBlock, int startAmmo, int ammoRechargeTicks) implements IGameBehavior {
 	public static final MapCodec<PaintPartyBehaviour> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			Codec.unboundedMap(GameTeamKey.CODEC, TeamConfig.CODEC).optionalFieldOf("teams", Map.of()).forGetter(b -> b.teamConfigs),
-			MoreCodecs.BLOCK_STATE.optionalFieldOf("neutral_block", Blocks.WHITE_CONCRETE.defaultBlockState()).forGetter(PaintPartyBehaviour::neutralBlock),
+			MoreCodecs.BLOCK_STATE.optionalFieldOf("neutral_block", Blocks.CONCRETE.white().defaultBlockState()).forGetter(PaintPartyBehaviour::neutralBlock),
 			Codec.INT.optionalFieldOf("starting_ammo", 64).forGetter(PaintPartyBehaviour::startAmmo),
 			Codec.INT.optionalFieldOf("ammo_recharge_ticks", 2).forGetter(PaintPartyBehaviour::ammoRechargeTicks)
 	).apply(i, PaintPartyBehaviour::new));

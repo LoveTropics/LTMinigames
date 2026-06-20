@@ -10,12 +10,13 @@ import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvent
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.advancements.criterion.EntityPredicate;
-import net.minecraft.advancements.criterion.ItemPredicate;
+import net.minecraft.advancements.predicates.ItemPredicate;
+import net.minecraft.advancements.predicates.entity.EntityPredicate;
 import net.minecraft.util.TriState;
 import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.item.ItemStack;
 
@@ -47,7 +48,7 @@ public record ItemPutInItemFrameTrigger(
 		doesntMatch.ifPresent(serverPlayerGameActionList -> serverPlayerGameActionList.register(game, events));
 		empty.ifPresent(serverPlayerGameActionList -> serverPlayerGameActionList.register(game, events));
 		events.listen(GamePlayerEvents.ATTACK, (player, target) -> {
-			if(target.getType() == EntityType.ITEM_FRAME) {
+			if(target.getType() == EntityTypes.ITEM_FRAME) {
 				ItemFrame itemFrame = (ItemFrame) target;
 				boolean doCheckForItem = false;
 				if (itemFramePredicate.isPresent()) {
@@ -74,7 +75,7 @@ public record ItemPutInItemFrameTrigger(
 			return TriState.DEFAULT;
 		});
 		events.listen(GamePlayerEvents.INTERACT_ENTITY, (player, target, hand) -> {
-			if(target.getType() == EntityType.ITEM_FRAME){
+			if(target.getType() == EntityTypes.ITEM_FRAME){
 				ItemFrame itemFrame = (ItemFrame) target;
 				boolean doCheckForItem = false;
 				if(itemFramePredicate.isPresent()){

@@ -101,7 +101,7 @@ public class DevQuickPlay {
 		private static void loadIntoQuickPlayWorld() {
 			Minecraft minecraft = Minecraft.getInstance();
 			if (minecraft.getLevelSource().levelExists(LEVEL_NAME)) {
-				minecraft.createWorldOpenFlows().openWorld(LEVEL_NAME, () -> minecraft.setScreen(new TitleScreen()));
+				minecraft.createWorldOpenFlows().openWorld(LEVEL_NAME, () -> minecraft.setScreenAndShow(new TitleScreen()));
 			} else {
 				GameRules gameRules = new GameRules(FeatureFlags.VANILLA_SET);
 				gameRules.set(GameRules.ADVANCE_TIME, false, null);

@@ -176,7 +176,7 @@ public record DeACoudreBehavior(
 		).apply(i, BlockPalette::new));
 
 		public static final BlockPalette DEFAULT = new BlockPalette(
-				List.of(Blocks.PURPLE_CONCRETE.defaultBlockState()),
+				List.of(Blocks.CONCRETE.purple().defaultBlockState()),
 				Blocks.EMERALD_BLOCK.defaultBlockState()
 		);
 	}

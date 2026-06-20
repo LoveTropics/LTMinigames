@@ -86,7 +86,7 @@ public class DDRMachineEntityRenderer extends EntityRenderer<DDRMachineEntity, D
 		state.currentTick = currentTick;
 		state.isRiding = entity.getControllingPassenger() instanceof LocalPlayer;
 
-		Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
+		Camera camera = Minecraft.getInstance().gameRenderer.mainCamera();
 		List<Holder<DdrLevel>> levels = entity.getOrderedLevels();
 		if (state.levels.size() != levels.size()) {
 			// This practically won't ever happen, as the list of levels is constant for a session

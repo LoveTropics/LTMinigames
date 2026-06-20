@@ -20,7 +20,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.BlockHitResult;
 
 public class PaintBallEntity extends ThrowableProjectile implements ItemSupplier {
-	private static final ItemStack DEFAULT_VISUAL_ITEM = new ItemStack(Items.WHITE_CONCRETE);
+	private static final ItemStack DEFAULT_VISUAL_ITEM = new ItemStack(Items.CONCRETE.white());
 
 	private static final EntityDataAccessor<ItemStack> VISUAL_ITEM = SynchedEntityData.defineId(PaintBallEntity.class, EntityDataSerializers.ITEM_STACK);
 

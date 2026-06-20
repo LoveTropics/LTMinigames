@@ -357,14 +357,14 @@ public final class BuildBattleBehavior implements IGameBehavior {
 		@Override
 		public Item getItemFor(Integer value) {
 			return switch (value) {
-				case 1 -> Items.BROWN_WOOL;
-				case 2 -> Items.RED_WOOL;
-				case 3 -> Items.LIME_WOOL;
-				case 4 -> Items.GREEN_WOOL;
-				case 5 -> Items.BLUE_WOOL;
-				case 6 -> Items.YELLOW_WOOL;
+				case 1 -> Items.WOOL.brown();
+				case 2 -> Items.WOOL.red();
+				case 3 -> Items.WOOL.lime();
+				case 4 -> Items.WOOL.green();
+				case 5 -> Items.WOOL.blue();
+				case 6 -> Items.WOOL.yellow();
 
-				default -> Items.WHITE_WOOL;
+				default -> Items.WOOL.white();
 			};
 		}
 	}

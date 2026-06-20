@@ -24,6 +24,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.EntitySpawnRequest;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.saveddata.SavedData;
@@ -47,6 +48,8 @@ public class CrabGolfWinBehavior implements PersistentGameBehavior {
 			RunCommandsAction.COMMAND_CODEC.fieldOf("on_start").forGetter(b -> b.onStart),
 			RunCommandsAction.COMMAND_CODEC.fieldOf("on_end").forGetter(b -> b.onEnd)
 	).apply(instance, CrabGolfWinBehavior::new));
+
+	private static final EntitySpawnRequest SPAWN_REQUEST = new EntitySpawnRequest(EntitySpawnReason.COMMAND, false);
 
 	private final CompoundTag nbt;
 	private final ItemStackTemplate reward;
@@ -103,7 +106,7 @@ public class CrabGolfWinBehavior implements PersistentGameBehavior {
 
 			Vec3 pos = player.position().add(0, 3, 0);
 
-			Entity entity = EntityType.loadEntityRecursive(nbt, player.level(), EntitySpawnReason.COMMAND, (e) -> {
+			Entity entity = EntityType.loadEntityRecursive(nbt, player.level(), SPAWN_REQUEST, (e) -> {
 				e.snapTo(pos.x, pos.y, pos.z, e.getYRot(), e.getXRot());
 				return e;
 			});

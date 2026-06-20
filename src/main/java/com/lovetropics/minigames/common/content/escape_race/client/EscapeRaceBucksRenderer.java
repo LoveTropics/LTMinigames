@@ -7,6 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.state.gui.GuiRenderState;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.CommonColors;
 import net.neoforged.api.distmarker.Dist;
@@ -45,7 +46,7 @@ public class EscapeRaceBucksRenderer {
 	}
 
 	private static void renderOverlay(GuiGraphicsExtractor graphics, EscapeRaceClientBucksState selfState) {
-		if (Minecraft.getInstance().options.hideGui) {
+		if (Minecraft.getInstance().gui.hud.isHidden()) {
 			return;
 		}
 

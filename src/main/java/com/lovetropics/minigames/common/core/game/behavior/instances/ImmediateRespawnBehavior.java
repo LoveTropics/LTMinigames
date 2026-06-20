@@ -22,6 +22,7 @@ import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.Container;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.warden.WardenAi;
 import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
@@ -76,7 +77,7 @@ public record ImmediateRespawnBehavior(
 
 		destroyVanishingCursedItems(player.getInventory());
 
-		player.level().getEntities(EntityType.WARDEN, LivingEntity::isAlive).forEach(warden -> {
+		player.level().getEntities(EntityTypes.WARDEN, LivingEntity::isAlive).forEach(warden -> {
 			warden.clearAnger(player);
 			WardenAi.setDigCooldown(warden);
 		});

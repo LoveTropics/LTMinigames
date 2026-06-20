@@ -50,7 +50,7 @@ public class SpleefBehavior implements IGameBehavior {
 			Codec.INT.optionalFieldOf("break_interval", 40).forGetter(c -> c.breakInterval),
 			Codec.INT.optionalFieldOf("break_count", 6).forGetter(c -> c.breakCount),
 			BuiltInRegistries.BLOCK.byNameCodec().optionalFieldOf("floor_material", Blocks.OBSIDIAN).forGetter(c -> c.floorMaterial),
-			BuiltInRegistries.BLOCK.byNameCodec().optionalFieldOf("floor_breaking_material", Blocks.PURPLE_CONCRETE).forGetter(c -> c.floorBreakingMaterial),
+			BuiltInRegistries.BLOCK.byNameCodec().optionalFieldOf("floor_breaking_material", Blocks.CONCRETE.purple()).forGetter(c -> c.floorBreakingMaterial),
 			Codec.STRING.optionalFieldOf("flavor_text", "volcano").forGetter(c -> c.flavourText),
 			Codec.BOOL.optionalFieldOf("break_effects", true).forGetter(c -> c.breakEffects)
 	).apply(i, SpleefBehavior::new));
@@ -122,7 +122,7 @@ public class SpleefBehavior implements IGameBehavior {
 		bossBar = widgets.openGlobalBossBar(MinigameTexts.SPLEEF_TITLE_PREPARE.copy().withStyle(style), BossEvent.BossBarColor.PURPLE, BossEvent.BossBarOverlay.PROGRESS);
 
 		for (var floor : floorRegions) {
-			BlockPlacer.replace(game.level(), floor, floorMaterial, BlockPlacer.Mode.REPLACE, Blocks.WHITE_STAINED_GLASS);
+			BlockPlacer.replace(game.level(), floor, floorMaterial, BlockPlacer.Mode.REPLACE, Blocks.STAINED_GLASS.white());
 		}
 
 		events.listen(GamePhaseEvents.START, initiator -> {

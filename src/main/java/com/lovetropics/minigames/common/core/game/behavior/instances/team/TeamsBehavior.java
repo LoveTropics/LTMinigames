@@ -36,6 +36,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public final class TeamsBehavior implements IGameBehavior {
 	public static final MapCodec<TeamsBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
@@ -114,7 +115,7 @@ public final class TeamsBehavior implements IGameBehavior {
 		}
 
 		scoreboardTeam.setDisplayName(team.config().name());
-		scoreboardTeam.setColor(team.config().formatting());
+		scoreboardTeam.setColor(Optional.of(team.config().teamColor()));
 		scoreboardTeam.setAllowFriendlyFire(friendlyFire);
 		scoreboardTeam.setCollisionRule(playerCollision ? Team.CollisionRule.ALWAYS : Team.CollisionRule.NEVER);
 
@@ -157,7 +158,8 @@ public final class TeamsBehavior implements IGameBehavior {
 		scoreboard.addPlayerToTeam(player.getScoreboardName(), scoreboardTeam);
 
 		Component teamName = team.config().name().copy()
-				.withStyle(ChatFormatting.BOLD, team.config().formatting());
+				.withStyle(ChatFormatting.BOLD)
+				.withColor(team.config().teamColor().textColor());
 
 		player.sendSystemMessage(MinigameTexts.ON_TEAM.apply(teamName), false);
 	}
