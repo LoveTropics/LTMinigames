@@ -8,7 +8,6 @@ import com.lovetropics.minigames.common.core.game.lobby.LobbyControls;
 import com.lovetropics.minigames.common.core.game.player.PlayerRole;
 import com.lovetropics.minigames.mixin.gametest.GameTestHelperAccess;
 import com.lovetropics.minigames.mixin.gametest.GameTestInfoAccess;
-import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -59,7 +58,6 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 @ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class LTGameTestHelper extends GameTestHelper {
 	private final GameTestHelper delegate;
 	final GameTestInfo info;

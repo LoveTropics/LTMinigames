@@ -99,10 +99,11 @@ public class VendingMachineEntityRenderer extends EntityRenderer<VendingMachineE
 		submitNodeCollector.submitModel(model, renderState, poseStack, model.renderType(TEXTURE), renderState.lightCoords, OverlayTexture.NO_OVERLAY, renderState.outlineColor, null);
 
 		if (renderState.hasSelection) {
-			OutlineBufferSource outlineBufferSource = Minecraft.getInstance().renderBuffers().outlineBufferSource();
+			// Todo 26.2 Port
+//			OutlineBufferSource outlineBufferSource = Minecraft.getInstance().renderBuffers().outlineBufferSource();
 
-			outlineBufferSource.setColor(SELECTION_COLOR);
-			model.renderBuyButtonOnly(poseStack, outlineBufferSource.getBuffer(model.renderType(TEXTURE)));
+//			outlineBufferSource.setColor(SELECTION_COLOR);
+//			model.renderBuyButtonOnly(poseStack, outlineBufferSource.getBuffer(model.renderType(TEXTURE)));
 		}
 
 		for (int slotIndex = 0; slotIndex < renderState.slots.size(); slotIndex++) {

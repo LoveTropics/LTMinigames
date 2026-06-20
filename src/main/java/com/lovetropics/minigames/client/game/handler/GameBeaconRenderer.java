@@ -39,7 +39,8 @@ public final class GameBeaconRenderer {
 			return;
 		}
 
-		MultiBufferSource.BufferSource bufferSource = minecraft.renderBuffers().bufferSource();
+		// Todo 26.2 Port
+//		MultiBufferSource.BufferSource bufferSource = minecraft.renderBuffers().bufferSource();
 
 		Vec3 cameraPosition = camera.position();
 		PoseStack poseStack = event.getPoseStack();
@@ -53,6 +54,7 @@ public final class GameBeaconRenderer {
 			poseStack.popPose();
 		}
 
-		bufferSource.endBatch();
+		// Todo 26.2 Port
+//		bufferSource.endBatch();
 	}
 }

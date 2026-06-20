@@ -47,7 +47,7 @@
     "client.CapeLayerMixin",
     "client.ClientPacketListenerMixin",
     "client.GameRendererMixin",
-    "client.HotbarOverride",
+    "client.HudMixin",
     "client.IntegratedPlayerListMixin",
     "client.KeyboardInputMixin",
     "client.LevelRendererMixin",

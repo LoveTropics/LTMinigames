@@ -210,10 +210,11 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 		}
 	}
 
-	@Override
-	public boolean hasCustomOutlineRendering(Player player) {
-		return true;
-	}
+	// Todo 26.2 Port
+//	@Override
+//	public boolean hasCustomOutlineRendering(Player player) {
+//		return true;
+//	}
 
 	public void setState(DDRMachineState newState) {
 		getEntityData().set(DATA_STATE, newState);

@@ -9,7 +9,7 @@ import net.minecraft.resources.Identifier;
 import java.util.function.Function;
 
 public final class GameMapProviders {
-	public static final CodecRegistry<Identifier, MapCodec<? extends IGameMapProvider>> REGISTRY = CodecRegistry.resourceLocationKeys();
+	public static final CodecRegistry<Identifier, MapCodec<? extends IGameMapProvider>> REGISTRY = CodecRegistry.idKeys();
 
 	public static final Codec<IGameMapProvider> CODEC = REGISTRY.dispatchStable(IGameMapProvider::getCodec, Function.identity());
 

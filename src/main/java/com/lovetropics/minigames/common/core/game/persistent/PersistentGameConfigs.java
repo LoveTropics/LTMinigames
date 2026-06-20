@@ -43,8 +43,8 @@ import java.util.stream.Stream;
 public class PersistentGameConfigs {
 	private static final Logger LOGGER = LogManager.getLogger(PersistentGameConfigs.class);
 
-	public static final CodecRegistry<Identifier, PersistentGameConfig> REGISTRY = CodecRegistry.resourceLocationKeys();
-	public static final CodecRegistry<Identifier, PersistentGameBehaviorType<?>> CUSTOM_BEHAVIORS = CodecRegistry.resourceLocationKeys();
+	public static final CodecRegistry<Identifier, PersistentGameConfig> REGISTRY = CodecRegistry.idKeys();
+	public static final CodecRegistry<Identifier, PersistentGameBehaviorType<?>> CUSTOM_BEHAVIORS = CodecRegistry.idKeys();
 
 	private static final FileToIdConverter GAME_LISTER = FileToIdConverter.json("persistent_games");
 	private static final FileToIdConverter BEHAVIOR_LISTER = FileToIdConverter.json("persistent_behaviors");

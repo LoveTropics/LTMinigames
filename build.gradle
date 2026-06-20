@@ -126,10 +126,11 @@ repositories {
             includeGroup('curse.maven')
         }
     }
+    mavenLocal()
 }
 
 dependencies {
-    runtimeOnly 'maven.modrinth:tropicraft:9.10.0+26.1'
+    runtimeOnly 'maven.modrinth:tropicraft:9.11.0+26.2'
 
     // TODO: HACK - We get Registrate at runtime through JarJar from Tropicraft. We should rather prefer to depend on the slim jar.
     jarJar(compileOnly("com.tterrag.registrate:Registrate:MC26.2-${registrate_version}") {

@@ -46,8 +46,8 @@ import java.util.stream.Stream;
 public final class GameConfigs {
 	private static final Logger LOGGER = LogManager.getLogger(GameConfigs.class);
 
-	public static final CodecRegistry<Identifier, GameConfig> REGISTRY = CodecRegistry.resourceLocationKeys();
-	public static final CodecRegistry<Identifier, GameBehaviorType<?>> CUSTOM_BEHAVIORS = CodecRegistry.resourceLocationKeys();
+	public static final CodecRegistry<Identifier, GameConfig> REGISTRY = CodecRegistry.idKeys();
+	public static final CodecRegistry<Identifier, GameBehaviorType<?>> CUSTOM_BEHAVIORS = CodecRegistry.idKeys();
 
 	private static final FileToIdConverter GAME_LISTER = FileToIdConverter.json("games");
 	private static final FileToIdConverter BEHAVIOR_LISTER = FileToIdConverter.json("behaviors");

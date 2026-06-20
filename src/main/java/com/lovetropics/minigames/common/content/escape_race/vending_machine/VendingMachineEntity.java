@@ -210,10 +210,11 @@ public class VendingMachineEntity extends Entity implements ContainerEntity {
 		return new AABB(vec31.x, position.y, vec31.z, vec32.x, position.y + 3f, vec32.z);
 	}
 
-	@Override
-	public boolean hasCustomOutlineRendering(Player player) {
-		return true;
-	}
+	// Todo 26.2 Port
+//	@Override
+//	public boolean hasCustomOutlineRendering(Player player) {
+//		return true;
+//	}
 
 	@Override
 	public @org.jetbrains.annotations.Nullable ResourceKey<LootTable> getContainerLootTable() {
