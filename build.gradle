@@ -126,7 +126,6 @@ repositories {
             includeGroup('curse.maven')
         }
     }
-    mavenLocal()
 }
 
 dependencies {
@@ -206,8 +205,4 @@ tasks.withType(JavaCompile) {
 
 tasks.withType(ProcessResources).configureEach {
     outputs.upToDateWhen { false }
-}
-
-tasks.named("build") {
-    dependsOn(gradle.includedBuild("LTExtras").task(":build"))
 }
