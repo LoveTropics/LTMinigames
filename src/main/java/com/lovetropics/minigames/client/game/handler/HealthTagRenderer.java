@@ -22,6 +22,8 @@ import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.util.context.ContextKey;
 import net.minecraft.world.entity.Avatar;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -52,7 +54,9 @@ public final class HealthTagRenderer {
 						}
 
 						double distanceSq = minecraft.getEntityRenderDispatcher().distanceToSqr(player);
-						if (!ClientHooks.isNameplateInRenderDistance(player, distanceSq) || player.isDiscrete()) {
+						double nameTagDistance = player.getAttributeValue(Attributes.NAME_TAG_DISTANCE);
+						boolean outsideRange = (distanceSq > nameTagDistance * nameTagDistance);
+						if (outsideRange || player.isDiscrete()) {
 							return;
 						}
 
