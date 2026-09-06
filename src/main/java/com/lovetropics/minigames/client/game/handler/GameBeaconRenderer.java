@@ -39,22 +39,17 @@ public final class GameBeaconRenderer {
 			return;
 		}
 
-		// Todo 26.2 Port
-//		MultiBufferSource.BufferSource bufferSource = minecraft.renderBuffers().bufferSource();
-
 		Vec3 cameraPosition = camera.position();
 		PoseStack poseStack = event.getPoseStack();
 
-		float partialTick = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(false);
+		float partialTick = minecraft.getDeltaTracker().getGameTimeDeltaPartialTick(false);
+		float animationTime = Math.floorMod(level.getGameTime(), 40) + partialTick;
 
 		for (BlockPos position : positions) {
 			poseStack.pushPose();
 			poseStack.translate(position.getX() - cameraPosition.x, position.getY() - cameraPosition.y, position.getZ() - cameraPosition.z);
-			BeaconRenderer.submitBeaconBeam(poseStack, event.getSubmitNodeCollector(), BeaconRenderer.BEAM_LOCATION, partialTick, 1.0f,  0, 256, COLOR, 0.15F, 0.175F);
+			BeaconRenderer.submitBeaconBeam(poseStack, event.getSubmitNodeCollector(), BeaconRenderer.BEAM_LOCATION, 1.0f, animationTime, 0, 256, COLOR, 0.15F, 0.175F);
 			poseStack.popPose();
 		}
-
-		// Todo 26.2 Port
-//		bufferSource.endBatch();
 	}
 }
