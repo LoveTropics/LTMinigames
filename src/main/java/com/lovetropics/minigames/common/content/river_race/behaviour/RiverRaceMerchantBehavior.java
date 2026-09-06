@@ -1,7 +1,6 @@
 package com.lovetropics.minigames.common.content.river_race.behaviour;
 
 import com.lovetropics.lib.BlockBox;
-import com.lovetropics.lib.codec.MoreCodecs;
 import com.lovetropics.minigames.common.content.biodiversity_blitz.BiodiversityBlitzTexts;
 import com.lovetropics.minigames.common.content.biodiversity_blitz.merchant.BbMerchant;
 import com.lovetropics.minigames.common.core.game.GameException;
@@ -32,8 +31,8 @@ import net.minecraft.world.item.trading.ItemCost;
 import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.item.trading.MerchantOffers;
 import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -121,8 +120,7 @@ public class RiverRaceMerchantBehavior implements IGameBehavior {
 		return InteractionResult.PASS;
 	}
 
-	@Nullable
-	private Entity createMerchant(ServerLevel world) {
+	private @Nullable Entity createMerchant(ServerLevel world) {
 		Entity merchant = entity.create(world, EntitySpawnReason.COMMAND);
 		if (merchant != null) {
 			if (name != CommonComponents.EMPTY) {

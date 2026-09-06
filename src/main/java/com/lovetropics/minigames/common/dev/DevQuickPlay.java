@@ -19,10 +19,10 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.level.DataPackConfig;
-import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.LevelSettings;
 import net.minecraft.world.level.WorldDataConfiguration;
+import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.levelgen.FlatLevelSource;
 import net.minecraft.world.level.levelgen.WorldDimensions;
 import net.minecraft.world.level.levelgen.WorldOptions;
@@ -35,9 +35,9 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 
-import javax.annotation.Nullable;
 import java.util.function.Function;
 
 @EventBusSubscriber
@@ -47,8 +47,7 @@ public class DevQuickPlay {
 
 	private static final Logger LOGGER = LogUtils.getLogger();
 
-	@Nullable
-	private static Identifier quickPlayGameId;
+	private static @Nullable Identifier quickPlayGameId;
 
 	public static void setQuickPlayGameId(@Nullable Identifier quickPlayGameId) {
 		DevQuickPlay.quickPlayGameId = quickPlayGameId;
@@ -58,8 +57,7 @@ public class DevQuickPlay {
 		return quickPlayGameId != null;
 	}
 
-	@Nullable
-	public static GameConfig getQuickPlayGame() {
+	public static @Nullable GameConfig getQuickPlayGame() {
 		if (quickPlayGameId == null) {
 			return null;
 		}

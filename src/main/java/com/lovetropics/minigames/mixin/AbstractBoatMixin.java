@@ -10,14 +10,13 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.boat.AbstractBoat;
 import net.minecraft.world.level.Level;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
-import javax.annotation.Nullable;
 
 @Mixin(AbstractBoat.class)
 public abstract class AbstractBoatMixin extends Entity {
@@ -53,6 +52,5 @@ public abstract class AbstractBoatMixin extends Entity {
 
 	@Override
 	@Shadow
-	@Nullable
-	public abstract LivingEntity getControllingPassenger();
+	public abstract @Nullable LivingEntity getControllingPassenger();
 }

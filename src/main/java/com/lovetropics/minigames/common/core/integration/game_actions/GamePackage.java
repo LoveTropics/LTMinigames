@@ -7,7 +7,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.UUIDUtil;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -20,8 +20,7 @@ public record GamePackage(String packageType, String sendingPlayerName, Optional
 	).apply(i, GamePackage::new));
 
 	@Override
-	@Nullable
-	public String sendingPlayerName() {
+	public @Nullable String sendingPlayerName() {
 		return !Strings.isNullOrEmpty(sendingPlayerName) ? sendingPlayerName : null;
 	}
 }

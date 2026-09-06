@@ -8,7 +8,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.PlayerList;
 import net.minecraft.world.entity.Entity;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -21,9 +21,8 @@ public interface PlayerSet extends PlayerIterable {
 			return false;
 		}
 
-		@Nullable
 		@Override
-		public ServerPlayer getPlayerBy(UUID id) {
+		public @Nullable ServerPlayer getPlayerBy(UUID id) {
 			return null;
 		}
 
@@ -54,9 +53,8 @@ public interface PlayerSet extends PlayerIterable {
 				return players.getPlayer(id) != null;
 			}
 
-			@Nullable
 			@Override
-			public ServerPlayer getPlayerBy(UUID id) {
+			public @Nullable ServerPlayer getPlayerBy(UUID id) {
 				return players.getPlayer(id);
 			}
 
@@ -79,9 +77,8 @@ public interface PlayerSet extends PlayerIterable {
 				return players.contains(id);
 			}
 
-			@Nullable
 			@Override
-			public ServerPlayer getPlayerBy(UUID id) {
+			public @Nullable ServerPlayer getPlayerBy(UUID id) {
 				return contains(id) ? server.getPlayerList().getPlayer(id) : null;
 			}
 
@@ -105,8 +102,7 @@ public interface PlayerSet extends PlayerIterable {
 			}
 
 			@Override
-			@Nullable
-			public ServerPlayer getPlayerBy(UUID id) {
+			public @Nullable ServerPlayer getPlayerBy(UUID id) {
 				return contains(id) ? player : null;
 			}
 
@@ -129,9 +125,8 @@ public interface PlayerSet extends PlayerIterable {
 				return left.contains(id) && right.contains(id);
 			}
 
-			@Nullable
 			@Override
-			public ServerPlayer getPlayerBy(UUID id) {
+			public @Nullable ServerPlayer getPlayerBy(UUID id) {
 				ServerPlayer leftPlayer = left.getPlayerBy(id);
 				ServerPlayer rightPlayer = right.getPlayerBy(id);
 				if (leftPlayer != null && rightPlayer != null) {
@@ -155,8 +150,7 @@ public interface PlayerSet extends PlayerIterable {
 			}
 
 			@Override
-			@Nullable
-			public ServerPlayer getPlayerBy(UUID id) {
+			public @Nullable ServerPlayer getPlayerBy(UUID id) {
 				return !second.contains(id) ? first.getPlayerBy(id) : null;
 			}
 
@@ -177,8 +171,7 @@ public interface PlayerSet extends PlayerIterable {
 			}
 
 			@Override
-			@Nullable
-			public ServerPlayer getPlayerBy(UUID id) {
+			public @Nullable ServerPlayer getPlayerBy(UUID id) {
 				ServerPlayer player = PlayerSet.this.getPlayerBy(id);
 				return player != null && predicate.test(player) ? player : null;
 			}
@@ -196,11 +189,9 @@ public interface PlayerSet extends PlayerIterable {
 
 	boolean contains(UUID id);
 
-	@Nullable
-	ServerPlayer getPlayerBy(UUID id);
+	@Nullable ServerPlayer getPlayerBy(UUID id);
 
-	@Nullable
-	default ServerPlayer getPlayerBy(PlayerKey key) {
+	default @Nullable ServerPlayer getPlayerBy(PlayerKey key) {
 		return getPlayerBy(key.id());
 	}
 

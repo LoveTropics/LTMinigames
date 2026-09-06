@@ -12,7 +12,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public record CollidersClientState(ColliderSet colliders) implements GameClientState {
 	public static final MapCodec<CollidersClientState> CODEC = ColliderSet.CODEC.xmap(CollidersClientState::new, CollidersClientState::colliders);
@@ -27,8 +27,7 @@ public record CollidersClientState(ColliderSet colliders) implements GameClientS
 		colliders.addTo(boundingBox, output);
 	}
 
-	@Nullable
-	public Vec3 clip(Vec3 start, Vec3 end) {
+	public @Nullable Vec3 clip(Vec3 start, Vec3 end) {
 		return colliders.clip(start, end);
 	}
 }

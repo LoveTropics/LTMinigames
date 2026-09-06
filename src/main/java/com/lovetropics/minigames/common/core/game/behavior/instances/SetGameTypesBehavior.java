@@ -10,7 +10,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.GameType;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.Optional;
 
 public record SetGameTypesBehavior(Optional<GameType> participantGameType, Optional<GameType> spectatorGameType, GameType allGameType) implements IGameBehavior {

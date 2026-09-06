@@ -23,7 +23,7 @@ import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.Set;
 import java.util.UUID;
 
@@ -285,8 +285,7 @@ public final class GamePlayerEvents {
 	}
 
 	public interface SelectRole {
-		@Nullable
-		PlayerRole selectRole(PlayerKey player, @Nullable PlayerRole requestedRole);
+		@Nullable PlayerRole selectRole(PlayerKey player, @Nullable PlayerRole requestedRole);
 	}
 
 	public interface Spawn {
@@ -294,8 +293,7 @@ public final class GamePlayerEvents {
 	}
 
 	public interface Load {
-		@Nullable
-		CompoundTag tryLoad(PlayerKey player, @Nullable PlayerRole role);
+		@Nullable CompoundTag tryLoad(PlayerKey player, @Nullable PlayerRole role);
 	}
 
 	public interface Tick {

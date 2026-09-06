@@ -5,9 +5,8 @@ import com.lovetropics.minigames.common.core.game.IGameDefinition;
 import com.lovetropics.minigames.common.core.game.lobby.LobbyControls;
 import com.mojang.logging.LogUtils;
 import net.minecraft.network.chat.Component;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
-
-import javax.annotation.Nullable;
 
 final class LobbyStateManager {
 	private static final Logger LOGGER = LogUtils.getLogger();
@@ -19,13 +18,11 @@ final class LobbyStateManager {
 		this.lobby = lobby;
 	}
 
-	@Nullable
-	public GamePhase getTopPhase() {
+	public @Nullable GamePhase getTopPhase() {
 		return state.phase;
 	}
 
-	@Nullable
-	public ClientCurrentGame getClientCurrentGame() {
+	public @Nullable ClientCurrentGame getClientCurrentGame() {
 		return state.getClientCurrentGame();
 	}
 
@@ -33,26 +30,22 @@ final class LobbyStateManager {
 		return state.controls;
 	}
 
-	@Nullable
-	Change tick() {
+	@Nullable Change tick() {
 		LobbyState newState = state.tick(lobby)
 				.orElseGet(error -> errored(state, error));
 		return trySetState(newState);
 	}
 
-	@Nullable
-	Change handleError(Component error) {
+	@Nullable Change handleError(Component error) {
 		LobbyState state = errored(this.state, error);
 		return trySetState(state);
 	}
 
-	@Nullable
-	Change close() {
+	@Nullable Change close() {
 		return trySetState(new LobbyState.Closed());
 	}
 
-	@Nullable
-	private Change trySetState(LobbyState newState) {
+	private @Nullable Change trySetState(LobbyState newState) {
 		LobbyState oldState = state;
 		if (oldState == newState) {
 			return null;

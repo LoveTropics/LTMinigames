@@ -31,8 +31,7 @@ public class RiverRaceState implements IGameState {
 	private final List<Zone> zones = new ArrayList<>();
 	private Direction forwardDirection = Direction.NORTH;
 
-	@Nullable
-	private Zone currentZone;
+	private @Nullable Zone currentZone;
 
 	public void setTeamRegion(GameTeamKey team, BlockBox region) {
 		teamRegions.put(team, region);
@@ -82,8 +81,7 @@ public class RiverRaceState implements IGameState {
 		throw new IllegalArgumentException("No zone with id: '" + id + "'");
 	}
 
-	@Nullable
-	public Zone getZoneByPos(BlockPos pos) {
+	public @Nullable Zone getZoneByPos(BlockPos pos) {
 		for (Zone zone : zones) {
 			if (zone.box.contains(pos)) {
 				return zone;
@@ -116,8 +114,7 @@ public class RiverRaceState implements IGameState {
 		return new ZoneLocalPos(zone, pos.asLong());
 	}
 
-	@Nullable
-	public Zone getZoneWithCollectable(ItemStack itemStack) {
+	public @Nullable Zone getZoneWithCollectable(ItemStack itemStack) {
 		for (Zone zone : zones) {
 			ItemStack collectable = zone.collectable;
 			if (collectable != null && ItemStack.isSameItemSameComponents(collectable, itemStack)) {
@@ -127,8 +124,7 @@ public class RiverRaceState implements IGameState {
 		return null;
 	}
 
-	@Nullable
-	public GameTeamKey getTeamAt(BlockPos pos) {
+	public @Nullable GameTeamKey getTeamAt(BlockPos pos) {
 		for (Map.Entry<GameTeamKey, BlockBox> entry : teamRegions.entrySet()) {
 			if (entry.getValue().contains(pos)) {
 				return entry.getKey();
@@ -145,8 +141,7 @@ public class RiverRaceState implements IGameState {
 		private final DyeColor color;
 		private final Map<BlockPos, TriviaType> triviaBlocks;
 
-		@Nullable
-		private ItemStack collectable;
+		private @Nullable ItemStack collectable;
 
 		public Zone(String id, BlockBox box, Component ordinalName, Component displayName, DyeColor color, Map<BlockPos, TriviaType> triviaBlocks) {
 			this.id = id;
@@ -181,8 +176,7 @@ public class RiverRaceState implements IGameState {
 			return triviaBlocks;
 		}
 
-		@Nullable
-		public ItemStack collectable() {
+		public @Nullable ItemStack collectable() {
 			return collectable;
 		}
 

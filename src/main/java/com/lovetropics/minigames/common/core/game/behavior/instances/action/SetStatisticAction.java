@@ -19,7 +19,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.util.StringRepresentable;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -69,8 +69,7 @@ public record SetStatisticAction(
 			this.name = name;
 		}
 
-		@Nullable
-		public StatisticsMap get(IGamePhase game, ServerPlayer player) {
+		public @Nullable StatisticsMap get(IGamePhase game, ServerPlayer player) {
 			return switch (this) {
 				case GLOBAL -> game.statistics().global();
 				case PLAYER -> game.statistics().forPlayer(player);

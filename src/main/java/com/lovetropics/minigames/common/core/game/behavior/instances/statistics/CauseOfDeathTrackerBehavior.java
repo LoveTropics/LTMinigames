@@ -13,7 +13,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.TriState;
 import net.minecraft.world.damagesource.DamageSource;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public final class CauseOfDeathTrackerBehavior implements IGameBehavior {
 	public static final MapCodec<CauseOfDeathTrackerBehavior> CODEC = MapCodec.unit(CauseOfDeathTrackerBehavior::new);

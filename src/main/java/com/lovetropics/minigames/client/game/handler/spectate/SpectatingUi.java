@@ -29,9 +29,9 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -286,8 +286,7 @@ public final class SpectatingUi {
 		events.keySet().removeIf(id -> !players.contains(id));
 	}
 
-	@Nullable
-	private static PlayerTeam getTeamFor(UUID playerId) {
+	private static @Nullable PlayerTeam getTeamFor(UUID playerId) {
 		ClientPacketListener connection = Minecraft.getInstance().getConnection();
 		if (connection != null) {
 			PlayerInfo player = connection.getPlayerInfo(playerId);

@@ -6,14 +6,13 @@ import net.minecraft.client.gui.components.ObjectSelectionList.Entry;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.MouseButtonEvent;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public abstract class LTListEntry<T extends LTListEntry<T>> extends Entry<T> {
 
 	protected final Screen screen;
 	protected final AbstractLTList<T> list;
-	@Nullable
-	protected Reorder reorder;
+	protected @Nullable Reorder reorder;
 	protected int dragStartIndex;
 
 	public LTListEntry(AbstractLTList<T> list, Screen screen) {

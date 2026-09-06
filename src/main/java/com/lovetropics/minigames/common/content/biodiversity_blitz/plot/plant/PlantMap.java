@@ -7,7 +7,7 @@ import it.unimi.dsi.fastutil.longs.LongSet;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.core.BlockPos;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -20,8 +20,7 @@ public final class PlantMap implements Iterable<Plant> {
 
 	private final Long2ObjectMap<Plant> plantByPos = new Long2ObjectOpenHashMap<>();
 
-	@Nullable
-	public Plant addPlant(PlantType type, PlantFamily family, double value, PlantPlacement placement) {
+	public @Nullable Plant addPlant(PlantType type, PlantFamily family, double value, PlantPlacement placement) {
 		PlantCoverage functionalCoverage = placement.getFunctionalCoverage();
 		if (functionalCoverage == null || !canAddPlantAt(functionalCoverage)) {
 			return null;
@@ -94,18 +93,15 @@ public final class PlantMap implements Iterable<Plant> {
 		}
 	}
 
-	@Nullable
-	public Plant getPlantAt(long pos) {
+	public @Nullable Plant getPlantAt(long pos) {
 		return plantByPos.get(pos);
 	}
 
-	@Nullable
-	public Plant getPlantAt(BlockPos pos) {
+	public @Nullable Plant getPlantAt(BlockPos pos) {
 		return getPlantAt(pos.asLong());
 	}
 
-	@Nullable
-	public Plant getPlantAt(BlockPos pos, PlantType type) {
+	public @Nullable Plant getPlantAt(BlockPos pos, PlantType type) {
 		Plant plant = getPlantAt(pos);
 		return plant != null && plant.type().equals(type) ? plant : null;
 	}

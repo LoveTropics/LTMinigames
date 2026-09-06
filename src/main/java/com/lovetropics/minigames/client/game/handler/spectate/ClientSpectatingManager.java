@@ -3,7 +3,6 @@ package com.lovetropics.minigames.client.game.handler.spectate;
 import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.client.game.handler.ClientGameStateHandler;
 import com.lovetropics.minigames.common.core.game.client_state.instance.SpectatingClientState;
-import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.spectator.SpectatorGui;
 import net.minecraft.client.player.LocalPlayer;
@@ -14,8 +13,8 @@ import net.neoforged.neoforge.client.event.CalculateDetachedCameraDistanceEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RenderFrameEvent;
 import net.neoforged.neoforge.client.event.ViewportEvent;
+import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.UUID;
 
 @EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
@@ -24,8 +23,7 @@ public final class ClientSpectatingManager implements ClientGameStateHandler<Spe
 
 	static final double MAX_CHASE_DISTANCE = 16.0;
 
-	@Nullable
-	SpectatingSession session;
+	@Nullable SpectatingSession session;
 
 	@Override
 	public void accept(SpectatingClientState state) {

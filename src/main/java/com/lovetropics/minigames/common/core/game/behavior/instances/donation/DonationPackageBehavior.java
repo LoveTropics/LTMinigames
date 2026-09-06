@@ -15,14 +15,14 @@ import com.lovetropics.minigames.common.core.integration.game_actions.GamePackag
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.util.Util;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.TriState;
+import net.minecraft.util.Util;
 import net.minecraft.util.context.ContextKeySet;
 import net.minecraft.util.context.ContextMap;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
 
@@ -91,8 +91,7 @@ public final class DonationPackageBehavior implements IGameBehavior {
 		return applyToPlayers(game, gamePackage, List.of(receivingPlayer));
 	}
 
-	@Nullable
-	private GameTeam getReceivingTeam(TeamState teams, GamePackage gamePackage) {
+	private @Nullable GameTeam getReceivingTeam(TeamState teams, GamePackage gamePackage) {
 		return gamePackage.receivingTeam()
 				// Shouldn't happen, but be a bit lenient
 				.or(() -> gamePackage.receivingPlayer().map(teams::getTeamForPlayer))

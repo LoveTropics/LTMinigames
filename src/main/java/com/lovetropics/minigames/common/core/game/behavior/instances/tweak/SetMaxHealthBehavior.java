@@ -22,7 +22,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.function.Supplier;
 
 public record SetMaxHealthBehavior(double maxHealth, Object2DoubleMap<GameTeamKey> maxHealthByTeam) implements IGameBehavior {
@@ -75,8 +75,7 @@ public record SetMaxHealthBehavior(double maxHealth, Object2DoubleMap<GameTeamKe
 		return maxHealth;
 	}
 
-	@Nullable
-	private GameTeamKey getTeamOrNull(IGamePhase game, ServerPlayer player) {
+	private @Nullable GameTeamKey getTeamOrNull(IGamePhase game, ServerPlayer player) {
 		TeamState teamState = game.instanceState().getOrNull(TeamState.KEY);
 		if (teamState != null) {
 			return teamState.getTeamForPlayer(player);

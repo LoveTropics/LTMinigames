@@ -87,8 +87,7 @@ public final class GameConfigs {
 		return Util.sequence(futures).thenApply(configs -> configs.stream().filter(Objects::nonNull).toList());
 	}
 
-	@Nullable
-	private static GameConfig tryLoadConfig(DynamicOps<JsonElement> ops, Identifier path, Resource resource) {
+	private static @Nullable GameConfig tryLoadConfig(DynamicOps<JsonElement> ops, Identifier path, Resource resource) {
 		try {
 			// TODO: Mark games that had only a partial result with a warning in the UI?
 			return loadConfig(ops, path, resource)
@@ -118,8 +117,7 @@ public final class GameConfigs {
 		);
 	}
 
-	@Nullable
-	private static Map.Entry<Identifier, GameBehaviorType<?>> tryLoadBehavior(Resource resource, Identifier path) {
+	private static @Nullable Map.Entry<Identifier, GameBehaviorType<?>> tryLoadBehavior(Resource resource, Identifier path) {
 		try {
 			try (BufferedReader reader = resource.openAsReader()) {
 				JsonElement json = StrictJsonParser.parse(reader);

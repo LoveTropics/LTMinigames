@@ -3,7 +3,7 @@ package com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DdrInput;
 import net.minecraft.core.Holder;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Collections;

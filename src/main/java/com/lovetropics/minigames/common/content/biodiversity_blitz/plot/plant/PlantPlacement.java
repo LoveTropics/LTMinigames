@@ -3,15 +3,12 @@ package com.lovetropics.minigames.common.content.biodiversity_blitz.plot.plant;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public final class PlantPlacement {
-	@Nullable
-	private PlantCoverage functionalCoverage;
-	@Nullable
-	private PlantCoverage decorationCoverage;
-	@Nullable
-	private Place place;
+	private @Nullable PlantCoverage functionalCoverage;
+	private @Nullable PlantCoverage decorationCoverage;
+	private @Nullable Place place;
 
 	public PlantPlacement covers(BlockPos pos) {
 		return covers(PlantCoverage.of(pos));
@@ -32,13 +29,11 @@ public final class PlantPlacement {
 		return this;
 	}
 
-	@Nullable
-	public PlantCoverage getFunctionalCoverage() {
+	public @Nullable PlantCoverage getFunctionalCoverage() {
 		return functionalCoverage;
 	}
 
-	@Nullable
-	public PlantCoverage getDecorationCoverage() {
+	public @Nullable PlantCoverage getDecorationCoverage() {
 		return decorationCoverage;
 	}
 

@@ -13,7 +13,7 @@ import net.minecraft.util.CommonColors;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public final class BbClientRenderEffects {
 	private static final int PADDING = 2;

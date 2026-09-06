@@ -5,7 +5,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.UUID;
@@ -39,9 +39,8 @@ public final class MutablePlayerSet implements PlayerSet {
 		return players.contains(id);
 	}
 
-	@Nullable
 	@Override
-	public ServerPlayer getPlayerBy(UUID id) {
+	public @Nullable ServerPlayer getPlayerBy(UUID id) {
 		return players.contains(id) ? server.getPlayerList().getPlayer(id) : null;
 	}
 

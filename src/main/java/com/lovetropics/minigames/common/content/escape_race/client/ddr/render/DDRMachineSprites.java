@@ -9,7 +9,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.TextureAtlasStitchedEvent;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.Objects;
 
 @EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
@@ -23,8 +23,7 @@ public record DDRMachineSprites(
 		TextureAtlasSprite right,
 		TextureAtlasSprite rightFilled
 ) {
-	@Nullable
-	private static DDRMachineSprites instance;
+	private static @Nullable DDRMachineSprites instance;
 
 	private static final Identifier SCREEN_DOWN = LoveTropics.id("ddr/down_normal");
 	private static final Identifier SCREEN_DOWN_FILLED = LoveTropics.id("ddr/down_filled");

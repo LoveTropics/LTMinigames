@@ -16,30 +16,27 @@ import com.lovetropics.minigames.common.dev.DevQuickPlay;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 abstract class LobbyState {
-	@Nullable
-	protected final GamePhase phase;
+	protected final @Nullable GamePhase phase;
 	protected final LobbyControls controls = new LobbyControls();
 
 	protected LobbyState(@Nullable GamePhase phase) {
 		this.phase = phase;
 	}
 
-	@Nullable
-	protected GamePhaseType phaseType() {
+	protected @Nullable GamePhaseType phaseType() {
 		return null;
 	}
 
 	protected abstract GameResult<LobbyState> tick(GameLobby lobby);
 
-	@Nullable
-	protected ClientCurrentGame getClientCurrentGame() {
+	protected @Nullable ClientCurrentGame getClientCurrentGame() {
 		if (phase != null) {
 			GamePhaseType phaseType = Objects.requireNonNullElse(phaseType(), GamePhaseType.WAITING);
 			return new ClientCurrentGame(ClientGameDefinition.from(phase.game.definition()), phaseType);
@@ -106,8 +103,7 @@ abstract class LobbyState {
 			return pending != null ? GameResult.ok(pending) : GameResult.ok(new Paused());
 		}
 
-		@Nullable
-		private LobbyState nextGameState(GameLobby lobby, @Nullable GamePhase phase) {
+			private @Nullable LobbyState nextGameState(GameLobby lobby, @Nullable GamePhase phase) {
 			QueuedGame game = lobby.gameQueue.next();
 			if (game != null) {
 				Pending pending = createGame(lobby, phase, game.definition());
@@ -239,10 +235,8 @@ abstract class LobbyState {
 		private static final double SLIDESHOW_BUFFER_TIME = 0.5;
 
 		final CompletableFuture<GameResult<LobbyState>> next;
-		@Nullable
-		final SlideshowInstanceHandle slideshow;
-		@Nullable
-		ClientCurrentGame pendingGame;
+		final @Nullable SlideshowInstanceHandle slideshow;
+		@Nullable ClientCurrentGame pendingGame;
 
 		Pending(@Nullable GamePhase phase, CompletableFuture<LobbyState> next, @Nullable SlideshowInstanceHandle slideshow) {
 			super(phase);
@@ -258,9 +252,8 @@ abstract class LobbyState {
 			return next.getNow(GameResult.ok(this));
 		}
 
-		@Nullable
 		@Override
-		protected ClientCurrentGame getClientCurrentGame() {
+		protected @Nullable ClientCurrentGame getClientCurrentGame() {
 			return pendingGame != null ? pendingGame : super.getClientCurrentGame();
 		}
 	}

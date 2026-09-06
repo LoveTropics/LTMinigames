@@ -97,8 +97,7 @@ public class PersistentGameConfigs {
 		return Util.sequence(futures).thenApply(configs -> configs.stream().filter(Objects::nonNull).toList());
 	}
 
-	@Nullable
-	private static PersistentGameConfig tryLoadConfig(DynamicOps<JsonElement> ops, Identifier path, Resource resource) {
+	private static @Nullable PersistentGameConfig tryLoadConfig(DynamicOps<JsonElement> ops, Identifier path, Resource resource) {
 		try {
 			return loadConfig(ops, path, resource)
 					.resultOrPartial(error -> LOGGER.error("Failed to load persistent game config at {}: {}", path, error))
@@ -126,8 +125,7 @@ public class PersistentGameConfigs {
 		);
 	}
 
-	@Nullable
-	private static Map.Entry<Identifier, PersistentGameBehaviorType<?>> tryLoadBehavior(Resource resource, Identifier path) {
+	private static Map.Entry<Identifier, @Nullable PersistentGameBehaviorType<?>> tryLoadBehavior(Resource resource, Identifier path) {
 		try {
 			try (BufferedReader reader = resource.openAsReader()) {
 				JsonElement json = StrictJsonParser.parse(reader);

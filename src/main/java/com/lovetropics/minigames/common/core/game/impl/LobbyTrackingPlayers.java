@@ -4,7 +4,7 @@ import com.lovetropics.minigames.common.core.game.player.MutablePlayerSet;
 import com.lovetropics.minigames.common.core.game.player.PlayerSet;
 import net.minecraft.server.level.ServerPlayer;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.Iterator;
 import java.util.UUID;
 
@@ -56,9 +56,8 @@ final class LobbyTrackingPlayers implements PlayerSet {
 		return tracking.contains(id);
 	}
 
-	@Nullable
 	@Override
-	public ServerPlayer getPlayerBy(UUID id) {
+	public @Nullable ServerPlayer getPlayerBy(UUID id) {
 		return tracking.getPlayerBy(id);
 	}
 

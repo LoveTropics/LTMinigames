@@ -1,16 +1,14 @@
 package com.lovetropics.minigames.common.core.game.weather;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.function.Consumer;
 
 public final class WeatherEvent {
 	private final WeatherEventType type;
 	private long time;
 
-	@Nullable
-	private Consumer<WeatherController> apply;
-	@Nullable
-	private Consumer<WeatherController> remove;
+	private @Nullable Consumer<WeatherController> apply;
+	private @Nullable Consumer<WeatherController> remove;
 
 	private WeatherEvent(WeatherEventType type, long time) {
 		this.type = type;
@@ -18,8 +16,7 @@ public final class WeatherEvent {
 	}
 
 	// TODO: System to define weather events in data, including parameters
-	@Nullable
-	public static WeatherEvent createGeneric(WeatherEventType type, long time) {
+	public static @Nullable WeatherEvent createGeneric(WeatherEventType type, long time) {
 		return switch (type) {
 			case HEATWAVE -> heatwave(time);
 			case ACID_RAIN -> acidRain(time);

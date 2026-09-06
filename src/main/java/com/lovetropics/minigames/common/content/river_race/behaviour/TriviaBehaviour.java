@@ -176,8 +176,7 @@ public final class TriviaBehaviour implements IGameBehavior {
 		return InteractionResult.SUCCESS;
 	}
 
-	@Nullable
-	private TriviaQuestion pickTriviaForPos(IGamePhase game, BlockPos pos, TriviaType triviaType) {
+	private @Nullable TriviaQuestion pickTriviaForPos(IGamePhase game, BlockPos pos, TriviaType triviaType) {
 		RiverRaceState riverRace = game.state().get(RiverRaceState.KEY);
 		RiverRaceState.Zone zone = riverRace.getZoneByPos(pos);
 		if (zone == null) {
@@ -189,8 +188,7 @@ public final class TriviaBehaviour implements IGameBehavior {
 		});
 	}
 
-	@Nullable
-	private TriviaQuestion selectFromPool(IGamePhase game, TriviaType triviaType, QuestionPool pool) {
+	private @Nullable TriviaQuestion selectFromPool(IGamePhase game, TriviaType triviaType, QuestionPool pool) {
 		List<TriviaQuestion> options = pool.questionsByDifficulty(triviaType.difficulty())
 				.filter(question -> !usedQuestions.contains(question))
 				.toList();
@@ -221,15 +219,13 @@ public final class TriviaBehaviour implements IGameBehavior {
 		return true;
 	}
 
-	@Nullable
-	private ItemStack getCollectableFromPos(IGamePhase game, BlockPos pos) {
+	private @Nullable ItemStack getCollectableFromPos(IGamePhase game, BlockPos pos) {
 		RiverRaceState riverRace = game.state().get(RiverRaceState.KEY);
 		RiverRaceState.Zone inZone = riverRace.getZoneByPos(pos);
 		return inZone != null ? inZone.collectable() : null;
 	}
 
-	@Nullable
-	private ServerPlayer getPlayerWithCollectable(IGamePhase game, ServerPlayer player, ItemStack collectable) {
+	private @Nullable ServerPlayer getPlayerWithCollectable(IGamePhase game, ServerPlayer player, ItemStack collectable) {
 		TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
 		if (teams == null) {
 			return null;
@@ -306,8 +302,7 @@ public final class TriviaBehaviour implements IGameBehavior {
 			).apply(i, TriviaQuestionAnswer::new));
 		}
 
-		@Nullable
-		public TriviaBehaviour.TriviaQuestion.TriviaQuestionAnswer getAnswer(int index) {
+		public @Nullable TriviaBehaviour.TriviaQuestion.TriviaQuestionAnswer getAnswer(int index) {
 			return index < answers.size() ? answers.get(index) : null;
 		}
 	}

@@ -2,14 +2,13 @@ package com.lovetropics.minigames.common.content.river_race.block;
 
 import com.lovetropics.minigames.common.content.river_race.behaviour.TriviaBehaviour;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public interface HasTrivia {
 
 	void setQuestion(TriviaBehaviour.TriviaQuestion question);
 
-	@Nullable
-	TriviaBehaviour.TriviaQuestion getQuestion();
+	TriviaBehaviour.@Nullable TriviaQuestion getQuestion();
 
 	TriviaType getTriviaType();
 

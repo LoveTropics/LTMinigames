@@ -24,14 +24,13 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.List;
 import java.util.function.UnaryOperator;
 
 @EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
 public final class ClientLobbyManagement {
-	@Nullable
-	private static Session session;
+	private static @Nullable Session session;
 
 	public static void update(int id, ClientLobbyUpdate.Set updates) {
 		Session session = ClientLobbyManagement.session;
@@ -53,8 +52,7 @@ public final class ClientLobbyManagement {
 	public static final class Session {
 		final int id;
 		final ClientLobbyManageState lobby;
-		@Nullable
-		ManageLobbyScreen screen;
+		@Nullable ManageLobbyScreen screen;
 
 		Session(int id, ClientLobbyManageState lobby) {
 			this.id = id;

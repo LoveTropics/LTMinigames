@@ -14,7 +14,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.phys.AABB;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.List;
 
 public final class Plot {
@@ -86,8 +86,7 @@ public final class Plot {
 		);
 	}
 
-	@Nullable
-	public BlockBox regionByName(String name) {
+	public @Nullable BlockBox regionByName(String name) {
 		// TODO: we need a better generic system for systems of region names that can be referenced
 		return switch (name) {
 			case "shop" -> shop;

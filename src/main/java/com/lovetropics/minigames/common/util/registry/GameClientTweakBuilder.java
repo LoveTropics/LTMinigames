@@ -10,12 +10,11 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.neoforged.neoforge.registries.DeferredHolder;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public final class GameClientTweakBuilder<T extends GameClientState, P> extends AbstractBuilder<GameClientStateType<?>, GameClientStateType<T>, P, GameClientTweakBuilder<T, P>> {
 	private final MapCodec<T> codec;
-	@Nullable
-	private StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec;
+	private @Nullable StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec;
 
 	public GameClientTweakBuilder(LoveTropicsRegistrate owner, P parent, String name, BuilderCallback callback, MapCodec<T> codec) {
 		super(owner, parent, name, callback, GameClientStateTypes.REGISTRY_KEY);

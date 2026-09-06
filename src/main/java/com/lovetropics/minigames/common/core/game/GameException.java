@@ -2,7 +2,7 @@ package com.lovetropics.minigames.common.core.game;
 
 import net.minecraft.network.chat.Component;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.concurrent.CompletionException;
 
 public class GameException extends RuntimeException {
@@ -22,8 +22,7 @@ public class GameException extends RuntimeException {
 		return message;
 	}
 
-	@Nullable
-	public static GameException unwrap(@Nullable Throwable throwable) {
+	public static @Nullable GameException unwrap(@Nullable Throwable throwable) {
 		if (throwable instanceof GameException exception) {
 			return exception;
 		} else if (throwable instanceof CompletionException exception) {

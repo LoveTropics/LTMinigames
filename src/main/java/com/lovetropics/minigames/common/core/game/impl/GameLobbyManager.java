@@ -23,7 +23,7 @@ import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -42,8 +42,7 @@ public class GameLobbyManager {
 
 	private final Map<UUID, GameLobby> lobbiesByPlayer = new Object2ObjectOpenHashMap<>();
 
-	@Nullable
-	private GameLobby focusedLiveLobby;
+	private @Nullable GameLobby focusedLiveLobby;
 
 	public static GameLobbyManager get() {
 		return INSTANCE;
@@ -64,24 +63,21 @@ public class GameLobbyManager {
 		return GameResult.ok(lobby);
 	}
 
-	@Nullable
-	public GameLobby getLobbyFor(Player player) {
+	public @Nullable GameLobby getLobbyFor(Player player) {
 		if (player.level().isClientSide()) {
 			return null;
 		}
 		return lobbiesByPlayer.get(player.getUUID());
 	}
 
-	@Nullable
-	public GameLobby getLobbyFor(CommandSourceStack source) {
+	public @Nullable GameLobby getLobbyFor(CommandSourceStack source) {
 		if (source.getEntity() instanceof Player player) {
 			return getLobbyFor(player);
 		}
 		return null;
 	}
 
-	@Nullable
-	public GameLobby getLobby(Predicate<GameLobby> pred) {
+	public @Nullable GameLobby getLobby(Predicate<GameLobby> pred) {
 		return lobbies.stream().filter(pred).findFirst().orElse(null);
 	}
 
@@ -89,8 +85,7 @@ public class GameLobbyManager {
 		return lobbies;
 	}
 
-	@Nullable
-	public GameLobby getLobbyByNetworkId(int id) {
+	public @Nullable GameLobby getLobbyByNetworkId(int id) {
 		for (GameLobby lobby : lobbies) {
 			if (lobby.getMetadata().id().networkId() == id) {
 				return lobby;
@@ -99,8 +94,7 @@ public class GameLobbyManager {
 		return null;
 	}
 
-	@Nullable
-	public GameLobby getLobbyById(UUID id) {
+	public @Nullable GameLobby getLobbyById(UUID id) {
 		for (GameLobby lobby : lobbies) {
 			if (lobby.getMetadata().id().uuid().equals(id)) {
 				return lobby;
@@ -219,8 +213,7 @@ public class GameLobbyManager {
 		}
 	}
 
-	@Nullable
-	public static ServerPlayer onPlayerTeleport(ServerPlayer player, TeleportTransition transition) {
+	public static @Nullable ServerPlayer onPlayerTeleport(ServerPlayer player, TeleportTransition transition) {
 		GameLobby lobby = INSTANCE.getLobbyFor(player);
 		GamePhase targetPhase = GamePhaseManager.get().getGamePhaseAt(transition.newLevel(), transition.position());
 		if (targetPhase != null && targetPhase.game.lobby() != lobby) {

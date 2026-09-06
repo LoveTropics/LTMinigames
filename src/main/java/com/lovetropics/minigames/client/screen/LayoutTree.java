@@ -5,7 +5,7 @@ import com.lovetropics.minigames.client.screen.flex.Axis;
 import com.lovetropics.minigames.client.screen.flex.Box;
 import com.lovetropics.minigames.client.screen.flex.Layout;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.BitSet;
 import java.util.LinkedList;
 
@@ -44,8 +44,7 @@ import java.util.LinkedList;
 public class LayoutTree {
 
 	private static class LayoutNode {
-		@Nullable
-		final LayoutNode parent;
+		final @Nullable LayoutNode parent;
 		Layout bounds;
 		final LinkedList<LayoutNode> children = new LinkedList<>();
 		boolean contracted = false;

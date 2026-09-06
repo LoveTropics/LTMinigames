@@ -24,9 +24,9 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.context.ContextMap;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 
-import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.Optional;
 
@@ -158,111 +158,111 @@ public record NamedStagesBehaviour(
 		);
 	}
 
-	public static final class State implements IGameState {
+    public static final class State implements IGameState {
 
-		private final IGamePhase game;
-		private final NamedStagesBehaviour parent;
+        private final IGamePhase game;
+        private final NamedStagesBehaviour parent;
 
-		private long currentStageStartTime = -1;
-		private long currentStageEndTime = -1;
-		private long pausedAt = -1;
-		private boolean running = false;
-		private @Nullable NamedStage currentStage;
-		private @Nullable String currentStageName;
+        private long currentStageStartTime = -1;
+        private long currentStageEndTime = -1;
+        private long pausedAt = -1;
+        private boolean running = false;
+        private @Nullable NamedStage currentStage;
+        private @Nullable String currentStageName;
 
-		private State(NamedStagesBehaviour parent, IGamePhase game) {
-			this.parent = parent;
-			this.game = game;
-		}
+        private State(NamedStagesBehaviour parent, IGamePhase game) {
+            this.parent = parent;
+            this.game = game;
+        }
 
-		public void pause(){
-			if(currentStage != null && running){
-				running = false;
-				pausedAt = game.ticks();
-			}
-		}
+        public void pause() {
+            if (currentStage != null && running) {
+                running = false;
+                pausedAt = game.ticks();
+            }
+        }
 
-		public void start(){
-			if(currentStage != null && !running){
-				running = true;
-				if(currentStageStartTime != -1 && currentStage.timerLengthTicks.isPresent()){
-					long ticksThrough = pausedAt - currentStageStartTime;
-					long ticksRemaining = currentStage.timerLengthTicks.get() - ticksThrough;
-					currentStageEndTime = game.ticks() + ticksRemaining;
-				}
-				pausedAt = -1;
-			}
-		}
+        public void start() {
+            if (currentStage != null && !running) {
+                running = true;
+                if (currentStageStartTime != -1 && currentStage.timerLengthTicks.isPresent()) {
+                    long ticksThrough = pausedAt - currentStageStartTime;
+                    long ticksRemaining = currentStage.timerLengthTicks.get() - ticksThrough;
+                    currentStageEndTime = game.ticks() + ticksRemaining;
+                }
+                pausedAt = -1;
+            }
+        }
 
-		public void tick(){
-			if(running) {
-				if (currentStage != null) {
-					if(currentStage.timerLengthTicks.isPresent()) {
-						long currentTick = currentStage.timerLengthTicks.get() - (currentStageEndTime - game.ticks());
-						GameActionList actions = currentStage.tickActions.get(currentTick);
-						if (actions != null) {
-							actions.apply(game, ContextMap.EMPTY);
-						}
-						if (currentStage.autoMoveOn() && currentStage.nextStage().isPresent()) {
-							if (game.ticks() >= currentStageEndTime) {
-								progressToStage(currentStage.nextStage().get());
-							}
-						}
-					}
-				}
-			}
-		}
+        public void tick() {
+            if (running) {
+                if (currentStage != null) {
+                    if (currentStage.timerLengthTicks.isPresent()) {
+                        long currentTick = currentStage.timerLengthTicks.get() - (currentStageEndTime - game.ticks());
+                        GameActionList actions = currentStage.tickActions.get(currentTick);
+                        if (actions != null) {
+                            actions.apply(game, ContextMap.EMPTY);
+                        }
+                        if (currentStage.autoMoveOn() && currentStage.nextStage().isPresent()) {
+                            if (game.ticks() >= currentStageEndTime) {
+                                progressToStage(currentStage.nextStage().get());
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
-		public void progressToNext(boolean skipEndActions){
-			if(currentStage != null && currentStage.nextStage().isPresent()){
-				String stage = currentStage.nextStage().get();
-				progressToStage(stage, skipEndActions);
-			}
-		}
+        public void progressToNext(boolean skipEndActions) {
+            if (currentStage != null && currentStage.nextStage().isPresent()) {
+                String stage = currentStage.nextStage().get();
+                progressToStage(stage, skipEndActions);
+            }
+        }
 
-		public void progressToNext(){
-			progressToNext(false);
-		}
+        public void progressToNext() {
+            progressToNext(false);
+        }
 
-		public void progressToStage(String stage) {
-			progressToStage(stage, false);
-		}
+        public void progressToStage(String stage) {
+            progressToStage(stage, false);
+        }
 
-		public void progressToStage(String stageName, boolean skipEndActions) {
-			NamedStage stage = parent.stages().get(stageName);
-			if (stage == null) {
-				LOGGER.warn("No stage with name: {}", stageName);
-				return;
-			}
-			if(currentStage != null && !skipEndActions){
-				currentStage.endActions.ifPresent(actions -> actions.apply(game, ContextMap.EMPTY));
-				if(currentStage.endActions().isPresent() && !currentStage.endAutoProgress) {
-					return;
-				}
-			}
-			currentStage = stage;
-			currentStageName = stageName;
-			currentStageStartTime = game.ticks();
-			if(currentStage.timerLengthTicks().isPresent()) {
-				currentStageEndTime = game.ticks() + currentStage.timerLengthTicks().get();
-			} else {
-				currentStageEndTime = -1;
-			}
-			currentStage.startActions.ifPresent(actions -> actions.apply(game, ContextMap.EMPTY));
-		}
+        public void progressToStage(String stageName, boolean skipEndActions) {
+            NamedStage stage = parent.stages().get(stageName);
+            if (stage == null) {
+                LOGGER.warn("No stage with name: {}", stageName);
+                return;
+            }
+            if (currentStage != null && !skipEndActions) {
+                currentStage.endActions.ifPresent(actions -> actions.apply(game, ContextMap.EMPTY));
+                if (currentStage.endActions().isPresent() && !currentStage.endAutoProgress) {
+                    return;
+                }
+            }
+            currentStage = stage;
+            currentStageName = stageName;
+            currentStageStartTime = game.ticks();
+            if (currentStage.timerLengthTicks().isPresent()) {
+                currentStageEndTime = game.ticks() + currentStage.timerLengthTicks().get();
+            } else {
+                currentStageEndTime = -1;
+            }
+            currentStage.startActions.ifPresent(actions -> actions.apply(game, ContextMap.EMPTY));
+        }
 
-		public @Nullable StageState getCurrentStageState() {
-			if (currentStage == null | currentStageName == null) {
-				return null;
-			}
-			return new StageState(
-					currentStageName,
-					currentStage,
-					currentStageStartTime,
-					currentStageEndTime
-			);
-		}
-	}
+        public @Nullable StageState getCurrentStageState() {
+            if (currentStage == null | currentStageName == null) {
+                return null;
+            }
+            return new StageState(
+                    currentStageName,
+                    currentStage,
+                    currentStageStartTime,
+                    currentStageEndTime
+            );
+        }
+    }
 
 	public record StageState(
 			String id,

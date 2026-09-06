@@ -51,8 +51,7 @@ import java.util.Random;
 @EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
 public class GameCraftingBeeHandler {
 	private static int hintsRemaining;
-	@Nullable
-	private static Map<ResourceKey<Recipe<?>>, RecipeHintState> hintGrids;
+	private static @Nullable Map<ResourceKey<Recipe<?>>, RecipeHintState> hintGrids;
 
 	static final ClientGameStateHandler<CraftingBeeCraftsClientState> HANDLER = new ClientGameStateHandler<>() {
 		@Override
@@ -201,8 +200,7 @@ public class GameCraftingBeeHandler {
 		});
 	}
 
-	@Nullable
-	private static CraftingBeeCraftsClientState getState() {
+	private static @Nullable CraftingBeeCraftsClientState getState() {
 		return ClientGameStateManager.getOrNull(GameClientStateTypes.CRAFTING_BEE_CRAFTS);
 	}
 

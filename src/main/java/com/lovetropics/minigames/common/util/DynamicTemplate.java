@@ -6,7 +6,8 @@ import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.MapLike;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -69,8 +70,7 @@ public class DynamicTemplate {
 		return staticNode;
 	}
 
-	@Nullable
-	private static <T> StringTemplate parseStringTemplate(DynamicOps<T> ops, T value) {
+	private static <T> @Nullable StringTemplate parseStringTemplate(DynamicOps<T> ops, T value) {
 		final ParameterPath path = ops.get(value, "path").flatMap(ops::getStringValue).result()
 				.map(DynamicTemplate::parseParameterReference)
 				.orElse(null);
@@ -82,8 +82,7 @@ public class DynamicTemplate {
 		return new StringTemplate(prefix, path, suffix);
 	}
 
-	@Nullable
-	private static ParameterPath parseParameterReference(String key) {
+	private static @Nullable ParameterPath parseParameterReference(String key) {
 		if (key.startsWith("$")) {
 			return new ParameterPath(key.substring(1).split("\\."));
 		} else {
@@ -108,8 +107,7 @@ public class DynamicTemplate {
 		return Objects.requireNonNullElseGet(result, ops::emptyMap);
 	}
 
-	@Nullable
-	private static <T> T resolveParameter(final DynamicOps<T> ops, final MapLike<T> root, final ParameterPath path) {
+	private static <T> @Nullable T resolveParameter(final DynamicOps<T> ops, final MapLike<T> root, final ParameterPath path) {
 		if (path.segments.length == 0) {
 			return null;
 		}
@@ -161,8 +159,7 @@ public class DynamicTemplate {
 	}
 
 	private sealed interface Node {
-		@Nullable
-		<U> U substitute(DynamicOps<U> ops, Function<ParameterPath, U> resolver);
+		<U> @Nullable U substitute(DynamicOps<U> ops, Function<ParameterPath, @Nullable U> resolver);
 
 		<U> void extract(DynamicOps<U> ops, U value, BiConsumer<ParameterPath, U> consumer);
 
@@ -229,8 +226,7 @@ public class DynamicTemplate {
 
 	private record Substituted(ParameterPath path) implements Node {
 		@Override
-		@Nullable
-		public <U> U substitute(final DynamicOps<U> ops, final Function<ParameterPath, U> resolver) {
+		public <U> @Nullable U substitute(final DynamicOps<U> ops, final Function<ParameterPath, @Nullable U> resolver) {
 			return resolver.apply(path);
 		}
 
@@ -247,8 +243,7 @@ public class DynamicTemplate {
 
 	private record StringTemplate(String prefix, ParameterPath path, String suffix) implements Node {
 		@Override
-		@Nullable
-		public <U> U substitute(DynamicOps<U> ops, Function<ParameterPath, U> resolver) {
+		public <U> @Nullable U substitute(DynamicOps<U> ops, Function<ParameterPath, @Nullable U> resolver) {
 			final U resolved = resolver.apply(path);
 			if (resolved != null) {
 				final String string = ops.getStringValue(resolved).result().orElse(null);

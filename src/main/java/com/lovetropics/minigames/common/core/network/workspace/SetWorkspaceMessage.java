@@ -9,7 +9,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class SetWorkspaceMessage implements CustomPacketPayload {
 	public static final Type<SetWorkspaceMessage> TYPE = new Type<>(LoveTropics.id("set_workspace"));
@@ -22,10 +22,8 @@ public class SetWorkspaceMessage implements CustomPacketPayload {
 		return HIDDEN;
 	}
 
-	@Nullable
-	private WorkspaceRegions server;
-	@Nullable
-	private ClientWorkspaceRegions client;
+	private @Nullable WorkspaceRegions server;
+	private @Nullable ClientWorkspaceRegions client;
 
 	public SetWorkspaceMessage(@Nullable WorkspaceRegions server) {
 		this.server = server;

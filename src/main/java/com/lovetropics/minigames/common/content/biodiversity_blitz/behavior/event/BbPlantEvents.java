@@ -8,7 +8,7 @@ import com.lovetropics.minigames.common.core.game.player.PlayerSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.List;
 
 public final class BbPlantEvents {
@@ -52,8 +52,7 @@ public final class BbPlantEvents {
 	}
 
 	public interface Place {
-		@Nullable
-		PlantPlacement placePlant(ServerPlayer player, Plot plot, BlockPos pos);
+		@Nullable PlantPlacement placePlant(ServerPlayer player, Plot plot, BlockPos pos);
 	}
 
 	public interface Break {

@@ -12,7 +12,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.Iterator;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -67,8 +67,7 @@ public interface PlantCoverage extends Iterable<BlockPos> {
 		return false;
 	}
 
-	@Nullable
-	default PlantCoverage removeIntersection(LongSet intersection) {
+	default @Nullable PlantCoverage removeIntersection(LongSet intersection) {
 		LongSet blocks = new LongOpenHashSet();
 		for (BlockPos pos : this) {
 			if (!intersection.contains(pos.asLong())) {
@@ -226,8 +225,7 @@ public interface PlantCoverage extends Iterable<BlockPos> {
 
 	final class Builder {
 		private final LongSet blocks = new LongOpenHashSet();
-		@Nullable
-		private BlockPos origin;
+		private @Nullable BlockPos origin;
 
 		public Builder add(BlockPos pos) {
 			blocks.add(pos.asLong());

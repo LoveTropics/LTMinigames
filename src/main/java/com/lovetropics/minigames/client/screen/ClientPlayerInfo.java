@@ -8,18 +8,17 @@ import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.PlayerSkin;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import java.util.UUID;
 
 public final class ClientPlayerInfo {
-	@Nullable
-	public static GameProfile getPlayerProfile(UUID uuid) {
+	public static @Nullable GameProfile getPlayerProfile(UUID uuid) {
 		PlayerInfo info = get(uuid);
 		return info != null ? info.getProfile() : null;
 	}
 
-	@Nullable
-	public static Component getName(UUID uuid) {
+	public static @Nullable Component getName(UUID uuid) {
 		PlayerInfo info = get(uuid);
 		if (info != null) {
 			Component displayName = info.getTabListDisplayName();
@@ -34,8 +33,7 @@ public final class ClientPlayerInfo {
 		return info != null ? info.getSkin() : DefaultPlayerSkin.get(uuid);
 	}
 
-	@Nullable
-	public static PlayerInfo get(UUID uuid) {
+	public static @Nullable PlayerInfo get(UUID uuid) {
 		ClientPacketListener connection = Minecraft.getInstance().getConnection();
 		return connection != null ? connection.getPlayerInfo(uuid) : null;
 	}

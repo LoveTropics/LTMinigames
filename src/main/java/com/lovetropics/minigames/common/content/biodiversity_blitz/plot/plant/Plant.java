@@ -7,14 +7,13 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Block;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.stream.Stream;
 
 public final class Plant {
 	private final PlantType type;
 	private final PlantCoverage functionalCoverage;
-	@Nullable
-	private final PlantCoverage decorationCoverage;
+	private final @Nullable PlantCoverage decorationCoverage;
 	private final PlantState state;
 
 	private final PlantCoverage coverage;
@@ -44,8 +43,7 @@ public final class Plant {
 		return functionalCoverage;
 	}
 
-	@Nullable
-	public PlantCoverage decorationCoverage() {
+	public @Nullable PlantCoverage decorationCoverage() {
 		return decorationCoverage;
 	}
 
@@ -65,8 +63,7 @@ public final class Plant {
 		return value;
 	}
 
-	@Nullable
-	public <S> S state(PlantState.Key<S> key) {
+	public <S> @Nullable S state(PlantState.Key<S> key) {
 		return state.get(key);
 	}
 

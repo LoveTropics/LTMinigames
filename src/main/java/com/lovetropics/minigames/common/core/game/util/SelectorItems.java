@@ -13,7 +13,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public record SelectorItems<V>(Handlers<V> handlers, V[] values) {
 	public void applyTo(EventRegistrar events) {
@@ -48,8 +48,7 @@ public record SelectorItems<V>(Handlers<V> handlers, V[] values) {
 		return value != null ? TriState.FALSE : TriState.DEFAULT;
 	}
 
-	@Nullable
-	private V getValueForSelector(ItemStack stack) {
+	private @Nullable V getValueForSelector(ItemStack stack) {
 		String id = stack.get(MinigameDataComponents.SELECTOR);
 		if (id == null) {
 			return null;

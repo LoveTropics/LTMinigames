@@ -25,7 +25,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.function.Predicate;
 
 public record PlaceFeaturePlantBehavior(Holder<ConfiguredFeature<?, ?>> feature, BlockStatePredicate blocks) implements IGameBehavior {
@@ -48,8 +48,7 @@ public record PlaceFeaturePlantBehavior(Holder<ConfiguredFeature<?, ?>> feature,
 		});
 	}
 
-	@Nullable
-	private Long2ObjectMap<BlockState> generateFeature(ServerLevel world, BlockPos pos, ConfiguredFeature<?, ?> feature) {
+	private @Nullable Long2ObjectMap<BlockState> generateFeature(ServerLevel world, BlockPos pos, ConfiguredFeature<?, ?> feature) {
 		BlockCapturingWorld capturingWorld = new BlockCapturingWorld(world, blocks);
 
 		ChunkGenerator chunkGenerator = world.getChunkSource().getGenerator();
@@ -60,8 +59,7 @@ public record PlaceFeaturePlantBehavior(Holder<ConfiguredFeature<?, ?>> feature,
 		}
 	}
 
-	@Nullable
-	private PlantPlacement buildPlacement(BlockPos origin, Long2ObjectMap<BlockState> blocks) {
+	private @Nullable PlantPlacement buildPlacement(BlockPos origin, Long2ObjectMap<BlockState> blocks) {
 		LongSet coverage = new LongOpenHashSet();
 		LongSet decorationCoverage = new LongOpenHashSet();
 

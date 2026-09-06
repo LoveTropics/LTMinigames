@@ -1,7 +1,6 @@
 package com.lovetropics.minigames.common.util.world;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.particles.ParticleOptions;
@@ -36,8 +35,8 @@ import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.ticks.LevelTickAccess;
+import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -83,9 +82,8 @@ public class DelegatingWorldGenLevel implements WorldGenLevel {
 		return parent.getCurrentDifficultyAt(pos);
 	}
 
-	@Nullable
 	@Override
-	public MinecraftServer getServer() {
+	public @Nullable MinecraftServer getServer() {
 		return parent.getServer();
 	}
 
@@ -149,9 +147,8 @@ public class DelegatingWorldGenLevel implements WorldGenLevel {
 		return parent.getWorldBorder();
 	}
 
-	@Nullable
 	@Override
-	public BlockEntity getBlockEntity(BlockPos pos) {
+	public @Nullable BlockEntity getBlockEntity(BlockPos pos) {
 		return parent.getBlockEntity(pos);
 	}
 
@@ -180,9 +177,8 @@ public class DelegatingWorldGenLevel implements WorldGenLevel {
 		return parent.players();
 	}
 
-	@Nullable
 	@Override
-	public ChunkAccess getChunk(int x, int z, ChunkStatus requiredStatus, boolean create) {
+	public @Nullable ChunkAccess getChunk(int x, int z, ChunkStatus requiredStatus, boolean create) {
 		return parent.getChunk(x, z, requiredStatus, create);
 	}
 

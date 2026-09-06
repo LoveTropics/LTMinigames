@@ -17,7 +17,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.StringRepresentable;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.Optional;
 
 public record EndGameAction(
@@ -52,8 +52,7 @@ public record EndGameAction(
 		}
 	}
 
-	@Nullable
-	private GameWinner getFixedWinner(IGamePhase game) {
+	private @Nullable GameWinner getFixedWinner(IGamePhase game) {
 		return winningTeam.map(key -> {
 			TeamState teams = game.instanceState().getOrThrow(TeamState.KEY);
 			return teams.getTeamByKey(key);

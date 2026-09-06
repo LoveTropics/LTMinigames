@@ -3,7 +3,7 @@ package com.lovetropics.minigames.client.lobby.state;
 import com.lovetropics.minigames.common.core.game.LobbyStatus;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.Collection;
 import java.util.Set;
 import java.util.UUID;
@@ -14,8 +14,7 @@ public class ClientLobbyState {
 	String name;
 	final Set<UUID> players = new ObjectOpenHashSet<>();
 
-	@Nullable
-	ClientCurrentGame currentGame;
+	@Nullable ClientCurrentGame currentGame;
 
 	ClientLobbyState(int id) {
 		this.id = id;
@@ -39,8 +38,7 @@ public class ClientLobbyState {
 		return name;
 	}
 
-	@Nullable
-	public ClientCurrentGame getCurrentGame() {
+	public @Nullable ClientCurrentGame getCurrentGame() {
 		return currentGame;
 	}
 

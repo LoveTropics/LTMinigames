@@ -14,7 +14,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public record SpawnEntityAtPlayerAction(EntityTemplate entity, int damagePlayerAmount, double distance) implements IGameBehavior {
 	public static final MapCodec<SpawnEntityAtPlayerAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
@@ -40,8 +40,7 @@ public record SpawnEntityAtPlayerAction(EntityTemplate entity, int damagePlayerA
 		});
 	}
 
-	@Nullable
-	private Vec3 findSpawnPos(IGamePhase game, Entity entity) {
+	private @Nullable Vec3 findSpawnPos(IGamePhase game, Entity entity) {
 		for (int i = 0; i < 10; i++) {
 			double angle = entity.getRandom().nextDouble() * 2 * Math.PI;
 			double x = entity.getX() + Math.sin(angle) * distance;

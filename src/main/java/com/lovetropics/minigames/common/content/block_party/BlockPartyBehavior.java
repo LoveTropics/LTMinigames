@@ -21,7 +21,6 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.ChatFormatting;
 import net.minecraft.SharedConstants;
-import net.minecraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
@@ -34,14 +33,15 @@ import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.TriState;
+import net.minecraft.util.Util;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
@@ -73,8 +73,7 @@ public final class BlockPartyBehavior implements IGameBehavior {
 	private IGamePhase game;
 	private FloorRegion floorRegion;
 
-	@Nullable
-	private State state;
+	private @Nullable State state;
 
 	public BlockPartyBehavior(String floorRegionKey, BlockState[] blocks, int quadSize, int maxTime, int minTime, int timeDecayRounds, int interval, int knockbackAfterAround, int maxLives) {
 		this.floorRegionKey = floorRegionKey;
@@ -217,8 +216,7 @@ public final class BlockPartyBehavior implements IGameBehavior {
 	}
 
 	interface State {
-		@Nullable
-		State tick(IGamePhase game);
+		@Nullable State tick(IGamePhase game);
 
 		boolean hasKnockback();
 	}

@@ -9,7 +9,7 @@ import com.lovetropics.minigames.common.core.game.state.team.TeamState;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public sealed interface GameWinner {
 	static GameWinner byPlayerKey(IGamePhase game, PlayerKey key) {
@@ -21,8 +21,7 @@ public sealed interface GameWinner {
 
 	ActionSubjects<?> resolveSubjects(IGamePhase game);
 
-	@Nullable
-	default GameTeamKey asTeam(IGamePhase game) {
+	default @Nullable GameTeamKey asTeam(IGamePhase game) {
 		return switch (this) {
 			case GameWinner.Player(ServerPlayer player) -> getTeamFor(game, PlayerKey.from(player));
 			case GameWinner.Team(GameTeam team) -> team.key();
@@ -31,8 +30,7 @@ public sealed interface GameWinner {
 		};
 	}
 
-	@Nullable
-	private static GameTeamKey getTeamFor(IGamePhase game, PlayerKey player) {
+	private static @Nullable GameTeamKey getTeamFor(IGamePhase game, PlayerKey player) {
 		TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
 		return teams != null ? teams.getTeamForPlayer(player) : null;
 	}

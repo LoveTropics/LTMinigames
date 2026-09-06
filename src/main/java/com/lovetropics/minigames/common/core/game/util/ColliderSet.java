@@ -11,15 +11,14 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.List;
 import java.util.Optional;
 
 public record ColliderSet(
 		List<BlockBox> boxes,
 		List<VoxelShape> shapes,
-		@Nullable
-		AABB extent
+		@Nullable AABB extent
 ) {
 	public static final ColliderSet EMPTY = new ColliderSet(List.of());
 
@@ -39,8 +38,7 @@ public record ColliderSet(
 		return boxes.stream().map(BlockBox::asShape).toList();
 	}
 
-	@Nullable
-	private static AABB resolveExtent(List<BlockBox> boxes) {
+	private static @Nullable AABB resolveExtent(List<BlockBox> boxes) {
 		return boxes.stream().reduce(BlockBox::encompassing).map(BlockBox::asAabb).orElse(null);
 	}
 
@@ -55,8 +53,7 @@ public record ColliderSet(
 		}
 	}
 
-	@Nullable
-	public Vec3 clip(Vec3 start, Vec3 end) {
+	public @Nullable Vec3 clip(Vec3 start, Vec3 end) {
 		for (BlockBox box : boxes) {
 			Optional<Vec3> clip = box.asAabb().clip(start, end);
 			if (clip.isPresent()) {

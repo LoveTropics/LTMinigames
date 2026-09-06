@@ -24,7 +24,7 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.phys.Vec3;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class BbZombieEntity extends Zombie implements BbMobEntity {
 	private final BbMobBrain mobBrain;
@@ -57,9 +57,8 @@ public class BbZombieEntity extends Zombie implements BbMobEntity {
 		return mobBrain.getPlotWalls().collide(getBoundingBox(), offset);
 	}
 
-	@Nullable
 	@Override
-	public SpawnGroupData finalizeSpawn(ServerLevelAccessor world, DifficultyInstance difficulty, EntitySpawnReason reason, @Nullable SpawnGroupData spawnData) {
+	public @Nullable SpawnGroupData finalizeSpawn(ServerLevelAccessor world, DifficultyInstance difficulty, EntitySpawnReason reason, @Nullable SpawnGroupData spawnData) {
 		setLeftHanded(random.nextFloat() < 0.05F);
 		return spawnData;
 	}

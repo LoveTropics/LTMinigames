@@ -15,7 +15,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.Iterator;
 import java.util.List;
 
@@ -97,8 +97,7 @@ public class SpawnEntitiesAroundPlayersAction implements IGameBehavior {
 	/// Tries to return a random spawnable position within the set distances up to a certain amount of attempts
 	///
 	/// @return null if it fails, otherwise a real position
-	@Nullable
-	public BlockPos getSpawnableRandomPositionNear(final IGamePhase game, BlockPos pos, int minDist, int maxDist, int loopAttempts, int yRange) {
+	public @Nullable BlockPos getSpawnableRandomPositionNear(final IGamePhase game, BlockPos pos, int minDist, int maxDist, int loopAttempts, int yRange) {
 		for (int i = 0; i < loopAttempts; i++) {
 			BlockPos posTry = pos.offset(game.level().getRandom().nextInt(maxDist * 2) - maxDist,
 					game.level().getRandom().nextInt(yRange * 2) - yRange,

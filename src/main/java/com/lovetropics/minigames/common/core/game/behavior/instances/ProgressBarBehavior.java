@@ -24,7 +24,7 @@ import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.util.Mth;
 import net.minecraft.world.BossEvent;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -40,8 +40,7 @@ public class ProgressBarBehavior implements IGameBehavior {
 	private final ProgressChannel channel;
 	private final List<Entry> entries;
 
-	@Nullable
-	private GameBossBar bossBar;
+	private @Nullable GameBossBar bossBar;
 	private ProgressHolder progression;
 
 	public ProgressBarBehavior(ProgressChannel channel, List<Entry> entries) {
@@ -73,8 +72,7 @@ public class ProgressBarBehavior implements IGameBehavior {
 		});
 	}
 
-	@Nullable
-	private Entry getActiveEntry() {
+	private @Nullable Entry getActiveEntry() {
 		for (Entry entry : entries) {
 			if (progression.is(entry.period())) {
 				return entry;

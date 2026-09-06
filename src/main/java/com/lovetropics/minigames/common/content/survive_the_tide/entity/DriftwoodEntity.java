@@ -22,7 +22,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,8 +37,7 @@ public final class DriftwoodEntity extends Entity {
 
 	private float floatDepth = START_FLOAT_DEPTH;
 
-	@Nullable
-	private Vec3 steerDirection;
+	private @Nullable Vec3 steerDirection;
 	private float steerYaw;
 	private int steerTimer;
 
@@ -54,8 +53,8 @@ public final class DriftwoodEntity extends Entity {
 	}
 
 	@Override
-	protected Entity.MovementEmission getMovementEmission() {
-		return Entity.MovementEmission.NONE;
+	protected MovementEmission getMovementEmission() {
+		return MovementEmission.NONE;
 	}
 
 	@Override

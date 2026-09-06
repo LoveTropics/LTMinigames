@@ -8,9 +8,9 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.util.Mth;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
 public abstract class AbstractLTList<T extends LTListEntry<T>> extends ObjectSelectionList<T> {
@@ -19,8 +19,7 @@ public abstract class AbstractLTList<T extends LTListEntry<T>> extends ObjectSel
 	private static final int LIST_PADDING = 2;
 
 	public final Screen screen;
-	@Nullable
-	protected T draggingEntry;
+	protected @Nullable T draggingEntry;
 	private int dragOffset;
 
 	public interface Reorder {

@@ -13,7 +13,7 @@ import org.joml.Vector2f;
 import org.joml.Vector2fc;
 import org.joml.Vector3f;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class DdrScreen {
 	private static final int MODEL_WIDTH = 42;
@@ -45,8 +45,7 @@ public class DdrScreen {
 		poseStack.translate(-DdrScreen.WIDTH / 2.0f, -DdrScreen.HEIGHT / 2.0f, 0.0f);
 	}
 
-	@Nullable
-	public Vector2fc pick(Camera camera, Vec3 entityPos, float entityYRot) {
+	public @Nullable Vector2fc pick(Camera camera, Vec3 entityPos, float entityYRot) {
 		reusedPoseStack.setIdentity();
 		applyTransform(reusedPoseStack, entityYRot);
 		Matrix4fc modelWorldToScreen = reusedPoseStack.last().pose().invert(new Matrix4f());

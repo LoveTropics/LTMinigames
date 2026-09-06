@@ -3,7 +3,7 @@ package com.lovetropics.minigames.common.core.game.util;
 import com.lovetropics.lib.BlockBox;
 import com.lovetropics.minigames.common.core.map.MapRegions;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -28,8 +28,7 @@ public class CycledSpawner {
 		return regions;
 	}
 
-	@Nullable
-	public BlockBox next() {
+	public @Nullable BlockBox next() {
 		if (regions.isEmpty()) {
 			return null;
 		}

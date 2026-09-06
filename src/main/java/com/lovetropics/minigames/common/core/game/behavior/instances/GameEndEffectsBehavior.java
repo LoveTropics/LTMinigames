@@ -19,7 +19,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.Style;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.Map;
 
 public final class GameEndEffectsBehavior implements IGameBehavior {
@@ -36,8 +36,7 @@ public final class GameEndEffectsBehavior implements IGameBehavior {
 	private boolean ended;
 	private long stopTime;
 
-	@Nullable
-	private Component winner;
+	private @Nullable Component winner;
 
 	public GameEndEffectsBehavior(long stopDelay, Long2ObjectMap<TemplatedText> scheduledMessages) {
 		this.stopDelay = stopDelay;

@@ -13,7 +13,7 @@ import com.lovetropics.minigames.common.role.StreamHosts;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Unit;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.Iterator;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -107,9 +107,8 @@ public final class LobbyPlayerManager implements PlayerSet {
 		return registrations.contains(id);
 	}
 
-	@Nullable
 	@Override
-	public ServerPlayer getPlayerBy(UUID id) {
+	public @Nullable ServerPlayer getPlayerBy(UUID id) {
 		return registrations.getPlayerBy(id);
 	}
 

@@ -17,7 +17,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -25,8 +25,7 @@ import java.util.function.Function;
 public final class MapWorkspaceTracer {
 	private static final double TRACE_RANGE = 64.0;
 
-	@Nullable
-	private static RegionEditOperator edit;
+	private static @Nullable RegionEditOperator edit;
 
 	@SubscribeEvent
 	public static void onClientTick(ClientTickEvent.Post event) {
@@ -36,8 +35,7 @@ public final class MapWorkspaceTracer {
 		}
 	}
 
-	@Nullable
-	public static RegionTraceTarget trace(Player player) {
+	public static @Nullable RegionTraceTarget trace(Player player) {
 		ClientWorkspaceRegions regions = ClientMapWorkspace.INSTANCE.getRegions();
 		if (regions.isEmpty()) {
 			return null;

@@ -3,7 +3,7 @@ package com.lovetropics.minigames.client.screen.flex;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraft.util.Mth;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.Map;
 import java.util.Objects;
 
@@ -160,8 +160,7 @@ public final class FlexSolver {
 			return Objects.requireNonNull(layoutOrNull(flex), "given flex has not been solved");
 		}
 
-		@Nullable
-		private Layout layoutOrNull(Flex flex) {
+		private @Nullable Layout layoutOrNull(Flex flex) {
 			FlexSolve solve = flexSolves.get(flex);
 			return solve != null ? solve.layout : null;
 		}

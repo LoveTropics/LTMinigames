@@ -17,7 +17,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.server.level.ServerPlayer;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class LastRemainingWinTrigger implements IGameBehavior {
 	public static final MapCodec<LastRemainingWinTrigger> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
@@ -55,8 +55,7 @@ public class LastRemainingWinTrigger implements IGameBehavior {
 		});
 	}
 
-	@Nullable
-	private GameWinner tryFindWinner(IGamePhase game, @Nullable TeamState teams) {
+	private @Nullable GameWinner tryFindWinner(IGamePhase game, @Nullable TeamState teams) {
 		if (lastTeam && teams != null) {
 			return tryFindTeamsWinner(game, teams);
 		} else {
@@ -64,8 +63,7 @@ public class LastRemainingWinTrigger implements IGameBehavior {
 		}
 	}
 
-	@Nullable
-	private static GameWinner tryFindIndividualWinner(IGamePhase game) {
+	private static @Nullable GameWinner tryFindIndividualWinner(IGamePhase game) {
 		PlayerSet participants = game.participants();
 		if (participants.isEmpty()) {
 			return new GameWinner.Nobody();
@@ -76,8 +74,7 @@ public class LastRemainingWinTrigger implements IGameBehavior {
 		return null;
 	}
 
-	@Nullable
-	private static GameWinner tryFindTeamsWinner(IGamePhase game, TeamState teams) {
+	private static @Nullable GameWinner tryFindTeamsWinner(IGamePhase game, TeamState teams) {
 		GameTeam finalTeam = getFinalTeam(teams, game);
 		if (finalTeam != null) {
 			return new GameWinner.Team(finalTeam);
@@ -87,8 +84,7 @@ public class LastRemainingWinTrigger implements IGameBehavior {
 		return null;
 	}
 
-	@Nullable
-	private static GameTeam getFinalTeam(TeamState teams, IGamePhase game) {
+	private static @Nullable GameTeam getFinalTeam(TeamState teams, IGamePhase game) {
 		GameTeam finalTeam = null;
 		for (GameTeam team : teams) {
 			if (teams.getParticipantsForTeam(game, team.key()).isEmpty()) {

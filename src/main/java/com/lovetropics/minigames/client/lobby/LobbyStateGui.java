@@ -23,7 +23,7 @@ import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.Collection;
 
 @EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
@@ -179,8 +179,7 @@ public class LobbyStateGui {
 		}
 	}
 
-	@Nullable
-	private static Identifier getIcon(ClientLobbyState lobby) {
+	private static @Nullable Identifier getIcon(ClientLobbyState lobby) {
 		ClientCurrentGame currentGame = lobby.getCurrentGame();
 		if (currentGame != null) {
 			ClientGameDefinition definition = currentGame.definition();

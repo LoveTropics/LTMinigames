@@ -23,7 +23,7 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.phys.Vec3;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class BbDrownedEntity extends Drowned implements BbMobEntity {
 	private final BbMobBrain mobBrain;
@@ -55,9 +55,8 @@ public class BbDrownedEntity extends Drowned implements BbMobEntity {
 		return mobBrain.getPlotWalls().collide(getBoundingBox(), offset);
 	}
 
-	@Nullable
 	@Override
-	public SpawnGroupData finalizeSpawn(ServerLevelAccessor world, DifficultyInstance difficulty, EntitySpawnReason reason, @Nullable SpawnGroupData spawnData) {
+	public @Nullable SpawnGroupData finalizeSpawn(ServerLevelAccessor world, DifficultyInstance difficulty, EntitySpawnReason reason, @Nullable SpawnGroupData spawnData) {
 		setLeftHanded(random.nextFloat() < 0.05F);
 		return spawnData;
 	}

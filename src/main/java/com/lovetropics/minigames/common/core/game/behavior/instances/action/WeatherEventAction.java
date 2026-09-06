@@ -11,7 +11,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public final class WeatherEventAction implements IGameBehavior {
 	public static final MapCodec<WeatherEventAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
@@ -44,8 +44,7 @@ public final class WeatherEventAction implements IGameBehavior {
 		});
 	}
 
-	@Nullable
-	private WeatherEvent tryCreateEvent(long time) {
+	private @Nullable WeatherEvent tryCreateEvent(long time) {
 		return switch (type) {
 			case HEAVY_RAIN -> WeatherEvent.heavyRain(time);
 			case ACID_RAIN -> WeatherEvent.acidRain(time);

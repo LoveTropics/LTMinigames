@@ -12,7 +12,8 @@ import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -32,8 +33,7 @@ public final class GameClientStateSender {
 	}
 
 	// TODO: It's very strange to expose client states on the server. Can we improve on this system?
-	@Nullable
-	public static <T extends GameClientState> T getOrNull(ServerPlayer player, GameClientStateType<T> type) {
+	public static <T extends GameClientState> @Nullable T getOrNull(ServerPlayer player, GameClientStateType<T> type) {
 		return get().byPlayer(player).getOrNull(type);
 	}
 
@@ -65,9 +65,8 @@ public final class GameClientStateSender {
 			changedValues.add(type);
 		}
 
-		@Nullable
 		@SuppressWarnings("unchecked")
-		public <T extends GameClientState> T getOrNull(GameClientStateType<T> type) {
+		public <T extends GameClientState> @Nullable T getOrNull(GameClientStateType<T> type) {
 			return (T) values.get(type);
 		}
 

@@ -10,14 +10,14 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import java.util.Objects;
 import java.util.function.Supplier;
 
 @EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
 public final class ClientGameStateManager {
-	@Nullable
-	private static GameClientStateMap map;
+	private static @Nullable GameClientStateMap map;
 
 	public static <T extends GameClientState> void set(T state) {
 		GameClientStateMap map = ClientGameStateManager.map;
@@ -45,8 +45,7 @@ public final class ClientGameStateManager {
 		}
 	}
 
-	@Nullable
-	public static <T extends GameClientState> T getOrNull(Supplier<GameClientStateType<T>> type) {
+	public static <T extends GameClientState> @Nullable T getOrNull(Supplier<GameClientStateType<T>> type) {
 		GameClientStateMap map = ClientGameStateManager.map;
 		if (map != null) {
 			return map.getOrNull(type.get());

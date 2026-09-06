@@ -4,7 +4,7 @@ import com.mojang.serialization.Codec;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import org.jetbrains.annotations.Contract;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.Collection;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -33,15 +33,13 @@ public final class StatisticsMap {
 		return this;
 	}
 
-	@Nullable
 	@SuppressWarnings("unchecked")
-	public <T> T get(StatisticKey<T> key) {
+	public <T> @Nullable T get(StatisticKey<T> key) {
 		return (T) values.get(key);
 	}
 
 	@Contract("_,null->null;_,!null->!null")
-	@Nullable
-	public <T> T getOr(StatisticKey<T> key, @Nullable T or) {
+	public <T> @Nullable T getOr(StatisticKey<T> key, @Nullable T or) {
 		T value = get(key);
 		return value != null ? value : or;
 	}
@@ -56,9 +54,8 @@ public final class StatisticsMap {
 		return value != null ? value : orElse.get();
 	}
 
-	@Nullable
 	@SuppressWarnings("unchecked")
-	public <T> T remove(StatisticKey<T> key) {
+	public <T> @Nullable T remove(StatisticKey<T> key) {
 		return (T) values.remove(key);
 	}
 

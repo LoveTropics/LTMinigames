@@ -3,7 +3,7 @@ package com.lovetropics.minigames.common.core.game.weather;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public final class VanillaWeatherController implements WeatherController {
 	private final ServerLevel world;
@@ -79,15 +79,13 @@ public final class VanillaWeatherController implements WeatherController {
 		return state.heatwave;
 	}
 
-	@Nullable
 	@Override
-	public StormState getSandstorm() {
+	public @Nullable StormState getSandstorm() {
 		return state.sandstorm;
 	}
 
-	@Nullable
 	@Override
-	public StormState getSnowstorm() {
+	public @Nullable StormState getSnowstorm() {
 		return state.snowstorm;
 	}
 }

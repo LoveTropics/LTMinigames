@@ -15,7 +15,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.SharedConstants;
 import net.minecraft.server.level.ServerLevel;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class SurviveTheTideWindController implements IGameBehavior {
 	public static final MapCodec<SurviveTheTideWindController> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
@@ -24,8 +24,7 @@ public class SurviveTheTideWindController implements IGameBehavior {
 
 	private final DiscreteProgressionMap<Float> windSpeedByTime;
 
-	@Nullable
-	protected ProgressHolder progression;
+	protected @Nullable ProgressHolder progression;
 	protected GameWeatherState weather;
 
 	public SurviveTheTideWindController(DiscreteProgressionMap<Float> windSpeedByTime) {

@@ -1,12 +1,11 @@
 package com.lovetropics.minigames.common.core.game.state;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.UUID;
 
 public class ActionMutex implements AutoCloseable {
 	private final ActionMutexState.MutexMap mutexMap;
-	@Nullable
-	private final UUID playerId;
+	private final @Nullable UUID playerId;
 
 	private boolean closed;
 
@@ -19,8 +18,8 @@ public class ActionMutex implements AutoCloseable {
 		return !closed;
 	}
 
-	@Nullable
-	/* package-private */ UUID playerId() {
+	/* package-private */
+	@Nullable UUID playerId() {
 		return playerId;
 	}
 

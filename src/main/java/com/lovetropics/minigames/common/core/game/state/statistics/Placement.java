@@ -12,7 +12,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -92,8 +92,7 @@ public interface Placement<H extends StatisticHolder> extends Iterable<Placed<H>
 
 	void addToSidebar(List<Component> sidebar, int maxLength);
 
-	@Nullable
-	H getWinner();
+	@Nullable H getWinner();
 
 	final class PlayerOrder implements Placement<PlayerKey> {
 		private final List<Placed<PlayerKey>> order;
@@ -144,8 +143,7 @@ public interface Placement<H extends StatisticHolder> extends Iterable<Placed<H>
 		}
 
 		@Override
-		@Nullable
-		public PlayerKey getWinner() {
+		public @Nullable PlayerKey getWinner() {
 			return !order.isEmpty() ? order.getFirst().value() : null;
 		}
 
@@ -217,8 +215,7 @@ public interface Placement<H extends StatisticHolder> extends Iterable<Placed<H>
 		}
 
 		@Override
-		@Nullable
-		public H getWinner() {
+		public @Nullable H getWinner() {
 			if (entries.isEmpty()) {
 				return null;
 			}

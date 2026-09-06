@@ -46,7 +46,7 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.network.PacketDistributor;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -90,13 +90,10 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 
 	private final List<Holder<DdrLevel>> orderedLevels;
 
-	@Nullable
-	private DdrServerSession serverSession;
-	@Nullable
-	private DdrRecordingSession recordingSession;
+	private @Nullable DdrServerSession serverSession;
+	private @Nullable DdrRecordingSession recordingSession;
 
-	@Nullable
-	private ClientDdrMachine clientMachine;
+	private @Nullable ClientDdrMachine clientMachine;
 
 	private long canSwitchBedStateAfterTime;
 	private boolean isLocked = false;
@@ -221,8 +218,7 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 	}
 
 	@Override
-	@Nullable
-	public LivingEntity getControllingPassenger() {
+	public @Nullable LivingEntity getControllingPassenger() {
 		if (getFirstPassenger() instanceof LivingEntity passenger) {
 			return passenger;
 		}
@@ -231,7 +227,7 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 
 	@Override
 	protected boolean canAddPassenger(Entity passenger) {
-		if(getState() == DDRMachineState.BEDS){
+		if (getState() == DDRMachineState.BEDS) {
 			return getPassengers().size() < 2;
 		}
 		return getPassengers().isEmpty();
@@ -249,8 +245,7 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 		return super.getPassengerAttachmentPoint(entity, dimensions, partialTick);
 	}
 
-	@Nullable
-	private Holder<DdrLevel> pickLevel(Player player) {
+	private @Nullable Holder<DdrLevel> pickLevel(Player player) {
 		if (!(player instanceof LocalPlayer)) {
 			return null;
 		}

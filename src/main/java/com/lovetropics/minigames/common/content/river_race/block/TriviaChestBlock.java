@@ -41,7 +41,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class TriviaChestBlock extends AbstractChestBlock<ChestBlockEntity> {
 	public static final MapCodec<TriviaChestBlock> CODEC = simpleCodec(TriviaChestBlock::new);
@@ -115,9 +115,8 @@ public class TriviaChestBlock extends AbstractChestBlock<ChestBlockEntity> {
 		return DoubleBlockCombiner.Combiner::acceptNone;
 	}
 
-	@Nullable
 	@Override
-	protected MenuProvider getMenuProvider(BlockState state, Level level, BlockPos pos) {
+	protected @Nullable MenuProvider getMenuProvider(BlockState state, Level level, BlockPos pos) {
 		return level.getBlockEntity(pos) instanceof TriviaChestBlockEntity chest ? chest : null;
 	}
 
@@ -126,9 +125,8 @@ public class TriviaChestBlock extends AbstractChestBlock<ChestBlockEntity> {
 		return new TriviaChestBlockEntity(pos, state);
 	}
 
-	@Nullable
 	@Override
-	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
+	public <T extends BlockEntity> @Nullable BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
 		return level.isClientSide() ? createTickerHelper(blockEntityType, this.blockEntityType.get(), ChestBlockEntity::lidAnimateTick) : null;
 	}
 

@@ -24,7 +24,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.levelgen.Heightmap;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.Map;
 import java.util.Optional;
 
@@ -111,12 +111,9 @@ public final class AddWeatherBehavior implements IGameBehavior {
 				Potion.CODEC.optionalFieldOf("potion").forGetter(c -> Optional.ofNullable(c.potion))
 		).apply(i, (repellent, damage, potion) -> new EventEffects(repellent.orElse(null), damage.orElse(null), potion.orElse(null))));
 
-		@Nullable
-		private final Repellent repellent;
-		@Nullable
-		private final Damage damage;
-		@Nullable
-		private final Potion potion;
+		private final @Nullable Repellent repellent;
+		private final @Nullable Damage damage;
+		private final @Nullable Potion potion;
 
 		public EventEffects(@Nullable Repellent repellent, @Nullable Damage damage, @Nullable Potion potion) {
 			this.repellent = repellent;

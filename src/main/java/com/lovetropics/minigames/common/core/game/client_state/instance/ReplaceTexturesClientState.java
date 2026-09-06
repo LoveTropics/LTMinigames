@@ -10,7 +10,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.StringRepresentable;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.Map;
 
 public record ReplaceTexturesClientState(Map<TextureType, Identifier> textures) implements GameClientState {
@@ -18,8 +18,7 @@ public record ReplaceTexturesClientState(Map<TextureType, Identifier> textures) 
 			Codec.unboundedMap(TextureType.CODEC, Identifier.CODEC).fieldOf("textures").forGetter(c -> c.textures)
 	).apply(i, ReplaceTexturesClientState::new));
 
-	@Nullable
-	public Identifier getTexture(TextureType type) {
+	public @Nullable Identifier getTexture(TextureType type) {
 		return textures.get(type);
 	}
 

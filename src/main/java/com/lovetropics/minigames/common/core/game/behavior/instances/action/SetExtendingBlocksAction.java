@@ -24,7 +24,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -134,7 +134,7 @@ public final class SetExtendingBlocksAction implements IGameBehavior {
 		int currentLength = Mth.floor(totalLength * progress);
 
 		// Left this as is!
-		if(direction.getAxis() == Direction.Axis.Y) {
+		if (direction.getAxis() == Direction.Axis.Y) {
 			if (direction.getAxisDirection() == Direction.AxisDirection.POSITIVE) {
 				return box.withMax(box.min().relative(direction, currentLength));
 			} else {

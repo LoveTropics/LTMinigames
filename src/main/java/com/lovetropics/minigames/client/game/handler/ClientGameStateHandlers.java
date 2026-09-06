@@ -7,8 +7,8 @@ import com.lovetropics.minigames.common.core.game.client_state.GameClientStateTy
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.registries.DeferredHolder;
+import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.Map;
 
 public final class ClientGameStateHandlers {
@@ -39,8 +39,7 @@ public final class ClientGameStateHandlers {
 	}
 
 	@SuppressWarnings("unchecked")
-	@Nullable
-	public static <T extends GameClientState> ClientGameStateHandler<T> get(T state) {
+	public static <T extends GameClientState> @Nullable ClientGameStateHandler<T> get(T state) {
 		Identifier id = GameClientStateTypes.REGISTRY.getKey(state.getType());
 		if (id != null) {
 			return (ClientGameStateHandler<T>) REGISTRY.get(id);

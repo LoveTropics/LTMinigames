@@ -3,7 +3,7 @@ package com.lovetropics.minigames.common.core.game;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.Optional;
 
 /// Used as a discriminant for a registered minigame. Defines the logic of the
@@ -31,18 +31,15 @@ public interface IGameDefinition {
 
 	Component name();
 
-	@Nullable
-	default Component subtitle() {
+	default @Nullable Component subtitle() {
 		return null;
 	}
 
-	@Nullable
-	default Identifier icon() {
+	default @Nullable Identifier icon() {
 		return null;
 	}
 
-	@Nullable
-	default Identifier introSlideshow() {
+	default @Nullable Identifier introSlideshow() {
 		return null;
 	}
 

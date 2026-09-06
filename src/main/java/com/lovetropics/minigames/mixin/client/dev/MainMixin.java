@@ -7,19 +7,17 @@ import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import net.minecraft.client.main.Main;
 import net.minecraft.resources.Identifier;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import javax.annotation.Nullable;
-
 @Mixin(Main.class)
 public class MainMixin {
 	@Unique
-	@Nullable
-	private static OptionSpec<String> lt$quickPlayMinigame;
+	private static @Nullable OptionSpec<String> lt$quickPlayMinigame;
 
 	@Inject(method = "main", at = @At(value = "INVOKE", target = "Ljoptsimple/OptionParser;parse([Ljava/lang/String;)Ljoptsimple/OptionSet;"))
 	private static void injectOptions(String[] args, CallbackInfo ci, @Local OptionParser parser) {

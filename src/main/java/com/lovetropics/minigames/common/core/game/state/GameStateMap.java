@@ -3,9 +3,8 @@ package com.lovetropics.minigames.common.core.game.state;
 import com.lovetropics.minigames.common.core.game.GameException;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraft.network.chat.Component;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -28,14 +27,12 @@ public final class GameStateMap {
 	}
 
 	@SuppressWarnings("unchecked")
-	@Nonnull
 	public <T extends IGameState> T get(GameStateKey.Defaulted<T> key) {
 		return (T) state.computeIfAbsent(key, k -> key.createDefault());
 	}
 
-	@Nullable
 	@SuppressWarnings("unchecked")
-	public <T extends IGameState> T getOrNull(GameStateKey<T> key) {
+	public <T extends IGameState> @Nullable T getOrNull(GameStateKey<T> key) {
 		return (T) state.get(key);
 	}
 

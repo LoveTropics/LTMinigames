@@ -8,7 +8,7 @@ import com.lovetropics.minigames.common.core.game.weather.WeatherEvent;
 import com.lovetropics.minigames.common.core.game.weather.WeatherEventType;
 import net.minecraft.SharedConstants;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public final class GameWeatherState implements IGameState {
 	public static final GameStateKey<GameWeatherState> KEY = GameStateKey.create("Weather State");
@@ -16,8 +16,7 @@ public final class GameWeatherState implements IGameState {
 	private final WeatherController controller;
 	private final GameWorldEvents.SetWeather weatherListener;
 
-	@Nullable
-	private WeatherEvent event;
+	private @Nullable WeatherEvent event;
 
 	private int weatherCooldown = 0;
 	private final int weatherCooldownBetweenStates = 11 * SharedConstants.TICKS_PER_SECOND;
@@ -65,13 +64,11 @@ public final class GameWeatherState implements IGameState {
 		setEvent(null);
 	}
 
-	@Nullable
-	public WeatherEvent getEvent() {
+	public @Nullable WeatherEvent getEvent() {
 		return event;
 	}
 
-	@Nullable
-	public WeatherEventType getEventType() {
+	public @Nullable WeatherEventType getEventType() {
 		return event != null ? event.getType() : null;
 	}
 

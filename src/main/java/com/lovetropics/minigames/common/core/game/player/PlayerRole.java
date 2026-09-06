@@ -4,7 +4,7 @@ import com.lovetropics.lib.codec.MoreCodecs;
 import com.mojang.serialization.Codec;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -32,8 +32,7 @@ public enum PlayerRole {
 		return Arrays.stream(ROLES);
 	}
 
-	@Nullable
-	public static PlayerRole byKey(String key) {
+	public static @Nullable PlayerRole byKey(String key) {
 		return BY_KEY.get(key);
 	}
 

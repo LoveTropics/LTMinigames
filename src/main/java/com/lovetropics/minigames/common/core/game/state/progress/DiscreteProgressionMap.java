@@ -2,7 +2,7 @@ package com.lovetropics.minigames.common.core.game.state.progress;
 
 import com.mojang.serialization.Codec;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.Map;
 import java.util.Objects;
 
@@ -18,8 +18,7 @@ public class DiscreteProgressionMap<V> {
 	}
 
 	// TODO: Terribly inefficient
-	@Nullable
-	public V get(ProgressHolder progression) {
+	public @Nullable V get(ProgressHolder progression) {
 		int lastTime = Integer.MIN_VALUE;
 		V lastValue = null;
 		for (Map.Entry<ProgressionPoint, V> entry : values.entrySet()) {

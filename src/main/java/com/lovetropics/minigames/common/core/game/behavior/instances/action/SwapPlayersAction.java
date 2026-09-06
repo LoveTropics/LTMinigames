@@ -15,7 +15,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.List;
 
 public class SwapPlayersAction implements IGameBehavior {
@@ -27,8 +27,7 @@ public class SwapPlayersAction implements IGameBehavior {
 	private final double distanceThreshold;
 	private final boolean withinTeam;
 
-	@Nullable
-	private TeamState teams;
+	private @Nullable TeamState teams;
 
 	public SwapPlayersAction(double distanceThreshold, boolean withinTeam) {
 		this.distanceThreshold = distanceThreshold;

@@ -8,12 +8,10 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.UUIDUtil;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
+import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -31,8 +29,7 @@ public record PointTagClientState(ItemStackTemplate icon, Optional<String> trans
 		return GameClientStateTypes.POINT_TAGS.get();
 	}
 
-	@Nullable
-	public Component getPointsTextFor(final UUID id) {
+	public @Nullable Component getPointsTextFor(final UUID id) {
 		final Integer points = this.points.get(id);
 		if (points == null) {
 			return null;

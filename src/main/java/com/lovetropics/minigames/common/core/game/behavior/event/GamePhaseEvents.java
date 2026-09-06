@@ -5,7 +5,7 @@ import com.lovetropics.minigames.common.core.game.command.GameCommandRegistrar;
 import com.lovetropics.minigames.common.core.game.state.statistics.PlayerKey;
 import net.minecraft.commands.CommandBuildContext;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public final class GamePhaseEvents {
 	public static final GameEventType<Create> CREATE = GameEventType.create(Create.class, listeners -> () -> {

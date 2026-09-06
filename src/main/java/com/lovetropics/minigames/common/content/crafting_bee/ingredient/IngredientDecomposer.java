@@ -16,8 +16,7 @@ public interface IngredientDecomposer {
 			"simple_tag", SimpleTagToItemDecomposer.CODEC);
 	MapCodec<IngredientDecomposer> CODEC = Codec.STRING.dispatchMap(s -> TYPES.inverse().get(s.codec()), TYPES::get);
 
-	@Nullable
-	List<Ingredient> decompose(Ingredient ingredient);
+	@Nullable List<Ingredient> decompose(Ingredient ingredient);
 
 	default void prepareCache(ServerLevel level) {
 	}

@@ -19,7 +19,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.EntityTravelToDimensionEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.Optional;
 import java.util.Set;
 
@@ -34,8 +34,7 @@ public final class WorkspacePositionTracker {
 		data.put(workspace.id(), position.write());
 	}
 
-	@Nullable
-	public static Position getPositionFor(ServerPlayer player, MapWorkspace workspace) {
+	public static @Nullable Position getPositionFor(ServerPlayer player, MapWorkspace workspace) {
 		CompoundTag data = getOrCreateTag(player);
 		return data.getCompound(workspace.id()).flatMap(Position::read).orElse(null);
 	}
@@ -45,8 +44,7 @@ public final class WorkspacePositionTracker {
 		data.put(NBT_RETURN_KEY, position.write());
 	}
 
-	@Nullable
-	public static Position getReturnPositionFor(ServerPlayer player) {
+	public static @Nullable Position getReturnPositionFor(ServerPlayer player) {
 		CompoundTag data = getOrCreateTag(player);
 		return data.getCompound(NBT_RETURN_KEY).flatMap(Position::read).orElse(null);
 	}

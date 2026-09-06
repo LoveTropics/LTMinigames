@@ -2,7 +2,7 @@ package com.lovetropics.minigames.common.content.turtle_race;
 
 import net.minecraft.util.Mth;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -116,8 +116,7 @@ public class RaceTrackPath {
 
 	public static class Builder {
 		private final List<Segment> segments = new ArrayList<>();
-		@Nullable
-		private Point lastPoint;
+		private @Nullable Point lastPoint;
 		private float length;
 
 		public Builder addPoint(int x, int z) {

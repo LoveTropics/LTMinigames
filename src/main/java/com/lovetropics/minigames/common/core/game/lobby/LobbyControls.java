@@ -4,7 +4,7 @@ import com.lovetropics.minigames.common.core.game.GameResult;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.Unit;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.EnumMap;
 import java.util.Map;
 
@@ -22,8 +22,7 @@ public final class LobbyControls {
 		return this;
 	}
 
-	@Nullable
-	public Action get(Type type) {
+	public @Nullable Action get(Type type) {
 		return actions.get(type);
 	}
 

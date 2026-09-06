@@ -10,7 +10,7 @@ import com.lovetropics.minigames.common.core.game.map.IGameMapProvider;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -19,23 +19,15 @@ import java.util.function.UnaryOperator;
 
 public class GameBuilder {
 	private final Identifier id;
-	@Nullable
-	private Identifier backendId;
-	@Nullable
-	private String statisticsKey;
-	@Nullable
-	private Component name;
-	@Nullable
-	private Component subtitle;
-	@Nullable
-	private Identifier icon;
+	private @Nullable Identifier backendId;
+	private @Nullable String statisticsKey;
+	private @Nullable Component name;
+	private @Nullable Component subtitle;
+	private @Nullable Identifier icon;
 	private int maximumParticipants = 50;
-	@Nullable
-	private Identifier introSlideshow;
-	@Nullable
-	private GamePhaseConfig waiting;
-	@Nullable
-	private GamePhaseConfig playing;
+	private @Nullable Identifier introSlideshow;
+	private @Nullable GamePhaseConfig waiting;
+	private @Nullable GamePhaseConfig playing;
 	private boolean hideFromList;
 
 	public GameBuilder(Identifier id) {

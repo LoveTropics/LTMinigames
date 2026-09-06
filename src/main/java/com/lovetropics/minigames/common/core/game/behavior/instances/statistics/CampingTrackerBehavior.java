@@ -16,7 +16,7 @@ import net.minecraft.util.TriState;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.phys.Vec3;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.Map;
 import java.util.UUID;
 
@@ -92,8 +92,7 @@ public final class CampingTrackerBehavior implements IGameBehavior {
 	class CampingTracker {
 		boolean camping;
 
-		@Nullable
-		Vec3 lastPosition;
+		@Nullable Vec3 lastPosition;
 		long lastTrackTime;
 
 		void trackNotCamping(Vec3 currentPosition, long time) {

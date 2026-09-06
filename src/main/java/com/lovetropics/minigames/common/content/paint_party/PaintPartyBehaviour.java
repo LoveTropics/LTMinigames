@@ -49,7 +49,7 @@ import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.registries.DeferredHolder;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -300,8 +300,7 @@ public record PaintPartyBehaviour(Map<GameTeamKey, TeamConfig> teamConfigs, Bloc
 		return teamConfigs.get(teamKey);
 	}
 
-	@Nullable
-	public GameTeamKey getTeamFromBlockState(BlockState blockState) {
+	public @Nullable GameTeamKey getTeamFromBlockState(BlockState blockState) {
 		for (Map.Entry<GameTeamKey, TeamConfig> entry : teamConfigs.entrySet()) {
 			if (entry.getValue().blockType.equals(blockState)) {
 				return entry.getKey();

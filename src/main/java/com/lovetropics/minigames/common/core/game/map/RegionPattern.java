@@ -4,7 +4,7 @@ import com.lovetropics.lib.BlockBox;
 import com.lovetropics.minigames.common.core.map.MapRegions;
 import com.mojang.serialization.Codec;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.Collection;
 
 public record RegionPattern(String pattern) {
@@ -18,8 +18,7 @@ public record RegionPattern(String pattern) {
 		return regions.getOrThrow(resolveKey(args));
 	}
 
-	@Nullable
-	public BlockBox getAny(MapRegions regions, Object... args) {
+	public @Nullable BlockBox getAny(MapRegions regions, Object... args) {
 		return regions.getAny(resolveKey(args));
 	}
 

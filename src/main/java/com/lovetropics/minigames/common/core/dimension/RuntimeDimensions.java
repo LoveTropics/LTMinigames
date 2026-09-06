@@ -4,17 +4,17 @@ import com.lovetropics.minigames.LoveTropics;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
-import net.minecraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.RegistrationInfo;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.ProgressListener;
+import net.minecraft.util.Util;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.BiomeManager;
@@ -31,8 +31,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -48,8 +48,7 @@ import java.util.function.Supplier;
 public final class RuntimeDimensions {
 	private static final Logger LOGGER = LogManager.getLogger(RuntimeDimensions.class);
 
-	@Nullable
-	private static RuntimeDimensions instance;
+	private static @Nullable RuntimeDimensions instance;
 
 	private final MinecraftServer server;
 
@@ -94,8 +93,7 @@ public final class RuntimeDimensions {
 		return Objects.requireNonNull(getOrNull(server), "Runtime dimensions not yet initialized");
 	}
 
-	@Nullable
-	public static RuntimeDimensions getOrNull(MinecraftServer server) {
+	public static @Nullable RuntimeDimensions getOrNull(MinecraftServer server) {
 		RuntimeDimensions instance = RuntimeDimensions.instance;
 		if (instance != null && instance.server == server) {
 			return instance;
@@ -119,8 +117,7 @@ public final class RuntimeDimensions {
 		return openLevel(key, config, true);
 	}
 
-	@Nullable
-	public RuntimeDimensionHandle openTemporaryWithKey(Identifier key, RuntimeDimensionConfig config) {
+	public @Nullable RuntimeDimensionHandle openTemporaryWithKey(Identifier key, RuntimeDimensionConfig config) {
 		ResourceKey<Level> worldKey = ResourceKey.create(Registries.DIMENSION, key);
 		if (server.getLevel(worldKey) == null) {
 			return openLevel(key, config, true);

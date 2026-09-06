@@ -22,7 +22,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.codec.StreamDecoder;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.IntConsumer;
@@ -193,8 +193,7 @@ public abstract class ClientLobbyUpdate extends PartialUpdate<ClientLobbyManagem
 	}
 
 	public static final class SetCurrentGame extends ClientLobbyUpdate {
-		@Nullable
-		private final ClientCurrentGame game;
+		private final @Nullable ClientCurrentGame game;
 
 		SetCurrentGame(@Nullable ClientCurrentGame game) {
 			super(Type.SET_CURRENT_GAME);

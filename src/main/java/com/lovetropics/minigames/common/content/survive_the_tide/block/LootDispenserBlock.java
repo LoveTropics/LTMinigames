@@ -44,15 +44,13 @@ public class LootDispenserBlock extends BaseEntityBlock {
 		builder.add(FACING, STATE);
 	}
 
-	@Nullable
 	@Override
-	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+	public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
 		return new LootDispenserBlockEntity(SurviveTheTide.LOOT_DISPENSER_ENTITY.get(), pos, state);
 	}
 
-	@Nullable
 	@Override
-	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+	public <T extends BlockEntity> @Nullable BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
 		if (level.isClientSide()) {
 			return null;
 		}

@@ -7,28 +7,23 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public interface IGameLookup {
-	@Nullable
-	IGamePhase getGamePhaseFor(Player player);
+	@Nullable IGamePhase getGamePhaseFor(Player player);
 
-	@Nullable
-	IGamePhase getGamePhaseAt(Level level, Vec3 pos);
+	@Nullable IGamePhase getGamePhaseAt(Level level, Vec3 pos);
 
-	@Nullable
-	IGamePhase getGamePhaseInDimension(Level level);
+	@Nullable IGamePhase getGamePhaseInDimension(Level level);
 
-	@Nullable
-	default IGamePhase getGamePhaseFor(CommandSourceStack source) {
+	default @Nullable IGamePhase getGamePhaseFor(CommandSourceStack source) {
 		if (source.getEntity() instanceof Player player) {
 			return getGamePhaseFor(player);
 		}
 		return getGamePhaseAt(source.getLevel(), source.getPosition());
 	}
 
-	@Nullable
-	default IGamePhase getGamePhaseFor(Entity entity) {
+	default @Nullable IGamePhase getGamePhaseFor(Entity entity) {
 		if (entity.level().isClientSide()) {
 			return null;
 		}
@@ -39,8 +34,7 @@ public interface IGameLookup {
 		}
 	}
 
-	@Nullable
-	default IGamePhase getGamePhaseAt(Level level, BlockPos pos) {
+	default @Nullable IGamePhase getGamePhaseAt(Level level, BlockPos pos) {
 		return getGamePhaseAt(level, Vec3.atCenterOf(pos));
 	}
 }

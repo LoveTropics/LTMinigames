@@ -20,7 +20,7 @@ import net.minecraft.world.level.block.state.properties.AttachFace;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class BigRedButtonBlock extends BaseBigRedButtonBlock implements EntityBlock {
 	public static final BooleanProperty TRIGGERED = BooleanProperty.create("triggered");
@@ -73,24 +73,21 @@ public class BigRedButtonBlock extends BaseBigRedButtonBlock implements EntityBl
 		builder.add(TRIGGERED);
 	}
 
-	@Nullable
 	@Override
-	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+	public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
 		return new BigRedButtonBlockEntity(SurviveTheTide.BIG_RED_BUTTON_ENTITY.get(), pos, state);
 	}
 
-	@Nullable
 	@Override
-	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+	public  <T extends BlockEntity> @Nullable BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
 		if (level.isClientSide()) {
 			return null;
 		}
 		return createTickerHelper(type, SurviveTheTide.BIG_RED_BUTTON_ENTITY.get(), BigRedButtonBlockEntity::tick);
 	}
 
-	@Nullable
 	@SuppressWarnings("unchecked")
-	protected static <E extends BlockEntity, A extends BlockEntity> BlockEntityTicker<A> createTickerHelper(BlockEntityType<A> actualType, BlockEntityType<E> type, BlockEntityTicker<? super E> ticker) {
+	protected static <E extends BlockEntity, A extends BlockEntity> @Nullable BlockEntityTicker<A> createTickerHelper(BlockEntityType<A> actualType, BlockEntityType<E> type, BlockEntityTicker<? super E> ticker) {
 		return type == actualType ? (BlockEntityTicker<A>) ticker : null;
 	}
 }

@@ -7,7 +7,7 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -21,8 +21,7 @@ public final class TeamAllocator<T, V> {
 	private final Map<V, T> teamPreferences = new Object2ObjectOpenHashMap<>();
 
 	private final Object2IntMap<T> teamSizes = new Object2IntOpenHashMap<>();
-	@Nullable
-	private T overflowTeam;
+	private @Nullable T overflowTeam;
 	private final List<T> lockedTeams = new ArrayList<>();
 
 	public TeamAllocator(Collection<T> teams) {
@@ -168,8 +167,7 @@ public final class TeamAllocator<T, V> {
 		}
 	}
 
-	@Nullable
-	private V findSwapCandidate(T from, T to, Collection<V> candidates) {
+	private @Nullable V findSwapCandidate(T from, T to, Collection<V> candidates) {
 		V swapWith = null;
 
 		for (V candidate : candidates) {

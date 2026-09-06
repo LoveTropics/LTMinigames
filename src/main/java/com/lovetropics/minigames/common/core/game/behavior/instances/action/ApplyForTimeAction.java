@@ -25,7 +25,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.util.context.ContextMap;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -82,8 +82,7 @@ public record ApplyForTimeAction(
 		private final GameEventListeners nestedListeners = new GameEventListeners();
 		private final Map<GameEventType<?>, MutableInvoker<?>> nestedInvokers = new HashMap<>();
 
-		@Nullable
-		private ActiveAction globalAction;
+		private @Nullable ActiveAction globalAction;
 		private final Map<UUID, ActiveAction> playerActions = new HashMap<>();
 
 		private void tick(final IGamePhase game) {

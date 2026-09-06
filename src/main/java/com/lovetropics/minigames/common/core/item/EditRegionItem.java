@@ -19,7 +19,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.Optional;
 
 public final class EditRegionItem extends Item {
@@ -108,8 +108,7 @@ public final class EditRegionItem extends Item {
 			this.color = color;
 		}
 
-		@Nullable
-		RegionEditOperator createEdit(RegionTraceTarget target) {
+		@Nullable RegionEditOperator createEdit(RegionTraceTarget target) {
 			return switch (this) {
 				case RESIZE -> new RegionEditOperator.Resize(target);
 				case MOVE -> new RegionEditOperator.Move(target);

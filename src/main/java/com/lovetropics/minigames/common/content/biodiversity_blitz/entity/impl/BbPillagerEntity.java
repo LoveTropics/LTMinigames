@@ -32,7 +32,7 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.phys.Vec3;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class BbPillagerEntity extends Pillager implements BbMobEntity {
 	private final BbMobBrain mobBrain;
@@ -61,9 +61,8 @@ public class BbPillagerEntity extends Pillager implements BbMobEntity {
 		targetSelector.addGoal(1, new BbTargetPlayerGoal(this));
 	}
 
-	@Nullable
 	@Override
-	public SpawnGroupData finalizeSpawn(ServerLevelAccessor worldIn, DifficultyInstance difficultyIn, EntitySpawnReason reason, @Nullable SpawnGroupData spawnDataIn) {
+	public @Nullable SpawnGroupData finalizeSpawn(ServerLevelAccessor worldIn, DifficultyInstance difficultyIn, EntitySpawnReason reason, @Nullable SpawnGroupData spawnDataIn) {
 		SpawnGroupData data = super.finalizeSpawn(worldIn, difficultyIn, reason, spawnDataIn);
 		setPatrolLeader(false); // Make sure that the pillagers aren't raid leaders
 		setPatrolling(false);

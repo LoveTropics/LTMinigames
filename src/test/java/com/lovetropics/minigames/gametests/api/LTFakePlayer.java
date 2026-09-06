@@ -13,14 +13,14 @@ import net.minecraft.stats.Stat;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameType;
+import org.jspecify.annotations.NullMarked;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-@ParametersAreNonnullByDefault
+@NullMarked
 public class LTFakePlayer extends ServerPlayer implements LTGameTestFakePlayer {
 	public final List<Packet<?>> receivedPackets = new ArrayList<>();
 	private final FakePlayerBuilder builder;

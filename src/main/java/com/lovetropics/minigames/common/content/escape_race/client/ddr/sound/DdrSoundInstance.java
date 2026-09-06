@@ -2,7 +2,6 @@ package com.lovetropics.minigames.common.content.escape_race.client.ddr.sound;
 
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DDRMachineEntity;
 import net.minecraft.SharedConstants;
-import net.minecraft.util.Util;
 import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance;
 import net.minecraft.client.resources.sounds.Sound;
 import net.minecraft.client.resources.sounds.SoundInstance;
@@ -11,9 +10,10 @@ import net.minecraft.client.sounds.SoundBufferLibrary;
 import net.minecraft.core.Holder;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
+import net.minecraft.util.Util;
 import net.minecraft.world.item.JukeboxSong;
+import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import javax.sound.sampled.AudioFormat;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -94,8 +94,7 @@ public class DdrSoundInstance extends AbstractTickableSoundInstance {
 	}
 
 	private static class PrependedStream implements AudioStream {
-		@Nullable
-		private ByteBuffer precedingBuffer;
+		private @Nullable ByteBuffer precedingBuffer;
 		private final AudioStream stream;
 
 		private PrependedStream(ByteBuffer precedingBuffer, AudioStream stream) {

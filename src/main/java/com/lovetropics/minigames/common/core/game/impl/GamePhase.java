@@ -31,17 +31,17 @@ import com.lovetropics.minigames.common.core.map.MapRegions;
 import com.mojang.logging.LogUtils;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Unit;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -86,8 +86,7 @@ public class GamePhase implements IGamePhase {
 
 	private boolean handlingJoin;
 
-	@Nullable
-	private GameStopReason stopReason;
+	private @Nullable GameStopReason stopReason;
 	private boolean destroyed;
 
 	/* package-private */ GamePhase(GameInstance game, @Nullable GamePhase parentPhase, GameMap map, IGameDefinition definition, IGameBehavior behavior) {
@@ -178,7 +177,8 @@ public class GamePhase implements IGamePhase {
 		CompoundTag playerTag = invoker(GamePlayerEvents.LOAD).tryLoad(PlayerKey.from(player), role);
 		if (playerTag != null) {
 			newPlayer = PlayerIsolation.INSTANCE.reloadPlayerFromTag(playerTag, player);
-			initializer = p -> {};
+			initializer = p -> {
+			};
 		} else {
 			SpawnBuilder spawn = determinePlayerSpawn(player, role);
 			newPlayer = PlayerIsolation.INSTANCE.teleportTo(player, spawn.level(), spawn.position(), spawn.yRot(), spawn.xRot());
@@ -218,8 +218,7 @@ public class GamePhase implements IGamePhase {
 		return spawn;
 	}
 
-	@Nullable
-	public GameStopReason stopReason() {
+	public @Nullable GameStopReason stopReason() {
 		return stopReason;
 	}
 
@@ -438,8 +437,7 @@ public class GamePhase implements IGamePhase {
 		return addPlayerDirectly(player, true);
 	}
 
-	@Nullable
-	private PlayerRole selectRoleForJoin(ServerPlayer player, @Nullable PlayerRole requestedRole) {
+	private @Nullable PlayerRole selectRoleForJoin(ServerPlayer player, @Nullable PlayerRole requestedRole) {
 		try {
 			// The player hasn't joined the game yet, so don't expose the player instance
 			return invoker(GamePlayerEvents.SELECT_ROLE_ON_JOIN).selectRole(PlayerKey.from(player), requestedRole);

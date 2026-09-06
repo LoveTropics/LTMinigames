@@ -5,7 +5,7 @@ import com.lovetropics.minigames.common.core.map.MapRegions;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.function.Consumer;
 
 public record GameMap(@Nullable String name, ResourceKey<Level> dimension, MapRegions mapRegions, @Nullable Consumer<IGamePhase> close) {

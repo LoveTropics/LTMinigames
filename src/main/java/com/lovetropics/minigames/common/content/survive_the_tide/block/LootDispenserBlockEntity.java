@@ -29,7 +29,7 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.phys.Vec3;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.ArrayDeque;
 import java.util.Optional;
 import java.util.Queue;
@@ -42,8 +42,7 @@ public class LootDispenserBlockEntity extends BlockEntity {
 	private static final String TAG_DROPS_LEFT = "drops_left";
 	private static final String TAG_TICKS_TO_NEXT_DROP = "ticks_to_next_drop";
 
-	@Nullable
-	private LootConfig loot;
+	private @Nullable LootConfig loot;
 	private int dropsLeft;
 	private int ticksToNextDrop;
 

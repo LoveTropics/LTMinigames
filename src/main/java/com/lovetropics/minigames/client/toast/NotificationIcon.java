@@ -1,6 +1,5 @@
 package com.lovetropics.minigames.client.toast;
 
-import com.lovetropics.lib.codec.MoreCodecs;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -9,10 +8,9 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.effect.MobEffect;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
+import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.Optional;
 
 public final class NotificationIcon {
@@ -32,10 +30,8 @@ public final class NotificationIcon {
 			}
 	);
 
-	@Nullable
-	public final ItemStackTemplate item;
-	@Nullable
-	public final Holder<MobEffect> effect;
+	public final @Nullable ItemStackTemplate item;
+	public final @Nullable Holder<MobEffect> effect;
 
 	private NotificationIcon(Optional<ItemStackTemplate> item, Optional<Holder<MobEffect>> effect) {
 		this(item.orElse(null), effect.orElse(null));

@@ -32,7 +32,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -72,8 +72,7 @@ public class Util {
 		return false;
 	}
 
-	@Nullable
-	public static BlockPos findGround(Level world, BlockPos origin, int maximumDistance) {
+	public static @Nullable BlockPos findGround(Level world, BlockPos origin, int maximumDistance) {
 		if (!isSolidGround(world, origin)) {
 			BlockPos pos = origin.below();
 			if (world.getBlockState(pos).isSolid()) {
@@ -172,8 +171,7 @@ public class Util {
 		return ((TranslatableContents) component.getContents()).getKey();
 	}
 
-	@Nullable
-	public static ServerPlayer getKillerPlayer(final ServerPlayer player, final DamageSource killingBlow) {
+	public static @Nullable ServerPlayer getKillerPlayer(final ServerPlayer player, final DamageSource killingBlow) {
 		if (killingBlow.getEntity() instanceof final ServerPlayer killerPlayer) {
 			return killerPlayer;
 		} else if (player.getKillCredit() instanceof final ServerPlayer killerPlayer) {

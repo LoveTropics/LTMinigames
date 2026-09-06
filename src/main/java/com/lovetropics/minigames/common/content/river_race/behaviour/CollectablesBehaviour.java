@@ -1,6 +1,5 @@
 package com.lovetropics.minigames.common.content.river_race.behaviour;
 
-import com.lovetropics.lib.codec.MoreCodecs;
 import com.lovetropics.lib.entity.FireworkPalette;
 import com.lovetropics.minigames.common.content.river_race.RiverRace;
 import com.lovetropics.minigames.common.content.river_race.RiverRaceState;
@@ -37,15 +36,14 @@ import net.minecraft.util.context.ContextKeySet;
 import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.EntitySpawnReason;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
+import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -124,7 +122,7 @@ public final class CollectablesBehaviour implements IGameBehavior {
 		game.level().addFreshEntity(itemDisplay);
 	}
 
-	private TriState tryPlaceCollectable(IGamePhase game, TeamState teams, ServerPlayer player, BlockPos pos, @Nullable RiverRaceState.Zone expectedCollectable, @Nullable RiverRaceState.Zone placedCollectable) {
+	private TriState tryPlaceCollectable(IGamePhase game, TeamState teams, ServerPlayer player, BlockPos pos, RiverRaceState.@Nullable Zone expectedCollectable, RiverRaceState.@Nullable Zone placedCollectable) {
 		if (placedCollectable == null || !Objects.equals(expectedCollectable, placedCollectable)) {
 			com.lovetropics.minigames.common.util.Util.sendNotifySound(player, SoundEvents.VILLAGER_NO, SoundSource.PLAYERS, 1.0f, 1.0f);
 			player.sendSystemMessage(RiverRaceTexts.CANT_PLACE_COLLECTABLE, true);

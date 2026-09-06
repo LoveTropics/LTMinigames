@@ -5,9 +5,9 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.logging.LogUtils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Unit;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 
-import javax.annotation.Nullable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.function.Function;
@@ -17,10 +17,8 @@ public final class GameResult<T> {
 
 	private static final GameResult<Unit> OK_UNIT = GameResult.ok(Unit.INSTANCE);
 
-	@Nullable
-	private final T ok;
-	@Nullable
-	private final Component error;
+	private final @Nullable T ok;
+	private final @Nullable Component error;
 
 	private GameResult(@Nullable T ok, @Nullable Component error) {
 		this.ok = ok;
@@ -76,13 +74,11 @@ public final class GameResult<T> {
 		});
 	}
 
-	@Nullable
-	public T getOk() {
+	public @Nullable T getOk() {
 		return ok;
 	}
 
-	@Nullable
-	public Component getError() {
+	public @Nullable Component getError() {
 		return error;
 	}
 

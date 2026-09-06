@@ -3,7 +3,6 @@ package com.lovetropics.minigames.common.content.escape_race.ddr_machine.levels;
 import com.lovetropics.minigames.common.content.escape_race.EscapeRaceTexts;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DdrInput;
 import net.minecraft.ChatFormatting;
-import net.minecraft.util.Util;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -13,9 +12,9 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
+import net.minecraft.util.Util;
 import net.minecraft.world.phys.Vec3;
-
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class DdrServerSession {
 	private static final int PERFECT_TOLERANCE = 1;
@@ -75,8 +74,7 @@ public class DdrServerSession {
 	}
 
 	// No reason not to completely trust the client - doesn't allow them to do something a modified client couldn't do anyway by sending perfectly timed inputs
-	@Nullable
-	public DdrLevelInputQueue.Hit handleInputTick(ServerPlayer player, DdrInput newInput, long inputTick) {
+	public DdrLevelInputQueue.@Nullable Hit handleInputTick(ServerPlayer player, DdrInput newInput, long inputTick) {
 		DdrLevelInputQueue.Result result = inputQueue.handleInput(newInput, inputTick);
 		if (result.missedCount() > 0) {
 			if (currentLevelStreak > 0) {

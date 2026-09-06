@@ -22,7 +22,7 @@ import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -89,21 +89,18 @@ public class GamePhaseManager implements IGameLookup {
 		}
 	}
 
-	@Nullable
 	@Override
-	public GamePhase getGamePhaseFor(Player player) {
+	public @Nullable GamePhase getGamePhaseFor(Player player) {
 		return getGamePhaseInDimension(player.level());
 	}
 
-	@Nullable
 	@Override
-	public GamePhase getGamePhaseAt(Level level, Vec3 pos) {
+	public @Nullable GamePhase getGamePhaseAt(Level level, Vec3 pos) {
 		return getGamePhaseInDimension(level);
 	}
 
-	@Nullable
 	@Override
-	public GamePhase getGamePhaseInDimension(Level level) {
+	public @Nullable GamePhase getGamePhaseInDimension(Level level) {
 		if (level.isClientSide()) {
 			return null;
 		}

@@ -5,7 +5,7 @@ import com.lovetropics.minigames.common.core.game.player.MutablePlayerSet;
 import com.lovetropics.minigames.common.core.game.player.PlayerSet;
 import net.minecraft.server.level.ServerPlayer;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.UUID;
@@ -13,8 +13,7 @@ import java.util.UUID;
 public class Overlords implements PlayerSet, IGameState {
 	public static final GameStateKey.Defaulted<Overlords> KEY = new GameStateKey.Defaulted<>("Overlords", Overlords::new);
 
-	@Nullable
-	private MutablePlayerSet players;
+	private @Nullable MutablePlayerSet players;
 
 	public static Overlords get(IGamePhase game) {
 		return game.instanceState().get(Overlords.KEY);

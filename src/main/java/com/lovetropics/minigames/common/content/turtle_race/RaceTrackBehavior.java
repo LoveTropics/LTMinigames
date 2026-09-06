@@ -40,7 +40,7 @@ import net.minecraft.world.BossEvent;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -382,8 +382,7 @@ public class RaceTrackBehavior implements IGameBehavior {
 	}
 
 	private static class PlayerState implements AutoCloseable {
-		@Nullable
-		private GameBossBar bar;
+		private @Nullable GameBossBar bar;
 
 		private int lap;
 		private float trackedPosition;
@@ -442,8 +441,7 @@ public class RaceTrackBehavior implements IGameBehavior {
 			trackedTime = time;
 		}
 
-		@Nullable
-		public Vec3 tryUpdate(Vec3 position, long time) {
+		public @Nullable Vec3 tryUpdate(Vec3 position, long time) {
 			if (canUpdate(position, time)) {
 				Vec3 lastPosition = trackedPosition;
 				trackedPosition = position;

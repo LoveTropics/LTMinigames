@@ -6,7 +6,7 @@ import com.lovetropics.minigames.common.core.game.player.PlayerRole;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.UUID;
 
 public record ClientLobbyPlayer(
@@ -39,8 +39,7 @@ public record ClientLobbyPlayer(
 		}
 	}
 
-	@Nullable
-	private static PlayerRole decodeRole(FriendlyByteBuf buffer) {
+	private static @Nullable PlayerRole decodeRole(FriendlyByteBuf buffer) {
 		int ordinal = buffer.readVarInt() - 1;
 		if (ordinal >= 0 && ordinal < PlayerRole.ROLES.length) {
 			return PlayerRole.ROLES[ordinal];

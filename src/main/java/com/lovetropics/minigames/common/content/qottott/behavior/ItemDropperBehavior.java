@@ -1,7 +1,6 @@
 package com.lovetropics.minigames.common.content.qottott.behavior;
 
 import com.lovetropics.lib.BlockBox;
-import com.lovetropics.lib.codec.MoreCodecs;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionContextKeys;
@@ -17,13 +16,13 @@ import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.RandomSource;
+import net.minecraft.util.Util;
 import net.minecraft.util.context.ContextKeySet;
 import net.minecraft.util.context.ContextMap;
 import net.minecraft.util.valueproviders.IntProvider;
@@ -35,8 +34,8 @@ import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -103,10 +102,8 @@ public record ItemDropperBehavior(Either<List<ItemStackTemplate>, ResourceKey<Lo
 		private final Supplier<ItemStack> lootProvider;
 		private int dropInTicks;
 
-		@Nullable
-		private ItemEntity lastDroppedItem;
-		@Nullable
-		private BlockPos beaconPos;
+		private @Nullable ItemEntity lastDroppedItem;
+		private @Nullable BlockPos beaconPos;
 
 		private Dropper(final List<Vec3> positions, final Supplier<ItemStack> lootProvider) {
 			this.positions = positions;

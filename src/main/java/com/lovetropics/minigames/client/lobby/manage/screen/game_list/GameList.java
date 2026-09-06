@@ -132,9 +132,8 @@ public final class GameList implements GuiEventListener, NarratableEntry {
 		return active.charTyped(event);
 	}
 
-	@Nullable
 	@Override
-	public ComponentPath nextFocusPath(FocusNavigationEvent event) {
+	public @Nullable ComponentPath nextFocusPath(FocusNavigationEvent event) {
 		return active.nextFocusPath(event);
 	}
 

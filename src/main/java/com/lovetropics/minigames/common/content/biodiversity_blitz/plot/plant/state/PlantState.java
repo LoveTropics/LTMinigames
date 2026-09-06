@@ -2,7 +2,7 @@ package com.lovetropics.minigames.common.content.biodiversity_blitz.plot.plant.s
 
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.Map;
 
 public final class PlantState {
@@ -12,9 +12,8 @@ public final class PlantState {
 		map.put(key, state);
 	}
 
-	@Nullable
 	@SuppressWarnings("unchecked")
-	public <S> S get(Key<S> key) {
+	public <S> @Nullable S get(Key<S> key) {
 		return (S) map.get(key);
 	}
 

@@ -107,8 +107,7 @@ public class PlatformEntity extends Entity {
 	}
 
 	@Override
-	@Nullable
-	public InterpolationHandler getInterpolation() {
+	public @Nullable InterpolationHandler getInterpolation() {
 		return interpolation;
 	}
 

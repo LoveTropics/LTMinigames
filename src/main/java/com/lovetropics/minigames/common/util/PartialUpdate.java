@@ -6,7 +6,7 @@ import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.function.Supplier;
@@ -43,8 +43,7 @@ public abstract class PartialUpdate<A> {
 			return Iterators.forArray(idToType);
 		}
 
-		@Nullable
-		AbstractType<A> typeById(int id) {
+		@Nullable AbstractType<A> typeById(int id) {
 			return id >= 0 && id < idToType.length ? idToType[id] : null;
 		}
 

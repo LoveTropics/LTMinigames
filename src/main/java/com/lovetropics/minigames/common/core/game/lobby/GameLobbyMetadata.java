@@ -3,7 +3,7 @@ package com.lovetropics.minigames.common.core.game.lobby;
 import com.lovetropics.minigames.common.core.game.player.PlayerRole;
 import com.lovetropics.minigames.common.core.game.state.statistics.PlayerKey;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public record GameLobbyMetadata(GameLobbyId id, PlayerKey initiator, String name, LobbyVisibility visibility) {
 	public GameLobbyMetadata(GameLobbyId id, PlayerKey initiator, String name) {

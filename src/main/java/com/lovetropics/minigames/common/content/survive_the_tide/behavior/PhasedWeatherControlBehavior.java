@@ -16,7 +16,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.SharedConstants;
 import net.minecraft.server.level.ServerLevel;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.List;
 import java.util.Objects;
 
@@ -54,8 +54,7 @@ public record PhasedWeatherControlBehavior(
 		}
 	}
 
-	@Nullable
-	private WeatherEventType getCurrentWeather(final ProgressHolder progression) {
+	private @Nullable WeatherEventType getCurrentWeather(final ProgressHolder progression) {
 		for (final Period period : periods) {
 			if (progression.is(period.period())) {
 				return period.weather();

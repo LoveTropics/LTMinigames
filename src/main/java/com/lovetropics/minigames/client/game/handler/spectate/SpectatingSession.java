@@ -6,7 +6,7 @@ import net.minecraft.util.Mth;
 import net.neoforged.neoforge.client.event.CalculateDetachedCameraDistanceEvent;
 import net.neoforged.neoforge.client.event.ViewportEvent;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.List;
 import java.util.UUID;
 
@@ -16,8 +16,7 @@ class SpectatingSession {
 	final SpectatingUi ui;
 
 	SpectatingState state;
-	@Nullable
-	SpectatingState.StateApplicator stateApplicator;
+	SpectatingState.@Nullable StateApplicator stateApplicator;
 
 	double targetZoom = 1.0;
 	double zoom = 1.0;

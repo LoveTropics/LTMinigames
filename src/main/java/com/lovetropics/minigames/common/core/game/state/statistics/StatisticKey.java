@@ -9,7 +9,7 @@ import com.mojang.serialization.JsonOps;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
@@ -93,8 +93,7 @@ public final class StatisticKey<T> {
 	private final String key;
 	private final Codec<T> valueCodec;
 	private Function<T, String> display = simple();
-	@Nullable
-	private T defaultValue;
+	private @Nullable T defaultValue;
 
 	private StatisticKey(Class<T> type, String key, Codec<T> valueCodec) {
 		this.type = type;
@@ -163,8 +162,7 @@ public final class StatisticKey<T> {
 		return key;
 	}
 
-	@Nullable
-	public T defaultValue() {
+	public @Nullable T defaultValue() {
 		return defaultValue;
 	}
 
@@ -195,8 +193,7 @@ public final class StatisticKey<T> {
 		return "StatisticKey(" + key + ")";
 	}
 
-	@Nullable
-	public static StatisticKey<?> get(String key) {
+	public static @Nullable StatisticKey<?> get(String key) {
 		return REGISTRY.get(key);
 	}
 

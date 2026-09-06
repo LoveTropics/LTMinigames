@@ -11,7 +11,7 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.function.Supplier;
 
 @EventBusSubscriber(modid = LoveTropics.ID)
@@ -23,8 +23,7 @@ public final class DriftwoodRider {
 	);
 
 	private final Player player;
-	@Nullable
-	private DriftwoodEntity ridingDriftwood;
+	private @Nullable DriftwoodEntity ridingDriftwood;
 	private int ridingTime;
 
 	DriftwoodRider(Player player) {
@@ -73,8 +72,7 @@ public final class DriftwoodRider {
 		ridingTime = 10;
 	}
 
-	@Nullable
-	public DriftwoodEntity getRiding() {
+	public @Nullable DriftwoodEntity getRiding() {
 		return ridingDriftwood;
 	}
 }

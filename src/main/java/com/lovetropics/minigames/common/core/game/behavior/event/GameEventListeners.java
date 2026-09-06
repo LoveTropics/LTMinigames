@@ -3,7 +3,6 @@ package com.lovetropics.minigames.common.core.game.behavior.event;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +33,6 @@ public final class GameEventListeners implements EventRegistrar {
 	}
 
 	@SuppressWarnings("unchecked")
-	@Nonnull
 	public <T> T invoker(GameEventType<T> type) {
 		return (T) invokers.getOrDefault(type, type.empty());
 	}

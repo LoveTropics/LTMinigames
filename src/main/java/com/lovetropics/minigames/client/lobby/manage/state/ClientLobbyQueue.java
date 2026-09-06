@@ -8,9 +8,8 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntListIterator;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.function.IntConsumer;
@@ -37,12 +36,10 @@ public final class ClientLobbyQueue implements Iterable<ClientLobbyQueuedGame> {
 		this.queue.addAll(queue);
 	}
 
-	@Nullable
-	public ClientLobbyQueuedGame byId(int id) {
+	public @Nullable ClientLobbyQueuedGame byId(int id) {
 		return games.get(id);
 	}
 
-	@Nonnull
 	private ClientLobbyQueuedGame byIdOrThrow(int key) {
 		ClientLobbyQueuedGame game = games.get(key);
 		return Objects.requireNonNull(game, "game in queue with missing definition");

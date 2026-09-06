@@ -19,7 +19,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -43,8 +43,7 @@ public final class TeamState implements IGameState, Iterable<GameTeam> {
 
 	private final Collection<GameTeam> pollingTeams;
 
-	@Nullable
-	private Allocations allocations = new Allocations();
+	private @Nullable Allocations allocations = new Allocations();
 
 	public TeamState(List<GameTeam> teams) {
 		this.teams = teams;
@@ -91,8 +90,7 @@ public final class TeamState implements IGameState, Iterable<GameTeam> {
 		players.add(player.id());
 	}
 
-	@Nullable
-	public GameTeamKey removePlayer(UUID playerId) {
+	public @Nullable GameTeamKey removePlayer(UUID playerId) {
 		for (Map.Entry<GameTeamKey, Set<UUID>> entry : Object2ObjectMaps.fastIterable(playersByKey)) {
 			if (entry.getValue().remove(playerId)) {
 				return entry.getKey();
@@ -126,18 +124,15 @@ public final class TeamState implements IGameState, Iterable<GameTeam> {
 		return getPlayersForTeam(game, team);
 	}
 
-	@Nullable
-	public GameTeamKey getTeamForPlayer(Player player) {
+	public @Nullable GameTeamKey getTeamForPlayer(Player player) {
 		return getTeamForPlayer(player.getUUID());
 	}
 
-	@Nullable
-	public GameTeamKey getTeamForPlayer(PlayerKey player) {
+	public @Nullable GameTeamKey getTeamForPlayer(PlayerKey player) {
 		return getTeamForPlayer(player.id());
 	}
 
-	@Nullable
-	public GameTeamKey getTeamForPlayer(UUID playerId) {
+	public @Nullable GameTeamKey getTeamForPlayer(UUID playerId) {
 		for (Map.Entry<GameTeamKey, Set<UUID>> entry : Object2ObjectMaps.fastIterable(playersByKey)) {
 			if (entry.getValue().contains(playerId)) {
 				return entry.getKey();
@@ -163,8 +158,7 @@ public final class TeamState implements IGameState, Iterable<GameTeam> {
 		return teams.stream().flatMap(TeamState::assignedRoles).distinct().toList();
 	}
 
-	@Nullable
-	public GameTeam getTeamByKey(String key) {
+	public @Nullable GameTeam getTeamByKey(String key) {
 		for (GameTeam team : teams) {
 			if (team.key().id().equals(key)) {
 				return team;
@@ -173,8 +167,7 @@ public final class TeamState implements IGameState, Iterable<GameTeam> {
 		return null;
 	}
 
-	@Nullable
-	public GameTeam getTeamByKey(GameTeamKey key) {
+	public @Nullable GameTeam getTeamByKey(GameTeamKey key) {
 		return teamsByKey.get(key);
 	}
 

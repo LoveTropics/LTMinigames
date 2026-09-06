@@ -41,9 +41,8 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.network.PacketDistributor;
+import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nullable;
-import javax.sound.sampled.Port;
 import java.util.List;
 
 public class VendingMachineEntity extends Entity implements ContainerEntity {
@@ -58,12 +57,10 @@ public class VendingMachineEntity extends Entity implements ContainerEntity {
 	public static final int INVENTORY_SIZE = Math.max(Mth.roundToward(VendingMachineSlots.COUNT, 9), 27);
 
 	private final NonNullList<ItemStack> itemStacks = NonNullList.withSize(INVENTORY_SIZE, ItemStack.EMPTY);
-	@Nullable
-	private ResourceKey<LootTable> lootTable;
+	private @Nullable ResourceKey<LootTable> lootTable;
 	private long lootTableSeed;
 
-	@Nullable
-	private ItemStack droppingItem = ItemStack.EMPTY;
+	private @Nullable ItemStack droppingItem = ItemStack.EMPTY;
 	private int droppingFromSlot = NO_SLOT;
 	private int droppingItemTicks;
 
@@ -287,8 +284,7 @@ public class VendingMachineEntity extends Entity implements ContainerEntity {
 	}
 
 	@Override
-	@Nullable
-	public AbstractContainerMenu createMenu(int containerId, Inventory playerInventory, Player player) {
+	public @Nullable AbstractContainerMenu createMenu(int containerId, Inventory playerInventory, Player player) {
 		if (lootTable != null && player.isSpectator()) {
 			return null;
 		} else {
@@ -346,8 +342,7 @@ public class VendingMachineEntity extends Entity implements ContainerEntity {
 		}
 	}
 
-	@Nullable
-	public ItemStack getDroppingItem() {
+	public @Nullable ItemStack getDroppingItem() {
 		return droppingItem;
 	}
 

@@ -40,9 +40,9 @@ import net.minecraft.server.permissions.Permissions;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.Unit;
 import net.minecraft.util.context.ContextMap;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 
-import javax.annotation.Nullable;
 import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Deque;
@@ -225,10 +225,8 @@ public final class MinigameCompetitionBehavior implements IGameBehavior {
 	private class SubGameManager {
 		private final Deque<QueueEntry> queue = new ArrayDeque<>();
 
-		@Nullable
-		private IGamePhase currentGame;
-		@Nullable
-		private PendingSubPhase pendingGame;
+		private @Nullable IGamePhase currentGame;
+		private @Nullable PendingSubPhase pendingGame;
 
 		public void queueFirst(QueueEntry entry) {
 			queue.addFirst(entry);
@@ -279,8 +277,8 @@ public final class MinigameCompetitionBehavior implements IGameBehavior {
 				pendingGame = null;
 				currentGame = subGame;
 				subEvents.listen(GamePhaseEvents.STOP, reason -> {
-							startNextGame(topGame);
-							onStopSubGame(topGame, subGame, reason);
+					startNextGame(topGame);
+					onStopSubGame(topGame, subGame, reason);
 				});
 				onCreateSubGame(topGame, subGame, subEvents);
 			});
@@ -293,8 +291,7 @@ public final class MinigameCompetitionBehavior implements IGameBehavior {
 			});
 		}
 
-		@Nullable
-		public IGameDefinition cancelCurrentGame() {
+		public @Nullable IGameDefinition cancelCurrentGame() {
 			IGamePhase currentGame = this.currentGame;
 			if (currentGame != null) {
 				currentGame.requestStop(GameStopReason.canceled());
@@ -303,8 +300,7 @@ public final class MinigameCompetitionBehavior implements IGameBehavior {
 			return null;
 		}
 
-		@Nullable
-		public IGameDefinition restartCurrentGame() {
+		public @Nullable IGameDefinition restartCurrentGame() {
 			IGamePhase currentGame = this.currentGame;
 			if (currentGame != null) {
 				// Note: because we pass by id, if we /reload this will fetch the new instance
@@ -340,8 +336,7 @@ public final class MinigameCompetitionBehavior implements IGameBehavior {
 				}
 		);
 
-		@Nullable
-		IGameDefinition resolveGame();
+		@Nullable IGameDefinition resolveGame();
 
 		Component getName();
 	}

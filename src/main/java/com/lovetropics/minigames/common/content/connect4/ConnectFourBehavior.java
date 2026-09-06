@@ -19,6 +19,7 @@ import com.lovetropics.minigames.common.core.game.state.team.GameTeam;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeamKey;
 import com.lovetropics.minigames.common.core.game.state.team.TeamState;
 import com.lovetropics.minigames.common.util.SequentialList;
+import com.lovetropics.minigames.common.util.Util;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -76,8 +77,7 @@ public class ConnectFourBehavior implements IGameBehavior {
 
 	private IGamePhase game;
 
-	@Nullable
-	private PendingGate pendingGate;
+	private @Nullable PendingGate pendingGate;
 
 	private SequentialList<PlayingTeam> playingTeams;
 
@@ -146,7 +146,7 @@ public class ConnectFourBehavior implements IGameBehavior {
 		PlacedPiece[] column = pieces[x];
 		if (column[column.length - 1] != null) {
 			// Column already filled
-			com.lovetropics.minigames.common.util.Util.sendNotifySound(player, SoundEvents.VILLAGER_NO, SoundSource.BLOCKS, 1.0f, 1.0f);
+			Util.sendNotifySound(player, SoundEvents.VILLAGER_NO, SoundSource.BLOCKS, 1.0f, 1.0f);
 			return TriState.FALSE;
 		}
 
@@ -256,11 +256,10 @@ public class ConnectFourBehavior implements IGameBehavior {
 
 		player.setGlowingTag(true);
 		PlayerSet.of(player).showTitle(ConnectFourTexts.IT_IS_YOUR_TURN_TITLE, ConnectFourTexts.IT_IS_YOUR_TURN_SUBTITLE, 10, 40, 10);
-		com.lovetropics.minigames.common.util.Util.sendNotifySound(player, SoundEvents.ANVIL_LAND, SoundSource.PLAYERS, 1.0f, 1.0f);
+		Util.sendNotifySound(player, SoundEvents.ANVIL_LAND, SoundSource.PLAYERS, 1.0f, 1.0f);
 	}
 
-	@Nullable
-	private Line checkWin(int x, int y, GameTeamKey team) {
+	private @Nullable Line checkWin(int x, int y, GameTeamKey team) {
 		List<Line> possibleLines = new ArrayList<>();
 		possibleLines.add(new Line(x, y, 0, -1)); // vertical
 		for (int offset = 0; offset < connectAmount; offset++) {

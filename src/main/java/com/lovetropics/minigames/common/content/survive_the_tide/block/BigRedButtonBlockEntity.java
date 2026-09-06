@@ -37,8 +37,7 @@ public class BigRedButtonBlockEntity extends BlockEntity {
 	private int playersPresentCount;
 	private int playersRequiredCount;
 
-	@Nullable
-	private BlockPos triggerPos;
+	private @Nullable BlockPos triggerPos;
 
 	public BigRedButtonBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);

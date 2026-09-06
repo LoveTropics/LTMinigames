@@ -50,9 +50,9 @@ import net.minecraft.world.BossEvent;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 
-import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -329,8 +329,8 @@ public class Warehouse implements IGameState {
 			return state instanceof PlayingRoomState;
 		}
 
-		public void earlyExit(){
-			if(state instanceof PlayingRoomState playingRoom) {
+		public void earlyExit() {
+			if (state instanceof PlayingRoomState playingRoom) {
 				playingRoom.closeAndReturnToTop();
 			}
 		}
@@ -339,9 +339,8 @@ public class Warehouse implements IGameState {
 			return state;
 		}
 
-		@Nullable
-		public GameTeamKey getTeam() {
-			if(state instanceof PlayingRoomState playingRoom) {
+		public @Nullable GameTeamKey getTeam() {
+			if (state instanceof PlayingRoomState playingRoom) {
 				return playingRoom.team;
 			}
 			return null;

@@ -9,15 +9,15 @@ import com.lovetropics.minigames.common.core.map.SavedRegions;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
+import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -74,13 +74,11 @@ public final class MapWorkspaceManager extends SavedData {
 		return false;
 	}
 
-	@Nullable
-	public MapWorkspace getWorkspace(String id) {
+	public @Nullable MapWorkspace getWorkspace(String id) {
 		return workspaces.get(id);
 	}
 
-	@Nullable
-	public MapWorkspace getWorkspace(ResourceKey<Level> dimension) {
+	public @Nullable MapWorkspace getWorkspace(ResourceKey<Level> dimension) {
 		Identifier name = dimension.identifier();
 		if (!name.getNamespace().equals(LoveTropics.ID)) {
 			return null;
@@ -88,8 +86,7 @@ public final class MapWorkspaceManager extends SavedData {
 		return workspaces.get(name.getPath());
 	}
 
-	@Nullable
-	public WorkspaceRegions getRegions(MinecraftServer server, ResourceKey<Level> dimension) {
+	public @Nullable WorkspaceRegions getRegions(MinecraftServer server, ResourceKey<Level> dimension) {
 		MapWorkspace workspace = getWorkspace(dimension);
 		if (workspace != null) {
 			return workspace.regions();

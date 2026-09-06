@@ -20,7 +20,7 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.ExtraCodecs;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 
@@ -35,8 +35,7 @@ public class MicrogameScoringBehavior implements IGameBehavior {
 	private final List<Integer> pointsPerGameWon;
 	private final Map<Identifier, Integer> specialPointsPerGame;
 
-	@Nullable
-	private MicrogameSegmentState microgameSegment;
+	private @Nullable MicrogameSegmentState microgameSegment;
 
 	public MicrogameScoringBehavior(StatisticKey<Integer> statistic, List<Integer> pointsPerGameWon, Map<Identifier, Integer> specialPointsPerGame) {
 		this.statistic = statistic;

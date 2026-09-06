@@ -31,15 +31,13 @@ public class Codecs {
 
 	private static <T> MapLike<T> emptyMapLike() {
 		return new MapLike<>() {
-			@Nullable
 			@Override
-			public T get(T key) {
+			public @Nullable T get(T key) {
 				return null;
 			}
 
-			@Nullable
 			@Override
-			public T get(String key) {
+			public @Nullable T get(String key) {
 				return null;
 			}
 

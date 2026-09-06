@@ -5,7 +5,7 @@
 //import net.minecraft.world.level.ChunkPos;
 //import net.minecraft.world.level.chunk.status.ChunkStatus;
 //
-//import javax.annotation.Nullable;
+//import org.jspecify.annotations.Nullable;
 //
 //public final class VoidChunkStatusListener implements ChunkProgressListener {
 //	public static final VoidChunkStatusListener INSTANCE = new VoidChunkStatusListener();

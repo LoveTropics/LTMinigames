@@ -22,7 +22,6 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.ChatFormatting;
 import net.minecraft.SharedConstants;
-import net.minecraft.util.Util;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.RegistryCodecs;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -33,15 +32,16 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
+import net.minecraft.util.Util;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import org.apache.commons.lang3.mutable.MutableObject;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -71,8 +71,7 @@ public final class ColumnsOfChaosBehavior implements IGameBehavior {
 	private final Optional<HolderSet<Item>> excludedItems;
 	private List<ItemStack> filteredItems;
 	private BlockBox floorRegion;
-	@Nullable
-	private State state;
+	private @Nullable State state;
 
 	public ColumnsOfChaosBehavior(int pillarHeight, int itemInterval, int decreaseOverRounds, int maxCountdownTicks, int minCountdownTicks, Optional<HolderSet<Item>> excludedItems, String floorRegionName) {
 		this.pillarHeight = pillarHeight;
@@ -207,8 +206,7 @@ public final class ColumnsOfChaosBehavior implements IGameBehavior {
 		return filteredItems.getFirst().copy();
 	}
 
-	@Nullable
-	private BlockBox getSpawnForPlayer(UUID playerId, TeamState teams, Map<GameTeamKey, CycledSpawner> teamSpawners) {
+	private @Nullable BlockBox getSpawnForPlayer(UUID playerId, TeamState teams, Map<GameTeamKey, CycledSpawner> teamSpawners) {
 		GameTeamKey team = teams.getTeamForPlayer(playerId);
 		if (team != null) {
 			CycledSpawner teamSpawner = teamSpawners.get(team);
@@ -235,8 +233,7 @@ public final class ColumnsOfChaosBehavior implements IGameBehavior {
 	}
 
 	interface State {
-		@Nullable
-		State tick(IGamePhase game);
+		@Nullable State tick(IGamePhase game);
 	}
 
 	final class CountingDown implements State {

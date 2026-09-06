@@ -18,7 +18,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class TriviaBlockEntity extends BlockEntity implements HasTrivia {
 
@@ -36,8 +36,7 @@ public class TriviaBlockEntity extends BlockEntity implements HasTrivia {
 
 	public static final String TAG_QUESTION = "question";
 	public static final String TAG_UNLOCKS_AT = "unlocksAt";
-	@Nullable
-	private TriviaBehaviour.TriviaQuestion question;
+	private TriviaBehaviour.@Nullable TriviaQuestion question;
 	private long unlocksAt;
 	private final TriviaType triviaType;
 
@@ -100,8 +99,7 @@ public class TriviaBlockEntity extends BlockEntity implements HasTrivia {
 	}
 
 	@Override
-	@Nullable
-	public TriviaBehaviour.TriviaQuestion getQuestion() {
+	public TriviaBehaviour.@Nullable TriviaQuestion getQuestion() {
 		return question;
 	}
 

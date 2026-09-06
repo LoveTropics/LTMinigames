@@ -50,7 +50,7 @@ import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import net.neoforged.neoforge.client.renderstate.AvatarRenderStateModifier;
 import net.neoforged.neoforge.client.renderstate.RegisterRenderStateModifiersEvent;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.List;
 
 @EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
@@ -327,8 +327,7 @@ public class GameRendering {
 	) {
 	}
 
-	@Nullable
-	private static StatisticOverlayState.Ticker statisticTicker;
+	private static StatisticOverlayState.@Nullable Ticker statisticTicker;
 
 	@SubscribeEvent
 	public static void onClientTick(ClientTickEvent.Post event) {

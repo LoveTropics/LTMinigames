@@ -2,7 +2,7 @@ package com.lovetropics.minigames.common.core.game.weather;
 
 import net.minecraft.server.level.ServerPlayer;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public interface WeatherController {
 	void onPlayerJoin(ServerPlayer player);
@@ -31,11 +31,9 @@ public interface WeatherController {
 
 	boolean isHeatwave();
 
-	@Nullable
-	StormState getSandstorm();
+	@Nullable StormState getSandstorm();
 
-	@Nullable
-	StormState getSnowstorm();
+	@Nullable StormState getSnowstorm();
 
 	default boolean isSandstorm() {
 		return getSandstorm() != null;

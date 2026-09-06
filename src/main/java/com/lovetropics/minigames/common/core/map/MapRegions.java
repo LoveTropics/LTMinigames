@@ -10,7 +10,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.network.chat.Component;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -65,8 +65,7 @@ public final class MapRegions {
 		return regions.get(key);
 	}
 
-	@Nullable
-	public BlockBox getAny(String key) {
+	public @Nullable BlockBox getAny(String key) {
 		Collection<BlockBox> regions = this.regions.get(key);
 		if (!regions.isEmpty()) {
 			return regions.iterator().next();

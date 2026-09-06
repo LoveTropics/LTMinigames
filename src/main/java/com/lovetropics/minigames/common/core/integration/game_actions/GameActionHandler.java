@@ -3,9 +3,9 @@ package com.lovetropics.minigames.common.core.integration.game_actions;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.integration.GameInstanceIntegrations;
 import com.mojang.logging.LogUtils;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -56,8 +56,7 @@ public final class GameActionHandler {
 			this.requestType = requestType;
 		}
 
-		@Nullable
-		public GameActionRequest tryHandle(Collection<IGamePhase> games, int tick) {
+		public @Nullable GameActionRequest tryHandle(Collection<IGamePhase> games, int tick) {
 			if (queue.isEmpty() && deferredQueue.isEmpty() || tick < nextPollTick) {
 				return null;
 			}
@@ -69,8 +68,7 @@ public final class GameActionHandler {
 			return tryHandleQueue(games, deferredQueue);
 		}
 
-		@Nullable
-		private GameActionRequest tryHandleQueue(Collection<IGamePhase> games, Queue<GameActionRequest> queue) {
+		private @Nullable GameActionRequest tryHandleQueue(Collection<IGamePhase> games, Queue<GameActionRequest> queue) {
 			List<GameActionRequest> unhandledRequests = new ArrayList<>();
 			try {
 				GameActionRequest request;

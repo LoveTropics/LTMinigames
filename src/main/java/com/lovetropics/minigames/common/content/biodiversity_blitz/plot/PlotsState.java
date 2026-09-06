@@ -6,14 +6,14 @@ import com.lovetropics.minigames.common.core.game.state.IGameState;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeamKey;
 import com.lovetropics.minigames.common.core.game.state.team.TeamState;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import net.minecraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
+import net.minecraft.util.Util;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -31,8 +31,7 @@ public final class PlotsState implements Iterable<Plot>, IGameState {
 		this.teams = teams;
 	}
 
-	@Nullable
-	public Plot getPlotAt(BlockPos pos) {
+	public @Nullable Plot getPlotAt(BlockPos pos) {
 		for (Plot plot : plots) {
 			if (plot.walls.containsBlock(pos)) {
 				return plot;
@@ -46,13 +45,11 @@ public final class PlotsState implements Iterable<Plot>, IGameState {
 		plots.add(plot);
 	}
 
-	@Nullable
-	public Plot getPlotFor(GameTeamKey team) {
+	public @Nullable Plot getPlotFor(GameTeamKey team) {
 		return plotsByTeam.get(team);
 	}
 
-	@Nullable
-	public Plot getPlotFor(Entity entity) {
+	public @Nullable Plot getPlotFor(Entity entity) {
 		if (entity instanceof final Player player) {
 			GameTeamKey team = teams.getTeamForPlayer(player);
 			return team != null ? getPlotFor(team) : null;
@@ -80,8 +77,7 @@ public final class PlotsState implements Iterable<Plot>, IGameState {
 		return plots.stream();
 	}
 
-	@Nullable
-	public Plot getRandomPlot(RandomSource random) {
+	public @Nullable Plot getRandomPlot(RandomSource random) {
 		if (plots.isEmpty()) {
 			return null;
 		}

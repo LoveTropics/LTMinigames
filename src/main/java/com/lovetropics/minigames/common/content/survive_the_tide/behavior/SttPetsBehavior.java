@@ -25,7 +25,7 @@ import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.level.pathfinder.Path;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -102,8 +102,7 @@ public final class SttPetsBehavior implements IGameBehavior {
 		}
 	}
 
-	@Nullable
-	private Pet findPet(PathfinderMob entity) {
+	private @Nullable Pet findPet(PathfinderMob entity) {
 		for (List<Pet> pets : petsByPlayer.values()) {
 			for (Pet pet : pets) {
 				if (pet.entity == entity) {

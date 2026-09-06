@@ -13,7 +13,7 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.CommonColors;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public abstract class AbstractGameList extends AbstractLTList<AbstractGameList.Entry> {
 	private static final int TITLE_PADDING = 3;
@@ -57,8 +57,7 @@ public abstract class AbstractGameList extends AbstractLTList<AbstractGameList.E
 
 		private final int id;
 		TrimmedText title = TrimmedText.EMPTY;
-		@Nullable
-		TrimmedText subtitle = null;
+		@Nullable TrimmedText subtitle = null;
 
 		private int backgroundColor = -1;
 		private int selectedColor = 0xFF000000;

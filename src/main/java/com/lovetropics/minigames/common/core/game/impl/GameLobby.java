@@ -24,7 +24,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Unit;
 import net.neoforged.neoforge.network.PacketDistributor;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -80,8 +80,7 @@ public final class GameLobby {
 		return gameQueue;
 	}
 
-	@Nullable
-	public GamePhase getTopPhase() {
+	public @Nullable GamePhase getTopPhase() {
 		return state.getTopPhase();
 	}
 
@@ -90,8 +89,7 @@ public final class GameLobby {
 		return topPhase != null ? topPhase.allSubPhases() : Stream.empty();
 	}
 
-	@Nullable
-	public ClientCurrentGame getClientCurrentGame() {
+	public @Nullable ClientCurrentGame getClientCurrentGame() {
 		return state.getClientCurrentGame();
 	}
 
@@ -296,8 +294,7 @@ public final class GameLobby {
 		}
 	}
 
-	@Nullable
-	public IGameDefinition getCurrentGameDefinition() {
+	public @Nullable IGameDefinition getCurrentGameDefinition() {
 		GamePhase topPhase = getTopPhase();
 		return topPhase != null ? topPhase.definition() : null;
 	}

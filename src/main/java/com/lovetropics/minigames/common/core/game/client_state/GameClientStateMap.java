@@ -2,7 +2,7 @@ package com.lovetropics.minigames.common.core.game.client_state;
 
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -18,14 +18,12 @@ public final class GameClientStateMap implements Iterable<GameClientState> {
 	}
 
 	@SuppressWarnings("unchecked")
-	@Nullable
-	public <T extends GameClientState> T getOrNull(GameClientStateType<T> type) {
+	public <T extends GameClientState> @Nullable T getOrNull(GameClientStateType<T> type) {
 		return (T) map.get(type);
 	}
 
 	@SuppressWarnings("unchecked")
-	@Nullable
-	public <T extends GameClientState> T remove(GameClientStateType<T> type) {
+	public <T extends GameClientState> @Nullable T remove(GameClientStateType<T> type) {
 		return (T) map.remove(type);
 	}
 

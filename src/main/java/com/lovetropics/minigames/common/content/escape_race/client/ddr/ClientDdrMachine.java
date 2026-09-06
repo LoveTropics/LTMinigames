@@ -19,7 +19,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -28,14 +28,12 @@ import java.util.Optional;
 public class ClientDdrMachine {
 	private static final double SOUND_RANGE = 5.0;
 
-	@Nullable
-	private Session session;
+	private @Nullable Session session;
 
 	private DdrInput lastInput = DdrInput.NONE;
 
 	private final DdrPlayerPoseState poseState = new DdrPlayerPoseState();
-	@Nullable
-	private DdrSoundInstance playingTrackSound;
+	private @Nullable DdrSoundInstance playingTrackSound;
 
 	public void tick(DDRMachineEntity entity) {
 		if (entity.getControllingPassenger() instanceof LocalPlayer) {

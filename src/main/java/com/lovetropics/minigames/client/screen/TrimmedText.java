@@ -6,15 +6,14 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public final class TrimmedText {
 	public static final TrimmedText EMPTY = new TrimmedText(CommonComponents.EMPTY);
 
 	private final Component text;
 
-	@Nullable
-	private FormattedCharSequence trimmedText;
+	private @Nullable FormattedCharSequence trimmedText;
 	private int trimmedWidth = -1;
 
 	private TrimmedText(Component text) {

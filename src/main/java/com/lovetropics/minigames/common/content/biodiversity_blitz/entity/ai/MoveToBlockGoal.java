@@ -7,15 +7,14 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.Goal;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.EnumSet;
 
 public abstract class MoveToBlockGoal extends Goal {
 	protected final BbMobEntity bbMob;
 	protected final Mob mob;
 	// State
-	@Nullable
-	protected BlockPos targetPos;
+	protected @Nullable BlockPos targetPos;
 
 	protected MoveToBlockGoal(BbMobEntity mob) {
 		this.mob = mob.asMob();
@@ -60,8 +59,7 @@ public abstract class MoveToBlockGoal extends Goal {
 		return !mob.getNavigation().isDone();
 	}
 
-	@Nullable
-	protected Plant locatePlant() {
+	protected @Nullable Plant locatePlant() {
 		PlantMap plants = bbMob.getPlot().plants;
 		Plant maxPrioPlant = null;
 		int maxPrio = 0;

@@ -1,7 +1,6 @@
 package com.lovetropics.minigames.common.content.biodiversity_blitz.behavior;
 
 import com.lovetropics.lib.BlockBox;
-import com.lovetropics.lib.codec.MoreCodecs;
 import com.lovetropics.minigames.common.content.biodiversity_blitz.BiodiversityBlitzTexts;
 import com.lovetropics.minigames.common.content.biodiversity_blitz.behavior.event.BbEvents;
 import com.lovetropics.minigames.common.content.biodiversity_blitz.merchant.BbMerchant;
@@ -36,8 +35,8 @@ import net.minecraft.world.item.trading.ItemCost;
 import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.item.trading.MerchantOffers;
 import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -108,8 +107,7 @@ public final class BbMerchantBehavior implements IGameBehavior {
 		merchants.add(merchant.getUUID());
 	}
 
-	@Nullable
-	private Entity createMerchant(ServerLevel level, double x, double y, double z, float yRot, float xRot) {
+	private @Nullable Entity createMerchant(ServerLevel level, double x, double y, double z, float yRot, float xRot) {
 		Entity merchant = entity.create(level, x, y, z, yRot, xRot);
 		if (merchant != null) {
 			if (name != CommonComponents.EMPTY) {
@@ -177,10 +175,8 @@ public final class BbMerchantBehavior implements IGameBehavior {
 						output -> output.item != null ? Either.left(output) : Either.right(output)
 				);
 
-		@Nullable
-		private final ItemStackTemplate item;
-		@Nullable
-		private final PlantItemType plant;
+		private final @Nullable ItemStackTemplate item;
+		private final @Nullable PlantItemType plant;
 
 		private Output(@Nullable ItemStackTemplate item, @Nullable PlantItemType plant) {
 			this.item = item;

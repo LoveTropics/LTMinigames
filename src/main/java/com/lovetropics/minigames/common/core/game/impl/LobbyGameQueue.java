@@ -6,7 +6,7 @@ import com.lovetropics.minigames.common.core.game.lobby.QueuedGame;
 import com.lovetropics.minigames.common.dev.DevQuickPlay;
 import net.minecraft.util.Mth;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -14,8 +14,7 @@ import java.util.List;
 public final class LobbyGameQueue implements Iterable<QueuedGame> {
 	private final List<QueuedGame> entries = new ArrayList<>();
 
-	@Nullable
-	QueuedGame next() {
+	@Nullable QueuedGame next() {
 		if (!entries.isEmpty()) {
 			return entries.removeFirst();
 		}
@@ -45,8 +44,7 @@ public final class LobbyGameQueue implements Iterable<QueuedGame> {
 		return entries.size();
 	}
 
-	@Nullable
-	QueuedGame removeByNetworkId(int networkId) {
+	@Nullable QueuedGame removeByNetworkId(int networkId) {
 		int index = indexByNetworkId(networkId);
 		return index != -1 ? entries.remove(index) : null;
 	}
@@ -63,8 +61,7 @@ public final class LobbyGameQueue implements Iterable<QueuedGame> {
 		return true;
 	}
 
-	@Nullable
-	QueuedGame getByNetworkId(int networkId) {
+	@Nullable QueuedGame getByNetworkId(int networkId) {
 		int index = indexByNetworkId(networkId);
 		return index != -1 ? entries.get(index) : null;
 	}

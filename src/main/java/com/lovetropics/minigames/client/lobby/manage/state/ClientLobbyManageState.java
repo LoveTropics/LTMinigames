@@ -7,13 +7,12 @@ import com.lovetropics.minigames.common.core.game.lobby.LobbyVisibility;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.IntList;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.List;
 
 public final class ClientLobbyManageState {
 	private String name = "";
-	@Nullable
-	private ClientCurrentGame currentGame;
+	private @Nullable ClientCurrentGame currentGame;
 	private ClientLobbyQueue queue = new ClientLobbyQueue();
 	private List<ClientLobbyPlayer> players = List.of();
 	private LobbyControls.State controlsState = LobbyControls.State.disabled();
@@ -26,8 +25,7 @@ public final class ClientLobbyManageState {
 		return name;
 	}
 
-	@Nullable
-	public ClientCurrentGame getCurrentGame() {
+	public @Nullable ClientCurrentGame getCurrentGame() {
 		return currentGame;
 	}
 

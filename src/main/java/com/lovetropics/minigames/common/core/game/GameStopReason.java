@@ -2,7 +2,7 @@ package com.lovetropics.minigames.common.core.game;
 
 import net.minecraft.network.chat.Component;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public final class GameStopReason {
 	private static final GameStopReason FINISHED = new GameStopReason(true, null);
@@ -12,8 +12,7 @@ public final class GameStopReason {
 	private static final GameStopReason SERVER_STOPPING = new GameStopReason(false, null);
 
 	private final boolean finished;
-	@Nullable
-	private final Component error;
+	private final @Nullable Component error;
 
 	private GameStopReason(boolean finished, @Nullable Component error) {
 		this.finished = finished;
@@ -52,8 +51,7 @@ public final class GameStopReason {
 		return error != null;
 	}
 
-	@Nullable
-	public Component getError() {
+	public @Nullable Component getError() {
 		return error;
 	}
 }

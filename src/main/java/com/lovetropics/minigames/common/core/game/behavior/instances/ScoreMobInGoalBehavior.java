@@ -37,10 +37,10 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.mutable.MutableInt;
+import org.jspecify.annotations.Nullable;
 import org.lovetropics.peekaboo.api.Disguise;
 import org.lovetropics.peekaboo.api.EntityDisguiseHolder;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -223,8 +223,7 @@ public record ScoreMobInGoalBehavior(
 		game.allPlayers().playSound(SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 1.0f, 1.0f);
 	}
 
-	@Nullable
-	private Goal getGoalAt(List<Goal> goals, Vec3 position) {
+	private @Nullable Goal getGoalAt(List<Goal> goals, Vec3 position) {
 		for (Goal goal : goals) {
 			if (goal.box.contains(position)) {
 				return goal;

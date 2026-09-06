@@ -7,8 +7,7 @@ import com.lovetropics.minigames.common.core.game.impl.LobbyGameQueue;
 import com.lovetropics.minigames.common.core.game.impl.LobbyPlayerManager;
 import com.lovetropics.minigames.common.core.game.lobby.QueuedGame;
 import net.minecraft.resources.Identifier;
-
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public record TestGameLobby(GameLobby lobby) {
 	public LobbyPlayerManager getPlayers() {
@@ -19,8 +18,7 @@ public record TestGameLobby(GameLobby lobby) {
 		return lobby.getGameQueue();
 	}
 
-	@Nullable
-	public IGamePhase getTopPhase() {
+	public @Nullable IGamePhase getTopPhase() {
 		return lobby.getTopPhase();
 	}
 

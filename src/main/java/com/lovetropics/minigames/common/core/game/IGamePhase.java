@@ -18,7 +18,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.util.Unit;
 import net.minecraft.world.level.Level;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public interface IGamePhase {
 	/// @return the world that this game takes place within
@@ -98,8 +98,7 @@ public interface IGamePhase {
 		return getPlayersWithRole(PlayerRole.SPECTATOR);
 	}
 
-	@Nullable
-	PlayerRole getRoleFor(ServerPlayer player);
+	@Nullable PlayerRole getRoleFor(ServerPlayer player);
 
 	/// @return the tick counter since the game started
 	long ticks();

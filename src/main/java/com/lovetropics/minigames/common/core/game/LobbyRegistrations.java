@@ -11,7 +11,7 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -78,14 +78,12 @@ public final class LobbyRegistrations implements PlayerSet {
 		return players.size();
 	}
 
-	@Nullable
-	public PlayerRole getForcedRoleFor(UUID id) {
+	public @Nullable PlayerRole getForcedRoleFor(UUID id) {
 		return forcedRoles.get(id);
 	}
 
-	@Nullable
 	@Override
-	public ServerPlayer getPlayerBy(UUID id) {
+	public @Nullable ServerPlayer getPlayerBy(UUID id) {
 		return contains(id) ? server.getPlayerList().getPlayer(id) : null;
 	}
 

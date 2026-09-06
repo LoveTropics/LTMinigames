@@ -23,9 +23,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 
-import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -58,8 +58,7 @@ public class PositionPlayersBehavior implements IGameBehavior {
 	private CycledSpawner fallbackSpawner = CycledSpawner.EMPTY;
 	private Map<GameTeamKey, CycledSpawner> teamSpawners = Map.of();
 
-	@Nullable
-	private BlockBox faceBox;
+	private @Nullable BlockBox faceBox;
 
 	public PositionPlayersBehavior(String[] participantSpawnKeys, String[] spectatorSpawnKeys, String[] allSpawnKeys, Map<GameTeamKey, String[]> teamSpawnKeys, boolean splitByTeam, float angle, Optional<String> faceRegion) {
 		this.participantSpawnKeys = participantSpawnKeys;
@@ -138,8 +137,7 @@ public class PositionPlayersBehavior implements IGameBehavior {
 		return (float) (Mth.atan2(deltaZ, deltaX) * Mth.RAD_TO_DEG - 90.0f);
 	}
 
-	@Nullable
-	private BlockBox getSpawnRegionFor(UUID playerId, PlayerRole role, @Nullable TeamState teams) {
+	private @Nullable BlockBox getSpawnRegionFor(UUID playerId, PlayerRole role, @Nullable TeamState teams) {
 		if (role == PlayerRole.PARTICIPANT) {
 			BlockBox region = getParticipantSpawnRegion(playerId, teams);
 			if (region != null) {
@@ -154,8 +152,7 @@ public class PositionPlayersBehavior implements IGameBehavior {
 		return fallbackSpawner.next();
 	}
 
-	@Nullable
-	private BlockBox getParticipantSpawnRegion(UUID playerId, @Nullable TeamState teams) {
+	private @Nullable BlockBox getParticipantSpawnRegion(UUID playerId, @Nullable TeamState teams) {
 		GameTeamKey team = teams != null ? teams.getTeamForPlayer(playerId) : null;
 		if (team != null) {
 			CycledSpawner teamSpawner = teamSpawners.get(team);

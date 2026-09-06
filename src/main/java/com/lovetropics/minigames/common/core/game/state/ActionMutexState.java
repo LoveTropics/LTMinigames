@@ -3,7 +3,7 @@ package com.lovetropics.minigames.common.core.game.state;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -17,23 +17,19 @@ public class ActionMutexState implements IGameState {
 		return mutexMaps.computeIfAbsent(id, k -> new MutexMap());
 	}
 
-	@Nullable
-	public ActionMutex acquireGlobal(Identifier id, boolean force) {
+	public @Nullable ActionMutex acquireGlobal(Identifier id, boolean force) {
 		return getMutexMap(id).acquireGlobal(force);
 	}
 
-	@Nullable
-	public ActionMutex acquireForPlayer(ServerPlayer player, Identifier id, boolean force) {
+	public @Nullable ActionMutex acquireForPlayer(ServerPlayer player, Identifier id, boolean force) {
 		return getMutexMap(id).acquireForPlayer(player, force);
 	}
 
 	/* package-private */ static class MutexMap {
-		@Nullable
-		private ActionMutex global;
+		private @Nullable ActionMutex global;
 		private final Map<UUID, ActionMutex> byPlayer = new HashMap<>();
 
-		@Nullable
-		public ActionMutex acquireGlobal(boolean force) {
+		public @Nullable ActionMutex acquireGlobal(boolean force) {
 			if (force) {
 				ActionMutex oldMutex = global;
 				global = new ActionMutex(this, null);
@@ -50,8 +46,7 @@ public class ActionMutexState implements IGameState {
 			}
 		}
 
-		@Nullable
-		public ActionMutex acquireForPlayer(ServerPlayer player, boolean force) {
+		public @Nullable ActionMutex acquireForPlayer(ServerPlayer player, boolean force) {
 			ActionMutex newMutex = new ActionMutex(this, player.getUUID());
 			if (force) {
 				ActionMutex oldMutex = byPlayer.put(player.getUUID(), newMutex);

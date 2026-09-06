@@ -13,14 +13,13 @@ import com.lovetropics.minigames.common.core.integration.BackendIntegrations;
 import com.lovetropics.minigames.common.core.integration.GameInstanceIntegrations;
 import com.mojang.serialization.MapCodec;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class SetupIntegrationsBehavior implements IGameBehavior {
 	public static final MapCodec<SetupIntegrationsBehavior> CODEC = MapCodec.unit(SetupIntegrationsBehavior::new);
 
-	@Nullable
-	private GameInstanceIntegrations integrations;
+	private @Nullable GameInstanceIntegrations integrations;
 
 	// TODO: we could potentially have state entries & the IGamePhase come through the constructor with codec hacks
 	@Override

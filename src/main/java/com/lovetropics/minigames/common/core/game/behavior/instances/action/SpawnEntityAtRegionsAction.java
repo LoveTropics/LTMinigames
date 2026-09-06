@@ -20,7 +20,7 @@ import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.levelgen.Heightmap;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -41,8 +41,7 @@ public class SpawnEntityAtRegionsAction implements IGameBehavior {
 	private final boolean atHeightmap;
 	private final Optional<String> faceRegion;
 	private final Optional<GameActionList> entitySpawnActions;
-	@Nullable
-	private BlockBox faceBox;
+	private @Nullable BlockBox faceBox;
 
 	public SpawnEntityAtRegionsAction(final List<String> regionsToSpawnAtKeys, final EntityTemplate entity, final int entityCountPerRegion, boolean atHeightmap, final Optional<String> faceRegion, final Optional<GameActionList> entitySpawnActions) {
 		this.regionsToSpawnAtKeys = regionsToSpawnAtKeys;
@@ -86,7 +85,7 @@ public class SpawnEntityAtRegionsAction implements IGameBehavior {
 						angle = (float) (Mth.atan2(deltaZ, deltaX) * Mth.RAD_TO_DEG - 90.0f);
 					}
 					Entity e = entity.spawn(world, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, angle, 0);
-					if(e != null) {
+					if (e != null) {
 						entitySpawnActions.ifPresent(actions -> actions.apply(game, ContextMap.EMPTY, ActionSubjects.ofEntity(e)));
 					}
 				}

@@ -34,8 +34,7 @@ public record EntityTemplate(EntityType<?> type, CompoundTag tag) {
 		this(type, new CompoundTag());
 	}
 
-	@Nullable
-	public Entity create(ServerLevel level, double x, double y, double z, float yRot, float xRot) {
+	public @Nullable Entity create(ServerLevel level, double x, double y, double z, float yRot, float xRot) {
 		CompoundTag tag = this.tag.copy();
 		tag.putString("id", EntityType.getKey(type).toString());
 		return EntityType.loadEntityRecursive(tag, level, SPAWN_REQUEST, e -> {
@@ -47,18 +46,15 @@ public record EntityTemplate(EntityType<?> type, CompoundTag tag) {
 		});
 	}
 
-	@Nullable
-	public Entity spawn(ServerLevel level, double x, double y, double z) {
+	public @Nullable Entity spawn(ServerLevel level, double x, double y, double z) {
 		return spawn(level, x, y, z, level.getRandom().nextFloat() * 360.0f, 0.0f);
 	}
 
-	@Nullable
-	public Entity spawn(ServerLevel level, double x, double y, double z, float yRot, float xRot) {
+	public @Nullable Entity spawn(ServerLevel level, double x, double y, double z, float yRot, float xRot) {
 		return spawn(level, x, y, z, yRot, xRot, EntitySpawnReason.COMMAND);
 	}
 
-	@Nullable
-	public Entity spawn(ServerLevel level, double x, double y, double z, float yRot, float xRot, EntitySpawnReason spawnType) {
+	public @Nullable Entity spawn(ServerLevel level, double x, double y, double z, float yRot, float xRot, EntitySpawnReason spawnType) {
 		if (type == EntityTypes.LIGHTNING_BOLT) {
 			return spawnLightningBolt(level, x, y, z);
 		}
@@ -74,8 +70,7 @@ public record EntityTemplate(EntityType<?> type, CompoundTag tag) {
 		return null;
 	}
 
-	@Nullable
-	private static LightningBolt spawnLightningBolt(ServerLevel level, double x, double y, double z) {
+	private static @Nullable LightningBolt spawnLightningBolt(ServerLevel level, double x, double y, double z) {
 		LightningBolt entity = EntityTypes.LIGHTNING_BOLT.create(level, EntitySpawnReason.COMMAND);
 		if (entity != null) {
 			entity.snapTo(new Vec3(x, y, z));

@@ -9,7 +9,6 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -22,16 +21,13 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-
 @Mixin(Minecraft.class)
 public class MinecraftMixin {
-	@Nullable
 	@Shadow
-	public LocalPlayer player;
+	public @Nullable LocalPlayer player;
 
 	@Shadow
-	@Nullable
-	public HitResult hitResult;
+	public @Nullable HitResult hitResult;
 
 	@Inject(at = @At("HEAD"), method = "shouldEntityAppearGlowing", cancellable = true)
 	private void ltminigames$glowingTeamMembers(Entity entity, CallbackInfoReturnable<Boolean> cir) {

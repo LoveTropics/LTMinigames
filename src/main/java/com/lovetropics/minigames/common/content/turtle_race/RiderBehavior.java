@@ -87,8 +87,7 @@ public record RiderBehavior(EntityTemplate entity, boolean force) implements IGa
 		}
 	}
 
-	@Nullable
-	private Entity spawnEntity(ServerPlayer player) {
+	private @Nullable Entity spawnEntity(ServerPlayer player) {
 		return entity.spawn(player.level(), player.getX(), player.getY(), player.getZ(), player.getYRot(), player.getXRot());
 	}
 }

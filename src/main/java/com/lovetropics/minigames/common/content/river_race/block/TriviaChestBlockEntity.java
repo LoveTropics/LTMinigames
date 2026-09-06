@@ -12,11 +12,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class TriviaChestBlockEntity extends ChestBlockEntity implements HasTrivia {
-	@Nullable
-	private TriviaBehaviour.TriviaQuestion question;
+	private TriviaBehaviour.@Nullable TriviaQuestion question;
 	private long unlocksAt;
 
 	public TriviaChestBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
@@ -65,8 +64,7 @@ public class TriviaChestBlockEntity extends ChestBlockEntity implements HasTrivi
 	}
 
 	@Override
-	@Nullable
-	public TriviaBehaviour.TriviaQuestion getQuestion() {
+	public TriviaBehaviour.@Nullable TriviaQuestion getQuestion() {
 		return question;
 	}
 

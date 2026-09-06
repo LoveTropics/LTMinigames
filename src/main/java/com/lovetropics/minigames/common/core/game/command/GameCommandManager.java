@@ -14,7 +14,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.CommandEvent;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.concurrent.CompletableFuture;
 
 @EventBusSubscriber(modid = LoveTropics.ID)
@@ -50,8 +50,7 @@ public class GameCommandManager {
 		}
 	}
 
-	@Nullable
-	public static CompletableFuture<Suggestions> getCommandSuggestions(ParseResults<CommandSourceStack> parse) {
+	public static @Nullable CompletableFuture<Suggestions> getCommandSuggestions(ParseResults<CommandSourceStack> parse) {
 		if (isParseSuccess(parse)) {
 			return null;
 		}
