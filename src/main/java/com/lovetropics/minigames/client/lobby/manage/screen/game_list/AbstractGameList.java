@@ -15,31 +15,41 @@ import net.minecraft.util.CommonColors;
 
 import javax.annotation.Nullable;
 
-/*
-// Todo 26.1 Port
-I got this ported, and it seems to work, but I don't know if I broke anything.
-Maybe just the title part?
-
-Latter UnReal, well dragging stuff is broken to whoops
-* */
 public abstract class AbstractGameList extends AbstractLTList<AbstractGameList.Entry> {
+	private static final int TITLE_PADDING = 3;
+
 	private final Component title;
+	private final int headerHeight;
 
 	public AbstractGameList(Screen screen, Layout layout, Component title) {
-		super(screen, layout, Entry.HEIGHT);
+		super(screen, reserveHeader(layout, headerHeight(screen)), Entry.HEIGHT);
 		this.title = title;
+		headerHeight = headerHeight(screen);
 	}
 
-//	@Override
-//	protected void renderHeader(GuiGraphicsExtractor graphics, int x, int y) {
-//		Font font = minecraft.font;
-//		graphics.text(font,
-//				title,
-//				x + (width - font.width(title)) / 2,
-//				Math.min(getY() + 3, y),
-//				CommonColors.WHITE
-//		);
-//	}
+	private static int headerHeight(Screen screen) {
+		return screen.getMinecraft().font.lineHeight + 4;
+	}
+
+	private static Layout reserveHeader(Layout layout, int headerHeight) {
+		return layout.clip(layout.margin().grow(0, -headerHeight, 0, 0));
+	}
+
+	@Override
+	public void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+		super.extractWidgetRenderState(graphics, mouseX, mouseY, a);
+		extractHeader(graphics);
+	}
+
+	private void extractHeader(GuiGraphicsExtractor graphics) {
+		Font font = minecraft.font;
+		graphics.text(font,
+				title,
+				getRowLeft() + (width - font.width(title)) / 2,
+				getY() - headerHeight + TITLE_PADDING,
+				CommonColors.WHITE
+		);
+	}
 
 	public static final class Entry extends LTListEntry<Entry> {
 		public static final int HEIGHT = 32;

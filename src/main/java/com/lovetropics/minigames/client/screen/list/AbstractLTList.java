@@ -16,6 +16,8 @@ import java.util.List;
 public abstract class AbstractLTList<T extends LTListEntry<T>> extends ObjectSelectionList<T> {
 
 	private static final int SCROLL_WIDTH = 6;
+	private static final int LIST_PADDING = 2;
+
 	public final Screen screen;
 	@Nullable
 	protected T draggingEntry;
@@ -43,11 +45,14 @@ public abstract class AbstractLTList<T extends LTListEntry<T>> extends ObjectSel
 
 	protected void renderDragging(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
 		T dragging = draggingEntry;
-		if (dragging != null) {
-			int index = children().indexOf(dragging);
-			int y = getDraggingY(mouseY);
-			dragging.extractContent(graphics, mouseX, mouseY, true, partialTicks);
+		if (dragging == null) {
+			return;
 		}
+
+		int restoreY = dragging.getY();
+		dragging.setY(getDraggingY(mouseY));
+		dragging.extractContent(graphics, mouseX, mouseY, true, partialTicks);
+		dragging.setY(restoreY);
 	}
 
 	protected void renderTooltips(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
@@ -55,14 +60,10 @@ public abstract class AbstractLTList<T extends LTListEntry<T>> extends ObjectSel
 			return;
 		}
 
-		int count = getItemCount();
 		int rowWidth = getRowWidth();
 
-		for (int index = 0; index < count; index++) {
-			int rowTop = getRowTop(index);
-			T entry = children().get(index);
-			int rowBottom = rowTop + entry.getHeight();
-			if (rowBottom < getY() || rowTop > getY() + getHeight()) {
+		for (T entry : children()) {
+			if (entry.getY() + entry.getHeight() < getY() || entry.getY() > getBottom()) {
 				continue;
 			}
 
@@ -78,13 +79,36 @@ public abstract class AbstractLTList<T extends LTListEntry<T>> extends ObjectSel
 	}
 
 	private int getEntryIndexAt(int y) {
-		// Todo 26.1 Port
-		return 0;
-//		int contentY = y - getY() - headerHeight + (int) scrollAmount();
-//		return contentY / itemHeight;
+		List<T> entries = children();
+		for (int index = 0; index < entries.size(); index++) {
+			T entry = entries.get(index);
+			if (y < entry.getY() + entry.getHeight()) {
+				return index;
+			}
+		}
+		return entries.size() - 1;
 	}
 
 	public abstract void updateEntries();
+
+	@Override
+	protected int addEntry(T entry, int height) {
+		int index = super.addEntry(entry, height);
+		refreshEntryBounds();
+		return index;
+	}
+
+	private void refreshEntryBounds() {
+		int rowLeft = getRowLeft();
+		int rowWidth = getRowWidth();
+		int y = getY() + LIST_PADDING - (int) scrollAmount();
+		for (T entry : children()) {
+			entry.setX(rowLeft);
+			entry.setWidth(rowWidth);
+			entry.setY(y);
+			y += entry.getHeight();
+		}
+	}
 
 	@Override
 	public int getRowLeft() {
@@ -99,14 +123,6 @@ public abstract class AbstractLTList<T extends LTListEntry<T>> extends ObjectSel
 	@Override
 	protected int scrollBarX() {
 		return maxScrollAmount() > 0 ? getX() + getWidth() - SCROLL_WIDTH : getX() + getWidth();
-	}
-
-	@Override
-	public int getRowTop(int index) {
-		return super.getRowTop(index);
-//		return 0; // Todo 26.1 Port
-//		return getY() + headerHeight - (int) scrollAmount()
-//				+ index * itemHeight;
 	}
 
 	void drag(T entry, double mouseY) {
@@ -158,35 +174,39 @@ public abstract class AbstractLTList<T extends LTListEntry<T>> extends ObjectSel
 	}
 
 	protected int getDraggingY(int mouseY) {
-		return 0; // Todo 26.1 Port
-//		int draggingY = mouseY + dragOffset;
-//		int minY = getY() + headerHeight;
-//		int maxY = getY() + getHeight() - contentHeight();
-//		return Mth.clamp(draggingY, minY, maxY);
+		int draggingHeight = getDraggingHeight();
+		int minY = getY() + LIST_PADDING;
+		int maxY = getBottom() - draggingHeight;
+		return Mth.clamp(mouseY + dragOffset, minY, Math.max(minY, maxY));
 	}
 
 	private int getDragInsertIndex(int mouseY) {
-		// Todo 26.1 Port
-		return 0;
-//		return getEntryIndexAt(getDraggingY(mouseY) + get / 2);
+		return getEntryIndexAt(getDraggingY(mouseY) + getDraggingHeight() / 2);
+	}
+
+	private int getDraggingHeight() {
+		T dragging = draggingEntry;
+		return dragging != null ? dragging.getHeight() : defaultEntryHeight;
 	}
 
 	private boolean tryReorderTo(T entry, int insertIndex) {
 		List<T> entries = children();
 		int index = entries.indexOf(entry);
-		if (index == -1) {
+		if (index == -1 || insertIndex == index || insertIndex < 0 || insertIndex >= entries.size()) {
 			return false;
 		}
 
-		if (insertIndex != index && insertIndex >= 0 && insertIndex < entries.size()) {
-			T replaceEntry = entries.get(insertIndex);
-			if (replaceEntry.reorder != null) {
-				entries.remove(index);
-				entries.add(insertIndex, entry);
-				return true;
+		int step = insertIndex > index ? 1 : -1;
+		boolean reordered = false;
+		for (int from = index; from != insertIndex; from += step) {
+			int to = from + step;
+			if (entries.get(to).reorder == null) {
+				break;
 			}
+			swap(from, to);
+			reordered = true;
 		}
-		return false;
+		return reordered;
 	}
 
 	private void stopDragging(T dragging) {
@@ -210,20 +230,13 @@ public abstract class AbstractLTList<T extends LTListEntry<T>> extends ObjectSel
 	@Override
 	protected void extractListItems(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
 		boolean listHovered = isMouseOver(mouseX, mouseY);
-
-		int count = getItemCount();
-		int height = getHeight();
-
 		boolean dragging = draggingEntry != null;
 
-		for (int index = 0; index < count; index++) {
-			int top = getRowTop(index);
-			int bottom = top + height;
-			if (bottom < getY() || top > getY() + getHeight()) {
+		for (T entry : children()) {
+			if (entry.getY() + entry.getHeight() < getY() || entry.getY() > getBottom()) {
 				continue;
 			}
 
-			T entry = children().get(index);
 			if (draggingEntry == entry) {
 				continue;
 			}
