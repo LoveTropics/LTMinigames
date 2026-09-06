@@ -73,9 +73,7 @@ public class SpleefBehavior implements IGameBehavior {
 	private final Block floorMaterial;
 	private final Block floorBreakingMaterial;
 
-	/**
-	 * To make it easier for mapmakers, the levels will start at 1 but in code it'll be 0.
-	 */
+	/// To make it easier for mapmakers, the levels will start at 1 but in code it'll be 0.
 	private int currentFloor = 0;
 
 	private int progressionTimer = 0;
@@ -167,9 +165,7 @@ public class SpleefBehavior implements IGameBehavior {
 		return TriState.FALSE;
 	}
 
-	/**
-	 * This is after the countdown has finished.
-	 */
+	/// This is after the countdown has finished.
 	private void startGame() {
 		progressionTimer = forcedProgressionSeconds;
 		game.scheduler().runPeriodic(0, 20, this::updateForcedProgression);
@@ -241,9 +237,7 @@ public class SpleefBehavior implements IGameBehavior {
 		playersToKill.forEach(this::killPlayer);
 	}
 
-	/**
-	 * Trigger the end game timer as well as show the winner.
-	 */
+	/// Trigger the end game timer as well as show the winner.
 	private void announceWinner(MutableComponent winner) {
 		gameOver = true;
 

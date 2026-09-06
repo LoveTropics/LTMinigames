@@ -125,9 +125,7 @@ public class ConfigLT {
 		}
 	}
 
-	/**
-	 * values used during runtime that require processing from disk
-	 */
+	/// values used during runtime that require processing from disk
 	public static void onReload(final ModConfigEvent.Reloading event) {
 		if (event.getConfig().getSpec() == SERVER_CONFIG) {
 			onServerConfigLoad();

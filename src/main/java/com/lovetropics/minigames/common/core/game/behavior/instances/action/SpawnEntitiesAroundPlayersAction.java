@@ -94,11 +94,9 @@ public class SpawnEntitiesAroundPlayersAction implements IGameBehavior {
 		}
 	}
 
-	/**
-	 * Tries to return a random spawnable position within the set distances up to a certain amount of attempts
-	 *
-	 * @return null if it fails, otherwise a real position
-	 */
+	/// Tries to return a random spawnable position within the set distances up to a certain amount of attempts
+	///
+	/// @return null if it fails, otherwise a real position
 	@Nullable
 	public BlockPos getSpawnableRandomPositionNear(final IGamePhase game, BlockPos pos, int minDist, int maxDist, int loopAttempts, int yRange) {
 		for (int i = 0; i < loopAttempts; i++) {
@@ -113,10 +111,8 @@ public class SpawnEntitiesAroundPlayersAction implements IGameBehavior {
 		return null;
 	}
 
-	/**
-	 * Quick and dirty check for 2 high air with non air block under it
-	 * - also checks that it isnt water under it
-	 */
+	/// Quick and dirty check for 2 high air with non air block under it
+	/// - also checks that it isnt water under it
 	public boolean isSpawnablePosition(final IGamePhase game, BlockPos pos) {
 		ServerLevel world = game.level();
 		return !world.isEmptyBlock(pos.offset(0, -1, 0))

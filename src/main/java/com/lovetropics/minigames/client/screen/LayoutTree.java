@@ -9,42 +9,38 @@ import javax.annotation.Nullable;
 import java.util.BitSet;
 import java.util.LinkedList;
 
-/**
- * A simple tree based system, you push children onto the tree with various
- * attributes, and when that node is popped it is contracted to min-content.
- * <p>
- * Items automatically flow downwards if necessary (no overlapping allowed).
- * <p>
- * Reasons why it's easier:
- *
- * <ol>
- * <li>No grow() or axis switching, everything starts out max size and then
- * contracts to min size when popped</li>
- * <li>Able to layout the tree on the way up, so I can assign layouts in the
- * ctor without a second pass through the UI tree</li>
- * <li>The API flows nicely with the structure of GUI construction. you pass in
- * ltree.child(...) from the parent UI, and the child UI gets its layout with
- * ltree.pop() (with whatever further nested elements created in between)</li>
- * </ol>
- * <p>
- * It's a bit like MatrixStack but also not at all since it remembers the entire
- * tree even after an element is popped. All pop() does is head = head.parent.
- * <p>
- * And rather than the caller doing both push and pop, it expects the caller to
- * do child() e.g.
- *
- * <pre>
- * new MyUI(ltree.child(3, 0))
- * </pre>
- * <p>
- * And the receiver to do pop() e.g.
- *
- * <pre>
- * MyUI(LayoutTree ltree) {
- * 	this.layout = ltree.pop();
- * }
- * </pre>
- */
+/// A simple tree based system, you push children onto the tree with various
+/// attributes, and when that node is popped it is contracted to min-content.
+///
+/// Items automatically flow downwards if necessary (no overlapping allowed).
+///
+/// Reasons why it's easier:
+///
+///   1. No grow() or axis switching, everything starts out max size and then
+///     contracts to min size when popped
+///   2. Able to layout the tree on the way up, so I can assign layouts in the
+///     ctor without a second pass through the UI tree
+///   3. The API flows nicely with the structure of GUI construction. you pass in
+///     ltree.child(...) from the parent UI, and the child UI gets its layout with
+///     ltree.pop() (with whatever further nested elements created in between)
+///
+/// It's a bit like MatrixStack but also not at all since it remembers the entire
+/// tree even after an element is popped. All pop() does is head = head.parent.
+///
+/// And rather than the caller doing both push and pop, it expects the caller to
+/// do child() e.g.
+///
+/// <pre>
+/// new MyUI(ltree.child(3, 0))
+/// </pre>
+///
+/// And the receiver to do pop() e.g.
+///
+/// <pre>
+/// MyUI(LayoutTree ltree) {
+/// 	this.layout = ltree.pop();
+/// }
+/// </pre>
 public class LayoutTree {
 
 	private static class LayoutNode {

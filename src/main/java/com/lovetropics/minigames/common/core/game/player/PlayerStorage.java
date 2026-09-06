@@ -13,9 +13,7 @@ import javax.annotation.Nullable;
 import java.util.Optional;
 import java.util.UUID;
 
-/**
- * In-memory storage of player data, useful when we want to store player data but not on disk
- */
+/// In-memory storage of player data, useful when we want to store player data but not on disk
 public class PlayerStorage {
 	private static final Logger LOGGER = LogUtils.getLogger();
 

@@ -55,9 +55,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-/**
- * Think of a GamePhase like an act in a play, where the play is a GameInstance
- */
+/// Think of a GamePhase like an act in a play, where the play is a GameInstance
 public class GamePhase implements IGamePhase {
 	private static final Logger LOGGER = LogUtils.getLogger();
 

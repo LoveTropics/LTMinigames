@@ -21,16 +21,12 @@ import net.minecraft.world.level.Level;
 import javax.annotation.Nullable;
 
 public interface IGamePhase {
-	/**
-	 * @return the world that this game takes place within
-	 */
+	/// @return the world that this game takes place within
 	ServerLevel level();
 
 	MapRegions mapRegions();
 
-	/**
-	 * @return the dimension that this game takes places within
-	 */
+	/// @return the dimension that this game takes places within
 	default ResourceKey<Level> dimension() {
 		return level().dimension();
 	}
@@ -81,31 +77,23 @@ public interface IGamePhase {
 
 	GameScheduler scheduler();
 
-	/**
-	 * Adds the player to this game instance with the given role, or if already in the change, changes their role.
-	 * The given player will be removed from their former role, if any.
-	 *
-	 * @param player the player to add
-	 * @param role the role to add the player to
-	 * @return whether the player was successfully added or if their role was changed
-	 */
+	/// Adds the player to this game instance with the given role, or if already in the change, changes their role.
+	/// The given player will be removed from their former role, if any.
+	///
+	/// @param player the player to add
+	/// @param role the role to add the player to
+	/// @return whether the player was successfully added or if their role was changed
 	boolean setPlayerRole(ServerPlayer player, @Nullable PlayerRole role);
 
-	/**
-	 * @return The list of players within this game instance that belong to the given role
-	 */
+	/// @return The list of players within this game instance that belong to the given role
 	PlayerSet getPlayersWithRole(PlayerRole role);
 
-	/**
-	 * @return The list of active participants that are playing within the game instance.
-	 */
+	/// @return The list of active participants that are playing within the game instance.
 	default PlayerSet participants() {
 		return getPlayersWithRole(PlayerRole.PARTICIPANT);
 	}
 
-	/**
-	 * @return The list of spectators that are observing the game instance.
-	 */
+	/// @return The list of spectators that are observing the game instance.
 	default PlayerSet spectators() {
 		return getPlayersWithRole(PlayerRole.SPECTATOR);
 	}
@@ -113,9 +101,7 @@ public interface IGamePhase {
 	@Nullable
 	PlayerRole getRoleFor(ServerPlayer player);
 
-	/**
-	 * @return the tick counter since the game started
-	 */
+	/// @return the tick counter since the game started
 	long ticks();
 
 	default GameStatistics statistics() {

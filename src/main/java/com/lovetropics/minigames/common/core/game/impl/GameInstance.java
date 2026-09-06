@@ -4,9 +4,7 @@ import com.lovetropics.minigames.common.core.game.IGameDefinition;
 import com.lovetropics.minigames.common.core.game.state.GameStateMap;
 import net.minecraft.server.MinecraftServer;
 
-/**
- * A unique instance of a specific minigame, stored in a GameLobby
- */
+/// A unique instance of a specific minigame, stored in a GameLobby
 public final class GameInstance {
 	// TODO: Remove this backward reference
 	private final GameLobby lobby;

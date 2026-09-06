@@ -19,10 +19,7 @@ import net.minecraft.world.level.levelgen.Heightmap;
 
 import java.util.List;
 
-/**
- * Spawns an amount of entities over a set amount of ticks, spread randomly across all the given regions
- */
-
+/// Spawns an amount of entities over a set amount of ticks, spread randomly across all the given regions
 public class SpawnEntitiesAtRegionsOverTimeAction implements IGameBehavior {
 	public static final MapCodec<SpawnEntitiesAtRegionsOverTimeAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			Codec.STRING.listOf().fieldOf("regions_to_spawn_at").forGetter(c -> c.regionsToSpawnAtKeys),

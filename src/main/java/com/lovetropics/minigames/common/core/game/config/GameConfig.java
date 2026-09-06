@@ -11,9 +11,7 @@ import net.minecraft.resources.Identifier;
 import javax.annotation.Nullable;
 import java.util.Optional;
 
-/**
- * Stores data-driven info about a minigame
- */
+/// Stores data-driven info about a minigame
 public record GameConfig(
 		Identifier id,
 		Identifier backendId,

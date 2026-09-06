@@ -4,9 +4,7 @@ import com.lovetropics.minigames.common.core.game.IGameDefinition;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-/**
- * Essentially the data underlying a queued game which is stored in a game lobby
- */
+/// Essentially the data underlying a queued game which is stored in a game lobby
 public record QueuedGame(int networkId, IGameDefinition definition) {
 	private static final AtomicInteger NEXT_NETWORK_ID = new AtomicInteger();
 

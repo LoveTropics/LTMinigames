@@ -50,10 +50,8 @@ public final class PlayerIsolation {
 	private PlayerIsolation() {
 	}
 
-	/**
-	 * Player going into a GamePhase
-	 * Saves player data and then teleports them
-	 */
+	/// Player going into a GamePhase
+	/// Saves player data and then teleports them
 	public ServerPlayer teleportTo(final ServerPlayer player, final ServerLevel newLevel, final Vec3 position, final float yRot, final float xRot) {
 		final TransferableState transferableState = TransferableState.copyOf(player);
 		return reloadPlayer(player, (newPlayer, reporter) -> {
@@ -64,9 +62,7 @@ public final class PlayerIsolation {
 		});
 	}
 
-	/**
-	 * Player is headed back to the main event world most likely
-	 */
+	/// Player is headed back to the main event world most likely
 	public ServerPlayer restore(final ServerPlayer player) {
 		if (isIsolated(player)) {
 			return reloadPlayerFromDisk(player);

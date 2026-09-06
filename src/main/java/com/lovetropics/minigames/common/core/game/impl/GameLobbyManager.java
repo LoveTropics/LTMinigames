@@ -181,13 +181,11 @@ public class GameLobbyManager {
 		}
 	}
 
-	/**
-	 * When a player logs out, remove them from the currently running game instance
-	 * if they are inside, and teleport back them to their original state.
-	 * <p>
-	 * Also if they have registered for a game poll, they will be removed from the
-	 * list of registered players.
-	 */
+	/// When a player logs out, remove them from the currently running game instance
+	/// if they are inside, and teleport back them to their original state.
+	///
+	/// Also if they have registered for a game poll, they will be removed from the
+	/// list of registered players.
 	public static ServerPlayer onPlayerLoggedOut(ServerPlayer player) {
 		if (!PlayerIsolation.INSTANCE.isReloading(player)) {
 			for (GameLobby lobby : INSTANCE.lobbies) {

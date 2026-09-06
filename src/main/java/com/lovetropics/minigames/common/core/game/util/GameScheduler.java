@@ -6,14 +6,10 @@ import net.minecraft.util.Mth;
 import java.util.ArrayList;
 import java.util.concurrent.Executor;
 
-/**
- * Schedule events for within a game
- */
+/// Schedule events for within a game
 public final class GameScheduler implements Executor {
 
-	/**
-	 * This is to avoid concurrent modification exceptions
-	 */
+	/// This is to avoid concurrent modification exceptions
 	private final ArrayList<Task> newTasks = new ArrayList<>();
 	private final ArrayList<Task> delayedTasks = new ArrayList<>();
 

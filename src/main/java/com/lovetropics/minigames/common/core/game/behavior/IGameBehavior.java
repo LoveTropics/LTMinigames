@@ -56,13 +56,11 @@ public interface IGameBehavior {
 	default void registerState(IGamePhase game, GameStateMap phaseState, GameStateMap instanceState) {
 	}
 
-	/**
-	 * Called before the game starts. This should be used to register all event listeners and do any early setup.
-	 *
-	 * @param game The game that is being constructed
-	 * @param events The event listeners to register to
-	 * @throws GameException if this behavior was not able to be initialized
-	 */
+	/// Called before the game starts. This should be used to register all event listeners and do any early setup.
+	///
+	/// @param game The game that is being constructed
+	/// @param events The event listeners to register to
+	/// @throws GameException if this behavior was not able to be initialized
 	void register(IGamePhase game, EventRegistrar events) throws GameException;
 
 	// TODO: Implement everywhere

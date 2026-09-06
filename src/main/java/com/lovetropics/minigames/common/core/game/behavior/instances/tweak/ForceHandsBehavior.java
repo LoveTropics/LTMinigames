@@ -13,11 +13,9 @@ import net.minecraft.world.inventory.InventoryMenu;
 
 import java.util.function.Supplier;
 
-/**
- * Locks the inventory of players so that only the mainhand and offhand are accessible.
- * <p>
- * This effectively makes the 1st slot forced to be selected, and no other slots can be filled when an item is picked up.
- */
+/// Locks the inventory of players so that only the mainhand and offhand are accessible.
+///
+/// This effectively makes the 1st slot forced to be selected, and no other slots can be filled when an item is picked up.
 public record ForceHandsBehavior() implements IGameBehavior {
 	public static final MapCodec<ForceHandsBehavior> CODEC = MapCodec.unit(ForceHandsBehavior::new);
 

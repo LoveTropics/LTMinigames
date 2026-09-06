@@ -71,9 +71,7 @@ public class BlockPlacer {
 		placeBlocks(level, box, newBlock, mode, null, null, null, null);
 	}
 
-	/**
-	 * Logic mostly copied from the fill command.
-	 */
+	/// Logic mostly copied from the fill command.
 	public static void placeBlocks(ServerLevel level, BlockBox box, BlockInput newBlock, Mode mode, @Nullable Predicate<BlockInWorld> replacingPredicate, @Nullable GameScheduler scheduler, @Nullable Function<BlockPos, Integer> tickDelay, @Nullable Consumer<BlockPos> doneCallback) {
 		record UpdatedBlock(BlockPos pos, BlockState oldState) {
 		}

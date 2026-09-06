@@ -10,9 +10,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Predicate;
 
-/**
- * Simple marker for explosions that affect mobs but not players
- */
+/// Simple marker for explosions that affect mobs but not players
 public class FilteredExplosion extends ServerExplosion {
 	public final Predicate<Entity> remove;
 

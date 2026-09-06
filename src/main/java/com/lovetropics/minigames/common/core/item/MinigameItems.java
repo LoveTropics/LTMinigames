@@ -11,7 +11,7 @@ public class MinigameItems {
 	public static final ItemEntry<EditRegionItem> EDIT_REGION = REGISTRATE.item("edit_region", EditRegionItem::new)
 			.register();
 
-	/** Powerups and Sabotages */
+	/// Powerups and Sabotages
 	// Sabotages
 	public static final ItemEntry<PowerupItem> UPSET_STOMACH = REGISTRATE.item("upset_stomach", PowerupItem::new).register();
 	public static final ItemEntry<PowerupItem> COLADARAL_DAMAGE = REGISTRATE.item("coladaral_damage", PowerupItem::new).lang("Colada-ral Damage").register();
@@ -22,8 +22,7 @@ public class MinigameItems {
 	// Powerups
 	public static final ItemEntry<PowerupItem> ENDER_ARMS = REGISTRATE.item("ender_arms", PowerupItem::new).register();
 
-	/** End powerups and sabotages */
-
+	/// End powerups and sabotages
 	public static void init() {
 	}
 }

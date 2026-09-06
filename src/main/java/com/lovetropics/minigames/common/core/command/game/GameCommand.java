@@ -6,18 +6,14 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 
-/**
- * Helper class for minigame commands.
- */
+/// Helper class for minigame commands.
 public class GameCommand {
-	/**
-	 * Default logic for executing a minigame action. Fetches the ActionResult back from
-	 * the minigame manager actions and dispatches them as messages to command source.
-	 *
-	 * @param action The action executed (usually from MinigameManager)
-	 * @param source The source of the executing command.
-	 * @return The result of the execution (0 == fail, 1 == success)
-	 */
+	/// Default logic for executing a minigame action. Fetches the ActionResult back from
+	/// the minigame manager actions and dispatches them as messages to command source.
+	///
+	/// @param action The action executed (usually from MinigameManager)
+	/// @param source The source of the executing command.
+	/// @return The result of the execution (0 == fail, 1 == success)
 	public static int executeGameAction(CommandAction action, CommandSourceStack source) throws CommandSyntaxException {
 		Component message;
 		try {

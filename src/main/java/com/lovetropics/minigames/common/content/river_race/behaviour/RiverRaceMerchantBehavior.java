@@ -76,9 +76,7 @@ public class RiverRaceMerchantBehavior implements IGameBehavior {
 		events.listen(GamePlayerEvents.INTERACT_ENTITY, this::interactWithEntity);
 	}
 
-	/**
-	 * When the game loads, load this merchant into its proper section
-	 */
+	/// When the game loads, load this merchant into its proper section
 	private void onGameStarted() {
 		ServerLevel level = game.level();
 		List<BlockBox> regions = game.mapRegions().getAll(region);

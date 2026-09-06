@@ -8,9 +8,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.TriState;
 import org.slf4j.Logger;
 
-/**
- * Care package
- */
+/// Care package
 public record DonationPackageGameAction(GamePackage gamePackage) implements GameAction {
 	private static final Logger LOGGER = LogUtils.getLogger();
 
