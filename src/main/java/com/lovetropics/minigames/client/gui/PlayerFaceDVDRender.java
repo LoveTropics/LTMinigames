@@ -1,15 +1,18 @@
 package com.lovetropics.minigames.client.gui;
 
 import com.mojang.blaze3d.platform.Window;
+import com.mojang.logging.LogUtils;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.PlayerFaceExtractor;
 import net.minecraft.client.renderer.PlayerSkinRenderCache;
+import net.minecraft.util.CommonColors;
 import net.minecraft.world.item.component.ResolvableProfile;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
+import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +21,8 @@ import java.util.UUID;
 
 @EventBusSubscriber
 public class PlayerFaceDVDRender {
+
+	private static final Logger LOGGER = LogUtils.getLogger();
 
 	private static final List<PlayerData> FACES = new ArrayList<>();
 
@@ -42,20 +47,21 @@ public class PlayerFaceDVDRender {
 	public static class PlayerData {
 
 		private static final Random RANDOM = new Random();
+		private static final int FACE_SIZE = 16;
 
-		public int x;
-		public int y;
-		public boolean addingX;
-		public boolean addingY;
-		public int lengthInTicks;
-		public PlayerSkinRenderCache.RenderInfo renderInfo;
+		private final PlayerSkinRenderCache.RenderInfo renderInfo;
+
+		private int x;
+		private int y;
+		private boolean addingX;
+		private boolean addingY;
+		private int lengthInTicks;
+		private boolean upsideDown;
 
 		public PlayerData(int lengthInTicks, PlayerSkinRenderCache.RenderInfo renderInfo) {
 			this.renderInfo = renderInfo;
 			this.lengthInTicks = lengthInTicks;
-			this.x = 0;
-			this.y = 0;
-
+			this.upsideDown = false;
 			this.addingX = RANDOM.nextBoolean();
 			this.addingY = RANDOM.nextBoolean();
 
@@ -63,19 +69,16 @@ public class PlayerFaceDVDRender {
 			int screenWidth = screen.getGuiScaledWidth();
 			int screenHeight = screen.getGuiScaledHeight();
 
-			this.x = randomInt(0, screenWidth - 16);
-			this.y = randomInt(0, screenHeight - 16);
+			this.x = randomInt(0, screenWidth - FACE_SIZE);
+			this.y = randomInt(0, screenHeight - FACE_SIZE);
 		}
 
 		public void renderTick(GuiGraphicsExtractor extractor, int screenWidth, int screenHeight) {
 			this.x = this.addingX ? this.x + 1 : this.x - 1;
 			this.y = this.addingY ? this.y + 1 : this.y - 1;
 
-			int faceWidth = 16;
-			int faceHeight = 16;
-
-			int maxX = screenWidth - faceWidth;
-			int maxY = screenHeight - faceHeight;
+			int maxX = screenWidth - FACE_SIZE;
+			int maxY = screenHeight - FACE_SIZE;
 
 			if (this.x >= maxX) {
 				this.addingX = false;
@@ -89,7 +92,12 @@ public class PlayerFaceDVDRender {
 				this.addingY = true;
 			}
 
-			PlayerFaceExtractor.extractRenderState(extractor, this.renderInfo.playerSkin().body().texturePath(), this.x, this.y, 16, true, false, -1);
+			// Flip faces when the face hits a corner of the screen
+			if ((this.x >= maxX || this.x <= 0) && (this.y <= 0 || this.y >= maxY)) {
+				this.upsideDown = !this.upsideDown;
+			}
+			
+			PlayerFaceExtractor.extractRenderState(extractor, this.renderInfo.playerSkin().body().texturePath(), this.x, this.y, FACE_SIZE, true, upsideDown, CommonColors.WHITE);
 		}
 
 		private int randomInt(int min, int max) {
@@ -99,7 +107,14 @@ public class PlayerFaceDVDRender {
 	}
 
 	public static void add(UUID uuid, int lengthInTicks) {
-		Minecraft.getInstance().playerSkinRenderCache().lookup(ResolvableProfile.createUnresolved(uuid)).whenComplete((renderInfo, ex) -> renderInfo.ifPresent(info -> FACES.add(new PlayerData(lengthInTicks, info))));
+		Minecraft.getInstance().playerSkinRenderCache()
+				.lookup(ResolvableProfile.createUnresolved(uuid))
+				.whenComplete((renderInfo, exp) ->
+						renderInfo.ifPresentOrElse(
+								info -> FACES.add(new PlayerData(lengthInTicks, info)),
+								() -> LOGGER.warn("Failed to Player Skin Info for UUID: {}", uuid, exp)
+						)
+				);
 	}
 
 	public static void clear() {
