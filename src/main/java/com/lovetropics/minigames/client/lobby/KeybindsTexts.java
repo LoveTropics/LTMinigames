@@ -13,6 +13,6 @@ public final class KeybindsTexts {
 		KEYS.add("leave", "Leave");
 		KEYS.add("manage", "Manage");
 		KEYS.forEach(consumer);
-		consumer.accept("key.categories." + LoveTropics.ID + ".lobby", "Game Lobby");
+		consumer.accept("key.category." + LoveTropics.ID + ".lobby", "Game Lobby");
 	}
 }
