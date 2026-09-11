@@ -60,8 +60,8 @@ public class BbDrownedEntity extends Drowned implements BbMobEntity {
 	}
 
 	@Override
-	protected boolean isSunSensitive() {
-		return false;
+	public void burnUndead() {
+
 	}
 
 	@Override

@@ -64,8 +64,8 @@ public class BbZombieEntity extends Zombie implements BbMobEntity {
 	}
 
 	@Override
-	protected boolean isSunSensitive() {
-		return false;
+	public void burnUndead() {
+
 	}
 
 	@Override
