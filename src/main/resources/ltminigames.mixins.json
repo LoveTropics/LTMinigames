@@ -51,7 +51,6 @@
     "client.HudMixin",
     "client.IntegratedPlayerListMixin",
     "client.KeyboardInputMixin",
-    "client.LevelRendererMixin",
     "client.MinecraftMixin",
     "client.ModelFeatureRendererMixin",
     "client.MouseHandlerMixin",

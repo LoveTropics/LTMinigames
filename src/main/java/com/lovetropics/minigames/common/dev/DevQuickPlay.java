@@ -11,6 +11,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.TitleScreen;
+import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
@@ -101,11 +102,6 @@ public class DevQuickPlay {
 			if (minecraft.getLevelSource().levelExists(LEVEL_NAME)) {
 				minecraft.createWorldOpenFlows().openWorld(LEVEL_NAME, () -> minecraft.setScreenAndShow(new TitleScreen()));
 			} else {
-				GameRules gameRules = new GameRules(FeatureFlags.VANILLA_SET);
-				gameRules.set(GameRules.ADVANCE_TIME, false, null);
-				gameRules.set(GameRules.ADVANCE_WEATHER, false, null);
-				// Todo 26.1 Port - Fix gamerules
-
 				WorldDataConfiguration dataConfiguration = new WorldDataConfiguration(DataPackConfig.DEFAULT, FeatureFlags.VANILLA_SET);
 				LevelSettings levelSettings = new LevelSettings(LEVEL_NAME, GameType.CREATIVE, new LevelSettings.DifficultySettings(Difficulty.NORMAL, false, false), true, dataConfiguration);
 				WorldOptions worldOptions = new WorldOptions(0, false, false);
@@ -117,6 +113,16 @@ public class DevQuickPlay {
 				};
 
 				minecraft.createWorldOpenFlows().createFreshLevel(LEVEL_NAME, levelSettings, worldOptions, dimensionsProvider, new TitleScreen());
+
+				IntegratedServer singleplayerServer = minecraft.getSingleplayerServer();
+				if (singleplayerServer == null) {
+					throw new IllegalStateException("Server was not started");
+				}
+				singleplayerServer.execute(() -> {
+					GameRules gameRules = singleplayerServer.getGameRules();
+					gameRules.set(GameRules.ADVANCE_TIME, false, null);
+					gameRules.set(GameRules.ADVANCE_WEATHER, false, null);
+				});
 			}
 		}
 

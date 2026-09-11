@@ -207,19 +207,13 @@ public class VendingMachineEntity extends Entity implements ContainerEntity {
 		return new AABB(vec31.x, position.y, vec31.z, vec32.x, position.y + 3f, vec32.z);
 	}
 
-	// Todo 26.2 Port
-//	@Override
-//	public boolean hasCustomOutlineRendering(Player player) {
-//		return true;
-//	}
-
 	@Override
-	public @org.jetbrains.annotations.Nullable ResourceKey<LootTable> getContainerLootTable() {
+	public @Nullable ResourceKey<LootTable> getContainerLootTable() {
 		return lootTable;
 	}
 
 	@Override
-	public void setContainerLootTable(@org.jetbrains.annotations.Nullable ResourceKey<LootTable> resourceKey) {
+	public void setContainerLootTable(@Nullable ResourceKey<LootTable> resourceKey) {
 		lootTable = resourceKey;
 	}
 

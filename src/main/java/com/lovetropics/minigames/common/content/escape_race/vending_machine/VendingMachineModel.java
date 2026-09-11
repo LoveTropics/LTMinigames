@@ -145,13 +145,13 @@ public class VendingMachineModel extends EntityModel<VendingMachineRenderState> 
 	}
 
 	// Work me would hate Love Tropics me for this one
-	public void renderBuyButtonOnly(PoseStack poseStack, VertexConsumer buffer) {
+	public void renderBuyButtonOnly(PoseStack poseStack, VertexConsumer buffer, int color) {
 		poseStack.pushPose();
 		root.translateAndRotate(poseStack);
 		root2.translateAndRotate(poseStack);
 		machine.translateAndRotate(poseStack);
 		control_panel.translateAndRotate(poseStack);
-		buy_button.render(poseStack, buffer, LightCoordsUtil.FULL_BRIGHT, OverlayTexture.NO_OVERLAY);
+		buy_button.render(poseStack, buffer, LightCoordsUtil.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, color);
 		poseStack.popPose();
 	}
 

@@ -18,6 +18,7 @@ import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.network.chat.Component;
@@ -31,7 +32,6 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 
-import javax.sound.sampled.Port;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -96,14 +96,15 @@ public class VendingMachineEntityRenderer extends EntityRenderer<VendingMachineE
 		VendingMachineModel.applyModelTransform(poseStack, renderState.yRot);
 
 		model.setupAnim(renderState);
-		submitNodeCollector.submitModel(model, renderState, poseStack, model.renderType(TEXTURE), renderState.lightCoords, OverlayTexture.NO_OVERLAY, renderState.outlineColor, null);
+		RenderType renderType = model.renderType(TEXTURE);
+		submitNodeCollector.submitModel(model, renderState, poseStack, renderType, renderState.lightCoords, OverlayTexture.NO_OVERLAY, renderState.outlineColor, null);
 
-		if (renderState.hasSelection) {
-			// Todo 26.2 Port
-//			OutlineBufferSource outlineBufferSource = Minecraft.getInstance().renderBuffers().outlineBufferSource();
-
-//			outlineBufferSource.setColor(SELECTION_COLOR);
-//			model.renderBuyButtonOnly(poseStack, outlineBufferSource.getBuffer(model.renderType(TEXTURE)));
+		if (renderState.hasSelection && renderType.outline().isPresent()) {
+			submitNodeCollector.submitCustomGeometry(poseStack, renderType.outline().get(), (pose, buffer) -> {
+				PoseStack stack = new PoseStack();
+				stack.mulPose(pose.pose());
+				model.renderBuyButtonOnly(stack, buffer, SELECTION_COLOR);
+			});
 		}
 
 		for (int slotIndex = 0; slotIndex < renderState.slots.size(); slotIndex++) {
@@ -137,13 +138,8 @@ public class VendingMachineEntityRenderer extends EntityRenderer<VendingMachineE
 		if (selected || highlighted) {
 			poseStack.pushPose();
 			poseStack.scale(1.25f, 1.25f, 1.25f);
-			int color;
-			if (selected) {
-				color = ARGB.color(255, 0, 255, 0);
-			} else {
-				color = ARGB.color(255, 255, 255, 255);
-			}
-			slot.item.submit(poseStack, submitNodeCollector, state.lightCoords, color, state.outlineColor);
+			int outlineColor = selected ? CommonColors.GREEN : CommonColors.WHITE;
+			slot.item.submit(poseStack, submitNodeCollector, state.lightCoords, OverlayTexture.NO_OVERLAY, outlineColor);
 			poseStack.popPose();
 		} else {
 			slot.item.submit(poseStack, submitNodeCollector, state.lightCoords, OverlayTexture.NO_OVERLAY, state.outlineColor);
