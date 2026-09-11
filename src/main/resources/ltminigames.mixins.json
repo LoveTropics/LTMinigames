@@ -8,6 +8,7 @@
     "BaseSpawnerAccessor",
     "DataCommandsMixin",
     "EntityAccessor",
+    "EntityFluidInteractionMixin",
     "EntityMixin",
     "EntitySelectorMixin",
     "ItemFrameMixin",
@@ -51,8 +52,8 @@
     "client.IntegratedPlayerListMixin",
     "client.KeyboardInputMixin",
     "client.LevelRendererMixin",
-    "client.ModelFeatureRendererMixin",
     "client.MinecraftMixin",
+    "client.ModelFeatureRendererMixin",
     "client.MouseHandlerMixin",
     "client.PlayerTabOverlayGuiMixin",
     "client.dev.MainMixin"

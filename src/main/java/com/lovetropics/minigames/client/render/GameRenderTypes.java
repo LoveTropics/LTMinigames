@@ -1,6 +1,8 @@
 package com.lovetropics.minigames.client.render;
 
 import com.lovetropics.minigames.LoveTropics;
+import com.mojang.blaze3d.pipeline.BlendFunction;
+import com.mojang.blaze3d.pipeline.ColorTargetState;
 import com.mojang.blaze3d.pipeline.DepthStencilState;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.platform.CompareOp;
@@ -17,11 +19,13 @@ import net.neoforged.neoforge.client.event.RegisterRenderPipelinesEvent;
 public final class GameRenderTypes {
 	private static final RenderPipeline TRANSLUCENT_NO_TEX_PIPELINE = RenderPipelines.DEBUG_QUADS.toBuilder()
 			.withLocation(LoveTropics.id("pipeline/translucent_broken_depth"))
+			.withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
 			.withDepthStencilState(new DepthStencilState(CompareOp.GREATER_THAN_OR_EQUAL, true, 1.0f, 10.0f))
 			.build();
 
 	private static final RenderPipeline TRANSLUCENT_NO_TEX_NO_OFFSET_PIPELINE = RenderPipelines.DEBUG_QUADS.toBuilder()
 			.withLocation(LoveTropics.id("pipeline/translucent_broken_depth_no_offset"))
+			.withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
 			.withDepthStencilState(new DepthStencilState(CompareOp.GREATER_THAN_OR_EQUAL, true))
 			.build();
 

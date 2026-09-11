@@ -6,13 +6,12 @@ import com.lovetropics.minigames.common.content.biodiversity_blitz.entity.ai.BbM
 import com.lovetropics.minigames.common.content.biodiversity_blitz.entity.ai.KaboomCropGoal;
 import com.lovetropics.minigames.common.content.biodiversity_blitz.explosion.PlantAffectingExplosion;
 import com.lovetropics.minigames.common.content.biodiversity_blitz.plot.Plot;
+import com.lovetropics.minigames.common.util.duck.ClearableFluidInteraction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.protocol.game.ClientboundExplodePacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.tags.FluidTags;
-import net.minecraft.tags.TagKey;
 import net.minecraft.util.random.WeightedList;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
@@ -25,9 +24,9 @@ import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerExplosion;
-import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.common.NeoForgeMod;
 
 import java.util.Optional;
 
@@ -134,20 +133,16 @@ public class BbCreeperEntity extends Creeper implements BbMobEntity {
 		// Just use the default navigator, we never need to swim
 	}
 
-// Todo 26.1 Port
-//	@Override
-	//	public boolean updateFluidHeightAndDoFluidPushing(TagKey<Fluid> fluid, double scale) {
-//		if (fluid == FluidTags.WATER) {
-//			return false;
-//		}
-//		return super.updateFluidHeightAndDoFluidPushing(fluid, scale);
-//	}
+	@Override
+	protected boolean updateFluidInteraction() {
+		super.updateFluidInteraction();
+		((ClearableFluidInteraction) getFluidInteraction()).ltminigames$removeFluid(NeoForgeMod.WATER_TYPE.value());
+		wasTouchingWater = false;
+		return getFluidInteraction().isInAnyFluid();
+	}
 
 	@Override
-	public boolean isEyeInFluid(TagKey<Fluid> fluid) {
-		if (fluid == FluidTags.WATER) {
-			return false;
-		}
-		return super.isEyeInFluid(fluid);
+	public boolean isPushedByFluid() {
+		return false;
 	}
 }
