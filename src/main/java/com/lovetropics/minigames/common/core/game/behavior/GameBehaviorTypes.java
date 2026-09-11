@@ -52,6 +52,7 @@ import com.lovetropics.minigames.common.core.game.behavior.instances.TipsAndTric
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.AddAttributeModifierAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.AddCollidersAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.AddEquipmentAction;
+import com.lovetropics.minigames.common.core.game.behavior.instances.action.AddPlayerDVDFaceAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.AllowSingleFallAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.ApplyClientStateAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.ApplyForTimeAction;
@@ -59,6 +60,7 @@ import com.lovetropics.minigames.common.core.game.behavior.instances.action.Ches
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.ClearAttributeModifierAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.ClearDisguiseAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.ClearEffectsAction;
+import com.lovetropics.minigames.common.core.game.behavior.instances.action.ClearPlayerDVDFaceAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.CloseGameAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.CountdownAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.CycleByEntityAction;
@@ -420,6 +422,8 @@ public class GameBehaviorTypes {
 	public static final GameBehaviorEntry<BingoBehavior> BINGO = register("bingo", BingoBehavior.CODEC);
 	public static final GameBehaviorEntry<RandomizeAction> RANDOMIZE = register("randomize", RandomizeAction.CODEC);
 	public static final GameBehaviorEntry<ResizeAction> RESIZE = register("resize", ResizeAction.CODEC);
+	public static final GameBehaviorEntry<AddPlayerDVDFaceAction> ADD_DVD_FACE = register("add_dvd_face", AddPlayerDVDFaceAction.CODEC);
+	public static final GameBehaviorEntry<ClearPlayerDVDFaceAction> CLEAR_DVD_FACE = register("clear_dvd_faces", ClearPlayerDVDFaceAction.CODEC);
 
 	public static final GameBehaviorEntry<SetupIntegrationsBehavior> SETUP_INTEGRATIONS = register("setup_integrations", SetupIntegrationsBehavior.CODEC);
 	public static final GameBehaviorEntry<JoinLateWithRoleBehavior> JOIN_LATE_WITH_ROLE = register("join_late_with_role", JoinLateWithRoleBehavior.CODEC);

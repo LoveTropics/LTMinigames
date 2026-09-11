@@ -23,6 +23,7 @@ public class MinigameGuiOverlays {
 	@SubscribeEvent
 	public static void registerGuiLayers(RegisterGuiLayersEvent event) {
 		event.registerBelow(VanillaGuiLayers.CAMERA_OVERLAYS, LoveTropics.id("coladaral_damage"), MinigameGuiOverlays::renderColadaralDamage);
+		event.registerAbove(VanillaGuiLayers.CHAT, LoveTropics.id("player_dvd"), PlayerFaceDVDRender::renderPlayerDVDFaces);
 	}
 
 	private static void renderColadaralDamage(GuiGraphicsExtractor graphics, DeltaTracker tracker) {

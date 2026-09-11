@@ -85,6 +85,9 @@ public final class LoveTropicsNetwork {
 		registrar.playToClient(ClientboundDdrInputHitPacket.TYPE, ClientboundDdrInputHitPacket.STREAM_CODEC);
 
 		registrar.playToClient(ClientboundFadeToBlackPacket.TYPE, ClientboundFadeToBlackPacket.STREAM_CODEC);
+
+		registrar.playToClient(ClientboundPlayerFaceDVDPackets.Add.TYPE, ClientboundPlayerFaceDVDPackets.Add.STREAM_CODEC);
+		registrar.playToClient(ClientboundPlayerFaceDVDPackets.Clear.TYPE, ClientboundPlayerFaceDVDPackets.Clear.STREAM_CODEC);
 	}
 
 	@SubscribeEvent
@@ -121,5 +124,8 @@ public final class LoveTropicsNetwork {
 		event.register(ClientboundVendingMachineDropPacket.TYPE, ClientboundVendingMachineDropPacket::handle);
 
 		event.register(ClientboundFadeToBlackPacket.TYPE, ClientFadeToBlack::handle);
+
+		event.register(ClientboundPlayerFaceDVDPackets.Add.TYPE, ClientboundPlayerFaceDVDPackets.Add::handle);
+		event.register(ClientboundPlayerFaceDVDPackets.Clear.TYPE, ClientboundPlayerFaceDVDPackets.Clear::handle);
 	}
 }
