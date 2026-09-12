@@ -12,7 +12,6 @@ import com.lovetropics.minigames.common.content.river_race.microgames.StartMicro
 import com.lovetropics.minigames.common.core.game.behavior.action.ApplyToAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.AddOverlordsBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.AddWeatherBehavior;
-import com.lovetropics.minigames.common.core.game.behavior.instances.BingoBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.CheckpointsBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.CompositeBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.CountdownEffectsBehavior;
