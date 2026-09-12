@@ -12,11 +12,13 @@ import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvent
 import com.lovetropics.minigames.common.core.game.client_state.GameClientState;
 import com.lovetropics.minigames.common.core.game.client_state.GameClientStateTypes;
 import com.lovetropics.minigames.common.core.game.client_state.instance.BingoBoardClientState;
+import com.lovetropics.minigames.common.core.game.state.statistics.StatisticKey;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -34,20 +36,23 @@ public final class BingoBehavior implements IGameBehavior {
 	public static final MapCodec<BingoBehavior> CODEC = RecordCodecBuilder.mapCodec(in -> in.group(
 			Codec.INT.fieldOf("rows").forGetter(b -> b.rows),
 			Codec.INT.fieldOf("columns").forGetter(b -> b.columns),
+			Codec.FLOAT.listOf(1, Integer.MAX_VALUE).fieldOf("position_reward_multipler").forGetter(b -> b.positionRewardMultiplier),
 			GameActionList.CODEC.optionalFieldOf("on_tile_completed", GameActionList.EMPTY).forGetter(b -> b.onTileCompleted),
 			GameActionList.CODEC.optionalFieldOf("on_bingo", GameActionList.EMPTY).forGetter(b -> b.onBingo)
 	).apply(in, BingoBehavior::new));
 
 	private final int rows, columns;
+	private final List<Float> positionRewardMultiplier;
 	private final GameActionList onTileCompleted, onBingo;
 	private final List<Optional<BingoTile>> tiles;
 	private final IntList emptySlots = new IntArrayList();
 
 	private IGamePhase game;
 
-	public BingoBehavior(int rows, int columns, GameActionList onTileCompleted, GameActionList onBingo) {
+	public BingoBehavior(int rows, int columns, List<Float> positionRewardMultiplier, GameActionList onTileCompleted, GameActionList onBingo) {
 		this.rows = rows;
 		this.columns = columns;
+		this.positionRewardMultiplier = positionRewardMultiplier;
 		this.onTileCompleted = onTileCompleted;
 		this.onBingo = onBingo;
 		tiles = NonNullList.withSize(rows * columns, Optional.empty());
@@ -67,12 +72,18 @@ public final class BingoBehavior implements IGameBehavior {
 
 		events.listen(GamePlayerEvents.REMOVE, player -> GameClientState.removeFromPlayer(GameClientStateTypes.BINGO_BOARD.get(), player));
 
-		events.listen(Bingo.REQUEST_NEW_TILE_EVENT, (icon, title) -> addTile(new BingoTile(icon, title)));
+		events.listen(Bingo.REQUEST_NEW_TILE_EVENT, (icon, title, reward) -> addTile(new BingoTile(icon, title, reward)));
 		events.listen(Bingo.COMPLETE_BINGO_TILE_EVENT, (tile, completingPlayer) -> {
 			tiles.get(tile).ifPresent(t -> {
 				if (t.completedBy.add(completingPlayer.getUUID())) {
 					updatePlayer(completingPlayer);
 					onTileCompleted.apply(game, ContextMap.EMPTY, ActionSubjects.ofPlayer(completingPlayer));
+					game.allPlayers().sendMessage(Bingo.TILE_COMPLETED.apply(completingPlayer.getDisplayName(), t.title.copy().withStyle(ChatFormatting.AQUA)));
+
+					int position = t.completedBy.size() - 1;
+					float multiplier = position >= positionRewardMultiplier.size() ? positionRewardMultiplier.getLast() : positionRewardMultiplier.get(position);
+					game.statistics().forPlayer(completingPlayer).incrementInt(StatisticKey.POINTS, (int) Math.floor(t.reward * multiplier));
+
 					if (checkBingo(completingPlayer)) {
 						onBingo.apply(game, ContextMap.EMPTY, ActionSubjects.ofPlayer(completingPlayer));
 					}
@@ -149,11 +160,13 @@ public final class BingoBehavior implements IGameBehavior {
 	public static final class BingoTile {
 		private final ItemStack icon;
 		private final Component title;
+		private final int reward;
 		private final Set<UUID> completedBy = new HashSet<>();
 
-		public BingoTile(ItemStack icon, Component title) {
+		public BingoTile(ItemStack icon, Component title, int reward) {
 			this.icon = icon;
 			this.title = title;
+			this.reward = reward;
 		}
 
 		public BingoBoardClientState.Tile tile(ServerPlayer player) {

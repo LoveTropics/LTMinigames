@@ -2,6 +2,7 @@ package com.lovetropics.minigames.common.content.bingo;
 
 import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameEventType;
+import com.lovetropics.minigames.common.core.game.util.TranslationCollector;
 import com.lovetropics.minigames.common.util.registry.GameBehaviorEntry;
 import com.lovetropics.minigames.common.util.registry.LoveTropicsRegistrate;
 import net.minecraft.network.chat.Component;
@@ -10,10 +11,13 @@ import net.minecraft.world.item.ItemStack;
 
 public class Bingo {
 	private static final LoveTropicsRegistrate REGISTRATE = LoveTropics.registrate();
+	public static final TranslationCollector KEYS = new TranslationCollector(LoveTropics.ID + ".minigame.bingo.");
 
-	public static final GameEventType<RequestNewTile> REQUEST_NEW_TILE_EVENT = GameEventType.create(RequestNewTile.class, listeners -> (icon, title) -> {
+	public static final TranslationCollector.Fun2 TILE_COMPLETED = KEYS.add2("tile_completed", "%s completed tile %s!");
+
+	public static final GameEventType<RequestNewTile> REQUEST_NEW_TILE_EVENT = GameEventType.create(RequestNewTile.class, listeners -> (icon, title, reward) -> {
 		for (var listener : listeners) {
-			var index = listener.requestTile(icon, title);
+			var index = listener.requestTile(icon, title, reward);
 			if (index >= 0) return index;
 		}
 		return -1;
@@ -47,7 +51,7 @@ public class Bingo {
 
 	public interface RequestNewTile {
 		/// @return the new tile index, or `-1` if a new tile could not be added
-		int requestTile(ItemStack icon, Component title);
+		int requestTile(ItemStack icon, Component title, int reward);
 	}
 
 	public interface CaptureBingoTile {

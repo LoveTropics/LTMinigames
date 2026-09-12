@@ -159,6 +159,7 @@ public class LoveTropics {
 			BiConsumer<String, String> consumer = prov::add;
 			GameTexts.collectTranslations(consumer);
 			MinigameTexts.KEYS.forEach(consumer);
+			Bingo.KEYS.forEach(consumer);
 			BiodiversityBlitzTexts.collectTranslations(consumer);
 			BlockPartyTexts.KEYS.forEach(consumer);
 			ColumnsOfChaosTexts.KEYS.forEach(consumer);
