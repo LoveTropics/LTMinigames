@@ -1,18 +1,20 @@
 package com.lovetropics.minigames.common.core.map;
 
-import com.lovetropics.minigames.common.hack.GrossHackyGameRuleCodec;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.flag.FeatureFlagSet;
+import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.saveddata.WeatherData;
 
 public final class MapWorldSettings {
 
+	private static final Codec<GameRules> GAME_RULES_CODEC = GameRules.codec(FeatureFlagSet.of());
+
 	public static final Codec<MapWorldSettings> CODEC = RecordCodecBuilder.create(i -> i.group(
-			new GrossHackyGameRuleCodec().fieldOf("game_rules").forGetter(s -> s.gameRules),
+			GAME_RULES_CODEC.fieldOf("game_rules").forGetter(s -> s.gameRules),
 			Codec.LONG.fieldOf("time_of_day").forGetter(s -> s.timeOfDay),
 			Codec.INT.fieldOf("sunny_time").forGetter(s -> s.weather.getClearWeatherTime()),
 			Codec.BOOL.fieldOf("raining").forGetter(s -> s.weather.isRaining()),
