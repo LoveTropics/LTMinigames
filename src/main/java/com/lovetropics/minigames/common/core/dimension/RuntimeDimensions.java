@@ -39,9 +39,11 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 @EventBusSubscriber(modid = LoveTropics.ID)
@@ -54,6 +56,7 @@ public final class RuntimeDimensions {
 
 	private final Set<ServerLevel> deletionQueue = new ReferenceOpenHashSet<>();
 	private final Set<ResourceKey<Level>> temporaryDimensions = new ReferenceOpenHashSet<>();
+	private final Map<ResourceKey<Level>, LinkedDimensions> links = new ConcurrentHashMap<>();
 
 	private RuntimeDimensions(MinecraftServer server) {
 		this.server = server;
@@ -243,6 +246,7 @@ public final class RuntimeDimensions {
 			server.markWorldsDirty();
 
 			temporaryDimensions.remove(dimensionKey);
+			links.remove(dimensionKey);
 
 			NeoForge.EVENT_BUS.post(new LevelEvent.Unload(level));
 
@@ -301,6 +305,17 @@ public final class RuntimeDimensions {
 
 	public Collection<ResourceKey<Level>> getTemporaryDimensions() {
 		return temporaryDimensions;
+	}
+
+	/// Makes the given dimensions stand in for the vanilla Overworld, Nether and End for each other, until they are deleted
+	public void link(LinkedDimensions linkedDimensions) {
+		for (ResourceKey<Level> dimension : linkedDimensions.dimensions()) {
+			links.put(dimension, linkedDimensions);
+		}
+	}
+
+	public @Nullable LinkedDimensions getLinks(ResourceKey<Level> dimension) {
+		return links.get(dimension);
 	}
 
 	public static boolean isTemporaryDimension(ServerLevel level) {

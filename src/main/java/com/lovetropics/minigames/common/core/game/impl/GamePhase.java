@@ -620,6 +620,11 @@ public class GamePhase implements IGamePhase {
 	}
 
 	@Override
+	public List<ResourceKey<Level>> dimensions() {
+		return map.allDimensions();
+	}
+
+	@Override
 	public ServerLevel level() {
 		return level;
 	}
