@@ -16,6 +16,7 @@ import net.minecraft.client.gui.screens.inventory.tooltip.TooltipRenderUtil;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.feature.TextFeatureRenderer;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.rendertype.RenderType;
@@ -31,6 +32,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.EntityHitResult;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
+import net.neoforged.neoforge.client.submit.RenderPhaseKeys;
+import org.joml.Matrix4f;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -147,19 +150,13 @@ public class VendingMachineEntityRenderer extends EntityRenderer<VendingMachineE
 
 		poseStack.popPose();
 
-		// TODO: Big hack to force the text to render in front!
-		// Todo 26.1 Port
-//		if (bufferSource instanceof MultiBufferSource.BufferSource b) {
-//			b.endBatch();
-//		}
-
 		if ((selected && !anyHighlighted) || highlighted) {
 			int backgroundColor = ARGB.color(Minecraft.getInstance().options.getBackgroundOpacity(0.25f), CommonColors.BLACK);
 			poseStack.pushPose();
 			float scale = 0.15f / 16.0f;
 			poseStack.scale(-scale, -scale, scale);
-			submitNodeCollector.submitText(
-					poseStack,
+			submitNodeCollector.submitSpecial(RenderPhaseKeys.ALWAYS_ON_TOP, new TextFeatureRenderer.Submit(
+					new Matrix4f(poseStack.last().pose()),
 					-font.width(slot.name) / 2.0f,
 					-25.0f,
 					slot.name.getVisualOrderText(),
@@ -168,7 +165,8 @@ public class VendingMachineEntityRenderer extends EntityRenderer<VendingMachineE
 					state.lightCoords,
 					CommonColors.WHITE,
 					backgroundColor,
-					state.outlineColor);
+					state.outlineColor
+			));
 			poseStack.popPose();
 		}
 	}
