@@ -24,6 +24,7 @@
     "clock.PlayerListClockMixin",
     "clock.ServerClockInstanceMixin",
     "clock.ServerClockManagerMixin",
+    "clock.TimeCommandMixin",
     "command.CommandsMixin",
     "command.ServerGamePacketListenerImplMixin",
     "dimension.ChunkStorageMixin",
