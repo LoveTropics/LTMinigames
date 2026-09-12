@@ -1,6 +1,7 @@
 package com.lovetropics.minigames.client.game.handler;
 
 import com.lovetropics.minigames.LoveTropics;
+import com.lovetropics.minigames.client.LTKeybinds;
 import com.lovetropics.minigames.common.core.game.client_state.instance.BingoBoardClientState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -53,8 +54,7 @@ public class GameBingoHandler {
 		event.registerAboveAll(Identifier.fromNamespaceAndPath(LoveTropics.ID, "bingo_board"), (guiGraphics, deltaTracker) -> {
 			if (rows <= 0 || columns <= 0 || tiles == null) return;
 
-			Minecraft mc = Minecraft.getInstance();
-			Font font = mc.font;
+			Font font = Minecraft.getInstance().font;
 
 			int boardX = 20, boardY = 20;
 
@@ -66,7 +66,7 @@ public class GameBingoHandler {
 					.map(t -> font.split(t.title(), textAreaW).size())
 					.max(Comparator.naturalOrder()).orElse(1);
 
-			boolean compact = !Minecraft.getInstance().hasShiftDown();
+			boolean compact = !LTKeybinds.EXPAND_BINGO_BOARD.isDown();
 
 			int lineHeight = font.lineHeight;
 			int textAreaH = maxLines * lineHeight;

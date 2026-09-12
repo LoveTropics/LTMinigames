@@ -1,7 +1,7 @@
 package com.lovetropics.minigames.client.lobby.manage;
 
 import com.lovetropics.minigames.LoveTropics;
-import com.lovetropics.minigames.client.lobby.LobbyKeybinds;
+import com.lovetropics.minigames.client.LTKeybinds;
 import com.lovetropics.minigames.client.lobby.ManageOrCreateLobbyPacket;
 import com.lovetropics.minigames.client.lobby.manage.screen.ManageLobbyScreen;
 import com.lovetropics.minigames.client.lobby.manage.state.ClientLobbyManageState;
@@ -44,7 +44,7 @@ public final class ClientLobbyManagement {
 	@SubscribeEvent
 	public static void onKeyInput(ClientTickEvent.Post event) {
 		LocalPlayer player = Minecraft.getInstance().player;
-		if (player != null && LobbyKeybinds.MANAGE.consumeClick()) {
+		if (player != null && LTKeybinds.MANAGE.consumeClick()) {
 			ClientPacketDistributor.sendToServer(new ManageOrCreateLobbyPacket());
 		}
 	}

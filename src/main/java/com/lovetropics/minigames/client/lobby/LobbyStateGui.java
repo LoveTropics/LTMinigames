@@ -1,6 +1,7 @@
 package com.lovetropics.minigames.client.lobby;
 
 import com.lovetropics.minigames.LoveTropics;
+import com.lovetropics.minigames.client.LTKeybinds;
 import com.lovetropics.minigames.client.lobby.state.ClientCurrentGame;
 import com.lovetropics.minigames.client.lobby.state.ClientGameDefinition;
 import com.lovetropics.minigames.client.lobby.state.ClientLobbyManager;
@@ -41,10 +42,10 @@ public class LobbyStateGui {
 		if (player == null) {
 			return;
 		}
-		if (LobbyKeybinds.JOIN.consumeClick()) {
+		if (LTKeybinds.JOIN.consumeClick()) {
 			ClientPacketDistributor.sendToServer(new JoinLobbyPacket());
 		}
-		if (LobbyKeybinds.LEAVE.consumeClick()) {
+		if (LTKeybinds.LEAVE.consumeClick()) {
 			ClientPacketDistributor.sendToServer(new LeaveLobbyPacket());
 		}
 	}
@@ -193,9 +194,9 @@ public class LobbyStateGui {
 
 	private static String keyBindsText(boolean joined) {
 		if (!joined) {
-			return ChatFormatting.AQUA + "Join [" + LobbyKeybinds.JOIN.getTranslatedKeyMessage().getString().toUpperCase() + "]" + ChatFormatting.GRAY;
+			return ChatFormatting.AQUA + "Join [" + LTKeybinds.JOIN.getTranslatedKeyMessage().getString().toUpperCase() + "]" + ChatFormatting.GRAY;
 		} else {
-			return ChatFormatting.AQUA + "Leave [" + LobbyKeybinds.LEAVE.getTranslatedKeyMessage().getString().toUpperCase() + "]";
+			return ChatFormatting.AQUA + "Leave [" + LTKeybinds.LEAVE.getTranslatedKeyMessage().getString().toUpperCase() + "]";
 		}
 	}
 

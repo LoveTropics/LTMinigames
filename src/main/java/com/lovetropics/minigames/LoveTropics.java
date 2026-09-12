@@ -3,8 +3,8 @@ package com.lovetropics.minigames;
 import com.google.common.base.Suppliers;
 import com.lovetropics.minigames.client.game.handler.GameSidebarRenderer;
 import com.lovetropics.minigames.client.game.handler.spectate.SpectatingUi;
-import com.lovetropics.minigames.client.lobby.KeybindsTexts;
-import com.lovetropics.minigames.client.lobby.LobbyKeybinds;
+import com.lovetropics.minigames.client.KeybindsTexts;
+import com.lovetropics.minigames.client.LTKeybinds;
 import com.lovetropics.minigames.client.lobby.LobbyStateGui;
 import com.lovetropics.minigames.client.render.block.TriviaChestRenderer;
 import com.lovetropics.minigames.common.config.ConfigLT;
@@ -350,7 +350,7 @@ public class LoveTropics {
 	public static class ClientSetup {
 		@SubscribeEvent
 		public static void setupClient(final FMLClientSetupEvent event) {
-			LobbyKeybinds.init();
+			LTKeybinds.init();
 			BlockEntityRenderers.register(RiverRace.TRIVIA_CHEST_BLOCK_ENTITY.get(), TriviaChestRenderer::new);
 		}
 	}
