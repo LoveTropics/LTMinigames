@@ -14,16 +14,29 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.Unit;
+import net.minecraft.world.level.Level;
 
 import org.jspecify.annotations.Nullable;
+import java.util.List;
 
 public interface IGamePhase {
 	/// @return the world that this game takes place within
 	ServerLevel level();
 
 	MapRegions mapRegions();
+
+	/// @return the dimension that this game takes places within
+	default ResourceKey<Level> dimension() {
+		return level().dimension();
+	}
+
+	/// @return every dimension that this game takes place within: its main dimension, then any linked to it (e.g. its own Nether and End)
+	default List<ResourceKey<Level>> dimensions() {
+		return List.of(dimension());
+	}
 
 	default RandomSource random() {
 		return level().getRandom();
