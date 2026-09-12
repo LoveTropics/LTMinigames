@@ -1,5 +1,6 @@
 package com.lovetropics.minigames.client.gui;
 
+import com.lovetropics.minigames.LoveTropics;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.DeltaTracker;
@@ -9,6 +10,7 @@ import net.minecraft.client.gui.components.PlayerFaceExtractor;
 import net.minecraft.client.renderer.PlayerSkinRenderCache;
 import net.minecraft.util.CommonColors;
 import net.minecraft.world.item.component.ResolvableProfile;
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
@@ -19,7 +21,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
-@EventBusSubscriber
+@EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
 public class PlayerFaceDVDRender {
 
 	private static final Logger LOGGER = LogUtils.getLogger();
