@@ -419,7 +419,6 @@ public class GameBehaviorTypes {
 	public static final GameBehaviorEntry<HighlightBlocksAction> HIGHLIGHT_BLOCKS = REGISTRATE.object("highlight_blocks").behavior(HighlightBlocksAction.CODEC).register();
 	public static final GameBehaviorEntry<MinecraftBehavior> MINECRAFT = register("minecraft", MinecraftBehavior.CODEC);
 	public static final GameBehaviorEntry<GiveRespawnAction> GIVE_RESPAWN = register("give_respawn", GiveRespawnAction.CODEC);
-	public static final GameBehaviorEntry<BingoBehavior> BINGO = register("bingo", BingoBehavior.CODEC);
 	public static final GameBehaviorEntry<RandomizeAction> RANDOMIZE = register("randomize", RandomizeAction.CODEC);
 	public static final GameBehaviorEntry<ResizeAction> RESIZE = register("resize", ResizeAction.CODEC);
 	public static final GameBehaviorEntry<AddPlayerDVDFaceAction> ADD_DVD_FACE = register("add_dvd_face", AddPlayerDVDFaceAction.CODEC);

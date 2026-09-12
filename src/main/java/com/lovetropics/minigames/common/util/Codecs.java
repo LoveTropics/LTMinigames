@@ -24,6 +24,7 @@ import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 public class Codecs {
@@ -103,6 +104,20 @@ public class Codecs {
 			@Override
 			public <T> DataResult<T> encode(A input, DynamicOps<T> ops, T prefix) {
 				return codec.encode(input, ops, prefix);
+			}
+		};
+	}
+
+	public static <A> Codec<Supplier<A>> newLazyCopies(final Codec<A> codec) {
+		return new Codec<>() {
+			@Override
+			public <T> DataResult<Pair<Supplier<A>, T>> decode(DynamicOps<T> ops, T input) {
+				return DataResult.success(Pair.of(() -> codec.decode(ops, input).getOrThrow().getFirst(), ops.empty()));
+			}
+
+			@Override
+			public <T> DataResult<T> encode(Supplier<A> input, DynamicOps<T> ops, T prefix) {
+				return DataResult.error(() -> "Cannot encode");
 			}
 		};
 	}

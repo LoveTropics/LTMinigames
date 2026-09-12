@@ -9,6 +9,7 @@ import com.lovetropics.minigames.client.lobby.LobbyStateGui;
 import com.lovetropics.minigames.client.render.block.TriviaChestRenderer;
 import com.lovetropics.minigames.common.config.ConfigLT;
 import com.lovetropics.minigames.common.content.MinigameTexts;
+import com.lovetropics.minigames.common.content.bingo.Bingo;
 import com.lovetropics.minigames.common.content.biodiversity_blitz.BiodiversityBlitz;
 import com.lovetropics.minigames.common.content.biodiversity_blitz.BiodiversityBlitzTexts;
 import com.lovetropics.minigames.common.content.biodiversity_blitz.client_state.render.BbClientRenderEffects;
@@ -210,6 +211,7 @@ public class LoveTropics {
 		SurviveTheTide.init();
 		TrashDive.init();
 		BlockParty.init();
+		Bingo.init();
 		CraftingBee.init();
 		ConnectFour.init();
 		TurtleRace.init();

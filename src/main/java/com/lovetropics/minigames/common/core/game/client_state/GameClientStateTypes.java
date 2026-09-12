@@ -3,6 +3,7 @@ package com.lovetropics.minigames.common.core.game.client_state;
 import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.core.game.client_state.instance.BeSpeedyState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.BeaconClientState;
+import com.lovetropics.minigames.common.core.game.client_state.instance.BingoBoardClientState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.BreakDelayState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.CollidersClientState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.CraftingBeeCraftsClientState;
@@ -61,6 +62,7 @@ public final class GameClientStateTypes {
 	public static final GameClientTweakEntry<HideRecipeBookClientState> HIDE_RECIPE_BOOK = register("hide_recipe_book", HideRecipeBookClientState.CODEC);
 	public static final GameClientTweakEntry<HighlightBlocksState> HIGHLIGHT_BLOCKS = register("highlight_blocks", HighlightBlocksState.CODEC, HighlightBlocksState.STREAM_CODEC);
 	public static final GameClientTweakEntry<CraftingBeeCraftsClientState> CRAFTING_BEE_CRAFTS = register("crafting_bee_crafts", CraftingBeeCraftsClientState.CODEC);
+	public static final GameClientTweakEntry<BingoBoardClientState> BINGO_BOARD = register("bingo_board", BingoBoardClientState.CODEC);
 	public static final GameClientTweakEntry<InvertControlsClientState> INVERT_CONTROLS = register("invert_controls", InvertControlsClientState.CODEC);
 	public static final GameClientTweakEntry<SwapMovementClientState> SWAP_MOVEMENT = register("swap_movement", SwapMovementClientState.CODEC);
 	public static final GameClientTweakEntry<CollidersClientState> COLLIDERS = register("colliders", CollidersClientState.CODEC, CollidersClientState.STREAM_CODEC);
