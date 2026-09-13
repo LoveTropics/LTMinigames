@@ -2,14 +2,12 @@ package com.lovetropics.minigames.common.core.game.persistent.behavior.crab;
 
 import com.lovetropics.lib.BlockBox;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
-import com.lovetropics.minigames.common.core.game.behavior.event.GameLivingEntityEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
 import com.lovetropics.minigames.common.core.game.persistent.PersistentGame;
 import com.lovetropics.minigames.common.core.game.persistent.PersistentGameBehavior;
 import com.lovetropics.minigames.common.core.game.persistent.PersistentGameBehaviorType;
 import com.lovetropics.minigames.common.core.game.persistent.PersistentGameBehaviors;
-import com.lovetropics.minigames.common.core.game.persistent.behavior.GameRegionBehavior;
 import com.lovetropics.minigames.common.core.map.MapRegions;
 import com.lovetropics.minigames.common.core.map.SavedRegions;
 import com.mojang.serialization.Codec;
@@ -17,7 +15,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.TagParser;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -29,14 +27,12 @@ import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntitySpawnRequest;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.decoration.ArmorStand;
+import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -44,10 +40,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 public class CrabGolfHoleBehavior implements PersistentGameBehavior {
+
+	private static final UUID SEARGE_UUID = UUID.fromString("696a82ce-41f4-4b51-aa31-b8709b8686f0");
+
 	public static final MapCodec<CrabGolfHoleBehavior> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 			Codec.INT.fieldOf("hole").forGetter(b -> b.hole),
 			Codec.STRING.fieldOf("main_region").forGetter(b -> b.mainRegionName),
@@ -264,14 +262,10 @@ public class CrabGolfHoleBehavior implements PersistentGameBehavior {
 		nbt.putString("id", "dummyplayers:dummy_player");
 		nbt.putInt("DisabledSlots", 4144959);
 		nbt.putBoolean("Invulnerable", true);
-		CompoundTag profile = new CompoundTag();
-		if (player == null) {
-			profile.putString("name", "Searge");
-		} else {
-			profile.putIntArray("id", UUIDUtil.uuidToIntArray(player));
-		}
 
-		nbt.put("profile", profile);
+		ResolvableProfile resolvableProfile = ResolvableProfile.createUnresolved(player == null ? SEARGE_UUID : player);
+		nbt.put("profile", ResolvableProfile.CODEC.encodeStart(NbtOps.INSTANCE, resolvableProfile).getOrThrow());
+
 		if (score > 0) {
 			CompoundTag prefix = new CompoundTag();
 			prefix.putString("translate", "lt.golf.best_score");
