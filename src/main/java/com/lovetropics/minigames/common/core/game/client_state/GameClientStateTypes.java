@@ -16,6 +16,7 @@ import com.lovetropics.minigames.common.core.game.client_state.instance.GlowTeam
 import com.lovetropics.minigames.common.core.game.client_state.instance.HealthTagClientState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.HideNameTagsState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.HidePlayersState;
+import com.lovetropics.minigames.common.core.game.client_state.instance.DisableRecipeBookClientState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.HideRecipeBookClientState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.HighlightBlocksState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.InvertControlsClientState;
@@ -60,7 +61,7 @@ public final class GameClientStateTypes {
 	public static final GameClientTweakEntry<TeamMembersClientState> TEAM_MEMBERS = register("team_members", TeamMembersClientState.CODEC);
 	public static final GameClientTweakEntry<GlowTeamMembersState> GLOW_TEAM_MEMBERS = register("glow_team_members", MapCodec.unit(GlowTeamMembersState.INSTANCE), StreamCodec.unit(GlowTeamMembersState.INSTANCE));
 	public static final GameClientTweakEntry<PointTagClientState> POINT_TAGS = register("point_tags", PointTagClientState.CODEC);
-	public static final GameClientTweakEntry<HideRecipeBookClientState> HIDE_RECIPE_BOOK = register("hide_recipe_book", HideRecipeBookClientState.CODEC);
+	public static final GameClientTweakEntry<DisableRecipeBookClientState> DISABLE_RECIPE_BOOK = register("disable_recipe_book", DisableRecipeBookClientState.CODEC);
 	public static final GameClientTweakEntry<HighlightBlocksState> HIGHLIGHT_BLOCKS = register("highlight_blocks", HighlightBlocksState.CODEC, HighlightBlocksState.STREAM_CODEC);
 	public static final GameClientTweakEntry<CraftingBeeCraftsClientState> CRAFTING_BEE_CRAFTS = register("crafting_bee_crafts", CraftingBeeCraftsClientState.CODEC);
 	public static final GameClientTweakEntry<BingoBoardClientState> BINGO_BOARD = register("bingo_board", BingoBoardClientState.CODEC);
@@ -77,6 +78,7 @@ public final class GameClientStateTypes {
 	public static final GameClientTweakEntry<StatisticOverlayState> STATISTIC_OVERLAY = register("statistic_overlay", StatisticOverlayState.CODEC, StatisticOverlayState.STREAM_CODEC);
 	public static final GameClientTweakEntry<BreakDelayState> BREAK_DELAY = register("break_delay", MapCodec.unit(BreakDelayState.INSTANCE), StreamCodec.unit(BreakDelayState.INSTANCE));
 	public static final GameClientTweakEntry<ForcePerspectiveClientState> FORCE_PERSPECTIVE = register("force_perspective", ForcePerspectiveClientState.CODEC, ForcePerspectiveClientState.STREAM_CODEC);
+	public static final GameClientTweakEntry<HideRecipeBookClientState> HIDE_RECIPE_BOOK = registerUnit("hide_recipe_book", HideRecipeBookClientState.INSTANCE);
 
 	public static <T extends GameClientState> GameClientTweakEntry<T> register(final String name, final MapCodec<T> codec) {
 		return REGISTRATE.object(name)
@@ -87,6 +89,13 @@ public final class GameClientStateTypes {
 	public static <T extends GameClientState> GameClientTweakEntry<T> register(final String name, final MapCodec<T> codec, final StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec) {
 		return REGISTRATE.object(name)
 				.clientState(codec).streamCodec(streamCodec)
+				.register();
+	}
+
+	public static <T extends GameClientState> GameClientTweakEntry<T> registerUnit(final String name, final T instance) {
+		return REGISTRATE.object(name)
+				.clientState(MapCodec.unit(instance))
+				.streamCodec(StreamCodec.unit(instance))
 				.register();
 	}
 

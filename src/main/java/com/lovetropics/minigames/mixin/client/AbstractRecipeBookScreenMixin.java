@@ -4,6 +4,8 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.lovetropics.minigames.client.game.ClientGameStateManager;
 import com.lovetropics.minigames.common.core.game.client_state.GameClientStateTypes;
+import com.lovetropics.minigames.common.core.game.client_state.instance.DisableRecipeBookClientState;
+import com.lovetropics.minigames.common.core.game.client_state.instance.HideRecipeBookClientState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ImageButton;
@@ -16,12 +18,13 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(AbstractRecipeBookScreen.class)
 public class AbstractRecipeBookScreenMixin {
 	@Inject(method = "init", at = @At("HEAD"))
 	private void hideBookIfOpen(CallbackInfo ci) {
-		if (ClientGameStateManager.getOrNull(GameClientStateTypes.HIDE_RECIPE_BOOK) != null) {
+		if (ClientGameStateManager.getOrNull(GameClientStateTypes.DISABLE_RECIPE_BOOK) != null) {
 			Minecraft.getInstance().player.getRecipeBook().setBookSetting(RecipeBookType.CRAFTING, false, false);
 		}
 	}
@@ -32,11 +35,19 @@ public class AbstractRecipeBookScreenMixin {
 		var org = original.call(x, y, width, height, new WidgetSprites(
 				sprites.enabled(), disabled, sprites.enabledFocused(), disabled
 		), onPress);
-		var hidden = ClientGameStateManager.getOrNull(GameClientStateTypes.HIDE_RECIPE_BOOK);
+		var hidden = ClientGameStateManager.getOrNull(GameClientStateTypes.DISABLE_RECIPE_BOOK);
 		if (hidden != null) {
 			org.active = false;
 			org.setTooltip(Tooltip.create(hidden.message()));
 		}
 		return org;
+	}
+
+	@Inject(method = "initButton", at = @At("HEAD"), cancellable = true)
+	private void onInitButton(CallbackInfo ci) {
+		HideRecipeBookClientState state = ClientGameStateManager.getOrNull(GameClientStateTypes.HIDE_RECIPE_BOOK);
+		if (state != null) {
+			ci.cancel();
+		}
 	}
 }
