@@ -12,9 +12,14 @@ import com.mojang.serialization.codecs.KeyDispatchCodec;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.RegistryCodecs;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStackTemplate;
+import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
@@ -23,6 +28,9 @@ import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -82,7 +90,7 @@ public class Codecs {
 
 			@Override
 			public <T> DataResult<E> decode(DynamicOps<T> ops, MapLike<T> input) {
-				return delegate.decode(ops, input).mapError(err -> "In type: \"" + input.get(typeKey) + "\": " + err);
+				return delegate.decode(ops, input).mapError(err -> "In type: \"" + input.get(typeKey) + "\":\n" + err);
 			}
 
 			@Override
@@ -157,4 +165,34 @@ public class Codecs {
 			),
 			Either::right
 	);
+
+
+	/**
+	 * Make it so it does not "error" out when reading gamerules that where added by some other mod, and no longer exist.
+	* */
+	public static class LinientGamerulesCodec implements Codec<GameRules> {
+
+		private static final Codec<GameRules> GAME_RULES_CODEC = GameRules.codec(FeatureFlagSet.of());
+
+		public static final LinientGamerulesCodec CODEC = new LinientGamerulesCodec();
+
+		@Override
+		public <T> DataResult<Pair<GameRules, T>> decode(DynamicOps<T> ops, T input) {
+			CompoundTag tag = (CompoundTag) input;
+			List<String> toRemove = new ArrayList<>();
+			for (String string : tag.keySet()) {
+				if (BuiltInRegistries.GAME_RULE.containsKey(Identifier.tryParse(string))) {
+					continue;
+				}
+				toRemove.add(string);
+			}
+			toRemove.forEach(tag::remove);
+			return GAME_RULES_CODEC.decode(ops, (T) tag);
+		}
+
+		@Override
+		public <T> DataResult<T> encode(GameRules input, DynamicOps<T> ops, T prefix) {
+			return GAME_RULES_CODEC.encode(input, ops, prefix);
+		}
+	}
 }
