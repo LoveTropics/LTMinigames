@@ -27,7 +27,7 @@ import com.lovetropics.minigames.common.core.game.client_state.instance.SidebarC
 import com.lovetropics.minigames.common.core.game.client_state.instance.SoundVolumeModifier;
 import com.lovetropics.minigames.common.core.game.client_state.instance.SpectatingClientState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.StatisticOverlayState;
-import com.lovetropics.minigames.common.core.game.client_state.instance.SwapMovementClientState;
+import com.lovetropics.minigames.common.core.game.client_state.instance.RemapMovementClientState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.TeamMembersClientState;
 import com.lovetropics.minigames.common.util.registry.GameClientTweakEntry;
 import com.lovetropics.minigames.common.util.registry.LoveTropicsRegistrate;
@@ -66,7 +66,7 @@ public final class GameClientStateTypes {
 	public static final GameClientTweakEntry<CraftingBeeCraftsClientState> CRAFTING_BEE_CRAFTS = register("crafting_bee_crafts", CraftingBeeCraftsClientState.CODEC);
 	public static final GameClientTweakEntry<BingoBoardClientState> BINGO_BOARD = register("bingo_board", BingoBoardClientState.CODEC);
 	public static final GameClientTweakEntry<InvertControlsClientState> INVERT_CONTROLS = register("invert_controls", InvertControlsClientState.CODEC);
-	public static final GameClientTweakEntry<SwapMovementClientState> SWAP_MOVEMENT = register("swap_movement", SwapMovementClientState.CODEC);
+	public static final GameClientTweakEntry<RemapMovementClientState> REMAP_MOVEMENT = register("remap_movement", RemapMovementClientState.CODEC, RemapMovementClientState.STREAM_CODEC);
 	public static final GameClientTweakEntry<CollidersClientState> COLLIDERS = register("colliders", CollidersClientState.CODEC, CollidersClientState.STREAM_CODEC);
 	public static final GameClientTweakEntry<HideNameTagsState> HIDE_NAME_TAGS = registerUnit("hide_name_tags", HideNameTagsState.INSTANCE);
 	public static final GameClientTweakEntry<DisableBobbingState> DISABLE_BOBBING = registerUnit("disable_bobbing", DisableBobbingState.INSTANCE);
