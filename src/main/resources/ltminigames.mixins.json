@@ -60,6 +60,7 @@
     "client.MinecraftMixin",
     "client.ModelFeatureRendererMixin",
     "client.MouseHandlerMixin",
+    "client.OptionsMixin",
     "client.PlayerTabOverlayGuiMixin",
     "client.dev.MainMixin"
   ],

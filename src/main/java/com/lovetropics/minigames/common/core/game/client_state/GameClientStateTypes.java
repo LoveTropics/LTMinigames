@@ -11,6 +11,7 @@ import com.lovetropics.minigames.common.core.game.client_state.instance.DisableB
 import com.lovetropics.minigames.common.core.game.client_state.instance.DisablePlayerCollision;
 import com.lovetropics.minigames.common.core.game.client_state.instance.DisablePlayerMovementState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.FogClientState;
+import com.lovetropics.minigames.common.core.game.client_state.instance.ForcePerspectiveClientState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.GlowTeamMembersState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.HealthTagClientState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.HideNameTagsState;
@@ -75,6 +76,7 @@ public final class GameClientStateTypes {
 	public static final GameClientTweakEntry<HidePlayersState> HIDE_PLAYERS = register("hide_players", HidePlayersState.CODEC, HidePlayersState.STREAM_CODEC);
 	public static final GameClientTweakEntry<StatisticOverlayState> STATISTIC_OVERLAY = register("statistic_overlay", StatisticOverlayState.CODEC, StatisticOverlayState.STREAM_CODEC);
 	public static final GameClientTweakEntry<BreakDelayState> BREAK_DELAY = register("break_delay", MapCodec.unit(BreakDelayState.INSTANCE), StreamCodec.unit(BreakDelayState.INSTANCE));
+	public static final GameClientTweakEntry<ForcePerspectiveClientState> FORCE_PERSPECTIVE = register("force_perspective", ForcePerspectiveClientState.CODEC, ForcePerspectiveClientState.STREAM_CODEC);
 
 	public static <T extends GameClientState> GameClientTweakEntry<T> register(final String name, final MapCodec<T> codec) {
 		return REGISTRATE.object(name)
