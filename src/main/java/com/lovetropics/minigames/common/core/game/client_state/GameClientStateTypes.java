@@ -59,7 +59,7 @@ public final class GameClientStateTypes {
 	public static final GameClientTweakEntry<BeaconClientState> BEACON = register("beacon", BeaconClientState.CODEC);
 	public static final GameClientTweakEntry<FogClientState> FOG = register("fog", FogClientState.CODEC);
 	public static final GameClientTweakEntry<TeamMembersClientState> TEAM_MEMBERS = register("team_members", TeamMembersClientState.CODEC);
-	public static final GameClientTweakEntry<GlowTeamMembersState> GLOW_TEAM_MEMBERS = register("glow_team_members", MapCodec.unit(GlowTeamMembersState.INSTANCE), StreamCodec.unit(GlowTeamMembersState.INSTANCE));
+	public static final GameClientTweakEntry<GlowTeamMembersState> GLOW_TEAM_MEMBERS = registerUnit("glow_team_members", GlowTeamMembersState.INSTANCE);
 	public static final GameClientTweakEntry<PointTagClientState> POINT_TAGS = register("point_tags", PointTagClientState.CODEC);
 	public static final GameClientTweakEntry<DisableRecipeBookClientState> DISABLE_RECIPE_BOOK = register("disable_recipe_book", DisableRecipeBookClientState.CODEC);
 	public static final GameClientTweakEntry<HighlightBlocksState> HIGHLIGHT_BLOCKS = register("highlight_blocks", HighlightBlocksState.CODEC, HighlightBlocksState.STREAM_CODEC);
@@ -68,15 +68,15 @@ public final class GameClientStateTypes {
 	public static final GameClientTweakEntry<InvertControlsClientState> INVERT_CONTROLS = register("invert_controls", InvertControlsClientState.CODEC);
 	public static final GameClientTweakEntry<SwapMovementClientState> SWAP_MOVEMENT = register("swap_movement", SwapMovementClientState.CODEC);
 	public static final GameClientTweakEntry<CollidersClientState> COLLIDERS = register("colliders", CollidersClientState.CODEC, CollidersClientState.STREAM_CODEC);
-	public static final GameClientTweakEntry<HideNameTagsState> HIDE_NAME_TAGS = register("hide_name_tags", MapCodec.unit(HideNameTagsState.INSTANCE), StreamCodec.unit(HideNameTagsState.INSTANCE));
-	public static final GameClientTweakEntry<DisableBobbingState> DISABLE_BOBBING = register("disable_bobbing", MapCodec.unit(DisableBobbingState.INSTANCE), StreamCodec.unit(DisableBobbingState.INSTANCE));
-	public static final GameClientTweakEntry<BeSpeedyState> BE_SPEEDY = register("be_speedy", MapCodec.unit(BeSpeedyState.INSTANCE), StreamCodec.unit(BeSpeedyState.INSTANCE));
-	public static final GameClientTweakEntry<DisablePlayerMovementState> DISABLE_PLAYER_MOVEMENT = register("disable_player_movement", MapCodec.unit(DisablePlayerMovementState.INSTANCE), StreamCodec.unit(DisablePlayerMovementState.INSTANCE));
-	public static final GameClientTweakEntry<DisablePlayerCollision> DISABLE_PLAYER_COLLISION = register("disable_player_collision", MapCodec.unit(DisablePlayerCollision.INSTANCE), StreamCodec.unit(DisablePlayerCollision.INSTANCE));
+	public static final GameClientTweakEntry<HideNameTagsState> HIDE_NAME_TAGS = registerUnit("hide_name_tags", HideNameTagsState.INSTANCE);
+	public static final GameClientTweakEntry<DisableBobbingState> DISABLE_BOBBING = registerUnit("disable_bobbing", DisableBobbingState.INSTANCE);
+	public static final GameClientTweakEntry<BeSpeedyState> BE_SPEEDY = registerUnit("be_speedy", BeSpeedyState.INSTANCE);
+	public static final GameClientTweakEntry<DisablePlayerMovementState> DISABLE_PLAYER_MOVEMENT = registerUnit("disable_player_movement", DisablePlayerMovementState.INSTANCE);
+	public static final GameClientTweakEntry<DisablePlayerCollision> DISABLE_PLAYER_COLLISION = registerUnit("disable_player_collision", DisablePlayerCollision.INSTANCE);
 	public static final GameClientTweakEntry<SoundVolumeModifier> SOUND_VOLUME_MODIFIER = register("sound_volume_modifier", SoundVolumeModifier.CODEC, SoundVolumeModifier.STREAM_CODEC);
 	public static final GameClientTweakEntry<HidePlayersState> HIDE_PLAYERS = register("hide_players", HidePlayersState.CODEC, HidePlayersState.STREAM_CODEC);
 	public static final GameClientTweakEntry<StatisticOverlayState> STATISTIC_OVERLAY = register("statistic_overlay", StatisticOverlayState.CODEC, StatisticOverlayState.STREAM_CODEC);
-	public static final GameClientTweakEntry<BreakDelayState> BREAK_DELAY = register("break_delay", MapCodec.unit(BreakDelayState.INSTANCE), StreamCodec.unit(BreakDelayState.INSTANCE));
+	public static final GameClientTweakEntry<BreakDelayState> BREAK_DELAY = registerUnit("break_delay", BreakDelayState.INSTANCE);
 	public static final GameClientTweakEntry<ForcePerspectiveClientState> FORCE_PERSPECTIVE = register("force_perspective", ForcePerspectiveClientState.CODEC, ForcePerspectiveClientState.STREAM_CODEC);
 	public static final GameClientTweakEntry<HideRecipeBookClientState> HIDE_RECIPE_BOOK = registerUnit("hide_recipe_book", HideRecipeBookClientState.INSTANCE);
 
