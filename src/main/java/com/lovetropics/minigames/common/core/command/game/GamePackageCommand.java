@@ -53,7 +53,7 @@ public class GamePackageCommand {
 		IGamePhase game = GamePhaseManager.get().getGamePhaseFor(ctx.getSource());
 		if (game != null) {
 			String type = StringArgumentType.getString(ctx, "id");
-			GamePackage gamePackage = new GamePackage(type, "LoveTropics", Optional.ofNullable(target).map(Entity::getUUID), Optional.empty());
+			GamePackage gamePackage = new GamePackage(type, "LoveTropics", Optional.ofNullable(target).map(Entity::getUUID), Optional.empty(), Optional.empty());
 			TriState result = game.invoker(GamePackageEvents.RECEIVE_PACKAGE).onReceivePackage(gamePackage);
 			switch (result) {
 				case TRUE ->

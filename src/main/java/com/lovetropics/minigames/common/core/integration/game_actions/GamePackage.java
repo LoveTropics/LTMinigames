@@ -11,12 +11,13 @@ import org.jspecify.annotations.Nullable;
 import java.util.Optional;
 import java.util.UUID;
 
-public record GamePackage(String packageType, String sendingPlayerName, Optional<UUID> receivingPlayer, Optional<GameTeamKey> receivingTeam) {
+public record GamePackage(String packageType, String sendingPlayerName, Optional<UUID> receivingPlayer, Optional<GameTeamKey> receivingTeam, Optional<Double> amount) {
 	public static final MapCodec<GamePackage> MAP_CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			Codec.STRING.fieldOf("package_type").forGetter(c -> c.packageType),
 			Codec.STRING.optionalFieldOf("sending_player_name", "").forGetter(c -> c.sendingPlayerName),
 			UUIDUtil.STRING_CODEC.optionalFieldOf("receiving_player").forGetter(c -> c.receivingPlayer),
-			GameTeamKey.CODEC.optionalFieldOf("receiving_team").forGetter(c -> c.receivingTeam)
+			GameTeamKey.CODEC.optionalFieldOf("receiving_team").forGetter(c -> c.receivingTeam),
+			Codec.DOUBLE.optionalFieldOf("amount").forGetter(c -> c.amount)
 	).apply(i, GamePackage::new));
 
 	@Override
