@@ -8,6 +8,7 @@ import com.lovetropics.minigames.common.core.game.client_state.instance.BreakDel
 import com.lovetropics.minigames.common.core.game.client_state.instance.CollidersClientState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.CraftingBeeCraftsClientState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.DisableBobbingState;
+import com.lovetropics.minigames.common.core.game.client_state.instance.DisableMouseMovementClientState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.DisablePlayerCollision;
 import com.lovetropics.minigames.common.core.game.client_state.instance.DisablePlayerMovementState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.FogClientState;
@@ -79,6 +80,7 @@ public final class GameClientStateTypes {
 	public static final GameClientTweakEntry<BreakDelayState> BREAK_DELAY = registerUnit("break_delay", BreakDelayState.INSTANCE);
 	public static final GameClientTweakEntry<ForcePerspectiveClientState> FORCE_PERSPECTIVE = register("force_perspective", ForcePerspectiveClientState.CODEC, ForcePerspectiveClientState.STREAM_CODEC);
 	public static final GameClientTweakEntry<HideRecipeBookClientState> HIDE_RECIPE_BOOK = registerUnit("hide_recipe_book", HideRecipeBookClientState.INSTANCE);
+	public static final GameClientTweakEntry<DisableMouseMovementClientState> DISABLE_MOUSE_MOVEMENT = register("disable_mouse_movement", DisableMouseMovementClientState.CODEC, DisableMouseMovementClientState.STREAM_CODEC);
 
 	public static <T extends GameClientState> GameClientTweakEntry<T> register(final String name, final MapCodec<T> codec) {
 		return REGISTRATE.object(name)
