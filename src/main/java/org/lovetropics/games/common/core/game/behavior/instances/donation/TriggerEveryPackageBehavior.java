@@ -68,7 +68,7 @@ public record TriggerEveryPackageBehavior(Set<String> exclude) implements IGameB
 			}
 		}
 
-		GamePackage gamePackage = new GamePackage(packageData.id(), sourcePackage.sendingPlayerName(), targetPlayer, targetTeam);
+		GamePackage gamePackage = new GamePackage(packageData.id(), sourcePackage.sendingPlayerName(), targetPlayer, targetTeam, packageData.donationAmount());
 		return game.invoker(GamePackageEvents.RECEIVE_PACKAGE).onReceivePackage(gamePackage);
 	}
 
