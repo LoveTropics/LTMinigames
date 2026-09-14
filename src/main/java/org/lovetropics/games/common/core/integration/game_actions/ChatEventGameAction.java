@@ -22,7 +22,7 @@ public record ChatEventGameAction(String trigger) implements GameAction {
 	// TODO: Make GamePackage system less specific to packages
 	@Override
 	public boolean resolve(IGamePhase game, MinecraftServer server) {
-		GamePackage triggeredPackage = new GamePackage(trigger, "", Optional.empty(), Optional.empty());
+		GamePackage triggeredPackage = new GamePackage(trigger, "", Optional.empty(), Optional.empty(), Optional.empty());
 
 		TriState result = game.invoker(GamePackageEvents.RECEIVE_PACKAGE).onReceivePackage(triggeredPackage);
 		switch (result) {
