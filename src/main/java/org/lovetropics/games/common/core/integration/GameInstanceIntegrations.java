@@ -4,6 +4,15 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.lovetropics.lib.techstack.Crud;
+import com.lovetropics.minigames.common.core.game.GameDonationType;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.JsonOps;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.MinecraftServer;
+import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.config.ConfigLT;
 import org.lovetropics.games.common.core.game.IGameDefinition;
 import org.lovetropics.games.common.core.game.IGamePhase;
@@ -23,15 +32,7 @@ import org.lovetropics.games.common.core.game.state.team.GameTeam;
 import org.lovetropics.games.common.core.game.state.team.TeamState;
 import org.lovetropics.games.common.core.integration.game_actions.GameActionHandler;
 import org.lovetropics.games.common.core.integration.game_actions.GameActionRequest;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.JsonOps;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.ComponentSerialization;
-import net.minecraft.resources.Identifier;
-import net.minecraft.server.MinecraftServer;
 
-import org.jspecify.annotations.Nullable;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -143,6 +144,7 @@ public final class GameInstanceIntegrations implements IGameState {
 				.toList();
 
 		payload.add("packages", PACKAGES_CODEC.encodeStart(JsonOps.INSTANCE, sortedPackages).getOrThrow());
+		payload.add("donation_type", GameDonationType.CODEC.encodeStart(JsonOps.INSTANCE, definition.donationType()).getOrThrow());
 	}
 
 	public void finish(IGamePhase phase) {

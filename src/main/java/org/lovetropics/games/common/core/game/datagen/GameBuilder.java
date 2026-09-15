@@ -1,16 +1,17 @@
 package org.lovetropics.games.common.core.game.datagen;
 
 import com.google.common.base.Suppliers;
+import com.lovetropics.minigames.common.core.game.GameDonationType;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.core.game.behavior.BehaviorTemplate;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.CompositeBehavior;
 import org.lovetropics.games.common.core.game.config.GameConfig;
 import org.lovetropics.games.common.core.game.config.GamePhaseConfig;
 import org.lovetropics.games.common.core.game.map.IGameMapProvider;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
 
-import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -27,6 +28,7 @@ public class GameBuilder {
 	private @Nullable GamePhaseConfig waiting;
 	private @Nullable GamePhaseConfig playing;
 	private boolean hideFromList;
+	private @Nullable GameDonationType donationType;
 
 	public GameBuilder(Identifier id) {
 		this.id = id;
@@ -75,7 +77,7 @@ public class GameBuilder {
 
 	public GameConfig build() {
 		Objects.requireNonNull(playing, "Playing phase must be initialized");
-		return new GameConfig(id, name, subtitle, icon, maximumParticipants, introSlideshow, waiting, playing, hideFromList);
+		return new GameConfig(id, name, subtitle, icon, maximumParticipants, introSlideshow, waiting, playing, hideFromList, donationType);
 	}
 
 	public static final class PhaseBuilder {
