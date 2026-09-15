@@ -76,7 +76,7 @@ public final class DonationPackageBehavior implements IGameBehavior {
 	}
 
 	private int spawnPackageFromCommand(IGamePhase game, CommandContext<CommandSourceStack> ctx, @Nullable ServerPlayer target) {
-		GamePackage gamePackage = new GamePackage(data.id(), "LoveTropics", Optional.ofNullable(target).map(Entity::getUUID), Optional.empty());
+		GamePackage gamePackage = new GamePackage(data.id(), "LoveTropics", Optional.ofNullable(target).map(Entity::getUUID), Optional.empty(), Optional.empty());
 		switch (onGamePackageReceived(game, gamePackage)) {
 			case TRUE -> ctx.getSource().sendSuccess(() -> Component.translatable("Successfully sent '%s'", data.id()), true);
 			case DEFAULT -> ctx.getSource().sendFailure(Component.translatable("'%s' was not processed", data.id()));

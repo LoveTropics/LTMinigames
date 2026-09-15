@@ -2,6 +2,7 @@ package org.lovetropics.games.common.core.integration;
 
 import com.google.gson.JsonObject;
 import com.lovetropics.lib.techstack.Crud;
+import com.lovetropics.minigames.common.core.game.GameDonationType;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.datafixers.util.Unit;
@@ -117,7 +118,8 @@ public final class GameInstanceIntegrations implements IGameState {
 				Optional.ofNullable(definition.subtitle()),
 				Optional.ofNullable(initiator).map(PlayerKey::nameAndId),
 				packPlayersAndTeams(),
-				collectPackages()
+				collectPackages(),
+				definition.donationType()
 		));
 		post(EVENT_REQUEST_PENDING_ACTIONS, Unit.INSTANCE);
 
@@ -273,14 +275,16 @@ public final class GameInstanceIntegrations implements IGameState {
 			Optional<Component> subtitle,
 			Optional<NameAndId> initiator,
 			PlayersAndTeams playersAndTeams,
-			List<DonationPackageData> packages
+			List<DonationPackageData> packages,
+			GameDonationType donationType
 	) {
 		public static final MapCodec<StartGame> MAP_CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 				ComponentSerialization.CODEC.fieldOf("name").forGetter(StartGame::name),
 				ComponentSerialization.CODEC.optionalFieldOf("subtitle").forGetter(StartGame::subtitle),
 				NameAndId.CODEC.optionalFieldOf("initiator").forGetter(StartGame::initiator),
 				PlayersAndTeams.MAP_CODEC.forGetter(StartGame::playersAndTeams),
-				PACKAGES_CODEC.fieldOf("packages").forGetter(StartGame::packages)
+				PACKAGES_CODEC.fieldOf("packages").forGetter(StartGame::packages),
+				GameDonationType.CODEC.optionalFieldOf("donation_type", GameDonationType.PACKAGES).forGetter(StartGame::donationType)
 		).apply(i, StartGame::new));
 	}
 
