@@ -69,6 +69,7 @@ import com.lovetropics.minigames.common.core.game.behavior.instances.action.Disp
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.EndGameAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.ExtinguishPlayerFireAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.GiveEffectAction;
+import com.lovetropics.minigames.common.core.game.behavior.instances.action.GiveItemQuantityBasedOnDonationAmountAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.GiveLootAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.GiveRewardAction;
 import com.lovetropics.minigames.common.core.game.behavior.instances.action.HighlightBlocksAction;
@@ -422,6 +423,7 @@ public class GameBehaviorTypes {
 	public static final GameBehaviorEntry<ResizeAction> RESIZE = register("resize", ResizeAction.CODEC);
 	public static final GameBehaviorEntry<AddPlayerDVDFaceAction> ADD_DVD_FACE = register("add_dvd_face", AddPlayerDVDFaceAction.CODEC);
 	public static final GameBehaviorEntry<ClearPlayerDVDFaceAction> CLEAR_DVD_FACE = register("clear_dvd_faces", ClearPlayerDVDFaceAction.CODEC);
+	public static final GameBehaviorEntry<GiveItemQuantityBasedOnDonationAmountAction> GIVE_ITEMS_AMOUNT_BASED = register("give_items_amount_based", GiveItemQuantityBasedOnDonationAmountAction.CODEC);
 
 	public static final GameBehaviorEntry<SetupIntegrationsBehavior> SETUP_INTEGRATIONS = register("setup_integrations", SetupIntegrationsBehavior.CODEC);
 	public static final GameBehaviorEntry<JoinLateWithRoleBehavior> JOIN_LATE_WITH_ROLE = register("join_late_with_role", JoinLateWithRoleBehavior.CODEC);

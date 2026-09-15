@@ -1,0 +1,15 @@
+{
+  "backend_id": "lttest:tweak_tests/cancel_damage",
+  "behaviors": [
+    {
+      "type": "ltminigames:cancel_player_damage"
+    }
+  ],
+  "map": {
+    "type": "ltminigames:inline",
+    "dimension": "minecraft:overworld"
+  },
+  "maximum_participants": 50,
+  "name": "lttest:tweak_tests/cancel_damage",
+  "statistics_key": "tweak_tests/cancel_damage"
+}

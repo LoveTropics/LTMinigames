@@ -1,0 +1,15 @@
+{
+  "backend_id": "lttest:tweak_tests/disable_hunger",
+  "behaviors": [
+    {
+      "type": "ltminigames:disable_hunger"
+    }
+  ],
+  "map": {
+    "type": "ltminigames:inline",
+    "dimension": "minecraft:overworld"
+  },
+  "maximum_participants": 50,
+  "name": "lttest:tweak_tests/disable_hunger",
+  "statistics_key": "tweak_tests/disable_hunger"
+}
