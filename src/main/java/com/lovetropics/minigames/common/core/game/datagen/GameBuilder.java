@@ -1,6 +1,7 @@
 package com.lovetropics.minigames.common.core.game.datagen;
 
 import com.google.common.base.Suppliers;
+import com.lovetropics.minigames.common.core.game.GameDonationType;
 import com.lovetropics.minigames.common.core.game.behavior.BehaviorTemplate;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.instances.CompositeBehavior;
@@ -29,6 +30,7 @@ public class GameBuilder {
 	private @Nullable GamePhaseConfig waiting;
 	private @Nullable GamePhaseConfig playing;
 	private boolean hideFromList;
+	private @Nullable GameDonationType donationType;
 
 	public GameBuilder(Identifier id) {
 		this.id = id;
@@ -89,7 +91,7 @@ public class GameBuilder {
 
 	public GameConfig build() {
 		Objects.requireNonNull(playing, "Playing phase must be initialized");
-		return new GameConfig(id, backendId, statisticsKey, name, subtitle, icon, maximumParticipants, introSlideshow, waiting, playing, hideFromList);
+		return new GameConfig(id, backendId, statisticsKey, name, subtitle, icon, maximumParticipants, introSlideshow, waiting, playing, hideFromList, donationType);
 	}
 
 	public static final class PhaseBuilder {

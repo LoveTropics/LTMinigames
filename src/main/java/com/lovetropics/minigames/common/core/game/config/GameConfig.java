@@ -1,5 +1,6 @@
 package com.lovetropics.minigames.common.core.game.config;
 
+import com.lovetropics.minigames.common.core.game.GameDonationType;
 import com.lovetropics.minigames.common.core.game.IGameDefinition;
 import com.lovetropics.minigames.common.core.game.IGamePhaseDefinition;
 import com.mojang.serialization.Codec;
@@ -23,7 +24,8 @@ public record GameConfig(
 		@Nullable Identifier introSlideshow,
 		@Nullable GamePhaseConfig waiting,
 		GamePhaseConfig playing,
-		boolean hideFromList
+		boolean hideFromList,
+		GameDonationType donationType
 ) implements IGameDefinition {
 	public static Codec<GameConfig> codec(Identifier id) {
 		return RecordCodecBuilder.create(i -> i.group(
@@ -36,15 +38,16 @@ public record GameConfig(
 				Identifier.CODEC.optionalFieldOf("intro_slideshow").forGetter(c -> Optional.ofNullable(c.introSlideshow)),
 				GamePhaseConfig.CODEC.optionalFieldOf("waiting").forGetter(c -> Optional.ofNullable(c.waiting)),
 				GamePhaseConfig.MAP_CODEC.forGetter(c -> c.playing),
-				Codec.BOOL.optionalFieldOf("hide_from_list", false).forGetter(c -> c.hideFromList)
-		).apply(i, (backendIdOpt, statisticsKeyOpt, name, subtitleOpt, iconOpt, maximumParticipants, introSlideshowOpt, waitingOpt, active, hideFromList) -> {
+				Codec.BOOL.optionalFieldOf("hide_from_list", false).forGetter(c -> c.hideFromList),
+				GameDonationType.CODEC.optionalFieldOf("donation_type", GameDonationType.PACKAGES).forGetter(c -> c.donationType)
+		).apply(i, (backendIdOpt, statisticsKeyOpt, name, subtitleOpt, iconOpt, maximumParticipants, introSlideshowOpt, waitingOpt, active, hideFromList, donationType) -> {
 			Identifier backendId = backendIdOpt.orElse(id);
 			String statisticsKey = statisticsKeyOpt.orElse(id.getPath());
 			Component subtitle = subtitleOpt.orElse(null);
 			Identifier icon = iconOpt.orElse(null);
 			Identifier introSlideshow = introSlideshowOpt.orElse(null);
 			GamePhaseConfig waiting = waitingOpt.orElse(null);
-			return new GameConfig(id, backendId, statisticsKey, name, subtitle, icon, maximumParticipants, introSlideshow, waiting, active, hideFromList);
+			return new GameConfig(id, backendId, statisticsKey, name, subtitle, icon, maximumParticipants, introSlideshow, waiting, active, hideFromList, donationType);
 		}));
 	}
 

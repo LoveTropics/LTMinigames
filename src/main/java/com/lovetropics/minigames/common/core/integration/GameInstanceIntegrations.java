@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.lovetropics.lib.techstack.Crud;
 import com.lovetropics.minigames.common.config.ConfigLT;
+import com.lovetropics.minigames.common.core.game.GameDonationType;
 import com.lovetropics.minigames.common.core.game.IGameDefinition;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
@@ -138,6 +139,7 @@ public final class GameInstanceIntegrations implements IGameState {
 				.toList();
 
 		payload.add("packages", PACKAGES_CODEC.encodeStart(JsonOps.INSTANCE, sortedPackages).getOrThrow());
+		payload.add("donation_type", GameDonationType.CODEC.encodeStart(JsonOps.INSTANCE, definition.donationType()).getOrThrow());
 	}
 
 	public void finish(IGamePhase phase) {

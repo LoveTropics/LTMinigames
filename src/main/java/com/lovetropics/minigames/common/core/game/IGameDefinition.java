@@ -63,4 +63,8 @@ public interface IGameDefinition {
 	default Optional<IGamePhaseDefinition> getWaitingPhase() {
 		return Optional.empty();
 	}
+
+	default GameDonationType donationType() {
+		return GameDonationType.PACKAGES;
+	}
 }
