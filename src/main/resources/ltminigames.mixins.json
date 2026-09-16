@@ -62,6 +62,7 @@
     "client.MouseHandlerMixin",
     "client.OptionsMixin",
     "client.PlayerTabOverlayGuiMixin",
+    "client.ScrollWheelHandlerMixin",
     "client.dev.MainMixin"
   ],
   "injectors": {
