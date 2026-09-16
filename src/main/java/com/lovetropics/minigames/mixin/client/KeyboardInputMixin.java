@@ -1,11 +1,9 @@
 package com.lovetropics.minigames.mixin.client;
 
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.lovetropics.minigames.client.game.ClientGameStateManager;
 import com.lovetropics.minigames.common.content.turtle_race.RiderBehavior;
 import com.lovetropics.minigames.common.core.game.client_state.GameClientStateTypes;
-import com.lovetropics.minigames.common.core.game.client_state.instance.RemapMovementClientState;
+import com.lovetropics.minigames.common.core.game.client_state.instance.controls.RemapMovementClientState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.ClientInput;
 import net.minecraft.client.player.KeyboardInput;

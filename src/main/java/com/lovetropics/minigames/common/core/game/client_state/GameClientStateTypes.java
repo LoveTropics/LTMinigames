@@ -8,7 +8,7 @@ import com.lovetropics.minigames.common.core.game.client_state.instance.BreakDel
 import com.lovetropics.minigames.common.core.game.client_state.instance.CollidersClientState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.CraftingBeeCraftsClientState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.DisableBobbingState;
-import com.lovetropics.minigames.common.core.game.client_state.instance.DisableMouseMovementClientState;
+import com.lovetropics.minigames.common.core.game.client_state.instance.controls.DisableMouseMovementClientState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.DisablePlayerCollision;
 import com.lovetropics.minigames.common.core.game.client_state.instance.DisablePlayerMovementState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.FogClientState;
@@ -28,7 +28,7 @@ import com.lovetropics.minigames.common.core.game.client_state.instance.SidebarC
 import com.lovetropics.minigames.common.core.game.client_state.instance.SoundVolumeModifier;
 import com.lovetropics.minigames.common.core.game.client_state.instance.SpectatingClientState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.StatisticOverlayState;
-import com.lovetropics.minigames.common.core.game.client_state.instance.RemapMovementClientState;
+import com.lovetropics.minigames.common.core.game.client_state.instance.controls.RemapMovementClientState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.TeamMembersClientState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.controls.InvertScrollWheelClientState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.controls.RemapHotbarKeysClientState;

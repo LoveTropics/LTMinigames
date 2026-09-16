@@ -1,4 +1,4 @@
-package com.lovetropics.minigames.common.core.game.client_state.instance;
+package com.lovetropics.minigames.common.core.game.client_state.instance.controls;
 
 import com.lovetropics.minigames.common.core.game.client_state.GameClientState;
 import com.lovetropics.minigames.common.core.game.client_state.GameClientStateType;
