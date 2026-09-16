@@ -1,9 +1,11 @@
 package com.lovetropics.minigames.mixin.client;
 
+import com.llamalad7.mixinextras.sugar.Local;
 import com.lovetropics.minigames.client.game.ClientGameStateManager;
 import com.lovetropics.minigames.common.core.data.LoveTropicsAttachments;
 import com.lovetropics.minigames.common.core.game.client_state.GameClientStateTypes;
 import com.lovetropics.minigames.common.core.game.client_state.instance.CollidersClientState;
+import com.lovetropics.minigames.common.core.game.client_state.instance.controls.RemapHotbarKeysClientState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
@@ -62,6 +64,21 @@ public class MinecraftMixin {
 		Vec3 clip = colliders.clip(start, start.add(player.getViewVector(partialTicks).scale(currentDistance)));
 		if (clip != null) {
 			this.hitResult = BlockHitResult.miss(clip, Direction.UP, BlockPos.containing(clip));
+		}
+	}
+
+	@Inject(method = "handleKeybinds", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Inventory;setSelectedSlot(I)V"), cancellable = true)
+	public void onConsume(CallbackInfo ci, @Local(name = "i") int i) {
+		RemapHotbarKeysClientState clientState = ClientGameStateManager.getOrNull(GameClientStateTypes.REMAP_QUICK_KEYS);
+		if (clientState != null) {
+			// Just to be safe, in theory this should never throw.
+			try {
+				int wantedSlot = clientState.getKeyFor(i);
+				player.getInventory().setSelectedSlot(wantedSlot);
+				ci.cancel();
+			} catch (IndexOutOfBoundsException e) {
+				return;
+			}
 		}
 	}
 }

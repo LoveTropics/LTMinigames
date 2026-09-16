@@ -30,6 +30,8 @@ import com.lovetropics.minigames.common.core.game.client_state.instance.Spectati
 import com.lovetropics.minigames.common.core.game.client_state.instance.StatisticOverlayState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.RemapMovementClientState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.TeamMembersClientState;
+import com.lovetropics.minigames.common.core.game.client_state.instance.controls.RemapQuickKeysClientState;
+import com.lovetropics.minigames.common.core.game.client_state.instance.controls.RemapHotbarKeysClientState;
 import com.lovetropics.minigames.common.util.registry.GameClientTweakEntry;
 import com.lovetropics.minigames.common.util.registry.LoveTropicsRegistrate;
 import com.mojang.serialization.Codec;
@@ -81,6 +83,7 @@ public final class GameClientStateTypes {
 	public static final GameClientTweakEntry<ForcePerspectiveClientState> FORCE_PERSPECTIVE = register("force_perspective", ForcePerspectiveClientState.CODEC, ForcePerspectiveClientState.STREAM_CODEC);
 	public static final GameClientTweakEntry<HideRecipeBookClientState> HIDE_RECIPE_BOOK = registerUnit("hide_recipe_book", HideRecipeBookClientState.INSTANCE);
 	public static final GameClientTweakEntry<DisableMouseMovementClientState> DISABLE_MOUSE_MOVEMENT = register("disable_mouse_movement", DisableMouseMovementClientState.CODEC, DisableMouseMovementClientState.STREAM_CODEC);
+	public static final GameClientTweakEntry<RemapHotbarKeysClientState> REMAP_QUICK_KEYS = register("remap_hotbar_keys", RemapHotbarKeysClientState.CODEC, RemapHotbarKeysClientState.STREAM_CODEC);
 
 	public static <T extends GameClientState> GameClientTweakEntry<T> register(final String name, final MapCodec<T> codec) {
 		return REGISTRATE.object(name)
