@@ -4,6 +4,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.lovetropics.minigames.client.game.ClientGameStateManager;
 import com.lovetropics.minigames.common.core.game.client_state.GameClientStateTypes;
+import com.lovetropics.minigames.common.core.game.client_state.instance.controls.DisableMouseMovementClientState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.MouseHandler;
 import net.minecraft.client.player.LocalPlayer;
@@ -30,6 +31,12 @@ public class MouseHandlerMixin {
 			if (state.yAxis() && !minecraft.options.invertMouseY().get()) {
 				dy = dy * -1;
 			}
+		}
+
+		DisableMouseMovementClientState disableMouse = ClientGameStateManager.getOrNull(GameClientStateTypes.DISABLE_MOUSE_MOVEMENT);
+		if (disableMouse != null) {
+			dx = disableMouse.getXMovement(dx);
+			dy = disableMouse.getYMovement(dy);
 		}
 
 		original.call(player, dx, dy);

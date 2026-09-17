@@ -3,6 +3,7 @@ package com.lovetropics.minigames.common.core.game.persistent;
 import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.core.game.GameStopReason;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents;
+import com.mojang.logging.LogUtils;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -13,6 +14,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,6 +23,9 @@ import java.util.Map;
 
 @EventBusSubscriber(modid = LoveTropics.ID)
 public class PersistentGames {
+
+	private static final Logger LOGGER = LogUtils.getLogger();
+
 	private static final List<PersistentGameInstance> RUNNING_GAMES = new ArrayList<>();
 	private static final Map<ResourceKey<Level>, List<PersistentGameInstance>> BY_LEVEL = new HashMap<>();
 
@@ -36,7 +41,8 @@ public class PersistentGames {
 			ResourceKey<Level> key = ResourceKey.create(Registries.DIMENSION, config.dimension());
 			ServerLevel level = server.getLevel(key);
 			if (level == null) {
-				throw new IllegalStateException("Starting persistent game in non-existent world!");
+				LOGGER.error("Failed to start persistent game {} in non-existent world {}!", config.id(), config.dimension());
+				continue;
 			}
 
 			PersistentGameInstance game = new PersistentGameInstance(server, level);

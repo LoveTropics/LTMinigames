@@ -19,7 +19,6 @@ public final class VanillaWeatherController implements WeatherController {
 
 	@Override
 	public void tick() {
-		// Todo 26.1 Port this seem server wide do we fix that?
 		world.getWeatherData().setRaining(state.isRaining());
 	}
 

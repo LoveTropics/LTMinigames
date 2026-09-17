@@ -18,8 +18,8 @@ public record SetTimeSpeedBehavior(int factor) implements IGameBehavior {
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
-		// Todo 26.1 Port
-//		game.level().setDayTimePerTick(factor);
+		var level = game.level();
+		level.dimensionType().defaultClock().ifPresent(clock -> level.clockManager().setRate(clock, factor));
 	}
 
 	@Override

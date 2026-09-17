@@ -57,6 +57,10 @@ public final class ClientGameStateManager {
 		return Objects.requireNonNullElse(getOrNull(type), defaultValue);
 	}
 
+	public static <T extends GameClientState> boolean isSet(Supplier<GameClientStateType<T>> type) {
+		return getOrNull(type) != null;
+	}
+
 	@SubscribeEvent
 	public static void onPlayerLoggedOut(ClientPlayerNetworkEvent.LoggingOut event) {
 		ClientGameStateManager.clearState();

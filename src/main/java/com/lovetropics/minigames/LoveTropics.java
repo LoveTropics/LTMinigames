@@ -3,12 +3,13 @@ package com.lovetropics.minigames;
 import com.google.common.base.Suppliers;
 import com.lovetropics.minigames.client.game.handler.GameSidebarRenderer;
 import com.lovetropics.minigames.client.game.handler.spectate.SpectatingUi;
-import com.lovetropics.minigames.client.lobby.KeybindsTexts;
-import com.lovetropics.minigames.client.lobby.LobbyKeybinds;
+import com.lovetropics.minigames.client.KeybindsTexts;
+import com.lovetropics.minigames.client.LTKeybinds;
 import com.lovetropics.minigames.client.lobby.LobbyStateGui;
 import com.lovetropics.minigames.client.render.block.TriviaChestRenderer;
 import com.lovetropics.minigames.common.config.ConfigLT;
 import com.lovetropics.minigames.common.content.MinigameTexts;
+import com.lovetropics.minigames.common.content.bingo.Bingo;
 import com.lovetropics.minigames.common.content.biodiversity_blitz.BiodiversityBlitz;
 import com.lovetropics.minigames.common.content.biodiversity_blitz.BiodiversityBlitzTexts;
 import com.lovetropics.minigames.common.content.biodiversity_blitz.client_state.render.BbClientRenderEffects;
@@ -56,6 +57,7 @@ import com.lovetropics.minigames.common.content.turtle_race.TurtleRace;
 import com.lovetropics.minigames.common.content.turtle_race.TurtleRaceTexts;
 import com.lovetropics.minigames.common.core.chat.ChatChannelStore;
 import com.lovetropics.minigames.common.core.command.ChatCommand;
+import com.lovetropics.minigames.common.core.command.ClientStateCommand;
 import com.lovetropics.minigames.common.core.command.ExtendedBossBarCommand;
 import com.lovetropics.minigames.common.core.command.LoveTropicsEntityOptions;
 import com.lovetropics.minigames.common.core.command.MapCommand;
@@ -160,6 +162,7 @@ public class LoveTropics {
 			BiConsumer<String, String> consumer = prov::add;
 			GameTexts.collectTranslations(consumer);
 			MinigameTexts.KEYS.forEach(consumer);
+			Bingo.KEYS.forEach(consumer);
 			BiodiversityBlitzTexts.collectTranslations(consumer);
 			BlockPartyTexts.KEYS.forEach(consumer);
 			ColumnsOfChaosTexts.KEYS.forEach(consumer);
@@ -213,6 +216,7 @@ public class LoveTropics {
 		SurviveTheTide.init();
 		TrashDive.init();
 		BlockParty.init();
+		Bingo.init();
 		CraftingBee.init();
 		ConnectFour.init();
 		TurtleRace.init();
@@ -324,6 +328,7 @@ public class LoveTropics {
 		GameStatisticCommand.register(dispatcher);
 		GameSetRoleCommand.register(dispatcher);
 		GolfCommand.register(dispatcher);
+		ClientStateCommand.register(event.getBuildContext(), dispatcher);
 	}
 
 	private void onServerAboutToStart(final ServerAboutToStartEvent event) {
@@ -351,7 +356,7 @@ public class LoveTropics {
 	public static class ClientSetup {
 		@SubscribeEvent
 		public static void setupClient(final FMLClientSetupEvent event) {
-			LobbyKeybinds.init();
+			LTKeybinds.init();
 			BlockEntityRenderers.register(RiverRace.TRIVIA_CHEST_BLOCK_ENTITY.get(), TriviaChestRenderer::new);
 		}
 	}

@@ -61,16 +61,16 @@ public record LoadMapProvider(
 	public CompletableFuture<GameMap> open(MinecraftServer server) {
 		Holder<DimensionType> dimensionType = this.dimensionType.orElse(server.overworld().dimensionTypeRegistration());
 		LevelStem dimension = new LevelStem(dimensionType, new VoidChunkGenerator(server));
-		MapWorldSettings worldSettings = new MapWorldSettings();
-
-		MapWorldInfo worldInfo = MapWorldInfo.create(server, worldSettings);
+		MapWorldInfo worldInfo = MapWorldInfo.create(server, new MapWorldSettings());
 		RuntimeDimensionConfig config = new RuntimeDimensionConfig(dimension, 0, worldInfo);
 
 		return CompletableFuture.supplyAsync(() -> openDimension(server, config), server)
-				.thenApplyAsync(handle -> loadMapInto(server, worldSettings, handle), Util.backgroundExecutor())
+				.thenApplyAsync(handle -> loadMapInto(server, handle), Util.backgroundExecutor())
 				.thenApplyAsync(pair -> {
 					RuntimeDimensionHandle dimensionHandle = pair.getFirst();
 					MapMetadata metadata = pair.getSecond();
+					// The level is already running, so its clocks must be updated from the server thread
+					worldInfo.importFrom(metadata.settings());
 					return new GameMap(name.orElse(null), dimensionHandle.asKey(), metadata.regions())
 							.onClose(game -> dimensionHandle.delete());
 				}, server);
@@ -90,7 +90,7 @@ public record LoadMapProvider(
 		}
 	}
 
-	private Pair<RuntimeDimensionHandle, MapMetadata> loadMapInto(MinecraftServer server, MapWorldSettings mapWorldSettings, RuntimeDimensionHandle handle) {
+	private Pair<RuntimeDimensionHandle, MapMetadata> loadMapInto(MinecraftServer server, RuntimeDimensionHandle handle) {
 		Identifier path = loadFrom.withPath(p -> "maps/" + p + ".zip");
 
 		Optional<Resource> resource = server.getResourceManager().getResource(path);
@@ -101,7 +101,6 @@ public record LoadMapProvider(
 		try {
 			try (MapExportReader reader = MapExportReader.open(resource.get().open())) {
 				MapMetadata metadata = reader.loadInto(server, handle.asKey());
-				mapWorldSettings.importFrom(metadata.settings());
 				return Pair.of(handle, metadata);
 			}
 		} catch (IOException e) {
