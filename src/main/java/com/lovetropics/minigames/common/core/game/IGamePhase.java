@@ -19,6 +19,7 @@ import net.minecraft.util.Unit;
 import net.minecraft.world.level.Level;
 
 import org.jspecify.annotations.Nullable;
+import java.util.List;
 
 public interface IGamePhase {
 	/// @return the world that this game takes place within
@@ -29,6 +30,11 @@ public interface IGamePhase {
 	/// @return the dimension that this game takes places within
 	default ResourceKey<Level> dimension() {
 		return level().dimension();
+	}
+
+	/// @return every dimension that this game takes place within: its main dimension, then any linked to it (e.g. its own Nether and End)
+	default List<ResourceKey<Level>> dimensions() {
+		return List.of(dimension());
 	}
 
 	default RandomSource random() {

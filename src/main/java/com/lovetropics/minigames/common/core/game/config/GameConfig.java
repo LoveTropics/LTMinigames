@@ -48,6 +48,10 @@ public record GameConfig(
 		}));
 	}
 
+	public GameConfig withPlayingPhase(GamePhaseConfig playing) {
+		return new GameConfig(id, backendId, statisticsKey, name, subtitle, icon, maximumParticipants, introSlideshow, waiting, playing, hideFromList);
+	}
+
 	@Override
 	public int getMaximumParticipantCount() {
 		return maximumParticipants;

@@ -33,6 +33,8 @@ import com.lovetropics.minigames.common.content.escape_race.EscapeRaceTexts;
 import com.lovetropics.minigames.common.content.escape_race.client.EscapeRaceBucksRenderer;
 import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DDRCommand;
 import com.lovetropics.minigames.common.content.escape_race.vending_machine.VendingMachineEntityRenderer;
+import com.lovetropics.minigames.common.content.mcsr.Mcsr;
+import com.lovetropics.minigames.common.content.mcsr.McsrTexts;
 import com.lovetropics.minigames.common.content.paint_party.PaintParty;
 import com.lovetropics.minigames.common.content.paint_party.PaintPartyTexts;
 import com.lovetropics.minigames.common.content.qottott.Qottott;
@@ -177,6 +179,7 @@ public class LoveTropics {
 			GameDataAccessor.KEYS.forEach(consumer);
 			KeybindsTexts.collectTranslations(consumer);
 			EscapeRaceTexts.collectTranslations(consumer);
+			McsrTexts.collectTranslations(consumer);
 		});
 
 		registrate.generic(TAB_ID.getPath(), Registries.CREATIVE_MODE_TAB, () -> CreativeModeTab.builder()
@@ -227,6 +230,7 @@ public class LoveTropics {
 		PaintParty.init();
 		SpeedCarbGolf.init();
 		EscapeRace.init();
+		Mcsr.init();
 
 		DriftwoodRider.ATTACHMENT_TYPES.register(modBus);
 		ChatChannelStore.ATTACHMENT_TYPES.register(modBus);

@@ -7,7 +7,6 @@ import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionList;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvents;
-import com.lovetropics.minigames.common.core.game.behavior.event.GameEventListeners;
 import com.lovetropics.minigames.common.util.Codecs;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -29,17 +28,8 @@ public record AddBingoTileBehavior(ItemStackTemplate icon, Component title, int 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		events.listen(GameActionEvents.APPLY, (context, targets) -> {
-			var tileIndex = game.invoker(Bingo.REQUEST_NEW_TILE_EVENT).requestTile(icon.create(), title, reward);
-			if (tileIndex >= 0) {
-				// This event capturing dance allows us to pass a parameter to the actions in the trigger so that those actions can report back when they complete the tile
-				var captureListeners = new GameEventListeners();
-
-				// Create new instances of the trigger and register its events
-				trigger.get().register(game, events.redirect(t -> t == Bingo.CAPTURE_TILE_EVENT, captureListeners));
-				captureListeners.invoker(Bingo.CAPTURE_TILE_EVENT).capture(tileIndex);
-				return true;
-			}
-			return false;
+			BingoBoard board = game.instanceState().getOrNull(BingoBoard.KEY);
+			return board != null && board.addTile(icon.create(), title, reward, trigger) >= 0;
 		});
 	}
 

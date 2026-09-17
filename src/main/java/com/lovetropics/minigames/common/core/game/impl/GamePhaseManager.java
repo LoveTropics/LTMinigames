@@ -129,15 +129,19 @@ public class GamePhaseManager implements IGameLookup {
 	}
 
 	private void onServerStopping() {
-		for (List<GamePhase> phases : gamesByDimension.values()) {
-			phases.forEach(GamePhase::stopForServerShutdown);
-		}
+		gamesByDimension.values().stream()
+				.flatMap(List::stream)
+				.distinct()
+				.toList()
+				.forEach(GamePhase::stopForServerShutdown);
 		gamesByDimension.clear();
 	}
 
 	private void onServerTick() {
 		for (GamePhase queuedGame : queuedGames) {
-			gamesByDimension.computeIfAbsent(queuedGame.dimension(), d -> new ArrayList<>()).add(queuedGame);
+			for (ResourceKey<Level> dimension : queuedGame.dimensions()) {
+				gamesByDimension.computeIfAbsent(dimension, d -> new ArrayList<>()).add(queuedGame);
+			}
 		}
 		queuedGames.clear();
 	}
@@ -147,9 +151,20 @@ public class GamePhaseManager implements IGameLookup {
 		if (games == null) {
 			return;
 		}
-		games.removeIf(GamePhase::tick);
-		if (games.isEmpty()) {
-			gamesByDimension.remove(level.dimension());
+		List<GamePhase> destroyedGames = new ArrayList<>(0);
+		for (GamePhase game : games) {
+			// Games spanning several dimensions only tick along with their main one
+			if (game.dimension() == level.dimension() && game.tick()) {
+				destroyedGames.add(game);
+			}
+		}
+		for (GamePhase game : destroyedGames) {
+			for (ResourceKey<Level> dimension : game.dimensions()) {
+				List<GamePhase> dimensionGames = gamesByDimension.get(dimension);
+				if (dimensionGames != null && dimensionGames.remove(game) && dimensionGames.isEmpty()) {
+					gamesByDimension.remove(dimension);
+				}
+			}
 		}
 	}
 }
