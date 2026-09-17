@@ -17,7 +17,10 @@ import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.item.ItemStack;
 
@@ -33,6 +36,8 @@ import java.util.function.Supplier;
 ///
 /// The board belongs to the phase that declares it, which keeps the players' points. Players may be playing in sub-phases
 /// of that phase (e.g. each in their own world), so the trigger of every tile is registered in each of those too.
+///
+/// Tiles can be added directly, or unlocked from a pool of locked tiles that is drawn from at random without repeats.
 public final class BingoBoard implements IGameState {
 	public static final GameStateKey<BingoBoard> KEY = GameStateKey.create("Bingo Board");
 
@@ -40,18 +45,24 @@ public final class BingoBoard implements IGameState {
 	private final int rows, columns;
 	private final List<Float> positionRewardMultiplier;
 	private final GameActionList onTileCompleted, onBingo;
+	private final int unlockOnClear;
 
+	private final List<BingoTileDefinition> lockedTiles;
 	private final List<Optional<BingoTile>> tiles;
 	private final IntList emptySlots = new IntArrayList();
 	private final List<PhaseEvents> phases = new ArrayList<>();
 
-	public BingoBoard(IGamePhase game, int rows, int columns, List<Float> positionRewardMultiplier, GameActionList onTileCompleted, GameActionList onBingo) {
+	/// @param tilePool      locked tiles that can be unlocked onto the board
+	/// @param unlockOnClear how many tiles to unlock once a player has completed every tile on the board
+	public BingoBoard(IGamePhase game, int rows, int columns, List<Float> positionRewardMultiplier, GameActionList onTileCompleted, GameActionList onBingo, List<BingoTileDefinition> tilePool, int unlockOnClear) {
 		this.game = game;
 		this.rows = rows;
 		this.columns = columns;
 		this.positionRewardMultiplier = positionRewardMultiplier;
 		this.onTileCompleted = onTileCompleted;
 		this.onBingo = onBingo;
+		this.unlockOnClear = unlockOnClear;
+		lockedTiles = new ArrayList<>(tilePool);
 		tiles = NonNullList.withSize(rows * columns, Optional.empty());
 
 		for (int i = 0; i < rows * columns; i++) {
@@ -74,17 +85,43 @@ public final class BingoBoard implements IGameState {
 	}
 
 	/// @return the new tile index, or `-1` if the board is full
-	public int addTile(ItemStack icon, Component title, int reward, Supplier<GameActionList> trigger) {
+	public int addTile(BingoTileDefinition definition) {
+		int index = placeTile(definition);
+		if (index >= 0) {
+			updateTiles();
+		}
+		return index;
+	}
+
+	/// Unlocks random tiles from the pool, as long as there is space for them on the board
+	///
+	/// @return how many tiles were unlocked
+	public int unlockTiles(int count) {
+		List<Component> unlockedTitles = new ArrayList<>();
+		while (unlockedTitles.size() < count && !lockedTiles.isEmpty() && !emptySlots.isEmpty()) {
+			BingoTileDefinition definition = lockedTiles.remove(game.random().nextInt(lockedTiles.size()));
+			placeTile(definition);
+			unlockedTitles.add(definition.title());
+		}
+		if (!unlockedTitles.isEmpty()) {
+			updateTiles();
+			Component titles = ComponentUtils.formatList(unlockedTitles, Component.literal(", ")).copy().withStyle(ChatFormatting.AQUA);
+			game.allPlayers(true).sendMessage(Bingo.TILES_UNLOCKED.apply(titles).withStyle(ChatFormatting.GOLD));
+			game.allPlayers(true).playSound(SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 0.5f, 1.5f);
+		}
+		return unlockedTitles.size();
+	}
+
+	private int placeTile(BingoTileDefinition definition) {
 		if (emptySlots.isEmpty()) {
 			return -1;
 		}
 		int index = emptySlots.removeInt(game.random().nextInt(emptySlots.size()));
-		BingoTile tile = new BingoTile(icon, title, reward, trigger);
+		BingoTile tile = new BingoTile(definition.icon().create(), definition.title(), definition.reward(), definition.trigger());
 		tiles.set(index, Optional.of(tile));
 		for (PhaseEvents phaseEvents : phases) {
 			registerTrigger(index, tile, phaseEvents);
 		}
-		updateTiles();
 		return index;
 	}
 
@@ -115,6 +152,14 @@ public final class BingoBoard implements IGameState {
 		if (hasBingo(player.getUUID())) {
 			onBingo.apply(game, ContextMap.EMPTY, ActionSubjects.ofPlayer(player));
 		}
+
+		if (unlockOnClear > 0 && hasCompletedAllTiles(player.getUUID())) {
+			unlockTiles(unlockOnClear);
+		}
+	}
+
+	private boolean hasCompletedAllTiles(UUID player) {
+		return tiles.stream().allMatch(tile -> tile.map(t -> t.completedBy.contains(player)).orElse(true));
 	}
 
 	private boolean hasBingo(UUID player) {

@@ -24,26 +24,38 @@ public final class BingoBehavior implements IGameBehavior {
 			Codec.INT.fieldOf("columns").forGetter(b -> b.columns),
 			Codec.FLOAT.listOf(1, Integer.MAX_VALUE).fieldOf("position_reward_multipler").forGetter(b -> b.positionRewardMultiplier),
 			GameActionList.CODEC.optionalFieldOf("on_tile_completed", GameActionList.EMPTY).forGetter(b -> b.onTileCompleted),
-			GameActionList.CODEC.optionalFieldOf("on_bingo", GameActionList.EMPTY).forGetter(b -> b.onBingo)
+			GameActionList.CODEC.optionalFieldOf("on_bingo", GameActionList.EMPTY).forGetter(b -> b.onBingo),
+			BingoTileDefinition.CODEC.listOf().optionalFieldOf("tile_pool", List.of()).forGetter(b -> b.tilePool),
+			Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("initial_tiles", 0).forGetter(b -> b.initialTiles),
+			Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("unlock_on_clear", 0).forGetter(b -> b.unlockOnClear)
 	).apply(in, BingoBehavior::new));
 
 	private final int rows, columns;
 	private final List<Float> positionRewardMultiplier;
 	private final GameActionList onTileCompleted, onBingo;
+	private final List<BingoTileDefinition> tilePool;
+	private final int initialTiles;
+	private final int unlockOnClear;
 
 	private BingoBoard board;
 
-	public BingoBehavior(int rows, int columns, List<Float> positionRewardMultiplier, GameActionList onTileCompleted, GameActionList onBingo) {
+	/// @param tilePool      locked tiles, which are unlocked at random by `ltminigames:bingo/unlock_tiles`
+	/// @param initialTiles  how many tiles from the pool are unlocked when the game starts
+	/// @param unlockOnClear how many tiles from the pool are unlocked for everyone once a player completes every unlocked tile
+	public BingoBehavior(int rows, int columns, List<Float> positionRewardMultiplier, GameActionList onTileCompleted, GameActionList onBingo, List<BingoTileDefinition> tilePool, int initialTiles, int unlockOnClear) {
 		this.rows = rows;
 		this.columns = columns;
 		this.positionRewardMultiplier = positionRewardMultiplier;
 		this.onTileCompleted = onTileCompleted;
 		this.onBingo = onBingo;
+		this.tilePool = tilePool;
+		this.initialTiles = initialTiles;
+		this.unlockOnClear = unlockOnClear;
 	}
 
 	@Override
 	public void registerState(IGamePhase game, GameStateMap phaseState, GameStateMap instanceState) {
-		board = instanceState.register(BingoBoard.KEY, new BingoBoard(game, rows, columns, positionRewardMultiplier, onTileCompleted, onBingo));
+		board = instanceState.register(BingoBoard.KEY, new BingoBoard(game, rows, columns, positionRewardMultiplier, onTileCompleted, onBingo, tilePool, unlockOnClear));
 	}
 
 	@Override
@@ -53,7 +65,10 @@ public final class BingoBehavior implements IGameBehavior {
 
 		board.addPhase(game, events);
 
-		events.listen(GamePhaseEvents.START, _ -> board.updateTiles());
+		events.listen(GamePhaseEvents.START, _ -> {
+			board.unlockTiles(initialTiles);
+			board.updateTiles();
+		});
 		events.listen(GamePlayerEvents.ADD, board::updatePlayer);
 		events.listen(GamePlayerEvents.REMOVE, board::removeFromPlayer);
 
