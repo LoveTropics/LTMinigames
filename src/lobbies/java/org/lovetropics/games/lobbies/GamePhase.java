@@ -134,7 +134,11 @@ public class GamePhase implements IGamePhase {
 
 		started = true;
 
-		commandSet = GameCommandSet.registerFor(this);
+		List<GamePhase> commandPhases = new ArrayList<>();
+		for (GamePhase phase = this; phase != null; phase = phase.parentPhase) {
+			commandPhases.add(phase);
+		}
+		commandSet = GameCommandSet.registerFor(commandPhases);
 
 		try {
 			invoker(GamePlayerEvents.BEFORE_ADD_PLAYERS).beforeAddPlayers(
