@@ -11,6 +11,7 @@ import java.util.List;
 
 public class DDRMachineRenderState extends EntityRenderState {
 	public float yRot;
+	public boolean displayLevels = true;
 
 	public final AnimationState toBedState = new AnimationState();
 	public final AnimationState toDDRState = new AnimationState();

@@ -29,7 +29,8 @@ public record DdrLevel(
 		ItemStackTemplate icon,
 		Component displayName,
 		List<TimedDdrInput> inputs,
-		DdrLevelDifficulty difficulty
+		DdrLevelDifficulty difficulty,
+		Component author
 ) {
 	private static final Codec<List<TimedDdrInput>> INPUTS_CODEC = MoreCodecs.long2Object(DdrInput.CODEC).xmap(
 			map -> map.long2ObjectEntrySet().stream()
@@ -45,12 +46,15 @@ public record DdrLevel(
 			}
 	);
 
+	private static final Component LOVE_TROPICS = Component.literal("Love Tropics");
+
 	public static final Codec<DdrLevel> DIRECT_CODEC = RecordCodecBuilder.create(i -> i.group(
 			JukeboxSong.CODEC.fieldOf("track").forGetter(DdrLevel::track),
 			ItemStackTemplate.CODEC.fieldOf("icon").forGetter(DdrLevel::icon),
 			ComponentSerialization.CODEC.fieldOf("display_name").forGetter(DdrLevel::displayName),
 			INPUTS_CODEC.fieldOf("ticks").forGetter(DdrLevel::inputs),
-			DdrLevelDifficulty.CODEC.fieldOf("difficulty").forGetter(DdrLevel::difficulty)
+			DdrLevelDifficulty.CODEC.fieldOf("difficulty").forGetter(DdrLevel::difficulty),
+			ComponentSerialization.CODEC.optionalFieldOf("author", LOVE_TROPICS).forGetter(DdrLevel::author)
 	).apply(i, DdrLevel::new));
 	public static final Codec<Holder<DdrLevel>> CODEC = RegistryFileCodec.create(EscapeRace.DDR_LEVEL, DIRECT_CODEC);
 
@@ -60,12 +64,17 @@ public record DdrLevel(
 			ComponentSerialization.STREAM_CODEC, DdrLevel::displayName,
 			TimedDdrInput.STREAM_CODEC.apply(ByteBufCodecs.list()), DdrLevel::inputs,
 			DdrLevelDifficulty.STREAM_CODEC, DdrLevel::difficulty,
+			ComponentSerialization.STREAM_CODEC, DdrLevel::author,
 			DdrLevel::new
 	);
 	public static final StreamCodec<RegistryFriendlyByteBuf, Holder<DdrLevel>> STREAM_CODEC = ByteBufCodecs.holder(EscapeRace.DDR_LEVEL, DIRECT_STREAM_CODEC);
 
 	public int lengthInTicks() {
 		return track.value().lengthInTicks();
+	}
+
+	public long lastRecordedTick() {
+		return inputs.stream().mapToLong(TimedDdrInput::tick).max().orElse(this.lengthInTicks());
 	}
 
 	public static Path pathFor(Identifier id) {

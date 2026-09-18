@@ -55,19 +55,20 @@ public class DdrRecordingSession {
 		}
 		long currentTick = player.level().getGameTime() - startedAtTime;
 		if (currentTick >= track.value().lengthInTicks()) {
-			return stopRecording();
+			return stopRecording(player);
 		}
 		return null;
 	}
 
-	public Recording stopRecording() {
+	public Recording stopRecording(ServerPlayer player) {
 		stopped = true;
 		return new Recording(new DdrLevel(
 				track,
 				ItemStackTemplate.fromNonEmptyStack(new ItemStack(Items.MUSIC_DISC_PIGSTEP)),
 				displayName,
 				List.copyOf(inputs),
-				DdrLevelDifficulty.EASY
+				DdrLevelDifficulty.EASY,
+				Component.literal(player.nameAndId().name())
 		));
 	}
 

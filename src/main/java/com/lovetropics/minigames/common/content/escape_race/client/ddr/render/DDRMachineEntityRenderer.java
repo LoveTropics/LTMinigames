@@ -76,6 +76,7 @@ public class DDRMachineEntityRenderer extends EntityRenderer<DDRMachineEntity, D
 		state.ddrMachineState = entity.getState();
 		state.input = entity.getClientCurrentInput();
 		state.upcomingMoves.clear();
+		state.displayLevels = entity.shouldDisplayLevels();
 		long currentTick = entity.getClientCurrentTick();
 		for (TimedDdrInput input : entity.clientPendingInputs()) {
 			long tick = input.tick();
@@ -85,6 +86,11 @@ public class DDRMachineEntityRenderer extends EntityRenderer<DDRMachineEntity, D
 		}
 		state.currentTick = currentTick;
 		state.isRiding = entity.getControllingPassenger() instanceof LocalPlayer;
+
+		// Don't allow level selection if the machine does not allow for it (Mostly for Dance Off game)
+		if (!state.displayLevels) {
+			return;
+		}
 
 		Camera camera = Minecraft.getInstance().gameRenderer.mainCamera();
 		List<Holder<DdrLevel>> levels = entity.getOrderedLevels();
@@ -137,6 +143,9 @@ public class DDRMachineEntityRenderer extends EntityRenderer<DDRMachineEntity, D
 	}
 
 	private void renderMenuScreen(PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int packedLight, DDRMachineRenderState state) {
+		if (!state.displayLevels) {
+			return;
+		}
 		DdrScreen.LevelArrangement arrangement = DdrScreen.LevelArrangement.forCount(state.levels.size());
 		for (int i = 0; i < state.levels.size(); i++) {
 			renderLevelIcon(poseStack, submitNodeCollector, packedLight, state.levels.get(i), arrangement.getCenterX(i), arrangement.getCenterY(i), state);

@@ -22,6 +22,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -87,6 +88,7 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 
 	private static final EntityDataAccessor<DDRMachineState> DATA_STATE = SynchedEntityData.defineId(DDRMachineEntity.class, EscapeRace.DDR_STATE);
 	private static final EntityDataAccessor<DdrSessionState> DATA_SESSION = SynchedEntityData.defineId(DDRMachineEntity.class, EscapeRace.DDR_SESSION);
+	private static final EntityDataAccessor<Boolean> DISPLAY_LEVELS = SynchedEntityData.defineId(DDRMachineEntity.class, EntityDataSerializers.BOOLEAN);
 
 	private final List<Holder<DdrLevel>> orderedLevels;
 
@@ -120,7 +122,8 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 	protected void defineSynchedData(SynchedEntityData.Builder builder) {
 		builder.define(DATA_PLAYER_INPUT, DdrInput.NONE)
 				.define(DATA_STATE, DDRMachineState.MENU)
-				.define(DATA_SESSION, DdrSessionState.INACTIVE);
+				.define(DATA_SESSION, DdrSessionState.INACTIVE)
+				.define(DISPLAY_LEVELS, true);
 	}
 
 	@Override
@@ -131,16 +134,12 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 	@Override
 	protected void readAdditionalSaveData(ValueInput input) {
 		isLocked = input.getBooleanOr(IS_LOCKED, false);
+
 	}
 
 	@Override
 	protected void addAdditionalSaveData(ValueOutput output) {
 		output.putBoolean(IS_LOCKED, isLocked);
-	}
-
-	@Override
-	public boolean isPushable() {
-		return false;
 	}
 
 	@Override
@@ -316,7 +315,7 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 		}
 	}
 
-	private void stopPlaying(ServerPlayer player) {
+	public void stopPlaying(ServerPlayer player) {
 		if (serverSession == null) {
 			return;
 		}
@@ -342,7 +341,7 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 
 	public void stopRecording(ServerPlayer player) {
 		if (recordingSession != null) {
-			stopRecording(player, recordingSession.stopRecording());
+			stopRecording(player, recordingSession.stopRecording(player));
 		}
 	}
 
@@ -448,4 +447,17 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 	public boolean isPlayingSound() {
 		return Objects.requireNonNull(clientMachine).isPlayingSound();
 	}
+
+	public boolean shouldDisplayLevels() {
+		return getEntityData().get(DISPLAY_LEVELS);
+	}
+
+	public void setDisplayLevels(boolean displayLevels) {
+		this.getEntityData().set(DISPLAY_LEVELS, displayLevels);
+	}
+
+	public boolean shouldMoveCamera() {
+		return this.getState() == DDRMachineState.PLAYING || !shouldDisplayLevels();
+	}
+
 }

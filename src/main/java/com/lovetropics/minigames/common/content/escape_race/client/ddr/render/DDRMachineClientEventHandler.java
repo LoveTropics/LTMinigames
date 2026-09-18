@@ -39,7 +39,7 @@ public class DDRMachineClientEventHandler {
 	@SubscribeEvent
 	public static void onPositionCamera(ViewportEvent.ComputeCameraAngles event) {
 		if(event.getCamera().entity() instanceof LocalPlayer localPlayer && localPlayer.getVehicle() != null && localPlayer.getVehicle() instanceof DDRMachineEntity ddrMachineEntity) {
-			if(ddrMachineEntity.getState() == DDRMachineEntity.DDRMachineState.PLAYING) {
+			if(ddrMachineEntity.shouldMoveCamera()) {
 				event.setYaw(180 + ddrMachineEntity.getYRot());
 				event.setPitch(45f);
 				if(Minecraft.getInstance().options.getCameraType() != CameraType.THIRD_PERSON_BACK){
@@ -52,7 +52,7 @@ public class DDRMachineClientEventHandler {
 	@SubscribeEvent
 	public static void onCalculateCameraDistance(CalculateDetachedCameraDistanceEvent event) {
 		if(event.getCamera().entity() instanceof LocalPlayer localPlayer && localPlayer.getVehicle() != null && localPlayer.getVehicle() instanceof DDRMachineEntity ddrMachineEntity) {
-			if(ddrMachineEntity.getState() == DDRMachineEntity.DDRMachineState.PLAYING) {
+			if(ddrMachineEntity.shouldMoveCamera()) {
 				event.setDistance(4.5f);
 			}
 		}
