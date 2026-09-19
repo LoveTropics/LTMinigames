@@ -99,7 +99,7 @@ public record RemapMovementClientState(Map<MovementType, MovementType> keys) imp
 
 		@Override
 		public String getSerializedName() {
-			return this.name;
+			return name;
 		}
 	}
 

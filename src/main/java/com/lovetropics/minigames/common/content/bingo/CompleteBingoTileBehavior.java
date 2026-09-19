@@ -16,7 +16,7 @@ public final class CompleteBingoTileBehavior implements IGameBehavior {
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		events.listen(Bingo.CAPTURE_TILE_EVENT, capturedTile -> this.tile = capturedTile);
+		events.listen(Bingo.CAPTURE_TILE_EVENT, capturedTile -> tile = capturedTile);
 		events.applyToPlayers(game, (_, target) -> {
 			if (tile >= 0) {
 				game.invoker(Bingo.COMPLETE_BINGO_TILE_EVENT).onCompleted(tile, target);

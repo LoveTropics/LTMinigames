@@ -5,6 +5,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.Hud;
 import net.minecraft.client.gui.components.toasts.Toast;
 import net.minecraft.client.gui.components.toasts.ToastManager;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -80,7 +81,7 @@ public final class NotificationToast implements Toast {
 		if (icon.item != null) {
 			graphics.item(icon.item.create(), 6, y);
 		} else if (icon.effect != null) {
-			Identifier sprite = Minecraft.getInstance().gui.hud.getMobEffectSprite(icon.effect);
+			Identifier sprite = Hud.getMobEffectSprite(icon.effect);
 			graphics.blitSprite(RenderPipelines.GUI_TEXTURED, sprite, 5, y, 18, 18);
 		}
 	}

@@ -93,16 +93,16 @@ public class GameDataAccessor implements DataAccessor {
 
 	@Override
 	public Component getModifiedSuccess() {
-		return STORAGE_MODIFIED.apply(player.name(), Component.translationArg(this.id));
+		return STORAGE_MODIFIED.apply(player.name(), Component.translationArg(id));
 	}
 
 	@Override
 	public Component getPrintSuccess(Tag nbt) {
-		return STORAGE_QUERY.apply(player.name(), Component.translationArg(this.id), NbtUtils.toPrettyComponent(nbt));
+		return STORAGE_QUERY.apply(player.name(), Component.translationArg(id), NbtUtils.toPrettyComponent(nbt));
 	}
 
 	@Override
 	public Component getPrintSuccess(NbtPathArgument.NbtPath path, double scale, int value) {
-		return STORAGE_GET.apply(path.asString(), Component.translationArg(this.id), player.name(), String.format(Locale.ROOT, "%.2f", scale), value);
+		return STORAGE_GET.apply(path.asString(), Component.translationArg(id), player.name(), String.format(Locale.ROOT, "%.2f", scale), value);
 	}
 }

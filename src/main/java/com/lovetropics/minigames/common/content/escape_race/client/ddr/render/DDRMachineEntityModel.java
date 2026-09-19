@@ -38,23 +38,23 @@ public class DDRMachineEntityModel extends EntityModel<DDRMachineRenderState> {
 
 	public DDRMachineEntityModel(ModelPart root) {
 		super(root);
-		this.bed_rail1 = root.getChild("bed_rail1");
-		this.bed_rail2 = root.getChild("bed_rail2");
-		this.base = root.getChild("base");
-		this.hologram = root.getChild("hologram");
-		this.hologram2 = root.getChild("hologram2");
-		this.decor = root.getChild("decor");
-		this.screen = root.getChild("screen");
-		this.buttons = root.getChild("buttons");
-		this.up = this.buttons.getChild("up");
-		this.right = this.buttons.getChild("right");
-		this.left = this.buttons.getChild("left");
-		this.down = this.buttons.getChild("down");
-		this.bed_bottom1 = root.getChild("bed_bottom1");
-		this.bed_bottom2 = root.getChild("bed_bottom2");
-		this.bed_top1 = root.getChild("bed_top1");
-		this.bed_top2 = root.getChild("bed_top2");
-		this.bb_main = root.getChild("bb_main");
+		bed_rail1 = root.getChild("bed_rail1");
+		bed_rail2 = root.getChild("bed_rail2");
+		base = root.getChild("base");
+		hologram = root.getChild("hologram");
+		hologram2 = root.getChild("hologram2");
+		decor = root.getChild("decor");
+		screen = root.getChild("screen");
+		buttons = root.getChild("buttons");
+		up = buttons.getChild("up");
+		right = buttons.getChild("right");
+		left = buttons.getChild("left");
+		down = buttons.getChild("down");
+		bed_bottom1 = root.getChild("bed_bottom1");
+		bed_bottom2 = root.getChild("bed_bottom2");
+		bed_top1 = root.getChild("bed_top1");
+		bed_top2 = root.getChild("bed_top2");
+		bb_main = root.getChild("bb_main");
 
 		foldIntoBedAnim = DDRMachineEntityModelAnimations.fold_to_bed.bake(root);
 		bedToDDRAnim = DDRMachineEntityModelAnimations.bedToDDR.bake(root);

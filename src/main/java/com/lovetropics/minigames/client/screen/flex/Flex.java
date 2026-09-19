@@ -226,16 +226,8 @@ public final class Flex {
 		}
 	}
 
-	static final class LengthRange {
+	record LengthRange(Length min, Length max) {
 		static final LengthRange ANY = new LengthRange(Length.value(0), Length.FILL);
-
-		final Length min;
-		final Length max;
-
-		LengthRange(Length min, Length max) {
-			this.min = min;
-			this.max = max;
-		}
 
 		static LengthRange of(Length size) {
 			return new LengthRange(size, size);

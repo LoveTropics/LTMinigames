@@ -63,43 +63,43 @@ public class PlayerFaceDVDRender {
 		public PlayerData(int lengthInTicks, PlayerSkinRenderCache.RenderInfo renderInfo) {
 			this.renderInfo = renderInfo;
 			this.lengthInTicks = lengthInTicks;
-			this.upsideDown = false;
-			this.addingX = RANDOM.nextBoolean();
-			this.addingY = RANDOM.nextBoolean();
+			upsideDown = false;
+			addingX = RANDOM.nextBoolean();
+			addingY = RANDOM.nextBoolean();
 
 			Window screen = Minecraft.getInstance().getWindow();
 			int screenWidth = screen.getGuiScaledWidth();
 			int screenHeight = screen.getGuiScaledHeight();
 
-			this.x = randomInt(0, screenWidth - FACE_SIZE);
-			this.y = randomInt(0, screenHeight - FACE_SIZE);
+			x = randomInt(0, screenWidth - FACE_SIZE);
+			y = randomInt(0, screenHeight - FACE_SIZE);
 		}
 
 		public void renderTick(GuiGraphicsExtractor extractor, int screenWidth, int screenHeight) {
-			this.x = this.addingX ? this.x + 1 : this.x - 1;
-			this.y = this.addingY ? this.y + 1 : this.y - 1;
+			x = addingX ? x + 1 : x - 1;
+			y = addingY ? y + 1 : y - 1;
 
 			int maxX = screenWidth - FACE_SIZE;
 			int maxY = screenHeight - FACE_SIZE;
 
-			if (this.x >= maxX) {
-				this.addingX = false;
-			} else if (this.x <= 0) {
-				this.addingX = true;
+			if (x >= maxX) {
+				addingX = false;
+			} else if (x <= 0) {
+				addingX = true;
 			}
 
-			if (this.y >= maxY) {
-				this.addingY = false;
-			} else if (this.y <= 0) {
-				this.addingY = true;
+			if (y >= maxY) {
+				addingY = false;
+			} else if (y <= 0) {
+				addingY = true;
 			}
 
 			// Flip faces when the face hits a corner of the screen
-			if ((this.x >= maxX || this.x <= 0) && (this.y <= 0 || this.y >= maxY)) {
-				this.upsideDown = !this.upsideDown;
+			if ((x >= maxX || x <= 0) && (y <= 0 || y >= maxY)) {
+				upsideDown = !upsideDown;
 			}
 			
-			PlayerFaceExtractor.extractRenderState(extractor, this.renderInfo.playerSkin().body().texturePath(), this.x, this.y, FACE_SIZE, true, upsideDown, CommonColors.WHITE);
+			PlayerFaceExtractor.extractRenderState(extractor, renderInfo.playerSkin().body().texturePath(), x, y, FACE_SIZE, true, upsideDown, CommonColors.WHITE);
 		}
 
 		private int randomInt(int min, int max) {

@@ -116,7 +116,7 @@ public class GameCraftingBeeHandler {
 		event.addListener(new AbstractWidget(screen.getLeftPos() + 22, screen.getTopPos() - 21, 132, 21, Component.empty()) {
 			@Override
 			protected void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
-				graphics.blitSprite(RenderPipelines.GUI_TEXTURED, ITEMS_BAR_SPRITE, this.getX(), this.getY(), 132, 21);
+				graphics.blitSprite(RenderPipelines.GUI_TEXTURED, ITEMS_BAR_SPRITE, getX(), getY(), 132, 21);
 				var crafts = getState().crafts();
 				for (int i = 0; i < crafts.size(); i++) {
 					var craft = crafts.get(i);

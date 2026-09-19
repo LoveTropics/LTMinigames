@@ -17,7 +17,7 @@ public class TntAutoFuseBehavior implements IGameBehavior {
 		events.listen(GamePlayerEvents.PLACE_BLOCK, (player, pos, placed, placedOn, placedItemStack) -> {
 			if (placed.getBlock() instanceof TntBlock) {
 				placed.getBlock().onCaughtFire(placed, player.level(), pos, null, null);
-				player.level().setBlock(pos, Blocks.AIR.defaultBlockState(), 11);
+				player.level().setBlock(pos, Blocks.AIR.defaultBlockState(), TntBlock.UPDATE_ALL_IMMEDIATE);
 			}
 			return TriState.DEFAULT;
 		});

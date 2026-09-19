@@ -39,6 +39,7 @@ import net.minecraft.server.permissions.LevelBasedPermissionSet;
 import net.minecraft.util.Util;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.levelgen.structure.templatesystem.BlockIgnoreProcessor;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
@@ -309,7 +310,7 @@ public record SpeedCarbGolfBehaviour(Map<Identifier, String> potentialHoles, Map
 			}
 			boolean hasImported = structureTemplate
 					.get().placeInWorld(level, region.min().offset(0, -4, 0),
-							region.min(), teamSettings, level.getRandom(), 2);
+							region.min(), teamSettings, level.getRandom(), Block.UPDATE_CLIENTS);
 			if (hasImported) {
 				LOGGER.info("Have placed {} in region {}", pickedHole, regionKey);
 			}
@@ -331,7 +332,7 @@ public record SpeedCarbGolfBehaviour(Map<Identifier, String> potentialHoles, Map
 			}
 			boolean hasImported = structureTemplate
 					.get().placeInWorld(level, region.min().offset(0, -3, 0),
-							region.min(), teamSettings, level.getRandom(), 2);
+							region.min(), teamSettings, level.getRandom(), Block.UPDATE_CLIENTS);
 			if (hasImported) {
 				if (renameHole) {
 					game.scheduler().runAfterSeconds(5, () -> {

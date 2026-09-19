@@ -218,7 +218,7 @@ public class DelegatingWorldGenLevel implements WorldGenLevel {
 	}
 
 	@Override
-	public boolean setBlock(BlockPos pos, BlockState state, int flags, int recursionLeft) {
+	public boolean setBlock(BlockPos pos, BlockState state, @Block.UpdateFlags int flags, int recursionLeft) {
 		return parent.setBlock(pos, state, flags, recursionLeft);
 	}
 

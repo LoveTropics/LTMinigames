@@ -74,7 +74,7 @@ public record DdrLevel(
 	}
 
 	public int lastRecordedTick() {
-		return Math.toIntExact(inputs.stream().mapToLong(TimedDdrInput::tick).max().orElse(this.lengthInTicks()));
+		return Math.toIntExact(inputs.stream().mapToLong(TimedDdrInput::tick).max().orElse(lengthInTicks()));
 	}
 
 	public static Path pathFor(Identifier id) {

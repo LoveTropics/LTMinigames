@@ -80,15 +80,15 @@ public class DDRShowdownBehavior implements IGameBehavior {
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		GameStatistics statistics = game.statistics();
-		this.widgets = GameWidgets.getOrRegister(game, events);
+		widgets = GameWidgets.getOrRegister(game, events);
 		Holder<DdrLevel> level = getRandomLevel(game);
 		DdrLevel ddrLevel = level.value();
-		this.gameLength = Math.toIntExact(level.value().lastRecordedTick());
+		gameLength = Math.toIntExact(level.value().lastRecordedTick());
 		bossBar = widgets.openGlobalBossBar(ddrLevel.displayName(), BossEvent.BossBarColor.BLUE, BossEvent.BossBarOverlay.PROGRESS);
 		bossBar.setProgress(0f);
 
 		MapRegions regions = game.mapRegions();
-		List<BlockBox> ddrSpawn = regions.get(this.ddrSpawnRegion).stream().toList();
+		List<BlockBox> ddrSpawn = regions.get(ddrSpawnRegion).stream().toList();
 		Queue<DDRMachineEntity> spawnedMachines = new ArrayDeque<>();
 
 		events.listen(GamePlayerEvents.BEFORE_ADD_PLAYERS, (participants, spectators) -> {
@@ -111,7 +111,7 @@ public class DDRShowdownBehavior implements IGameBehavior {
 				DDRMachineEntity poll = spawnedMachines.poll();
 				if (poll == null) {
 					LOGGER.warn("Could not DDR Machine for {}", playerId);
-					spawn.teleportTo(game.level(), game.mapRegions().getOrThrow(this.spectatorSpawnRegion).centerBlock());
+					spawn.teleportTo(game.level(), game.mapRegions().getOrThrow(spectatorSpawnRegion).centerBlock());
 					return;
 				}
 				spawn.run(player -> {
@@ -121,7 +121,7 @@ public class DDRShowdownBehavior implements IGameBehavior {
 				activeMachines.add(poll);
 				return;
 			}
-			spawn.teleportTo(game.level(), game.mapRegions().getOrThrow(this.spectatorSpawnRegion).centerBlock());
+			spawn.teleportTo(game.level(), game.mapRegions().getOrThrow(spectatorSpawnRegion).centerBlock());
 		});
 
 		// Todo clean this part up
@@ -142,7 +142,7 @@ public class DDRShowdownBehavior implements IGameBehavior {
 	}
 
 	private void startGame(IGamePhase game, Holder<DdrLevel> level) {
-		this.startTick = game.ticks();
+		startTick = game.ticks();
 		activeMachines.forEach(machine -> {
 			LivingEntity controllingPassenger = machine.getControllingPassenger();
 			if (controllingPassenger instanceof ServerPlayer player) {

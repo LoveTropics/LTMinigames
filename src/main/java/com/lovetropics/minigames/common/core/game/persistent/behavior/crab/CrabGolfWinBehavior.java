@@ -99,7 +99,7 @@ public class CrabGolfWinBehavior implements PersistentGameBehavior {
 				commands.performPrefixedCommand(targetSource, onEnd);
 			}
 
-			game.level().playSound(null, player.blockPosition(), SoundEvents.GOAT_HORN_SOUND_VARIANTS.get(0).value(), SoundSource.BLOCKS, 1F, 1.0F);
+			game.level().playSound(null, player.blockPosition(), SoundEvents.GOAT_HORN_SOUND_VARIANTS.getFirst().value(), SoundSource.BLOCKS, 1F, 1.0F);
 
 			CompoundTag nbt = this.nbt.copy();
 			nbt.putString("id", "minecraft:firework_rocket");
@@ -224,7 +224,7 @@ public class CrabGolfWinBehavior implements PersistentGameBehavior {
 			).apply(instance, HoleData::new));
 			private int highScore;
 			private int totalPlays;
-			private Map<UUID, Integer> playerHighScores;
+			private final Map<UUID, Integer> playerHighScores;
 
 			public HoleData(int highScore, int totalPlays, Map<UUID, Integer> playerHighScores) {
 				this.highScore = highScore;

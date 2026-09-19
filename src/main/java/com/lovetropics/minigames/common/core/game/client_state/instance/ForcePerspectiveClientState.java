@@ -49,7 +49,7 @@ public record ForcePerspectiveClientState(Perspective perspective) implements Ga
 
 		@Override
 		public String getSerializedName() {
-			return this.name;
+			return name;
 		}
 	}
 

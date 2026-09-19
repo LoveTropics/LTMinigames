@@ -453,11 +453,11 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 	}
 
 	public void setDisplayLevels(boolean displayLevels) {
-		this.getEntityData().set(DISPLAY_LEVELS, displayLevels);
+		getEntityData().set(DISPLAY_LEVELS, displayLevels);
 	}
 
 	public boolean shouldMoveCamera() {
-		return this.getState() == DDRMachineState.PLAYING || !shouldDisplayLevels();
+		return getState() == DDRMachineState.PLAYING || !shouldDisplayLevels();
 	}
 
 	public int getCurrentScore() {

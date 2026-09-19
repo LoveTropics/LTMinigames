@@ -719,6 +719,7 @@ public class LTGameTestHelper extends GameTestHelper {
 		return delegate.relativeVec(pAbsoluteVec3);
 	}
 
+	@Override
 	public void assertTrue(boolean pCondition, String pFailureMessage) {
 		delegate.assertTrue(pCondition, Component.literal(pFailureMessage));
 	}
@@ -729,6 +730,7 @@ public class LTGameTestHelper extends GameTestHelper {
 		}
 	}
 
+	@Override
 	public void assertFalse(boolean pCondition, String pFailureMessage) {
 		assertFalse(pCondition, Component.literal(pFailureMessage));
 	}

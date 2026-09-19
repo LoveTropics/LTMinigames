@@ -30,7 +30,7 @@ public final class MapWorldSettings {
 	public MapWorldSettings(GameRules gameRules, long timeOfDay, int sunnyTime, boolean raining, int rainTime, boolean thundering, int thunderTime, Difficulty difficulty) {
 		this.gameRules = gameRules;
 		this.timeOfDay = timeOfDay;
-		this.weather = new WeatherData(sunnyTime, rainTime, thunderTime, raining, thundering);
+		weather = new WeatherData(sunnyTime, rainTime, thunderTime, raining, thundering);
 		this.difficulty = difficulty;
 	}
 

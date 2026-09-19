@@ -125,16 +125,16 @@ public class CrabGolfHoleBehavior implements PersistentGameBehavior {
 			// TODO: copy out data
 			currentlyPlaying.values().forEach(Entity::discard);
 
-			if (this.winnerRegion == null) {
+			if (winnerRegion == null) {
 				return;
 			}
 
 			ServerLevel level = game.level();
-			List<Entity> old = level.getEntities((Entity) null, this.winnerRegion.asAabb(), e -> e instanceof ArmorStand);
+			List<Entity> old = level.getEntities((Entity) null, winnerRegion.asAabb(), e -> e instanceof ArmorStand);
 			old.forEach(Entity::discard);
 		});
 
-		events.listen(CrabGolfEvents.QUERY_PLAYING, this.currentlyPlaying::containsKey);
+		events.listen(CrabGolfEvents.QUERY_PLAYING, currentlyPlaying::containsKey);
 
 		events.listen(GamePlayerEvents.USE_BLOCK, (player, level, pos, hand, hit) -> {
 			if (isOk() && level.getBlockState(pos).is(BlockTags.BUTTONS) && buttonRegion.contains(pos)) {
@@ -147,9 +147,9 @@ public class CrabGolfHoleBehavior implements PersistentGameBehavior {
 		});
 
 		events.listen(GamePlayerEvents.ATTACK, (player, target) -> {
-			LivingEntity crab = this.currentlyPlaying.get(player);
+			LivingEntity crab = currentlyPlaying.get(player);
 			if (target == crab) {
-				this.hits.computeIfPresent(player, (k, v) -> ++v);
+				hits.computeIfPresent(player, (k, v) -> ++v);
 			}
 
 			return TriState.DEFAULT;
@@ -198,7 +198,7 @@ public class CrabGolfHoleBehavior implements PersistentGameBehavior {
 					if (holeRegion.asAabb().contract(0.2, 0, 0.2).intersects(entity.getBoundingBox())) {
 						// win!!
 
-						int score = this.hits.get(player);
+						int score = hits.get(player);
 						player.sendSystemMessage(Component.literal("Score: " + score), true);
 						entity.setHealth(-100);
 						entity.kill(game.level());
@@ -228,7 +228,7 @@ public class CrabGolfHoleBehavior implements PersistentGameBehavior {
 				}
 
 				int time = ticksLeft.computeIfPresent(player, (k, v) -> --v);
-				player.sendSystemMessage(Component.literal("Seconds left: " + (time / 20) + " | Hits: " + this.hits.get(player)), true);
+				player.sendSystemMessage(Component.literal("Seconds left: " + (time / 20) + " | Hits: " + hits.get(player)), true);
 
 				if (time == 0) {
 					// Ran out of time?
@@ -250,12 +250,12 @@ public class CrabGolfHoleBehavior implements PersistentGameBehavior {
 	}
 
 	private void updateWinnerRegion(PersistentGame game, int score, @Nullable UUID player) {
-		if (this.winnerRegion == null) {
+		if (winnerRegion == null) {
 			return;
 		}
 
 		ServerLevel level = game.level();
-		List<Entity> old = level.getEntities((Entity) null, this.winnerRegion.asAabb(), e -> e instanceof ArmorStand);
+		List<Entity> old = level.getEntities((Entity) null, winnerRegion.asAabb(), e -> e instanceof ArmorStand);
 		old.forEach(Entity::discard);
 
 		CompoundTag nbt = new CompoundTag();

@@ -169,11 +169,6 @@ public class VendingMachineEntity extends Entity implements ContainerEntity {
 	}
 
 	@Override
-	public boolean isPushable() {
-		return false;
-	}
-
-	@Override
 	public boolean canBeCollidedWith(@Nullable Entity entity) {
 		return true;
 	}

@@ -43,9 +43,9 @@ public class KeyboardInputMixin extends ClientInput {
 			keyPresses = remapState.remap(keyPresses);
 
 			// Recalculate move vector to make sure it matches changes in movement.
-			float forwardImpulse = calculateImpulse(this.keyPresses.forward(), this.keyPresses.backward());
-			float leftImpulse = calculateImpulse(this.keyPresses.left(), this.keyPresses.right());
-			this.moveVector = new Vec2(leftImpulse, forwardImpulse).normalized();
+			float forwardImpulse = calculateImpulse(keyPresses.forward(), keyPresses.backward());
+			float leftImpulse = calculateImpulse(keyPresses.left(), keyPresses.right());
+			moveVector = new Vec2(leftImpulse, forwardImpulse).normalized();
 		}
 
 		if (Minecraft.getInstance().player.getExistingData(RiderBehavior.FORCE_RIDER).orElse(false)) {

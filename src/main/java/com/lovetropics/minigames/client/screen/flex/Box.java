@@ -4,22 +4,10 @@ import net.minecraft.client.gui.screens.Screen;
 
 import java.util.Objects;
 
-public final class Box {
-
-	private final int left;
-	private final int top;
-	private final int right;
-	private final int bottom;
+public record Box(int left, int top, int right, int bottom) {
 
 	public Box() {
 		this(0, 0, 0, 0);
-	}
-
-	public Box(int left, int top, int right, int bottom) {
-		this.left = left;
-		this.top = top;
-		this.right = right;
-		this.bottom = bottom;
 	}
 
 	public Box(Size size) {
@@ -49,22 +37,6 @@ public final class Box {
 
 	public Box contract(Box border) {
 		return grow(-border.left(), -border.top(), -border.right(), -border.bottom());
-	}
-
-	public int left() {
-		return left;
-	}
-
-	public int top() {
-		return top;
-	}
-
-	public int right() {
-		return right;
-	}
-
-	public int bottom() {
-		return bottom;
 	}
 
 	public int width() {
@@ -161,11 +133,6 @@ public final class Box {
 	}
 
 	@Override
-	public int hashCode() {
-		return Objects.hash(bottom, left, right, top);
-	}
-
-	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
 			return true;
@@ -180,14 +147,7 @@ public final class Box {
 		return bottom == other.bottom && left == other.left && right == other.right && top == other.top;
 	}
 
-	static final class Size {
-		private final int width;
-		private final int height;
-
-		public Size(int width, int height) {
-			this.width = width;
-			this.height = height;
-		}
+	record Size(int width, int height) {
 
 		public Size grow(int amount) {
 			return grow(amount, amount);
@@ -205,14 +165,6 @@ public final class Box {
 			return grow(border.borderX(), border.borderY());
 		}
 
-		public int width() {
-			return width;
-		}
-
-		public int height() {
-			return height;
-		}
-
 		public int along(Axis axis) {
 			return switch (axis) {
 				case X -> width;
@@ -221,14 +173,7 @@ public final class Box {
 		}
 	}
 
-	static final class Interval {
-		final int start;
-		final int end;
-
-		Interval(int start, int end) {
-			this.start = start;
-			this.end = end;
-		}
+	record Interval(int start, int end) {
 
 		Interval subtract(Align.Main align, int size) {
 			return switch (align) {

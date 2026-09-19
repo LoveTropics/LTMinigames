@@ -13,7 +13,7 @@ public class PersistentGameInstance implements PersistentGame {
 	private final ServerLevel level;
 
 	public PersistentGameInstance(MinecraftServer server, ServerLevel level) {
-		this.players = new MutablePlayerSet(server);
+		players = new MutablePlayerSet(server);
 		this.server = server;
 		this.level = level;
 	}

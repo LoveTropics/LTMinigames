@@ -67,9 +67,9 @@ public final class DropLootTableBehavior implements IGameBehavior {
 				if (plant != null && plant.type().equals(plantType)) {
 					dropLoot(player, plot, plant, pos);
 					if (is7) {
-						world.setBlock(pos, state.setValue(BlockStateProperties.AGE_7, 0), 3);
+						world.setBlock(pos, state.setValue(BlockStateProperties.AGE_7, 0), Block.UPDATE_ALL);
 					} else {
-						world.setBlock(pos, state.setValue(BlockStateProperties.AGE_3, 0), 3);
+						world.setBlock(pos, state.setValue(BlockStateProperties.AGE_3, 0), Block.UPDATE_ALL);
 					}
 
 					return InteractionResult.SUCCESS;

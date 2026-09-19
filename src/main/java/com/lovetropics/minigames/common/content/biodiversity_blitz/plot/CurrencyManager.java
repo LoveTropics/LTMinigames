@@ -163,7 +163,7 @@ public final class CurrencyManager implements IGameState {
 
 	public void equalize() {
 		int sum = IntStream.of(accumulator.values().toIntArray()).sum();
-		int count = accumulator.keySet().size();
+		int count = accumulator.size();
 		int newSum = sum / count;
 
 		for (GameTeamKey team : accumulator.keySet()) {

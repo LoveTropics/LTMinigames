@@ -36,8 +36,8 @@ public final class FlexSolver {
 			FlexSolve childSolve = results.flexSolve(child);
 			updateInnerSizes(results, child, childSolve);
 
-			Flex.Length childOuterWidth = child.width.min.add(totalBorderX(child));
-			Flex.Length childOuterHeight = child.height.min.add(totalBorderY(child));
+			Flex.Length childOuterWidth = child.width.min().add(totalBorderX(child));
+			Flex.Length childOuterHeight = child.height.min().add(totalBorderY(child));
 
 			if (flex.axis == Axis.X) {
 				innerWidth = innerWidth.add(childOuterWidth);
@@ -121,10 +121,10 @@ public final class FlexSolver {
 	}
 
 	private Box.Size solveInnerSize(Box.Size parent, Flex flex, FlexSolve solve) {
-		int minInnerWidth = flex.width.min.resolve(parent.width());
-		int minInnerHeight = flex.height.min.resolve(parent.height());
-		int maxInnerWidth = flex.width.max.resolve(parent.width());
-		int maxInnerHeight = flex.height.max.resolve(parent.height());
+		int minInnerWidth = flex.width.min().resolve(parent.width());
+		int minInnerHeight = flex.height.min().resolve(parent.height());
+		int maxInnerWidth = flex.width.max().resolve(parent.width());
+		int maxInnerHeight = flex.height.max().resolve(parent.height());
 
 		int innerWidth = solve.innerWidth.resolve(minInnerWidth);
 		int innerHeight = solve.innerHeight.resolve(minInnerHeight);

@@ -14,7 +14,7 @@ public enum DdrLevelDifficulty implements StringRepresentable {
 	MEDIUM("medium", 0.4f, 1),
 	HARD("hard", 0.5f, 2);
 
-	public static Codec<DdrLevelDifficulty> CODEC = StringRepresentable.fromEnum(DdrLevelDifficulty::values);
+	public static final Codec<DdrLevelDifficulty> CODEC = StringRepresentable.fromEnum(DdrLevelDifficulty::values);
 	private static final IntFunction<DdrLevelDifficulty> BY_ID = ByIdMap.continuous(
 			DdrLevelDifficulty::id, values(), ByIdMap.OutOfBoundsStrategy.ZERO
 	);
@@ -39,7 +39,7 @@ public enum DdrLevelDifficulty implements StringRepresentable {
 	}
 
 	public int id(){
-		return this.id;
+		return id;
 	}
 
 	@Override

@@ -72,7 +72,7 @@ public record WhileInRegionTrigger(Map<String, GameActionList> regionActions, in
 
 	private static class State {
 		public boolean triggered = false;
-		public Set<UUID> triggeredPlayers = new HashSet<>();
+		public final Set<UUID> triggeredPlayers = new HashSet<>();
 	}
 
 	public enum RunType implements StringRepresentable {

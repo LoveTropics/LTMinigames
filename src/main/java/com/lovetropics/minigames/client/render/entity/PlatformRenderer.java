@@ -21,7 +21,7 @@ public final class PlatformRenderer extends EntityRenderer<PlatformEntity, Platf
 
 	public PlatformRenderer(EntityRendererProvider.Context context) {
 		super(context);
-		this.modelManager = Minecraft.getInstance().getModelManager();
+		modelManager = Minecraft.getInstance().getModelManager();
 	}
 
 	@Override

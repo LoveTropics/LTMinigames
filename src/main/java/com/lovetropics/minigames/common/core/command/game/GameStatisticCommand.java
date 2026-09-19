@@ -60,7 +60,7 @@ public class GameStatisticCommand {
 									game.statistics().clear();
 									game.statistics().copyFrom(statistics);
 
-									ClickEvent.RunCommand restoreCommand = new ClickEvent.RunCommand("game stat import " + previousStatistics.toString());
+									ClickEvent.RunCommand restoreCommand = new ClickEvent.RunCommand("game stat import " + previousStatistics);
 									context.getSource().sendSuccess(() -> Component.translatable("Successfully imported statistics: %s",
 											Component.literal("[Restore]").withStyle(Style.EMPTY.withColor(ChatFormatting.GRAY).withUnderlined(true).withClickEvent(restoreCommand))
 									), true);
@@ -74,7 +74,7 @@ public class GameStatisticCommand {
 							IGamePhase game = getGameFor(context.getSource());
 							Tag encodedStatistics = GameStatistics.CODEC.encodeStart(NbtOps.INSTANCE, game.statistics()).getOrThrow(MALFORMED_STATISTICS::create);
 
-							ClickEvent.RunCommand importCommand = new ClickEvent.RunCommand("game stat import " + encodedStatistics.toString());
+							ClickEvent.RunCommand importCommand = new ClickEvent.RunCommand("game stat import " + encodedStatistics);
 							ClickEvent.CopyToClipboard copyData = new ClickEvent.CopyToClipboard(encodedStatistics.toString());
 
 							context.getSource().sendSuccess(() -> Component.translatable("Exported game statistics: %s %s",

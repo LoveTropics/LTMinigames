@@ -6,6 +6,6 @@ import net.minecraft.network.chat.Component;
 
 public class DDRMachineLevelClientRenderState {
 	public Component displayName = CommonComponents.EMPTY;
-	public ItemStackRenderState iconState = new ItemStackRenderState();
+	public final ItemStackRenderState iconState = new ItemStackRenderState();
 	public boolean selected;
 }

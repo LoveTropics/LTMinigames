@@ -62,9 +62,9 @@ public class DdrServerSession {
 	}
 
 	public void increaseStreak(){
-		this.currentLevelStreak++;
-		if(this.currentLevelStreak > this.highestStreak) {
-			this.highestStreak = this.currentLevelStreak;
+		currentLevelStreak++;
+		if(currentLevelStreak > highestStreak) {
+			highestStreak = currentLevelStreak;
 		}
 	}
 

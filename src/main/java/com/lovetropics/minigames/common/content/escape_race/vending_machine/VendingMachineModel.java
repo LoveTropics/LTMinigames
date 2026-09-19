@@ -47,14 +47,14 @@ public class VendingMachineModel extends EntityModel<VendingMachineRenderState> 
 	public VendingMachineModel(ModelPart root) {
 		super(root);
 		this.root = root.getChild("root");
-		this.root2 = this.root.getChild("root2");
-		this.machine = this.root2.getChild("machine");
-		this.vending_flap = this.machine.getChild("vending_flap");
-		this.control_panel = this.machine.getChild("control_panel");
-		this.buy_button = this.control_panel.getChild("buy_button");
-		this.buy_button_on = this.buy_button.getChild("buy_button_on");
-		this.buy_button_picked = this.buy_button.getChild("buy_button_picked");
-		this.price_screen_cover = this.control_panel.getChild("price_screen_cover");
+		root2 = this.root.getChild("root2");
+		machine = root2.getChild("machine");
+		vending_flap = machine.getChild("vending_flap");
+		control_panel = machine.getChild("control_panel");
+		buy_button = control_panel.getChild("buy_button");
+		buy_button_on = buy_button.getChild("buy_button_on");
+		buy_button_picked = buy_button.getChild("buy_button_picked");
+		price_screen_cover = control_panel.getChild("price_screen_cover");
 		buy_button_on.visible = false;
 		buy_button_picked.visible = false;
 

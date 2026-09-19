@@ -1,6 +1,7 @@
 package com.lovetropics.minigames.client.screen.list;
 
 import com.lovetropics.minigames.client.screen.flex.Layout;
+import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.ObjectSelectionList;
@@ -9,7 +10,6 @@ import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.util.Mth;
 import org.jspecify.annotations.Nullable;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
 
@@ -154,9 +154,9 @@ public abstract class AbstractLTList<T extends LTListEntry<T>> extends ObjectSel
 		T selected = getSelected();
 		if (selected != null && selected.reorder != null && Minecraft.getInstance().hasShiftDown()) {
 			int offset = 0;
-			if (event.key() == GLFW.GLFW_KEY_UP) {
+			if (event.key() == InputConstants.KEY_UP) {
 				offset = -1;
-			} else if (event.key() == GLFW.GLFW_KEY_DOWN) {
+			} else if (event.key() == InputConstants.KEY_DOWN) {
 				offset = 1;
 			}
 

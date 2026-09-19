@@ -62,6 +62,6 @@ public class DisguiseAsPlayerBoxBehaviour implements IGameBehavior {
 					}
 				}
 			}
-		};
+		}
 	}
 }

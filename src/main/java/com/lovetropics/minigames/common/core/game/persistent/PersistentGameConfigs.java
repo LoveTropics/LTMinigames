@@ -59,8 +59,7 @@ public class PersistentGameConfigs {
 						.thenCompose(preparationBarrier::wait)
 						.thenAcceptAsync(configs -> {
 							REGISTRY.clear();
-							configs.stream()
-									.forEach(config -> REGISTRY.register(config.id(), config));
+							configs.forEach(config -> REGISTRY.register(config.id(), config));
 
 							// Mark needing a reload on the main tick loop
 							RELOAD_GAMES.set(true);

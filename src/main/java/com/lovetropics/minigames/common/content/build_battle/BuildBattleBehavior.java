@@ -45,8 +45,8 @@ import java.util.UUID;
 
 public final class BuildBattleBehavior implements IGameBehavior {
 	private final String plotRegionsName;
-	private long buildTime;
-	private long reviewTime;
+	private final long buildTime;
+	private final long reviewTime;
 
 	public static final MapCodec<BuildBattleBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			Codec.STRING.fieldOf("plots_name").forGetter(c -> c.plotRegionsName),
@@ -69,7 +69,7 @@ public final class BuildBattleBehavior implements IGameBehavior {
 	public BuildBattleBehavior(String plotRegionsName, long buildTime) {
 		this.plotRegionsName = plotRegionsName;
 		this.buildTime = buildTime;
-		this.reviewTime = buildTime + 10 * SharedConstants.TICKS_PER_SECOND;
+		reviewTime = buildTime + 10 * SharedConstants.TICKS_PER_SECOND;
 	}
 
 	@Override
@@ -117,7 +117,7 @@ public final class BuildBattleBehavior implements IGameBehavior {
 				}
 				SpawnBuilder spawn = new SpawnBuilder(player);
 				BlockBox plot;
-				if (this.revieweeIndex > -1) {
+				if (revieweeIndex > -1) {
 					plot = playerPlots.getOrDefault(reviewedPlayers.get(revieweeIndex), null);
 				} else {
 					plot = playerPlots.get(player.getUUID());
@@ -165,7 +165,7 @@ public final class BuildBattleBehavior implements IGameBehavior {
 	}
 
 	private void spawnPlayer(ServerLevel level, UUID playerId, SpawnBuilder builder) {
-		if (this.revieweeIndex > -1) {
+		if (revieweeIndex > -1) {
 			var plot = playerPlots.getOrDefault(reviewedPlayers.get(revieweeIndex), null);
 			if (plot == null) {
 				LOGGER.error("Player {} has no plot assigned!", reviewedPlayers.get(revieweeIndex));
@@ -218,12 +218,12 @@ public final class BuildBattleBehavior implements IGameBehavior {
 		if (revieweeIndex == reviewedPlayers.size()) {
 			if (currentRevieweeId != null) {
 				var points = 0;
-				for (var overlordPoints : this.overlordPoints.entrySet()) {
+				for (var overlordPoints : overlordPoints.entrySet()) {
 					points += overlordPoints.getValue();
 				}
 				playerPoints.put(currentRevieweeId, points);
 			}
-			this.overlordPoints.clear();
+			overlordPoints.clear();
 
 			for (UUID playerId : playerPoints.keySet()) {
 				if (playerPoints.get(playerId) == -1) {
@@ -316,7 +316,7 @@ public final class BuildBattleBehavior implements IGameBehavior {
 	}
 
 	private InteractionResult onUseItem(IGamePhase game, ServerPlayer player, InteractionHand hand, GameWidgets widgets) {
-		if (this.revieweeIndex < 0 || !overlords.contains(player.getUUID())) {
+		if (revieweeIndex < 0 || !overlords.contains(player.getUUID())) {
 			return InteractionResult.PASS;
 		}
 		ItemStack heldStack = player.getItemInHand(hand);

@@ -39,7 +39,7 @@ public class RoomEntrancePadEntityRenderer extends EntityRenderer<RoomEntrancePa
 		super(context);
 		itemModelResolver = context.getItemModelResolver();
 		font = context.getFont();
-		this.entityRenderDispatcher = context.getEntityRenderDispatcher();
+		entityRenderDispatcher = context.getEntityRenderDispatcher();
 	}
 
 	@Override

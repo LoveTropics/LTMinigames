@@ -43,7 +43,7 @@ public class TriviaChestRenderer implements BlockEntityRenderer<TriviaChestBlock
 		bottom = root.getChild("bottom");
 		lid = root.getChild("lid");
 		lock = root.getChild("lock");
-		this.sprites = context.sprites();
+		sprites = context.sprites();
 	}
 
 	@Override
@@ -73,7 +73,7 @@ public class TriviaChestRenderer implements BlockEntityRenderer<TriviaChestBlock
 
 	private void submitPart(SubmitNodeCollector collector, SpriteId id, PoseStack poseStack, int lightCords) {
 		RenderType renderType = id.renderType(RenderTypes::entityCutout);
-		TextureAtlasSprite sprite = this.sprites.get(id);
+		TextureAtlasSprite sprite = sprites.get(id);
 		collector.submitModelPart(lid, poseStack, renderType, lightCords, OverlayTexture.NO_OVERLAY, sprite);
 		collector.submitModelPart(bottom, poseStack, renderType, lightCords, OverlayTexture.NO_OVERLAY, sprite);
 		collector.submitModelPart(lock, poseStack, renderType, lightCords, OverlayTexture.NO_OVERLAY, sprite);
