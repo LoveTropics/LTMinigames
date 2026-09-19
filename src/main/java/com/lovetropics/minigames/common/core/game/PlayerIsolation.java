@@ -6,6 +6,7 @@ import com.lovetropics.minigames.common.util.LTGameTestFakePlayer;
 import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.protocol.game.ClientboundChangeDifficultyPacket;
 import net.minecraft.network.protocol.game.ClientboundGameEventPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
@@ -22,6 +23,7 @@ import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.LevelData;
@@ -75,17 +77,25 @@ public final class PlayerIsolation {
 			final MinecraftServer server = player.level().getServer();
 			final PlayerList playerList = server.getPlayerList();
 
-			// Todo 26.1 Port
-//			final Optional<ValueInput> playerTag = playerList.load(newPlayer, reporter);
-//
-//			final ServerLevel newLevel = playerTag
-//					.flatMap(input -> input.read("Dimension", Level.RESOURCE_KEY_CODEC))
-//					.map(server::getLevel)
-//					.orElse(server.overworld());
-//
-//			newPlayer.setServerLevel(newLevel);
-//
-//			playerTag.ifPresent(newPlayer::loadGameTypes);
+			final Optional<CompoundTag> playerTag = playerList.loadPlayerData(newPlayer.nameAndId());
+
+			playerTag.ifPresent(tag -> {
+				ValueInput input = TagValueInput.create(reporter, player.level().registryAccess(), tag);
+				newPlayer.load(input);
+			});
+
+			final ServerLevel newLevel = playerTag
+					.flatMap(input -> input.read(ServerPlayer.TAG_DIMENSION, Level.RESOURCE_KEY_CODEC))
+					.map(server::getLevel)
+					.orElse(server.overworld());
+
+			newPlayer.setServerLevel(newLevel);
+
+			playerTag.ifPresent(tag -> {
+				ValueInput input = TagValueInput.create(reporter, player.level().registryAccess(), tag);
+				input.read("playerGameType", GameType.LEGACY_ID_CODEC).ifPresent(newPlayer::setGameMode);
+
+			});
 		});
 	}
 
@@ -94,14 +104,14 @@ public final class PlayerIsolation {
 			final ValueInput input = TagValueInput.create(reporter, player.level().registryAccess(), tag);
 
 			final MinecraftServer server = player.level().getServer();
-			final ServerLevel newLevel = input.read("Dimension", Level.RESOURCE_KEY_CODEC)
+			final ServerLevel newLevel = input.read(ServerPlayer.TAG_DIMENSION, Level.RESOURCE_KEY_CODEC)
 					.map(server::getLevel)
 					.orElse(server.overworld());
 
 			newPlayer.setServerLevel(newLevel);
 
 			newPlayer.load(input);
-//			newPlayer.loadGameTypes(input); // Todo 26.1 Port
+			input.read("playerGameType", GameType.LEGACY_ID_CODEC).ifPresent(newPlayer::setGameMode);
 			newPlayer.addTag(ISOLATED_TAG);
 		});
 	}
