@@ -1,11 +1,18 @@
 package com.lovetropics.minigames.common.core.game.rewards;
 
 import com.lovetropics.minigames.common.content.MinigameTexts;
+import com.mojang.serialization.DynamicOps;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.arguments.item.ItemInput;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackLinkedSet;
@@ -13,6 +20,8 @@ import net.minecraft.world.item.ItemStackLinkedSet;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 public class GameRewards {
@@ -84,11 +93,8 @@ public class GameRewards {
 	}
 
 	private static void grantCollectible(final ServerPlayer player, final ItemStack item) {
-		/*
-		* Todo 26.1 Port
-		*  Maybe we should just have an api for this seems less messy
-		* */
-//		grantCollectible(player, new ItemInput(item.typeHolder(), item.getComponentsPatch()).serialize(player.registryAccess()));
+		// TODO: We should probably be splitting collectibles into their own mod at this point - and have an API for this. Commands are not a good API!
+		grantCollectible(player, serializeItem(item, player.registryAccess()));
 	}
 
 	private static void grantCollectible(final ServerPlayer player, final Identifier id) {
@@ -99,5 +105,39 @@ public class GameRewards {
 		final CommandSourceStack source = player.level().getServer().createCommandSourceStack();
 		final String commandBuilder = "collectible give " + player.nameAndId().name() + " " + collectibleString;
 		player.level().getServer().getCommands().performPrefixedCommand(source, commandBuilder);
+	}
+
+	private static String serializeItem(ItemStack item, RegistryAccess registryAccess) {
+		StringBuilder output = new StringBuilder();
+		output.append(item.typeHolder().getRegisteredName());
+
+		DataComponentPatch components = item.getComponentsPatch();
+		if (components.isEmpty()) {
+			return output.toString();
+		}
+
+		RegistryOps<Tag> ops = registryAccess.createSerializationContext(NbtOps.INSTANCE);
+		output.append('[');
+		for (Map.Entry<DataComponentType<?>, Optional<?>> entry : components.entrySet()) {
+			DataComponentType<?> component = entry.getKey();
+			if (component.codec() == null) {
+				continue;
+			}
+			Identifier componentId = BuiltInRegistries.DATA_COMPONENT_TYPE.getKey(component);
+			if (entry.getValue().isPresent()) {
+				output.append(componentId).append('=');
+				output.append(serializeComponentUnchecked(ops, component, entry.getValue().get()));
+			} else {
+				output.append('!').append(componentId);
+			}
+		}
+		output.append(']');
+
+		return output.toString();
+	}
+
+	@SuppressWarnings("unchecked")
+	private static <T> Tag serializeComponentUnchecked(DynamicOps<Tag> ops, DataComponentType<T> type, Object value) {
+		return type.codecOrThrow().encodeStart(ops, (T) value).getOrThrow();
 	}
 }

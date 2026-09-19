@@ -234,7 +234,7 @@ public final class GameEventDispatcher {
 				entity.fallDistance = 0.0f;
 				// If the entity was in lava, they are no longer in lava - please stop burning me :)
 				if (entity instanceof EntityAccessor entityAccessor) {
-//					entityAccessor.invokeUpdateInWaterStateAndDoFluidPushing(); // Todo 26.1 Port
+					entityAccessor.invokeUpdateFluidInteraction();
 				}
 
 				if (!result.isFalse()) {

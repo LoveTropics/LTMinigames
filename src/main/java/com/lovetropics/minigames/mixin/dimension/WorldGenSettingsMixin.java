@@ -1,57 +1,71 @@
 package com.lovetropics.minigames.mixin.dimension;
 
-import com.lovetropics.minigames.LoveTropics;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.lovetropics.minigames.common.core.dimension.RuntimeDimensions;
+import com.mojang.datafixers.kinds.App;
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.levelgen.WorldDimensions;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
-import net.minecraft.world.level.levelgen.WorldOptions;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.util.function.Function;
+
+// We don't normally mark WorldGenSettings as dirty when runtime dimensions change (which is good), but if we are to save for any reason - we definitely don't want to store the dimension that is supposed to be transient
 @Mixin(WorldGenSettings.class)
 public class WorldGenSettingsMixin {
 	@Unique
 	private static final Codec<ResourceKey<Level>> KEY_CODEC = ResourceKey.codec(Registries.DIMENSION);
 
-	// Todo 26.1 Port
-//	@Inject(method = "encode(Lcom/mojang/serialization/DynamicOps;Lnet/minecraft/world/level/levelgen/WorldOptions;Lnet/minecraft/world/level/levelgen/WorldDimensions;)Lcom/mojang/serialization/DataResult;", at = @At("RETURN"), cancellable = true)
-//	private static <T> void encode(DynamicOps<T> ops, WorldOptions options, WorldDimensions dimensions, CallbackInfoReturnable<DataResult<T>> cir) {
-//		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-//		RuntimeDimensions runtimeDimensions = server != null ? RuntimeDimensions.getOrNull(server) : null;
-//		if (runtimeDimensions == null) {
-//			return;
-//		}
-//		cir.setReturnValue(cir.getReturnValue().map(tag -> ops.update(tag, "dimensions", dimensionsTag ->
-//				removeTemporaryDimensions(ops, dimensionsTag, runtimeDimensions)
-//		)));
-//	}
+	@WrapOperation(method = "<clinit>", at = @At(value = "INVOKE", target = "Lcom/mojang/serialization/codecs/RecordCodecBuilder;create(Ljava/util/function/Function;)Lcom/mojang/serialization/Codec;"))
+	private static Codec<WorldGenSettings> init(Function<RecordCodecBuilder.Instance<WorldGenSettings>, ? extends App<RecordCodecBuilder.Mu<WorldGenSettings>, WorldGenSettings>> builder, Operation<Codec<WorldGenSettings>> original) {
+		Codec<WorldGenSettings> oldCodec = original.call(builder);
+		return new Codec<>() {
+			@Override
+			public <T> DataResult<Pair<WorldGenSettings, T>> decode(DynamicOps<T> ops, T input) {
+				return oldCodec.decode(ops, input);
+			}
+
+			@Override
+			public <T> DataResult<T> encode(WorldGenSettings input, DynamicOps<T> ops, T prefix) {
+				return oldCodec.encode(input, ops, prefix).map(encoded ->
+						ltminigames$removeTemporaryDimensions(ops, encoded)
+				);
+			}
+		};
+	}
 
 	@Unique
-	private static <T> T removeTemporaryDimensions(DynamicOps<T> ops, T tag, RuntimeDimensions runtimeDimensions) {
+	private static <T> T ltminigames$removeTemporaryDimensions(DynamicOps<T> ops, T root) {
+		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+		RuntimeDimensions runtimeDimensions = server != null ? RuntimeDimensions.getOrNull(server) : null;
+		if (runtimeDimensions == null) {
+			return root;
+		}
+		return ops.update(root, "dimensions", dimensionsTag ->
+				ltminigames$removeTemporaryDimensions(ops, dimensionsTag, runtimeDimensions)
+		);
+	}
+
+	@Unique
+	private static <T> T ltminigames$removeTemporaryDimensions(DynamicOps<T> ops, T tag, RuntimeDimensions runtimeDimensions) {
 		return ops.getMap(tag).result().map(map ->
-				ops.createMap(map.entries().filter(entry -> !isTemporaryDimension(ops, entry.getFirst(), runtimeDimensions)))
+				ops.createMap(map.entries().filter(entry -> !ltminigames$isTemporaryDimension(ops, entry.getFirst(), runtimeDimensions)))
 		).orElse(tag);
 	}
 
 	@Unique
-	private static <T> boolean isTemporaryDimension(DynamicOps<T> ops, T key, RuntimeDimensions runtimeDimensions) {
-		return KEY_CODEC.parse(ops, key).result().filter(dimension -> runtimeDimensions.isTemporaryDimension(dimension) || looksLikeTemporaryDimension(dimension)).isPresent();
-	}
-
-	// TODO: Remove this, we're just cleaning up old data
-	@Unique
-	private static boolean looksLikeTemporaryDimension(ResourceKey<Level> dimension) {
-		return dimension.identifier().getNamespace().equals(LoveTropics.ID) && dimension.identifier().getPath().startsWith("tmp_");
+	private static <T> boolean ltminigames$isTemporaryDimension(DynamicOps<T> ops, T key, RuntimeDimensions runtimeDimensions) {
+		return KEY_CODEC.parse(ops, key).result().filter(runtimeDimensions::isTemporaryDimension).isPresent();
 	}
 }

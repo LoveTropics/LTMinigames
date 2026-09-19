@@ -6,7 +6,6 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(Entity.class)
 public interface EntityAccessor {
-	// Todo 26.1 Port
-//	@Invoker("updateInWaterStateAndDoFluidPushing")
-//	boolean invokeUpdateInWaterStateAndDoFluidPushing();
+	@Invoker
+	boolean invokeUpdateFluidInteraction();
 }

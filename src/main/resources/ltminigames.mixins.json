@@ -28,7 +28,6 @@
     "clock.TimeCommandMixin",
     "command.CommandsMixin",
     "command.ServerGamePacketListenerImplMixin",
-    "dimension.ChunkStorageMixin",
     "dimension.MapServerLevelMixin",
     "dimension.SimpleRegistryMixin",
     "dimension.WorldGenSettingsMixin",
