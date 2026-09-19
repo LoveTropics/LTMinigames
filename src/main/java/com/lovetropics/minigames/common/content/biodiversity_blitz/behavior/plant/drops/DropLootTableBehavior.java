@@ -15,7 +15,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.ItemStack;
@@ -82,11 +81,10 @@ public final class DropLootTableBehavior implements IGameBehavior {
 
 	private void dropLoot(ServerPlayer player, Plot plot, Plant plant, BlockPos pos) {
 		LootTable lootTable = getLootTable(game.server());
-		ServerLevel world = game.level();
 
 		LootParams params = buildLootParams(player, pos);
 		for (ItemStack stack : lootTable.getRandomItems(params)) {
-			Block.popResource(world, pos, stack);
+			Block.popResource(plot.level, pos, stack);
 		}
 	}
 

@@ -23,7 +23,6 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 
 public record PlantHealthBehavior(int health, boolean notPathfindable) implements IGameBehavior {
 	public static final MapCodec<PlantHealthBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
@@ -41,8 +40,6 @@ public record PlantHealthBehavior(int health, boolean notPathfindable) implement
 		});
 
 		events.listen(BbPlantEvents.TICK, (players, plot, plants) -> {
-			ServerLevel world = game.level();
-
 			List<Plant> decayedPlants = new ArrayList<>();
 			long ticks = game.ticks();
 			boolean update = ticks % 20 == 0;
@@ -54,13 +51,13 @@ public record PlantHealthBehavior(int health, boolean notPathfindable) implement
 				}
 
 				if (update) {
-					destroyBlockProgress(game.level(), ThreadLocalRandom.current().nextInt(), plant.coverage().getOrigin(), (int) ((1 - health.healthPercent()) * 10.0) - 1);
+					destroyBlockProgress(plot.level, game.random().nextInt(), plant.coverage().getOrigin(), (int) ((1 - health.healthPercent()) * 10.0) - 1);
 				}
 
 				if (health.isDead()) {
 					for (BlockPos pos : plant.coverage()) {
-						BlockState state = world.getBlockState(pos);
-						world.levelEvent(LevelEvent.PARTICLES_DESTROY_BLOCK, pos, Block.getId(state));
+						BlockState state = plot.level.getBlockState(pos);
+						plot.level.levelEvent(LevelEvent.PARTICLES_DESTROY_BLOCK, pos, Block.getId(state));
 					}
 
 					decayedPlants.add(plant);

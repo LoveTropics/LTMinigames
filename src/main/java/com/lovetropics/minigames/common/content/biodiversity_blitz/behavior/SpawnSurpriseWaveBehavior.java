@@ -12,7 +12,6 @@ import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvent
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.Mob;
@@ -33,10 +32,8 @@ public class SpawnSurpriseWaveBehavior implements IGameBehavior {
 		PlotsState plots = game.state().getOrThrow(PlotsState.KEY);
 
 		events.listen(GameActionEvents.APPLY, (context, targets) -> {
-			ServerLevel world = game.level();
-
 			for (Plot plot : plots) {
-				BbMobSpawner.spawnWaveEntities(world, game.random(),
+				BbMobSpawner.spawnWaveEntities(game.random(),
 						plot, waveSize, 0, SpawnSurpriseWaveBehavior::selectEntityForWave,
 						(entities, random, w, plot1, waveIndex) -> {
 						});

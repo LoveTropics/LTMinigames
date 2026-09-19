@@ -6,7 +6,6 @@ import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.LevelEvent;
 import net.minecraft.world.level.block.state.BlockState;
@@ -26,19 +25,17 @@ public abstract class AgingPlantBehavior implements IGameBehavior {
 				return;
 			}
 
-			ServerLevel world = game.level();
-
 			for (Plant plant : plants) {
 				for (BlockPos pos : plant.coverage()) {
-					BlockState state = world.getBlockState(pos);
+					BlockState state = plot.level.getBlockState(pos);
 					BlockState agedState = ageUp(game.random(), state);
 
 					if (state != agedState) {
 						for (BlockPos plantPos : plant.coverage()) {
-							world.levelEvent(LevelEvent.PARTICLES_AND_SOUND_PLANT_GROWTH, plantPos, 0);
+							plot.level.levelEvent(LevelEvent.PARTICLES_AND_SOUND_PLANT_GROWTH, plantPos, 0);
 						}
 
-						world.setBlockAndUpdate(pos, agedState);
+						plot.level.setBlockAndUpdate(pos, agedState);
 					}
 				}
 			}

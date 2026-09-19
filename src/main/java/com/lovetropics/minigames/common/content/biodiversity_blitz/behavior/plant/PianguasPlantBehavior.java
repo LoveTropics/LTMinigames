@@ -16,7 +16,6 @@ import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Block;
@@ -57,16 +56,14 @@ public final class PianguasPlantBehavior implements IGameBehavior {
 			return;
 		}
 
-		ServerLevel world = game.level();
-
 		for (Plant plant : plants) {
 			int dx = random.nextInt(radius) - random.nextInt(radius);
 			int dz = random.nextInt(radius) - random.nextInt(radius);
 
 			BlockPos check = plant.coverage().getOrigin().offset(dx, -1, dz);
 
-			if (world.getBlockState(check).is(MUD)) {
-				world.setBlockAndUpdate(check, state);
+			if (plot.level.getBlockState(check).is(MUD)) {
+				plot.level.setBlockAndUpdate(check, state);
 			}
 		}
 	}

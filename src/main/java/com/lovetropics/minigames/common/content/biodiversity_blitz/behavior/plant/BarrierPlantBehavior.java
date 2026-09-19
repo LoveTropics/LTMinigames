@@ -33,7 +33,7 @@ public record BarrierPlantBehavior(double radius) implements IGameBehavior {
 				return;
 			}
 
-			ServerLevel level = game.level();
+			ServerLevel level = plot.level;
 
 			for (Plant plant : plants) {
 				PlantHealth health = plant.state(PlantHealth.KEY);

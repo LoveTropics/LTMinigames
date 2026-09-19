@@ -22,7 +22,6 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.server.level.ServerBossEvent;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
@@ -124,7 +123,6 @@ public final class BbWaveSpawnerBehavior implements IGameBehavior {
 	}
 
 	private void tick() {
-		ServerLevel world = game.level();
 		long ticks = game.ticks();
 
 		long timeTilNextWave = ticks % intervalTicks;
@@ -143,7 +141,7 @@ public final class BbWaveSpawnerBehavior implements IGameBehavior {
 
 			for (Plot plot : plots) {
 				PlayerSet players = teams.getPlayersForTeam(game, plot.team);
-				spawnWave(world, game.random(), players, plot, sentWaves);
+				spawnWave(game.random(), players, plot, sentWaves);
 			}
 
 			sentWaves++;
@@ -172,12 +170,12 @@ public final class BbWaveSpawnerBehavior implements IGameBehavior {
 		bar.removeAllPlayers();
 	}
 
-	private void spawnWave(ServerLevel world, RandomSource random, PlayerSet players, Plot plot, int waveIndex) {
+	private void spawnWave(RandomSource random, PlayerSet players, Plot plot, int waveIndex) {
 		if (waveIndex == 0 && firstMessage != CommonComponents.EMPTY) {
 			players.sendMessage(firstMessage);
 		}
 
-		Difficulty difficulty = world.getDifficulty();
+		Difficulty difficulty = plot.level.getDifficulty();
 		float difficultyFactor = difficultyFactors.getFloat(difficulty);
 
 		double fractionalCount = sizeCurve.apply(waveIndex, difficultyFactor);
@@ -196,7 +194,7 @@ public final class BbWaveSpawnerBehavior implements IGameBehavior {
 		}
 
 		// Early on, only spawn at the "base"
-		Set<Entity> entities = BbMobSpawner.spawnWaveEntities(world, random,
+		Set<Entity> entities = BbMobSpawner.spawnWaveEntities(random,
 				plot, count, waveIndex, BbMobSpawner::selectEntityForWave, listeners.invoker(BbEvents.MODIFY_WAVE_MODS));
 
 		for (ServerPlayer player : players) {

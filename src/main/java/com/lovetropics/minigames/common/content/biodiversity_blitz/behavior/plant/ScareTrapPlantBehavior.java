@@ -126,15 +126,13 @@ public final class ScareTrapPlantBehavior implements IGameBehavior {
 		AABB bounds = plant.coverage().asBounds();
 		AABB triggerBounds = bounds.inflate(triggerRadius);
 
-		ServerLevel world = game.level();
-
-		List<Mob> triggerEntities = world.getEntitiesOfClass(Mob.class, triggerBounds, SCARE_PREDICATE);
+		List<Mob> triggerEntities = plot.level.getEntitiesOfClass(Mob.class, triggerBounds, SCARE_PREDICATE);
 		if (triggerEntities.isEmpty()) {
 			return false;
 		}
 
 		AABB scareBounds = bounds.inflate(scareRadius);
-		List<Mob> entities = world.getEntitiesOfClass(Mob.class, scareBounds, SCARE_PREDICATE);
+		List<Mob> entities = plot.level.getEntitiesOfClass(Mob.class, scareBounds, SCARE_PREDICATE);
 		triggerTrap(plot, plant, entities);
 
 		return true;
@@ -183,9 +181,9 @@ public final class ScareTrapPlantBehavior implements IGameBehavior {
 
 		BlockPos origin = plant.coverage().getOrigin();
 
-		game.level().playSound(null, origin, SoundEvents.PISTON_EXTEND, SoundSource.BLOCKS, 1.0F, 1.0F);
+		plot.level.playSound(null, origin, SoundEvents.PISTON_EXTEND, SoundSource.BLOCKS, 1.0F, 1.0F);
 
-		clearTrap(plant);
+		clearTrap(plot, plant);
 		placeExtendedTrap(plot, origin);
 	}
 
@@ -197,36 +195,34 @@ public final class ScareTrapPlantBehavior implements IGameBehavior {
 
 		BlockPos origin = plant.coverage().getOrigin();
 
-		game.level().playSound(null, origin, SoundEvents.PISTON_CONTRACT, SoundSource.BLOCKS, 1.0F, 1.0F);
+		plot.level.playSound(null, origin, SoundEvents.PISTON_CONTRACT, SoundSource.BLOCKS, 1.0F, 1.0F);
 
-		clearTrap(plant);
+		clearTrap(plot, plant);
 		placeReadyTrap(plot, origin);
 
 		return true;
 	}
 
-	private void clearTrap(Plant plant) {
-		ServerLevel world = game.level();
+	private void clearTrap(Plot plot, Plant plant) {
 		for (BlockPos pos : plant.coverage()) {
-			world.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL | Block.UPDATE_KNOWN_SHAPE);
+			plot.level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL | Block.UPDATE_KNOWN_SHAPE);
 		}
 	}
 
 	private void placeExtendedTrap(Plot plot, BlockPos pos) {
-		ServerLevel world = game.level();
+		ServerLevel level = plot.level;
 
-		world.setBlockAndUpdate(pos, Blocks.PISTON_HEAD.defaultBlockState().setValue(PistonHeadBlock.FACING, Direction.UP));
-		world.setBlockAndUpdate(pos.above(), Blocks.JACK_O_LANTERN.defaultBlockState().setValue(BlockStateProperties.HORIZONTAL_FACING, plot.forward));
+		level.setBlockAndUpdate(pos, Blocks.PISTON_HEAD.defaultBlockState().setValue(PistonHeadBlock.FACING, Direction.UP));
+		level.setBlockAndUpdate(pos.above(), Blocks.JACK_O_LANTERN.defaultBlockState().setValue(BlockStateProperties.HORIZONTAL_FACING, plot.forward));
 
 		BlockState lever = Blocks.LEVER.defaultBlockState()
 				.setValue(LeverBlock.FACING, plot.forward.getOpposite())
 				.setValue(LeverBlock.FACE, AttachFace.WALL);
-		world.setBlockAndUpdate(pos.above().relative(plot.forward.getOpposite()), lever);
+		level.setBlockAndUpdate(pos.above().relative(plot.forward.getOpposite()), lever);
 	}
 
 	private void placeReadyTrap(Plot plot, BlockPos pos) {
-		ServerLevel world = game.level();
-		world.setBlockAndUpdate(pos, Blocks.JACK_O_LANTERN.defaultBlockState().setValue(BlockStateProperties.HORIZONTAL_FACING, plot.forward));
+		plot.level.setBlockAndUpdate(pos, Blocks.JACK_O_LANTERN.defaultBlockState().setValue(BlockStateProperties.HORIZONTAL_FACING, plot.forward));
 	}
 
 	private PlantCoverage buildPlantCoverage(Plot plot, BlockPos pos) {

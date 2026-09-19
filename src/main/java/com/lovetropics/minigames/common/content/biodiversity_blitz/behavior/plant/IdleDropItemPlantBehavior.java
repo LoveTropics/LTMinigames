@@ -1,6 +1,5 @@
 package com.lovetropics.minigames.common.content.biodiversity_blitz.behavior.plant;
 
-import com.lovetropics.lib.codec.MoreCodecs;
 import com.lovetropics.minigames.common.content.biodiversity_blitz.behavior.event.BbPlantEvents;
 import com.lovetropics.minigames.common.content.biodiversity_blitz.plot.Plot;
 import com.lovetropics.minigames.common.content.biodiversity_blitz.plot.plant.Plant;
@@ -17,7 +16,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 
 import java.util.List;
@@ -51,14 +49,14 @@ public final class IdleDropItemPlantBehavior implements IGameBehavior {
 			return;
 		}
 
-		ServerLevel world = game.level();
+		ServerLevel level = plot.level;
 
 		for (Plant plant : plants) {
 			BlockPos.MutableBlockPos pos = plant.coverage().random(random).mutable();
 
 			for (int i = 0; i < 8; i++) {
-				if (world.getBlockState(pos).isAir()) {
-					world.addFreshEntity(new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), item.create()));
+				if (level.getBlockState(pos).isAir()) {
+					level.addFreshEntity(new ItemEntity(level, pos.getX(), pos.getY(), pos.getZ(), item.create()));
 					break;
 				}
 

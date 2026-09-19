@@ -42,17 +42,16 @@ public record ProximityBombPlantBehavior(double radius) implements IGameBehavior
 				return;
 			}
 
-			ServerLevel world = game.level();
 			List<Plant> removedPlants = new ArrayList<>();
 
 			for (Plant plant : plants) {
 				AABB detonateBounds = plant.coverage().asBounds().inflate(radius);
-				List<Mob> entities = world.getEntitiesOfClass(Mob.class, detonateBounds, BbMobEntity.PREDICATE);
+				List<Mob> entities = plot.level.getEntitiesOfClass(Mob.class, detonateBounds, BbMobEntity.PREDICATE);
 
 				if (!entities.isEmpty()) {
 					removedPlants.add(plant);
 
-					explode(world, plant.coverage());
+					explode(plot.level, plant.coverage());
 				}
 			}
 

@@ -14,7 +14,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.phys.AABB;
@@ -50,12 +49,11 @@ public final class WateryPlantBehavior implements IGameBehavior {
 			return;
 		}
 
-		ServerLevel world = game.level();
 		Set<Mob> seen = new HashSet<>();
 
 		for (Plant plant : plants) {
 			AABB attackBounds = plant.coverage().asBounds().inflate(radius);
-			List<Mob> entities = world.getEntitiesOfClass(Mob.class, attackBounds, BbMobEntity.PREDICATE);
+			List<Mob> entities = plot.level.getEntitiesOfClass(Mob.class, attackBounds, BbMobEntity.PREDICATE);
 
 			if (entities.isEmpty()) {
 				continue;
@@ -82,7 +80,7 @@ public final class WateryPlantBehavior implements IGameBehavior {
 				if (ticks % 20 == 0) {
 					// Extinguish fire
 					entity.setRemainingFireTicks(0);
-					entity.hurtServer(world, entity.damageSources().magic(), 1 + random.nextInt(3));
+					entity.hurtServer(plot.level, entity.damageSources().magic(), 1 + random.nextInt(3));
 					waterCount += 5 + random.nextInt(8);
 
 					// Draw extra water as a line
@@ -91,7 +89,7 @@ public final class WateryPlantBehavior implements IGameBehavior {
 					// Needs to target the middle of the entity position vector
 					Vec3 scaledVec = new Vec3(positionVec.x, (aabb.minY + aabb.maxY) / 2.0, positionVec.z);
 
-					Util.drawParticleBetween(ParticleTypes.FALLING_WATER, plant.coverage().asBounds().getCenter(), scaledVec, world, random, 20, 0.05, 0.1, 0.03, 0.02);
+					Util.drawParticleBetween(ParticleTypes.FALLING_WATER, plant.coverage().asBounds().getCenter(), scaledVec, plot.level, random, 20, 0.05, 0.1, 0.03, 0.02);
 				}
 
 				// Don't add particles to mobs that should be dead
@@ -104,7 +102,7 @@ public final class WateryPlantBehavior implements IGameBehavior {
 					double d3 = random.nextGaussian() * 0.05;
 					double d1 = random.nextGaussian() * 0.1;
 					double d2 = random.nextGaussian() * 0.05;
-					world.sendParticles(ParticleTypes.FALLING_WATER, sample.x, sample.y, sample.z, 1 + random.nextInt(2), d3, d1, d2, 0.03 + random.nextDouble() * 0.02);
+					plot.level.sendParticles(ParticleTypes.FALLING_WATER, sample.x, sample.y, sample.z, 1 + random.nextInt(2), d3, d1, d2, 0.03 + random.nextDouble() * 0.02);
 				}
 			}
 		}

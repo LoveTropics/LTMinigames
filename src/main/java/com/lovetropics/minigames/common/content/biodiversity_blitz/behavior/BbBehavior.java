@@ -185,10 +185,9 @@ public final class BbBehavior implements IGameBehavior {
 	}
 
 	private void spawnSpectator(SpawnBuilder spawn) {
-		ServerLevel level = game.level();
 		Plot plot = plots.getRandomPlot(game.random());
 		if (plot != null) {
-			spawn.teleportTo(level, plot.plantBounds.sample(game.random()).above(5), plot.forward);
+			spawn.teleportTo(plot.level, plot.plantBounds.sample(game.random()).above(5), plot.forward);
 		}
 
 		spawn.setGameMode(GameType.SPECTATOR);
@@ -196,7 +195,7 @@ public final class BbBehavior implements IGameBehavior {
 
 	private void onAssignPlot(ServerPlayer player, Plot plot) {
 		GameClientState.sendToPlayer(new ClientBbMobSpawnState(plot.mobSpawns), player);
-		teleportToRegion(player, plot.spawn, plot.forward);
+		teleportToRegion(player, plot.level, plot.spawn, plot.forward);
 	}
 
 	private void onExplosion(ServerLevel level, Explosion explosion, List<BlockPos> affectedBlocks, List<Entity> affectedEntities) {
@@ -277,7 +276,7 @@ public final class BbBehavior implements IGameBehavior {
 			return TriState.DEFAULT;
 		}
 
-		teleportToRegion(player, plot.spawn, plot.forward);
+		teleportToRegion(player, plot.level, plot.spawn, plot.forward);
 		player.setHealth(20.0F);
 		if (player.getFoodData().getFoodLevel() < 10) {
 			player.getFoodData().eat(2, 0.8f);
@@ -304,10 +303,10 @@ public final class BbBehavior implements IGameBehavior {
 		}
 	}
 
-	private void teleportToRegion(ServerPlayer player, BlockBox region, Direction direction) {
+	private void teleportToRegion(ServerPlayer player, ServerLevel level, BlockBox region, Direction direction) {
 		BlockPos pos = region.sample(player.getRandom());
 
 		player.setYRot(direction.toYRot());
-		player.teleportTo(game.level(), pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5, Set.of(), player.getYRot(), player.getXRot(), true);
+		player.teleportTo(level, pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5, Set.of(), player.getYRot(), player.getXRot(), true);
 	}
 }

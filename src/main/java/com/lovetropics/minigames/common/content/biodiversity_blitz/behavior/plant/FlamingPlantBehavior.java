@@ -15,7 +15,6 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.phys.AABB;
@@ -51,13 +50,11 @@ public final class FlamingPlantBehavior implements IGameBehavior {
 			return;
 		}
 
-		ServerLevel world = game.level();
-
 		Set<Mob> seen = new HashSet<>();
 
 		for (Plant plant : plants) {
 			AABB flameBounds = plant.coverage().asBounds().inflate(radius);
-			List<Mob> entities = world.getEntitiesOfClass(Mob.class, flameBounds, BbMobEntity.PREDICATE);
+			List<Mob> entities = plot.level.getEntitiesOfClass(Mob.class, flameBounds, BbMobEntity.PREDICATE);
 
 			int max = 1 + random.nextInt(3);
 
@@ -81,13 +78,13 @@ public final class FlamingPlantBehavior implements IGameBehavior {
 							entity.igniteForSeconds(6);
 
 							if (random.nextInt(3) == 0) {
-								entity.hurtServer(world, entity.damageSources().inFire(), 1 + random.nextInt(3));
+								entity.hurtServer(plot.level, entity.damageSources().inFire(), 1 + random.nextInt(3));
 							}
 						} else {
 							entity.igniteForSeconds(3);
 
 							if (random.nextInt(3) == 0) {
-								entity.hurtServer(world, entity.damageSources().inFire(), 1 + random.nextInt(2));
+								entity.hurtServer(plot.level, entity.damageSources().inFire(), 1 + random.nextInt(2));
 							}
 						}
 
@@ -97,7 +94,7 @@ public final class FlamingPlantBehavior implements IGameBehavior {
 						// Needs to target the middle of the entity position vector
 						Vec3 scaledVec = new Vec3(positionVec.x, (aabb.minY + aabb.maxY) / 2.0, positionVec.z);
 
-						Util.drawParticleBetween(ParticleTypes.FLAME, plant.coverage().asBounds().getCenter(), scaledVec, world, random, 10, 0.01, 0.02, 0.001, 0.01);
+						Util.drawParticleBetween(ParticleTypes.FLAME, plant.coverage().asBounds().getCenter(), scaledVec, plot.level, random, 10, 0.01, 0.02, 0.001, 0.01);
 					}
 				}
 			}
@@ -113,7 +110,7 @@ public final class FlamingPlantBehavior implements IGameBehavior {
 					double d1 = random.nextGaussian() * 0.1;
 					double d2 = random.nextGaussian() * 0.02;
 
-					world.sendParticles(ParticleTypes.FLAME, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 1 + random.nextInt(2), d3, d1, d2, 0.002 + random.nextDouble() * random.nextDouble() * 0.025);
+					plot.level.sendParticles(ParticleTypes.FLAME, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 1 + random.nextInt(2), d3, d1, d2, 0.002 + random.nextDouble() * random.nextDouble() * 0.025);
 				}
 			}
 		}

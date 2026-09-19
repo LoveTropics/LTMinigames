@@ -75,8 +75,6 @@ public final class BbMerchantBehavior implements IGameBehavior {
 	}
 
 	private void onCreatePlot(Plot plot) {
-		ServerLevel world = game.level();
-
 		BlockBox region = plot.regionByName(plotRegion);
 		if (region == null) {
 			return;
@@ -86,18 +84,18 @@ public final class BbMerchantBehavior implements IGameBehavior {
 		Direction direction = Util.getDirectionBetween(region, plot.spawn);
 		float yaw = direction.toYRot();
 
-		Entity merchant = createMerchant(world, center.x(), center.y() - 0.5, center.z(), yaw, 0.0f);
+		Entity merchant = createMerchant(plot.level, center.x(), center.y() - 0.5, center.z(), yaw, 0.0f);
 		if (merchant == null) {
 			return;
 		}
 
 		merchant.setYHeadRot(yaw);
 
-		world.getChunk(region.centerBlock());
-		world.addFreshEntity(merchant);
+		plot.level.getChunk(region.centerBlock());
+		plot.level.addFreshEntity(merchant);
 
 		if (merchant instanceof Mob mob) {
-			mob.finalizeSpawn(world, world.getCurrentDifficultyAt(BlockPos.containing(center)), EntitySpawnReason.MOB_SUMMONED, null);
+			mob.finalizeSpawn(plot.level, plot.level.getCurrentDifficultyAt(BlockPos.containing(center)), EntitySpawnReason.MOB_SUMMONED, null);
 			mob.setNoAi(true);
 			mob.setBaby(false);
 			mob.setInvulnerable(true);

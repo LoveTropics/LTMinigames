@@ -55,13 +55,12 @@ public record GrowPlantBehavior(IntProvider time, PlantType growInto) implements
 	}
 
 	private void tryGrowPlant(IGamePhase game, ServerPlayer player, Plot plot, Plant plant) {
-		ServerLevel world = game.level();
-		PlantSnapshot snapshot = removeAndSnapshot(world, plot, plant);
+		PlantSnapshot snapshot = removeAndSnapshot(plot.level, plot, plant);
 
 		BlockPos origin = plant.coverage().getOrigin();
 		PlacePlantResult result = game.invoker(BbEvents.PLACE_PLANT).placePlant(player, plot, origin, growInto);
 		if (!(result instanceof PlacePlantResult.Success)) {
-			restoreSnapshot(world, plot, snapshot);
+			restoreSnapshot(plot.level, plot, snapshot);
 		}
 	}
 

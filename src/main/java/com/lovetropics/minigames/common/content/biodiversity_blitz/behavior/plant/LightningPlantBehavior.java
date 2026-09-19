@@ -14,10 +14,8 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntitySpawnReason;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.Mob;
@@ -55,11 +53,9 @@ public final class LightningPlantBehavior implements IGameBehavior {
 			return;
 		}
 
-		ServerLevel world = game.level();
-
 		for (Plant plant : plants) {
 			AABB flameBounds = plant.coverage().asBounds().inflate(radius);
-			List<Mob> entities = world.getEntitiesOfClass(Mob.class, flameBounds, BbMobEntity.PREDICATE);
+			List<Mob> entities = plot.level.getEntitiesOfClass(Mob.class, flameBounds, BbMobEntity.PREDICATE);
 
 			// Select random entity and spawn lightning on top of it.
 			if (!entities.isEmpty()) {
@@ -67,10 +63,10 @@ public final class LightningPlantBehavior implements IGameBehavior {
 
 				BlockPos pos = target.blockPosition();
 				// TODO: custom lightning bolt class to prevent too loud sounds and fire!
-				LightningBolt lightningbolt = EntityTypes.LIGHTNING_BOLT.create(world, EntitySpawnReason.COMMAND);
+				LightningBolt lightningbolt = EntityTypes.LIGHTNING_BOLT.create(plot.level, EntitySpawnReason.COMMAND);
 				lightningbolt.snapTo(Vec3.atBottomCenterOf(pos));
 				lightningbolt.setCause(null);
-				world.addFreshEntity(lightningbolt);
+				plot.level.addFreshEntity(lightningbolt);
 			}
 		}
 	}

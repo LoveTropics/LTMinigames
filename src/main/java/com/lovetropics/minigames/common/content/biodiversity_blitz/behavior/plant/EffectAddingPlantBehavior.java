@@ -10,7 +10,6 @@ import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.phys.AABB;
@@ -34,12 +33,10 @@ public record EffectAddingPlantBehavior(MobEffectInstance effect, double radius)
 				return;
 			}
 
-			ServerLevel world = game.level();
-
 			for (Plant plant : plants) {
 				AABB applyBounds = plant.coverage().asBounds().inflate(radius);
 
-				List<Mob> entities = world.getEntitiesOfClass(Mob.class, applyBounds, BbMobEntity.PREDICATE);
+				List<Mob> entities = plot.level.getEntitiesOfClass(Mob.class, applyBounds, BbMobEntity.PREDICATE);
 				for (Mob entity : entities) {
 					entity.addEffect(new MobEffectInstance(effect));
 				}

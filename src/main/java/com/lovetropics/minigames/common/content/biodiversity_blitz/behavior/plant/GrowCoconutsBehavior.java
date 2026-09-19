@@ -57,7 +57,7 @@ public class GrowCoconutsBehavior implements IGameBehavior {
 	}
 
 	private void tick(PlayerSet players, Plot plot, List<Plant> plants) {
-		ServerLevel level = game.level();
+		ServerLevel level = plot.level;
 		if (game.ticks() % interval == 0) {
 			for (Plant plant : plants) {
 				List<Pair<BlockPos, Direction>> candidates = candidatePositions.computeIfAbsent(plant, p -> p.functionalCoverage().stream()

@@ -16,6 +16,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderSet;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.level.biome.Biome;
@@ -41,13 +42,13 @@ public record PlantBiomeCheckBehavior(HolderSet<Biome> biomes, boolean whitelist
 
 		events.listen(BbPlantEvents.TICK, (players, plot, plants) -> {
 			List<Plant> actualPlants = new ArrayList<>(plants);
-			actualPlants.removeIf(plant -> !canContinue(game, plant));
+			actualPlants.removeIf(plant -> !canContinue(plot.level, plant));
 			checkedListeners.invoker(BbPlantEvents.TICK).onTickPlants(players, plot, plants);
 		});
 
 		events.listen(BbPlantEvents.PLACE, (player, plot, pos) -> {
 			PlantPlacement placement = checkedListeners.invoker(BbPlantEvents.PLACE).placePlant(player, plot, pos);
-			if (placement != null && !canContinue(game, pos)) {
+			if (placement != null && !canContinue(plot.level, pos)) {
 				player.sendSystemMessage(BiodiversityBlitzTexts.PLANT_CANNOT_BE_PLACED_IN_BIOME.copy().withStyle(ChatFormatting.RED), true);
 				com.lovetropics.minigames.common.util.Util.sendNotifySound(player, SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 1.0F, 1.0F);
 				return new PlantPlacement();
@@ -56,18 +57,18 @@ public record PlantBiomeCheckBehavior(HolderSet<Biome> biomes, boolean whitelist
 		});
 
 		events.listen(BbPlantEvents.BREAK, (player, plot, plant, pos) -> {
-			if (canContinue(game, plant)) {
+			if (canContinue(plot.level, plant)) {
 				checkedListeners.invoker(BbPlantEvents.BREAK).breakPlant(player, plot, plant, pos);
 			}
 		});
 	}
 
-	private boolean canContinue(IGamePhase game, Plant plant) {
-		return canContinue(game, plant.coverage().getOrigin());
+	private boolean canContinue(ServerLevel level, Plant plant) {
+		return canContinue(level, plant.coverage().getOrigin());
 	}
 
-	private boolean canContinue(IGamePhase game, BlockPos pos) {
+	private boolean canContinue(ServerLevel level, BlockPos pos) {
 		// If blacklist and doesn't contain -> allow. If whitelist and contains -> allow
-		return biomes.contains(game.level().getBiome(pos)) == whitelist;
+		return biomes.contains(level.getBiome(pos)) == whitelist;
 	}
 }

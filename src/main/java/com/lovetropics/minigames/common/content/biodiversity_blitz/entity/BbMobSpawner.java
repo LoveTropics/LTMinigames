@@ -34,23 +34,24 @@ import java.util.Set;
 import java.util.WeakHashMap;
 
 public final class BbMobSpawner {
-	public static Set<Entity> spawnWaveEntities(ServerLevel world, RandomSource random, Plot plot, int count, int waveIndex, WaveSelector waveSelector, BbEvents.ModifyWaveMobs modifier) {
+	public static Set<Entity> spawnWaveEntities(RandomSource random, Plot plot, int count, int waveIndex, WaveSelector waveSelector, BbEvents.ModifyWaveMobs modifier) {
+		ServerLevel level = plot.level;
 		Set<Entity> entities = Collections.newSetFromMap(new WeakHashMap<>());
 
-		modifier.modifyWave(entities, random, world, plot, waveIndex);
+		modifier.modifyWave(entities, random, level, plot, waveIndex);
 
 		for (Entity entity : entities) {
 			BlockBox mobSpawn = Util.getRandom(plot.mobSpawns, random);
 
-			spawnEntity(world, random, mobSpawn, plot, entity);
+			spawnEntity(level, random, mobSpawn, plot, entity);
 		}
 
 		for (int i = 0; i < count; i++) {
 			int plotIdx = random.nextInt(plot.mobSpawns.size());
-			Mob entity = waveSelector.selectEntityForWave(random, world, plot, plotIdx, waveIndex);
+			Mob entity = waveSelector.selectEntityForWave(random, level, plot, plotIdx, waveIndex);
 
 			entities.add(entity);
-			spawnEntity(world, random, plot.mobSpawns.get(plotIdx), plot, entity);
+			spawnEntity(level, random, plot.mobSpawns.get(plotIdx), plot, entity);
 		}
 
 		return entities;

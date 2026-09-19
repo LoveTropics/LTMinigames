@@ -11,14 +11,15 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.level.LevelHeightAccessor;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.AABB;
-
 import org.jspecify.annotations.Nullable;
+
 import java.util.List;
 
 public final class Plot {
 	public final GameTeamKey team;
+	public final ServerLevel level;
 	public final BlockBox bounds;
 	public final BlockBox plantBounds;
 	public final BlockBox floorBounds;
@@ -38,12 +39,14 @@ public final class Plot {
 
 	private Plot(
 			GameTeamKey team,
+			ServerLevel level,
 			BlockBox bounds, BlockBox plantBounds, BlockBox floorBounds,
 			BlockBox spawn, BlockBox shop, BlockBox plantShop, BlockBox mobShop,
 			List<BlockBox> mobSpawns,
 			Direction forward
 	) {
 		this.team = team;
+		this.level = level;
 		this.bounds = bounds;
 		this.plantBounds = plantBounds;
 		this.floorBounds = floorBounds;
@@ -61,7 +64,7 @@ public final class Plot {
 		this.walls = new PlotWalls(walls);
 	}
 
-	public static Plot create(LevelHeightAccessor level, GameTeamKey team, Config config, RegionKeys regionKeys, MapRegions regions) {
+	public static Plot create(ServerLevel level, GameTeamKey team, Config config, RegionKeys regionKeys, MapRegions regions) {
 		BlockBox plantBounds = regionKeys.plot.getOrThrow(regions, config.key);
 		BlockBox bounds = BlockBox.of(
 				new BlockPos(plantBounds.min().getX(), level.getMinY(), plantBounds.min().getZ()),
@@ -79,6 +82,7 @@ public final class Plot {
 
 		return new Plot(
 				team,
+				level,
 				bounds, plantBounds, floorBounds,
 				spawn, shop, plantShop, mobShop,
 				mobSpawn,

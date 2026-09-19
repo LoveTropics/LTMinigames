@@ -22,7 +22,6 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.TriState;
 import net.minecraft.world.InteractionHand;
@@ -100,7 +99,7 @@ public final class PlantBehavior implements IGameBehavior {
 			return new PlacePlantResult.CannotFit();
 		}
 
-		if (placement.place(game.level(), plant.coverage())) {
+		if (placement.place(plot.level, plant.coverage())) {
 			plantEvents.invoker(BbPlantEvents.ADD).onAddPlant(player, plot, plant);
 			game.invoker(BbEvents.PLANTS_CHANGED).onPlantsChanged(player, plot);
 
@@ -116,10 +115,9 @@ public final class PlantBehavior implements IGameBehavior {
 			return false;
 		}
 
-		ServerLevel world = game.level();
 		for (BlockPos plantPos : plant.coverage()) {
-			FluidState fluidState = world.getFluidState(plantPos);
-			world.setBlock(plantPos, fluidState.createLegacyBlock(), Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
+			FluidState fluidState = plot.level.getFluidState(plantPos);
+			plot.level.setBlock(plantPos, fluidState.createLegacyBlock(), Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
 		}
 
 		boolean removed = plot.plants.removePlant(plant);
