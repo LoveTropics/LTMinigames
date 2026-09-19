@@ -15,7 +15,6 @@ import net.minecraft.util.TriState;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.ResolvableProfile;
-import net.minecraft.world.level.block.entity.SkullBlockEntity;
 import org.apache.commons.lang3.mutable.MutableObject;
 
 import java.util.concurrent.CompletableFuture;
@@ -36,7 +35,7 @@ public record PlayerHeadRewardBehavior() implements IGameBehavior {
 			if (killer != null) {
 				final CompletableFuture<?> future = createPlayerHead(target)
 						.thenAcceptAsync(stack -> rewards.forPlayer(killer).giveCollectible(stack), game.server());
-				resolvedFuture.setValue(resolvedFuture.getValue().thenCombine(future, (a, b) -> b));
+				resolvedFuture.setValue(resolvedFuture.get().thenCombine(future, (a, b) -> b));
 			}
 			return TriState.DEFAULT;
 		});
@@ -44,7 +43,7 @@ public record PlayerHeadRewardBehavior() implements IGameBehavior {
 		events.listen(GamePhaseEvents.FINISH, () -> {
 			try {
 				// Try our best to let these resolve before exiting, but it's not critical
-				resolvedFuture.getValue().get(10, TimeUnit.SECONDS);
+				resolvedFuture.get().get(10, TimeUnit.SECONDS);
 			} catch (final InterruptedException | ExecutionException | TimeoutException ignored) {
 			}
 		});

@@ -18,7 +18,7 @@ public record DamageInWaterBehavior(int interval, float amount) implements IGame
 	public void register(final IGamePhase game, final EventRegistrar events) {
 		events.listen(GamePlayerEvents.TICK, player -> {
 			if (player.isInWater() && player.tickCount % interval == 0) {
-				player.hurt(player.damageSources().drown(), amount);
+				player.hurtServer(player.level(), player.damageSources().drown(), amount);
 			}
 		});
 	}

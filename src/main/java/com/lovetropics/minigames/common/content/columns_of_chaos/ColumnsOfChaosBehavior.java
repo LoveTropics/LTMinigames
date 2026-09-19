@@ -140,7 +140,7 @@ public final class ColumnsOfChaosBehavior implements IGameBehavior {
 			});
 			events.listen(GamePlayerEvents.SPAWN, (playerId, spawn, role) -> {
 				if (role == PlayerRole.PARTICIPANT) {
-					BlockBox spawnForPlayer = spawner.getValue() != null ? spawner.getValue().next() : null;
+					BlockBox spawnForPlayer = spawner.get().next();
 					if (spawnForPlayer != null) {
 						spawn.teleportTo(game.level(), spawnForPlayer.centerBlock());
 						return;
@@ -198,7 +198,7 @@ public final class ColumnsOfChaosBehavior implements IGameBehavior {
 			}
 		}
 		for (ServerPlayer player : eliminated) {
-			player.hurt(player.damageSources().fellOutOfWorld(), Float.MAX_VALUE);
+			player.hurtServer(player.level(), player.damageSources().fellOutOfWorld(), Float.MAX_VALUE);
 		}
 	}
 

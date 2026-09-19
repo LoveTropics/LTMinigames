@@ -7,6 +7,7 @@ import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameActionEvents;
 import com.mojang.serialization.MapCodec;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 
 import java.util.function.Supplier;
@@ -18,7 +19,7 @@ public record KillAction() implements IGameBehavior {
 	public void register(IGamePhase game, EventRegistrar events) {
 		events.listen(GameActionEvents.APPLY, (context, targets) -> {
 			for (Entity entity : targets.asEntities(game)) {
-				entity.kill(game.level());
+				entity.kill((ServerLevel) entity.level());
 			}
 			return true;
 		});

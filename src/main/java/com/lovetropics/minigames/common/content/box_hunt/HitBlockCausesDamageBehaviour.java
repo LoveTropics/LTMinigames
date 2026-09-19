@@ -36,14 +36,14 @@ public record HitBlockCausesDamageBehaviour(
 				if(teamState != null && teamState.isOnTeam(player, team.get())){
 					if(blockPredicate.isPresent()) {
 						if(blockPredicate.get().matches(level, pos)){
-							player.hurt(player.damageSources().generic(), damage);
+							player.hurtServer(level, player.damageSources().generic(), damage);
 						}
 					} else {
-						player.hurt(player.damageSources().generic(), damage);
+						player.hurtServer(level, player.damageSources().generic(), damage);
 					}
 				}
 			} else {
-				player.hurt(player.damageSources().generic(), damage);
+				player.hurtServer(level, player.damageSources().generic(), damage);
 			}
 		});
 	}

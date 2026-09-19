@@ -284,7 +284,7 @@ public final class RuntimeDimensions {
 	}
 
 	private static Identifier generateTemporaryDimensionKey() {
-		String random = RandomStringUtils.random(16, "abcdefghijklmnopqrstuvwxyz0123456789");
+		String random = RandomStringUtils.insecure().next(16, "abcdefghijklmnopqrstuvwxyz0123456789");
 		return LoveTropics.id("tmp_" + random);
 	}
 

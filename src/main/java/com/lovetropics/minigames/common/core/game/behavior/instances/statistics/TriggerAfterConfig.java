@@ -35,10 +35,10 @@ public record TriggerAfterConfig(Optional<ProgressionPoint> after, ProgressChann
 			listener.setValue(() -> {
 				if (predicate.getAsBoolean()) {
 					handler.run();
-					events.unlisten(GamePhaseEvents.TICK, listener.getValue());
+					events.unlisten(GamePhaseEvents.TICK, listener.get());
 				}
 			});
-			events.listen(GamePhaseEvents.TICK, listener.getValue());
+			events.listen(GamePhaseEvents.TICK, listener.get());
 		} else {
 			handler.run();
 		}

@@ -24,6 +24,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
 
+import net.neoforged.neoforge.common.NeoForgeMod;
 import org.jspecify.annotations.Nullable;
 import java.util.function.DoubleSupplier;
 
@@ -61,21 +62,21 @@ public class RisingFluidBehavior implements IGameBehavior {
         });
 
         if (fillType == FluidFiller.Type.WATER) {
-            events.listen(GameLivingEntityEvents.TICK, (level, entity) -> onLivingUpdateInWater(entity));
+            events.listen(GameLivingEntityEvents.TICK, this::onLivingUpdateInWater);
         }
         events.listen(GamePhaseEvents.TICK, () -> tick(game));
     }
 
-    private void onLivingUpdateInWater(LivingEntity entity) {
+    private void onLivingUpdateInWater(ServerLevel level, LivingEntity entity) {
         if (filler == null) {
             return;
         }
 
         // NOTE: DO NOT REMOVE THIS CHECK, CAUSES FISH TO DIE AND SPAWN ITEMS ON DEATH
         // FISH WILL KEEP SPAWNING, DYING AND COMPLETELY SLOW THE SERVER TO A CRAWL
-        if (!entity.canBreatheUnderwater()) {
+        if (entity.canDrownInFluidType(NeoForgeMod.WATER_TYPE.value())) {
             if (entity.getY() <= filler.fluidLevel() + 1 && entity.isInWater() && entity.tickCount % 40 == 0) {
-                entity.hurt(entity.damageSources().drown(), 2.0F);
+                entity.hurtServer(level, entity.damageSources().drown(), 2.0F);
             }
         }
     }

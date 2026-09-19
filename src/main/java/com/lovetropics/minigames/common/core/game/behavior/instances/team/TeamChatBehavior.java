@@ -38,7 +38,7 @@ public record TeamChatBehavior(ResourceKey<ChatType> chatType, boolean includeSp
 		});
 		events.listen(GamePlayerEvents.CHAT, (player, signedMessage) -> {
 			ChatChannel channel = ChatChannelStore.get(player);
-			if (channel != ChatChannel.TEAM || gameOver.getValue()) {
+			if (channel != ChatChannel.TEAM || gameOver.get()) {
 				return false;
 			}
 			GameTeamKey teamKey = teams.getTeamForPlayer(player);

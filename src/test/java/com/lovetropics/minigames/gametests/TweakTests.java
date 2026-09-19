@@ -106,12 +106,12 @@ public class TweakTests implements MinigameTest {
 		helper.startSequence()
 				.thenExecute(helper.startGame(lobby))
 				.thenIdle(60) // Wait for spawn invulnerabulity to end
-				.thenExecute(() -> target.hurt(target.damageSources().playerAttack(player), 2))
+				.thenExecute(() -> target.hurtServer(helper.getLevel(), target.damageSources().playerAttack(player), 2))
 				.thenIdle(5)
 				.thenExecute(() -> helper.assertEntityHealth(target, 18))
 				.thenIdle(15) // Wait for invulnerable time to end
 //				.thenExecute(() -> helper.getRoles(target).addRole("setTest", Map.of(IS_TEST_PLAYER, true)))
-				.thenExecute(() -> target.hurt(player.damageSources().playerAttack(player), 2))
+				.thenExecute(() -> target.hurtServer(helper.getLevel(), player.damageSources().playerAttack(player), 2))
 				.thenExecute(() -> helper.assertEntityHealth(target, 14))
 				.thenSucceed();
 	}

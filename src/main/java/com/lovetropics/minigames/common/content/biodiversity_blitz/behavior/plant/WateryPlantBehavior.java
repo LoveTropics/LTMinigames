@@ -82,7 +82,7 @@ public final class WateryPlantBehavior implements IGameBehavior {
 				if (ticks % 20 == 0) {
 					// Extinguish fire
 					entity.setRemainingFireTicks(0);
-					entity.hurt(entity.damageSources().magic(), 1 + random.nextInt(3));
+					entity.hurtServer(world, entity.damageSources().magic(), 1 + random.nextInt(3));
 					waterCount += 5 + random.nextInt(8);
 
 					// Draw extra water as a line

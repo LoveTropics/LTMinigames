@@ -65,7 +65,7 @@ public record LobbyWithPortalBehavior(String portalRegion, String targetRegion, 
 		final MutableBoolean portalOpen = new MutableBoolean();
 		events.listen(GamePhaseEvents.TICK, () -> {
 			final boolean shouldOpen = predicate.getAsBoolean();
-			if (portalOpen.getValue() != shouldOpen) {
+			if (portalOpen.get() != shouldOpen) {
 				setPortal(game.level(), portal, shouldOpen);
 				portalOpen.setValue(shouldOpen);
 			}
@@ -79,7 +79,7 @@ public record LobbyWithPortalBehavior(String portalRegion, String targetRegion, 
 		});
 
 		events.listen(GamePlayerEvents.TICK, player -> {
-			if (!portalOpen.getValue()) {
+			if (!portalOpen.get()) {
 				return;
 			}
 			if (portal.contains(player.position()) && playersInLobby.remove(player.getUUID())) {

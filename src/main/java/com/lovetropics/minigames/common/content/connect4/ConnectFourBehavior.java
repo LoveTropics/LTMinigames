@@ -224,9 +224,9 @@ public class ConnectFourBehavior implements IGameBehavior {
 		GameBlock teamBlocks = this.teamBlocks.get(team);
 		MutableBoolean blink = new MutableBoolean(true);
 		game.scheduler().runPeriodic(0, SharedConstants.TICKS_PER_SECOND / 2, () -> {
-			BlockState blockState = blink.getValue() ? teamBlocks.highlighted().defaultBlockState() : teamBlocks.solid().defaultBlockState();
+			BlockState blockState = blink.get() ? teamBlocks.highlighted().defaultBlockState() : teamBlocks.solid().defaultBlockState();
 			fillLine(level, winningLine, blockState);
-			blink.setValue(!blink.getValue());
+			blink.setValue(!blink.get());
 		});
 	}
 

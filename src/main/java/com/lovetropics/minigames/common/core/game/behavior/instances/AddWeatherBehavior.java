@@ -85,7 +85,7 @@ public final class AddWeatherBehavior implements IGameBehavior {
 		if (damage != null) {
 			if (player.tickCount % damage.rate == 0) {
 				// TODO: damage source
-				player.hurt(player.damageSources().generic(), damage.amount);
+				player.hurtServer(player.level(), player.damageSources().generic(), damage.amount);
 			}
 		}
 

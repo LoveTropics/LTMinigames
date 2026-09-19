@@ -150,10 +150,10 @@ public class PersistentGameConfigs {
 				final MutableObject<RecordBuilder<T>> builder = new MutableObject<>(prefix);
 				ops.getMap(extracted).result().ifPresent(map ->
 						map.entries().forEach(pair ->
-								builder.setValue(builder.getValue().add(pair.getFirst(), pair.getSecond()))
+								builder.setValue(builder.get().add(pair.getFirst(), pair.getSecond()))
 						)
 				);
-				return builder.getValue();
+				return builder.get();
 			}
 
 			@Override

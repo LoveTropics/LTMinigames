@@ -105,8 +105,8 @@ public record StatisticNotifierBehavior(
 
 		events.listen(GamePhaseEvents.TICK, () -> {
 			int value = game.statistics().global().getInt(statistic);
-			if (lastValue.getValue() != value) {
-				onValueChange(game, value, lastValue.getValue(), ActionSubjects.EMPTY);
+			if (lastValue.intValue() != value) {
+				onValueChange(game, value, lastValue.intValue(), ActionSubjects.EMPTY);
 				lastValue.setValue(value);
 			}
 		});

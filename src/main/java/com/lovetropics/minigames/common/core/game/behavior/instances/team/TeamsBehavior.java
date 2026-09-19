@@ -126,7 +126,7 @@ public final class TeamsBehavior implements IGameBehavior {
 		if (staticTeamIds) {
 			return team.id();
 		} else {
-			return team.id() + "_" + RandomStringUtils.randomAlphabetic(3);
+			return team.id() + "_" + RandomStringUtils.insecure().nextAlphabetic(3);
 		}
 	}
 
