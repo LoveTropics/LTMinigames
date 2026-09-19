@@ -7,8 +7,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -20,43 +18,18 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntitySpawnReason;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.EntityTypes;
-import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-
 import org.jspecify.annotations.Nullable;
+
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class Util {
-	public static final AABB INFINITE_AABB = new AABB(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
-
-	public static boolean spawnEntity(EntityType<?> entityType, Level world, double x, double y, double z, EntitySpawnReason reason) {
-		if (entityType == EntityTypes.LIGHTNING_BOLT) {
-			LightningBolt entity = EntityTypes.LIGHTNING_BOLT.create(world, reason);
-			entity.snapTo(new Vec3(x, y, z));
-			world.addFreshEntity(entity);
-			return true;
-		} else {
-			Entity entity = entityType.create(world, reason);
-			if (entity != null) {
-				entity.setPos(x, y, z);
-				return world.addFreshEntity(entity);
-			}
-
-			return false;
-		}
-	}
-
 	public static boolean addItemStackToInventory(ServerPlayer player, ItemStack itemstack) {
 		if (player.addItem(itemstack)) {
 			player.level().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, 0.2F, ((player.getRandom().nextFloat() - player.getRandom().nextFloat()) * 0.7F + 1.0F) * 2.0F);
@@ -165,10 +138,6 @@ public class Util {
 		long minutesPart = totalSeconds / 60;
 		long secondsPart = totalSeconds % 60;
 		return String.format("%02d:%02d", minutesPart, secondsPart);
-	}
-
-	public static String unpackTranslationKey(Component component) {
-		return ((TranslatableContents) component.getContents()).getKey();
 	}
 
 	public static @Nullable ServerPlayer getKillerPlayer(ServerPlayer player, DamageSource killingBlow) {
