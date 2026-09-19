@@ -10,7 +10,6 @@ import com.lovetropics.minigames.common.content.survive_the_tide.behavior.Phased
 import com.lovetropics.minigames.common.content.survive_the_tide.behavior.RevealPlayersBehavior;
 import com.lovetropics.minigames.common.content.survive_the_tide.behavior.RisingPlatformBehavior;
 import com.lovetropics.minigames.common.content.survive_the_tide.behavior.SttChatBroadcastBehavior;
-import com.lovetropics.minigames.common.content.survive_the_tide.behavior.SttPetsBehavior;
 import com.lovetropics.minigames.common.content.survive_the_tide.behavior.SttSidebarBehavior;
 import com.lovetropics.minigames.common.content.survive_the_tide.behavior.SttWinLogicBehavior;
 import com.lovetropics.minigames.common.content.survive_the_tide.behavior.SurviveTheTideRulesetBehavior;
@@ -163,9 +162,6 @@ public final class SurviveTheTide {
 			.register();
 	public static final GameBehaviorEntry<SttSidebarBehavior> SURVIVE_THE_TIDE_SIDEBAR = REGISTRATE.object("survive_the_tide_sidebar")
 			.behavior(SttSidebarBehavior.CODEC)
-			.register();
-	public static final GameBehaviorEntry<SttPetsBehavior> PETS = REGISTRATE.object("survive_the_tide_pets")
-			.behavior(SttPetsBehavior.CODEC)
 			.register();
 	public static final GameBehaviorEntry<RisingPlatformBehavior> RISING_PLATFORM = REGISTRATE.object("rising_platform")
 			.behavior(RisingPlatformBehavior.CODEC)
