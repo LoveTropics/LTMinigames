@@ -13,7 +13,6 @@ import com.lovetropics.minigames.client.lobby.state.message.JoinedLobbyMessage;
 import com.lovetropics.minigames.client.lobby.state.message.LeftLobbyMessage;
 import com.lovetropics.minigames.client.lobby.state.message.LobbyPlayersMessage;
 import com.lovetropics.minigames.client.lobby.state.message.LobbyUpdateMessage;
-import com.lovetropics.minigames.client.particle_line.DrawParticleLineMessage;
 import com.lovetropics.minigames.client.toast.ShowNotificationToastMessage;
 import com.lovetropics.minigames.common.core.network.ddr.ClientboundDdrInputHitPacket;
 import com.lovetropics.minigames.common.core.network.ddr.ServerboundDdrInputPacket;
@@ -63,8 +62,6 @@ public final class LoveTropicsNetwork {
 		registrar.playToServer(JoinLobbyPacket.TYPE, JoinLobbyPacket.STREAM_CODEC, JoinLobbyPacket::handle);
 		registrar.playToServer(LeaveLobbyPacket.TYPE, LeaveLobbyPacket.STREAM_CODEC, LeaveLobbyPacket::handle);
 
-		registrar.playToClient(DrawParticleLineMessage.TYPE, DrawParticleLineMessage.STREAM_CODEC);
-
 		registrar.playToClient(SpectatorPlayerActivityMessage.TYPE, SpectatorPlayerActivityMessage.STREAM_CODEC);
 
 		registrar.playToClient(FillFluidPacket.TYPE, FillFluidPacket.STREAM_CODEC);
@@ -108,8 +105,6 @@ public final class LoveTropicsNetwork {
 		event.register(SetGameClientStateMessage.TYPE, SetGameClientStateMessage::handle);
 
 		event.register(SelectRolePromptMessage.TYPE, SelectRolePromptMessage::handle);
-
-		event.register(DrawParticleLineMessage.TYPE, DrawParticleLineMessage::handle);
 
 		event.register(SpectatorPlayerActivityMessage.TYPE, SpectatorPlayerActivityMessage::handle);
 

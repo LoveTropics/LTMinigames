@@ -61,7 +61,6 @@ import com.lovetropics.minigames.common.core.command.ClientStateCommand;
 import com.lovetropics.minigames.common.core.command.ExtendedBossBarCommand;
 import com.lovetropics.minigames.common.core.command.LoveTropicsEntityOptions;
 import com.lovetropics.minigames.common.core.command.MapCommand;
-import com.lovetropics.minigames.common.core.command.ParticleLineCommand;
 import com.lovetropics.minigames.common.core.command.TemporaryDimensionCommand;
 import com.lovetropics.minigames.common.core.command.game.CancelGameCommand;
 import com.lovetropics.minigames.common.core.command.game.ExecuteAtRegionCommand;
@@ -320,7 +319,6 @@ public class LoveTropics {
 		GamePackageCommand.register(dispatcher);
 		ManageGameLobbyCommand.register(dispatcher);
 		ExtendedBossBarCommand.register(dispatcher);
-		ParticleLineCommand.register(event.getBuildContext(), dispatcher);
 		ChatCommand.register(dispatcher);
 		ExecuteAtRegionCommand.register(dispatcher);
 		GameActionCommand.register(dispatcher);
