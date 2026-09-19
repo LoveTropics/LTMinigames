@@ -30,7 +30,7 @@ public record BlockBreakTrigger(
 	).apply(i, BlockBreakTrigger::new));
 
 	@Override
-	public void register(final IGamePhase game, final EventRegistrar events) {
+	public void register(IGamePhase game, EventRegistrar events) {
 		action.register(game, events);
 
 		events.listen(GamePlayerEvents.BREAK_BLOCK, (player, pos, state, hand) -> {

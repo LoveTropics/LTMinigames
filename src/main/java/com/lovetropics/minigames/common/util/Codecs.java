@@ -102,7 +102,7 @@ public class Codecs {
 
 	// For debugging
 	@SuppressWarnings("unused")
-	public static <A> Codec<A> hook(final Codec<A> codec) {
+	public static <A> Codec<A> hook(Codec<A> codec) {
 		return new Codec<>() {
 			@Override
 			public <T> DataResult<Pair<A, T>> decode(DynamicOps<T> ops, T input) {
@@ -116,7 +116,7 @@ public class Codecs {
 		};
 	}
 
-	public static <A> Codec<Supplier<A>> newLazyCopies(final Codec<A> codec) {
+	public static <A> Codec<Supplier<A>> newLazyCopies(Codec<A> codec) {
 		return new Codec<>() {
 			@Override
 			public <T> DataResult<Pair<Supplier<A>, T>> decode(DynamicOps<T> ops, T input) {

@@ -18,12 +18,12 @@ public class PlayerStorage {
 
 	private final Object2ObjectMap<UUID, CompoundTag> storage = new Object2ObjectOpenHashMap<>();
 
-	public Optional<CompoundTag> takePlayerData(final UUID playerId) {
+	public Optional<CompoundTag> takePlayerData(UUID playerId) {
 		CompoundTag remove = storage.remove(playerId);
 		return Optional.ofNullable(remove);
 	}
 
-	public void store(final ServerPlayer player) {
+	public void store(ServerPlayer player) {
 		try (ProblemReporter.ScopedCollector reporter = new ProblemReporter.ScopedCollector(player.problemPath(), LOGGER)) {
 			TagValueOutput output = TagValueOutput.createWithContext(reporter, player.registryAccess());
 			player.saveWithoutId(output);

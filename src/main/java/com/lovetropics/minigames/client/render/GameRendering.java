@@ -246,8 +246,8 @@ public class GameRendering {
 			return;
 		}
 
-		final Minecraft client = Minecraft.getInstance();
-		final EntityRenderDispatcher renderDispatcher = client.getEntityRenderDispatcher();
+		Minecraft client = Minecraft.getInstance();
+		EntityRenderDispatcher renderDispatcher = client.getEntityRenderDispatcher();
 
 		final float itemSize = 16.0F;
 		final float spacing = 4.0f;

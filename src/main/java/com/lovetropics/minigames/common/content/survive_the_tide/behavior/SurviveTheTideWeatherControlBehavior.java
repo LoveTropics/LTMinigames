@@ -68,7 +68,7 @@ public class SurviveTheTideWeatherControlBehavior implements IGameBehavior {
 	protected @Nullable ProgressHolder progression;
 	protected GameWeatherState weather;
 
-	public SurviveTheTideWeatherControlBehavior(final SurviveTheTideWeatherConfig config) {
+	public SurviveTheTideWeatherControlBehavior(SurviveTheTideWeatherConfig config) {
 		this.config = config;
 	}
 
@@ -81,7 +81,7 @@ public class SurviveTheTideWeatherControlBehavior implements IGameBehavior {
 		progression = ProgressChannel.MAIN.getOrThrow(game);
 	}
 
-	private void tick(final IGamePhase game) {
+	private void tick(IGamePhase game) {
 		if (progression == null) {
 			return;
 		}

@@ -20,7 +20,7 @@ import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
 
 public class LeaveGameCommand {
-	public static void register(final CommandDispatcher<CommandSourceStack> dispatcher) {
+	public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
 		dispatcher.register(
 				literal("game")
 						.then(unregisterBuilder("unregister"))

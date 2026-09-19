@@ -65,12 +65,12 @@ public class ActionTriggerTests implements MinigameTest {
 	}
 
 	@GameTest
-	public void testEventsTrigger(final LTGameTestHelper helper) {
-		final var player = helper.playerBuilder()
+	public void testEventsTrigger(LTGameTestHelper helper) {
+		var player = helper.playerBuilder()
 				.isVulnerableTo(source -> source.is(DamageTypes.FELL_OUT_OF_WORLD))
 				.build();
 
-		final var lobby = helper.createGame(player, PlayerRole.PARTICIPANT);
+		var lobby = helper.createGame(player, PlayerRole.PARTICIPANT);
 		lobby.enqueue(gameId("events"));
 
 		helper.startSequence()
@@ -84,11 +84,11 @@ public class ActionTriggerTests implements MinigameTest {
 	}
 
 	@GameTest
-	public void testStartTrigger(final LTGameTestHelper helper) {
-		final var player = helper.playerBuilder()
+	public void testStartTrigger(LTGameTestHelper helper) {
+		var player = helper.playerBuilder()
 				.packetFilter(packet -> packet instanceof ClientboundSystemChatPacket sc && sc.content().equals(Component.literal("hello world!")) || packet instanceof ClientboundSoundPacket it && it.getSound().value() == SoundEvents.ALLAY_HURT)
 				.build();
-		final var lobby = helper.createGame(player, PlayerRole.PARTICIPANT);
+		var lobby = helper.createGame(player, PlayerRole.PARTICIPANT);
 		lobby.enqueue(gameId("start"));
 
 		helper.startSequence()
@@ -101,9 +101,9 @@ public class ActionTriggerTests implements MinigameTest {
 	}
 
 	@GameTest
-	public void testStopTrigger(final LTGameTestHelper helper) {
-		final var player = helper.createFakePlayer();
-		final var lobby = helper.createGame(player, PlayerRole.PARTICIPANT);
+	public void testStopTrigger(LTGameTestHelper helper) {
+		var player = helper.createFakePlayer();
+		var lobby = helper.createGame(player, PlayerRole.PARTICIPANT);
 		lobby.enqueue(gameId("stop"));
 
 		helper.startSequence()

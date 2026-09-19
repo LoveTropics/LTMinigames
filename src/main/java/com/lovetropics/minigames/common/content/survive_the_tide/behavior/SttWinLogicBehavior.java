@@ -28,7 +28,7 @@ public class SttWinLogicBehavior implements IGameBehavior {
 	protected final int lightningBoltSpawnTickRate;
 	protected boolean minigameEnded;
 
-	public SttWinLogicBehavior(final boolean spawnLightningBoltsOnFinish, final int lightningBoltSpawnTickRate) {
+	public SttWinLogicBehavior(boolean spawnLightningBoltsOnFinish, int lightningBoltSpawnTickRate) {
 		this.spawnLightningBoltsOnFinish = spawnLightningBoltsOnFinish;
 		this.lightningBoltSpawnTickRate = lightningBoltSpawnTickRate;
 	}
@@ -40,7 +40,7 @@ public class SttWinLogicBehavior implements IGameBehavior {
 		events.listen(GamePhaseEvents.TICK, () -> checkForGameEndCondition(game, game.level()));
 	}
 
-	private void checkForGameEndCondition(final IGamePhase game, final Level world) {
+	private void checkForGameEndCondition(IGamePhase game, Level world) {
 		if (minigameEnded) {
 			if (spawnLightningBoltsOnFinish) {
 				spawnLightningBoltsEverywhere(game, world);
@@ -48,7 +48,7 @@ public class SttWinLogicBehavior implements IGameBehavior {
 		}
 	}
 
-	private void spawnLightningBoltsEverywhere(IGamePhase game, final Level world) {
+	private void spawnLightningBoltsEverywhere(IGamePhase game, Level world) {
 		if (game.ticks() % lightningBoltSpawnTickRate == 0) {
 			for (ServerPlayer player : game.participants()) {
 				int xOffset = (7 + game.random().nextInt(5)) * (game.random().nextBoolean() ? 1 : -1);

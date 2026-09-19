@@ -34,9 +34,9 @@ public record StandOnBlockTrigger(BlockPredicate predicate, GameActionList apply
 		clear.register(game, events);
 		tick.register(game, events);
 
-		final Set<UUID> appliedToPlayers = new ObjectOpenHashSet<>();
+		Set<UUID> appliedToPlayers = new ObjectOpenHashSet<>();
 		events.listen(GamePlayerEvents.TICK, player -> {
-			final BlockPos standingOn = player.getOnPos();
+			BlockPos standingOn = player.getOnPos();
 			if (predicate.matches(player.level(), standingOn)) {
 				if (appliedToPlayers.add(player.getUUID())) {
 					apply.apply(game, ContextMap.EMPTY, ActionSubjects.ofPlayer(player));

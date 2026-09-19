@@ -53,8 +53,8 @@ public final class PlayerIsolation {
 
 	/// Player going into a GamePhase
 	/// Saves player data and then teleports them
-	public ServerPlayer teleportTo(final ServerPlayer player, final ServerLevel newLevel, final Vec3 position, final float yRot, final float xRot) {
-		final TransferableState transferableState = TransferableState.copyOf(player);
+	public ServerPlayer teleportTo(ServerPlayer player, ServerLevel newLevel, Vec3 position, float yRot, float xRot) {
+		TransferableState transferableState = TransferableState.copyOf(player);
 		return reloadPlayer(player, newLevel, newPlayer -> {
 			newPlayer.snapTo(position.x, position.y, position.z, yRot, xRot);
 			newPlayer.addTag(ISOLATED_TAG);
@@ -63,7 +63,7 @@ public final class PlayerIsolation {
 	}
 
 	/// Player is headed back to the main event world most likely
-	public ServerPlayer restore(final ServerPlayer player) {
+	public ServerPlayer restore(ServerPlayer player) {
 		if (isIsolated(player)) {
 			return reloadPlayerFromDisk(player);
 		}
@@ -71,9 +71,9 @@ public final class PlayerIsolation {
 	}
 
 	private ServerPlayer reloadPlayerFromDisk(ServerPlayer player) {
-		final MinecraftServer server = player.level().getServer();
-		final PlayerList playerList = server.getPlayerList();
-		final Optional<CompoundTag> playerTag = playerList.loadPlayerData(player.nameAndId());
+		MinecraftServer server = player.level().getServer();
+		PlayerList playerList = server.getPlayerList();
+		Optional<CompoundTag> playerTag = playerList.loadPlayerData(player.nameAndId());
 
 		try (ProblemReporter.ScopedCollector reporter = new ProblemReporter.ScopedCollector(player.problemPath(), LOGGER)) {
 			Optional<ValueInput> input = playerTag.map(tag -> TagValueInput.create(reporter, server.registryAccess(), tag));
@@ -119,7 +119,7 @@ public final class PlayerIsolation {
 		reloadingPlayers.add(oldPlayer.getUUID());
 		oldPlayer.addTag(RELOADING_TAG);
 
-		final ServerPlayer newPlayer = recreatePlayer(oldPlayer, newLevel);
+		ServerPlayer newPlayer = recreatePlayer(oldPlayer, newLevel);
 		SlideshowApi.replacePlayer(oldPlayer, newPlayer);
 
 		EventHooks.firePlayerLoggedOut(oldPlayer);
@@ -143,7 +143,7 @@ public final class PlayerIsolation {
 		newPlayer.addTag(RELOADING_TAG);
 		newPlayer.onUpdateAbilities();
 
-		final LevelData levelData = newLevel.getLevelData();
+		LevelData levelData = newLevel.getLevelData();
 		newPlayer.connection.send(new ClientboundRespawnPacket(
 				newPlayer.createCommonSpawnInfo(newLevel),
 				(byte) 0
@@ -172,8 +172,8 @@ public final class PlayerIsolation {
 		playerList.broadcastAll(new ClientboundPlayerInfoUpdatePacket(ClientboundPlayerInfoUpdatePacket.Action.UPDATE_GAME_MODE, newPlayer));
 
 		EventHooks.firePlayerLoggedIn(newPlayer);
-		final ResourceKey<Level> oldDimension = oldPlayer.level().dimension();
-		final ResourceKey<Level> newDimension = newLevel.dimension();
+		ResourceKey<Level> oldDimension = oldPlayer.level().dimension();
+		ResourceKey<Level> newDimension = newLevel.dimension();
 		if (oldDimension != newDimension) {
 			EventHooks.firePlayerChangedDimensionEvent(newPlayer, oldDimension, newDimension);
 		}
@@ -210,27 +210,27 @@ public final class PlayerIsolation {
 		return newPlayer;
 	}
 
-	private static void sendGameRules(final ServerPlayer player, final GameRules gameRules) {
-		final boolean immediateRespawn = gameRules.get(GameRules.IMMEDIATE_RESPAWN);
+	private static void sendGameRules(ServerPlayer player, GameRules gameRules) {
+		boolean immediateRespawn = gameRules.get(GameRules.IMMEDIATE_RESPAWN);
 		player.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.IMMEDIATE_RESPAWN, immediateRespawn ? 1.0f : 0.0F));
 	}
 
-	public boolean isIsolated(final ServerPlayer player) {
+	public boolean isIsolated(ServerPlayer player) {
 		return player.entityTags().contains(ISOLATED_TAG);
 	}
 
-	public boolean isReloading(final ServerPlayer player) {
+	public boolean isReloading(ServerPlayer player) {
 		return reloadingPlayers.contains(player.getUUID());
 	}
 
 	// State that can be transferred into isolation, but not back out
 	private record TransferableState(
 	) {
-		public static TransferableState copyOf(final ServerPlayer player) {
+		public static TransferableState copyOf(ServerPlayer player) {
 			return new TransferableState();
 		}
 
-		public void restore(final ServerPlayer player) {
+		public void restore(ServerPlayer player) {
 		}
 	}
 }

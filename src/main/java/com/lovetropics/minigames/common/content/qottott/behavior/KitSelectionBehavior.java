@@ -39,28 +39,28 @@ public record KitSelectionBehavior(List<Kit> kits) implements IGameBehavior {
 	).apply(i, KitSelectionBehavior::new));
 
 	@Override
-	public void register(final IGamePhase game, final EventRegistrar events) {
-		for (final Kit kit : kits) {
+	public void register(IGamePhase game, EventRegistrar events) {
+		for (Kit kit : kits) {
 			kit.apply.register(game, events);
 		}
 
-		final Map<UUID, Kit> kitEntities = new Object2ObjectOpenHashMap<>();
-		final Kit defaultKit = kits.getFirst();
+		Map<UUID, Kit> kitEntities = new Object2ObjectOpenHashMap<>();
+		Kit defaultKit = kits.getFirst();
 
 		events.listen(GamePhaseEvents.START, initiator -> {
-			for (final Kit kit : kits) {
-				final Collection<BlockBox> regions = game.mapRegions().get(kit.region());
+			for (Kit kit : kits) {
+				Collection<BlockBox> regions = game.mapRegions().get(kit.region());
 				if (regions.isEmpty()) {
 					LOGGER.error("Missing region for kit: {}", kit);
 					continue;
 				}
-				for (final BlockBox region : regions) {
-					final Entity entity = kit.entity().type().create(game.level(), EntitySpawnReason.COMMAND);
+				for (BlockBox region : regions) {
+					Entity entity = kit.entity().type().create(game.level(), EntitySpawnReason.COMMAND);
 					if (entity == null) {
 						LOGGER.error("Unable to create entity for kit: {}", kit);
 						continue;
 					}
-					final Vec3 center = region.center();
+					Vec3 center = region.center();
 					entity.snapTo(center.x, region.min().getY(), center.z, kit.angle, 0.0f);
 					game.level().addFreshEntity(entity);
 					kitEntities.put(entity.getUUID(), kit);
@@ -68,22 +68,22 @@ public record KitSelectionBehavior(List<Kit> kits) implements IGameBehavior {
 			}
 		});
 
-		final Map<UUID, Kit> selectedKits = new Object2ObjectOpenHashMap<>();
+		Map<UUID, Kit> selectedKits = new Object2ObjectOpenHashMap<>();
 		events.listen(GamePlayerEvents.INTERACT_ENTITY, (player, target, hand) -> applyKit(game, player, target, kitEntities, selectedKits) ? InteractionResult.CONSUME : InteractionResult.PASS);
 		events.listen(GamePlayerEvents.ATTACK, (player, target) -> applyKit(game, player, target, kitEntities, selectedKits) ? TriState.TRUE : TriState.DEFAULT);
 
 		events.listen(GamePlayerEvents.SPAWN, (playerId, spawn, role) -> {
 			if (role == PlayerRole.PARTICIPANT) {
 				spawn.run(player -> {
-					final Kit kit = selectedKits.getOrDefault(player.getUUID(), defaultKit);
+					Kit kit = selectedKits.getOrDefault(player.getUUID(), defaultKit);
 					kit.apply.apply(game, ContextMap.EMPTY, ActionSubjects.ofPlayer(player));
 				});
 			}
 		});
 	}
 
-	private static boolean applyKit(final IGamePhase game, final ServerPlayer player, final Entity target, final Map<UUID, Kit> kitEntities, final Map<UUID, Kit> selectedKits) {
-		final Kit kit = kitEntities.get(target.getUUID());
+	private static boolean applyKit(IGamePhase game, ServerPlayer player, Entity target, Map<UUID, Kit> kitEntities, Map<UUID, Kit> selectedKits) {
+		Kit kit = kitEntities.get(target.getUUID());
 		if (kit != null) {
 			kit.apply.apply(game, ContextMap.EMPTY, ActionSubjects.ofPlayer(player));
 			selectedKits.put(player.getUUID(), kit);

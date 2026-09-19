@@ -19,7 +19,7 @@ public record SetForcedPoseMessage(Optional<Pose> pose) implements CustomPacketP
 			SetForcedPoseMessage::new
 	);
 
-	public static void handle(final SetForcedPoseMessage message, final IPayloadContext context) {
+	public static void handle(SetForcedPoseMessage message, IPayloadContext context) {
 		ClientPoseHandler.updateForcedPose(message.pose().orElse(null));
 	}
 

@@ -33,16 +33,16 @@ public record TriggerEveryPackageBehavior(Set<String> exclude) implements IGameB
 	).apply(i, TriggerEveryPackageBehavior::new));
 
 	@Override
-	public void register(final IGamePhase game, final EventRegistrar events) {
-		final GamePackageState packages = game.state().get(GamePackageState.KEY);
+	public void register(IGamePhase game, EventRegistrar events) {
+		GamePackageState packages = game.state().get(GamePackageState.KEY);
 		events.listen(GameActionEvents.APPLY, (context, targets) -> {
-			final GamePackage sourcePackage = context.getOptional(GameActionContextKeys.PACKAGE);
+			GamePackage sourcePackage = context.getOptional(GameActionContextKeys.PACKAGE);
 			if (sourcePackage == null) {
 				return false;
 			}
 
 			boolean applied = false;
-			for (final DonationPackageData donationPackage : packages.packages()) {
+			for (DonationPackageData donationPackage : packages.packages()) {
 				if (exclude.contains(donationPackage.id()) || donationPackage.id().equals(sourcePackage.packageType())) {
 					continue;
 				}
@@ -53,7 +53,7 @@ public record TriggerEveryPackageBehavior(Set<String> exclude) implements IGameB
 		});
 	}
 
-	private static TriState triggerPackage(final IGamePhase game, final DonationPackageData packageData, final GamePackage sourcePackage) {
+	private static TriState triggerPackage(IGamePhase game, DonationPackageData packageData, GamePackage sourcePackage) {
 		Optional<UUID> targetPlayer = Optional.empty();
 		Optional<GameTeamKey> targetTeam = Optional.empty();
 
@@ -68,7 +68,7 @@ public record TriggerEveryPackageBehavior(Set<String> exclude) implements IGameB
 			}
 		}
 
-		final GamePackage gamePackage = new GamePackage(packageData.id(), sourcePackage.sendingPlayerName(), targetPlayer, targetTeam);
+		GamePackage gamePackage = new GamePackage(packageData.id(), sourcePackage.sendingPlayerName(), targetPlayer, targetTeam);
 		return game.invoker(GamePackageEvents.RECEIVE_PACKAGE).onReceivePackage(gamePackage);
 	}
 

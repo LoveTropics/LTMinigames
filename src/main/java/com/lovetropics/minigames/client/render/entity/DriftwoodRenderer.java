@@ -67,13 +67,13 @@ public final class DriftwoodRenderer extends EntityRenderer<DriftwoodEntity, Dri
 		}
 
 		@SubscribeEvent
-		public static void onRegisterLayerDefinitions(final EntityRenderersEvent.RegisterLayerDefinitions event) {
+		public static void onRegisterLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
 			event.registerLayerDefinition(LAYER, DriftwoodModel::createBodyModel);
 		}
 
 		private static LayerDefinition createBodyModel() {
-			final MeshDefinition mesh = new MeshDefinition();
-			final PartDefinition root = mesh.getRoot();
+			MeshDefinition mesh = new MeshDefinition();
+			PartDefinition root = mesh.getRoot();
 			root.addOrReplaceChild("log",
 					CubeListBuilder.create()
 							.texOffs(0, 0)

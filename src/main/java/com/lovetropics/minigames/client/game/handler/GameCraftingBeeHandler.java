@@ -73,7 +73,7 @@ public class GameCraftingBeeHandler {
 	@EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
 	public static class ModSubscriber {
 		@SubscribeEvent
-		static void onRegisterTooltips(final RegisterClientTooltipComponentFactoriesEvent event) {
+		static void onRegisterTooltips(RegisterClientTooltipComponentFactoriesEvent event) {
 			event.register(RecipeHintState.class, recipeHintState -> new ClientTooltipComponent() {
 				@Override
 				public int getHeight(Font font) {

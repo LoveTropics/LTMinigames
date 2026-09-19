@@ -32,7 +32,7 @@ public class RevealPlayersBehavior implements IGameBehavior {
 	//prevent messing with spectral arrows
 	private final Set<UUID> playerToWasGlowingAlready = new ObjectOpenHashSet<>();
 
-	public RevealPlayersBehavior(final int playersLeftRequired, final int glowOnTime, final int glowOffTime) {
+	public RevealPlayersBehavior(int playersLeftRequired, int glowOnTime, int glowOffTime) {
 		this.playersLeftRequired = playersLeftRequired;
 		this.glowOnTime = glowOnTime;
 		this.glowOffTime = glowOffTime;

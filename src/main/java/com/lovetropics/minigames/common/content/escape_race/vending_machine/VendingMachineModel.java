@@ -130,7 +130,7 @@ public class VendingMachineModel extends EntityModel<VendingMachineRenderState> 
 	}
 
 	@SubscribeEvent
-	public static void onRegisterLayerDefinitions(final EntityRenderersEvent.RegisterLayerDefinitions event) {
+	public static void onRegisterLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
 		event.registerLayerDefinition(LAYER_LOCATION, VendingMachineModel::createBodyLayer);
 	}
 

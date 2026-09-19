@@ -14,24 +14,24 @@ import java.util.function.Function;
 public final class AttributeBuilder<T extends Attribute, P> extends AbstractBuilder<Attribute, T, P, AttributeBuilder<T, P>> {
 	private final Function<String, T> factory;
 
-	public AttributeBuilder(final LoveTropicsRegistrate owner, final P parent, final String name, final BuilderCallback callback, final Function<String, T> factory) {
+	public AttributeBuilder(LoveTropicsRegistrate owner, P parent, String name, BuilderCallback callback, Function<String, T> factory) {
 		super(owner, parent, name, callback, Registries.ATTRIBUTE);
 		this.factory = factory;
 	}
 
-	public AttributeBuilder<T, P> lang(final String name) {
+	public AttributeBuilder<T, P> lang(String name) {
 		return super.lang(Attribute::getDescriptionId, name);
 	}
 
 	@Override
 	protected T createEntry() {
-		final Identifier id = Identifier.fromNamespaceAndPath(getOwner().getModid(), getName());
-		final String translationKey = Util.makeDescriptionId("attribute", id);
+		Identifier id = Identifier.fromNamespaceAndPath(getOwner().getModid(), getName());
+		String translationKey = Util.makeDescriptionId("attribute", id);
 		return factory.apply(translationKey);
 	}
 
 	@Override
-	protected RegistryEntry<Attribute, T> createEntryWrapper(final DeferredHolder<Attribute, T> delegate) {
+	protected RegistryEntry<Attribute, T> createEntryWrapper(DeferredHolder<Attribute, T> delegate) {
 		return new RegistryEntry<>(getOwner(), delegate);
 	}
 }

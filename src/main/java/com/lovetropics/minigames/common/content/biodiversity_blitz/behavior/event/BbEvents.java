@@ -101,7 +101,7 @@ public final class BbEvents {
 	});
 
 	public static final GameEventType<ModifyWaveMobs> MODIFY_WAVE_MODS = GameEventType.create(ModifyWaveMobs.class, listeners -> (entities, random, world, plot, waveIndex) -> {
-		for (final ModifyWaveMobs listener : listeners) {
+		for (ModifyWaveMobs listener : listeners) {
 			listener.modifyWave(entities, random, world, plot, waveIndex);
 		}
 	});

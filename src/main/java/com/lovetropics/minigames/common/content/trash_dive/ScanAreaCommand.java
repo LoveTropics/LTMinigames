@@ -50,7 +50,7 @@ public class ScanAreaCommand {
 	private static final DynamicCommandExceptionType WRITE_ERROR = new DynamicCommandExceptionType(ex ->
 			Component.translatable("commands.ltminigames.scan.write.fail", ex));
 
-	public static void register(final CommandDispatcher<CommandSourceStack> dispatcher) {
+	public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
 		dispatcher.register(literal("game")
 				.then(literal("scan").requires(Commands.hasPermission(Commands.LEVEL_OWNERS))
 						.then(argument("name", StringArgumentType.word())
@@ -76,11 +76,11 @@ public class ScanAreaCommand {
 		queue.add(pos.immutable());
 		seen.add(pos.asLong());
 
-		final Set<Block> edges = Sets.newHashSet(Blocks.DIRT, Blocks.GRASS_BLOCK, Blocks.STONE, Blocks.SAND, Blocks.STAINED_GLASS.brown());
+		Set<Block> edges = Sets.newHashSet(Blocks.DIRT, Blocks.GRASS_BLOCK, Blocks.STONE, Blocks.SAND, Blocks.STAINED_GLASS.brown());
 		if (PURIFIED_SAND.isBound()) {
 			edges.add(PURIFIED_SAND.value());
 		}
-		final Direction[] dirs = new Direction[]{Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST};
+		Direction[] dirs = new Direction[]{Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST};
 
 		Map<ChunkPos, LevelChunk> chunkCache = new HashMap<>();
 

@@ -24,7 +24,7 @@ public final class LootItemConditionTypeBuilder<T extends MapCodec<? extends Loo
 	}
 
 	@Override
-	protected RegistryEntry<MapCodec<? extends LootItemCondition>, T> createEntryWrapper(final DeferredHolder<MapCodec<? extends LootItemCondition>, T> delegate) {
+	protected RegistryEntry<MapCodec<? extends LootItemCondition>, T> createEntryWrapper(DeferredHolder<MapCodec<? extends LootItemCondition>, T> delegate) {
 		return new RegistryEntry<>(getOwner(), delegate);
 	}
 }

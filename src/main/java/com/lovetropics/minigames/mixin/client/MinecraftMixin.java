@@ -34,7 +34,7 @@ public class MinecraftMixin {
 	@Inject(at = @At("HEAD"), method = "shouldEntityAppearGlowing", cancellable = true)
 	private void ltminigames$glowingTeamMembers(Entity entity, CallbackInfoReturnable<Boolean> cir) {
 		if (entity.getType() == EntityTypes.PLAYER && ClientGameStateManager.getOrNull(GameClientStateTypes.GLOW_TEAM_MEMBERS) != null) {
-			final var team = ClientGameStateManager.getOrNull(GameClientStateTypes.TEAM_MEMBERS);
+			var team = ClientGameStateManager.getOrNull(GameClientStateTypes.TEAM_MEMBERS);
 
 			if (team != null && (team.teamMembers().contains(entity.getUUID()) || player == entity)) {
 				cir.setReturnValue(true);

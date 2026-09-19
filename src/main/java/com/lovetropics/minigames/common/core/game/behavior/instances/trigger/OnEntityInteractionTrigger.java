@@ -63,7 +63,7 @@ public record OnEntityInteractionTrigger(
 				return InteractionResult.PASS;
 			}
 
-			final ContextMap.Builder context = new ContextMap.Builder()
+			ContextMap.Builder context = new ContextMap.Builder()
 					.withParameter(GameActionContextKeys.TARGET, target);
 			boolean applied = sourceActions.apply(game, context.create(ContextKeySet.EMPTY), ActionSubjects.ofPlayer(player))
 					| targetActions.apply(game, context.create(ContextKeySet.EMPTY), ActionSubjects.ofEntity(target));

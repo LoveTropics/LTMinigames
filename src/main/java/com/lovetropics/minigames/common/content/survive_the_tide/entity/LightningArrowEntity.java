@@ -15,19 +15,19 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 public class LightningArrowEntity extends AbstractArrow {
-	public LightningArrowEntity(final EntityType<? extends LightningArrowEntity> type, final Level level) {
+	public LightningArrowEntity(EntityType<? extends LightningArrowEntity> type, Level level) {
 		super(type, level);
 	}
 
-	public LightningArrowEntity(final Level level, final LivingEntity shooter, ItemStack stack, @Nullable ItemStack firedFromWeapon) {
+	public LightningArrowEntity(Level level, LivingEntity shooter, ItemStack stack, @Nullable ItemStack firedFromWeapon) {
 		super(SurviveTheTide.LIGHTNING_ARROW_ENTITY.get(), shooter, level, stack, firedFromWeapon);
 	}
 
 	@Override
-	protected void onHit(final HitResult result) {
+	protected void onHit(HitResult result) {
 		super.onHit(result);
-		final LightningBolt lightning = MinigameEntities.QUIET_LIGHTNING_BOLT.get().create(level(), EntitySpawnReason.TRIGGERED);
-		final BlockPos hitPos = BlockPos.containing(result.getLocation());
+		LightningBolt lightning = MinigameEntities.QUIET_LIGHTNING_BOLT.get().create(level(), EntitySpawnReason.TRIGGERED);
+		BlockPos hitPos = BlockPos.containing(result.getLocation());
 		lightning.snapTo(Vec3.atBottomCenterOf(hitPos));
 		level().addFreshEntity(lightning);
 	}

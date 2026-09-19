@@ -24,15 +24,15 @@ public final class SurviveTheTideBiomes {
 		initializer.add(Registries.BIOME, SurviveTheTideBiomes::bootstrap);
 	}
 
-	private static void bootstrap(final BootstrapContext<Biome> context) {
+	private static void bootstrap(BootstrapContext<Biome> context) {
 		context.register(SURVIVE_THE_TIDE_1, createSurviveTheTide(1.5f, 1.25f, 0x417251, 0x0F331B, 0xC0D8FF));
 		context.register(SURVIVE_THE_TIDE_2, createSurviveTheTide(2.0f, 0.0f, 0x417251, 0x0F331B, 0xC0D8FF));
 		context.register(SURVIVE_THE_TIDE_4_RUSTY, createSurviveTheTide(1.5f, 1.25f, 0x69422C, 0x464242, 0x464242));
 		context.register(SURVIVE_THE_TIDE_4_GREEN, createSurviveTheTide(1.5f, 1.25f, 0x4A422C, 0x464242, 0x464242));
 	}
 
-	private static Biome createSurviveTheTide(final float temperature, final float downfall, int waterColor, int skyColor, int fogColor) {
-		final BiomeSpecialEffects.Builder effects = new BiomeSpecialEffects.Builder()
+	private static Biome createSurviveTheTide(float temperature, float downfall, int waterColor, int skyColor, int fogColor) {
+		BiomeSpecialEffects.Builder effects = new BiomeSpecialEffects.Builder()
 				.waterColor(waterColor);
 		return new Biome.BiomeBuilder()
 				.putAttributes(EnvironmentAttributeMap.builder()

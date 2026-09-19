@@ -55,9 +55,9 @@ public class TweakTests implements MinigameTest {
 	}
 
 	@GameTest
-	public void testMaxHealth(final LTGameTestHelper helper) {
-		final var player = helper.createFakePlayer();
-		final var lobby = helper.createGame(player, PlayerRole.PARTICIPANT);
+	public void testMaxHealth(LTGameTestHelper helper) {
+		var player = helper.createFakePlayer();
+		var lobby = helper.createGame(player, PlayerRole.PARTICIPANT);
 		lobby.enqueue(gameId("max_health"));
 
 		helper.startSequence()
@@ -70,12 +70,12 @@ public class TweakTests implements MinigameTest {
 	}
 
 	@GameTest
-	public void testCancelDamage(final LTGameTestHelper helper) {
-		final var player = helper.createFakePlayer();
-		final var lobby = helper.createGame(player, PlayerRole.PARTICIPANT);
+	public void testCancelDamage(LTGameTestHelper helper) {
+		var player = helper.createFakePlayer();
+		var lobby = helper.createGame(player, PlayerRole.PARTICIPANT);
 		lobby.enqueue(gameId("cancel_damage"));
 
-		final var target = helper.makeMockPlayer(GameType.SURVIVAL);
+		var target = helper.makeMockPlayer(GameType.SURVIVAL);
 		helper.startSequence()
 				.thenExecute(helper.startGame(lobby))
 				.thenIdle(60) // Wait for invulnerability to end
@@ -85,12 +85,12 @@ public class TweakTests implements MinigameTest {
 	}
 
 	@GameTest
-	public void testScaleDamage(final LTGameTestHelper helper) {
-		final var player = helper.createFakePlayer();
-		final var lobby = helper.createGame(player, PlayerRole.PARTICIPANT);
+	public void testScaleDamage(LTGameTestHelper helper) {
+		var player = helper.createFakePlayer();
+		var lobby = helper.createGame(player, PlayerRole.PARTICIPANT);
 		lobby.enqueue(gameId("scale_damage"));
 
-		final var target = helper.playerBuilder()
+		var target = helper.playerBuilder()
 				.gameMode(GameType.SURVIVAL)
 				.isInvulnerableTo(source -> !source.is(DamageTypes.PLAYER_ATTACK))
 				.canBeHarmedBy(p -> p == player)
@@ -117,10 +117,10 @@ public class TweakTests implements MinigameTest {
 	}
 
 	@GameTest(timeoutTicks = 200)
-	public void testDisableHunger(final LTGameTestHelper helper) {
-		final var player = helper.createFakePlayer();
+	public void testDisableHunger(LTGameTestHelper helper) {
+		var player = helper.createFakePlayer();
 		player.setSprinting(true);
-		final var lobby = helper.createGame(player, PlayerRole.PARTICIPANT);
+		var lobby = helper.createGame(player, PlayerRole.PARTICIPANT);
 		lobby.enqueue(gameId("disable_hunger"));
 
 		helper.startSequence()

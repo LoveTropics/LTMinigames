@@ -21,8 +21,8 @@ public class GameRewardsMap implements IGameState {
 		return rewards.computeIfAbsent(player.getUUID(), id -> new GameRewards());
 	}
 
-	public void grant(final ServerPlayer player) {
-		final GameRewards rewards = this.rewards.remove(player.getUUID());
+	public void grant(ServerPlayer player) {
+		GameRewards rewards = this.rewards.remove(player.getUUID());
 		if (rewards != null) {
 			rewards.grant(player);
 		}

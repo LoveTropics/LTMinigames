@@ -31,7 +31,7 @@ public class SurviveTheTideRulesetBehavior implements IGameBehavior {
 
 	private ProgressHolder progression;
 
-	public SurviveTheTideRulesetBehavior(final ProgressionPeriod safePeriod, final boolean forceDropItemsOnDeath) {
+	public SurviveTheTideRulesetBehavior(ProgressionPeriod safePeriod, boolean forceDropItemsOnDeath) {
 		this.safePeriod = safePeriod;
 		this.forceDropItemsOnDeath = forceDropItemsOnDeath;
 	}

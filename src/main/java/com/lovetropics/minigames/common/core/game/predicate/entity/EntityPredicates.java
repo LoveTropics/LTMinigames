@@ -19,7 +19,7 @@ public class EntityPredicates {
 
 	public static final RegistryEntry<MapCodec<? extends EntityPredicate>, MapCodec<EntityTypeEntityPredicate>> ENTITY_TYPE = register("entity_type", EntityTypeEntityPredicate.CODEC);
 
-	public static <T extends EntityPredicate> RegistryEntry<MapCodec<? extends EntityPredicate>, MapCodec<T>> register(final String name, final MapCodec<T> codec) {
+	public static <T extends EntityPredicate> RegistryEntry<MapCodec<? extends EntityPredicate>, MapCodec<T>> register(String name, MapCodec<T> codec) {
 		return REGISTRATE.object(name).entityPredicate(codec).register();
 	}
 

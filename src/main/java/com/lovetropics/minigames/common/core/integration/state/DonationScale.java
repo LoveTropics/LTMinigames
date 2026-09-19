@@ -24,8 +24,8 @@ public record DonationScale(
 	public static final Codec<DonationScale> CODEC = MAP_CODEC.codec();
 	public static final Codec<List<DonationScale>> LIST_CODEC = DonationScale.CODEC.listOf();
 
-	public static DonationScale getScale(final double testAmount, final List<DonationScale> scales) {
-		for (final DonationScale scale : scales) {
+	public static DonationScale getScale(double testAmount, List<DonationScale> scales) {
+		for (DonationScale scale : scales) {
 			if (scale.amount.matches(testAmount)) {
 				return scale;
 			}

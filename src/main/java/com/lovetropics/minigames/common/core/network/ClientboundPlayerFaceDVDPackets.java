@@ -23,7 +23,7 @@ public class ClientboundPlayerFaceDVDPackets {
 				Add::new
 		);
 
-		public static void handle(final Add add, final IPayloadContext context) {
+		public static void handle(Add add, IPayloadContext context) {
 			PlayerFaceDVDRender.add(add.uuid(), add.lengthInTicks());
 		}
 
@@ -39,7 +39,7 @@ public class ClientboundPlayerFaceDVDPackets {
 
 		public static final StreamCodec<ByteBuf, Clear> STREAM_CODEC = StreamCodec.unit(new Clear());
 
-		public static void handle(final Clear message, final IPayloadContext context) {
+		public static void handle(Clear message, IPayloadContext context) {
 			PlayerFaceDVDRender.clear();
 		}
 

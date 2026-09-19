@@ -61,7 +61,7 @@ public class TranslationCollector {
 	public interface Fun1 {
 		MutableComponent apply(Object arg);
 
-		default Fun1 withStyle(final ChatFormatting color) {
+		default Fun1 withStyle(ChatFormatting color) {
 			return a -> apply(a).withStyle(color);
 		}
 	}
@@ -69,7 +69,7 @@ public class TranslationCollector {
 	public interface Fun2 {
 		MutableComponent apply(Object a, Object b);
 
-		default Fun2 withStyle(final ChatFormatting color) {
+		default Fun2 withStyle(ChatFormatting color) {
 			return (a, b) -> apply(a, b).withStyle(color);
 		}
 	}
@@ -77,7 +77,7 @@ public class TranslationCollector {
 	public interface Fun3 {
 		MutableComponent apply(Object a, Object b, Object c);
 
-		default Fun3 withStyle(final ChatFormatting color) {
+		default Fun3 withStyle(ChatFormatting color) {
 			return (a, b, c) -> apply(a, b, c).withStyle(color);
 		}
 	}
@@ -85,7 +85,7 @@ public class TranslationCollector {
 	public interface Fun4 {
 		MutableComponent apply(Object a, Object b, Object c, Object d);
 
-		default Fun4 withStyle(final ChatFormatting color) {
+		default Fun4 withStyle(ChatFormatting color) {
 			return (a, b, c, d) -> apply(a, b, c, d).withStyle(color);
 		}
 	}
@@ -93,7 +93,7 @@ public class TranslationCollector {
 	public interface Fun5 {
 		MutableComponent apply(Object a, Object b, Object c, Object d, Object e);
 
-		default Fun5 withStyle(final ChatFormatting color) {
+		default Fun5 withStyle(ChatFormatting color) {
 			return (a, b, c, d, e) -> apply(a, b, c, d, e).withStyle(color);
 		}
 	}

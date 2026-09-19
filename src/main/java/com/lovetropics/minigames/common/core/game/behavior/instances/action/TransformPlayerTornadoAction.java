@@ -22,7 +22,7 @@ public record TransformPlayerTornadoAction(int timeTicks, boolean baby) implemen
 		events.applyToPlayers(game, (context, player) -> transformPlayer(player));
 	}
 
-	private boolean transformPlayer(final ServerPlayer player) {
+	private boolean transformPlayer(ServerPlayer player) {
 
 		InterModComms.sendTo("weather2", "player_tornado", () -> {
 			CompoundTag tag = new CompoundTag();

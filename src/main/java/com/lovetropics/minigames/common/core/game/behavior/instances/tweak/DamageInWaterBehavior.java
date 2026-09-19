@@ -15,7 +15,7 @@ public record DamageInWaterBehavior(int interval, float amount) implements IGame
 	).apply(i, DamageInWaterBehavior::new));
 
 	@Override
-	public void register(final IGamePhase game, final EventRegistrar events) {
+	public void register(IGamePhase game, EventRegistrar events) {
 		events.listen(GamePlayerEvents.TICK, player -> {
 			if (player.isInWater() && player.tickCount % interval == 0) {
 				player.hurtServer(player.level(), player.damageSources().drown(), amount);

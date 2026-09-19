@@ -12,12 +12,12 @@ import java.util.function.Supplier;
 public final class MobEffectBuilder<T extends MobEffect, P> extends AbstractBuilder<MobEffect, T, P, MobEffectBuilder<T, P>> {
 	private final Supplier<T> effect;
 
-	public MobEffectBuilder(final LoveTropicsRegistrate owner, final P parent, final String name, final BuilderCallback callback, final Supplier<T> effect) {
+	public MobEffectBuilder(LoveTropicsRegistrate owner, P parent, String name, BuilderCallback callback, Supplier<T> effect) {
 		super(owner, parent, name, callback, Registries.MOB_EFFECT);
 		this.effect = effect;
 	}
 
-	public MobEffectBuilder<T, P> lang(final String name) {
+	public MobEffectBuilder<T, P> lang(String name) {
 		return super.lang(MobEffect::getDescriptionId, name);
 	}
 
@@ -27,7 +27,7 @@ public final class MobEffectBuilder<T extends MobEffect, P> extends AbstractBuil
 	}
 
 	@Override
-	protected RegistryEntry<MobEffect, T> createEntryWrapper(final DeferredHolder<MobEffect, T> delegate) {
+	protected RegistryEntry<MobEffect, T> createEntryWrapper(DeferredHolder<MobEffect, T> delegate) {
 		return new RegistryEntry<>(getOwner(), delegate);
 	}
 }

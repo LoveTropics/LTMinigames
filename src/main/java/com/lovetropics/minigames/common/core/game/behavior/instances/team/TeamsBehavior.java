@@ -165,7 +165,7 @@ public final class TeamsBehavior implements IGameBehavior {
 	}
 
 	private void removePlayerFromTeams(IGamePhase game, ServerPlayer player) {
-		final var teamKey = teams.removePlayer(player.getUUID());
+		var teamKey = teams.removePlayer(player.getUUID());
 		if (teamKey != null) {
 			game.invoker(GameTeamEvents.REMOVE_FROM_TEAM).onRemoveFromTeam(player, teams, teamKey);
 		}

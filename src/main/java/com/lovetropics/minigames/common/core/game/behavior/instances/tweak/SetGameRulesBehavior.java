@@ -23,7 +23,7 @@ public record SetGameRulesBehavior(boolean applyDefaults, GameRuleMap rules) imp
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
-		final GameRules gameRules = game.level().getGameRules();
+		GameRules gameRules = game.level().getGameRules();
 
 		if (applyDefaults) {
 			GameRules defaultRules = new GameRules(FeatureFlags.VANILLA_SET);

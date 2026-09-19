@@ -9,12 +9,12 @@ import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 public class LightningArrowItem extends ArrowItem {
-	public LightningArrowItem(final Properties properties) {
+	public LightningArrowItem(Properties properties) {
 		super(properties);
 	}
 
 	@Override
-	public AbstractArrow createArrow(final Level level, final ItemStack stack, final LivingEntity shooter, @Nullable ItemStack weapon) {
+	public AbstractArrow createArrow(Level level, ItemStack stack, LivingEntity shooter, @Nullable ItemStack weapon) {
 		return new LightningArrowEntity(level, shooter, stack, weapon);
 	}
 }

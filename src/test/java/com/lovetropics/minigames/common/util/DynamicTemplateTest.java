@@ -8,14 +8,14 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class DynamicTemplateTest {
-	private static void assertSubstitutionAndExtraction(final DynamicTemplate template, final Object parameters, final Object result) {
+	private static void assertSubstitutionAndExtraction(DynamicTemplate template, Object parameters, Object result) {
 		assertEquals(result, template.substitute(JavaOps.INSTANCE, parameters));
 		assertEquals(parameters, template.extract(JavaOps.INSTANCE, result));
 	}
 
 	@Test
 	public void substitutionInMap() {
-		final DynamicTemplate template = DynamicTemplate.parse(JavaOps.INSTANCE, Map.of(
+		DynamicTemplate template = DynamicTemplate.parse(JavaOps.INSTANCE, Map.of(
 				"foo", "$1",
 				"bar", Map.of(
 						"baz", "$2"
@@ -37,7 +37,7 @@ public class DynamicTemplateTest {
 
 	@Test
 	public void missingParameterInMap() {
-		final DynamicTemplate template = DynamicTemplate.parse(JavaOps.INSTANCE,
+		DynamicTemplate template = DynamicTemplate.parse(JavaOps.INSTANCE,
 				Map.of(
 						"foo", "$1",
 						"bar", "$2"
@@ -55,7 +55,7 @@ public class DynamicTemplateTest {
 
 	@Test
 	public void stringTemplate() {
-		final DynamicTemplate template = DynamicTemplate.parse(JavaOps.INSTANCE, Map.of(
+		DynamicTemplate template = DynamicTemplate.parse(JavaOps.INSTANCE, Map.of(
 				"with_prefix", Map.of(
 						"$", Map.of(
 								"path", "$1",

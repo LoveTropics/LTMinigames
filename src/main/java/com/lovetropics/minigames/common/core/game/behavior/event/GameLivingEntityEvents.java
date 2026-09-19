@@ -70,7 +70,7 @@ public final class GameLivingEntityEvents {
 	});
 
 	public static final GameEventType<ModifyExplosionKnockback> MODIFY_EXPLOSION_KNOCKBACK = GameEventType.create(ModifyExplosionKnockback.class, listeners -> (level, entity, explosion, knockback, initialKnockback) -> {
-		for (final ModifyExplosionKnockback listener : listeners) {
+		for (ModifyExplosionKnockback listener : listeners) {
 			knockback = listener.getKnockback(level, entity, explosion, knockback, initialKnockback);
 		}
 		return knockback;

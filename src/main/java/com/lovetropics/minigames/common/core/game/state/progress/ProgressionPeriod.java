@@ -21,8 +21,8 @@ public record ProgressionPeriod(ProgressionPoint start, ProgressionPoint end) {
 
 	public static final Codec<ProgressionPeriod> CODEC = Codec.withAlternative(MAP_CODEC.codec(), TUPLE_CODEC);
 
-	public BooleanSupplier createPredicate(final IGamePhase game, final ProgressChannel channel) {
-		final ProgressHolder holder = channel.getOrThrow(game);
+	public BooleanSupplier createPredicate(IGamePhase game, ProgressChannel channel) {
+		ProgressHolder holder = channel.getOrThrow(game);
 		return () -> holder.is(this);
 	}
 }

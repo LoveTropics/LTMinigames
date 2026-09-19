@@ -30,20 +30,20 @@ public record PhasedWeatherControlBehavior(
 	).apply(i, PhasedWeatherControlBehavior::new));
 
 	@Override
-	public void register(final IGamePhase game, final EventRegistrar events) {
-		final GameWeatherState weather = game.state().getOrThrow(GameWeatherState.KEY);
-		final ProgressHolder progression = channel.getOrThrow(game);
+	public void register(IGamePhase game, EventRegistrar events) {
+		GameWeatherState weather = game.state().getOrThrow(GameWeatherState.KEY);
+		ProgressHolder progression = channel.getOrThrow(game);
 
 		events.listen(GamePhaseEvents.TICK, () -> {
-			final ServerLevel level = game.level();
+			ServerLevel level = game.level();
 			if (level.getGameTime() % SharedConstants.TICKS_PER_SECOND == 0) {
 				tick(weather, progression);
 			}
 		});
 	}
 
-	private void tick(final GameWeatherState weather, final ProgressHolder progression) {
-		final WeatherEventType weatherType = getCurrentWeather(progression);
+	private void tick(GameWeatherState weather, ProgressHolder progression) {
+		WeatherEventType weatherType = getCurrentWeather(progression);
 		if (Objects.equals(weatherType, weather.getEventType())) {
 			return;
 		}
@@ -54,8 +54,8 @@ public record PhasedWeatherControlBehavior(
 		}
 	}
 
-	private @Nullable WeatherEventType getCurrentWeather(final ProgressHolder progression) {
-		for (final Period period : periods) {
+	private @Nullable WeatherEventType getCurrentWeather(ProgressHolder progression) {
+		for (Period period : periods) {
 			if (progression.is(period.period())) {
 				return period.weather();
 			}

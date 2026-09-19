@@ -38,17 +38,17 @@ public class LTMinigamesGameTests {
 	public static final TestPermissionAPI PERMISSIONS = new TestPermissionAPI();
 
 	private static final Supplier<Map<Identifier, MinigameTest>> TESTS = Suppliers.memoize(() -> {
-		final var classes = ModList.get().getAllScanData().stream()
+		var classes = ModList.get().getAllScanData().stream()
 				.flatMap(sc -> sc.getAnnotations().stream())
 				.filter(an -> an.annotationType().equals(RegisterMinigameTest.TYPE))
 				.map(an -> an.clazz().getInternalName())
 				.toList();
 
-		final var testMap = new HashMap<Identifier, MinigameTest>();
+		var testMap = new HashMap<Identifier, MinigameTest>();
 		try {
 			for (String cls : classes) {
-				final Class<?> clazz = Class.forName(cls.replace('/', '.'));
-				final MinigameTest test = (MinigameTest) clazz.getDeclaredConstructor().newInstance();
+				Class<?> clazz = Class.forName(cls.replace('/', '.'));
+				MinigameTest test = (MinigameTest) clazz.getDeclaredConstructor().newInstance();
 				testMap.put(test.id(), test);
 			}
 		} catch (Exception ex) {
@@ -60,7 +60,7 @@ public class LTMinigamesGameTests {
 	public static final String TESTING_PACK = "testing";
 
 	@SubscribeEvent
-	static void register(final RegisterGameTestsEvent event) {
+	static void register(RegisterGameTestsEvent event) {
 		for (var entry : TESTS.get().entrySet()) {
 			var test = entry.getValue();
 			var id = entry.getKey();
@@ -133,10 +133,10 @@ public class LTMinigamesGameTests {
 	}
 
 	@SubscribeEvent
-	static void gather(final GatherDataEvent.Client event) {
-		final PackOutput out = event.getGenerator().getPackOutput(TESTING_PACK);
+	static void gather(GatherDataEvent.Client event) {
+		PackOutput out = event.getGenerator().getPackOutput(TESTING_PACK);
 
-		final BehaviorFactory behaviors = new BehaviorFactory();
+		BehaviorFactory behaviors = new BehaviorFactory();
 		event.getGenerator()
 				.addProvider(true, new GameProvider(out, behaviors, event.getLookupProvider()) {
 					@Override
@@ -153,7 +153,7 @@ public class LTMinigamesGameTests {
 	}
 
 	@SubscribeEvent
-	static void addFinders(final AddPackFindersEvent event) {
+	static void addFinders(AddPackFindersEvent event) {
 //		if (event.getPackType() == PackType.SERVER_DATA) {
 //			PackLocationInfo info = new PackLocationInfo(TESTING_PACK, Component.literal("testing"), PackSource.BUILT_IN, Optional.empty());
 //			final var resources = new PathPackResources(info, ModList.get()

@@ -21,7 +21,7 @@ public class QuietLightningBolt extends LightningBolt {
 	private int life;
 	private int flashes;
 
-	public QuietLightningBolt(final EntityType<? extends LightningBolt> type, final Level level) {
+	public QuietLightningBolt(EntityType<? extends LightningBolt> type, Level level) {
 		super(type, level);
 		life = 2;
 		flashes = random.nextInt(3) + 1;
@@ -50,9 +50,9 @@ public class QuietLightningBolt extends LightningBolt {
 		}
 
 		if (life >= 0) {
-			if (level() instanceof final ServerLevel serverLevel) {
-				final List<Entity> entities = level().getEntities(this, new AABB(getX() - 3.0D, getY() - 3.0D, getZ() - 3.0D, getX() + 3.0D, getY() + 6.0D + 3.0D, getZ() + 3.0D), Entity::isAlive);
-				for (final Entity entity : entities) {
+			if (level() instanceof ServerLevel serverLevel) {
+				List<Entity> entities = level().getEntities(this, new AABB(getX() - 3.0D, getY() - 3.0D, getZ() - 3.0D, getX() + 3.0D, getY() + 6.0D + 3.0D, getZ() + 3.0D), Entity::isAlive);
+				for (Entity entity : entities) {
 					if (!EventHooks.onEntityStruckByLightning(entity, this)) {
 						entity.thunderHit(serverLevel, this);
 					}

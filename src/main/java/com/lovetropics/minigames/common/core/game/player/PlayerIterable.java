@@ -87,7 +87,7 @@ public interface PlayerIterable extends PlayerOps, Iterable<ServerPlayer> {
 		}
 	}
 
-	default void showTitle(@Nullable final Component title, @Nullable final Component subtitle, final int fadeIn, final int stay, final int fadeOut) {
+	default void showTitle(@Nullable Component title, @Nullable Component subtitle, int fadeIn, int stay, int fadeOut) {
 		sendPacket(new ClientboundClearTitlesPacket(true));
 		sendPacket(new ClientboundSetTitlesAnimationPacket(fadeIn, stay, fadeOut));
 		sendPacket(new ClientboundSetTitleTextPacket(title != null ? title : CommonComponents.space()));
@@ -96,15 +96,15 @@ public interface PlayerIterable extends PlayerOps, Iterable<ServerPlayer> {
 		}
 	}
 
-	default void showTitle(final Component title, final int fadeIn, final int stay, final int fadeOut) {
+	default void showTitle(Component title, int fadeIn, int stay, int fadeOut) {
 		showTitle(title, null, fadeIn, stay, fadeOut);
 	}
 
-	default void fadeToBlack(final int fadeDuration) {
+	default void fadeToBlack(int fadeDuration) {
 		sendPacket(new ClientboundFadeToBlackPacket(true, fadeDuration));
 	}
 
-	default void fadeFromBlack(final int fadeDuration) {
+	default void fadeFromBlack(int fadeDuration) {
 		sendPacket(new ClientboundFadeToBlackPacket(false, fadeDuration));
 	}
 

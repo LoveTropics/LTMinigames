@@ -47,7 +47,7 @@ public class Util {
 			world.addFreshEntity(entity);
 			return true;
 		} else {
-			final Entity entity = entityType.create(world, reason);
+			Entity entity = entityType.create(world, reason);
 			if (entity != null) {
 				entity.setPos(x, y, z);
 				return world.addFreshEntity(entity);
@@ -57,7 +57,7 @@ public class Util {
 		}
 	}
 
-	public static boolean addItemStackToInventory(final ServerPlayer player, final ItemStack itemstack) {
+	public static boolean addItemStackToInventory(ServerPlayer player, ItemStack itemstack) {
 		if (player.addItem(itemstack)) {
 			player.level().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, 0.2F, ((player.getRandom().nextFloat() - player.getRandom().nextFloat()) * 0.7F + 1.0F) * 2.0F);
 			return true;
@@ -167,14 +167,14 @@ public class Util {
 		return String.format("%02d:%02d", minutesPart, secondsPart);
 	}
 
-	public static String unpackTranslationKey(final Component component) {
+	public static String unpackTranslationKey(Component component) {
 		return ((TranslatableContents) component.getContents()).getKey();
 	}
 
-	public static @Nullable ServerPlayer getKillerPlayer(final ServerPlayer player, final DamageSource killingBlow) {
-		if (killingBlow.getEntity() instanceof final ServerPlayer killerPlayer) {
+	public static @Nullable ServerPlayer getKillerPlayer(ServerPlayer player, DamageSource killingBlow) {
+		if (killingBlow.getEntity() instanceof ServerPlayer killerPlayer) {
 			return killerPlayer;
-		} else if (player.getKillCredit() instanceof final ServerPlayer killerPlayer) {
+		} else if (player.getKillCredit() instanceof ServerPlayer killerPlayer) {
 			return killerPlayer;
 		}
 		return null;

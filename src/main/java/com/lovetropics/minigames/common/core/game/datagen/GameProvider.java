@@ -27,18 +27,18 @@ public abstract class GameProvider implements DataProvider {
 	@Override
 	public CompletableFuture<?> run(CachedOutput pOutput) {
 		return registries.thenCompose(regs -> {
-			final List<GameBuilder> builders = new ArrayList<>();
+			List<GameBuilder> builders = new ArrayList<>();
 			generate(id -> {
-				final var builder = new GameBuilder(id);
+				var builder = new GameBuilder(id);
 				builders.add(builder);
 				return builder;
 			}, regs);
 
-			final var gamesProv = output.createPathProvider(PackOutput.Target.DATA_PACK, "games");
+			var gamesProv = output.createPathProvider(PackOutput.Target.DATA_PACK, "games");
 			return CompletableFuture.allOf(builders.stream()
 					.map(builder -> {
-						final var built = builder.build();
-						final var path = gamesProv.json(built.id());
+						var built = builder.build();
+						var path = gamesProv.json(built.id());
 						return DataProvider.saveStable(pOutput, regs, GameConfig.codec(built.id()), built, path);
 					})
 					.toArray(CompletableFuture[]::new));

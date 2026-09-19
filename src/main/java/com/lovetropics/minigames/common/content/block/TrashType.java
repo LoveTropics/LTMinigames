@@ -44,7 +44,7 @@ public enum TrashType implements NonNullSupplier<Block>, StringRepresentable {
 			Direction dir = Direction.from3DDataValue(i);
 			float min = 8 - halfW;
 			float max = 8 + halfW;
-			final float minX, maxX, minY, maxY, minZ, maxZ;
+			float minX, maxX, minY, maxY, minZ, maxZ;
 			if (dir.getAxis().isVertical()) {
 				minX = minZ = min;
 				maxX = maxZ = max;

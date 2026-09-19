@@ -38,7 +38,7 @@ public record DonationPackageNotification(
 			SoundEvent.CODEC.optionalFieldOf("sound", Holder.direct(SoundEvents.TOTEM_USE)).forGetter(c -> c.sound)
 	).apply(i, DonationPackageNotification::new));
 
-	public void onPlayerReceive(final IGamePhase game, @Nullable final ServerPlayer receiver, @Nullable final String sender, final Component packageName) {
+	public void onPlayerReceive(IGamePhase game, @Nullable ServerPlayer receiver, @Nullable String sender, Component packageName) {
 		Component targetedMessage = createTargetedMessage(sender, getReceiverName(receiver));
 		Component globalMessage = createGlobalMessage(packageName, getReceiverName(receiver));
 
@@ -48,7 +48,7 @@ public record DonationPackageNotification(
 		}
 	}
 
-	public void onTeamReceive(final IGamePhase game, @Nullable final GameTeam receiver, @Nullable final String sender, final Component packageName) {
+	public void onTeamReceive(IGamePhase game, @Nullable GameTeam receiver, @Nullable String sender, Component packageName) {
 		TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
 
 		Component targetedMessage = createTargetedMessage(sender, getReceiverName(receiver));
@@ -84,7 +84,7 @@ public record DonationPackageNotification(
 		return MinigameTexts.PACKAGE_RECEIVED.apply(receiverName, packageName.copy().withStyle(sentiment.textStyle()));
 	}
 
-	public NotificationStyle createStyle(final NotificationStyle.Color color, final long visibleTime) {
+	public NotificationStyle createStyle(NotificationStyle.Color color, long visibleTime) {
 		return new NotificationStyle(icon, sentiment, color, visibleTime);
 	}
 

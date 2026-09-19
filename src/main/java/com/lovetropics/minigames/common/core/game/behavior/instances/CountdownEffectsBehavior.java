@@ -43,10 +43,10 @@ public record CountdownEffectsBehavior(ProgressChannel channel, ProgressionPoint
 	private static final int COMPLETED_COUNTDOWN = -2;
 
 	@Override
-	public void register(final IGamePhase game, final EventRegistrar events) {
-		final ProgressHolder progression = channel.getOrThrow(game);
+	public void register(IGamePhase game, EventRegistrar events) {
+		ProgressHolder progression = channel.getOrThrow(game);
 
-		final AtomicInteger countdownTo = new AtomicInteger(WAITING_FOR_COUNTDOWN);
+		AtomicInteger countdownTo = new AtomicInteger(WAITING_FOR_COUNTDOWN);
 		events.listen(GamePhaseEvents.TICK, () -> {
 			int targetTick = countdownTo.getPlain();
 			if (targetTick == WAITING_FOR_COUNTDOWN) {
@@ -65,14 +65,14 @@ public record CountdownEffectsBehavior(ProgressChannel channel, ProgressionPoint
 		});
 	}
 
-	private boolean shouldStart(final ProgressHolder progression, final int targetTick) {
-		final int startTick = targetTick - seconds * SharedConstants.TICKS_PER_SECOND;
+	private boolean shouldStart(ProgressHolder progression, int targetTick) {
+		int startTick = targetTick - seconds * SharedConstants.TICKS_PER_SECOND;
 		return progression.time() >= startTick;
 	}
 
-	private boolean tickCounting(final IGamePhase game, final int ticksLeft) {
+	private boolean tickCounting(IGamePhase game, int ticksLeft) {
 		if (ticksLeft % SharedConstants.TICKS_PER_SECOND == 0) {
-			final int secondsLeft = ticksLeft / SharedConstants.TICKS_PER_SECOND;
+			int secondsLeft = ticksLeft / SharedConstants.TICKS_PER_SECOND;
 			if (secondsLeft > 0) {
 				showCountdown(game, secondsLeft);
 			} else {
@@ -82,15 +82,15 @@ public record CountdownEffectsBehavior(ProgressChannel channel, ProgressionPoint
 		return false;
 	}
 
-	private void showCountdown(final IGamePhase game, final int secondsLeft) {
-		final float delta = Mth.inverseLerp(secondsLeft, seconds, 1);
-		final float pitch = this.pitch.get(delta);
-		final PlayerSet players = game.allPlayers();
+	private void showCountdown(IGamePhase game, int secondsLeft) {
+		float delta = Mth.inverseLerp(secondsLeft, seconds, 1);
+		float pitch = this.pitch.get(delta);
+		PlayerSet players = game.allPlayers();
 		players.playSound(sound, SoundSource.MASTER, 1.0f, pitch);
 
 		if (showTitle) {
-			final int color = ARGB.linearLerp(delta, startColor, endColor);
-			final Component title = Component.literal(".." + secondsLeft).withStyle(Style.EMPTY.withColor(color));
+			int color = ARGB.linearLerp(delta, startColor, endColor);
+			Component title = Component.literal(".." + secondsLeft).withStyle(Style.EMPTY.withColor(color));
 			players.showTitle(title, 4, SharedConstants.TICKS_PER_SECOND, 4);
 		}
 	}

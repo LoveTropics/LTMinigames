@@ -29,7 +29,7 @@ public record SetRoleTrigger(
 	).apply(i, SetRoleTrigger::new));
 
 	@Override
-	public void register(final IGamePhase game, final EventRegistrar events) throws GameException {
+	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		action.register(game, events);
 		events.listen(GamePlayerEvents.SET_ROLE, (player, role, lastRole) -> {
 			if (this.role == role && (fromRole.isEmpty() || fromRole.get() == lastRole)) {

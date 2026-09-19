@@ -130,16 +130,16 @@ public final class GameConfigs {
 		}
 	}
 
-	private static MapCodec<IGameBehavior> createCustomBehaviorCodec(final DynamicTemplate template) {
+	private static MapCodec<IGameBehavior> createCustomBehaviorCodec(DynamicTemplate template) {
 		return new MapCodec<>() {
 			@Override
 			public <T> RecordBuilder<T> encode(IGameBehavior input, DynamicOps<T> ops, RecordBuilder<T> prefix) {
-				final DataResult<T> substituted = IGameBehavior.CODEC.encodeStart(ops, input);
+				DataResult<T> substituted = IGameBehavior.CODEC.encodeStart(ops, input);
 				if (substituted.result().isEmpty()) {
 					return prefix.withErrorsFrom(substituted);
 				}
-				final T extracted = template.extract(ops, substituted.result().get());
-				final MutableObject<RecordBuilder<T>> builder = new MutableObject<>(prefix);
+				T extracted = template.extract(ops, substituted.result().get());
+				MutableObject<RecordBuilder<T>> builder = new MutableObject<>(prefix);
 				ops.getMap(extracted).result().ifPresent(map ->
 						map.entries().forEach(pair ->
 								builder.setValue(builder.get().add(pair.getFirst(), pair.getSecond()))

@@ -30,7 +30,7 @@ public record DonationPackageData(
 			Codec.DOUBLE.optionalFieldOf("donation_amount").forGetter(DonationPackageData::donationAmount)
 	).apply(i, DonationPackageData::new));
 
-	public DonationPackageData apply(final PackageCostModifierBehavior.State costModifier) {
+	public DonationPackageData apply(PackageCostModifierBehavior.State costModifier) {
 		return new DonationPackageData(id, packageType, category, targetSelectionMode, applyToTeam, name, description, donationAmount.map(costModifier::apply));
 	}
 

@@ -797,7 +797,7 @@ public class LTGameTestHelper extends GameTestHelper {
 
 	public Runnable startGame(TestGameLobby game) {
 		return () -> {
-			final var result = game.lobby().getControls().get(LobbyControls.Type.PLAY).run();
+			var result = game.lobby().getControls().get(LobbyControls.Type.PLAY).run();
 			assertTrue(result.isOk(), () -> "Game could not start: " + result.getError().getString());
 		};
 	}
@@ -812,7 +812,7 @@ public class LTGameTestHelper extends GameTestHelper {
 
 	public <T> void assertReceivedPacket(LTFakePlayer player, int index, Class<T> type, Predicate<T> test) {
 		assertTrue(index < player.receivedPackets.size(), "Not enough packets received");
-		final var pkt = player.receivedPackets.get(index);
+		var pkt = player.receivedPackets.get(index);
 		assertTrue(type.isInstance(pkt), "Received packet was of wrong type. Was: " + pkt.getClass() + ", expected: " + type);
 		assertTrue(test.test(type.cast(pkt)), "Packet did not match!");
 	}
@@ -822,7 +822,7 @@ public class LTGameTestHelper extends GameTestHelper {
 	}
 
 	public void assertPlayerInventoryContainsAt(Player player, int index, ItemStack stack) {
-		final ItemStack toCompare = player.getInventory().getItem(index);
+		ItemStack toCompare = player.getInventory().getItem(index);
 		assertTrue(ItemStack.isSameItemSameComponents(stack, toCompare), () -> "Items did not match: expected " + stack + ", but was " + toCompare);
 		assertTrue(stack.getCount() == toCompare.getCount(), () -> "Stack count did not match: expected " + stack.getCount() + ", but was " + toCompare.getCount());
 	}

@@ -50,7 +50,7 @@ public final class PlotsState implements Iterable<Plot>, IGameState {
 	}
 
 	public @Nullable Plot getPlotFor(Entity entity) {
-		if (entity instanceof final Player player) {
+		if (entity instanceof Player player) {
 			GameTeamKey team = teams.getTeamForPlayer(player);
 			return team != null ? getPlotFor(team) : null;
 		}

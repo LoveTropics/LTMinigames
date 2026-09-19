@@ -139,7 +139,7 @@ public final class LobbyPlayerList implements GuiEventListener, NarratableEntry 
 	}
 
 	@Override
-	public void updateNarration(final NarrationElementOutput output) {
+	public void updateNarration(NarrationElementOutput output) {
 	}
 
 	@Override

@@ -50,28 +50,28 @@ public record LobbyWithPortalBehavior(String portalRegion, String targetRegion, 
 	).apply(i, LobbyWithPortalBehavior::new));
 
 	@Override
-	public void register(final IGamePhase game, final EventRegistrar events) {
+	public void register(IGamePhase game, EventRegistrar events) {
 		teleportAction.register(game, events);
 
-		final BlockBox portal = game.mapRegions().getOrThrow(portalRegion);
-		final List<BlockBox> targets = game.mapRegions().getAll(targetRegion);
+		BlockBox portal = game.mapRegions().getOrThrow(portalRegion);
+		List<BlockBox> targets = game.mapRegions().getAll(targetRegion);
 		if (targets.isEmpty()) {
 			throw new GameException(Component.literal("No targets for portal"));
 		}
 
-		final Vec3 pointTowards = game.mapRegions().getOrThrow(pointTowardsRegion).center();
+		Vec3 pointTowards = game.mapRegions().getOrThrow(pointTowardsRegion).center();
 
-		final BooleanSupplier predicate = openAt.createPredicate(game, channel);
-		final MutableBoolean portalOpen = new MutableBoolean();
+		BooleanSupplier predicate = openAt.createPredicate(game, channel);
+		MutableBoolean portalOpen = new MutableBoolean();
 		events.listen(GamePhaseEvents.TICK, () -> {
-			final boolean shouldOpen = predicate.getAsBoolean();
+			boolean shouldOpen = predicate.getAsBoolean();
 			if (portalOpen.get() != shouldOpen) {
 				setPortal(game.level(), portal, shouldOpen);
 				portalOpen.setValue(shouldOpen);
 			}
 		});
 
-		final Set<UUID> playersInLobby = new ObjectOpenHashSet<>();
+		Set<UUID> playersInLobby = new ObjectOpenHashSet<>();
 		events.listen(GamePlayerEvents.SPAWN, (playerId, spawn, role) -> {
 			if (role == PlayerRole.PARTICIPANT) {
 				playersInLobby.add(playerId);
@@ -83,8 +83,8 @@ public record LobbyWithPortalBehavior(String portalRegion, String targetRegion, 
 				return;
 			}
 			if (portal.contains(player.position()) && playersInLobby.remove(player.getUUID())) {
-				final BlockBox target = Util.getRandom(targets, game.random());
-				final Vec3 center = target.center();
+				BlockBox target = Util.getRandom(targets, game.random());
+				Vec3 center = target.center();
 				player.teleportTo(player.level(), center.x, center.y, center.z, Set.of(), computeAngle(center, pointTowards), 0.0f, true);
 				player.level().playSound(null, center.x, center.y, center.z, SoundEvents.CHORUS_FRUIT_TELEPORT, SoundSource.PLAYERS, 1.0f, 1.0f);
 				teleportAction.apply(game, ContextMap.EMPTY, ActionSubjects.ofPlayer(player));
@@ -95,21 +95,21 @@ public record LobbyWithPortalBehavior(String portalRegion, String targetRegion, 
 		events.listen(GamePlayerEvents.DAMAGE, (player, damageSource, amount) -> checkInLobby(player, playersInLobby));
 	}
 
-	private float computeAngle(final Vec3 pos, final Vec3 target) {
-		final double deltaX = target.x - pos.x;
-		final double deltaZ = target.z - pos.z;
+	private float computeAngle(Vec3 pos, Vec3 target) {
+		double deltaX = target.x - pos.x;
+		double deltaZ = target.z - pos.z;
 		return (float) Math.atan2(-deltaX, deltaZ) * Mth.RAD_TO_DEG;
 	}
 
-	private static void setPortal(final ServerLevel level, final BlockBox portal, final boolean open) {
-		final Direction.Axis portalAxis = portal.size().getX() > 1 ? Direction.Axis.X : Direction.Axis.Z;
-		final BlockState state = open ? Blocks.NETHER_PORTAL.defaultBlockState().setValue(NetherPortalBlock.AXIS, portalAxis) : Blocks.AIR.defaultBlockState();
-		for (final BlockPos pos : portal) {
+	private static void setPortal(ServerLevel level, BlockBox portal, boolean open) {
+		Direction.Axis portalAxis = portal.size().getX() > 1 ? Direction.Axis.X : Direction.Axis.Z;
+		BlockState state = open ? Blocks.NETHER_PORTAL.defaultBlockState().setValue(NetherPortalBlock.AXIS, portalAxis) : Blocks.AIR.defaultBlockState();
+		for (BlockPos pos : portal) {
 			level.setBlock(pos, state, Block.UPDATE_CLIENTS);
 		}
 	}
 
-	private static TriState checkInLobby(final ServerPlayer player, final Set<UUID> playersInLobby) {
+	private static TriState checkInLobby(ServerPlayer player, Set<UUID> playersInLobby) {
 		if (playersInLobby.contains(player.getUUID())) {
 			return TriState.FALSE;
 		}

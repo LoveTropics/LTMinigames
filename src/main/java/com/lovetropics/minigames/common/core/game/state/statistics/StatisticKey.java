@@ -22,7 +22,7 @@ public final class StatisticKey<T> {
 	public static final Codec<StatisticKey<Integer>> INT_CODEC = typedCodec(Integer.class);
 
 	@SuppressWarnings("unchecked")
-	public static <T> Codec<StatisticKey<T>> typedCodec(final Class<T> type) {
+	public static <T> Codec<StatisticKey<T>> typedCodec(Class<T> type) {
 		return CODEC.comapFlatMap(
 				key -> type.isAssignableFrom(key.type) ? DataResult.success((StatisticKey<T>) key) : DataResult.error(() -> "Statistic not of type: " + type),
 				key -> key

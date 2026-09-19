@@ -29,13 +29,13 @@ public record ItemPickedUpTrigger(Optional<ItemPredicate> itemPredicate, GameAct
 	).apply(i, ItemPickedUpTrigger::new));
 
 	@Override
-	public void register(final IGamePhase game, final EventRegistrar events) {
+	public void register(IGamePhase game, EventRegistrar events) {
 		action.register(game, events);
 
 		events.listen(GamePlayerEvents.PICK_UP_ITEM, (player, item) -> {
-			final ItemStack stack = item.getItem();
+			ItemStack stack = item.getItem();
 			if (itemPredicate.isEmpty() || itemPredicate.get().test(stack)) {
-				final ContextMap context = new ContextMap.Builder()
+				ContextMap context = new ContextMap.Builder()
 						.withParameter(GameActionContextKeys.ITEM, stack)
 						.withParameter(GameActionContextKeys.COUNT, stack.getCount())
 						.create(ContextKeySet.EMPTY);

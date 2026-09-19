@@ -27,12 +27,12 @@ public record ItemPickupPriorityBehavior(Optional<ItemPredicate> itemPredicate, 
 	).apply(i, ItemPickupPriorityBehavior::new));
 
 	@Override
-	public void register(final IGamePhase game, final EventRegistrar events) {
+	public void register(IGamePhase game, EventRegistrar events) {
 		events.listen(GamePlayerEvents.PICK_UP_ITEM, (player, item) -> {
-			final ItemStack stack = item.getItem();
+			ItemStack stack = item.getItem();
 			if (itemPredicate.isEmpty() || itemPredicate.get().test(stack)) {
-				final float minSeconds = Math.max(maxSeconds - getPickupPriority(player), 0.0f);
-				final int minAge = Mth.floor(minSeconds * SharedConstants.TICKS_PER_SECOND);
+				float minSeconds = Math.max(maxSeconds - getPickupPriority(player), 0.0f);
+				int minAge = Mth.floor(minSeconds * SharedConstants.TICKS_PER_SECOND);
 				if (item.getAge() <= minAge) {
 					return PickUpResult.CANCEL;
 				}
@@ -42,7 +42,7 @@ public record ItemPickupPriorityBehavior(Optional<ItemPredicate> itemPredicate, 
 	}
 
 	private static float getPickupPriority(ServerPlayer player) {
-		final AttributeInstance attribute = player.getAttribute(Qottott.PICKUP_PRIORITY);
+		AttributeInstance attribute = player.getAttribute(Qottott.PICKUP_PRIORITY);
 		return attribute != null ? (float) attribute.getValue() : 0.0f;
 	}
 

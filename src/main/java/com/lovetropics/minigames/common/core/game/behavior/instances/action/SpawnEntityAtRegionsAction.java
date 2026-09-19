@@ -43,7 +43,7 @@ public class SpawnEntityAtRegionsAction implements IGameBehavior {
 	private final Optional<GameActionList> entitySpawnActions;
 	private @Nullable BlockBox faceBox;
 
-	public SpawnEntityAtRegionsAction(final List<String> regionsToSpawnAtKeys, final EntityTemplate entity, final int entityCountPerRegion, boolean atHeightmap, final Optional<String> faceRegion, final Optional<GameActionList> entitySpawnActions) {
+	public SpawnEntityAtRegionsAction(List<String> regionsToSpawnAtKeys, EntityTemplate entity, int entityCountPerRegion, boolean atHeightmap, Optional<String> faceRegion, Optional<GameActionList> entitySpawnActions) {
 		this.regionsToSpawnAtKeys = regionsToSpawnAtKeys;
 		this.entity = entity;
 		this.entityCountPerRegion = entityCountPerRegion;
@@ -70,7 +70,7 @@ public class SpawnEntityAtRegionsAction implements IGameBehavior {
 			}
 
 			ServerLevel world = game.level();
-			for (final BlockBox region : regionsToSpawnAt) {
+			for (BlockBox region : regionsToSpawnAt) {
 				for (int i = 0; i < entityCountPerRegion; i++) {
 					BlockPos pos = region.sample(game.random());
 					if (atHeightmap) {

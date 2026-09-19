@@ -31,7 +31,7 @@ public abstract class PlayerListMixin implements PlayerListAccess {
 	protected abstract void save(ServerPlayer player);
 
 	@Inject(method = "save", at = @At("HEAD"), cancellable = true)
-	private void save(final ServerPlayer player, final CallbackInfo ci) {
+	private void save(ServerPlayer player, CallbackInfo ci) {
 		if (PlayerIsolation.INSTANCE.isIsolated(player)) {
 			ci.cancel();
 		}
@@ -43,18 +43,18 @@ public abstract class PlayerListMixin implements PlayerListAccess {
 	}
 
 	@Override
-	public void ltminigames$remove(final ServerPlayer player) {
+	public void ltminigames$remove(ServerPlayer player) {
 		players.remove(player);
 	}
 
 	@Override
-	public void ltminigames$add(final ServerPlayer player) {
+	public void ltminigames$add(ServerPlayer player) {
 		players.add(player);
 		playersByUUID.put(player.getUUID(), player);
 	}
 
 	@Override
-	public void ltminigames$firePlayerLoading(final ServerPlayer player) {
+	public void ltminigames$firePlayerLoading(ServerPlayer player) {
 		EventHooks.firePlayerLoadingEvent(player, (PlayerList) (Object) (this), player.getStringUUID());
 	}
 

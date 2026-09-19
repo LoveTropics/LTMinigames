@@ -16,7 +16,7 @@ public record ServerboundVendingMachinePurchasePacket(int entityId) implements C
 			ServerboundVendingMachinePurchasePacket::new
 	);
 
-	public static void handle(final ServerboundVendingMachinePurchasePacket message, final IPayloadContext context) {
+	public static void handle(ServerboundVendingMachinePurchasePacket message, IPayloadContext context) {
 		ServerPlayer player = (ServerPlayer) context.player();
 		if (!(player.level().getEntity(message.entityId) instanceof VendingMachineEntity vendingMachine)) {
 			return;

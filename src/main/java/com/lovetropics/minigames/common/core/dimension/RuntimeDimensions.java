@@ -152,7 +152,7 @@ public final class RuntimeDimensions {
 						if (!flush && temporaryDimensions.contains(dimension())) {
 							super.save(progress, false, skipSave);
 						}
-					} catch (final Exception e) {
+					} catch (Exception e) {
 						LOGGER.error("Failed to save temporary dimension", e);
 					}
 				} else {

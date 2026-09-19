@@ -11,7 +11,7 @@ public record DisableThrowingItemsBehavior() implements IGameBehavior {
 	public static final MapCodec<DisableThrowingItemsBehavior> CODEC = MapCodec.unit(DisableThrowingItemsBehavior::new);
 
 	@Override
-	public void register(final IGamePhase game, final EventRegistrar events) {
+	public void register(IGamePhase game, EventRegistrar events) {
 		events.listen(GamePlayerEvents.THROW_ITEM, (player, item) -> TriState.FALSE);
 	}
 }

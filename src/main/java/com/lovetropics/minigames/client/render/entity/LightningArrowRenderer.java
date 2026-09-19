@@ -8,7 +8,7 @@ import net.minecraft.client.renderer.entity.state.ArrowRenderState;
 import net.minecraft.resources.Identifier;
 
 public class LightningArrowRenderer extends ArrowRenderer<LightningArrowEntity, ArrowRenderState> {
-	public LightningArrowRenderer(final EntityRendererProvider.Context context) {
+	public LightningArrowRenderer(EntityRendererProvider.Context context) {
 		super(context);
 	}
 

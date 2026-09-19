@@ -19,7 +19,7 @@ public record RequestTriviaStateUpdateMessage(BlockPos triviaBlock) implements C
 			RequestTriviaStateUpdateMessage::new
 	);
 
-	public static void handle(final RequestTriviaStateUpdateMessage message, final IPayloadContext context) {
+	public static void handle(RequestTriviaStateUpdateMessage message, IPayloadContext context) {
 		if (context.player().level().getBlockEntity(message.triviaBlock()) instanceof HasTrivia triviaBlockEntity) {
 			IGamePhase game = GamePhaseManager.get().getGamePhaseFor(context.player());
 			if (game != null) {

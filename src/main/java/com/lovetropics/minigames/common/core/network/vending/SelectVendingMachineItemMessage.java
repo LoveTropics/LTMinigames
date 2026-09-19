@@ -17,7 +17,7 @@ public record SelectVendingMachineItemMessage(int entityId, int itemId) implemen
 			SelectVendingMachineItemMessage::new
 	);
 
-	public static void handle(final SelectVendingMachineItemMessage message, final IPayloadContext context) {
+	public static void handle(SelectVendingMachineItemMessage message, IPayloadContext context) {
 		ServerPlayer player = (ServerPlayer) context.player();
 		if (!(player.level().getEntity(message.entityId) instanceof VendingMachineEntity vendingMachine)) {
 			return;

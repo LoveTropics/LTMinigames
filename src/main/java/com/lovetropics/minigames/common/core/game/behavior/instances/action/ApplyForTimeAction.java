@@ -58,14 +58,14 @@ public record ApplyForTimeAction(
 	).apply(i, ApplyForTimeAction::new));
 
 	@Override
-	public void register(final IGamePhase game, final EventRegistrar events) {
+	public void register(IGamePhase game, EventRegistrar events) {
 		apply.register(game, events);
 		tick.register(game, events);
 		clear.register(game, events);
 
-		final State state = new State();
+		State state = new State();
 		nested.register(game, state.nestedListeners);
-		for (final GameEventType<?> type : state.nestedListeners.eventTypes()) {
+		for (GameEventType<?> type : state.nestedListeners.eventTypes()) {
 			state.nestedInvokers.put(type, MutableInvoker.addTo(events, type));
 		}
 
@@ -85,8 +85,8 @@ public record ApplyForTimeAction(
 		private @Nullable ActiveAction globalAction;
 		private final Map<UUID, ActiveAction> playerActions = new HashMap<>();
 
-		private void tick(final IGamePhase game) {
-			final long time = game.ticks();
+		private void tick(IGamePhase game) {
+			long time = game.ticks();
 			if (globalAction != null && tickGlobalAction(game, globalAction, time)) {
 				clearNestedInvokers();
 				globalAction = null;
@@ -118,7 +118,7 @@ public record ApplyForTimeAction(
 				return true;
 			}
 
-			final ServerPlayer player = game.allPlayers().getPlayerBy(playerId);
+			ServerPlayer player = game.allPlayers().getPlayerBy(playerId);
 			if (player != null) {
 				tick.apply(game, ContextMap.EMPTY, ActionSubjects.ofPlayer(player));
 			}
@@ -137,14 +137,14 @@ public record ApplyForTimeAction(
 			}
 		}
 
-		private void tickIndicator(final ServerPlayer player, final long ticksLeft, final TemplatedText text) {
+		private void tickIndicator(ServerPlayer player, long ticksLeft, TemplatedText text) {
 			if (ticksLeft % 5 == 0) {
-				final int seconds = Mth.positiveCeilDiv((int) ticksLeft, SharedConstants.TICKS_PER_SECOND);
+				int seconds = Mth.positiveCeilDiv((int) ticksLeft, SharedConstants.TICKS_PER_SECOND);
 				player.sendSystemMessage(text.apply(Map.of("seconds", Component.literal(String.valueOf(seconds)))), true);
 			}
 		}
 
-		private boolean tryApply(final IGamePhase game, final ContextMap context, ActionSubjects<?> targets) {
+		private boolean tryApply(IGamePhase game, ContextMap context, ActionSubjects<?> targets) {
 			long newFinishTime = game.ticks() + (long) seconds * SharedConstants.TICKS_PER_SECOND;
 
 			ActionMutexState mutexes = game.state().get(ActionMutexState.KEY);

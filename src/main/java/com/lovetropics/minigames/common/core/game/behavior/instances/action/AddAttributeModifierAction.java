@@ -18,12 +18,12 @@ public record AddAttributeModifierAction(Holder<Attribute> attribute, AttributeM
 	).apply(i, AddAttributeModifierAction::new));
 
 	@Override
-	public void register(final IGamePhase game, final EventRegistrar events) {
+	public void register(IGamePhase game, EventRegistrar events) {
 		events.applyToEntities(game, (context, level, entity) -> {
 			if (!(entity instanceof LivingEntity livingEntity)) {
 				return false;
 			}
-			final AttributeInstance attribute = livingEntity.getAttribute(this.attribute);
+			AttributeInstance attribute = livingEntity.getAttribute(this.attribute);
 			if (attribute != null) {
 				if (!attribute.hasModifier(modifier.id())) {
 					attribute.addTransientModifier(modifier);

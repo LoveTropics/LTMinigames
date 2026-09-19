@@ -27,14 +27,14 @@ public record GiveRewardAction(List<ItemStackTemplate> items, List<Identifier> c
 	).apply(i, GiveRewardAction::new));
 
 	@Override
-	public void register(final IGamePhase game, final EventRegistrar events) throws GameException {
+	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		GameRewardsMap rewards = game.instanceState().getOrThrow(GameRewardsMap.STATE);
 		events.applyToPlayers(game, (context, target) -> {
-			for (final ItemStackTemplate item : items) {
-				final int count = statisticBinding.map(binding -> binding.resolve(game, target)).orElse(item.count());
+			for (ItemStackTemplate item : items) {
+				int count = statisticBinding.map(binding -> binding.resolve(game, target)).orElse(item.count());
 				rewards.forPlayer(target).give(item.create().copyWithCount(count));
 			}
-			for (final Identifier collectible : collectibles) {
+			for (Identifier collectible : collectibles) {
 				rewards.forPlayer(target).giveCollectible(collectible);
 			}
 			return true;
@@ -48,11 +48,11 @@ public record GiveRewardAction(List<ItemStackTemplate> items, List<Identifier> c
 				Codec.BOOL.optionalFieldOf("from_team", false).forGetter(StatisticBinding::fromTeam)
 		).apply(i, StatisticBinding::new));
 
-		public int resolve(final IGamePhase game, final ServerPlayer player) {
+		public int resolve(IGamePhase game, ServerPlayer player) {
 			float value = 0.0f;
 			if (fromTeam) {
-				final TeamState teams = game.instanceState().getOrThrow(TeamState.KEY);
-				final GameTeamKey team = teams.getTeamForPlayer(player);
+				TeamState teams = game.instanceState().getOrThrow(TeamState.KEY);
+				GameTeamKey team = teams.getTeamForPlayer(player);
 				if (team != null) {
 					value += game.statistics().forTeam(team).getInt(statistic);
 				}

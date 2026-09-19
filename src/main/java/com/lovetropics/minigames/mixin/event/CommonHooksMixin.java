@@ -17,12 +17,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class CommonHooksMixin {
 	// The Forge event is entirely not useful for our use-case, so let's hook in to the hook
 	@Inject(method = "onPlayerTossEvent", at = @At(value = "INVOKE", target = "Lnet/neoforged/neoforge/event/entity/item/ItemTossEvent;<init>(Lnet/minecraft/world/entity/item/ItemEntity;Lnet/minecraft/world/entity/player/Player;)V"), cancellable = true, remap = false)
-	private static void onPlayerToss(Player player, ItemStack item, boolean dropAround, boolean includeName, CallbackInfoReturnable<@Nullable ItemEntity> cir, @Local final ItemEntity entity) {
+	private static void onPlayerToss(Player player, ItemStack item, boolean dropAround, boolean includeName, CallbackInfoReturnable<@Nullable ItemEntity> cir, @Local ItemEntity entity) {
 		// Only if the item actually originated from this player
 		if (!includeName) {
 			return;
 		}
-		if (player instanceof final ServerPlayer serverPlayer && GameEventDispatcher.instance.onPlayerThrowItem(serverPlayer, entity)) {
+		if (player instanceof ServerPlayer serverPlayer && GameEventDispatcher.instance.onPlayerThrowItem(serverPlayer, entity)) {
 			cir.setReturnValue(null);
 		}
 	}

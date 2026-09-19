@@ -40,7 +40,7 @@ public record StatisticThresholdTrigger(
 
 		Set<UUID> triggeredPlayers = new HashSet<>();
 		Set<GameTeamKey> triggeredTeams = new HashSet<>();
-		final boolean[] globalTriggered = {false};
+		boolean[] globalTriggered = {false};
 
 		events.listen(GamePhaseEvents.TICK, () -> {
 			GameStatistics statistics = game.statistics();

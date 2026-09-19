@@ -36,7 +36,7 @@ public record ItemUsedTrigger(
 		sourceActions.register(game, events);
 
 		events.listen(GamePlayerEvents.USE_ITEM, (player, hand) -> {
-			final ItemStack usedItem = player.getItemInHand(hand);
+			ItemStack usedItem = player.getItemInHand(hand);
 			if (!itemUsed.test(usedItem)) {
 				return InteractionResult.PASS;
 			}

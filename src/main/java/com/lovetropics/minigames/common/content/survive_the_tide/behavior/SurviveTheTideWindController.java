@@ -38,7 +38,7 @@ public class SurviveTheTideWindController implements IGameBehavior {
 		events.listen(GamePhaseEvents.TICK, () -> tick(game));
 	}
 
-	private void tick(final IGamePhase game) {
+	private void tick(IGamePhase game) {
 		if (progression == null) {
 			return;
 		}

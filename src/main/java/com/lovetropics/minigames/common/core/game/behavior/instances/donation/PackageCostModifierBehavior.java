@@ -19,12 +19,12 @@ public record PackageCostModifierBehavior(State state) implements IGameBehavior 
 	public static final MapCodec<PackageCostModifierBehavior> CODEC = State.CODEC.xmap(PackageCostModifierBehavior::new, PackageCostModifierBehavior::state);
 
 	@Override
-	public void registerState(final IGamePhase game, final GameStateMap phaseState, final GameStateMap instanceState) {
+	public void registerState(IGamePhase game, GameStateMap phaseState, GameStateMap instanceState) {
 		phaseState.register(State.KEY, state);
 	}
 
 	@Override
-	public void register(final IGamePhase game, final EventRegistrar events) throws GameException {
+	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 	}
 
 	@Override
@@ -40,7 +40,7 @@ public record PackageCostModifierBehavior(State state) implements IGameBehavior 
 				Codec.DOUBLE.optionalFieldOf("offset", 0.0).forGetter(State::offset)
 		).apply(i, State::new));
 
-		public double apply(final double amount) {
+		public double apply(double amount) {
 			return amount * scale + offset;
 		}
 	}

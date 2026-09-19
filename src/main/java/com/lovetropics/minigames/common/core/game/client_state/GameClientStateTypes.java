@@ -86,19 +86,19 @@ public final class GameClientStateTypes {
 	public static final GameClientTweakEntry<RemapHotbarKeysClientState> REMAP_QUICK_KEYS = register("remap_hotbar_keys", RemapHotbarKeysClientState.CODEC, RemapHotbarKeysClientState.STREAM_CODEC);
 	public static final GameClientTweakEntry<InvertScrollWheelClientState> INVERT_SCROLL_WHEEL = registerUnit("invert_scroll_wheel", InvertScrollWheelClientState.INSTANCE);
 
-	public static <T extends GameClientState> GameClientTweakEntry<T> register(final String name, final MapCodec<T> codec) {
+	public static <T extends GameClientState> GameClientTweakEntry<T> register(String name, MapCodec<T> codec) {
 		return REGISTRATE.object(name)
 				.clientState(codec)
 				.register();
 	}
 
-	public static <T extends GameClientState> GameClientTweakEntry<T> register(final String name, final MapCodec<T> codec, final StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec) {
+	public static <T extends GameClientState> GameClientTweakEntry<T> register(String name, MapCodec<T> codec, StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec) {
 		return REGISTRATE.object(name)
 				.clientState(codec).streamCodec(streamCodec)
 				.register();
 	}
 
-	public static <T extends GameClientState> GameClientTweakEntry<T> registerUnit(final String name, final T instance) {
+	public static <T extends GameClientState> GameClientTweakEntry<T> registerUnit(String name, T instance) {
 		return REGISTRATE.object(name)
 				.clientState(MapCodec.unit(instance))
 				.streamCodec(StreamCodec.unit(instance))

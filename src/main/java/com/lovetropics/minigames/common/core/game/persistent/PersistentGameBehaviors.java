@@ -38,7 +38,7 @@ public class PersistentGameBehaviors {
 	public static final PersistentGameBehaviorEntry<CrabGolfWinBehavior> CRAB_GOLF_WIN = register("crab_golf_win", CrabGolfWinBehavior.CODEC);
 	public static final PersistentGameBehaviorEntry<ParkourBehavior> PARKOUR = register("parkour", ParkourBehavior.CODEC);
 
-	public static <T extends PersistentGameBehavior> PersistentGameBehaviorEntry<T> register(final String name, final MapCodec<T> codec) {
+	public static <T extends PersistentGameBehavior> PersistentGameBehaviorEntry<T> register(String name, MapCodec<T> codec) {
 		return REGISTRATE.object(name).persistentBehavior(codec).register();
 	}
 

@@ -18,7 +18,7 @@ public record TriviaAnswerResponseMessage(BlockPos triviaBlock, TriviaBlockEntit
 			TriviaAnswerResponseMessage::new
 	);
 
-	public static void handle(final TriviaAnswerResponseMessage message, final IPayloadContext context) {
+	public static void handle(TriviaAnswerResponseMessage message, IPayloadContext context) {
 		ClientTriviaHandler.handleResponse(message);
 	}
 

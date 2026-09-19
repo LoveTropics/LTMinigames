@@ -40,7 +40,7 @@ public class SyncTeamsBehavior implements IGameBehavior {
 	}
 
 	private void sendSync(TeamState teams, GameTeamKey key, IGamePhase game) {
-		final var team = teams.getParticipantsForTeam(game, key);
+		var team = teams.getParticipantsForTeam(game, key);
 		team.forEach(player -> GameClientStateSender.get().byPlayer(player).enqueueSet(new TeamMembersClientState(team.stream().filter(p -> p != player)
 				.map(ServerPlayer::getUUID).toList())));
 	}

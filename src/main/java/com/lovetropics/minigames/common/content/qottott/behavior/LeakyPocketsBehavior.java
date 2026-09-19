@@ -27,18 +27,18 @@ public record LeakyPocketsBehavior(ItemStackTemplate item, StatisticKey<Integer>
 	).apply(i, LeakyPocketsBehavior::new));
 
 	@Override
-	public void register(final IGamePhase game, final EventRegistrar events) {
-		final RandomSource random = game.random();
+	public void register(IGamePhase game, EventRegistrar events) {
+		RandomSource random = game.random();
 		events.listen(GamePlayerEvents.TICK, player -> {
 			if (player.tickCount % interval != 0) {
 				return;
 			}
-			final double chancePerCoin = player.getAttributeValue(Qottott.LEAKY_POCKETS);
+			double chancePerCoin = player.getAttributeValue(Qottott.LEAKY_POCKETS);
 			if (chancePerCoin <= 0.0) {
 				return;
 			}
-			final StatisticsMap statistics = game.statistics().forPlayer(player);
-			final int count = statistics.getInt(statistic);
+			StatisticsMap statistics = game.statistics().forPlayer(player);
+			int count = statistics.getInt(statistic);
 			int dropAmount = sampleDropCount(count, random, chancePerCoin);
 			if (dropAmount > 0) {
 				statistics.incrementInt(statistic, -dropAmount);
@@ -47,8 +47,8 @@ public record LeakyPocketsBehavior(ItemStackTemplate item, StatisticKey<Integer>
 		});
 	}
 
-	private int sampleDropCount(final int count, final RandomSource random, final double chancePerCoin) {
-		final double totalChance = chancePerCoin * count;
+	private int sampleDropCount(int count, RandomSource random, double chancePerCoin) {
+		double totalChance = chancePerCoin * count;
 		int amount = Mth.floor(totalChance);
 		if (random.nextFloat() <= totalChance - amount) {
 			amount++;

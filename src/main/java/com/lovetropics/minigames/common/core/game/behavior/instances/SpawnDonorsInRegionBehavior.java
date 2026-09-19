@@ -51,7 +51,7 @@ public record SpawnDonorsInRegionBehavior(
 		// Spawn at start of game
 		integrations.get("donations/donations/all/limited", Donation.LIST_CODEC).thenAcceptAsync(result -> {
 				if (result.isPresent()) {
-					final List<Donation> donations = result.get();
+					List<Donation> donations = result.get();
 					for (Donation donation : donations) {
 						List<ItemStack> itemStacks = donorBootItems.stream().flatMap(List::stream).map(ItemStackTemplate::create).toList();
 						SpawnDonorUtils.spawnDonorInRandomRegion(game, donation, regions, scales.orElse(List.of()), itemStacks);
@@ -71,7 +71,7 @@ public record SpawnDonorsInRegionBehavior(
 		events.listen(GameLivingEntityEvents.MOB_DROP, (level, e, d, r) -> {
 			if (e.hasData(LoveTropicsAttachments.DONATION)) {
 				ItemStack book = new ItemStack(Items.WRITTEN_BOOK, 1);
-				final Donation donation = e.getData(LoveTropicsAttachments.DONATION);
+				Donation donation = e.getData(LoveTropicsAttachments.DONATION);
 				List<String> donorComments = List.of(donation.comments());
 
 				book.set(DataComponents.WRITABLE_BOOK_CONTENT, new WritableBookContent(donorComments.stream().map(Filterable::passThrough).toList()));

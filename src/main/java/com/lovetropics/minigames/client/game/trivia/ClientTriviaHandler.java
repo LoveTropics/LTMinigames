@@ -8,7 +8,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 public class ClientTriviaHandler {
 
 	public static void showScreen(ShowTriviaMessage message) {
-		final ClientLevel level = Minecraft.getInstance().level;
+		ClientLevel level = Minecraft.getInstance().level;
 		if (level == null) {
 			return;
 		}
@@ -17,7 +17,7 @@ public class ClientTriviaHandler {
 	}
 
 	public static void handleResponse(TriviaAnswerResponseMessage message) {
-		final ClientLevel level = Minecraft.getInstance().level;
+		ClientLevel level = Minecraft.getInstance().level;
 		if (level == null) {
 			return;
 		}

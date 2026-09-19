@@ -83,8 +83,8 @@ public record PlaceTrashBehavior(Identifier positionData, int centerY, int range
 
 		LongBuffer candidatePositions;
 		try (InputStream in = resource.get().open()) {
-			final byte[] data = new byte[8];
-			final ByteBuffer buf = ByteBuffer.allocate(in.available());
+			byte[] data = new byte[8];
+			ByteBuffer buf = ByteBuffer.allocate(in.available());
 			candidatePositions = buf.asLongBuffer();
 			while (in.read(data) > 0) {
 				buf.put(data);

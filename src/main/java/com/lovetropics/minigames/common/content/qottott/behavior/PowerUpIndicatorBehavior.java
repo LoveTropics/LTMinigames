@@ -29,12 +29,12 @@ public record PowerUpIndicatorBehavior(Holder<MobEffect> effect, TemplatedText t
 	).apply(i, PowerUpIndicatorBehavior::new));
 
 	@Override
-	public void register(final IGamePhase game, final EventRegistrar events) {
+	public void register(IGamePhase game, EventRegistrar events) {
 		events.listen(GamePlayerEvents.TICK, player -> {
-			final MobEffectInstance instance = player.getEffect(effect);
+			MobEffectInstance instance = player.getEffect(effect);
 			if (instance != null) {
 				if (instance.getDuration() % 5 == 0) {
-					final int seconds = Mth.floorDiv(instance.getDuration(), SharedConstants.TICKS_PER_SECOND);
+					int seconds = Mth.floorDiv(instance.getDuration(), SharedConstants.TICKS_PER_SECOND);
 					player.sendSystemMessage(text.apply(Map.of("seconds", Component.literal(String.valueOf(seconds)))), true);
 				} else if (instance.getDuration() == 1) {
 					com.lovetropics.minigames.common.util.Util.sendNotifySound(player, sound.sound(), sound.source(), sound.volume(), sound.pitch());

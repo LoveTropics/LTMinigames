@@ -22,7 +22,7 @@ import net.neoforged.neoforge.client.renderstate.RegisterRenderStateModifiersEve
 public class DDRMachineClientEventHandler {
 
 	@SubscribeEvent
-	public static void onRegisterLayerDefinitions(final EntityRenderersEvent.RegisterLayerDefinitions event) {
+	public static void onRegisterLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
 		event.registerLayerDefinition(DDRMachineEntityModel.LAYER_LOCATION, DDRMachineEntityModel::createBodyLayer);
 	}
 

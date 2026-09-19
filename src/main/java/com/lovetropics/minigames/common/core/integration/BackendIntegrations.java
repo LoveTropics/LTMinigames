@@ -118,7 +118,7 @@ public final class BackendIntegrations {
 
 	@SubscribeEvent
 	public static void tick(ServerTickEvent.Post event) {
-		final MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 		if (server != null) {
 			get().tick(server);
 		}
@@ -148,11 +148,11 @@ public final class BackendIntegrations {
 	}
 
 	// TODO: It would be nice to have a more robust system for sending with retries - for example, if we send but the minigame didn't exist.. we probably shouldn't resend it
-	void postAndRetry(final String endpoint, final JsonElement body) {
+	void postAndRetry(String endpoint, JsonElement body) {
 		postAndRetry(endpoint, body, 0);
 	}
 
-	private void postAndRetry(final String endpoint, final JsonElement body, final int depth) {
+	private void postAndRetry(String endpoint, JsonElement body, int depth) {
 		schedulePost(executor -> {
 			CompletableFuture<?> future = new CompletableFuture<>();
 			postAndRetryInner(future, executor, endpoint, body, depth);
@@ -172,28 +172,28 @@ public final class BackendIntegrations {
 		}
 	}
 
-	void post(final String endpoint, final JsonElement body) {
+	void post(String endpoint, JsonElement body) {
 		schedulePost(executor -> {
 			sender.post(endpoint, body);
 			return CompletableFuture.completedFuture(null);
 		});
 	}
 
-	void post(final String endpoint, final String body) {
+	void post(String endpoint, String body) {
 		schedulePost(executor -> {
 			sender.post(endpoint, body);
 			return CompletableFuture.completedFuture(null);
 		});
 	}
 
-	void postPolling(final String endpoint, final JsonElement body) {
+	void postPolling(String endpoint, JsonElement body) {
 		schedulePost(executor -> {
 			pollSender.post(endpoint, body);
 			return CompletableFuture.completedFuture(null);
 		});
 	}
 
-	<T> CompletableFuture<Optional<T>> get(final String endpoint, final Codec<T> codec) {
+	<T> CompletableFuture<Optional<T>> get(String endpoint, Codec<T> codec) {
 		return CompletableFuture.supplyAsync(() -> sender.get(endpoint, codec), EXECUTOR);
 	}
 

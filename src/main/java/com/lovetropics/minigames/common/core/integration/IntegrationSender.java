@@ -36,11 +36,11 @@ public interface IntegrationSender {
 		return new IntegrationSender.Http(() -> "https://polling.lovetropics.com", integrations.authToken);
 	}
 
-	default boolean post(final String endpoint, final JsonElement body) {
+	default boolean post(String endpoint, JsonElement body) {
 		return post(endpoint, new Gson().toJson(body));
 	}
 
-	boolean post(final String endpoint, final String body);
+	boolean post(String endpoint, String body);
 
 	<T> Optional<T> get(String endpoint, Codec<T> codec);
 
@@ -134,7 +134,7 @@ public interface IntegrationSender {
 		}
 
 		@Override
-		public boolean post(final String endpoint, final JsonElement body) {
+		public boolean post(String endpoint, JsonElement body) {
 			return post(endpoint, GSON.toJson(body));
 		}
 

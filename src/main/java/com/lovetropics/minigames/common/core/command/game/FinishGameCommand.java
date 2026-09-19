@@ -12,7 +12,7 @@ import net.minecraft.commands.CommandSourceStack;
 import static net.minecraft.commands.Commands.literal;
 
 public class FinishGameCommand {
-	public static void register(final CommandDispatcher<CommandSourceStack> dispatcher) {
+	public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
 		dispatcher.register(
 				literal("game")
 						.then(literal("finish")

@@ -28,7 +28,7 @@ import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
 
 public class GamePackageCommand {
-	public static void register(final CommandDispatcher<CommandSourceStack> dispatcher) {
+	public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
 		dispatcher.register(
 				literal("game")
 						.then(literal("package").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
@@ -40,7 +40,7 @@ public class GamePackageCommand {
 		);
 	}
 
-	private static CompletableFuture<Suggestions> suggestPackages(final CommandContext<CommandSourceStack> ctx, final SuggestionsBuilder builder) {
+	private static CompletableFuture<Suggestions> suggestPackages(CommandContext<CommandSourceStack> ctx, SuggestionsBuilder builder) {
 		IGamePhase game = GamePhaseManager.get().getGamePhaseFor(ctx.getSource());
 		if (game != null) {
 			GamePackageState packages = game.state().get(GamePackageState.KEY);

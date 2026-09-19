@@ -36,8 +36,8 @@ public class SurviveTheTideWeatherConfig {
 			Map<WeatherEventType, DiscreteProgressionMap<Float>> eventChancesByTime,
 			Map<WeatherEventType, Timers> eventTimers,
 			ProgressionPeriod halveEventTime,
-			final int sandstormBuildupTickRate, final int sandstormMaxStackable,
-			final int snowstormBuildupTickRate, final int snowstormMaxStackable
+			int sandstormBuildupTickRate, int sandstormMaxStackable,
+			int snowstormBuildupTickRate, int snowstormMaxStackable
 	) {
 		this.eventChancesByTime = eventChancesByTime;
 		this.eventTimers = eventTimers;

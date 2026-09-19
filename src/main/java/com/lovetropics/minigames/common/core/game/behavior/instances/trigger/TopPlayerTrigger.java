@@ -24,17 +24,17 @@ public record TopPlayerTrigger(List<GameActionList> actionsByPlace, GameActionLi
 	).apply(i, TopPlayerTrigger::new));
 
 	@Override
-	public void register(final IGamePhase game, final EventRegistrar events) throws GameException {
-		for (final GameActionList actions : actionsByPlace) {
+	public void register(IGamePhase game, EventRegistrar events) throws GameException {
+		for (GameActionList actions : actionsByPlace) {
 			actions.register(game, events);
 		}
 		fallbackActions.register(game, events);
 
 		events.listen(GamePhaseEvents.FINISH, () -> {
-			final GameStatistics statistics = game.statistics();
-			for (final ServerPlayer player : game.allPlayers()) {
-				final int placement = Objects.requireNonNullElse(statistics.forPlayer(player).get(StatisticKey.PLACEMENT), 0);
-				final GameActionList actions;
+			GameStatistics statistics = game.statistics();
+			for (ServerPlayer player : game.allPlayers()) {
+				int placement = Objects.requireNonNullElse(statistics.forPlayer(player).get(StatisticKey.PLACEMENT), 0);
+				GameActionList actions;
 				if (placement > 0 && placement <= actionsByPlace.size()) {
 					actions = actionsByPlace.get(placement - 1);
 				} else {

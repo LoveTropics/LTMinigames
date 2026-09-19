@@ -161,8 +161,8 @@ public final class GameInstanceIntegrations implements IGameState {
 		}
 	}
 
-	public void acknowledgeActionDelivery(final GameActionRequest request) {
-		final JsonObject object = new JsonObject();
+	public void acknowledgeActionDelivery(GameActionRequest request) {
+		JsonObject object = new JsonObject();
 		object.addProperty("request", request.type().getId());
 		object.addProperty("uuid", request.uuid().toString());
 

@@ -44,8 +44,8 @@ public class SimpleRegistryMixin<T> implements RegistryEntryRemover<T> {
 			return false;
 		}
 
-		final Holder.Reference<T> reference = byId.remove(rawId);
-		final ResourceKey<T> key = reference.key();
+		Holder.Reference<T> reference = byId.remove(rawId);
+		ResourceKey<T> key = reference.key();
 
 		byLocation.remove(key.identifier());
 		byKey.remove(key);

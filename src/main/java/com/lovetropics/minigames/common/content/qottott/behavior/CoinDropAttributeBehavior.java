@@ -31,13 +31,13 @@ public record CoinDropAttributeBehavior(ItemStackTemplate item, StatisticKey<Int
 	).apply(i, CoinDropAttributeBehavior::new));
 
 	@Override
-	public void register(final IGamePhase game, final EventRegistrar events) {
+	public void register(IGamePhase game, EventRegistrar events) {
 		events.listen(GamePlayerEvents.DEATH, (player, damageSource) -> {
-			if (damageSource.getEntity() instanceof final LivingEntity killer && killer.getAttributes().hasAttribute(Qottott.COIN_DROPS)) {
-				final double coinDrops = killer.getAttributeValue(Qottott.COIN_DROPS);
+			if (damageSource.getEntity() instanceof LivingEntity killer && killer.getAttributes().hasAttribute(Qottott.COIN_DROPS)) {
+				double coinDrops = killer.getAttributeValue(Qottott.COIN_DROPS);
 				if (coinDrops > 0.0) {
-					final StatisticsMap statistics = game.statistics().forPlayer(player);
-					final int amount = Mth.floor(statistics.getInt(statistic) * coinDrops);
+					StatisticsMap statistics = game.statistics().forPlayer(player);
+					int amount = Mth.floor(statistics.getInt(statistic) * coinDrops);
 					if (amount > 0) {
 						statistics.incrementInt(statistic, -amount);
 						spawnItems(game, player, amount, item.create());
@@ -48,11 +48,11 @@ public record CoinDropAttributeBehavior(ItemStackTemplate item, StatisticKey<Int
 		});
 	}
 
-	public static void spawnItems(final IGamePhase game, final Player player, final int amount, final ItemStack item) {
-		final ServerLevel level = game.level();
-		final RandomSource random = game.random();
+	public static void spawnItems(IGamePhase game, Player player, int amount, ItemStack item) {
+		ServerLevel level = game.level();
+		RandomSource random = game.random();
 		for (int i = 0; i < amount; i++) {
-			final ItemEntity entity = new ItemEntity(level, player.getRandomX(1.0), player.getRandomY(), player.getRandomZ(1.0), item.copyWithCount(1));
+			ItemEntity entity = new ItemEntity(level, player.getRandomX(1.0), player.getRandomY(), player.getRandomZ(1.0), item.copyWithCount(1));
 			entity.setDeltaMovement(random.triangle(0.0, 0.155), random.triangle(0.2, 0.155), random.triangle(0.0, 0.155));
 			level.addFreshEntity(entity);
 		}

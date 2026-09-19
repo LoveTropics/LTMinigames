@@ -46,7 +46,7 @@ public class GameStatisticCommand {
 	private static final DynamicCommandExceptionType NO_TEAM = new DynamicCommandExceptionType(GameTexts.Commands::noTeam);
 	private static final DynamicCommandExceptionType MALFORMED_STATISTICS = new DynamicCommandExceptionType(error -> Component.literal("Could not parse statistics: " + error));
 
-	public static void register(final CommandDispatcher<CommandSourceStack> dispatcher) {
+	public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
 		dispatcher.register(literal("game").then(literal("stat")
 				.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
 				.then(literal("import")

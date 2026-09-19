@@ -24,7 +24,7 @@ public record SpawnTrigger(PlayerRole role, GameActionList action) implements IG
 	).apply(i, SpawnTrigger::new));
 
 	@Override
-	public void register(final IGamePhase game, final EventRegistrar events) throws GameException {
+	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		action.register(game, events);
 		events.listen(GamePlayerEvents.SPAWN, (playerId, spawn, role) -> {
 			if (this.role == role) {

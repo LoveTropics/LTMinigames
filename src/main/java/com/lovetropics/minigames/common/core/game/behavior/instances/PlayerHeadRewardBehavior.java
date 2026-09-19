@@ -26,14 +26,14 @@ public record PlayerHeadRewardBehavior() implements IGameBehavior {
 	public static final MapCodec<PlayerHeadRewardBehavior> CODEC = MapCodec.unit(PlayerHeadRewardBehavior::new);
 
 	@Override
-	public void register(final IGamePhase game, final EventRegistrar events) throws GameException {
-		final GameRewardsMap rewards = game.instanceState().getOrThrow(GameRewardsMap.STATE);
-		final MutableObject<CompletableFuture<?>> resolvedFuture = new MutableObject<>(CompletableFuture.completedFuture(null));
+	public void register(IGamePhase game, EventRegistrar events) throws GameException {
+		GameRewardsMap rewards = game.instanceState().getOrThrow(GameRewardsMap.STATE);
+		MutableObject<CompletableFuture<?>> resolvedFuture = new MutableObject<>(CompletableFuture.completedFuture(null));
 
 		events.listen(GamePlayerEvents.DEATH, (target, source) -> {
-			final ServerPlayer killer = Util.getKillerPlayer(target, source);
+			ServerPlayer killer = Util.getKillerPlayer(target, source);
 			if (killer != null) {
-				final CompletableFuture<?> future = createPlayerHead(target)
+				CompletableFuture<?> future = createPlayerHead(target)
 						.thenAcceptAsync(stack -> rewards.forPlayer(killer).giveCollectible(stack), game.server());
 				resolvedFuture.setValue(resolvedFuture.get().thenCombine(future, (a, b) -> b));
 			}
@@ -44,15 +44,15 @@ public record PlayerHeadRewardBehavior() implements IGameBehavior {
 			try {
 				// Try our best to let these resolve before exiting, but it's not critical
 				resolvedFuture.get().get(10, TimeUnit.SECONDS);
-			} catch (final InterruptedException | ExecutionException | TimeoutException ignored) {
+			} catch (InterruptedException | ExecutionException | TimeoutException ignored) {
 			}
 		});
 	}
 
-	private static CompletableFuture<ItemStack> createPlayerHead(final ServerPlayer player) {
-		final CompletableFuture<ItemStack> future = new CompletableFuture<>();
+	private static CompletableFuture<ItemStack> createPlayerHead(ServerPlayer player) {
+		CompletableFuture<ItemStack> future = new CompletableFuture<>();
 		Util.getProfile(player.level().getServer(), player.nameAndId().id()).thenAccept(result -> {
-			final ItemStack head = new ItemStack(Items.PLAYER_HEAD);
+			ItemStack head = new ItemStack(Items.PLAYER_HEAD);
 			result.ifPresent(profile -> head.set(DataComponents.PROFILE, ResolvableProfile.createResolved(profile)));
 			future.complete(head);
 		});

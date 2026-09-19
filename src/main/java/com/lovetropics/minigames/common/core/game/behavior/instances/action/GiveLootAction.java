@@ -26,7 +26,7 @@ public record GiveLootAction(ResourceKey<LootTable> lootTable) implements IGameB
 		events.applyToPlayers(game, (context, player) -> addLootTableToInventory(player));
 	}
 
-	private boolean addLootTableToInventory(final ServerPlayer player) {
+	private boolean addLootTableToInventory(ServerPlayer player) {
 		LootParams params = new LootParams.Builder(player.level())
 				.withParameter(LootContextParams.THIS_ENTITY, player)
 				.withParameter(LootContextParams.ORIGIN, player.position())

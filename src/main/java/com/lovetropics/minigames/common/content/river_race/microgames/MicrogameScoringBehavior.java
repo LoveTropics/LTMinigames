@@ -77,7 +77,7 @@ public class MicrogameScoringBehavior implements IGameBehavior {
 		GameStatistics segmentStatistics = new GameStatistics();
 
 		for (Object2IntMap.Entry<GameTeamKey> entry : segmentState.pointsByTeam.object2IntEntrySet()) {
-			final int points = entry.getIntValue();
+			int points = entry.getIntValue();
 			game.statistics().forTeam(entry.getKey()).incrementInt(statistic, points);
 			segmentStatistics.forTeam(entry.getKey()).set(statistic, points);
 		}

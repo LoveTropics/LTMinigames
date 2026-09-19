@@ -18,12 +18,12 @@ public record ClearAttributeModifierAction(Holder<Attribute> attribute, Identifi
 	).apply(i, ClearAttributeModifierAction::new));
 
 	@Override
-	public void register(final IGamePhase game, final EventRegistrar events) {
+	public void register(IGamePhase game, EventRegistrar events) {
 		events.applyToEntities(game, (context, level, entity) -> {
 			if (!(entity instanceof LivingEntity livingEntity)) {
 				return false;
 			}
-			final AttributeInstance attribute = livingEntity.getAttribute(this.attribute);
+			AttributeInstance attribute = livingEntity.getAttribute(this.attribute);
 			if (attribute != null) {
 				attribute.removeModifier(id);
 				return true;

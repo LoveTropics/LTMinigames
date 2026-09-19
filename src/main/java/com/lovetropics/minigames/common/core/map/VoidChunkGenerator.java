@@ -49,7 +49,7 @@ public final class VoidChunkGenerator extends ChunkGenerator {
 
 	private final Holder<Biome> biome;
 
-	public VoidChunkGenerator(final Holder<Biome> biome) {
+	public VoidChunkGenerator(Holder<Biome> biome) {
 		super(new FixedBiomeSource(biome));
 		this.biome = biome;
 	}
@@ -80,7 +80,7 @@ public final class VoidChunkGenerator extends ChunkGenerator {
 	}
 
 	@Override
-	public CompletableFuture<ChunkAccess> fillFromNoise(final Blender blender, final RandomState randomState, final StructureManager structures, final ChunkAccess chunk) {
+	public CompletableFuture<ChunkAccess> fillFromNoise(Blender blender, RandomState randomState, StructureManager structures, ChunkAccess chunk) {
 		return CompletableFuture.completedFuture(chunk);
 	}
 
@@ -95,19 +95,19 @@ public final class VoidChunkGenerator extends ChunkGenerator {
 	}
 
 	@Override
-	public int getBaseHeight(final int x, final int z, final Heightmap.Types heightmap, final LevelHeightAccessor level, final RandomState randomState) {
+	public int getBaseHeight(int x, int z, Heightmap.Types heightmap, LevelHeightAccessor level, RandomState randomState) {
 		return level.getMinY();
 	}
 
 	@Override
-	public NoiseColumn getBaseColumn(final int x, final int z, final LevelHeightAccessor level, final RandomState randomState) {
-		final BlockState[] blocks = new BlockState[level.getHeight()];
+	public NoiseColumn getBaseColumn(int x, int z, LevelHeightAccessor level, RandomState randomState) {
+		BlockState[] blocks = new BlockState[level.getHeight()];
 		Arrays.fill(blocks, Blocks.AIR.defaultBlockState());
 		return new NoiseColumn(level.getMinY(), blocks);
 	}
 
 	@Override
-	public void addDebugScreenInfo(final List<String> info, final RandomState randomState, final BlockPos pos) {
+	public void addDebugScreenInfo(List<String> info, RandomState randomState, BlockPos pos) {
 	}
 
 	@Override
@@ -115,11 +115,11 @@ public final class VoidChunkGenerator extends ChunkGenerator {
 	}
 
 	@Override
-	public void buildSurface(final WorldGenRegion region, final StructureManager structures, final RandomState randomState, final ChunkAccess chunk) {
+	public void buildSurface(WorldGenRegion region, StructureManager structures, RandomState randomState, ChunkAccess chunk) {
 	}
 
 	@Override
-	public void spawnOriginalMobs(final WorldGenRegion region) {
+	public void spawnOriginalMobs(WorldGenRegion region) {
 	}
 
 	@Override

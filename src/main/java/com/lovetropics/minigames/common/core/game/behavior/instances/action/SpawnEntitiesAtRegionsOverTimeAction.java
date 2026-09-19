@@ -41,7 +41,7 @@ public class SpawnEntitiesAtRegionsOverTimeAction implements IGameBehavior {
 
 	private final List<BlockBox> regionsToSpawnAt = Lists.newArrayList();
 
-	public SpawnEntitiesAtRegionsOverTimeAction(final List<String> regionsToSpawnAtKeys, final EntityTemplate entity, final int entityCount, final int ticksToSpawnFor, final boolean atHeightmap) {
+	public SpawnEntitiesAtRegionsOverTimeAction(List<String> regionsToSpawnAtKeys, EntityTemplate entity, int entityCount, int ticksToSpawnFor, boolean atHeightmap) {
 		this.regionsToSpawnAtKeys = regionsToSpawnAtKeys;
 		this.entity = entity;
 		this.entityCount = entityCount;

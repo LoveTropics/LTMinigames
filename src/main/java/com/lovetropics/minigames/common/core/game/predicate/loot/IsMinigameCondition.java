@@ -17,7 +17,7 @@ public class IsMinigameCondition implements LootItemCondition {
 					.apply(builder, IsMinigameCondition::new));
 	private final Identifier minigameId;
 
-	private IsMinigameCondition(final Identifier minigameId) {
+	private IsMinigameCondition(Identifier minigameId) {
 		this.minigameId = minigameId;
 	}
 

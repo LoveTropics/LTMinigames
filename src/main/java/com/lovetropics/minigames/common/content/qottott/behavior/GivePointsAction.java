@@ -25,9 +25,9 @@ public record GivePointsAction(StatisticKey<Integer> statistic, int count, boole
 	).apply(i, GivePointsAction::new));
 
 	@Override
-	public void register(final IGamePhase game, final EventRegistrar events) {
+	public void register(IGamePhase game, EventRegistrar events) {
 		events.applyToPlayers(game, (context, player) -> {
-			final int count = resolveCount(context, player);
+			int count = resolveCount(context, player);
 			if (count > 0) {
 				game.statistics().forPlayer(player).incrementInt(statistic, count);
 				return true;
@@ -40,12 +40,12 @@ public record GivePointsAction(StatisticKey<Integer> statistic, int count, boole
 		if (bypassMultiplier) {
 			return count;
 		}
-		final int count = this.count * context.getOrDefault(GameActionContextKeys.COUNT, 1);
+		int count = this.count * context.getOrDefault(GameActionContextKeys.COUNT, 1);
 		return Mth.floor(count * getMultiplier(player));
 	}
 
 	private static double getMultiplier(ServerPlayer player) {
-		final AttributeInstance attribute = player.getAttribute(Qottott.COIN_MULTIPLIER);
+		AttributeInstance attribute = player.getAttribute(Qottott.COIN_MULTIPLIER);
 		return attribute != null ? attribute.getValue() : 1.0;
 	}
 

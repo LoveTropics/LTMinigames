@@ -60,9 +60,9 @@ public final class BbSendMobsToEnemyItemBehavior implements IGameBehavior {
 		events.listen(GamePhaseEvents.START, initiator -> sentEnemies = Multimaps.synchronizedMultimap(Multimaps.newListMultimap(new HashMap<>(), LinkedList::new)));
 		events.listen(GamePhaseEvents.STOP, reason -> sentEnemies.clear());
 
-		final var plots = game.state().getOrThrow(PlotsState.KEY);
+		var plots = game.state().getOrThrow(PlotsState.KEY);
 		events.listen(GamePlayerEvents.USE_ITEM, (player, hand) -> {
-			final var item = player.getItemInHand(hand);
+			var item = player.getItemInHand(hand);
 			return tryUseMobItem(player, item, game, plots, teams) ? InteractionResult.CONSUME : InteractionResult.PASS;
 		});
 
@@ -74,13 +74,13 @@ public final class BbSendMobsToEnemyItemBehavior implements IGameBehavior {
 			return false;
 		}
 
-		final var playerPlot = plots.getPlotFor(player);
+		var playerPlot = plots.getPlotFor(player);
 
 		Map<BbEntityTypes, Integer> entities = item.get(BiodiversityBlitz.ENEMIES_TO_SEND);
 		if (entities != null) {
 			plots.stream().filter(p -> p != playerPlot)
 					.forEach(targetPlot -> {
-						final Component playerName = player.getName().copy().withStyle(ChatFormatting.AQUA);
+						Component playerName = player.getName().copy().withStyle(ChatFormatting.AQUA);
 						teams.getPlayersForTeam(game, targetPlot.team).sendMessage(BiodiversityBlitzTexts.SENT_MOBS_MESSAGE.apply(playerName, buildMessage(entities)));
 
 						sentEnemies.putAll(targetPlot, entities.entrySet().stream()
@@ -95,9 +95,9 @@ public final class BbSendMobsToEnemyItemBehavior implements IGameBehavior {
 
 	public Component buildMessage(Map<BbEntityTypes, Integer> entities) {
 		MutableComponent component = Component.empty();
-		final var itr = entities.entrySet().iterator();
+		var itr = entities.entrySet().iterator();
 		while (itr.hasNext()) {
-			final var next = itr.next();
+			var next = itr.next();
 			component.append(String.valueOf(next.getValue())).append("x ").append(next.getKey().getName().withStyle(ChatFormatting.GOLD));
 
 			if (itr.hasNext()) {
@@ -109,7 +109,7 @@ public final class BbSendMobsToEnemyItemBehavior implements IGameBehavior {
 	}
 
 	private static <T> Stream<T> repeat(Supplier<T> value, int amount) {
-		final var builder = Stream.<T>builder();
+		var builder = Stream.<T>builder();
 		for (int i = 0; i < amount; i++) {
 			builder.accept(value.get());
 		}
@@ -119,7 +119,7 @@ public final class BbSendMobsToEnemyItemBehavior implements IGameBehavior {
 	@EventBusSubscriber(Dist.CLIENT)
 	public static final class Client {
 		@SubscribeEvent
-		static void appendTooltips(final RenderTooltipEvent.GatherComponents event) {
+		static void appendTooltips(RenderTooltipEvent.GatherComponents event) {
 			Map<BbEntityTypes, Integer> entities = event.getItemStack().get(BiodiversityBlitz.ENEMIES_TO_SEND);
 			if (entities != null) {
 				entities.forEach((entity, count) ->

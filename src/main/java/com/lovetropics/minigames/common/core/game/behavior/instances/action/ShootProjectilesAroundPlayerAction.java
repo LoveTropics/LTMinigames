@@ -47,7 +47,7 @@ public class ShootProjectilesAroundPlayerAction implements IGameBehavior {
 	private final Object2IntMap<UUID> playerToAmountToSpawn = new Object2IntOpenHashMap<>();
 	private final Object2IntMap<UUID> playerToDelayToSpawn = new Object2IntOpenHashMap<>();
 
-	public ShootProjectilesAroundPlayerAction(/*final Identifier entityId, */final int entityCount, final int spawnDistanceMax, final int spawnRangeY, final int spawnsPerTickBase, final int spawnsPerTickRandom, final int targetRandomness, final int explosionStrength) {
+	public ShootProjectilesAroundPlayerAction(/*final Identifier entityId, */ int entityCount, int spawnDistanceMax, int spawnRangeY, int spawnsPerTickBase, int spawnsPerTickRandom, int targetRandomness, int explosionStrength) {
 		//this.entityId = entityId;
 		entityCountPerPlayer = entityCount;
 		this.spawnDistanceMax = spawnDistanceMax;
@@ -113,7 +113,7 @@ public class ShootProjectilesAroundPlayerAction implements IGameBehavior {
 	private LargeFireball createFireball(ServerLevel world, BlockPos spawn, BlockPos target) {
 		LargeFireball fireball = new LargeFireball(EntityTypes.FIREBALL, world) {
 			@Override
-			protected void onHit(final HitResult hitResult) {
+			protected void onHit(HitResult hitResult) {
 				switch (hitResult.getType()) {
 					case ENTITY -> onHitEntity((EntityHitResult) hitResult);
 					case BLOCK -> onHitBlock((BlockHitResult) hitResult);

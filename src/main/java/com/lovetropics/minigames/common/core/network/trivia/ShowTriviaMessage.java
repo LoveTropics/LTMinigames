@@ -20,7 +20,7 @@ public record ShowTriviaMessage(BlockPos triviaBlock, TriviaBehaviour.TriviaQues
 			ShowTriviaMessage::new
 	);
 
-	public static void handle(final ShowTriviaMessage message, final IPayloadContext context) {
+	public static void handle(ShowTriviaMessage message, IPayloadContext context) {
 		ClientTriviaHandler.showScreen(message);
 	}
 

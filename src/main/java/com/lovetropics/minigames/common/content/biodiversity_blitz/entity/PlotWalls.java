@@ -68,7 +68,7 @@ public final class PlotWalls {
 	}
 
 	public List<VoxelShape> collectCollisions(AABB box) {
-		final List<VoxelShape> collisions = new ArrayList<>();
+		List<VoxelShape> collisions = new ArrayList<>();
 		for (int i = 0; i < faces.length; i++) {
 			if (box.intersects(faces[i])) {
 				collisions.add(faceShapes[i]);

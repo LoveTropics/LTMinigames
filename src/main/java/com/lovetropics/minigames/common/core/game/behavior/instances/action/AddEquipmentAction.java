@@ -39,8 +39,8 @@ public record AddEquipmentAction(List<ItemStackTemplate> items, Optional<ItemSta
 	).apply(i, AddEquipmentAction::new));
 
 	@Override
-	public void register(final IGamePhase game, final EventRegistrar events) {
-		final TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
+	public void register(IGamePhase game, EventRegistrar events) {
+		TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
 		events.applyToEntities(game, (context, level, entity) -> {
 			if (!(entity instanceof LivingEntity livingEntity)) {
 				return false;
@@ -50,14 +50,14 @@ public record AddEquipmentAction(List<ItemStackTemplate> items, Optional<ItemSta
 				if (clear) {
 					player.getInventory().clearContent();
 				}
-				for (final ItemStackTemplate item : items) {
+				for (ItemStackTemplate item : items) {
 					player.getInventory().add(copyAndModify(player, teams, item.create()));
 				}
 
 				if (teams != null) {
-					final GameTeamKey teamKey = teams.getTeamForPlayer(player);
+					GameTeamKey teamKey = teams.getTeamForPlayer(player);
 					if (teamKey != null) {
-						final ItemStackTemplate hotbarItem = hotbarTeamItems.get(teamKey);
+						ItemStackTemplate hotbarItem = hotbarTeamItems.get(teamKey);
 						if (hotbarItem != null) {
 							player.getInventory().add(8, copyAndModify(livingEntity, teams, hotbarItem.create()));
 						}
@@ -102,14 +102,14 @@ public record AddEquipmentAction(List<ItemStackTemplate> items, Optional<ItemSta
 		}
 	}
 
-	private ItemStack copyAndModify(final LivingEntity entity, @Nullable final TeamState teams, final ItemStack item) {
-		final ItemStack result = item.copy();
+	private ItemStack copyAndModify(LivingEntity entity, @Nullable TeamState teams, ItemStack item) {
+		ItemStack result = item.copy();
 		if (!colorByTeam) {
 			return result;
 		}
 		if (result.has(DataComponents.DYED_COLOR) && teams != null) {
-			final GameTeamKey teamKey = entity instanceof ServerPlayer player ? teams.getTeamForPlayer(player) : null;
-			final GameTeam team = teamKey != null ? teams.getTeamByKey(teamKey) : null;
+			GameTeamKey teamKey = entity instanceof ServerPlayer player ? teams.getTeamForPlayer(player) : null;
+			GameTeam team = teamKey != null ? teams.getTeamByKey(teamKey) : null;
 			if (team != null) {
 				setColor(team, result);
 			}
@@ -117,7 +117,7 @@ public record AddEquipmentAction(List<ItemStackTemplate> items, Optional<ItemSta
 		return result;
 	}
 
-	private static void setColor(final GameTeam team, final ItemStack stack) {
+	private static void setColor(GameTeam team, ItemStack stack) {
 		int color = team.config().dye().getTextureDiffuseColor();
 		stack.set(DataComponents.DYED_COLOR, new DyedItemColor(color));
 	}

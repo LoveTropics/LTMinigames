@@ -118,7 +118,7 @@ public class DelegatingWorldGenLevel implements WorldGenLevel {
 	}
 
 	@Override
-	public void gameEvent(@Nullable final Entity entity, final Holder<GameEvent> event, final BlockPos pos) {
+	public void gameEvent(@Nullable Entity entity, Holder<GameEvent> event, BlockPos pos) {
 		parent.gameEvent(entity, event, pos);
 	}
 
@@ -168,7 +168,7 @@ public class DelegatingWorldGenLevel implements WorldGenLevel {
 	}
 
 	@Override
-	public <T extends Entity> List<T> getEntities(final EntityTypeTest<Entity, T> type, final AABB aabb, final Predicate<? super T> predicate) {
+	public <T extends Entity> List<T> getEntities(EntityTypeTest<Entity, T> type, AABB aabb, Predicate<? super T> predicate) {
 		return parent.getEntities(type, aabb, predicate);
 	}
 
@@ -198,7 +198,7 @@ public class DelegatingWorldGenLevel implements WorldGenLevel {
 	}
 
 	@Override
-	public Holder<Biome> getUncachedNoiseBiome(final int x, final int y, final int z) {
+	public Holder<Biome> getUncachedNoiseBiome(int x, int y, int z) {
 		return parent.getUncachedNoiseBiome(x, y, z);
 	}
 
@@ -245,7 +245,7 @@ public class DelegatingWorldGenLevel implements WorldGenLevel {
 	}
 
 	@Override
-	public boolean isFluidAtPosition(final BlockPos pos, final Predicate<FluidState> predicate) {
+	public boolean isFluidAtPosition(BlockPos pos, Predicate<FluidState> predicate) {
 		return parent.isFluidAtPosition(pos, predicate);
 	}
 }

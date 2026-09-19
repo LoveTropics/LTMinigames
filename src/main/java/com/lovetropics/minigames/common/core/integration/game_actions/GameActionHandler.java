@@ -36,7 +36,7 @@ public final class GameActionHandler {
 		}
 	}
 
-	public void enqueue(final GameActionRequest request) {
+	public void enqueue(GameActionRequest request) {
 		ActionsQueue queue = getQueueFor(request.type());
 		queue.offer(request);
 		LOGGER.debug("Enqueued incoming game action request: {}", request);

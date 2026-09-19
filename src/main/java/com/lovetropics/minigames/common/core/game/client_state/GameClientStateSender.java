@@ -46,7 +46,7 @@ public final class GameClientStateSender {
 
 	@SubscribeEvent
 	public static void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
-		if (event.getEntity() instanceof final ServerPlayer player && !PlayerIsolation.INSTANCE.isReloading(player)) {
+		if (event.getEntity() instanceof ServerPlayer player && !PlayerIsolation.INSTANCE.isReloading(player)) {
 			INSTANCE.players.remove(player.getUUID());
 		}
 	}

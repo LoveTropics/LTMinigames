@@ -14,7 +14,7 @@ public final class GamePackageState implements IGameState {
 
 	private final Map<String, DonationPackageData> knownPackages = new Object2ObjectOpenHashMap<>();
 
-	public void addPackageType(final DonationPackageData data) {
+	public void addPackageType(DonationPackageData data) {
 		if (knownPackages.putIfAbsent(data.id(), data) != null) {
 			throw new GameException(Component.literal("Encountered duplicate package with id: " + data.id()));
 		}

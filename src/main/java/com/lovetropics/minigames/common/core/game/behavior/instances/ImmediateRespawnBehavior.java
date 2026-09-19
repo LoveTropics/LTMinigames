@@ -106,7 +106,7 @@ public record ImmediateRespawnBehavior(
 	private void respawnPlayer(IGamePhase game, ServerPlayer player, @Nullable PlayerRole playerRole, DamageSource source) {
 		if (respawnAsRole.isPresent()) {
 			game.setPlayerRole(player, respawnAsRole.get());
-			final ServerPlayer killer = Util.getKillerPlayer(player, source);
+			ServerPlayer killer = Util.getKillerPlayer(player, source);
 			if (spectateKiller && respawnAsRole.get() == PlayerRole.SPECTATOR && killer != null) {
 				player.setCamera(killer);
 			}

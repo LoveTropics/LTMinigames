@@ -55,7 +55,7 @@ public final class DonationPackageBehavior implements IGameBehavior {
 		game.state().get(GamePackageState.KEY).addPackageType(data.apply(costModifier));
 	}
 
-	private TriState onGamePackageReceived(final IGamePhase game, final GamePackage gamePackage) {
+	private TriState onGamePackageReceived(IGamePhase game, GamePackage gamePackage) {
 		if (!gamePackage.packageType().equals(data.id())) {
 			return TriState.DEFAULT;
 		}
@@ -109,7 +109,7 @@ public final class DonationPackageBehavior implements IGameBehavior {
 			GameTeam randomTeam = Util.getRandom(allTeams, game.random());
 			return applyToTeams(game, gamePackage, List.of(randomTeam));
 		} else {
-			final ServerPlayer randomPlayer = Util.getRandom(Lists.newArrayList(game.participants()), game.random());
+			ServerPlayer randomPlayer = Util.getRandom(Lists.newArrayList(game.participants()), game.random());
 			return applyToPlayers(game, gamePackage, List.of(randomPlayer));
 		}
 	}

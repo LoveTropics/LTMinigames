@@ -26,16 +26,16 @@ public record OnlyTickInPeriodBehavior(ProgressChannel channel, ProgressionPerio
 	).apply(i, OnlyTickInPeriodBehavior::new));
 
 	@Override
-	public void registerState(final IGamePhase game, final GameStateMap phaseState, final GameStateMap instanceState) {
+	public void registerState(IGamePhase game, GameStateMap phaseState, GameStateMap instanceState) {
 		behavior.registerState(game, phaseState, instanceState);
 	}
 
 	@Override
-	public void register(final IGamePhase game, final EventRegistrar events) {
-		final GameEventListeners conditionalEvents = new GameEventListeners();
+	public void register(IGamePhase game, EventRegistrar events) {
+		GameEventListeners conditionalEvents = new GameEventListeners();
 		behavior.register(game, events.redirect(type -> type == GamePhaseEvents.TICK || type == GamePlayerEvents.TICK || type == GameLivingEntityEvents.TICK, conditionalEvents));
 
-		final BooleanSupplier predicate = period.createPredicate(game, channel);
+		BooleanSupplier predicate = period.createPredicate(game, channel);
 		if (conditionalEvents.hasListeners(GamePhaseEvents.TICK)) {
 			events.listen(GamePhaseEvents.TICK, () -> {
 				if (predicate.getAsBoolean()) {

@@ -121,7 +121,7 @@ abstract class LobbyState {
 			GameInstance game = new GameInstance(lobby, definition);
 			game.instanceState().register(GameRewardsMap.STATE, lobby.getRewardsMap());
 
-			final IGamePhaseDefinition playingDefinition = definition.getPlayingPhase();
+			IGamePhaseDefinition playingDefinition = definition.getPlayingPhase();
 			Optional<IGamePhaseDefinition> waitingDefinition = definition.getWaitingPhase();
 			if (waitingDefinition.isPresent()) {
 				CompletableFuture<LobbyState> waiting = createWaiting(lobby, game, waitingDefinition.get(), playingDefinition);

@@ -16,7 +16,7 @@ public record ClientboundDdrInputHitPacket(int entityId, long inputTick) impleme
 			ClientboundDdrInputHitPacket::new
 	);
 
-	public static void handle(final ClientboundDdrInputHitPacket packet, final IPayloadContext context) {
+	public static void handle(ClientboundDdrInputHitPacket packet, IPayloadContext context) {
 		if (context.player().level().getEntity(packet.entityId()) instanceof DDRMachineEntity ddrMachine) {
 			ddrMachine.handleRemoteClientInputHit(packet.inputTick());
 		}

@@ -23,7 +23,7 @@ public enum GameActionType implements StringRepresentable {
 	private final boolean sendsAcknowledgement;
 
 	@SuppressWarnings("unchecked")
-	GameActionType(final String id, String timeFieldName, final MapCodec<? extends GameAction> codec, final Supplier<Integer> pollingIntervalTicks, final boolean sendsAcknowledgement) {
+	GameActionType(String id, String timeFieldName, MapCodec<? extends GameAction> codec, Supplier<Integer> pollingIntervalTicks, boolean sendsAcknowledgement) {
 		this.id = id;
 		this.timeFieldName = timeFieldName;
 		this.codec = GameActionRequest.codec(this, (MapCodec<GameAction>) codec);

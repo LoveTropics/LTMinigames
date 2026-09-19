@@ -151,7 +151,7 @@ public interface ActionTarget {
 		public ActionSubjects<?> modifyTargets(IGamePhase game, ActionSubjects<?> targets, ActionSubjects<?> sources) {
 			List<Entity> inputEntities = targets.asEntities(game);
 			List<ServerPlayer> outputPlayers = new ArrayList<>();
-			for (final ServerPlayer otherPlayer : game.participants()) {
+			for (ServerPlayer otherPlayer : game.participants()) {
 				if (inputEntities.contains(otherPlayer) && !includeSource) {
 					continue;
 				}

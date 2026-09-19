@@ -32,7 +32,7 @@ public record Donation(String name, double amount, String comments, boolean anon
 	);
 
 	public Component getDisplayName(int color, RandomSource random) {
-		final String name = anonymous() ? Util.getRandom(ANONYMOUS_NAMES, random) : minecraftName().isEmpty() ? name() : minecraftName();
+		String name = anonymous() ? Util.getRandom(ANONYMOUS_NAMES, random) : minecraftName().isEmpty() ? name() : minecraftName();
 		return Component.literal(name).withColor(color);
 	}
 

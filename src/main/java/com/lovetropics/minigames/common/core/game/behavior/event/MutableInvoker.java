@@ -16,7 +16,7 @@ public class MutableInvoker<T> {
 	}
 
 	public static <T> MutableInvoker<T> addTo(EventRegistrar events, GameEventType<T> type) {
-		final MutableInvoker<T> invoker = new MutableInvoker<>(type);
+		MutableInvoker<T> invoker = new MutableInvoker<>(type);
 		events.listen(type, invoker.get());
 		return invoker;
 	}

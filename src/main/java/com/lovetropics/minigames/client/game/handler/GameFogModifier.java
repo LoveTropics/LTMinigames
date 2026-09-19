@@ -13,7 +13,7 @@ import net.neoforged.neoforge.client.event.ViewportEvent;
 @EventBusSubscriber(Dist.CLIENT)
 public class GameFogModifier {
 	@SubscribeEvent(priority = EventPriority.HIGH)
-	static void onModifyFog(final ViewportEvent.ComputeFogColor event) {
+	static void onModifyFog(ViewportEvent.ComputeFogColor event) {
 		FogClientState state = ClientGameStateManager.getOrNull(GameClientStateTypes.FOG);
 		if (state == null) {
 			return;
@@ -25,7 +25,7 @@ public class GameFogModifier {
 	}
 
 	@SubscribeEvent(priority = EventPriority.HIGH)
-	static void onRenderFog(final ViewportEvent.RenderFog event) {
+	static void onRenderFog(ViewportEvent.RenderFog event) {
 		if (event.getType() != FogType.ATMOSPHERIC) {
 			return;
 		}

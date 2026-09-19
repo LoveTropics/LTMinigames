@@ -42,7 +42,7 @@ public record GivePlayerHeadPackageBehavior(boolean forced) implements IGameBeha
 	}
 
 	private ItemStack createHeadForSender(String sendingPlayer) {
-		final ItemStack senderHead = new ItemStack(Items.PLAYER_HEAD);
+		ItemStack senderHead = new ItemStack(Items.PLAYER_HEAD);
 		if (StringUtil.isValidPlayerName(sendingPlayer)) {
 			senderHead.set(DataComponents.PROFILE, ResolvableProfile.createUnresolved(sendingPlayer));
 		}

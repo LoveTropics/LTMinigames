@@ -37,7 +37,7 @@ public record ScheduledActionsTrigger(ActionTarget target, ProgressChannel chann
 			actions.register(game, events);
 		}
 
-		final List<Pair<BooleanSupplier, GameActionList>> actions = scheduledActions.entrySet().stream()
+		List<Pair<BooleanSupplier, GameActionList>> actions = scheduledActions.entrySet().stream()
 				.map(entry -> Pair.of(entry.getKey().createPredicate(game, channel), entry.getValue()))
 				.collect(Collectors.toList());
 

@@ -82,7 +82,7 @@ public class ClientFadeToBlack {
 		speed = 1.0f / packet.duration();
 	}
 
-	private static boolean isLoadingScreen(final @Nullable Screen screen) {
+	private static boolean isLoadingScreen(@Nullable Screen screen) {
 		return screen instanceof ProgressScreen || screen instanceof LevelLoadingScreen;
 	}
 }

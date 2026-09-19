@@ -329,15 +329,15 @@ public class LoveTropics {
 		ClientStateCommand.register(event.getBuildContext(), dispatcher);
 	}
 
-	private void onServerAboutToStart(final ServerAboutToStartEvent event) {
+	private void onServerAboutToStart(ServerAboutToStartEvent event) {
 		BackendIntegrations.get().onServerAboutToStart();
 	}
 
-	private void onServerStopping(final ServerStoppingEvent event) {
+	private void onServerStopping(ServerStoppingEvent event) {
 		BackendIntegrations.get().onServerStop();
 	}
 
-	private void onAttemptSpawn(final MobSpawnEvent.PositionCheck event) {
+	private void onAttemptSpawn(MobSpawnEvent.PositionCheck event) {
 		if (event.getSpawnType() == EntitySpawnReason.SPAWNER) {
 			var workspace = MapWorkspaceManager.get(event.getLevel().getServer());
 			if (workspace.getWorkspace(event.getLevel().getLevel().dimension()) != null) {
@@ -353,7 +353,7 @@ public class LoveTropics {
 	@EventBusSubscriber(modid = ID, value = Dist.CLIENT)
 	public static class ClientSetup {
 		@SubscribeEvent
-		public static void setupClient(final FMLClientSetupEvent event) {
+		public static void setupClient(FMLClientSetupEvent event) {
 			LTKeybinds.init();
 			BlockEntityRenderers.register(RiverRace.TRIVIA_CHEST_BLOCK_ENTITY.get(), TriviaChestRenderer::new);
 		}

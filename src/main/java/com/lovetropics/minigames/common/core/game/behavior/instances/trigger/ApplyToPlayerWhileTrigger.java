@@ -26,11 +26,11 @@ public record ApplyToPlayerWhileTrigger(EntityPredicate predicate, GameActionLis
 	).apply(i, ApplyToPlayerWhileTrigger::new));
 
 	@Override
-	public void register(final IGamePhase game, final EventRegistrar events) {
+	public void register(IGamePhase game, EventRegistrar events) {
 		apply.register(game, events);
 		clear.register(game, events);
 
-		final Set<UUID> appliedToPlayers = new ObjectOpenHashSet<>();
+		Set<UUID> appliedToPlayers = new ObjectOpenHashSet<>();
 		events.listen(GamePlayerEvents.TICK, player -> {
 			if (predicate.matches(player, player)) {
 				if (appliedToPlayers.add(player.getUUID())) {

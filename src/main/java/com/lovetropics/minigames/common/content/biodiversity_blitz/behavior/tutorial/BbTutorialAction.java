@@ -76,8 +76,8 @@ public class BbTutorialAction implements IGameBehavior {
 				return false;
 			}
 
-			final GameProfile playerProfile = new GameProfile(UUID.randomUUID(), "PlotFakePlayer");
-			final ServerPlayer target = FakePlayerFactory.get(game.level(), playerProfile);
+			GameProfile playerProfile = new GameProfile(UUID.randomUUID(), "PlotFakePlayer");
+			ServerPlayer target = FakePlayerFactory.get(game.level(), playerProfile);
 			Long2ObjectMap<Runnable> actions = new Long2ObjectOpenHashMap<>();
 			tutorialActions.put(target, actions);
 			long ticks = game.ticks() + 4;

@@ -34,7 +34,7 @@ public record StatisticTagBehavior(StatisticKey<Integer> statistic, ItemStackTem
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
-		final Object2IntMap<UUID> points = new Object2IntOpenHashMap<>();
+		Object2IntMap<UUID> points = new Object2IntOpenHashMap<>();
 
 		events.listen(GamePlayerEvents.ADD, player -> GameClientState.sendToPlayer(createState(points), player));
 		events.listen(GamePlayerEvents.REMOVE, player -> GameClientState.removeFromPlayer(GameClientStateTypes.POINT_TAGS.get(), player));
@@ -46,10 +46,10 @@ public record StatisticTagBehavior(StatisticKey<Integer> statistic, ItemStackTem
 		});
 	}
 
-	private boolean updateState(final IGamePhase game, final Object2IntMap<UUID> points) {
+	private boolean updateState(IGamePhase game, Object2IntMap<UUID> points) {
 		boolean changed = false;
 		for (ServerPlayer player : game.participants()) {
-			final int value = game.statistics().forPlayer(player).getInt(statistic);
+			int value = game.statistics().forPlayer(player).getInt(statistic);
 			if (points.put(player.getUUID(), value) != value) {
 				changed = true;
 			}
@@ -57,7 +57,7 @@ public record StatisticTagBehavior(StatisticKey<Integer> statistic, ItemStackTem
 		return changed;
 	}
 
-	private PointTagClientState createState(final Object2IntMap<UUID> points) {
+	private PointTagClientState createState(Object2IntMap<UUID> points) {
 		return new PointTagClientState(icon, Optional.empty(), points);
 	}
 

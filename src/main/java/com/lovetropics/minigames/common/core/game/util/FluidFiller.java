@@ -288,7 +288,7 @@ public class FluidFiller {
 	}
 
 	private static void markSectionForRerender(int sectionX, int sectionY, int sectionZ) {
-		final @Nullable ClientLevel level = Minecraft.getInstance().level;
+		@Nullable ClientLevel level = Minecraft.getInstance().level;
 		if (level == null) {
 			return;
 		}

@@ -23,21 +23,21 @@ public record FillFluidPacket(FluidFiller.Type fillType, BlockPos min, BlockPos 
 			FillFluidPacket::new
 	);
 
-	public static void handle(final FillFluidPacket packet, final IPayloadContext context) {
-		final ClientLevel level = Minecraft.getInstance().level;
+	public static void handle(FillFluidPacket packet, IPayloadContext context) {
+		ClientLevel level = Minecraft.getInstance().level;
 		if (level == null) {
 			return;
 		}
-		final BlockPos min = packet.min;
-		final BlockPos max = packet.max;
-		final int minChunkX = SectionPos.blockToSectionCoord(min.getX());
-		final int minChunkZ = SectionPos.blockToSectionCoord(min.getZ());
-		final int maxChunkX = SectionPos.blockToSectionCoord(max.getX());
-		final int maxChunkZ = SectionPos.blockToSectionCoord(max.getZ());
+		BlockPos min = packet.min;
+		BlockPos max = packet.max;
+		int minChunkX = SectionPos.blockToSectionCoord(min.getX());
+		int minChunkZ = SectionPos.blockToSectionCoord(min.getZ());
+		int maxChunkX = SectionPos.blockToSectionCoord(max.getX());
+		int maxChunkZ = SectionPos.blockToSectionCoord(max.getZ());
 		for (int chunkZ = minChunkZ; chunkZ <= maxChunkZ; chunkZ++) {
 			for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX++) {
-				final LevelChunk chunk = level.getChunk(chunkX, chunkZ);
-				final ChunkPos chunkPos = chunk.getPos();
+				LevelChunk chunk = level.getChunk(chunkX, chunkZ);
+				ChunkPos chunkPos = chunk.getPos();
 				if (chunkPos.x() != chunkX || chunkPos.z() != chunkZ) {
 					// TODO: Some kind of race condition can happen here with leaving the dimension while rising is happening :(
 					LoveTropics.LOGGER.error("Tried to fill chunk with fluid, but position didn't match. Expected [{}, {}] but got {}", chunkX, chunkZ, chunkPos);

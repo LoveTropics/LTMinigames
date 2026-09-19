@@ -27,7 +27,7 @@ public record GiveItemsToKillerBehavior(List<ItemPredicate> predicates) implemen
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
 		events.listen(GamePlayerEvents.DEATH, (player, source) -> {
-			final ServerPlayer killer = Util.getKillerPlayer(player, source);
+			ServerPlayer killer = Util.getKillerPlayer(player, source);
 			if (killer != null && game.participants().contains(killer)) {
 				giveItems(player, killer);
 			}
@@ -35,8 +35,8 @@ public record GiveItemsToKillerBehavior(List<ItemPredicate> predicates) implemen
 		});
 	}
 
-	private void giveItems(final ServerPlayer player, final ServerPlayer killer) {
-		final Inventory inventory = player.getInventory();
+	private void giveItems(ServerPlayer player, ServerPlayer killer) {
+		Inventory inventory = player.getInventory();
 		for (int i = 0; i < inventory.getContainerSize(); i++) {
 			if (matches(inventory.getItem(i))) {
 				killer.getInventory().placeItemBackInInventory(inventory.removeItemNoUpdate(i));
@@ -44,8 +44,8 @@ public record GiveItemsToKillerBehavior(List<ItemPredicate> predicates) implemen
 		}
 	}
 
-	private boolean matches(final ItemStack item) {
-		for (final ItemPredicate predicate : predicates) {
+	private boolean matches(ItemStack item) {
+		for (ItemPredicate predicate : predicates) {
 			if (predicate.test(item)) {
 				return true;
 			}

@@ -433,7 +433,7 @@ public class GameBehaviorTypes {
 
 	public static final GameBehaviorEntry<ApplyToAction> APPLY_TO = register("apply_to", ApplyToAction.CODEC);
 
-	public static <T extends IGameBehavior> GameBehaviorEntry<T> register(final String name, final MapCodec<T> codec) {
+	public static <T extends IGameBehavior> GameBehaviorEntry<T> register(String name, MapCodec<T> codec) {
 		return REGISTRATE.object(name).behavior(codec).register();
 	}
 

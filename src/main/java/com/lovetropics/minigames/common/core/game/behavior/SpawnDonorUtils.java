@@ -41,17 +41,17 @@ public class SpawnDonorUtils {
 	public static final Identifier DUMMY_PLAYER = Identifier.fromNamespaceAndPath("dummyplayers", "dummy_player");
 	public static final DeferredHolder<EntityType<?>, EntityType<?>> DUMMY = DeferredHolder.create(Registries.ENTITY_TYPE, DUMMY_PLAYER);
 
-	public static void spawnDonorInRandomRegion(IGamePhase game, final Donation donation, final List<String> regions, List<DonationScale> scales, List<ItemStack> bootItems) {
+	public static void spawnDonorInRandomRegion(IGamePhase game, Donation donation, List<String> regions, List<DonationScale> scales, List<ItemStack> bootItems) {
 		CompoundTag tag = new CompoundTag();
 		tag.putBoolean("NoBasePlate", true);
 
-		final Villager spawnedMob = EntityTypes.VILLAGER.create(game.level(), EntitySpawnReason.MOB_SUMMONED);
+		Villager spawnedMob = EntityTypes.VILLAGER.create(game.level(), EntitySpawnReason.MOB_SUMMONED);
 		if (spawnedMob == null) {
 			return;
 		}
 
 		if (!donation.minecraftUuid().equals(Util.NIL_UUID)) {
-			final ResolvableProfile resolvableProfile = ResolvableProfile.createUnresolved(donation.minecraftUuid());
+			ResolvableProfile resolvableProfile = ResolvableProfile.createUnresolved(donation.minecraftUuid());
 			tag.put("profile", ResolvableProfile.CODEC.encodeStart(NbtOps.INSTANCE, resolvableProfile).getOrThrow());
 		}
 
@@ -60,7 +60,7 @@ public class SpawnDonorUtils {
 		}
 
 		DonationScale scale = DonationScale.getScale(donation.amount(), scales);
-		final float scaleAmount = (float) scale.scale();
+		float scaleAmount = (float) scale.scale();
 		Disguise disguise = getDisguise(scaleAmount).withEntity(Optional.of(TypedEntityData.of(DUMMY.value(), tag)));
 		EntityDisguiseHolder.set(spawnedMob, disguise);
 

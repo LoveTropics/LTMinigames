@@ -55,8 +55,8 @@ public class WorldBorderGameBehavior implements IGameBehavior {
 
 	private boolean addedBeacon;
 
-	public WorldBorderGameBehavior(final String worldBorderCenterKey, final ProgressChannel channel, final ProgressionPeriod period,
-								   final int particleHeight, final int damageRateDelay, final int damageAmount, final List<ParticleType> borderParticles) {
+	public WorldBorderGameBehavior(String worldBorderCenterKey, ProgressChannel channel, ProgressionPeriod period,
+	                               int particleHeight, int damageRateDelay, int damageAmount, List<ParticleType> borderParticles) {
 		this.worldBorderCenterKey = worldBorderCenterKey;
 		this.channel = channel;
 		this.period = period;
@@ -85,7 +85,7 @@ public class WorldBorderGameBehavior implements IGameBehavior {
 	}
 
 	// TODO: Clean up this mess
-	private void tickWorldBorder(final IGamePhase game) {
+	private void tickWorldBorder(IGamePhase game) {
 		float phaseProgress = phases.progressIn(period);
 		if (phaseProgress <= 0.0f) {
 			return;

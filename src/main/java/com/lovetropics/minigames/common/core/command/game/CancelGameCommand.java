@@ -17,7 +17,7 @@ import net.minecraft.world.entity.player.Player;
 import static net.minecraft.commands.Commands.literal;
 
 public class CancelGameCommand {
-	public static void register(final CommandDispatcher<CommandSourceStack> dispatcher) {
+	public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
 		// @formatter:off
 		dispatcher.register(
 				literal("game")

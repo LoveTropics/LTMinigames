@@ -22,7 +22,7 @@ public class StartGameCommand {
 	private static final SimpleCommandExceptionType NOT_IN_LOBBY = new SimpleCommandExceptionType(GameTexts.Commands.NOT_IN_LOBBY);
 	private static final SimpleCommandExceptionType CANNOT_START_LOBBY = new SimpleCommandExceptionType(GameTexts.Commands.CANNOT_START_LOBBY);
 
-	public static void register(final CommandDispatcher<CommandSourceStack> dispatcher) {
+	public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
 		dispatcher.register(literal("game")
 				.then(literal("start").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
 						.executes(StartGameCommand::start)

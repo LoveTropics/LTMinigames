@@ -22,13 +22,13 @@ public record SelectTriviaAnswerMessage(BlockPos triviaBlock, int selectedAnswer
 			SelectTriviaAnswerMessage::new
 	);
 
-	public static void handle(final SelectTriviaAnswerMessage message, final IPayloadContext context) {
+	public static void handle(SelectTriviaAnswerMessage message, IPayloadContext context) {
 		ServerPlayer player = (ServerPlayer) context.player();
 		if (!player.isWithinBlockInteractionRange(message.triviaBlock(), ServerPlayer.BLOCK_INTERACTION_DISTANCE_VERIFICATION_BUFFER)) {
 			return;
 		}
 		IGamePhase game = GamePhaseManager.get().getGamePhaseFor(player);
-		if (game != null && player.level().getBlockEntity(message.triviaBlock) instanceof final HasTrivia triviaBlock) {
+		if (game != null && player.level().getBlockEntity(message.triviaBlock) instanceof HasTrivia triviaBlock) {
 			TriviaBehaviour.TriviaQuestion question = triviaBlock.getQuestion();
 			if (question == null) {
 				return;

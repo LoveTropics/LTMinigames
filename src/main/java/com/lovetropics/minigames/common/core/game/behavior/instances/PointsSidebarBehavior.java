@@ -48,7 +48,7 @@ public record PointsSidebarBehavior(
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		final GameSidebar sidebar = GameWidgets.getOrRegister(game, events).openGlobalSidebar(title);
+		GameSidebar sidebar = GameWidgets.getOrRegister(game, events).openGlobalSidebar(title);
 		events.listen(GamePhaseEvents.TICK, () -> {
 			if (game.ticks() % REFRESH_INTERVAL == 0) {
 				sidebar.set(renderSidebar(game));
@@ -56,22 +56,22 @@ public record PointsSidebarBehavior(
 		});
 	}
 
-	private Component[] renderSidebar(final IGamePhase game) {
+	private Component[] renderSidebar(IGamePhase game) {
 		int totalCount = 0;
-		for (final PlayerKey player : game.statistics().getPlayers()) {
+		for (PlayerKey player : game.statistics().getPlayers()) {
 			totalCount += game.statistics().forPlayer(player).getInt(statistic);
 		}
-		for (final GameTeamKey team : game.statistics().getTeams()) {
+		for (GameTeamKey team : game.statistics().getTeams()) {
 			totalCount += game.statistics().forTeam(team).getInt(statistic);
 		}
 
-		final List<Component> sidebar = new ArrayList<>(10);
-		for (final TemplatedText line : header) {
+		List<Component> sidebar = new ArrayList<>(10);
+		for (TemplatedText line : header) {
 			sidebar.add(line.apply(Map.of("total", Component.literal(String.valueOf(totalCount)))));
 		}
 
-		final Placement.Score<?, Integer> placement;
-		final TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
+		Placement.Score<?, Integer> placement;
+		TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
 		if (teams == null || (holder.isPresent() && holder.get() == Holder.PLAYER)) {
 			placement = Placement.fromPlayerScore(order, game, statistic, false);
 		} else {

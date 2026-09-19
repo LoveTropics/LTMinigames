@@ -23,7 +23,7 @@ public record PlayerTickTrigger(Optional<EntityPredicate> predicate, GameActionL
 	).apply(i, PlayerTickTrigger::new));
 
 	@Override
-	public void register(final IGamePhase game, final EventRegistrar events) {
+	public void register(IGamePhase game, EventRegistrar events) {
 		action.register(game, events);
 
 		events.listen(GamePlayerEvents.TICK, player -> {

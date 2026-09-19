@@ -23,11 +23,11 @@ public class BehaviorProvider implements DataProvider {
 	@Override
 	public CompletableFuture<?> run(CachedOutput pOutput) {
 		return registries.thenCompose(regs -> {
-			final var behProv = output.createPathProvider(PackOutput.Target.DATA_PACK, "behaviors");
+			var behProv = output.createPathProvider(PackOutput.Target.DATA_PACK, "behaviors");
 			return CompletableFuture.allOf(behaviors.stream()
 					.map(entry -> {
-						final var built = entry.getValue();
-						final var path = behProv.json(entry.getKey());
+						var built = entry.getValue();
+						var path = behProv.json(entry.getKey());
 						return DataProvider.saveStable(pOutput, regs, IGameBehavior.CODEC, built, path);
 					})
 					.toArray(CompletableFuture[]::new));

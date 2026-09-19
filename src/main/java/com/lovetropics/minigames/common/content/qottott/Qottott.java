@@ -87,7 +87,7 @@ public class Qottott {
 	}
 
 	@SubscribeEvent
-	public static void onModifyDefaultAttributes(final EntityAttributeModificationEvent event) {
+	public static void onModifyDefaultAttributes(EntityAttributeModificationEvent event) {
 		event.add(EntityTypes.PLAYER, COIN_MULTIPLIER);
 		event.add(EntityTypes.PLAYER, PICKUP_PRIORITY);
 		event.add(EntityTypes.PLAYER, COIN_DROPS);
@@ -95,7 +95,7 @@ public class Qottott {
 	}
 
 	private static class CustomMobEffect extends MobEffect {
-		protected CustomMobEffect(final MobEffectCategory category) {
+		protected CustomMobEffect(MobEffectCategory category) {
 			super(category, CommonColors.WHITE);
 		}
 	}

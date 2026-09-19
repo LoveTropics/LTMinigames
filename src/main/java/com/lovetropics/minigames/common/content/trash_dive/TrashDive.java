@@ -24,7 +24,7 @@ public final class TrashDive {
 	}
 
 	@SubscribeEvent
-	public static void onRegisterCommands(final RegisterCommandsEvent event) {
+	public static void onRegisterCommands(RegisterCommandsEvent event) {
 		CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
 		ScanAreaCommand.register(dispatcher);
 	}

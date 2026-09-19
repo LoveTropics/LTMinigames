@@ -29,8 +29,8 @@ public record PointTagClientState(ItemStackTemplate icon, Optional<String> trans
 		return GameClientStateTypes.POINT_TAGS.get();
 	}
 
-	public @Nullable Component getPointsTextFor(final UUID id) {
-		final Integer points = this.points.get(id);
+	public @Nullable Component getPointsTextFor(UUID id) {
+		Integer points = this.points.get(id);
 		if (points == null) {
 			return null;
 		}

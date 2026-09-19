@@ -13,7 +13,7 @@ public sealed interface ProgressionPoint {
 	Codec<ProgressionPoint> CODEC = createCodec(Direct.CODEC, Named.CODEC);
 	Codec<ProgressionPoint> STRING_CODEC = createCodec(Direct.STRING_CODEC, Named.CODEC);
 
-	private static Codec<ProgressionPoint> createCodec(final Codec<Direct> directCodec, final Codec<Named> namedCodec) {
+	private static Codec<ProgressionPoint> createCodec(Codec<Direct> directCodec, Codec<Named> namedCodec) {
 		return Codec.either(directCodec, namedCodec).xmap(
 				either -> either.map(Function.identity(), Function.identity()),
 				point -> switch (point) {
@@ -27,7 +27,7 @@ public sealed interface ProgressionPoint {
 
 	int resolve(NamedResolver namedResolver);
 
-	default BooleanSupplier createPredicate(final IGamePhase game, final ProgressChannel channel) {
+	default BooleanSupplier createPredicate(IGamePhase game, ProgressChannel channel) {
 		ProgressHolder progression = channel.getOrThrow(game);
 		return () -> progression.isAfter(this);
 	}
@@ -37,13 +37,13 @@ public sealed interface ProgressionPoint {
 		public static final Codec<Direct> STRING_CODEC = Codec.STRING.comapFlatMap(string -> {
 			try {
 				return DataResult.success(new Direct(Float.parseFloat(string)));
-			} catch (final NumberFormatException e) {
+			} catch (NumberFormatException e) {
 				return DataResult.error(() -> "Not a number: " + string);
 			}
 		}, direct -> String.valueOf(direct.value()));
 
 		@Override
-		public int resolve(final NamedResolver namedResolver) {
+		public int resolve(NamedResolver namedResolver) {
 			return Math.round(value * SharedConstants.TICKS_PER_SECOND);
 		}
 	}
@@ -52,7 +52,7 @@ public sealed interface ProgressionPoint {
 		public static final Codec<Named> CODEC = Codec.STRING.xmap(Named::new, Named::name);
 
 		@Override
-		public int resolve(final NamedResolver namedResolver) {
+		public int resolve(NamedResolver namedResolver) {
 			return namedResolver.getNamedPoint(name);
 		}
 	}

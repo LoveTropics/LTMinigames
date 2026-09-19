@@ -57,15 +57,15 @@ public class SwapPlayersAction implements IGameBehavior {
 				.toList();
 
 		for (int i = 0; i < players.size(); i++) {
-			final ServerPlayer player = players.get(i);
-			final Vec3 teleportTo = playerPositions.get((i + 1) % playerPositions.size());
+			ServerPlayer player = players.get(i);
+			Vec3 teleportTo = playerPositions.get((i + 1) % playerPositions.size());
 			player.teleportTo(teleportTo.x, teleportTo.y, teleportTo.z);
 		}
 	}
 
 	private void shufflePlayers(IGamePhase game) {
 		if (withinTeam && teams != null) {
-			for (final GameTeamKey key : teams.getTeamKeys()) {
+			for (GameTeamKey key : teams.getTeamKeys()) {
 				PlayerSet players = teams.getPlayersForTeam(game, key);
 				List<ServerPlayer> swappable = Lists.newArrayList(players);
 				shuffleSpecificPlayers(game, swappable);
@@ -78,7 +78,7 @@ public class SwapPlayersAction implements IGameBehavior {
 
 	private void swapNearbyPlayers(IGamePhase game) {
 		if (withinTeam && teams != null) {
-			for (final GameTeamKey key : teams.getTeamKeys()) {
+			for (GameTeamKey key : teams.getTeamKeys()) {
 				PlayerSet players = teams.getPlayersForTeam(game, key);
 				List<ServerPlayer> swappable = Lists.newArrayList(players);
 				swapNearbySpecificPlayers(swappable);

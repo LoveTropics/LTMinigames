@@ -23,41 +23,41 @@ public class SpawnBuilder {
 	private float xRot;
 	private final List<Consumer<ServerPlayer>> initializers = new ArrayList<>();
 
-	public SpawnBuilder(final ServerPlayer player) {
+	public SpawnBuilder(ServerPlayer player) {
 		level = player.level();
 		position = player.position();
 		yRot = player.getYRot();
 		xRot = player.getXRot();
 	}
 
-	public void teleportTo(final ServerLevel level, final Vec3 position, final float yRot, final float xRot) {
+	public void teleportTo(ServerLevel level, Vec3 position, float yRot, float xRot) {
 		this.level = level;
 		this.position = position;
 		this.yRot = yRot;
 		this.xRot = xRot;
 	}
 
-	public void teleportTo(final ServerLevel level, final Vec3 position) {
+	public void teleportTo(ServerLevel level, Vec3 position) {
 		teleportTo(level, position, 0.0f, 0.0f);
 	}
 
-	public void teleportTo(final ServerLevel level, final BlockPos pos, final Direction forward) {
+	public void teleportTo(ServerLevel level, BlockPos pos, Direction forward) {
 		teleportTo(level, pos, forward.toYRot());
 	}
 
-	public void teleportTo(final ServerLevel level, final BlockPos pos, float yRot) {
+	public void teleportTo(ServerLevel level, BlockPos pos, float yRot) {
 		teleportTo(level, Vec3.atBottomCenterOf(pos), yRot, 0.0f);
 	}
 
-	public void teleportTo(final ServerLevel level, final BlockPos pos) {
+	public void teleportTo(ServerLevel level, BlockPos pos) {
 		teleportTo(level, pos, Direction.SOUTH);
 	}
 
-	public void setGameMode(final GameType gameType) {
+	public void setGameMode(GameType gameType) {
 		run(player -> player.setGameMode(gameType));
 	}
 
-	public void run(final Consumer<ServerPlayer> initializer) {
+	public void run(Consumer<ServerPlayer> initializer) {
 		initializers.add(initializer);
 	}
 
@@ -77,13 +77,13 @@ public class SpawnBuilder {
 		return xRot;
 	}
 
-	public void teleportAndApply(final ServerPlayer player) {
+	public void teleportAndApply(ServerPlayer player) {
 		player.teleportTo(level, position.x, position.y, position.z, Set.of(), yRot, xRot, true);
 		player.connection.resetPosition();
 		applyInitializers(player);
 	}
 
-	public void applyInitializers(final ServerPlayer player) {
+	public void applyInitializers(ServerPlayer player) {
 		for (Consumer<ServerPlayer> initializer : initializers) {
 			initializer.accept(player);
 		}

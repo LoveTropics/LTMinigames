@@ -27,7 +27,7 @@ public record SpawnTeamsTrigger(PlayerRole role, Map<GameTeamKey, GameActionList
 	).apply(i, SpawnTeamsTrigger::new));
 
 	@Override
-	public void register(final IGamePhase game, final EventRegistrar events) throws GameException {
+	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		TeamState teams = game.instanceState().getOrThrow(TeamState.KEY);
 		for (GameActionList actions : teamActions.values()) {
 			actions.register(game, events);

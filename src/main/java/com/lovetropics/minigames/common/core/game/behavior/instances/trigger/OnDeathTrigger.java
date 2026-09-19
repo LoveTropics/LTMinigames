@@ -37,7 +37,7 @@ public record OnDeathTrigger(GameActionList killedAction, GameActionList killerA
 		killerAction.register(game, events);
 
 		events.listen(GamePlayerEvents.DEATH, (player, damageSource) -> {
-			final ServerPlayer killer = Util.getKillerPlayer(player, damageSource);
+			ServerPlayer killer = Util.getKillerPlayer(player, damageSource);
 			if (excludeSelf && killer == player) {
 				return TriState.DEFAULT;
 			}
@@ -47,7 +47,7 @@ public record OnDeathTrigger(GameActionList killedAction, GameActionList killerA
 			if (killedPredicate.isPresent() && !killedPredicate.get().matches(player, player)) {
 				return TriState.DEFAULT;
 			}
-			final ContextMap.Builder context = new ContextMap.Builder()
+			ContextMap.Builder context = new ContextMap.Builder()
 					.withParameter(GameActionContextKeys.KILLED, player);
 			if (killer != null) {
 				killedAction.apply(game, context.withParameter(GameActionContextKeys.KILLER, killer).create(ContextKeySet.EMPTY), ActionSubjects.ofPlayer(player));

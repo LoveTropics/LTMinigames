@@ -25,7 +25,7 @@ public final class KillsTrackerBehavior implements IGameBehavior {
 			GameStatistics statistics = game.statistics();
 			StatisticsMap playerStatistics = statistics.forPlayer(player);
 
-			final ServerPlayer killerPlayer = Util.getKillerPlayer(player, damageSource);
+			ServerPlayer killerPlayer = Util.getKillerPlayer(player, damageSource);
 			if (killerPlayer != null) {
 				if (killerPlayer != player) {
 					statistics.forPlayer(killerPlayer).incrementInt(StatisticKey.KILLS, 1);

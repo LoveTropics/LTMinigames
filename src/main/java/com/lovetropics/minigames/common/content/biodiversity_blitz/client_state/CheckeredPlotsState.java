@@ -22,11 +22,11 @@ public record CheckeredPlotsState(List<BlockBox> plots, BlockBox global) impleme
 			CheckeredPlotsState::new
 	);
 
-	public CheckeredPlotsState(final List<BlockBox> plots) {
+	public CheckeredPlotsState(List<BlockBox> plots) {
 		this(plots, computeGlobalBounds(plots));
 	}
 
-	private static BlockBox computeGlobalBounds(final List<BlockBox> plots) {
+	private static BlockBox computeGlobalBounds(List<BlockBox> plots) {
 		return plots.stream().reduce(BlockBox::encompassing).orElseGet(() -> BlockBox.of(BlockPos.ZERO));
 	}
 

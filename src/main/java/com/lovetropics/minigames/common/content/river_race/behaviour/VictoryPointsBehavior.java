@@ -131,7 +131,7 @@ public class VictoryPointsBehavior implements IGameBehavior {
 		return availablePoints / teams.size();
 	}
 
-	private void addPoints(final PlayerKey playerKey, final int points, boolean inZone) {
+	private void addPoints(PlayerKey playerKey, int points, boolean inZone) {
 		TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
 		GameTeamKey team = teams != null ? teams.getTeamForPlayer(playerKey) : null;
 		if (team != null) {
@@ -139,7 +139,7 @@ public class VictoryPointsBehavior implements IGameBehavior {
 		}
 	}
 
-	private void addPoints(final GameTeamKey team, final int points, final boolean inZone) {
+	private void addPoints(GameTeamKey team, int points, boolean inZone) {
 		game.statistics().forTeam(team).incrementInt(StatisticKey.VICTORY_POINTS, points);
 		if (inZone) {
 			acquiredPointsPerZone.get(team).addTo(riverRace.currentZone().id(), points);

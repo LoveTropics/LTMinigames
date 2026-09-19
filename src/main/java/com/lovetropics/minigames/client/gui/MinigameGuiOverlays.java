@@ -27,7 +27,7 @@ public class MinigameGuiOverlays {
 	}
 
 	private static void renderColadaralDamage(GuiGraphicsExtractor graphics, DeltaTracker tracker) {
-		final LocalPlayer player = Minecraft.getInstance().player;
+		LocalPlayer player = Minecraft.getInstance().player;
 
 		if (player.hasEffect(EscapeRace.COLADARAL_DAMAGE.getDelegate())) {
 			renderTextureOverlay(graphics, COLADARAL_DAMAGE_OVERLAY, 0.9f);

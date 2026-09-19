@@ -48,7 +48,7 @@ public record SetDisguiseAction(Disguise disguise, boolean applyDonorName, boole
 			if (onlyIfNoDisguise && !disguiseHolder.disguise().isEmpty()) {
 				return false;
 			}
-			final CompletableFuture<Disguise> future = resolveDisguise(game, context);
+			CompletableFuture<Disguise> future = resolveDisguise(game, context);
 			disguiseHolder.set(disguise);
 			// This future might not complete, but we should have already
 			future.thenAcceptAsync(resolvedDisguise -> applyResolvedDisguise(player, resolvedDisguise), game.scheduler());
@@ -56,14 +56,14 @@ public record SetDisguiseAction(Disguise disguise, boolean applyDonorName, boole
 		});
 	}
 
-	private CompletableFuture<Disguise> resolveDisguise(final IGamePhase game, final ContextMap context) {
-		final String packageSender = context.getOptional(GameActionContextKeys.PACKAGE_SENDER);
-		final Optional<TypedEntityData<EntityType<?>>> entityDisguise = disguise.entity();
+	private CompletableFuture<Disguise> resolveDisguise(IGamePhase game, ContextMap context) {
+		String packageSender = context.getOptional(GameActionContextKeys.PACKAGE_SENDER);
+		Optional<TypedEntityData<EntityType<?>>> entityDisguise = disguise.entity();
 		if (entityDisguise.isEmpty()) {
 			return CompletableFuture.completedFuture(disguise);
 		}
 
-		final Identifier id = EntityType.getKey(entityDisguise.get().type());
+		Identifier id = EntityType.getKey(entityDisguise.get().type());
 		if (applyDonorName && packageSender != null && DUMMY_PLAYER.equals(id)) {
 			return resolveDummyDisguise(game, entityDisguise.get(), packageSender).thenApply(entity -> disguise.withEntity(Optional.of(entity)));
 		}
@@ -71,7 +71,7 @@ public record SetDisguiseAction(Disguise disguise, boolean applyDonorName, boole
 		return CompletableFuture.completedFuture(disguise);
 	}
 
-	private CompletableFuture<TypedEntityData<EntityType<?>>> resolveDummyDisguise(final IGamePhase game, final TypedEntityData<EntityType<?>> entity, final String packageSender) {
+	private CompletableFuture<TypedEntityData<EntityType<?>>> resolveDummyDisguise(IGamePhase game, TypedEntityData<EntityType<?>> entity, String packageSender) {
 		CompletableFuture<TypedEntityData<EntityType<?>>> future = new CompletableFuture<>();
 		Util.getProfile(game.server(), packageSender).thenAcceptAsync(result -> result.ifPresent(profile -> {
 			LOGGER.debug("Got profile ID for package sender {}: {}", packageSender, profile.id());
@@ -82,7 +82,7 @@ public record SetDisguiseAction(Disguise disguise, boolean applyDonorName, boole
 		return future;
 	}
 
-	private void applyResolvedDisguise(final ServerPlayer player, final Disguise resolvedDisguise) {
+	private void applyResolvedDisguise(ServerPlayer player, Disguise resolvedDisguise) {
 		if (disguise == resolvedDisguise) {
 			return;
 		}

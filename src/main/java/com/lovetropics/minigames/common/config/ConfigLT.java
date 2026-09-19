@@ -119,14 +119,14 @@ public class ConfigLT {
 	public static final ModConfigSpec CLIENT_CONFIG = CLIENT_BUILDER.build();
 	public static final ModConfigSpec SERVER_CONFIG = COMMON_BUILDER.build();
 
-	public static void onLoad(final ModConfigEvent.Loading event) {
+	public static void onLoad(ModConfigEvent.Loading event) {
 		if (event.getConfig().getSpec() == SERVER_CONFIG) {
 			onServerConfigLoad();
 		}
 	}
 
 	/// values used during runtime that require processing from disk
-	public static void onReload(final ModConfigEvent.Reloading event) {
+	public static void onReload(ModConfigEvent.Reloading event) {
 		if (event.getConfig().getSpec() == SERVER_CONFIG) {
 			onServerConfigLoad();
 		}

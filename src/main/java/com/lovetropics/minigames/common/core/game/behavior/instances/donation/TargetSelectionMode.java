@@ -13,7 +13,7 @@ public enum TargetSelectionMode {
 
 	public final String type;
 
-	TargetSelectionMode(final String type) {
+	TargetSelectionMode(String type) {
 		this.type = type;
 	}
 }

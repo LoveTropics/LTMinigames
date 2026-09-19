@@ -34,8 +34,8 @@ public record SpawnParticlesAroundEntityAction(ParticleOptions[] particles, IntP
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		final RandomSource random = game.random();
-		final Function<Entity, Vec3> positionGenerator = createPositionGenerator(random);
+		RandomSource random = game.random();
+		Function<Entity, Vec3> positionGenerator = createPositionGenerator(random);
 		events.applyToEntities(game, (context, level, entity) -> {
 			int count = this.count.sample(random);
 			for (int i = 0; i < count; i++) {
@@ -51,14 +51,14 @@ public record SpawnParticlesAroundEntityAction(ParticleOptions[] particles, IntP
 	private Function<Entity, Vec3> createPositionGenerator(RandomSource random) {
 		if (position.isPresent()) {
 			return player -> {
-				final double deltaX = random.triangle(-radius, radius);
-				final double deltaY = random.triangle(-radius, radius);
-				final double deltaZ = random.triangle(-radius, radius);
+				double deltaX = random.triangle(-radius, radius);
+				double deltaY = random.triangle(-radius, radius);
+				double deltaZ = random.triangle(-radius, radius);
 				return player.position().add(position.get()).add(deltaX, deltaY, deltaZ);
 			};
 		} else {
 			return player -> {
-				final AABB bounds = player.getBoundingBox().inflate(radius);
+				AABB bounds = player.getBoundingBox().inflate(radius);
 				return new Vec3(
 						bounds.minX + random.nextDouble() * bounds.getXsize(),
 						bounds.minY + random.nextDouble() * bounds.getYsize(),

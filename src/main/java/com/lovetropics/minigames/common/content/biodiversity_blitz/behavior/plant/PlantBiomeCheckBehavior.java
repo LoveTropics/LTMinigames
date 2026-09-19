@@ -35,18 +35,18 @@ public record PlantBiomeCheckBehavior(HolderSet<Biome> biomes, boolean whitelist
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		final GameEventListeners checkedListeners = new GameEventListeners();
+		GameEventListeners checkedListeners = new GameEventListeners();
 
 		behaviors.register(game, events.redirect(WRAPPED_EVENTS::contains, checkedListeners));
 
 		events.listen(BbPlantEvents.TICK, (players, plot, plants) -> {
-			final List<Plant> actualPlants = new ArrayList<>(plants);
+			List<Plant> actualPlants = new ArrayList<>(plants);
 			actualPlants.removeIf(plant -> !canContinue(game, plant));
 			checkedListeners.invoker(BbPlantEvents.TICK).onTickPlants(players, plot, plants);
 		});
 
 		events.listen(BbPlantEvents.PLACE, (player, plot, pos) -> {
-			final var placement = checkedListeners.invoker(BbPlantEvents.PLACE).placePlant(player, plot, pos);
+			var placement = checkedListeners.invoker(BbPlantEvents.PLACE).placePlant(player, plot, pos);
 			if (placement != null && !canContinue(game, pos)) {
 				player.sendSystemMessage(BiodiversityBlitzTexts.PLANT_CANNOT_BE_PLACED_IN_BIOME.copy().withStyle(ChatFormatting.RED), true);
 				com.lovetropics.minigames.common.util.Util.sendNotifySound(player, SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 1.0F, 1.0F);

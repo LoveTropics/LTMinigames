@@ -44,7 +44,7 @@ public final class PlayerRoleSelections {
 		}
 		CompletableFuture<PlayerRole> future = pendingResponses.get(player.getUUID());
 		if (future == null) {
-			final CompletableFuture<PlayerRole> rootFuture = new CompletableFuture<>();
+			CompletableFuture<PlayerRole> rootFuture = new CompletableFuture<>();
 			responseHandlers.put(player.getUUID(), rootFuture::complete);
 			future = rootFuture.thenApplyAsync(role -> {
 				roles.put(player.getUUID(), role);

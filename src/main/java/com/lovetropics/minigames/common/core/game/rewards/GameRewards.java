@@ -29,30 +29,30 @@ public class GameRewards {
 	private final Set<Identifier> collectibleIds = new HashSet<>();
 	private final Set<ItemStack> collectibleStacks = ItemStackLinkedSet.createTypeAndComponentsSet();
 
-	public void give(final ItemStack item) {
-		final ItemStack remainder = tryMergeIntoExistingStack(item.copy());
+	public void give(ItemStack item) {
+		ItemStack remainder = tryMergeIntoExistingStack(item.copy());
 		if (!remainder.isEmpty()) {
 			stacks.add(remainder);
 		}
 	}
 
-	public void giveCollectible(final Identifier id) {
+	public void giveCollectible(Identifier id) {
 		collectibleIds.add(id);
 	}
 
-	public void giveCollectible(final ItemStack item) {
+	public void giveCollectible(ItemStack item) {
 		if (!item.isEmpty()) {
 			collectibleStacks.add(item.copyWithCount(1));
 		}
 	}
 
-	private ItemStack tryMergeIntoExistingStack(final ItemStack item) {
-		for (final ItemStack stack : stacks) {
+	private ItemStack tryMergeIntoExistingStack(ItemStack item) {
+		for (ItemStack stack : stacks) {
 			if (!ItemStack.isSameItemSameComponents(item, stack)) {
 				continue;
 			}
-			final int maxAmount = stack.getMaxStackSize() - stack.getCount();
-			final int amount = Math.min(item.getCount(), maxAmount);
+			int maxAmount = stack.getMaxStackSize() - stack.getCount();
+			int amount = Math.min(item.getCount(), maxAmount);
 			if (amount > 0) {
 				stack.grow(amount);
 				item.shrink(amount);
@@ -64,12 +64,12 @@ public class GameRewards {
 		return item;
 	}
 
-	public void grant(final ServerPlayer player) {
+	public void grant(ServerPlayer player) {
 		if (stacks.isEmpty() && collectibleIds.isEmpty() && collectibleStacks.isEmpty()) {
 			return;
 		}
 		player.sendSystemMessage(MinigameTexts.REWARDS);
-		for (final ItemStack item : stacks) {
+		for (ItemStack item : stacks) {
 			player.sendSystemMessage(MinigameTexts.REWARD_ITEM.apply(
 					Component.literal(String.valueOf(item.getCount())),
 					item.getDisplayName().copy().withStyle(ChatFormatting.AQUA)
@@ -87,23 +87,23 @@ public class GameRewards {
 		for (Identifier id : collectibleIds) {
 			grantCollectible(player, id);
 		}
-		for (final ItemStack item : collectibleStacks) {
+		for (ItemStack item : collectibleStacks) {
 			grantCollectible(player, item);
 		}
 	}
 
-	private static void grantCollectible(final ServerPlayer player, final ItemStack item) {
+	private static void grantCollectible(ServerPlayer player, ItemStack item) {
 		// TODO: We should probably be splitting collectibles into their own mod at this point - and have an API for this. Commands are not a good API!
 		grantCollectible(player, serializeItem(item, player.registryAccess()));
 	}
 
-	private static void grantCollectible(final ServerPlayer player, final Identifier id) {
+	private static void grantCollectible(ServerPlayer player, Identifier id) {
 		grantCollectible(player, id.toString());
 	}
 
-	private static void grantCollectible(final ServerPlayer player, String collectibleString) {
-		final CommandSourceStack source = player.level().getServer().createCommandSourceStack();
-		final String commandBuilder = "collectible give " + player.nameAndId().name() + " " + collectibleString;
+	private static void grantCollectible(ServerPlayer player, String collectibleString) {
+		CommandSourceStack source = player.level().getServer().createCommandSourceStack();
+		String commandBuilder = "collectible give " + player.nameAndId().name() + " " + collectibleString;
 		player.level().getServer().getCommands().performPrefixedCommand(source, commandBuilder);
 	}
 

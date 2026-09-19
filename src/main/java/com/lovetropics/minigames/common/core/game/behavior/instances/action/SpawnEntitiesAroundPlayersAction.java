@@ -40,7 +40,7 @@ public class SpawnEntitiesAroundPlayersAction implements IGameBehavior {
 	private int remainingEntityCount;
 	private final Object2IntMap<ServerPlayer> playerToAmountToSpawn = new Object2IntOpenHashMap<>();
 
-	public SpawnEntitiesAroundPlayersAction(final EntityTemplate entity, final int entityCount, final int spawnDistanceMin, final int spawnDistanceMax, final int spawnRangeY, final int spawnsPerTick, final int maxEntityCount) {
+	public SpawnEntitiesAroundPlayersAction(EntityTemplate entity, int entityCount, int spawnDistanceMin, int spawnDistanceMax, int spawnRangeY, int spawnsPerTick, int maxEntityCount) {
 		this.entity = entity;
 		entityCountPerPlayer = entityCount;
 		this.spawnDistanceMin = spawnDistanceMin;
@@ -97,7 +97,7 @@ public class SpawnEntitiesAroundPlayersAction implements IGameBehavior {
 	/// Tries to return a random spawnable position within the set distances up to a certain amount of attempts
 	///
 	/// @return null if it fails, otherwise a real position
-	public @Nullable BlockPos getSpawnableRandomPositionNear(final IGamePhase game, BlockPos pos, int minDist, int maxDist, int loopAttempts, int yRange) {
+	public @Nullable BlockPos getSpawnableRandomPositionNear(IGamePhase game, BlockPos pos, int minDist, int maxDist, int loopAttempts, int yRange) {
 		for (int i = 0; i < loopAttempts; i++) {
 			BlockPos posTry = pos.offset(game.random().nextInt(maxDist * 2) - maxDist,
 					game.random().nextInt(yRange * 2) - yRange,
@@ -112,7 +112,7 @@ public class SpawnEntitiesAroundPlayersAction implements IGameBehavior {
 
 	/// Quick and dirty check for 2 high air with non air block under it
 	/// - also checks that it isnt water under it
-	public boolean isSpawnablePosition(final IGamePhase game, BlockPos pos) {
+	public boolean isSpawnablePosition(IGamePhase game, BlockPos pos) {
 		ServerLevel world = game.level();
 		return !world.isEmptyBlock(pos.offset(0, -1, 0))
 				&& world.isEmptyBlock(pos.offset(0, 0, 0))

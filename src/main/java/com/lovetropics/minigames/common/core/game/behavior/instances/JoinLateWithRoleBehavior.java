@@ -24,9 +24,9 @@ public record JoinLateWithRoleBehavior(PlayerRole role, boolean allowRejoin) imp
 	).apply(i, JoinLateWithRoleBehavior::new));
 
 	@Override
-	public void register(final IGamePhase game, final EventRegistrar events) {
-		final TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
-		final Map<PlayerKey, OldParticipant> oldParticipants = new Object2ObjectOpenHashMap<>();
+	public void register(IGamePhase game, EventRegistrar events) {
+		TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
+		Map<PlayerKey, OldParticipant> oldParticipants = new Object2ObjectOpenHashMap<>();
 
 		events.listen(GamePlayerEvents.SELECT_ROLE_ON_JOIN, (player, requestedRole) -> {
 			// Let the player be a spectator if they really want to
@@ -47,9 +47,9 @@ public record JoinLateWithRoleBehavior(PlayerRole role, boolean allowRejoin) imp
 
 		if (allowRejoin) {
 			events.listen(GamePlayerEvents.SET_ROLE, (player, role, lastRole) -> {
-				final PlayerKey playerKey = PlayerKey.from(player);
+				PlayerKey playerKey = PlayerKey.from(player);
 				if (role == PlayerRole.PARTICIPANT) {
-					final GameTeamKey team = teams != null ? teams.getTeamForPlayer(player) : null;
+					GameTeamKey team = teams != null ? teams.getTeamForPlayer(player) : null;
 					oldParticipants.putIfAbsent(playerKey, new OldParticipant(team));
 				} else if (lastRole == PlayerRole.PARTICIPANT) {
 					oldParticipants.remove(playerKey);
@@ -57,7 +57,7 @@ public record JoinLateWithRoleBehavior(PlayerRole role, boolean allowRejoin) imp
 			});
 
 			// TODO: We would ideally have much more clearly defined flow for a player that rejoins - e.g. a game with death should have the player effectively die
-			final PlayerStorage playerStorage = new PlayerStorage();
+			PlayerStorage playerStorage = new PlayerStorage();
 			events.listen(GamePlayerEvents.REMOVE, player -> {
 				if (game.getRoleFor(player) == PlayerRole.PARTICIPANT) {
 					playerStorage.store(player);
