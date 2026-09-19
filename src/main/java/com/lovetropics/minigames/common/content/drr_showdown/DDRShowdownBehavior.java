@@ -108,7 +108,7 @@ public class DDRShowdownBehavior implements IGameBehavior {
 
 		events.listen(GamePlayerEvents.SPAWN, (playerId, spawn, role) -> {
 			if (role == PlayerRole.PARTICIPANT) {
-				DDRMachineEntity poll = spawnedMachines.peek();
+				DDRMachineEntity poll = spawnedMachines.poll();
 				if (poll == null) {
 					LOGGER.warn("Could not DDR Machine for {}", playerId);
 					spawn.teleportTo(game.level(), game.mapRegions().getOrThrow(this.spectatorSpawnRegion).centerBlock());
@@ -177,7 +177,7 @@ public class DDRShowdownBehavior implements IGameBehavior {
 		for (ServerPlayer player : game.allPlayers()) {
 			player.setData(RiderBehavior.FORCE_RIDER, false);
 		}
-		activeMachines.forEach(entity -> entity.remove(Entity.RemovalReason.DISCARDED));
+		activeMachines.forEach(Entity::discard);
 
 		// Todo Players could tie but like...
 		GameStatistics statistics = game.statistics();
