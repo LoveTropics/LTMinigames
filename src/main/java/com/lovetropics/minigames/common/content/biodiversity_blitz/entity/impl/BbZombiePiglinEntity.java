@@ -37,7 +37,7 @@ public class BbZombiePiglinEntity extends ZombifiedPiglin implements BbMobEntity
 	}
 
 	@Override
-	protected PathNavigation createNavigation(Level world) {
+	protected PathNavigation createNavigation(Level level) {
 		return new BbGroundNavigator(this);
 	}
 

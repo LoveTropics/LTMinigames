@@ -21,5 +21,5 @@ public abstract class ChunkGeneratingBehavior implements IGameBehavior {
 		});
 	}
 
-	protected abstract void generateChunk(IGamePhase game, ServerLevel world, LevelChunk chunk);
+	protected abstract void generateChunk(IGamePhase game, ServerLevel level, LevelChunk chunk);
 }

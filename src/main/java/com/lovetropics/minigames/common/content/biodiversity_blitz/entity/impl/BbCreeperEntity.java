@@ -36,8 +36,8 @@ public class BbCreeperEntity extends Creeper implements BbMobEntity {
 
 	private float explosionSizeOffset = 0;
 
-	public BbCreeperEntity(EntityType<? extends Creeper> type, Level world, Plot plot) {
-		super(type, world);
+	public BbCreeperEntity(EntityType<? extends Creeper> type, Level level, Plot plot) {
+		super(type, level);
 		mobBrain = new BbMobBrain(plot.walls);
 		this.plot = plot;
 
@@ -100,7 +100,7 @@ public class BbCreeperEntity extends Creeper implements BbMobEntity {
 	}
 
 	@Override
-	protected PathNavigation createNavigation(Level world) {
+	protected PathNavigation createNavigation(Level level) {
 		return new BbGroundNavigator(this);
 	}
 

@@ -28,11 +28,11 @@ public final class WeatherControllerManager {
 		WeatherControllerManager.factory = factory;
 	}
 
-	public static WeatherController forWorld(ServerLevel world) {
-		ResourceKey<Level> dimension = world.dimension();
+	public static WeatherController forWorld(ServerLevel level) {
+		ResourceKey<Level> dimension = level.dimension();
 		WeatherController controller = WEATHER_CONTROLLERS.get(dimension);
 		if (controller == null) {
-			WEATHER_CONTROLLERS.put(dimension, controller = factory.apply(world));
+			WEATHER_CONTROLLERS.put(dimension, controller = factory.apply(level));
 		}
 		return controller;
 	}
@@ -53,9 +53,9 @@ public final class WeatherControllerManager {
 			return;
 		}
 
-		ServerLevel world = server.getLevel(dimension);
-		if (world != null) {
-			WeatherController controller = WeatherControllerManager.forWorld(world);
+		ServerLevel level = server.getLevel(dimension);
+		if (level != null) {
+			WeatherController controller = WeatherControllerManager.forWorld(level);
 			controller.onPlayerJoin((ServerPlayer) player);
 		}
 	}

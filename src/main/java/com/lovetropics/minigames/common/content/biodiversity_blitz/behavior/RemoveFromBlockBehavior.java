@@ -16,7 +16,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
@@ -48,14 +47,14 @@ public final class RemoveFromBlockBehavior implements IGameBehavior {
 		events.listen(GamePlayerEvents.USE_BLOCK, this::onUseBlock);
 	}
 
-	private InteractionResult onUseBlock(ServerPlayer player, ServerLevel world, BlockPos pos, InteractionHand hand, BlockHitResult result) {
+	private InteractionResult onUseBlock(ServerPlayer player, ServerLevel level, BlockPos pos, InteractionHand hand, BlockHitResult result) {
 		Plot plot = plots.getPlotFor(player);
 		if (plot != null && plot.bounds.contains(pos)) {
-			if (world.getBlockState(pos).getBlock() == in.getBlock()) {
-				world.setBlockAndUpdate(pos, out);
+			if (level.getBlockState(pos).getBlock() == in.getBlock()) {
+				level.setBlockAndUpdate(pos, out);
 
 				BlockPos spawnPos = pos.relative(result.getDirection());
-				world.addFreshEntity(new ItemEntity(world, spawnPos.getX() + 0.5, spawnPos.getY() + 0.5, spawnPos.getZ() + 0.5, drop.create()));
+				level.addFreshEntity(new ItemEntity(level, spawnPos.getX() + 0.5, spawnPos.getY() + 0.5, spawnPos.getZ() + 0.5, drop.create()));
 
 				return InteractionResult.SUCCESS;
 			}

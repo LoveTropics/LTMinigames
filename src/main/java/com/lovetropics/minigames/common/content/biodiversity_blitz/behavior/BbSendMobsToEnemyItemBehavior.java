@@ -57,7 +57,7 @@ public final class BbSendMobsToEnemyItemBehavior implements IGameBehavior {
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		TeamState teams = game.instanceState().getOrThrow(TeamState.KEY);
 
-		events.listen(BbEvents.MODIFY_WAVE_MODS, (entities, random, world, plot, waveIndex) -> entities.addAll(sentEnemies.removeAll(plot)));
+		events.listen(BbEvents.MODIFY_WAVE_MODS, (entities, random, level, plot, waveIndex) -> entities.addAll(sentEnemies.removeAll(plot)));
 		events.listen(GamePhaseEvents.START, initiator -> sentEnemies = Multimaps.synchronizedMultimap(Multimaps.newListMultimap(new HashMap<>(), LinkedList::new)));
 		events.listen(GamePhaseEvents.STOP, reason -> sentEnemies.clear());
 

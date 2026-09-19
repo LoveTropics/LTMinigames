@@ -418,9 +418,9 @@ public class CraftingBeeBehavior implements IGameBehavior {
 		return timerBarText.apply(Map.of("time", timeText, "game", gameNameText));
 	}
 
-	private InteractionResult useBlock(ServerPlayer player, ServerLevel world, BlockPos pos, InteractionHand hand, BlockHitResult traceResult) {
+	private InteractionResult useBlock(ServerPlayer player, ServerLevel level, BlockPos pos, InteractionHand hand, BlockHitResult traceResult) {
 		// don't allow players to use the crafting table after the game was won
-		if (world.getBlockState(pos).is(Blocks.CRAFTING_TABLE) && (done || teamsWithoutTime.contains(teams.getTeamForPlayer(player)))) {
+		if (level.getBlockState(pos).is(Blocks.CRAFTING_TABLE) && (done || teamsWithoutTime.contains(teams.getTeamForPlayer(player)))) {
 			return InteractionResult.FAIL;
 		}
 		ItemStack itemInHand = player.getItemInHand(hand);

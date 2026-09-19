@@ -102,11 +102,11 @@ public final class RuntimeDimensions {
 	}
 
 	public RuntimeDimensionHandle getOrOpenPersistent(Identifier key, Supplier<RuntimeDimensionConfig> config) {
-		ResourceKey<Level> worldKey = ResourceKey.create(Registries.DIMENSION, key);
-		ServerLevel world = server.getLevel(worldKey);
-		if (world != null) {
-			deletionQueue.remove(world);
-			return new RuntimeDimensionHandle(this, world);
+		ResourceKey<Level> dimension = ResourceKey.create(Registries.DIMENSION, key);
+		ServerLevel level = server.getLevel(dimension);
+		if (level != null) {
+			deletionQueue.remove(level);
+			return new RuntimeDimensionHandle(this, level);
 		}
 
 		return openLevel(key, config.get(), false);
@@ -181,10 +181,10 @@ public final class RuntimeDimensions {
 		}
 	}
 
-	boolean tickDimensionDeletion(ServerLevel world) {
-		prepareForDeletion(world);
-		if (isWorldUnloaded(world) || isTemporaryDimension(world.dimension())) {
-			deleteDimension(world);
+	boolean tickDimensionDeletion(ServerLevel level) {
+		prepareForDeletion(level);
+		if (isLevelUnloaded(level) || isTemporaryDimension(level.dimension())) {
+			deleteDimension(level);
 			return true;
 		} else {
 			return false;
@@ -194,17 +194,17 @@ public final class RuntimeDimensions {
 	private void stop() {
 		ArrayList<ResourceKey<Level>> temporaryDimensions = new ArrayList<>(this.temporaryDimensions);
 		for (ResourceKey<Level> dimension : temporaryDimensions) {
-			ServerLevel world = server.getLevel(dimension);
-			if (world != null) {
-				prepareForDeletion(world);
-				deleteDimension(world);
+			ServerLevel level = server.getLevel(dimension);
+			if (level != null) {
+				prepareForDeletion(level);
+				deleteDimension(level);
 			}
 		}
 	}
 
-	void enqueueDeletion(ServerLevel world) {
+	void enqueueDeletion(ServerLevel level) {
 		CompletableFuture.runAsync(() -> {
-			deletionQueue.add(world);
+			deletionQueue.add(level);
 		}, server);
 	}
 
@@ -232,8 +232,8 @@ public final class RuntimeDimensions {
 		}
 	}
 
-	private boolean isWorldUnloaded(ServerLevel world) {
-		return world.players().isEmpty() && world.getChunkSource().getLoadedChunksCount() <= 0;
+	private boolean isLevelUnloaded(ServerLevel level) {
+		return level.players().isEmpty() && level.getChunkSource().getLoadedChunksCount() <= 0;
 	}
 
 	private void deleteDimension(ServerLevel level) {

@@ -27,8 +27,8 @@ public class BbHuskEntity extends Husk implements BbMobEntity {
 	private final BbMobBrain mobBrain;
 	private final Plot plot;
 
-	public BbHuskEntity(EntityType<? extends Husk> type, Level world, Plot plot) {
-		super(type, world);
+	public BbHuskEntity(EntityType<? extends Husk> type, Level level, Plot plot) {
+		super(type, level);
 		mobBrain = new BbMobBrain(plot.walls);
 		this.plot = plot;
 
@@ -36,7 +36,7 @@ public class BbHuskEntity extends Husk implements BbMobEntity {
 	}
 
 	@Override
-	protected PathNavigation createNavigation(Level world) {
+	protected PathNavigation createNavigation(Level level) {
 		return new BbGroundNavigator(this);
 	}
 
@@ -54,7 +54,7 @@ public class BbHuskEntity extends Husk implements BbMobEntity {
 	}
 
 	@Override
-	public @Nullable SpawnGroupData finalizeSpawn(ServerLevelAccessor world, DifficultyInstance difficulty, EntitySpawnReason reason, @Nullable SpawnGroupData spawnData) {
+	public @Nullable SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, EntitySpawnReason reason, @Nullable SpawnGroupData spawnData) {
 		setLeftHanded(random.nextFloat() < 0.05F);
 		return spawnData;
 	}

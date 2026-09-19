@@ -125,7 +125,7 @@ public final class BbBehavior implements IGameBehavior {
 		events.listen(GamePlayerEvents.USE_BLOCK, this::onUseBlock);
 	}
 
-	private InteractionResult onUseBlock(ServerPlayer player, ServerLevel world, BlockPos blockPos, InteractionHand hand, BlockHitResult blockRayTraceResult) {
+	private InteractionResult onUseBlock(ServerPlayer player, ServerLevel level, BlockPos blockPos, InteractionHand hand, BlockHitResult blockRayTraceResult) {
 		if (!tutorial.isTutorialFinished()) {
 			return InteractionResult.FAIL;
 		}
@@ -134,21 +134,21 @@ public final class BbBehavior implements IGameBehavior {
 		BlockPos pos = blockRayTraceResult.getBlockPos();
 
 		if (plot != null && plot.bounds.contains(pos)) {
-			return onUseBlockInPlot(player, world, blockPos, hand, plot, pos);
+			return onUseBlockInPlot(player, level, blockPos, hand, plot, pos);
 		} else {
 			return InteractionResult.CONSUME;
 		}
 	}
 
-	private InteractionResult onUseBlockInPlot(ServerPlayer player, ServerLevel world, BlockPos blockPos, InteractionHand hand, Plot plot, BlockPos pos) {
-		BlockState state = world.getBlockState(pos);
+	private InteractionResult onUseBlockInPlot(ServerPlayer player, ServerLevel level, BlockPos blockPos, InteractionHand hand, Plot plot, BlockPos pos) {
+		BlockState state = level.getBlockState(pos);
 
 		// TODO: can we make it not hardcoded?
 		if (plot.isFloorAt(pos) && player.getItemInHand(hand).is(ItemTags.HOES)) {
 			// If there is no plant above we can change to grass safely
 			if (state.is(Blocks.FARMLAND) && !plot.plants.hasPlantAt(pos.above())) {
-				world.setBlockAndUpdate(pos, Blocks.GRASS_BLOCK.defaultBlockState());
-				world.playSound(null, blockPos, SoundEvents.HOE_TILL, SoundSource.BLOCKS, 1.0F, 1.0F);
+				level.setBlockAndUpdate(pos, Blocks.GRASS_BLOCK.defaultBlockState());
+				level.playSound(null, blockPos, SoundEvents.HOE_TILL, SoundSource.BLOCKS, 1.0F, 1.0F);
 				player.getCooldowns().addCooldown(player.getItemInHand(hand), 3);
 				return InteractionResult.SUCCESS;
 			} else if (state.is(Blocks.DIRT_PATH)) {

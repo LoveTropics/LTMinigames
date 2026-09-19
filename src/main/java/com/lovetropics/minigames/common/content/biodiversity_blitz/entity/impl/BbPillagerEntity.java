@@ -36,8 +36,8 @@ public class BbPillagerEntity extends Pillager implements BbMobEntity {
 	private final BbMobBrain mobBrain;
 	private final Plot plot;
 
-	public BbPillagerEntity(EntityType<? extends Pillager> type, Level world, Plot plot) {
-		super(type, world);
+	public BbPillagerEntity(EntityType<? extends Pillager> type, Level level, Plot plot) {
+		super(type, level);
 		mobBrain = new BbMobBrain(plot.walls);
 		this.plot = plot;
 
@@ -45,7 +45,7 @@ public class BbPillagerEntity extends Pillager implements BbMobEntity {
 	}
 
 	@Override
-	protected PathNavigation createNavigation(Level world) {
+	protected PathNavigation createNavigation(Level level) {
 		return new BbGroundNavigator(this);
 	}
 

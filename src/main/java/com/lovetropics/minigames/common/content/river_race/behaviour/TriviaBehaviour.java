@@ -90,11 +90,11 @@ public final class TriviaBehaviour implements IGameBehavior {
 				}
 			}
 		});
-		events.listen(GamePlayerEvents.USE_BLOCK, (player, world, pos, hand, traceResult) -> {
+		events.listen(GamePlayerEvents.USE_BLOCK, (player, level, pos, hand, traceResult) -> {
 			if (hand == InteractionHand.OFF_HAND) {
 				return InteractionResult.PASS;
 			}
-			if (world.getBlockEntity(pos) instanceof HasTrivia hasTrivia) {
+			if (level.getBlockEntity(pos) instanceof HasTrivia hasTrivia) {
 				return useTriviaBlock(game, player, pos, hasTrivia);
 			}
 			return InteractionResult.PASS;
@@ -238,19 +238,19 @@ public final class TriviaBehaviour implements IGameBehavior {
 		return null;
 	}
 
-	private static void findNeighboursOfTypeAndDestroy(GameScheduler scheduler, ServerLevel world, BlockPos pos, @Nullable Block blockType) {
+	private static void findNeighboursOfTypeAndDestroy(GameScheduler scheduler, ServerLevel level, BlockPos pos, @Nullable Block blockType) {
 		for (Direction direction : Direction.values()) {
 			BlockPos relative = pos.relative(direction);
-			BlockState blockState = world.getBlockState(relative);
+			BlockState blockState = level.getBlockState(relative);
 			if (!blockState.isAir() && blockState.is(Tags.Blocks.GLASS_BLOCKS)) {
 				if (blockType == null) {
 					blockType = blockState.getBlock();
 				}
 				if (blockState.is(blockType)) {
-					world.destroyBlock(relative, false);
+					level.destroyBlock(relative, false);
 					Block finalBlockType = blockType;
 					scheduler.runAfterSeconds(0.5f, () -> {
-						findNeighboursOfTypeAndDestroy(scheduler, world, relative, finalBlockType);
+						findNeighboursOfTypeAndDestroy(scheduler, level, relative, finalBlockType);
 					});
 				}
 			}

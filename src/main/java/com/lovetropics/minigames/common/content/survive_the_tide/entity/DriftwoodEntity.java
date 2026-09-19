@@ -43,8 +43,8 @@ public final class DriftwoodEntity extends Entity {
 
 	private final List<Player> riders = new ArrayList<>();
 
-	public DriftwoodEntity(EntityType<?> type, Level world) {
-		super(type, world);
+	public DriftwoodEntity(EntityType<?> type, Level level) {
+		super(type, level);
 	}
 
 	@Override

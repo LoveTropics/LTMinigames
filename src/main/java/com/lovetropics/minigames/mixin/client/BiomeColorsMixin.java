@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(BiomeColors.class)
 public class BiomeColorsMixin {
 	@Inject(method = "getAverageGrassColor", at = @At("HEAD"), cancellable = true)
-	private static void getGrassColor(BlockAndTintGetter world, BlockPos pos, CallbackInfoReturnable<Integer> ci) {
+	private static void getGrassColor(BlockAndTintGetter level, BlockPos pos, CallbackInfoReturnable<Integer> ci) {
 		CheckeredPlotsState checkeredPlots = ClientGameStateManager.getOrNull(BiodiversityBlitz.CHECKERED_PLOTS_STATE);
 		if (checkeredPlots != null && checkeredPlots.contains(pos)) {
 			boolean checkerboard = (pos.getX() + pos.getZ() & 1) == 0;

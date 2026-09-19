@@ -120,8 +120,8 @@ public class RiverRaceMerchantBehavior implements IGameBehavior {
 		return InteractionResult.PASS;
 	}
 
-	private @Nullable Entity createMerchant(ServerLevel world) {
-		Entity merchant = entity.create(world, EntitySpawnReason.COMMAND);
+	private @Nullable Entity createMerchant(ServerLevel level) {
+		Entity merchant = entity.create(level, EntitySpawnReason.COMMAND);
 		if (merchant != null) {
 			if (name != CommonComponents.EMPTY) {
 				merchant.setCustomName(name);

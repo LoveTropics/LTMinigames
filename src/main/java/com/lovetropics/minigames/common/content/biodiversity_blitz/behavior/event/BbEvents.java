@@ -100,9 +100,9 @@ public final class BbEvents {
 		return TriState.DEFAULT;
 	});
 
-	public static final GameEventType<ModifyWaveMobs> MODIFY_WAVE_MODS = GameEventType.create(ModifyWaveMobs.class, listeners -> (entities, random, world, plot, waveIndex) -> {
+	public static final GameEventType<ModifyWaveMobs> MODIFY_WAVE_MODS = GameEventType.create(ModifyWaveMobs.class, listeners -> (entities, random, level, plot, waveIndex) -> {
 		for (ModifyWaveMobs listener : listeners) {
-			listener.modifyWave(entities, random, world, plot, waveIndex);
+			listener.modifyWave(entities, random, level, plot, waveIndex);
 		}
 	});
 
@@ -146,6 +146,6 @@ public final class BbEvents {
 	}
 
 	public interface ModifyWaveMobs {
-		void modifyWave(Set<Entity> entities, RandomSource random, Level world, Plot plot, int waveIndex);
+		void modifyWave(Set<Entity> entities, RandomSource random, Level level, Plot plot, int waveIndex);
 	}
 }

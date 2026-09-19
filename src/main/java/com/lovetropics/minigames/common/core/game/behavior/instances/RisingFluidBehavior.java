@@ -95,7 +95,7 @@ public class RisingFluidBehavior implements IGameBehavior {
     }
 
     private void spawnWarningParticles(IGamePhase game) {
-        ServerLevel world = game.level();
+        ServerLevel level = game.level();
         RandomSource random = game.random();
         if (random.nextInt(3) != 0) {
             return;
@@ -113,7 +113,7 @@ public class RisingFluidBehavior implements IGameBehavior {
             int particleZ = Mth.floor(player.getZ()) - random.nextInt(5) + random.nextInt(5);
             mutablePos.set(particleX, fluidLevel, particleZ);
 
-            if (!world.isEmptyBlock(mutablePos) && world.isEmptyBlock(mutablePos.move(Direction.UP))) {
+            if (!level.isEmptyBlock(mutablePos) && level.isEmptyBlock(mutablePos.move(Direction.UP))) {
                 Packet<?> packet = new ClientboundLevelParticlesPacket(ParticleTypes.SPLASH, false, false, particleX, fluidLevel + 1, particleZ, 0.1F, 0.0F, 0.1F, 0.0F, 4);
                 player.connection.send(packet);
             }

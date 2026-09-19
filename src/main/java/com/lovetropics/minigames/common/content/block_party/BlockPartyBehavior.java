@@ -372,11 +372,11 @@ public final class BlockPartyBehavior implements IGameBehavior {
 	}
 
 	record Floor(BlockState target) {
-		void removeNonTargets(ServerLevel world, BlockBox box) {
+		void removeNonTargets(ServerLevel level, BlockBox box) {
 			for (BlockPos pos : box) {
-				BlockState state = world.getBlockState(pos);
+				BlockState state = level.getBlockState(pos);
 				if (!state.equals(target)) {
-					world.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_KNOWN_SHAPE | Block.UPDATE_CLIENTS);
+					level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_KNOWN_SHAPE | Block.UPDATE_CLIENTS);
 				}
 			}
 		}

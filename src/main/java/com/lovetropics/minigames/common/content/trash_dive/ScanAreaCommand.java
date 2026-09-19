@@ -61,11 +61,11 @@ public class ScanAreaCommand {
 	private static int scanArea(CommandSourceStack source, String fileName) throws CommandSyntaxException {
 		BlockPos.MutableBlockPos pos = BlockPos.containing(source.getPosition()).mutable();
 
-		ServerLevel world = source.getLevel();
-		while (pos.getY() >= world.getMinY() && world.getBlockState(pos).getBlock() != Blocks.WATER) {
+		ServerLevel level = source.getLevel();
+		while (pos.getY() >= level.getMinY() && level.getBlockState(pos).getBlock() != Blocks.WATER) {
 			pos.move(Direction.DOWN);
 		}
-		if (pos.getY() < world.getMinY()) {
+		if (pos.getY() < level.getMinY()) {
 			throw NO_WATER.create();
 		}
 
@@ -87,14 +87,14 @@ public class ScanAreaCommand {
 		while (!queue.isEmpty()) {
 			pos.set(queue.remove());
 			found.add(pos.asLong());
-			world.sendParticles(source.getPlayerOrException(), ParticleTypes.END_ROD, true, false, pos.getX() + 0.5, source.getPosition().y() - 3, pos.getZ(), 1, 0, 0, 0, 0);
+			level.sendParticles(source.getPlayerOrException(), ParticleTypes.END_ROD, true, false, pos.getX() + 0.5, source.getPosition().y() - 3, pos.getZ(), 1, 0, 0, 0, 0);
 			for (Direction dir : dirs) {
 				pos.move(dir);
 				if (seen.add(pos.asLong())) {
 					if (pos.distToCenterSqr(source.getPosition()) > 400 * 400) {
 						throw TOO_FAR.create();
 					}
-					LevelChunk chunk = chunkCache.computeIfAbsent(ChunkPos.containing(pos), p -> world.getChunk(p.x(), p.z()));
+					LevelChunk chunk = chunkCache.computeIfAbsent(ChunkPos.containing(pos), p -> level.getChunk(p.x(), p.z()));
 					if (!edges.contains(chunk.getBlockState(pos).getBlock())) {
 						queue.add(pos.immutable());
 					}

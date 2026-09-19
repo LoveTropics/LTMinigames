@@ -62,15 +62,15 @@ public record ItemFrameCodeBehaviour(
 			regionToItemFrame.put(game.mapRegions().getOrThrow(itemFrame.itemFrameRegion()), itemFrame);
 		}
 		BlockBox submitButton = game.mapRegions().getOrThrow(buttonRegion);
-		events.listen(GamePlayerEvents.USE_BLOCK, (player, world, pos, hand, traceResult) -> {
+		events.listen(GamePlayerEvents.USE_BLOCK, (player, level, pos, hand, traceResult) -> {
 			if(submitButton.contains(pos)){
-				BlockState blockState = world.getBlockState(pos);
+				BlockState blockState = level.getBlockState(pos);
 				if(blockState.is(SurviveTheTide.BIG_RED_BUTTON) && !blockState.getValue(BigRedButtonBlock.TRIGGERED)){
-					BlockEntity blockEntity = world.getBlockEntity(pos);
+					BlockEntity blockEntity = level.getBlockEntity(pos);
 					if(blockEntity instanceof BigRedButtonBlockEntity bigRedButtonBlockEntity){
 						bigRedButtonBlockEntity.trigger();
 					}
-					if(isWrongCode(game, regionToItemFrame, world, player)){
+					if(isWrongCode(game, regionToItemFrame, level, player)){
 						state.lockoutStartTicks = game.ticks();
 					}
 					return InteractionResult.PASS;

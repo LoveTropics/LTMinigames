@@ -78,12 +78,12 @@ public final class SetBlocksAction implements IGameBehavior {
 	}
 
 	private void setInRegion(IGamePhase game, BlockBox region) {
-		ServerLevel world = game.level();
+		ServerLevel level = game.level();
 		BlockPredicate replace = this.replace;
 		BlockStateProvider set = this.set;
-		RandomSource random = world.getRandom();
+		RandomSource random = level.getRandom();
 
-		loadRegionChunks(region, world);
+		loadRegionChunks(region, level);
 
 		int flags = Block.UPDATE_ALL;
 		if (!notifyNeighbors) {
@@ -92,13 +92,13 @@ public final class SetBlocksAction implements IGameBehavior {
 		}
 
 		for (BlockPos pos : region) {
-			if (replace == null || replace.matches(world, pos)) {
-				BlockState state = set.getState(world, random, pos);
-				world.setBlock(pos, state, flags);
+			if (replace == null || replace.matches(level, pos)) {
+				BlockState state = set.getState(level, random, pos);
+				level.setBlock(pos, state, flags);
 				blockEntityData.ifPresent(tag -> {
-					if (world.getBlockEntity(pos) instanceof BlockEntity be) {
+					if (level.getBlockEntity(pos) instanceof BlockEntity be) {
 						try (ProblemReporter.ScopedCollector scopedCollector = new ProblemReporter.ScopedCollector(be.problemPath(), LOGGER)) {
-							be.loadWithComponents(TagValueInput.create(scopedCollector, world.registryAccess(), tag));
+							be.loadWithComponents(TagValueInput.create(scopedCollector, level.registryAccess(), tag));
 						}
 					}
 				});
@@ -106,12 +106,12 @@ public final class SetBlocksAction implements IGameBehavior {
 		}
 	}
 
-	private void loadRegionChunks(BlockBox region, ServerLevel world) {
+	private void loadRegionChunks(BlockBox region, ServerLevel level) {
 		LongSet chunks = region.asChunks();
 		LongIterator chunkIterator = chunks.iterator();
 		while (chunkIterator.hasNext()) {
 			long chunkPos = chunkIterator.nextLong();
-			world.getChunk(ChunkPos.getX(chunkPos), ChunkPos.getZ(chunkPos));
+			level.getChunk(ChunkPos.getX(chunkPos), ChunkPos.getZ(chunkPos));
 		}
 	}
 }

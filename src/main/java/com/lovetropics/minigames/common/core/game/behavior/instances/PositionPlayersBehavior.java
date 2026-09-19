@@ -164,10 +164,10 @@ public class PositionPlayersBehavior implements IGameBehavior {
 	}
 
 	public static BlockPos tryFindEmptyPos(IGamePhase game, RandomSource random, BlockBox box) {
-		ServerLevel world = game.level();
+		ServerLevel level = game.level();
 		for (int i = 0; i < 20; i++) {
 			BlockPos pos = box.sample(random);
-			if (world.isEmptyBlock(pos)) {
+			if (level.isEmptyBlock(pos)) {
 				return pos;
 			}
 		}

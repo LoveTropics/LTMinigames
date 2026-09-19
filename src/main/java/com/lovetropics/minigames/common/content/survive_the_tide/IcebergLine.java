@@ -72,9 +72,9 @@ public class IcebergLine {
 		return rand.nextInt(radius) * (rand.nextBoolean() ? -1 : 1);
 	}
 
-	private void setIceWithCheck(Level world, BlockPos pos) {
-		if (world.getFluidState(pos).is(Fluids.WATER)) {
-			world.setBlock(pos, Blocks.SNOW_BLOCK.defaultBlockState(), Block.UPDATE_CLIENTS);
+	private void setIceWithCheck(Level level, BlockPos pos) {
+		if (level.getFluidState(pos).is(Fluids.WATER)) {
+			level.setBlock(pos, Blocks.SNOW_BLOCK.defaultBlockState(), Block.UPDATE_CLIENTS);
 		}
 	}
 }

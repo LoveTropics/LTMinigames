@@ -38,8 +38,8 @@ public class PlatformEntity extends Entity {
 
 	private List<Vec3> riderOffsets = List.of();
 
-	public PlatformEntity(EntityType<?> type, Level world) {
-		super(type, world);
+	public PlatformEntity(EntityType<?> type, Level level) {
+		super(type, level);
 		noPhysics = true;
 	}
 

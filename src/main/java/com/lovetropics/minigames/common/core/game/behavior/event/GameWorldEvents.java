@@ -56,9 +56,9 @@ public final class GameWorldEvents {
 		return TriState.DEFAULT;
 	});
 
-	public static final GameEventType<CropGrow> CROP_GROW = GameEventType.create(CropGrow.class, listeners -> (world, pos) -> {
+	public static final GameEventType<CropGrow> CROP_GROW = GameEventType.create(CropGrow.class, listeners -> (level, pos) -> {
 		for (CropGrow listener : listeners) {
-			TriState result = listener.onCropGrow(world, pos);
+			TriState result = listener.onCropGrow(level, pos);
 			if (!result.isDefault()) {
 				return result;
 			}
@@ -199,6 +199,6 @@ public final class GameWorldEvents {
 	}
 
 	public interface TrapdoorToggle {
-		TriState onTrapDoorToggle(ServerLevel world, BlockPos pos, BlockState state);
+		TriState onTrapDoorToggle(ServerLevel level, BlockPos pos, BlockState state);
 	}
 }

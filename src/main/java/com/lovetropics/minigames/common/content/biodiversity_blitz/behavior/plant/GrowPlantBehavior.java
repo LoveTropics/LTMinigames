@@ -76,25 +76,25 @@ public record GrowPlantBehavior(IntProvider time, PlantType growInto) implements
 		return result;
 	}
 
-	private PlantSnapshot removeAndSnapshot(ServerLevel world, Plot plot, Plant plant) {
+	private PlantSnapshot removeAndSnapshot(ServerLevel level, Plot plot, Plant plant) {
 		plot.plants.removePlant(plant);
 
 		Long2ObjectMap<BlockState> blocks = new Long2ObjectOpenHashMap<>();
 		for (BlockPos pos : plant.coverage()) {
-			blocks.put(pos.asLong(), world.getBlockState(pos));
-			world.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
+			blocks.put(pos.asLong(), level.getBlockState(pos));
+			level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
 		}
 
 		return new PlantSnapshot(plant, blocks);
 	}
 
-	private void restoreSnapshot(ServerLevel world, Plot plot, PlantSnapshot snapshot) {
+	private void restoreSnapshot(ServerLevel level, Plot plot, PlantSnapshot snapshot) {
 		plot.plants.addPlant(snapshot.plant);
 
 		for (BlockPos pos : snapshot.plant.coverage()) {
 			BlockState block = snapshot.blocks.get(pos.asLong());
 			if (block != null) {
-				world.setBlock(pos, block, Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
+				level.setBlock(pos, block, Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
 			}
 		}
 	}

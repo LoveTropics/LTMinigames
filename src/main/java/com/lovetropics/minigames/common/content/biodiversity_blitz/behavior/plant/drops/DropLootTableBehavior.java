@@ -47,7 +47,7 @@ public final class DropLootTableBehavior implements IGameBehavior {
 		this.game = game;
 		events.listen(BbPlantEvents.BREAK, this::dropLoot);
 
-		events.listen(GamePlayerEvents.USE_BLOCK, (player, world, blockPos, hand, blockRayTraceResult) -> {
+		events.listen(GamePlayerEvents.USE_BLOCK, (player, level, blockPos, hand, blockRayTraceResult) -> {
 			BlockPos pos = blockRayTraceResult.getBlockPos();
 
 			Plot plot = game.state().getOrThrow(PlotsState.KEY).getPlotFor(player);
@@ -55,7 +55,7 @@ public final class DropLootTableBehavior implements IGameBehavior {
 				return InteractionResult.PASS;
 			}
 
-			BlockState state = world.getBlockState(pos);
+			BlockState state = level.getBlockState(pos);
 
 			boolean is7 = state.hasProperty(BlockStateProperties.AGE_7) && state.getValue(BlockStateProperties.AGE_7) == 7;
 			boolean is3 = state.hasProperty(BlockStateProperties.AGE_3) && state.getValue(BlockStateProperties.AGE_3) == 3;
@@ -66,9 +66,9 @@ public final class DropLootTableBehavior implements IGameBehavior {
 				if (plant != null && plant.type().equals(plantType)) {
 					dropLoot(player, plot, plant, pos);
 					if (is7) {
-						world.setBlock(pos, state.setValue(BlockStateProperties.AGE_7, 0), Block.UPDATE_ALL);
+						level.setBlock(pos, state.setValue(BlockStateProperties.AGE_7, 0), Block.UPDATE_ALL);
 					} else {
-						world.setBlock(pos, state.setValue(BlockStateProperties.AGE_3, 0), Block.UPDATE_ALL);
+						level.setBlock(pos, state.setValue(BlockStateProperties.AGE_3, 0), Block.UPDATE_ALL);
 					}
 
 					return InteractionResult.SUCCESS;

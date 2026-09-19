@@ -2,12 +2,10 @@ package com.lovetropics.minigames.common.content.escape_race.client;
 
 import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.content.escape_race.EscapeRaceParticles;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.HeartParticle;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
-import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.util.RandomSource;
@@ -19,8 +17,8 @@ import org.jspecify.annotations.Nullable;
 
 @EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
 public class TeamParticle extends HeartParticle {
-    TeamParticle(ClientLevel world, double x, double y, double z, SpriteSet sprites) {
-        super(world, x, y, z, sprites.first());
+    TeamParticle(ClientLevel level, double x, double y, double z, SpriteSet sprites) {
+        super(level, x, y, z, sprites.first());
     }
 
     @SubscribeEvent

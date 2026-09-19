@@ -76,14 +76,14 @@ public final class ScareTrapPlantBehavior implements IGameBehavior {
 	private PlantPlacement place(ServerPlayer player, Plot plot, BlockPos pos) {
 		return new PlantPlacement()
 				.covers(buildPlantCoverage(plot, pos))
-				.places((world, coverage) -> {
+				.places((level, coverage) -> {
 					placeReadyTrap(plot, pos);
 					return true;
 				});
 	}
 
-	private InteractionResult useBlock(ServerPlayer player, ServerLevel world, BlockPos pos, InteractionHand hand, BlockHitResult traceResult) {
-		if (world.getBlockState(pos).is(Blocks.LEVER)) {
+	private InteractionResult useBlock(ServerPlayer player, ServerLevel level, BlockPos pos, InteractionHand hand, BlockHitResult traceResult) {
+		if (level.getBlockState(pos).is(Blocks.LEVER)) {
 			return useLever(player, pos);
 		}
 

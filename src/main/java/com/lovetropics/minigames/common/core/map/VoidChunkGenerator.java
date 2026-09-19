@@ -76,7 +76,7 @@ public final class VoidChunkGenerator extends ChunkGenerator {
 	}
 
 	@Override
-	public void createReferences(WorldGenLevel world, StructureManager structures, ChunkAccess chunk) {
+	public void createReferences(WorldGenLevel level, StructureManager structures, ChunkAccess chunk) {
 	}
 
 	@Override

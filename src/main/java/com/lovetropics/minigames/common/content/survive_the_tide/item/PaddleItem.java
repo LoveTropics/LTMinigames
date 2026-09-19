@@ -14,8 +14,8 @@ public class PaddleItem extends Item {
 	}
 
 	@Override
-	public InteractionResult use(Level world, Player player, InteractionHand hand) {
-		if (world.isClientSide()) {
+	public InteractionResult use(Level level, Player player, InteractionHand hand) {
+		if (level.isClientSide()) {
 			return InteractionResult.PASS;
 		}
 

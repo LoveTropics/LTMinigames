@@ -62,16 +62,16 @@ public record ProximityBombPlantBehavior(double radius) implements IGameBehavior
 	}
 
 	// Kaboom!
-	private static void explode(ServerLevel world, PlantCoverage coverage) {
+	private static void explode(ServerLevel level, PlantCoverage coverage) {
 		for (BlockPos pos : coverage) {
-			world.removeBlock(pos, true);
+			level.removeBlock(pos, true);
 
 			Vec3 center = Vec3.atCenterOf(pos);
 
-			ServerExplosion explosion = new FilteredExplosion(world, null, null, null, center, 2.0f, false, Explosion.BlockInteraction.DESTROY, e -> e instanceof ServerPlayer);
+			ServerExplosion explosion = new FilteredExplosion(level, null, null, null, center, 2.0f, false, Explosion.BlockInteraction.DESTROY, e -> e instanceof ServerPlayer);
 			explosion.explode();
 
-			for (ServerPlayer player : world.players()) {
+			for (ServerPlayer player : level.players()) {
 				if (player.distanceToSqr(center) < 4096.0) {
 					Optional<Vec3> knockback = Optional.ofNullable(explosion.getHitPlayers().get(player));
 					player.connection.send(new ClientboundExplodePacket(

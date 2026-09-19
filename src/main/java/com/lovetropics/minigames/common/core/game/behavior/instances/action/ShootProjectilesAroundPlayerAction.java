@@ -109,8 +109,8 @@ public class ShootProjectilesAroundPlayerAction implements IGameBehavior {
 		}
 	}
 
-	private LargeFireball createFireball(ServerLevel world, BlockPos spawn, BlockPos target) {
-		LargeFireball fireball = new LargeFireball(EntityTypes.FIREBALL, world) {
+	private LargeFireball createFireball(ServerLevel level, BlockPos spawn, BlockPos target) {
+		LargeFireball fireball = new LargeFireball(EntityTypes.FIREBALL, level) {
 			@Override
 			protected void onHit(HitResult hitResult) {
 				switch (hitResult.getType()) {
@@ -119,7 +119,7 @@ public class ShootProjectilesAroundPlayerAction implements IGameBehavior {
 				}
 
 				if (!level().isClientSide()) {
-					boolean mobGriefing = EventHooks.canEntityGrief(world, getOwner());
+					boolean mobGriefing = EventHooks.canEntityGrief(level, getOwner());
 					level().explode(null, getX(), getY(), getZ(), explosionStrength, mobGriefing, Level.ExplosionInteraction.MOB);
 					discard();
 				}

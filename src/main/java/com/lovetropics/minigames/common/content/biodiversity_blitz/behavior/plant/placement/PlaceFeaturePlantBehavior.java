@@ -47,12 +47,12 @@ public record PlaceFeaturePlantBehavior(Holder<ConfiguredFeature<?, ?>> feature,
 		});
 	}
 
-	private @Nullable Long2ObjectMap<BlockState> generateFeature(ServerLevel world, BlockPos pos, ConfiguredFeature<?, ?> feature) {
-		BlockCapturingWorld capturingWorld = new BlockCapturingWorld(world, blocks);
+	private @Nullable Long2ObjectMap<BlockState> generateFeature(ServerLevel level, BlockPos pos, ConfiguredFeature<?, ?> feature) {
+		BlockCapturingLevel capturingLevel = new BlockCapturingLevel(level, blocks);
 
-		ChunkGenerator chunkGenerator = world.getChunkSource().getGenerator();
-		if (feature.place(capturingWorld, chunkGenerator, world.getRandom(), pos)) {
-			return capturingWorld.getCapturedBlocks();
+		ChunkGenerator chunkGenerator = level.getChunkSource().getGenerator();
+		if (feature.place(capturingLevel, chunkGenerator, level.getRandom(), pos)) {
+			return capturingLevel.getCapturedBlocks();
 		} else {
 			return null;
 		}
@@ -83,13 +83,13 @@ public record PlaceFeaturePlantBehavior(Holder<ConfiguredFeature<?, ?>> feature,
 			placement.decorationCovers(PlantCoverage.of(decorationCoverage, origin));
 		}
 
-		return placement.places((world, finalCoverage) -> {
+		return placement.places((level, finalCoverage) -> {
 			BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
 			for (Long2ObjectMap.Entry<BlockState> entry : Long2ObjectMaps.fastIterable(blocks)) {
 				pos.set(entry.getLongKey());
 				if (finalCoverage.covers(pos)) {
 					BlockState state = entry.getValue();
-					world.setBlock(pos, state, Block.UPDATE_ALL | Block.UPDATE_KNOWN_SHAPE);
+					level.setBlock(pos, state, Block.UPDATE_ALL | Block.UPDATE_KNOWN_SHAPE);
 				}
 			}
 			return true;
@@ -100,13 +100,13 @@ public record PlaceFeaturePlantBehavior(Holder<ConfiguredFeature<?, ?>> feature,
 		return !state.is(BlockTags.LOGS);
 	}
 
-	static class BlockCapturingWorld extends DelegatingWorldGenLevel {
+	static class BlockCapturingLevel extends DelegatingWorldGenLevel {
 		private final Long2ObjectMap<BlockState> simulatedBlocks = new Long2ObjectOpenHashMap<>();
 		private final Long2ObjectMap<BlockState> capturedBlocks = new Long2ObjectOpenHashMap<>();
 
 		private final Predicate<BlockState> filter;
 
-		BlockCapturingWorld(WorldGenLevel parent, Predicate<BlockState> filter) {
+		BlockCapturingLevel(WorldGenLevel parent, Predicate<BlockState> filter) {
 			super(parent);
 			this.filter = filter;
 		}

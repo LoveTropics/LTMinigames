@@ -22,8 +22,8 @@ public record PlaceDoublePlantBehavior(BlockState block) implements IGameBehavio
 	public void register(IGamePhase game, EventRegistrar events) {
 		events.listen(BbPlantEvents.PLACE, (player, plot, pos) -> new PlantPlacement()
 				.covers(PlantCoverage.ofDouble(pos))
-				.places((world, coverage) -> {
-					DoublePlantBlock.placeAt(world, block, pos, Block.UPDATE_ALL);
+				.places((level, coverage) -> {
+					DoublePlantBlock.placeAt(level, block, pos, Block.UPDATE_ALL);
 					return true;
 				}));
 	}

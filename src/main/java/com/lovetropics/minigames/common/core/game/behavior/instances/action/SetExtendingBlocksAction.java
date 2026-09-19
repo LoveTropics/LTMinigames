@@ -102,7 +102,7 @@ public final class SetExtendingBlocksAction implements IGameBehavior {
 		// TODO: we should be not rewriting blocks that we already placed
 		BlockBox extendingBox = getExtendingBox(box, progress);
 
-		ServerLevel world = game.level();
+		ServerLevel level = game.level();
 		BlockPredicate replace = this.replace;
 		BlockStateProvider set = this.set;
 
@@ -113,13 +113,13 @@ public final class SetExtendingBlocksAction implements IGameBehavior {
 		}
 
 		for (BlockPos pos : extendingBox) {
-			if (replace == null || replace.matches(world, pos)) {
-				BlockState state = set.getState(world, game.random(), pos);
+			if (replace == null || replace.matches(level, pos)) {
+				BlockState state = set.getState(level, game.random(), pos);
 				if (state.is(Blocks.WATER)) {
-					world.setBlock(pos, FluidFiller.WaterRule.mapBlockRisingWater(world.getBlockState(pos)), flags);
+					level.setBlock(pos, FluidFiller.WaterRule.mapBlockRisingWater(level.getBlockState(pos)), flags);
 				} else {
-					state = Block.updateFromNeighbourShapes(state, world, pos);
-					world.setBlock(pos, state, flags);
+					state = Block.updateFromNeighbourShapes(state, level, pos);
+					level.setBlock(pos, state, flags);
 				}
 			}
 		}

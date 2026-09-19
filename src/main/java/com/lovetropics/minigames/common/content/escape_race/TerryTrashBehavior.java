@@ -128,7 +128,7 @@ public final class TerryTrashBehavior implements IGameBehavior {
 
 		TeamState teams = game.instanceState().getOrThrow(TeamState.KEY);
 
-		events.listen(GamePlayerEvents.USE_BLOCK, ((player, world, pos, hand, traceResult) -> {
+		events.listen(GamePlayerEvents.USE_BLOCK, ((player, level, pos, hand, traceResult) -> {
 			ItemStack heldItem = player.getItemInHand(hand);
 			if (game.mapRegions().getOrThrow(checkLever).contains(pos)) {
 				if (codeGood) {
@@ -138,15 +138,15 @@ public final class TerryTrashBehavior implements IGameBehavior {
 				for (CodeCheck codeCheck : codeChecks) {
 					BlockPos blockBox = game.mapRegions().getOrThrow(codeCheck.blockRegion).min();
 					BlockPos lightBox = game.mapRegions().getOrThrow(codeCheck.lightRegion).min();
-					if (codeCheck.blockPredicate.matches(world, blockBox)) {
-						BlockState goodBlock = codeCheck.goodCode.getState(world, game.random(), blockBox);
-						world.setBlockAndUpdate(lightBox, goodBlock);
+					if (codeCheck.blockPredicate.matches(level, blockBox)) {
+						BlockState goodBlock = codeCheck.goodCode.getState(level, game.random(), blockBox);
+						level.setBlockAndUpdate(lightBox, goodBlock);
 					} else {
-						BlockState badBlock = codeCheck.badCode.getState(world, game.random(), blockBox);
-						world.setBlockAndUpdate(lightBox, badBlock);
+						BlockState badBlock = codeCheck.badCode.getState(level, game.random(), blockBox);
+						level.setBlockAndUpdate(lightBox, badBlock);
 						allMatch = false;
 					}
-					world.setBlockAndUpdate(blockBox, codeCheck.clearState.getState(world, game.random(), blockBox));
+					level.setBlockAndUpdate(blockBox, codeCheck.clearState.getState(level, game.random(), blockBox));
 				}
 				if (allMatch) {
 					codeGood = allMatch;

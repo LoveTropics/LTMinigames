@@ -45,21 +45,21 @@ public class Util {
 		return false;
 	}
 
-	public static @Nullable BlockPos findGround(Level world, BlockPos origin, int maximumDistance) {
-		if (!isSolidGround(world, origin)) {
+	public static @Nullable BlockPos findGround(Level level, BlockPos origin, int maximumDistance) {
+		if (!isSolidGround(level, origin)) {
 			BlockPos pos = origin.below();
-			if (world.getBlockState(pos).isSolid()) {
+			if (level.getBlockState(pos).isSolid()) {
 				return origin;
 			}
 		}
 
 		// if this position is not free, scan upwards to find the ground
-		if (world.getBlockState(origin).isSolid()) {
+		if (level.getBlockState(origin).isSolid()) {
 			BlockPos.MutableBlockPos mutablePos = origin.mutable();
 
 			for (int i = 0; i < maximumDistance; i++) {
 				mutablePos.move(Direction.UP);
-				if (world.isOutsideBuildHeight(mutablePos) || !world.getBlockState(mutablePos).isSolid()) {
+				if (level.isOutsideBuildHeight(mutablePos) || !level.getBlockState(mutablePos).isSolid()) {
 					return mutablePos.immutable();
 				}
 			}
@@ -67,16 +67,16 @@ public class Util {
 
 		// if the position below us is not solid, scan downwards to find the ground
 		BlockPos pos = origin.below();
-		if (!world.getBlockState(pos).isSolid()) {
+		if (!level.getBlockState(pos).isSolid()) {
 			BlockPos.MutableBlockPos mutablePos = origin.mutable();
 
 			for (int i = 0; i < maximumDistance; i++) {
 				mutablePos.move(Direction.DOWN);
-				if (world.isOutsideBuildHeight(mutablePos)) {
+				if (level.isOutsideBuildHeight(mutablePos)) {
 					return null;
 				}
 
-				if (world.getBlockState(mutablePos).isSolid()) {
+				if (level.getBlockState(mutablePos).isSolid()) {
 					return mutablePos.move(Direction.UP).immutable();
 				}
 			}
@@ -85,17 +85,17 @@ public class Util {
 		return null;
 	}
 
-	private static boolean isSolidGround(Level world, BlockPos pos) {
-		return world.getBlockState(pos).isSolid();
+	private static boolean isSolidGround(Level level, BlockPos pos) {
+		return level.getBlockState(pos).isSolid();
 	}
 
-	public static void drawParticleBetween(ParticleOptions data, Vec3 start, Vec3 end, ServerLevel world, RandomSource random, int count, double xzScale, double yScale, double speedBase, double speedScale) {
+	public static void drawParticleBetween(ParticleOptions data, Vec3 start, Vec3 end, ServerLevel level, RandomSource random, int count, double xzScale, double yScale, double speedBase, double speedScale) {
 		for (int i = 0; i < count; i++) {
 			Vec3 sample = lerpVector(start, end, i / 20.0);
 			double d3 = random.nextGaussian() * xzScale;
 			double d1 = random.nextGaussian() * yScale;
 			double d2 = random.nextGaussian() * xzScale;
-			world.sendParticles(data, sample.x, sample.y, sample.z, 1 + random.nextInt(2), d3, d1, d2, speedBase + random.nextDouble() * speedScale);
+			level.sendParticles(data, sample.x, sample.y, sample.z, 1 + random.nextInt(2), d3, d1, d2, speedBase + random.nextDouble() * speedScale);
 		}
 	}
 

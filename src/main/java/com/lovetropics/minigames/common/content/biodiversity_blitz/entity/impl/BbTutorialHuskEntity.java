@@ -8,8 +8,8 @@ import net.minecraft.world.level.Level;
 
 // Husk that cannot ever attack the player
 public class BbTutorialHuskEntity extends BbHuskEntity {
-	public BbTutorialHuskEntity(EntityType<? extends Husk> type, Level world, Plot plot) {
-		super(type, world, plot);
+	public BbTutorialHuskEntity(EntityType<? extends Husk> type, Level level, Plot plot) {
+		super(type, level, plot);
 	}
 
 	@Override

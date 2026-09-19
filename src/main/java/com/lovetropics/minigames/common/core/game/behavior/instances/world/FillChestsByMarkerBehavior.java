@@ -53,7 +53,7 @@ public class FillChestsByMarkerBehavior extends ChunkGeneratingBehavior {
 	}
 
 	@Override
-	protected void generateChunk(IGamePhase game, ServerLevel world, LevelChunk chunk) {
+	protected void generateChunk(IGamePhase game, ServerLevel level, LevelChunk chunk) {
 		ObjectArrayList<Chest> chests = collectChests(chunk);
 		if (chests.isEmpty()) {
 			return;
@@ -64,18 +64,18 @@ public class FillChestsByMarkerBehavior extends ChunkGeneratingBehavior {
 
 		if (percentage < 1.0f) {
 			int index = Mth.ceil(chests.size() * percentage);
-			trimChests(world, chests, index);
+			trimChests(level, chests, index);
 		}
 
-		trimChests(world, chests, maxPerChunk);
+		trimChests(level, chests, maxPerChunk);
 
 		for (ObjectList<Chest> sectionChests : partitionBySection(chests)) {
-			trimChests(world, sectionChests, maxPerSection);
+			trimChests(level, sectionChests, maxPerSection);
 
 			for (Chest chest : sectionChests) {
-				world.setBlockAndUpdate(chest.pos, Blocks.AIR.defaultBlockState());
+				level.setBlockAndUpdate(chest.pos, Blocks.AIR.defaultBlockState());
 				lootTables.getRandom(random).ifPresent(lootTable -> {
-					setChest(world, chest.pos.below(), chest, lootTable);
+					setChest(level, chest.pos.below(), chest, lootTable);
 				});
 			}
 		}
@@ -113,12 +113,12 @@ public class FillChestsByMarkerBehavior extends ChunkGeneratingBehavior {
 		return chestPositions;
 	}
 
-	private void setChest(ServerLevel world, BlockPos pos, Chest chest, ResourceKey<LootTable> lootTable) {
-		world.setBlockAndUpdate(pos, chest.blockState);
-		if (world.getBlockEntity(pos) instanceof RandomizableContainer blockEntity) {
-			blockEntity.setLootTable(lootTable, world.getRandom().nextLong());
+	private void setChest(ServerLevel level, BlockPos pos, Chest chest, ResourceKey<LootTable> lootTable) {
+		level.setBlockAndUpdate(pos, chest.blockState);
+		if (level.getBlockEntity(pos) instanceof RandomizableContainer blockEntity) {
+			blockEntity.setLootTable(lootTable, level.getRandom().nextLong());
 		}
-		world.getChunkSource().getLightEngine().checkBlock(pos);
+		level.getChunkSource().getLightEngine().checkBlock(pos);
 	}
 
 	private record Chest(BlockPos pos, BlockState blockState) {

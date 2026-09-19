@@ -57,7 +57,7 @@ public final class BbMobSpawner {
 		return entities;
 	}
 
-	public static void spawnEntity(ServerLevel world, RandomSource random, BlockBox mobSpawn, Plot plot, Entity entity) {
+	public static void spawnEntity(ServerLevel level, RandomSource random, BlockBox mobSpawn, Plot plot, Entity entity) {
 		AABB spawnBounds = mobSpawn.asAabb().inflate(-entity.getBbWidth(), 0.0f, -entity.getBbWidth());
 		double x = spawnBounds.minX + spawnBounds.getXsize() * random.nextFloat();
 		double y = spawnBounds.minY;
@@ -66,15 +66,15 @@ public final class BbMobSpawner {
 		Direction direction = plot.forward.getOpposite();
 		entity.snapTo(x, y, z, direction.toYRot(), 0);
 
-		world.addFreshEntity(entity);
+		level.addFreshEntity(entity);
 
 		if (entity instanceof Mob mob) {
-			mob.finalizeSpawn(world, world.getCurrentDifficultyAt(pos), EntitySpawnReason.MOB_SUMMONED, null);
+			mob.finalizeSpawn(level, level.getCurrentDifficultyAt(pos), EntitySpawnReason.MOB_SUMMONED, null);
 		}
 	}
 
 	// TODO: data-drive, more entity types & getting harder as time goes on
-	public static Mob selectEntityForWave(RandomSource random, Level world, Plot plot, int plotIndex, int waveIndex) {
+	public static Mob selectEntityForWave(RandomSource random, Level level, Plot plot, int plotIndex, int waveIndex) {
 		PlotWaveState waveState = plot.waveState;
 
 		// Devious, awful, no good hardcoded mob spawning
@@ -83,42 +83,42 @@ public final class BbMobSpawner {
 		boolean isWater = plotIndex == 2 || plotIndex == 3;
 
 		if (!isWater && random.nextInt(6) == 0 && waveIndex > 4 && plot.nextCurrencyIncrement >= 4) {
-			return new BbZoglinEntity(EntityTypes.ZOGLIN, world, plot);
+			return new BbZoglinEntity(EntityTypes.ZOGLIN, level, plot);
 		}
 
 		if (!isWater && random.nextInt(5) == 0 && waveIndex > 4 && plot.nextCurrencyIncrement >= 3) {
-			return new BbVindicatorEntity(EntityTypes.VINDICATOR, world, plot);
+			return new BbVindicatorEntity(EntityTypes.VINDICATOR, level, plot);
 		}
 
 		if (!isWater && random.nextInt(5) == 0 && waveIndex > 4 && plot.nextCurrencyIncrement >= 2) {
-			return new BbZombiePiglinEntity(EntityTypes.ZOMBIFIED_PIGLIN, world, plot);
+			return new BbZombiePiglinEntity(EntityTypes.ZOMBIFIED_PIGLIN, level, plot);
 		}
 
 		if (random.nextInt(6) == 0 && waveIndex > 4 && plot.nextCurrencyIncrement >= 3) {
-			return new BbCreeperEntity(EntityTypes.CREEPER, world, plot);
+			return new BbCreeperEntity(EntityTypes.CREEPER, level, plot);
 		}
 
 		if (random.nextInt(3) == 0 && waveIndex > 2 && plot.nextCurrencyIncrement >= 2) {
-			return new BbPillagerEntity(EntityTypes.PILLAGER, world, plot);
+			return new BbPillagerEntity(EntityTypes.PILLAGER, level, plot);
 		}
 
 		// Zombies in jungle
 		if (isJungle) {
-			return new BbZombieEntity(EntityTypes.ZOMBIE, world, plot);
+			return new BbZombieEntity(EntityTypes.ZOMBIE, level, plot);
 		}
 
 		// Drowned in water
 		if (plotIndex == 2 || plotIndex == 3) {
-			return new BbDrownedEntity(EntityTypes.DROWNED, world, plot);
+			return new BbDrownedEntity(EntityTypes.DROWNED, level, plot);
 		}
 
 		// Husks in desert
-		return new BbHuskEntity(EntityTypes.HUSK, world, plot);
+		return new BbHuskEntity(EntityTypes.HUSK, level, plot);
 	}
 
 	@FunctionalInterface
 	public interface WaveSelector {
-		Mob selectEntityForWave(RandomSource random, Level world, Plot plot, int plotIndex, int waveIndex);
+		Mob selectEntityForWave(RandomSource random, Level level, Plot plot, int plotIndex, int waveIndex);
 	}
 
 	public enum BbEntityTypes implements StringRepresentable {

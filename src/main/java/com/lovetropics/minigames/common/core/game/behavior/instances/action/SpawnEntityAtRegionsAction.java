@@ -69,12 +69,12 @@ public class SpawnEntityAtRegionsAction implements IGameBehavior {
 				return false;
 			}
 
-			ServerLevel world = game.level();
+			ServerLevel level = game.level();
 			for (BlockBox region : regionsToSpawnAt) {
 				for (int i = 0; i < entityCountPerRegion; i++) {
 					BlockPos pos = region.sample(game.random());
 					if (atHeightmap) {
-						pos = world.getHeightmapPos(Heightmap.Types.WORLD_SURFACE, pos);
+						pos = level.getHeightmapPos(Heightmap.Types.WORLD_SURFACE, pos);
 					}
 					float angle = 0;
 					if (faceBox != null) {
@@ -84,7 +84,7 @@ public class SpawnEntityAtRegionsAction implements IGameBehavior {
 						double deltaZ = nearestZ - (pos.getZ() + 0.5);
 						angle = (float) (Mth.atan2(deltaZ, deltaX) * Mth.RAD_TO_DEG - 90.0f);
 					}
-					Entity e = entity.spawn(world, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, angle, 0);
+					Entity e = entity.spawn(level, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, angle, 0);
 					if (e != null) {
 						entitySpawnActions.ifPresent(actions -> actions.apply(game, ContextMap.EMPTY, ActionSubjects.ofEntity(e)));
 					}

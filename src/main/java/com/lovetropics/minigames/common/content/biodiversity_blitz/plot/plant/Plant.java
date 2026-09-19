@@ -67,26 +67,26 @@ public final class Plant {
 		return state.get(key);
 	}
 
-	public void spawnPoof(ServerLevel world) {
-		spawnPoof(world, 20, 0.15);
+	public void spawnPoof(ServerLevel level) {
+		spawnPoof(level, 20, 0.15);
 	}
 
-	public void spawnPoof(ServerLevel world, int count, double speed) {
-		RandomSource random = world.getRandom();
+	public void spawnPoof(ServerLevel level, int count, double speed) {
+		RandomSource random = level.getRandom();
 
 		for (BlockPos pos : coverage) {
 			for (int i = 0; i < count; i++) {
 				double vx = random.nextGaussian() * 0.02;
 				double vy = random.nextGaussian() * 0.02;
 				double vz = random.nextGaussian() * 0.02;
-				world.sendParticles(ParticleTypes.POOF, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 1, vx, vy, vz, speed);
+				level.sendParticles(ParticleTypes.POOF, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 1, vx, vy, vz, speed);
 			}
 		}
 	}
 
-	public Stream<BlockPos> getBlockPositions(ServerLevel world, Block block) {
+	public Stream<BlockPos> getBlockPositions(ServerLevel level, Block block) {
 		return coverage().stream()
-				.peek(bp -> System.out.println(world.getBlockState(bp)))
-				.filter(bp -> world.getBlockState(bp).getBlock() == block);
+				.peek(bp -> System.out.println(level.getBlockState(bp)))
+				.filter(bp -> level.getBlockState(bp).getBlock() == block);
 	}
 }

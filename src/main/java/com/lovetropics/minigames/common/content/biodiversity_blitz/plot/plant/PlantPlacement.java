@@ -37,14 +37,14 @@ public final class PlantPlacement {
 		return decorationCoverage;
 	}
 
-	public boolean place(ServerLevel world, PlantCoverage coverage) {
+	public boolean place(ServerLevel level, PlantCoverage coverage) {
 		if (place == null) {
 			return false;
 		}
-		return place.place(world, coverage);
+		return place.place(level, coverage);
 	}
 
 	public interface Place {
-		boolean place(ServerLevel world, PlantCoverage coverage);
+		boolean place(ServerLevel level, PlantCoverage coverage);
 	}
 }

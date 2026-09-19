@@ -147,9 +147,9 @@ public final class GamePlayerEvents {
 		return InteractionResult.PASS;
 	});
 
-	public static final GameEventType<UseBlock> USE_BLOCK = GameEventType.create(UseBlock.class, listeners -> (player, world, pos, hand, traceResult) -> {
+	public static final GameEventType<UseBlock> USE_BLOCK = GameEventType.create(UseBlock.class, listeners -> (player, level, pos, hand, traceResult) -> {
 		for (UseBlock listener : listeners) {
-			InteractionResult result = listener.onUseBlock(player, world, pos, hand, traceResult);
+			InteractionResult result = listener.onUseBlock(player, level, pos, hand, traceResult);
 			if (result != InteractionResult.PASS) {
 				return result;
 			}
@@ -157,9 +157,9 @@ public final class GamePlayerEvents {
 		return InteractionResult.PASS;
 	});
 
-	public static final GameEventType<UseBlock> USE_ITEM_ON_BLOCK = GameEventType.create(UseBlock.class, listeners -> (player, world, pos, hand, traceResult) -> {
+	public static final GameEventType<UseBlock> USE_ITEM_ON_BLOCK = GameEventType.create(UseBlock.class, listeners -> (player, level, pos, hand, traceResult) -> {
 		for (UseBlock listener : listeners) {
-			InteractionResult result = listener.onUseBlock(player, world, pos, hand, traceResult);
+			InteractionResult result = listener.onUseBlock(player, level, pos, hand, traceResult);
 			if (result != InteractionResult.PASS) {
 				return result;
 			}
@@ -167,9 +167,9 @@ public final class GamePlayerEvents {
 		return InteractionResult.PASS;
 	});
 
-	public static final GameEventType<LeftClickBlock> LEFT_CLICK_BLOCK = GameEventType.create(LeftClickBlock.class, listeners -> (player, world, pos) -> {
+	public static final GameEventType<LeftClickBlock> LEFT_CLICK_BLOCK = GameEventType.create(LeftClickBlock.class, listeners -> (player, level, pos) -> {
 		for (LeftClickBlock listener : listeners) {
-			listener.onLeftClickBlock(player, world, pos);
+			listener.onLeftClickBlock(player, level, pos);
 		}
 	});
 
@@ -325,11 +325,11 @@ public final class GamePlayerEvents {
 	}
 
 	public interface UseBlock {
-		InteractionResult onUseBlock(ServerPlayer player, ServerLevel world, BlockPos pos, InteractionHand hand, BlockHitResult traceResult);
+		InteractionResult onUseBlock(ServerPlayer player, ServerLevel level, BlockPos pos, InteractionHand hand, BlockHitResult traceResult);
 	}
 
 	public interface LeftClickBlock {
-		void onLeftClickBlock(ServerPlayer player, ServerLevel world, BlockPos pos);
+		void onLeftClickBlock(ServerPlayer player, ServerLevel level, BlockPos pos);
 	}
 
 	public interface BreakBlock {

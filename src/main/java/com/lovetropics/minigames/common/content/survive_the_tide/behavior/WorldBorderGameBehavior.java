@@ -120,7 +120,7 @@ public class WorldBorderGameBehavior implements IGameBehavior {
 		//world.addParticle(borderParticle, );
 	}
 
-	private void tickParticles(ParticleType particle, float currentRadius, ServerLevel world) {
+	private void tickParticles(ParticleType particle, float currentRadius, ServerLevel level) {
 		float amountPerCircle = particle.density * currentRadius;
 		float stepAmount = 360F / amountPerCircle;
 
@@ -129,12 +129,12 @@ public class WorldBorderGameBehavior implements IGameBehavior {
 
 		for (float step = 0; step <= 360; step += stepAmount) {
 			for (int yStep = yMin; yStep < particleHeight; yStep += yStepAmount) {
-				if (world.getRandom().nextInt(particle.chance/*yMax - yMin*/) == 0) {
+				if (level.getRandom().nextInt(particle.chance/*yMax - yMin*/) == 0) {
 					float xVec = (float) -Math.sin(Math.toRadians(step)) * currentRadius;
 					float zVec = (float) Math.cos(Math.toRadians(step)) * currentRadius;
-					//world.addParticle(borderParticle, worldBorderCenter.getX() + xVec, worldBorderCenter.getY() + yStep, worldBorderCenter.getZ() + zVec, 0, 0, 0);
+					//level.addParticle(borderParticle, worldBorderCenter.getX() + xVec, worldBorderCenter.getY() + yStep, worldBorderCenter.getZ() + zVec, 0, 0, 0);
 					//IParticleData data = ForgeRegistries.PARTICLE_TYPES.getValue(new Identifier("heart"));
-					world.sendParticles(particle.particle, worldBorderCenter.getX() + xVec, worldBorderCenter.getY() + yStep, worldBorderCenter
+					level.sendParticles(particle.particle, worldBorderCenter.getX() + xVec, worldBorderCenter.getY() + yStep, worldBorderCenter
 							.getZ() + zVec, 1, 0, 0, 0, 1D);
 				}
 			}

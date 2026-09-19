@@ -46,7 +46,7 @@ public class BbZoglinEntity extends Zoglin implements BbMobEntity {
 	}
 
 	@Override
-	protected PathNavigation createNavigation(Level world) {
+	protected PathNavigation createNavigation(Level level) {
 		return new BbGroundNavigator(this);
 	}
 

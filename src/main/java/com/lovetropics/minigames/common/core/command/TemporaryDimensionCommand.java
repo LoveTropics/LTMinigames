@@ -51,11 +51,11 @@ public class TemporaryDimensionCommand {
 		}
 
 		for (ResourceKey<Level> dimension : runtimeDimensions.getTemporaryDimensions()) {
-			ServerLevel world = server.getLevel(dimension);
-			if (world == null) {
+			ServerLevel level = server.getLevel(dimension);
+			if (level == null) {
 				continue;
 			}
-			ctx.getSource().sendSuccess(() -> Component.literal(dimension.identifier() + ": " + world.players().size() + " players"), false);
+			ctx.getSource().sendSuccess(() -> Component.literal(dimension.identifier() + ": " + level.players().size() + " players"), false);
 		}
 
 		return Command.SINGLE_SUCCESS;

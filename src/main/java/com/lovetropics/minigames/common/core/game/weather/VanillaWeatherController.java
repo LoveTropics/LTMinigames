@@ -6,11 +6,11 @@ import net.minecraft.server.level.ServerPlayer;
 import org.jspecify.annotations.Nullable;
 
 public final class VanillaWeatherController implements WeatherController {
-	private final ServerLevel world;
+	private final ServerLevel level;
 	private final WeatherState state = new WeatherState();
 
-	public VanillaWeatherController(ServerLevel world) {
-		this.world = world;
+	public VanillaWeatherController(ServerLevel level) {
+		this.level = level;
 	}
 
 	@Override
@@ -19,7 +19,7 @@ public final class VanillaWeatherController implements WeatherController {
 
 	@Override
 	public void tick() {
-		world.getWeatherData().setRaining(state.isRaining());
+		level.getWeatherData().setRaining(state.isRaining());
 	}
 
 	@Override
