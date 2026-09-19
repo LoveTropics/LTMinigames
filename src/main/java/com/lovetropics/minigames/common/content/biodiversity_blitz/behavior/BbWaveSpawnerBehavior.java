@@ -101,7 +101,7 @@ public final class BbWaveSpawnerBehavior implements IGameBehavior {
 		});
 
 		listeners = new GameEventListeners();
-		var cl = events.redirect(e -> e == BbEvents.MODIFY_WAVE_MODS, listeners);
+		EventRegistrar cl = events.redirect(e -> e == BbEvents.MODIFY_WAVE_MODS, listeners);
 		children.forEach(child -> child.register(game, cl));
 
 		waveCharging = new ServerBossEvent(UUID.randomUUID(), BiodiversityBlitzTexts.WAVE_WARNING, BossBarColor.GREEN, BossEvent.BossBarOverlay.PROGRESS);

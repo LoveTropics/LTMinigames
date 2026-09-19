@@ -11,8 +11,10 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.DimensionArgument;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
 
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
@@ -48,7 +50,7 @@ public class TemporaryDimensionCommand {
 			ctx.getSource().sendSuccess(() -> Component.literal("No temporary dimensions open!"), false);
 		}
 
-		for (var dimension : runtimeDimensions.getTemporaryDimensions()) {
+		for (ResourceKey<Level> dimension : runtimeDimensions.getTemporaryDimensions()) {
 			ServerLevel world = server.getLevel(dimension);
 			if (world == null) {
 				continue;

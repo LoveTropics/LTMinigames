@@ -16,21 +16,21 @@ public class Bingo {
 	public static final TranslationCollector.Fun2 TILE_COMPLETED = KEYS.add2("tile_completed", "%s completed tile %s!");
 
 	public static final GameEventType<RequestNewTile> REQUEST_NEW_TILE_EVENT = GameEventType.create(RequestNewTile.class, listeners -> (icon, title, reward) -> {
-		for (var listener : listeners) {
-			var index = listener.requestTile(icon, title, reward);
+		for (RequestNewTile listener : listeners) {
+			int index = listener.requestTile(icon, title, reward);
 			if (index >= 0) return index;
 		}
 		return -1;
 	});
 
 	public static final GameEventType<CompleteBingoTile> COMPLETE_BINGO_TILE_EVENT = GameEventType.create(CompleteBingoTile.class, listeners -> (tile, player) -> {
-		for (var listener : listeners) {
+		for (CompleteBingoTile listener : listeners) {
 			listener.onCompleted(tile, player);
 		}
 	});
 
 	public static final GameEventType<CaptureBingoTile> CAPTURE_TILE_EVENT = GameEventType.create(CaptureBingoTile.class, listeners -> (tile) -> {
-		for (var listener : listeners) {
+		for (CaptureBingoTile listener : listeners) {
 			listener.capture(tile);
 		}
 	});

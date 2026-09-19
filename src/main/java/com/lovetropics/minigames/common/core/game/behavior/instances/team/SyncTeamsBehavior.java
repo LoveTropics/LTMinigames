@@ -10,6 +10,7 @@ import com.lovetropics.minigames.common.core.game.behavior.event.GameTeamEvents;
 import com.lovetropics.minigames.common.core.game.client_state.GameClientStateSender;
 import com.lovetropics.minigames.common.core.game.client_state.GameClientStateTypes;
 import com.lovetropics.minigames.common.core.game.client_state.instance.TeamMembersClientState;
+import com.lovetropics.minigames.common.core.game.player.PlayerSet;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeamKey;
 import com.lovetropics.minigames.common.core.game.state.team.TeamState;
 import com.lovetropics.minigames.common.core.network.SetGameClientStateMessage;
@@ -40,7 +41,7 @@ public class SyncTeamsBehavior implements IGameBehavior {
 	}
 
 	private void sendSync(TeamState teams, GameTeamKey key, IGamePhase game) {
-		var team = teams.getParticipantsForTeam(game, key);
+		PlayerSet team = teams.getParticipantsForTeam(game, key);
 		team.forEach(player -> GameClientStateSender.get().byPlayer(player).enqueueSet(new TeamMembersClientState(team.stream().filter(p -> p != player)
 				.map(ServerPlayer::getUUID).toList())));
 	}

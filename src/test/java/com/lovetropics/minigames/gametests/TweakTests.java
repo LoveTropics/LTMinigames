@@ -11,9 +11,11 @@ import com.lovetropics.minigames.common.core.game.map.InlineMapProvider;
 import com.lovetropics.minigames.common.core.game.player.PlayerRole;
 import com.lovetropics.minigames.common.core.game.state.progress.ProgressChannel;
 import com.lovetropics.minigames.gametests.api.GameTest;
+import com.lovetropics.minigames.gametests.api.LTFakePlayer;
 import com.lovetropics.minigames.gametests.api.LTGameTestHelper;
 import com.lovetropics.minigames.gametests.api.MinigameTest;
 import com.lovetropics.minigames.gametests.api.RegisterMinigameTest;
+import com.lovetropics.minigames.gametests.api.TestGameLobby;
 import com.mojang.serialization.Codec;
 import it.unimi.dsi.fastutil.objects.Object2DoubleMaps;
 import net.minecraft.core.HolderLookup;
@@ -21,6 +23,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.damagesource.DamageTypes;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodData;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
@@ -56,8 +59,8 @@ public class TweakTests implements MinigameTest {
 
 	@GameTest
 	public void testMaxHealth(LTGameTestHelper helper) {
-		var player = helper.createFakePlayer();
-		var lobby = helper.createGame(player, PlayerRole.PARTICIPANT);
+		LTFakePlayer player = helper.createFakePlayer();
+		TestGameLobby lobby = helper.createGame(player, PlayerRole.PARTICIPANT);
 		lobby.enqueue(gameId("max_health"));
 
 		helper.startSequence()
@@ -71,11 +74,11 @@ public class TweakTests implements MinigameTest {
 
 	@GameTest
 	public void testCancelDamage(LTGameTestHelper helper) {
-		var player = helper.createFakePlayer();
-		var lobby = helper.createGame(player, PlayerRole.PARTICIPANT);
+		LTFakePlayer player = helper.createFakePlayer();
+		TestGameLobby lobby = helper.createGame(player, PlayerRole.PARTICIPANT);
 		lobby.enqueue(gameId("cancel_damage"));
 
-		var target = helper.makeMockPlayer(GameType.SURVIVAL);
+		Player target = helper.makeMockPlayer(GameType.SURVIVAL);
 		helper.startSequence()
 				.thenExecute(helper.startGame(lobby))
 				.thenIdle(60) // Wait for invulnerability to end
@@ -86,11 +89,11 @@ public class TweakTests implements MinigameTest {
 
 	@GameTest
 	public void testScaleDamage(LTGameTestHelper helper) {
-		var player = helper.createFakePlayer();
-		var lobby = helper.createGame(player, PlayerRole.PARTICIPANT);
+		LTFakePlayer player = helper.createFakePlayer();
+		TestGameLobby lobby = helper.createGame(player, PlayerRole.PARTICIPANT);
 		lobby.enqueue(gameId("scale_damage"));
 
-		var target = helper.playerBuilder()
+		LTFakePlayer target = helper.playerBuilder()
 				.gameMode(GameType.SURVIVAL)
 				.isInvulnerableTo(source -> !source.is(DamageTypes.PLAYER_ATTACK))
 				.canBeHarmedBy(p -> p == player)
@@ -118,9 +121,9 @@ public class TweakTests implements MinigameTest {
 
 	@GameTest(timeoutTicks = 200)
 	public void testDisableHunger(LTGameTestHelper helper) {
-		var player = helper.createFakePlayer();
+		LTFakePlayer player = helper.createFakePlayer();
 		player.setSprinting(true);
-		var lobby = helper.createGame(player, PlayerRole.PARTICIPANT);
+		TestGameLobby lobby = helper.createGame(player, PlayerRole.PARTICIPANT);
 		lobby.enqueue(gameId("disable_hunger"));
 
 		helper.startSequence()

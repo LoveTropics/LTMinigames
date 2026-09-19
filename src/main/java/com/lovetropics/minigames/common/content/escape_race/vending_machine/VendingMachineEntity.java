@@ -189,7 +189,7 @@ public class VendingMachineEntity extends Entity implements ContainerEntity {
 	}
 
 	private AABB calculateBoundingBox(Vec3 position) {
-		var facing = getDirection();
+		Direction facing = getDirection();
 		Vec3 vec31 = position.relative(facing, 0.5f);
 		Vec3 vec32 = position.relative(facing.getOpposite(), 0.5f);
 		for (Direction.Axis value : Direction.Axis.values()) {

@@ -166,7 +166,7 @@ public class CraftingBeeBehavior implements IGameBehavior {
 
 	private void start(GameWidgets widgets) {
 		for (GameTeam team : teams) {
-			var recipes = selectors.stream().map(selector -> selector.select(game.level()))
+			List<CraftingTask> recipes = selectors.stream().map(selector -> selector.select(game.level()))
 					.map(recipe -> new CraftingTask(
 							CraftingBee.getCraftingRecipeResult(recipe.value(), game.registryAccess()),
 							recipe
@@ -244,13 +244,13 @@ public class CraftingBeeBehavior implements IGameBehavior {
 		}
 
 		for (CraftingTask task : tasks) {
-			var ingredients = task.recipe.value().placementInfo().ingredients();
-			var items = ingredients.stream().flatMap(this::singleDecomposition).collect(net.minecraft.util.Util.toMutableList());
+			List<Ingredient> ingredients = task.recipe.value().placementInfo().ingredients();
+			List<ItemStack> items = ingredients.stream().flatMap(this::singleDecomposition).collect(net.minecraft.util.Util.toMutableList());
 			Collections.shuffle(items);
 
 			// Evenly distribute the items between the players
 			int p = 0;
-			var playerList = players.stream().toList();
+			List<ServerPlayer> playerList = players.stream().toList();
 			for (ItemStack item : items) {
 				playerList.get(p++).addItem(item.copy());
 				if (p >= playerList.size()) {
@@ -266,7 +266,7 @@ public class CraftingBeeBehavior implements IGameBehavior {
 		}
 
 		for (IngredientDecomposer decomposer : decomposers) {
-			var decomposed = decomposer.decompose(ingredient);
+			List<Ingredient> decomposed = decomposer.decompose(ingredient);
 			if (decomposed != null) {
 				return decomposed.stream().flatMap(this::singleDecomposition);
 			}
@@ -302,16 +302,16 @@ public class CraftingBeeBehavior implements IGameBehavior {
 	}
 
 	private void onCraft(Player player, ItemStack crafted, Container container) {
-		var team = teams.getTeamForPlayer(player);
+		GameTeamKey team = teams.getTeamForPlayer(player);
 		if (team == null || done) {
 			return;
 		}
 
-		var teamTasks = tasks.get(team);
+		List<CraftingTask> teamTasks = tasks.get(team);
 
-		var craftedStackToCompare = crafted.copy();
+		ItemStack craftedStackToCompare = crafted.copy();
 		craftedStackToCompare.remove(CraftingBee.CRAFTED_USING);
-		var task = teamTasks.stream().filter(c -> ItemStack.isSameItemSameComponents(craftedStackToCompare, c.output)).findFirst().orElse(null);
+		CraftingTask task = teamTasks.stream().filter(c -> ItemStack.isSameItemSameComponents(craftedStackToCompare, c.output)).findFirst().orElse(null);
 
 		if (task == null || task.done) {
 			return;
@@ -321,11 +321,11 @@ public class CraftingBeeBehavior implements IGameBehavior {
 
 		sync(team);
 
-		var completed = teamTasks.stream().filter(t -> t.done).count();
+		long completed = teamTasks.stream().filter(t -> t.done).count();
 		game.statistics().forTeam(team).set(StatisticKey.ITEMS_CRAFTED, (int) completed);
 
-		var gameTeam = teams.getTeamByKey(team);
-		var teamConfig = gameTeam.config();
+		GameTeam gameTeam = teams.getTeamByKey(team);
+		GameTeamConfig teamConfig = gameTeam.config();
 
 		setTeamTaskProgress(teamConfig, team, (int) completed, teamTasks.size(), teamTasks.indexOf(task));
 
@@ -396,12 +396,12 @@ public class CraftingBeeBehavior implements IGameBehavior {
 					if (teamsWithoutTime.size() == tasks.asMap().size()) {
 						int mx = tasks.asMap().values().stream().mapToInt(craftingTasks -> (int) craftingTasks.stream().filter(c -> c.done).count())
 								.max().orElse(0);
-						var withMax = tasks.asMap().entrySet().stream().filter(e -> e.getValue().stream().filter(c -> c.done).count() == mx)
+						List<Map.Entry<GameTeamKey, Collection<CraftingTask>>> withMax = tasks.asMap().entrySet().stream().filter(e -> e.getValue().stream().filter(c -> c.done).count() == mx)
 								.toList();
 						if (withMax.size() != 1) {
 							triggerGameOver(new GameWinner.Nobody());
 						} else {
-							var gameTeam = teams.getTeamByKey(withMax.getFirst().getKey());
+							GameTeam gameTeam = teams.getTeamByKey(withMax.getFirst().getKey());
 							triggerGameOver(new GameWinner.Team(gameTeam));
 						}
 					}

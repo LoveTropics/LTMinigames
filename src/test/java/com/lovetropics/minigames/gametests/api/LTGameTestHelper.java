@@ -19,10 +19,12 @@ import net.minecraft.gametest.framework.GameTestListener;
 import net.minecraft.gametest.framework.GameTestRunner;
 import net.minecraft.gametest.framework.GameTestSequence;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.Unit;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.Entity;
@@ -797,7 +799,7 @@ public class LTGameTestHelper extends GameTestHelper {
 
 	public Runnable startGame(TestGameLobby game) {
 		return () -> {
-			var result = game.lobby().getControls().get(LobbyControls.Type.PLAY).run();
+			GameResult<Unit> result = game.lobby().getControls().get(LobbyControls.Type.PLAY).run();
 			assertTrue(result.isOk(), () -> "Game could not start: " + result.getError().getString());
 		};
 	}
@@ -812,7 +814,7 @@ public class LTGameTestHelper extends GameTestHelper {
 
 	public <T> void assertReceivedPacket(LTFakePlayer player, int index, Class<T> type, Predicate<T> test) {
 		assertTrue(index < player.receivedPackets.size(), "Not enough packets received");
-		var pkt = player.receivedPackets.get(index);
+		Packet<?> pkt = player.receivedPackets.get(index);
 		assertTrue(type.isInstance(pkt), "Received packet was of wrong type. Was: " + pkt.getClass() + ", expected: " + type);
 		assertTrue(test.test(type.cast(pkt)), "Packet did not match!");
 	}

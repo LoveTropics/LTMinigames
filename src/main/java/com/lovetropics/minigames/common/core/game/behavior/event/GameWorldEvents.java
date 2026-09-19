@@ -74,7 +74,7 @@ public final class GameWorldEvents {
 	});
 
 	public static final GameEventType<BlockLanded> BLOCK_LANDED = GameEventType.create(BlockLanded.class, listeners -> (level, pos, state) -> {
-		for (var listener : listeners) {
+		for (BlockLanded listener : listeners) {
 			listener.onBlockLanded(level, pos, state);
 		}
 	});

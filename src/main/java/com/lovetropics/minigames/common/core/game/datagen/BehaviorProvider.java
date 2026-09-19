@@ -6,6 +6,7 @@ import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 
+import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
 
 public class BehaviorProvider implements DataProvider {
@@ -23,11 +24,11 @@ public class BehaviorProvider implements DataProvider {
 	@Override
 	public CompletableFuture<?> run(CachedOutput pOutput) {
 		return registries.thenCompose(regs -> {
-			var behProv = output.createPathProvider(PackOutput.Target.DATA_PACK, "behaviors");
+			PackOutput.PathProvider behProv = output.createPathProvider(PackOutput.Target.DATA_PACK, "behaviors");
 			return CompletableFuture.allOf(behaviors.stream()
 					.map(entry -> {
-						var built = entry.getValue();
-						var path = behProv.json(entry.getKey());
+						IGameBehavior built = entry.getValue();
+						Path path = behProv.json(entry.getKey());
 						return DataProvider.saveStable(pOutput, regs, IGameBehavior.CODEC, built, path);
 					})
 					.toArray(CompletableFuture[]::new));

@@ -179,7 +179,7 @@ public class RaceTrackBehavior implements IGameBehavior {
 				continue;
 			}
 
-			var actions = entry.getValue();
+			GameActionList actions = entry.getValue();
 			actions.register(game, events);
 
 			for (BlockBox region : regions) {

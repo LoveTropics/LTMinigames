@@ -6,11 +6,13 @@ import com.lovetropics.minigames.common.core.game.client_state.instance.BingoBoa
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.FormattedCharSequence;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix3x2fStack;
 
 import java.util.Comparator;
 import java.util.List;
@@ -85,10 +87,10 @@ public class GameBingoHandler {
 					int x = boardX + c * (tileW + GAP);
 					int y = boardY + r * (tileH + GAP);
 
-					var optionalTile = tiles.get((r * rows) + c);
+					Optional<BingoBoardClientState.Tile> optionalTile = tiles.get((r * rows) + c);
 					if (optionalTile.isEmpty()) continue;
 
-					var tile = optionalTile.orElseThrow();
+					BingoBoardClientState.Tile tile = optionalTile.orElseThrow();
 
 					// Tile border and background
 					guiGraphics.fill(x, y, x + tileW, y + tileH, tile.completed() ? 0xAA61be29 : 0xAA222222);
@@ -113,7 +115,7 @@ public class GameBingoHandler {
 					int iconY = y + TOP_PADDING;
 
 					if (!tile.icon().isEmpty()) {
-						var pose = guiGraphics.pose();
+						Matrix3x2fStack pose = guiGraphics.pose();
 						pose.pushMatrix();
 						float scale = ICON_SIZE / 16.0f;
 						pose.translate(iconX, iconY);
@@ -127,11 +129,11 @@ public class GameBingoHandler {
 					int textAreaX = x + SIDE_PADDING;
 					int textAreaY = iconY + ICON_SIZE + ICON_TEXT_GAP;
 
-					var lines = font.split(tile.title(), textAreaW);
+					List<FormattedCharSequence> lines = font.split(tile.title(), textAreaW);
 					int offset = (maxLines - lines.size()) * lineHeight / 2;
 
 					for (int i = 0; i < lines.size(); i++) {
-						var line = lines.get(i);
+						FormattedCharSequence line = lines.get(i);
 						int lw = font.width(line);
 						int lx = textAreaX + (textAreaW - lw) / 2;
 						int ly = textAreaY + i * lineHeight + offset;

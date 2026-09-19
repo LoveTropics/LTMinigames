@@ -39,7 +39,7 @@ public interface RecipeSelector {
 		public RecipeHolder<?> select(ServerLevel level) {
 			Optional<RecipeHolder<?>> recipe = Optional.empty();
 			while (recipe.isEmpty()) {
-				var key = Util.getRandom(recipes, level.getRandom());
+				ResourceKey<Recipe<?>> key = Util.getRandom(recipes, level.getRandom());
 				recipe = level.recipeAccess().byKey(key);
 				if (recipe.isEmpty()) {
 					LOGGER.error("Recipe '{}' doesn't exist", key);

@@ -26,7 +26,7 @@ public record PreferItemFromTagDecomposer(Map<TagKey<Item>, Item> preferences) i
 	@Override
 	public @Nullable List<Ingredient> decompose(Ingredient ingredient) {
 		if (ingredient.getValues().size() == 1 && ingredient.getValues() instanceof HolderSet.Named<Item> named) {
-			var pref = preferences.get(named.key());
+			Item pref = preferences.get(named.key());
 			if (pref != null) {
 				return List.of(Ingredient.of(pref));
 			}

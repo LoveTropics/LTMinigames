@@ -36,8 +36,8 @@ public record ScalePlayerDamageBehavior(float factor, Map<RoleOverrideType<?>, R
 				return amount;
 			}
 			float factor = this.factor;
-			var overrides = PermissionsApi.lookup().byEntity(player).overrides();
-			for (var entry : roleFactors.values()) {
+			RoleOverrideReader overrides = PermissionsApi.lookup().byEntity(player).overrides();
+			for (RoleOverrideEntry<?> entry : roleFactors.values()) {
 				if (entry.test(overrides)) {
 					factor = entry.factor();
 				}

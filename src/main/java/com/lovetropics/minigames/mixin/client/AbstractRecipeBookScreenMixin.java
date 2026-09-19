@@ -31,11 +31,11 @@ public class AbstractRecipeBookScreenMixin {
 
 	@WrapOperation(method = "initButton", at = @At(value = "NEW", target = "net/minecraft/client/gui/components/ImageButton"))
 	private ImageButton respectHiddenBook(int x, int y, int width, int height, WidgetSprites sprites, Button.OnPress onPress, Operation<ImageButton> original) {
-		var disabled = Identifier.fromNamespaceAndPath("ltminigames", "recipe_book/button_disabled");
-		var org = original.call(x, y, width, height, new WidgetSprites(
+		Identifier disabled = Identifier.fromNamespaceAndPath("ltminigames", "recipe_book/button_disabled");
+		ImageButton org = original.call(x, y, width, height, new WidgetSprites(
 				sprites.enabled(), disabled, sprites.enabledFocused(), disabled
 		), onPress);
-		var hidden = ClientGameStateManager.getOrNull(GameClientStateTypes.DISABLE_RECIPE_BOOK);
+		DisableRecipeBookClientState hidden = ClientGameStateManager.getOrNull(GameClientStateTypes.DISABLE_RECIPE_BOOK);
 		if (hidden != null) {
 			org.active = false;
 			org.setTooltip(Tooltip.create(hidden.message()));

@@ -29,6 +29,7 @@ import net.neoforged.neoforge.event.RegisterGameTestsEvent;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -38,13 +39,13 @@ public class LTMinigamesGameTests {
 	public static final TestPermissionAPI PERMISSIONS = new TestPermissionAPI();
 
 	private static final Supplier<Map<Identifier, MinigameTest>> TESTS = Suppliers.memoize(() -> {
-		var classes = ModList.get().getAllScanData().stream()
+		List<String> classes = ModList.get().getAllScanData().stream()
 				.flatMap(sc -> sc.getAnnotations().stream())
 				.filter(an -> an.annotationType().equals(RegisterMinigameTest.TYPE))
 				.map(an -> an.clazz().getInternalName())
 				.toList();
 
-		var testMap = new HashMap<Identifier, MinigameTest>();
+		HashMap<Identifier, MinigameTest> testMap = new HashMap<Identifier, MinigameTest>();
 		try {
 			for (String cls : classes) {
 				Class<?> clazz = Class.forName(cls.replace('/', '.'));
@@ -61,9 +62,9 @@ public class LTMinigamesGameTests {
 
 	@SubscribeEvent
 	static void register(RegisterGameTestsEvent event) {
-		for (var entry : TESTS.get().entrySet()) {
-			var test = entry.getValue();
-			var id = entry.getKey();
+		for (Map.Entry<Identifier, MinigameTest> entry : TESTS.get().entrySet()) {
+			MinigameTest test = entry.getValue();
+			Identifier id = entry.getKey();
 			for (Method testMethod : test.getClass().getDeclaredMethods()) {
 				GameTest gametest = testMethod.getAnnotation(GameTest.class);
 				if (gametest == null) {

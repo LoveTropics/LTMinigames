@@ -30,7 +30,7 @@ public record GeneralEventsTrigger(Map<String, GameActionList> eventActions) imp
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		for (var actions : eventActions.values()) {
+		for (GameActionList actions : eventActions.values()) {
 			actions.register(game, events);
 		}
 
@@ -77,14 +77,14 @@ public record GeneralEventsTrigger(Map<String, GameActionList> eventActions) imp
 	}
 
 	private void invoke(IGamePhase game, String event) {
-		var actions = eventActions.get(event);
+		GameActionList actions = eventActions.get(event);
 		if (actions != null) {
 			actions.apply(game, ContextMap.EMPTY);
 		}
 	}
 
 	private void invoke(IGamePhase game, String event, ServerPlayer player) {
-		var actions = eventActions.get(event);
+		GameActionList actions = eventActions.get(event);
 		if (actions != null) {
 			actions.apply(game, ContextMap.EMPTY, ActionSubjects.ofPlayer(player));
 		}

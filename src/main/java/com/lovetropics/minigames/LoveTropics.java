@@ -339,7 +339,7 @@ public class LoveTropics {
 
 	private void onAttemptSpawn(MobSpawnEvent.PositionCheck event) {
 		if (event.getSpawnType() == EntitySpawnReason.SPAWNER) {
-			var workspace = MapWorkspaceManager.get(event.getLevel().getServer());
+			MapWorkspaceManager workspace = MapWorkspaceManager.get(event.getLevel().getServer());
 			if (workspace.getWorkspace(event.getLevel().getLevel().dimension()) != null) {
 				event.setResult(MobSpawnEvent.PositionCheck.Result.FAIL);
 			}

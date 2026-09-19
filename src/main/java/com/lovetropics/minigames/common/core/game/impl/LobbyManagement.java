@@ -103,7 +103,7 @@ public final class LobbyManagement {
 		// TODO: This shouldn't be here!
 		GamePhase topPhase = lobby.state.getTopPhase();
 		if (topPhase != null && type == LobbyControls.Type.RESTART) {
-			var queuedGame = lobby.gameQueue.enqueue(topPhase.definition());
+			QueuedGame queuedGame = lobby.gameQueue.enqueue(topPhase.definition());
 			reorderQueuedGame(queuedGame.networkId(), 0);
 		}
 		if (action != null) {

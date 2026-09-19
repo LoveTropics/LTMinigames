@@ -9,7 +9,10 @@ import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvent
 import com.lovetropics.minigames.common.core.game.behavior.event.PickUpResult;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.network.protocol.game.ClientboundSetHeldSlotPacket;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.function.Supplier;
 
@@ -23,7 +26,7 @@ public record ForceHandsBehavior() implements IGameBehavior {
 	public void register(IGamePhase game, EventRegistrar events) {
 		// force items to go to first slot only
 		events.listen(GamePlayerEvents.PICK_UP_ITEM, (player, item) -> {
-			var inventory = player.getInventory();
+			Inventory inventory = player.getInventory();
 
 			if(inventory.getItem(0).isEmpty()) {
 				return PickUpResult.PASS;
@@ -40,9 +43,9 @@ public record ForceHandsBehavior() implements IGameBehavior {
 		// disable players from moving items around in their inventory except for offhand and mainhand
 		events.listen(GamePlayerEvents.INVENTORY_CHANGED, (player, container, slotIndex, newItemStack) -> {
 			if(slotIndex != InventoryMenu.USE_ROW_SLOT_START && slotIndex != InventoryMenu.SHIELD_SLOT) {
-				var slot = container.getSlot(slotIndex);
+				Slot slot = container.getSlot(slotIndex);
 				slot.tryRemove(newItemStack.getCount(), Integer.MAX_VALUE, player).ifPresent(stack -> {
-					var carried = container.getCarried();
+					ItemStack carried = container.getCarried();
 					container.setCarried(newItemStack);
 					slot.onTake(player, stack);
 					if(!carried.isEmpty()) {

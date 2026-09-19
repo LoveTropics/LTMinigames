@@ -8,6 +8,7 @@ import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.server.level.ServerLevel;
 
 import java.util.function.Supplier;
 
@@ -18,7 +19,7 @@ public record SetTimeSpeedBehavior(int factor) implements IGameBehavior {
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
-		var level = game.level();
+		ServerLevel level = game.level();
 		level.dimensionType().defaultClock().ifPresent(clock -> level.clockManager().setRate(clock, factor));
 	}
 

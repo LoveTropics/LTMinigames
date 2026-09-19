@@ -17,9 +17,11 @@ import com.lovetropics.minigames.common.core.game.map.InlineMapProvider;
 import com.lovetropics.minigames.common.core.game.player.PlayerRole;
 import com.lovetropics.minigames.common.core.game.util.TemplatedText;
 import com.lovetropics.minigames.gametests.api.GameTest;
+import com.lovetropics.minigames.gametests.api.LTFakePlayer;
 import com.lovetropics.minigames.gametests.api.LTGameTestHelper;
 import com.lovetropics.minigames.gametests.api.MinigameTest;
 import com.lovetropics.minigames.gametests.api.RegisterMinigameTest;
+import com.lovetropics.minigames.gametests.api.TestGameLobby;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
@@ -66,11 +68,11 @@ public class ActionTriggerTests implements MinigameTest {
 
 	@GameTest
 	public void testEventsTrigger(LTGameTestHelper helper) {
-		var player = helper.playerBuilder()
+		LTFakePlayer player = helper.playerBuilder()
 				.isVulnerableTo(source -> source.is(DamageTypes.FELL_OUT_OF_WORLD))
 				.build();
 
-		var lobby = helper.createGame(player, PlayerRole.PARTICIPANT);
+		TestGameLobby lobby = helper.createGame(player, PlayerRole.PARTICIPANT);
 		lobby.enqueue(gameId("events"));
 
 		helper.startSequence()
@@ -85,10 +87,10 @@ public class ActionTriggerTests implements MinigameTest {
 
 	@GameTest
 	public void testStartTrigger(LTGameTestHelper helper) {
-		var player = helper.playerBuilder()
+		LTFakePlayer player = helper.playerBuilder()
 				.packetFilter(packet -> packet instanceof ClientboundSystemChatPacket sc && sc.content().equals(Component.literal("hello world!")) || packet instanceof ClientboundSoundPacket it && it.getSound().value() == SoundEvents.ALLAY_HURT)
 				.build();
-		var lobby = helper.createGame(player, PlayerRole.PARTICIPANT);
+		TestGameLobby lobby = helper.createGame(player, PlayerRole.PARTICIPANT);
 		lobby.enqueue(gameId("start"));
 
 		helper.startSequence()
@@ -102,8 +104,8 @@ public class ActionTriggerTests implements MinigameTest {
 
 	@GameTest
 	public void testStopTrigger(LTGameTestHelper helper) {
-		var player = helper.createFakePlayer();
-		var lobby = helper.createGame(player, PlayerRole.PARTICIPANT);
+		LTFakePlayer player = helper.createFakePlayer();
+		TestGameLobby lobby = helper.createGame(player, PlayerRole.PARTICIPANT);
 		lobby.enqueue(gameId("stop"));
 
 		helper.startSequence()

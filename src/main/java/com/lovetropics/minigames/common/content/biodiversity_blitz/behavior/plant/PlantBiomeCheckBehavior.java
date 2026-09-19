@@ -46,7 +46,7 @@ public record PlantBiomeCheckBehavior(HolderSet<Biome> biomes, boolean whitelist
 		});
 
 		events.listen(BbPlantEvents.PLACE, (player, plot, pos) -> {
-			var placement = checkedListeners.invoker(BbPlantEvents.PLACE).placePlant(player, plot, pos);
+			PlantPlacement placement = checkedListeners.invoker(BbPlantEvents.PLACE).placePlant(player, plot, pos);
 			if (placement != null && !canContinue(game, pos)) {
 				player.sendSystemMessage(BiodiversityBlitzTexts.PLANT_CANNOT_BE_PLACED_IN_BIOME.copy().withStyle(ChatFormatting.RED), true);
 				com.lovetropics.minigames.common.util.Util.sendNotifySound(player, SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 1.0F, 1.0F);

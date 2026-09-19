@@ -89,12 +89,12 @@ public class GameCraftingBeeHandler {
 				public void extractImage(Font font, int x, int y, int w, int h, GuiGraphicsExtractor graphics) {
 					graphics.blitSprite(RenderPipelines.GUI_TEXTURED, GRID_SPRITE, x, y, 54, 54);
 					for (int i = 0; i < recipeHintState.grid().size(); i++) {
-						var ingredient = recipeHintState.grid.get(i);
+						ItemStack ingredient = recipeHintState.grid.get(i);
 						if (ingredient.isEmpty()) {
 							continue;
 						}
 
-						var hintWidth = recipeHintState.width();
+						int hintWidth = recipeHintState.width();
 
 						graphics.fakeItem(
 								ingredient,
@@ -117,10 +117,10 @@ public class GameCraftingBeeHandler {
 			@Override
 			protected void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
 				graphics.blitSprite(RenderPipelines.GUI_TEXTURED, ITEMS_BAR_SPRITE, getX(), getY(), 132, 21);
-				var crafts = getState().crafts();
+				List<CraftingBeeCraftsClientState.Craft> crafts = getState().crafts();
 				for (int i = 0; i < crafts.size(); i++) {
-					var craft = crafts.get(i);
-					var x = getX() + 4 + i * 18;
+					CraftingBeeCraftsClientState.Craft craft = crafts.get(i);
+					int x = getX() + 4 + i * 18;
 					int y = getY() + 4;
 					graphics.fakeItem(craft.output(), x, y, 0);
 					if (craft.done()) {
@@ -128,9 +128,9 @@ public class GameCraftingBeeHandler {
 					}
 
 					if (mouseX >= x && mouseX <= x + 16 && mouseY >= y && mouseY <= getY() + 20) {
-						var hint = hintGrids.get(craft.recipeId());
+						RecipeHintState hint = hintGrids.get(craft.recipeId());
 
-						var tooltipLines = new ArrayList<>(Screen.getTooltipFromItem(Minecraft.getInstance(), craft.output()));
+						ArrayList<Component> tooltipLines = new ArrayList<>(Screen.getTooltipFromItem(Minecraft.getInstance(), craft.output()));
 						if (craft.done()) {
 							tooltipLines.set(0, tooltipLines.getFirst().copy().withStyle(ChatFormatting.GREEN));
 						} else if (hint == null || hint.hiddenCount() > 0) {
@@ -150,7 +150,7 @@ public class GameCraftingBeeHandler {
 				double mouseX = event.x();
 				double mouseY = event.y();
 
-				var crafts = getState().crafts();
+				List<CraftingBeeCraftsClientState.Craft> crafts = getState().crafts();
 
 				if (mouseY < getY() + 4 || mouseY > getY() + 4 + 16) {
 					return;
@@ -158,14 +158,14 @@ public class GameCraftingBeeHandler {
 				if (mouseX < getX() + 4 || mouseX > getX() + 4 + (18 * crafts.size() - 1)) {
 					return;
 				}
-				var index = (int) (mouseX - getX() - 4) / 18;
+				int index = (int) (mouseX - getX() - 4) / 18;
 
-				var craft = crafts.get(index);
+				CraftingBeeCraftsClientState.Craft craft = crafts.get(index);
 				if (craft.done()) {
 					return;
 				}
 
-				var grid = hintGrids.computeIfAbsent(craft.recipeId(), k ->
+				RecipeHintState grid = hintGrids.computeIfAbsent(craft.recipeId(), k ->
 						createHintState(craft.display(), SlotDisplayContext.fromLevel(Objects.requireNonNull(Minecraft.getInstance().level)))
 				);
 
@@ -184,7 +184,7 @@ public class GameCraftingBeeHandler {
 
 				Collections.shuffle(ingredientsToPick);
 				// Make sure that we never show the full recipe in just one hint
-				var ingredientsToShow = new Random().nextInt(filledGridAmount == 0 ? Math.max(1, ingredientsToPick.size() - 1) : ingredientsToPick.size());
+				int ingredientsToShow = new Random().nextInt(filledGridAmount == 0 ? Math.max(1, ingredientsToPick.size() - 1) : ingredientsToPick.size());
 
 				for (int i = 0; i <= ingredientsToShow; i++) {
 					grid.hiddenSlots().clear(ingredientsToPick.getInt(i));

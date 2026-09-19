@@ -119,7 +119,7 @@ public class SpleefBehavior implements IGameBehavior {
 		Style style = Style.EMPTY.withColor(TextColor.fromRgb(0xACC12F)).withBold(true);
 		bossBar = widgets.openGlobalBossBar(MinigameTexts.SPLEEF_TITLE_PREPARE.copy().withStyle(style), BossEvent.BossBarColor.PURPLE, BossEvent.BossBarOverlay.PROGRESS);
 
-		for (var floor : floorRegions) {
+		for (BlockBox floor : floorRegions) {
 			BlockPlacer.replace(game.level(), floor, floorMaterial, BlockPlacer.Mode.REPLACE, Blocks.STAINED_GLASS.white());
 		}
 
@@ -178,14 +178,14 @@ public class SpleefBehavior implements IGameBehavior {
 		if (gameOver) {
 			return;
 		}
-		var participants = game.participants();
+		PlayerSet participants = game.participants();
 
 		if (participants.size() <= 1) {
 
 			if (game.participants().size() == 1 && !blockSinglePlayerWin) {
 				winTitle(participants.stream().toList());
-				var displayName = participants.iterator().next().getDisplayName();
-				var style = displayName.getStyle();
+				Component displayName = participants.iterator().next().getDisplayName();
+				Style style = displayName.getStyle();
 				if (style.getColor() == null) {
 					style = style.withColor(ChatFormatting.WHITE);
 				}
@@ -193,13 +193,13 @@ public class SpleefBehavior implements IGameBehavior {
 				announceWinner(Component.translatable(getFlavourTextKey("win"), displayName.copy().withStyle(style)));
 			} else if (game.participants().isEmpty()) {
 				// Join the winners with a comma from the last tick though add an & for the last join.
-				var winners = lastTickPlayers.stream().toList();
+				List<ServerPlayer> winners = lastTickPlayers.stream().toList();
 				MutableComponent winnerText = Component.literal("");
 
 				for (int i = 0; i < winners.size(); i++) {
 					winTitle(winners);
-					var displayName = winners.get(i).getDisplayName();
-					var style = displayName.getStyle();
+					Component displayName = winners.get(i).getDisplayName();
+					Style style = displayName.getStyle();
 					if (style.getColor() == null) {
 						style = style.withColor(ChatFormatting.WHITE);
 					}
@@ -335,7 +335,7 @@ public class SpleefBehavior implements IGameBehavior {
 	}
 
 	private void spleefMessage(Component message, boolean showGameName) {
-		var fullMessage = Component.literal("").append(Component.literal(">>> ").withStyle(ChatFormatting.GRAY));
+		MutableComponent fullMessage = Component.literal("").append(Component.literal(">>> ").withStyle(ChatFormatting.GRAY));
 		if (showGameName) {
 			fullMessage = fullMessage.append(MinigameTexts.SPLEEF).append(Component.literal(" ❯ "));
 		}

@@ -64,7 +64,7 @@ public class FakePlayerBuilder {
 	}
 
 	public LTFakePlayer build() {
-		var player = new LTFakePlayer(helper.getLevel(), this, pl ->
+		LTFakePlayer player = new LTFakePlayer(helper.getLevel(), this, pl ->
 				pl.setPos(helper.absoluteVec(Vec3.atCenterOf(new Vec3i(0, 1, 0)))), "test-mock-player/" + helper.info.id() + "/" + helper.playerCount.incrementAndGet());
 		helper.info.addListener(new GameTestListener() {
 			@Override

@@ -109,11 +109,11 @@ public class ConnectFourBehavior implements IGameBehavior {
 	}
 
 	private void onStart() {
-		var teams = new ArrayList<PlayingTeam>(this.teams.getTeamKeys().size());
+		ArrayList<PlayingTeam> teams = new ArrayList<PlayingTeam>(this.teams.getTeamKeys().size());
 		this.teams.getTeamKeys().forEach(key -> {
-			var players = this.teams.getPlayersForTeam(game, key).stream().map(PlayerKey::from).toList();
+			List<PlayerKey> players = this.teams.getPlayersForTeam(game, key).stream().map(PlayerKey::from).toList();
 			if (!players.isEmpty()) {
-				var timer = teamTimers.get(key).getOrThrow(game);
+				ProgressHolder timer = teamTimers.get(key).getOrThrow(game);
 				timer.pause();
 				teams.add(new PlayingTeam(key, timer, new SequentialList<>(players, -1)));
 			}
@@ -133,7 +133,7 @@ public class ConnectFourBehavior implements IGameBehavior {
 			return TriState.FALSE;
 		}
 
-		var expected = teamBlocks.get(playingTeams.current().key).powder;
+		Block expected = teamBlocks.get(playingTeams.current().key).powder;
 		if (expected != placed.getBlock()) {
 			return TriState.FALSE;
 		}
@@ -150,7 +150,7 @@ public class ConnectFourBehavior implements IGameBehavior {
 			return TriState.FALSE;
 		}
 
-		var below = pos.below();
+		BlockPos below = pos.below();
 		pendingGate = new PendingGate(below, player.level().getBlockState(below));
 		player.level().setBlock(below, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
 
@@ -162,8 +162,8 @@ public class ConnectFourBehavior implements IGameBehavior {
 			return;
 		}
 
-		var currentTeam = playingTeams.current();
-		var expected = teamBlocks.get(currentTeam.key);
+		PlayingTeam currentTeam = playingTeams.current();
+		GameBlock expected = teamBlocks.get(currentTeam.key);
 
 		if (!state.is(expected.powder)) {
 			return;
@@ -183,7 +183,7 @@ public class ConnectFourBehavior implements IGameBehavior {
 		}
 
 		int x = blockToGridX(pos);
-		var column = pieces[x];
+		PlacedPiece[] column = pieces[x];
 		int y;
 		for (y = 0; y < column.length; y++) {
 			if (column[y] == null) {
@@ -193,7 +193,7 @@ public class ConnectFourBehavior implements IGameBehavior {
 		}
 		placedPieces++;
 
-		var team = currentTeam.key();
+		GameTeamKey team = currentTeam.key();
 
 		currentTeam.timer().pause();
 		game.allPlayers().getPlayerBy(currentTeam.players().current()).setGlowingTag(false);
@@ -244,14 +244,14 @@ public class ConnectFourBehavior implements IGameBehavior {
 	}
 
 	private void nextPlayer() {
-		var nextTeam = playingTeams.next();
-		var nextPlayer = nextTeam.players().next();
+		PlayingTeam nextTeam = playingTeams.next();
+		PlayerKey nextPlayer = nextTeam.players().next();
 
 		game.allPlayers().sendMessage(ConnectFourTexts.TEAM_GOES_NEXT.apply(teams.getTeamByKey(nextTeam.key).config().styledName()), true);
 
 		nextTeam.timer().start();
 
-		var player = game.allPlayers().getPlayerBy(nextPlayer);
+		ServerPlayer player = game.allPlayers().getPlayerBy(nextPlayer);
 		player.addItem(teamBlocks.get(nextTeam.key).powder.asItem().getDefaultInstance());
 
 		player.setGlowingTag(true);

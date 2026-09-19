@@ -6,6 +6,7 @@ import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.server.level.ServerLevel;
 
 public record SetDayTimeBehavior(long time) implements IGameBehavior {
 	public static final MapCodec<SetDayTimeBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
@@ -14,7 +15,7 @@ public record SetDayTimeBehavior(long time) implements IGameBehavior {
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
-		var level = game.level();
+		ServerLevel level = game.level();
 		level.dimensionType().defaultClock().ifPresent(clock -> level.clockManager().setTotalTicks(clock, time));
 	}
 }

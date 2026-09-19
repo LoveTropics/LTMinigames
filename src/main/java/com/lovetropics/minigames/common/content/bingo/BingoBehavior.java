@@ -139,7 +139,7 @@ public final class BingoBehavior implements IGameBehavior {
 
 	private int addTile(BingoTile tile) {
 		if (emptySlots.isEmpty()) return -1;
-		var index = emptySlots.removeInt((int) Math.floor(Math.random() * emptySlots.size()));
+		int index = emptySlots.removeInt((int) Math.floor(Math.random() * emptySlots.size()));
 		tiles.set(index, Optional.of(tile));
 		updateTiles();
 		return index;

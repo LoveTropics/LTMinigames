@@ -4,6 +4,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.lovetropics.minigames.client.game.ClientGameStateManager;
 import com.lovetropics.minigames.common.core.game.client_state.GameClientStateTypes;
+import com.lovetropics.minigames.common.core.game.client_state.instance.InvertControlsClientState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.controls.DisableMouseMovementClientState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.MouseHandler;
@@ -21,7 +22,7 @@ public class MouseHandlerMixin {
 
 	@WrapOperation(method = "turnPlayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;turn(DD)V"))
 	private void respectControlModificationState(LocalPlayer player, double dx, double dy, Operation<Void> original) {
-		var state = ClientGameStateManager.getOrNull(GameClientStateTypes.INVERT_CONTROLS);
+		InvertControlsClientState state = ClientGameStateManager.getOrNull(GameClientStateTypes.INVERT_CONTROLS);
 		if (state != null) {
 			if (state.xAxis()) {
 				dx = dx * -1;

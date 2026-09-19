@@ -47,7 +47,7 @@ public record WhileInRegionTrigger(Map<String, GameActionList> regionActions, in
 				return;
 			}
 
-			for (var entry : regionActions.entrySet()) {
+			for (Map.Entry<String, GameActionList> entry : regionActions.entrySet()) {
 				if (isPlayerInRegion(game, player, entry.getKey())) {
 					GameActionList actions = entry.getValue();
 					ContextMap context = new ContextMap.Builder()

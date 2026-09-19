@@ -24,6 +24,7 @@ import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
@@ -31,13 +32,16 @@ import net.minecraft.util.TriState;
 import net.minecraft.world.BossEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.slf4j.Logger;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -97,7 +101,7 @@ public final class BuildBattleBehavior implements IGameBehavior {
 				game.allPlayers().sendMessage(BuildBattleTexts.BUILDING_END.copy().withStyle(ChatFormatting.YELLOW));
 				building = false;
 				bar.close();
-				for (var player : game.allPlayers()) {
+				for (ServerPlayer player : game.allPlayers()) {
 					player.getInventory().clearContent();
 				}
 			}
@@ -149,12 +153,12 @@ public final class BuildBattleBehavior implements IGameBehavior {
 		if (plots.size() < players.size()) {
 			throw new GameException(Component.literal("Not enough plots for all players in Build Battle game (" + plots.size() + " plots named \"" + plotRegionsName + "\" for " + players.size() + " players)"));
 		}
-		var iterator = players.iterator();
+		Iterator<PlayerKey> iterator = players.iterator();
 		for (BlockBox plot : plots) {
 			if (!iterator.hasNext()) {
 				break;
 			}
-			var player = iterator.next();
+			PlayerKey player = iterator.next();
 			playerPlots.put(player.id(), plot);
 			playerPoints.put(player.id(), -1);
 		}
@@ -166,7 +170,7 @@ public final class BuildBattleBehavior implements IGameBehavior {
 
 	private void spawnPlayer(ServerLevel level, UUID playerId, SpawnBuilder builder) {
 		if (revieweeIndex > -1) {
-			var plot = playerPlots.getOrDefault(reviewedPlayers.get(revieweeIndex), null);
+			BlockBox plot = playerPlots.getOrDefault(reviewedPlayers.get(revieweeIndex), null);
 			if (plot == null) {
 				LOGGER.error("Player {} has no plot assigned!", reviewedPlayers.get(revieweeIndex));
 				return;
@@ -174,7 +178,7 @@ public final class BuildBattleBehavior implements IGameBehavior {
 			builder.teleportTo(level, tryFindEmptyPos(level, level.getRandom(), plot));
 			return;
 		}
-		var plot = playerPlots.getOrDefault(playerId, null);
+		BlockBox plot = playerPlots.getOrDefault(playerId, null);
 		if (plot != null) {
 			builder.teleportTo(level, tryFindEmptyPos(level, level.getRandom(), plot));
 		}
@@ -192,9 +196,9 @@ public final class BuildBattleBehavior implements IGameBehavior {
 	}
 
 	private void refreshBuildingTimeBar(long ticks) {
-		var remaining = buildTime - ticks;
-		var minutes = (remaining / (60 * SharedConstants.TICKS_PER_SECOND)) % 60;
-		var seconds = (remaining / SharedConstants.TICKS_PER_SECOND) % 60;
+		long remaining = buildTime - ticks;
+		long minutes = (remaining / (60 * SharedConstants.TICKS_PER_SECOND)) % 60;
+		long seconds = (remaining / SharedConstants.TICKS_PER_SECOND) % 60;
 
 		bar.setTitle(BuildBattleTexts.BAR_BUILDING.copy().withStyle(ChatFormatting.AQUA).append(" ").append(BuildBattleTexts.COUNTDOWN.apply(String.format("%02d", minutes), String.format("%02d", seconds))));
 		bar.setProgress(buildTime > 0 ? (float) remaining / (float) buildTime : 0f);
@@ -212,13 +216,13 @@ public final class BuildBattleBehavior implements IGameBehavior {
 			}
 			return;
 		}
-		var currentRevieweeId = reviewedPlayers.get(revieweeIndex);
+		UUID currentRevieweeId = reviewedPlayers.get(revieweeIndex);
 		revieweeIndex++;
 
 		if (revieweeIndex == reviewedPlayers.size()) {
 			if (currentRevieweeId != null) {
-				var points = 0;
-				for (var overlordPoints : overlordPoints.entrySet()) {
+				int points = 0;
+				for (Map.Entry<UUID, Integer> overlordPoints : overlordPoints.entrySet()) {
 					points += overlordPoints.getValue();
 				}
 				playerPoints.put(currentRevieweeId, points);
@@ -251,7 +255,7 @@ public final class BuildBattleBehavior implements IGameBehavior {
 
 	private void announceWinner(IGamePhase game) {
 		// display leaderboard
-		var max = 5;
+		int max = 5;
 		for (Map.Entry<UUID, Integer> entry : playerPoints.entrySet()) {
 			ServerPlayer player = game.allPlayers().getPlayerBy(entry.getKey());
 			if (player != null) {
@@ -259,20 +263,20 @@ public final class BuildBattleBehavior implements IGameBehavior {
 			}
 		}
 
-		var leaderboard = new java.util.ArrayList<>(playerPoints.entrySet());
+		ArrayList<Map.Entry<UUID, Integer>> leaderboard = new java.util.ArrayList<>(playerPoints.entrySet());
 		leaderboard.sort((a, b) -> b.getValue().compareTo(a.getValue()));
-		var message = BuildBattleTexts.RESULTS.copy().append("\n").append("\n");
+		MutableComponent message = BuildBattleTexts.RESULTS.copy().append("\n").append("\n");
 		for (int i = 0; i < Math.min(max, leaderboard.size()); i++) {
-			var entry = leaderboard.get(i);
-			var playerName = "unknown player";
-			var player = game.level().getPlayerByUUID(entry.getKey());
+			Map.Entry<UUID, Integer> entry = leaderboard.get(i);
+			String playerName = "unknown player";
+			Player player = game.level().getPlayerByUUID(entry.getKey());
 			if (player != null) {
 				playerName = player.getScoreboardName();
 				message.append(Component.literal(String.valueOf(i + 1)).withStyle(ChatFormatting.GRAY).append(" ").append(BuildBattleTexts.POINTS_DISPLAY.apply(playerName, entry.getValue())).append("\n"));
 			}
 		}
 
-		for (var player : game.allPlayers()) {
+		for (ServerPlayer player : game.allPlayers()) {
 			player.sendSystemMessage(message, false);
 			player.getInventory().clearContent();
 		}
@@ -283,28 +287,28 @@ public final class BuildBattleBehavior implements IGameBehavior {
 	}
 
 	private void refreshReviewee(IGamePhase game, GameWidgets widgets) {
-		for (var player : game.allPlayers()) {
+		for (ServerPlayer player : game.allPlayers()) {
 			SpawnBuilder spawn = new SpawnBuilder(player);
 			game.invoker(GamePlayerEvents.SPAWN).onSpawn(player.getUUID(), spawn, null);
 			spawn.teleportAndApply(player);
 		}
-		for (var overlord : overlords) {
+		for (ServerPlayer overlord : overlords) {
 			overlord.getInventory().clearContent();
-			var previous = new ItemStack(Items.SPONGE);
+			ItemStack previous = new ItemStack(Items.SPONGE);
 			previous.set(DataComponents.CUSTOM_NAME, BuildBattleTexts.ITEM_PREVIOUS);
 			overlord.addItem(previous);
 			if (revieweeIndex == reviewedPlayers.size() - 1) {
 				selectorItems.giveSelectorsTo(overlord);
 			}
-			var next = new ItemStack(Items.GOLD_BLOCK);
+			ItemStack next = new ItemStack(Items.GOLD_BLOCK);
 			next.set(DataComponents.CUSTOM_NAME, BuildBattleTexts.ITEM_NEXT);
 			overlord.addItem(next);
 		}
 
 		//TODO put participants in spectator
 
-		var playerName = "unknown player";
-		var player = game.level().getPlayerByUUID(reviewedPlayers.get(revieweeIndex));
+		String playerName = "unknown player";
+		Player player = game.level().getPlayerByUUID(reviewedPlayers.get(revieweeIndex));
 		if (player != null) {
 			playerName = player.getScoreboardName();
 		}

@@ -35,6 +35,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RenderTooltipEvent;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -60,9 +61,9 @@ public final class BbSendMobsToEnemyItemBehavior implements IGameBehavior {
 		events.listen(GamePhaseEvents.START, initiator -> sentEnemies = Multimaps.synchronizedMultimap(Multimaps.newListMultimap(new HashMap<>(), LinkedList::new)));
 		events.listen(GamePhaseEvents.STOP, reason -> sentEnemies.clear());
 
-		var plots = game.state().getOrThrow(PlotsState.KEY);
+		PlotsState plots = game.state().getOrThrow(PlotsState.KEY);
 		events.listen(GamePlayerEvents.USE_ITEM, (player, hand) -> {
-			var item = player.getItemInHand(hand);
+			ItemStack item = player.getItemInHand(hand);
 			return tryUseMobItem(player, item, game, plots, teams) ? InteractionResult.CONSUME : InteractionResult.PASS;
 		});
 
@@ -74,7 +75,7 @@ public final class BbSendMobsToEnemyItemBehavior implements IGameBehavior {
 			return false;
 		}
 
-		var playerPlot = plots.getPlotFor(player);
+		Plot playerPlot = plots.getPlotFor(player);
 
 		Map<BbEntityTypes, Integer> entities = item.get(BiodiversityBlitz.ENEMIES_TO_SEND);
 		if (entities != null) {
@@ -95,9 +96,9 @@ public final class BbSendMobsToEnemyItemBehavior implements IGameBehavior {
 
 	public Component buildMessage(Map<BbEntityTypes, Integer> entities) {
 		MutableComponent component = Component.empty();
-		var itr = entities.entrySet().iterator();
+		Iterator<Map.Entry<BbEntityTypes, Integer>> itr = entities.entrySet().iterator();
 		while (itr.hasNext()) {
-			var next = itr.next();
+			Map.Entry<BbEntityTypes, Integer> next = itr.next();
 			component.append(String.valueOf(next.getValue())).append("x ").append(next.getKey().getName().withStyle(ChatFormatting.GOLD));
 
 			if (itr.hasNext()) {
@@ -109,7 +110,7 @@ public final class BbSendMobsToEnemyItemBehavior implements IGameBehavior {
 	}
 
 	private static <T> Stream<T> repeat(Supplier<T> value, int amount) {
-		var builder = Stream.<T>builder();
+		Stream.Builder<T> builder = Stream.<T>builder();
 		for (int i = 0; i < amount; i++) {
 			builder.accept(value.get());
 		}

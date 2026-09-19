@@ -83,8 +83,8 @@ public class BlockPlacer {
 			if (replacingPredicate == null || replacingPredicate.test(new BlockInWorld(level, pos, true))) {
 
 				if (scheduler != null) {
-					var delay = tickDelay != null ? tickDelay.apply(pos) : 0;
-					var blockPosCopy = pos.immutable();
+					int delay = tickDelay != null ? tickDelay.apply(pos) : 0;
+					BlockPos blockPosCopy = pos.immutable();
 					scheduler.runAfterTicks(delay, () -> {
 						// The target block might have changed since we scheduled - check it again!
 						if (delay > 0 && replacingPredicate != null && !replacingPredicate.test(new BlockInWorld(level, blockPosCopy, true))) {

@@ -14,6 +14,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.util.context.ContextMap;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Map;
 
 public record PhaseChangeTrigger(ProgressChannel channel, Map<ProgressionPoint, GameActionList> phases) implements IGameBehavior {
@@ -26,16 +27,16 @@ public record PhaseChangeTrigger(ProgressChannel channel, Map<ProgressionPoint, 
 	public void register(IGamePhase game, EventRegistrar events) {
 		ProgressHolder progression = channel.getOrThrow(game);
 
-		for (var actions : phases.values()) {
+		for (GameActionList actions : phases.values()) {
 			actions.register(game, events);
 		}
 
-		var remaining = new ArrayList<>(phases.entrySet());
+		ArrayList<Map.Entry<ProgressionPoint, GameActionList>> remaining = new ArrayList<>(phases.entrySet());
 
 		events.listen(GamePhaseEvents.TICK, () -> {
-			var iterator = remaining.iterator();
+			Iterator<Map.Entry<ProgressionPoint, GameActionList>> iterator = remaining.iterator();
 			while (iterator.hasNext()) {
-				var entry = iterator.next();
+				Map.Entry<ProgressionPoint, GameActionList> entry = iterator.next();
 				if (progression.isAfter(entry.getKey())) {
 					entry.getValue().apply(game, ContextMap.EMPTY);
 					iterator.remove();

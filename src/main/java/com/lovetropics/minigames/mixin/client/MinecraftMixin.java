@@ -5,6 +5,7 @@ import com.lovetropics.minigames.client.game.ClientGameStateManager;
 import com.lovetropics.minigames.common.core.data.LoveTropicsAttachments;
 import com.lovetropics.minigames.common.core.game.client_state.GameClientStateTypes;
 import com.lovetropics.minigames.common.core.game.client_state.instance.CollidersClientState;
+import com.lovetropics.minigames.common.core.game.client_state.instance.TeamMembersClientState;
 import com.lovetropics.minigames.common.core.game.client_state.instance.controls.RemapHotbarKeysClientState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -34,7 +35,7 @@ public class MinecraftMixin {
 	@Inject(at = @At("HEAD"), method = "shouldEntityAppearGlowing", cancellable = true)
 	private void ltminigames$glowingTeamMembers(Entity entity, CallbackInfoReturnable<Boolean> cir) {
 		if (entity.getType() == EntityTypes.PLAYER && ClientGameStateManager.getOrNull(GameClientStateTypes.GLOW_TEAM_MEMBERS) != null) {
-			var team = ClientGameStateManager.getOrNull(GameClientStateTypes.TEAM_MEMBERS);
+			TeamMembersClientState team = ClientGameStateManager.getOrNull(GameClientStateTypes.TEAM_MEMBERS);
 
 			if (team != null && (team.teamMembers().contains(entity.getUUID()) || player == entity)) {
 				cir.setReturnValue(true);

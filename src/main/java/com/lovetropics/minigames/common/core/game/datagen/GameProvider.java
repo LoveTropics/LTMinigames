@@ -7,6 +7,7 @@ import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.Identifier;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -29,16 +30,16 @@ public abstract class GameProvider implements DataProvider {
 		return registries.thenCompose(regs -> {
 			List<GameBuilder> builders = new ArrayList<>();
 			generate(id -> {
-				var builder = new GameBuilder(id);
+				GameBuilder builder = new GameBuilder(id);
 				builders.add(builder);
 				return builder;
 			}, regs);
 
-			var gamesProv = output.createPathProvider(PackOutput.Target.DATA_PACK, "games");
+			PackOutput.PathProvider gamesProv = output.createPathProvider(PackOutput.Target.DATA_PACK, "games");
 			return CompletableFuture.allOf(builders.stream()
 					.map(builder -> {
-						var built = builder.build();
-						var path = gamesProv.json(built.id());
+						GameConfig built = builder.build();
+						Path path = gamesProv.json(built.id());
 						return DataProvider.saveStable(pOutput, regs, GameConfig.codec(built.id()), built, path);
 					})
 					.toArray(CompletableFuture[]::new));
