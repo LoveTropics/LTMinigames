@@ -4,7 +4,6 @@ import com.lovetropics.lib.BlockBox;
 import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.core.command.argument.DimensionArgument;
 import com.lovetropics.minigames.common.core.command.argument.MapWorkspaceArgument;
-import com.lovetropics.minigames.common.core.dimension.DimensionUtils;
 import com.lovetropics.minigames.common.core.map.MapExportReader;
 import com.lovetropics.minigames.common.core.map.MapExportWriter;
 import com.lovetropics.minigames.common.core.map.MapMetadata;
@@ -34,12 +33,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.Identifier;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Util;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.phys.Vec3;
@@ -47,6 +44,7 @@ import net.minecraft.world.phys.Vec3;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 import static net.minecraft.commands.Commands.argument;
@@ -77,7 +75,7 @@ public final class MapCommand {
 					)
 						.executes(context -> {
 							MinecraftServer server = context.getSource().getServer();
-							LevelStem dimension = new LevelStem(DimensionUtils.overworld(server), new VoidChunkGenerator(server));
+							LevelStem dimension = new LevelStem(server.overworld().dimensionTypeRegistration(), new VoidChunkGenerator(server));
 							return openMap(context, dimension);
 						})
                 ))
@@ -104,7 +102,7 @@ public final class MapCommand {
 						)
 							.executes(context -> {
 								MinecraftServer server = context.getSource().getServer();
-								LevelStem dimension = new LevelStem(DimensionUtils.overworld(server), new VoidChunkGenerator(server));
+								LevelStem dimension = new LevelStem(server.overworld().dimensionTypeRegistration(), new VoidChunkGenerator(server));
 								return importMap(context, dimension);
 							})
 					)
@@ -183,7 +181,8 @@ public final class MapCommand {
 		if (returnPosition != null) {
 			returnPosition.applyTo(player);
 		} else {
-			DimensionUtils.teleportPlayerNoPortal(player, Level.OVERWORLD, new BlockPos(0, 64, 0));
+			ServerLevel level = context.getSource().getServer().overworld();
+			player.teleportTo(level, 0.5, 65.0, 0.5, Set.of(), player.getYRot(), player.getXRot(), true);
 		}
 
 		return Command.SINGLE_SUCCESS;
@@ -198,9 +197,9 @@ public final class MapCommand {
 		if (position != null) {
 			position.applyTo(player);
 		} else {
-			ResourceKey<Level> dimension = workspace.dimensionKey();
-			ServerLevel world = context.getSource().getServer().getLevel(dimension);
-			DimensionUtils.teleportPlayerNoPortal(player, dimension, world.getRespawnData().pos());
+			ServerLevel level = workspace.dimensionHandle().asLevel();
+			BlockPos pos = level.getRespawnData().pos();
+			player.teleportTo(level, pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5, Set.of(), player.getYRot(), player.getXRot(), true);
 		}
 
 		if (player.mayFly()) {

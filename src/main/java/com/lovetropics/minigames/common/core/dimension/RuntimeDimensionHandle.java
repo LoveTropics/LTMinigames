@@ -9,26 +9,26 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class RuntimeDimensionHandle {
 	final RuntimeDimensions dimensions;
-	final ServerLevel world;
+	final ServerLevel level;
 	final AtomicBoolean deleted = new AtomicBoolean();
 
-	RuntimeDimensionHandle(RuntimeDimensions dimensions, ServerLevel world) {
+	RuntimeDimensionHandle(RuntimeDimensions dimensions, ServerLevel level) {
 		this.dimensions = dimensions;
-		this.world = world;
+		this.level = level;
 	}
 
 	public ResourceKey<Level> asKey() {
-		return world.dimension();
+		return level.dimension();
 	}
 
-	public ServerLevel asWorld() {
+	public ServerLevel asLevel() {
 		Preconditions.checkState(!deleted.get(), "dimension is queued for deletion!");
-		return world;
+		return level;
 	}
 
 	public void delete() {
 		if (deleted.compareAndSet(false, true)) {
-			dimensions.enqueueDeletion(world);
+			dimensions.enqueueDeletion(level);
 		}
 	}
 }

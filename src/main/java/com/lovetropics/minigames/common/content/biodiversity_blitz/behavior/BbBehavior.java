@@ -11,7 +11,6 @@ import com.lovetropics.minigames.common.content.biodiversity_blitz.explosion.Fil
 import com.lovetropics.minigames.common.content.biodiversity_blitz.explosion.PlantAffectingExplosion;
 import com.lovetropics.minigames.common.content.biodiversity_blitz.plot.Plot;
 import com.lovetropics.minigames.common.content.biodiversity_blitz.plot.PlotsState;
-import com.lovetropics.minigames.common.core.dimension.DimensionUtils;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.SpawnBuilder;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
@@ -57,6 +56,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 // TODO: needs to be split up & data-driven more!
@@ -308,6 +308,6 @@ public final class BbBehavior implements IGameBehavior {
 		BlockPos pos = region.sample(player.getRandom());
 
 		player.setYRot(direction.toYRot());
-		DimensionUtils.teleportPlayerNoPortal(player, game.dimension(), pos);
+		player.teleportTo(game.level(), pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5, Set.of(), player.getYRot(), player.getXRot(), true);
 	}
 }
