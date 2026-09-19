@@ -23,10 +23,10 @@ public record SpawnFireworksAction(
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
-		events.applyToEntities(game, (context, entity) -> {
-			BlockPos fireworkPos = entity.level().getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, entity.blockPosition());
+		events.applyToEntities(game, (context, level, entity) -> {
+			BlockPos fireworkPos = level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, entity.blockPosition());
 			FireworkPalette palette = selectPalette(game, entity);
-			palette.spawn(fireworkPos, entity.level());
+			palette.spawn(fireworkPos, level);
 			return true;
 		});
 	}

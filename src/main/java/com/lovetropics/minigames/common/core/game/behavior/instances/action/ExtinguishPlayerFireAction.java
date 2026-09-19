@@ -11,7 +11,7 @@ public record ExtinguishPlayerFireAction() implements IGameBehavior {
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		events.applyToEntities(game, (context, target) -> {
+		events.applyToEntities(game, (context, level, target) -> {
 			if (target.isOnFire()) {
 				target.extinguishFire();
 				return true;

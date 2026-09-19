@@ -36,13 +36,13 @@ public record SpawnParticlesAroundEntityAction(ParticleOptions[] particles, IntP
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		final RandomSource random = game.random();
 		final Function<Entity, Vec3> positionGenerator = createPositionGenerator(random);
-		events.applyToEntities(game, (context, entity) -> {
+		events.applyToEntities(game, (context, level, entity) -> {
 			int count = this.count.sample(random);
 			for (int i = 0; i < count; i++) {
 				ParticleOptions particle = particles[random.nextInt(particles.length)];
 				int repeats = this.repeats.sample(random);
 				Vec3 pos = positionGenerator.apply(entity);
-				game.level().sendParticles(particle, pos.x, pos.y, pos.z, repeats, offset.x, offset.y, offset.z, speed);
+				level.sendParticles(particle, pos.x, pos.y, pos.z, repeats, offset.x, offset.y, offset.z, speed);
 			}
 			return true;
 		});

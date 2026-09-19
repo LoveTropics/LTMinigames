@@ -18,8 +18,6 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.permissions.LevelBasedPermissionSet;
-import net.minecraft.server.permissions.Permission;
-import net.minecraft.server.permissions.Permissions;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
@@ -73,8 +71,8 @@ public record RunCommandsAction(List<String> globalCommands, List<String> entity
 		}
 
 		if (!entityCommands.isEmpty()) {
-			events.applyToEntities(game, (context, entity) -> {
-				CommandSourceStack targetSource = source.withEntity(entity).withPosition(entity.position());
+			events.applyToEntities(game, (context, level, entity) -> {
+				CommandSourceStack targetSource = source.withLevel(level).withEntity(entity).withPosition(entity.position());
 				for (String command : entityCommands) {
 					commands.performPrefixedCommand(targetSource, command);
 				}

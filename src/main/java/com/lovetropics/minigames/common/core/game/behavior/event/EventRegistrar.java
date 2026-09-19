@@ -3,6 +3,7 @@ package com.lovetropics.minigames.common.core.game.behavior.event;
 import com.lovetropics.minigames.common.content.biodiversity_blitz.plot.Plot;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeamKey;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.entity.Entity;
@@ -33,11 +34,11 @@ public interface EventRegistrar {
 		});
 	}
 
-	default void applyToEntities(IGamePhase game, ActionHandler<Entity> handler) {
+	default void applyToEntities(IGamePhase game, EntityActionHandler handler) {
 		listen(GameActionEvents.APPLY, (context, targets) -> {
 			boolean applied = false;
 			for (Entity entity : targets.asEntities(game)) {
-				applied |= handler.handle(context, entity);
+				applied |= handler.handle(context, (ServerLevel) entity.level(), entity);
 			}
 			return applied;
 		});
@@ -80,8 +81,14 @@ public interface EventRegistrar {
 			}
 		};
 	}
-	
+
+	@FunctionalInterface
 	interface ActionHandler<T> {
 		boolean handle(ContextMap context, T target);
+	}
+
+	@FunctionalInterface
+	interface EntityActionHandler {
+		boolean handle(ContextMap context, ServerLevel level, Entity target);
 	}
 }

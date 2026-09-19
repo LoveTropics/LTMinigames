@@ -21,9 +21,9 @@ public record DamageAction(Optional<Holder<DamageType>> source, float amount) im
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		events.applyToEntities(game, (context, entity) -> {
+		events.applyToEntities(game, (context, level, entity) -> {
 			entity.hurtServer(
-					game.level(),
+					level,
 					source.map(DamageSource::new)
 							.orElseGet(entity.damageSources()::generic),
 					amount

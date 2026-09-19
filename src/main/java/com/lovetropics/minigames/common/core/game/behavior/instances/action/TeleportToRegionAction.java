@@ -25,7 +25,7 @@ public record TeleportToRegionAction(
 			return;
 		}
 		Vec3 center = teleportToRegion.center();
-		events.applyToEntities(game, (context, target) -> {
+		events.applyToEntities(game, (context, level, target) -> {
 			target.teleportTo(center.x, center.y, center.z);
 			return true;
 		});

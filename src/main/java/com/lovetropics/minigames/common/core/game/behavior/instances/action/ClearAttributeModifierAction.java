@@ -19,7 +19,7 @@ public record ClearAttributeModifierAction(Holder<Attribute> attribute, Identifi
 
 	@Override
 	public void register(final IGamePhase game, final EventRegistrar events) {
-		events.applyToEntities(game, (context, entity) -> {
+		events.applyToEntities(game, (context, level, entity) -> {
 			if (!(entity instanceof LivingEntity livingEntity)) {
 				return false;
 			}

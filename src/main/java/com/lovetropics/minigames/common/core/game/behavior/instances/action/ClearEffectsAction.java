@@ -20,7 +20,7 @@ public record ClearEffectsAction(Optional<List<Holder<MobEffect>>> effects) impl
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		events.applyToEntities(game, (context, entity) -> {
+		events.applyToEntities(game, (context, level, entity) -> {
 			if (!(entity instanceof LivingEntity livingEntity)) {
 				return false;
 			}

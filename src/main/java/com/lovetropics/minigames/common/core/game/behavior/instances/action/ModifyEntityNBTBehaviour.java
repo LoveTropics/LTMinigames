@@ -26,7 +26,7 @@ public record ModifyEntityNBTBehaviour (
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		events.applyToEntities(game, (context, entity) -> {
+		events.applyToEntities(game, (context, level, entity) -> {
 			CompoundTag merge = NbtPredicate.getEntityTagToCompare(entity).copy().merge(tag);
 			UUID uuid = entity.getUUID();
 			try (ProblemReporter.ScopedCollector problemreporter$scopedcollector = new ProblemReporter.ScopedCollector(entity.problemPath(), LOGGER)) {

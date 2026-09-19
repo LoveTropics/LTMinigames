@@ -18,10 +18,10 @@ public record SetBlockAtEntityAction(BlockStateProvider block) implements IGameB
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		events.applyToEntities(game, (context, entity) -> {
+		events.applyToEntities(game, (context, level, entity) -> {
 			BlockPos pos = entity.blockPosition();
-			BlockState state = block.getState(game.level(), game.random(), pos);
-			entity.level().setBlockAndUpdate(pos, state);
+			BlockState state = block.getState(level, game.random(), pos);
+			level.setBlockAndUpdate(pos, state);
 			return true;
 		});
 	}

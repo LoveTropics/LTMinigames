@@ -41,7 +41,7 @@ public record AddEquipmentAction(List<ItemStackTemplate> items, Optional<ItemSta
 	@Override
 	public void register(final IGamePhase game, final EventRegistrar events) {
 		final TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
-		events.applyToEntities(game, (context, entity) -> {
+		events.applyToEntities(game, (context, level, entity) -> {
 			if (!(entity instanceof LivingEntity livingEntity)) {
 				return false;
 			}

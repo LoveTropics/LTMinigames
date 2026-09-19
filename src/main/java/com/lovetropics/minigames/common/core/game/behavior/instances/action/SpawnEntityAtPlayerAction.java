@@ -10,6 +10,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
@@ -25,29 +26,29 @@ public record SpawnEntityAtPlayerAction(EntityTemplate entity, int damagePlayerA
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		events.applyToEntities(game, (context, target) -> {
-			Vec3 spawnPos = findSpawnPos(game, target);
+		events.applyToEntities(game, (context, level, target) -> {
+			Vec3 spawnPos = findSpawnPos(game.level(), target);
 			if (spawnPos == null) {
 				spawnPos = target.position();
 			}
 
-			entity.spawn(game.level(), spawnPos.x, spawnPos.y, spawnPos.z, 0.0f, 0.0f);
+			entity.spawn(level, spawnPos.x, spawnPos.y, spawnPos.z, 0.0f, 0.0f);
 			if (damagePlayerAmount > 0) {
-				target.hurtServer(game.level(), target.damageSources().generic(), damagePlayerAmount);
+				target.hurtServer(level, target.damageSources().generic(), damagePlayerAmount);
 			}
 
 			return true;
 		});
 	}
 
-	private @Nullable Vec3 findSpawnPos(IGamePhase game, Entity entity) {
+	private @Nullable Vec3 findSpawnPos(ServerLevel level, Entity entity) {
 		for (int i = 0; i < 10; i++) {
 			double angle = entity.getRandom().nextDouble() * 2 * Math.PI;
 			double x = entity.getX() + Math.sin(angle) * distance;
 			double z = entity.getZ() + Math.cos(angle) * distance;
 			int maxDistanceY = Mth.floor(distance);
 
-			BlockPos groundPos = Util.findGround(game.level(), BlockPos.containing(x, entity.getY(), z), maxDistanceY);
+			BlockPos groundPos = Util.findGround(level, BlockPos.containing(x, entity.getY(), z), maxDistanceY);
 			if (groundPos != null) {
 				return new Vec3(x, groundPos.getY(), z);
 			}

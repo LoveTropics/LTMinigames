@@ -18,7 +18,7 @@ public record SetEntityHighlightColorAction(int color) implements IGameBehavior 
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		events.applyToEntities(game, (context, target) -> {
+		events.applyToEntities(game, (context, level, target) -> {
 			if (color == 0) {
 				target.removeData(LoveTropicsAttachments.HIGHLIGHT_COLOR);
 			} else {
