@@ -55,7 +55,7 @@ neoForge {
             client()
             loadedMods = [mods."${mod_id}"]
 
-            programArguments.addAll '--username', '"Dev###"'
+            programArguments.addAll '--username', 'Dev###'
             systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
         }
 
