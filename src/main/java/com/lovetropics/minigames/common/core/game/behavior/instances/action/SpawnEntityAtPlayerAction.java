@@ -27,7 +27,7 @@ public record SpawnEntityAtPlayerAction(EntityTemplate entity, int damagePlayerA
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		events.applyToEntities(game, (context, level, target) -> {
-			Vec3 spawnPos = findSpawnPos(game.level(), target);
+			Vec3 spawnPos = findSpawnPos(level, target);
 			if (spawnPos == null) {
 				spawnPos = target.position();
 			}

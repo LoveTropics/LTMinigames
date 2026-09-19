@@ -1,6 +1,5 @@
 package com.lovetropics.minigames.common.content.qottott.behavior;
 
-import com.lovetropics.lib.codec.MoreCodecs;
 import com.lovetropics.minigames.common.content.qottott.Qottott;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorType;
@@ -14,7 +13,6 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 
 import java.util.function.Supplier;
@@ -42,7 +40,7 @@ public record LeakyPocketsBehavior(ItemStackTemplate item, StatisticKey<Integer>
 			int dropAmount = sampleDropCount(count, random, chancePerCoin);
 			if (dropAmount > 0) {
 				statistics.incrementInt(statistic, -dropAmount);
-				CoinDropAttributeBehavior.spawnItems(game, player, dropAmount, item.create());
+				CoinDropAttributeBehavior.spawnItems(player, dropAmount, item.create());
 			}
 		});
 	}

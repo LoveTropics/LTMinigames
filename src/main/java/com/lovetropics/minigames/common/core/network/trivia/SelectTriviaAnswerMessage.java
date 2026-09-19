@@ -11,6 +11,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
@@ -28,14 +29,15 @@ public record SelectTriviaAnswerMessage(BlockPos triviaBlock, int selectedAnswer
 			return;
 		}
 		IGamePhase game = GamePhaseManager.get().getGamePhaseFor(player);
-		if (game != null && player.level().getBlockEntity(message.triviaBlock) instanceof HasTrivia triviaBlock) {
+		ServerLevel level = player.level();
+		if (game != null && level.getBlockEntity(message.triviaBlock) instanceof HasTrivia triviaBlock) {
 			TriviaBehaviour.TriviaQuestion question = triviaBlock.getQuestion();
 			if (question == null) {
 				return;
 			}
 			TriviaBehaviour.TriviaQuestion.TriviaQuestionAnswer selectedAnswer = question.getAnswer(message.selectedAnswer);
 			if (selectedAnswer != null) {
-				game.invoker(TriviaEvents.ANSWER_TRIVIA_BLOCK_QUESTION).onAnswerQuestion(player, message.triviaBlock(), triviaBlock, question, selectedAnswer);
+				game.invoker(TriviaEvents.ANSWER_TRIVIA_BLOCK_QUESTION).onAnswerQuestion(player, level, message.triviaBlock(), triviaBlock, question, selectedAnswer);
 //                triviaBlock.handleAnswerSelection(context.player(), message.selectedAnswer());
 			}
 		}

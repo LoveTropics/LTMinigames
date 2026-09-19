@@ -11,9 +11,7 @@ import com.lovetropics.minigames.common.core.game.state.weather.GameWeatherState
 import com.lovetropics.minigames.common.core.game.weather.WeatherEvent;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.SharedConstants;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
-
 import org.jspecify.annotations.Nullable;
 
 public class SurviveTheTideWeatherControlBehavior implements IGameBehavior {
@@ -86,8 +84,7 @@ public class SurviveTheTideWeatherControlBehavior implements IGameBehavior {
 			return;
 		}
 
-		ServerLevel world = game.level();
-		if (world.getGameTime() % SharedConstants.TICKS_PER_SECOND == 0) {
+		if (game.ticks() % SharedConstants.TICKS_PER_SECOND == 0) {
 			if (weather.getEvent() == null && weather.canStartWeatherEvent()) {
 				if (random.nextFloat() <= config.getRainHeavyChance(progression)) {
 					heavyRainfallStart(progression);

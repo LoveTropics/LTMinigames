@@ -148,7 +148,7 @@ public class WorldBorderGameBehavior implements IGameBehavior {
 			//ignore Y val, only do X Z dist compare
 			double distanceSq = player.distanceToSqr(worldBorderCenter.getX(), player.getY(), worldBorderCenter.getZ());
 			if (isCollapsing || !(currentRadius < 0.0 || distanceSq < currentRadius * currentRadius)) {
-				player.hurtServer(game.level(), player.damageSources().explosion(null, null), damageAmount);
+				player.hurtServer(player.level(), player.damageSources().explosion(null, null), damageAmount);
 				player.addEffect(new MobEffectInstance(MobEffects.NAUSEA, SharedConstants.TICKS_PER_SECOND * 2, 0));
 			}
 		}

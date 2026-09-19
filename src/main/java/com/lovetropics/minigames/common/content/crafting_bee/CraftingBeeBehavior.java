@@ -52,7 +52,6 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.EntitySpawnReason;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -411,7 +410,7 @@ public class CraftingBeeBehavior implements IGameBehavior {
 	}
 
 	private Component getTimeRemainingText(IGamePhase game, long ticksRemaining) {
-		long secondsRemaining = ticksRemaining / (long) game.level().tickRateManager().tickrate();
+		long secondsRemaining = ticksRemaining / (long) game.server().tickRateManager().tickrate();
 
 		Component timeText = Component.literal(Util.formatMinutesSeconds(secondsRemaining)).withStyle(ChatFormatting.AQUA);
 		Component gameNameText = game.definition().name().copy().withStyle(ChatFormatting.AQUA);

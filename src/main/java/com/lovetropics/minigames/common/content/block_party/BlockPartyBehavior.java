@@ -304,7 +304,7 @@ public final class BlockPartyBehavior implements IGameBehavior {
 			for (ServerPlayer player : game.participants()) {
 				if (!player.isSpectator() && game.random().nextInt(SharedConstants.TICKS_PER_SECOND) == 0) {
 					BlockPos fireworksPos = BlockPos.containing(player.getEyePosition()).above();
-					FireworkPalette.DYE_COLORS.spawn(fireworksPos, game.level());
+					FireworkPalette.DYE_COLORS.spawn(fireworksPos, player.level());
 				}
 			}
 			return this;

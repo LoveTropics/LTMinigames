@@ -5,13 +5,14 @@ import com.lovetropics.minigames.common.core.game.behavior.event.GameEventType;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeam;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeamKey;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 
 public class RiverRaceEvents {
 
-	public static final GameEventType<AnswerTriviaQuestion> QUESTION_COMPLETED = GameEventType.create(AnswerTriviaQuestion.class, listeners -> (player, triviaType, triviaPos) -> {
+	public static final GameEventType<AnswerTriviaQuestion> QUESTION_COMPLETED = GameEventType.create(AnswerTriviaQuestion.class, listeners -> (player, triviaType, level, triviaPos) -> {
 		for (AnswerTriviaQuestion listener : listeners) {
-			listener.onAnswer(player, triviaType, triviaPos);
+			listener.onAnswer(player, triviaType, level, triviaPos);
 		}
 	});
 
@@ -41,7 +42,7 @@ public class RiverRaceEvents {
 	});
 
 	public interface AnswerTriviaQuestion {
-		void onAnswer(ServerPlayer player, TriviaType triviaType, BlockPos triviaPos);
+		void onAnswer(ServerPlayer player, TriviaType triviaType, ServerLevel level, BlockPos triviaPos);
 	}
 
 	public interface VictoryPointsChanged {

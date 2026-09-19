@@ -27,6 +27,7 @@ import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -146,7 +147,7 @@ public class VictoryPointsBehavior implements IGameBehavior {
 		}
 	}
 
-	private void onQuestionAnswered(ServerPlayer player, TriviaType triviaType, BlockPos triviaPos) {
+	private void onQuestionAnswered(ServerPlayer player, TriviaType triviaType, ServerLevel level, BlockPos triviaPos) {
 		addPoints(PlayerKey.from(player), getPointsForTriviaType(triviaType), true);
 	}
 

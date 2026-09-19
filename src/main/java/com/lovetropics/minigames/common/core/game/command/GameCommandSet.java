@@ -21,7 +21,7 @@ public record GameCommandSet(
 		CommandDispatcher<CommandSourceStack> dispatcher = new CommandDispatcher<>();
 		LiteralCommandNode<CommandSourceStack> baseCommand = dispatcher.register(Commands.literal("game"));
 
-		CommandBuildContext buildContext = CommandBuildContext.simple(game.registryAccess(), game.level().enabledFeatures());
+		CommandBuildContext buildContext = CommandBuildContext.simple(game.registryAccess(), game.server().getWorldData().enabledFeatures());
 		game.invoker(GamePhaseEvents.REGISTER_COMMANDS).register(subcommand ->
 				dispatcher.register(Commands.literal("game").then(subcommand)),
 				buildContext

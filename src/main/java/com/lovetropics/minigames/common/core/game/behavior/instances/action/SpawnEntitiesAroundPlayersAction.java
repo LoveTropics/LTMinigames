@@ -15,6 +15,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 
+import net.minecraft.util.RandomSource;
 import org.jspecify.annotations.Nullable;
 import java.util.Iterator;
 import java.util.List;
@@ -74,8 +75,8 @@ public class SpawnEntitiesAroundPlayersAction implements IGameBehavior {
 			if (!entry.getKey().isAlive()) {
 				it.remove();
 			} else {
-
-				BlockPos pos = getSpawnableRandomPositionNear(game, entry.getKey().blockPosition(), spawnDistanceMin, spawnDistanceMax, spawnsPerTick, spawnRangeY);
+				ServerPlayer player = entry.getKey();
+				BlockPos pos = getSpawnableRandomPositionNear(player.level(), game.random(), player.blockPosition(), spawnDistanceMin, spawnDistanceMax, spawnsPerTick, spawnRangeY);
 
 				if (pos != null) {
 					entry.setValue(entry.getIntValue() - 1);
@@ -83,7 +84,7 @@ public class SpawnEntitiesAroundPlayersAction implements IGameBehavior {
 						it.remove();
 					}
 
-					entity.spawn(game.level(), pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 0.0f, 0.0f);
+					entity.spawn(player.level(), pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 0.0f, 0.0f);
 
 					if (--remainingEntityCount == 0) {
 						playerToAmountToSpawn.clear();
@@ -97,13 +98,13 @@ public class SpawnEntitiesAroundPlayersAction implements IGameBehavior {
 	/// Tries to return a random spawnable position within the set distances up to a certain amount of attempts
 	///
 	/// @return null if it fails, otherwise a real position
-	public @Nullable BlockPos getSpawnableRandomPositionNear(IGamePhase game, BlockPos pos, int minDist, int maxDist, int loopAttempts, int yRange) {
+	public @Nullable BlockPos getSpawnableRandomPositionNear(ServerLevel level, RandomSource random, BlockPos pos, int minDist, int maxDist, int loopAttempts, int yRange) {
 		for (int i = 0; i < loopAttempts; i++) {
-			BlockPos posTry = pos.offset(game.random().nextInt(maxDist * 2) - maxDist,
-					game.random().nextInt(yRange * 2) - yRange,
-					game.random().nextInt(maxDist * 2) - maxDist);
+			BlockPos posTry = pos.offset(random.nextInt(maxDist * 2) - maxDist,
+					random.nextInt(yRange * 2) - yRange,
+					random.nextInt(maxDist * 2) - maxDist);
 
-			if (pos.distSqr(posTry) >= minDist * minDist && isSpawnablePosition(game, posTry)) {
+			if (pos.distSqr(posTry) >= minDist * minDist && isSpawnablePosition(level, posTry)) {
 				return posTry;
 			}
 		}
@@ -112,13 +113,12 @@ public class SpawnEntitiesAroundPlayersAction implements IGameBehavior {
 
 	/// Quick and dirty check for 2 high air with non air block under it
 	/// - also checks that it isnt water under it
-	public boolean isSpawnablePosition(IGamePhase game, BlockPos pos) {
-		ServerLevel world = game.level();
-		return !world.isEmptyBlock(pos.offset(0, -1, 0))
-				&& world.isEmptyBlock(pos.offset(0, 0, 0))
-				&& world.isEmptyBlock(pos.offset(0, 1, 0))
-				&& !world.getBlockState(pos.offset(0, -1, 0)).liquid()
-				&& !world.getBlockState(pos.offset(0, 0, 0)).liquid()
-				&& !world.getBlockState(pos.offset(0, 1, 0)).liquid();
+	public boolean isSpawnablePosition(ServerLevel level, BlockPos pos) {
+		return !level.isEmptyBlock(pos.offset(0, -1, 0))
+				&& level.isEmptyBlock(pos.offset(0, 0, 0))
+				&& level.isEmptyBlock(pos.offset(0, 1, 0))
+				&& !level.getBlockState(pos.offset(0, -1, 0)).liquid()
+				&& !level.getBlockState(pos.offset(0, 0, 0)).liquid()
+				&& !level.getBlockState(pos.offset(0, 1, 0)).liquid();
 	}
 }

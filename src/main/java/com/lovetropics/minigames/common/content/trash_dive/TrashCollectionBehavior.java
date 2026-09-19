@@ -12,6 +12,7 @@ import com.lovetropics.minigames.common.core.game.player.PlayerRole;
 import com.lovetropics.minigames.common.core.game.player.PlayerSet;
 import com.lovetropics.minigames.common.core.game.state.statistics.GameStatistics;
 import com.lovetropics.minigames.common.core.game.state.statistics.StatisticKey;
+import com.lovetropics.minigames.common.util.Util;
 import com.mojang.serialization.MapCodec;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import net.minecraft.SharedConstants;
@@ -71,15 +72,15 @@ public final class TrashCollectionBehavior implements IGameBehavior {
 	}
 
 	private void onPlayerLeftClickBlock(IGamePhase game, ServerPlayer player, BlockPos pos) {
-		ServerLevel world = game.level();
+		ServerLevel level = player.level();
 
-		BlockState state = world.getBlockState(pos);
+		BlockState state = level.getBlockState(pos);
 		if (!isTrash(state)) {
 			return;
 		}
 
-		world.removeBlock(pos, false);
-		com.lovetropics.minigames.common.util.Util.sendNotifySound(player, SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 1.0F, 1.0F);
+		level.removeBlock(pos, false);
+		Util.sendNotifySound(player, SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 1.0F, 1.0F);
 
 		GameStatistics statistics = game.statistics();
 		statistics.forPlayer(player)

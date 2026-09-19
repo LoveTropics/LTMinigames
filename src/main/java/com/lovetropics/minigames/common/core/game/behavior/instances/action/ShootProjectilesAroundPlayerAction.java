@@ -85,7 +85,6 @@ public class ShootProjectilesAroundPlayerAction implements IGameBehavior {
 				cooldown--;
 				playerToDelayToSpawn.put(id, cooldown);
 			} else {
-				ServerLevel world = game.level();
 				RandomSource random = game.random();
 
 				cooldown = spawnRateBase + random.nextInt(spawnRateRandom);
@@ -104,8 +103,8 @@ public class ShootProjectilesAroundPlayerAction implements IGameBehavior {
 				} else {
 					entry.setValue(newAmount);
 				}
-				LargeFireball fireball = createFireball(world, posSpawn, posTarget);
-				world.addFreshEntity(fireball);
+				LargeFireball fireball = createFireball(player.level(), posSpawn, posTarget);
+				player.level().addFreshEntity(fireball);
 			}
 		}
 	}

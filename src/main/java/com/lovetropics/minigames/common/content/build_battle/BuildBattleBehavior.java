@@ -32,7 +32,6 @@ import net.minecraft.util.TriState;
 import net.minecraft.world.BossEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -269,7 +268,7 @@ public final class BuildBattleBehavior implements IGameBehavior {
 		for (int i = 0; i < Math.min(max, leaderboard.size()); i++) {
 			Map.Entry<UUID, Integer> entry = leaderboard.get(i);
 			String playerName = "unknown player";
-			Player player = game.level().getPlayerByUUID(entry.getKey());
+			ServerPlayer player = game.allPlayers().getPlayerBy(entry.getKey());
 			if (player != null) {
 				playerName = player.getScoreboardName();
 				message.append(Component.literal(String.valueOf(i + 1)).withStyle(ChatFormatting.GRAY).append(" ").append(BuildBattleTexts.POINTS_DISPLAY.apply(playerName, entry.getValue())).append("\n"));
@@ -308,7 +307,7 @@ public final class BuildBattleBehavior implements IGameBehavior {
 		//TODO put participants in spectator
 
 		String playerName = "unknown player";
-		Player player = game.level().getPlayerByUUID(reviewedPlayers.get(revieweeIndex));
+		ServerPlayer player = game.allPlayers().getPlayerBy(reviewedPlayers.get(revieweeIndex));
 		if (player != null) {
 			playerName = player.getScoreboardName();
 		}

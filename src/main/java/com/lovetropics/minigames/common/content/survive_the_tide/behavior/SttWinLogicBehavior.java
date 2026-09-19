@@ -10,11 +10,11 @@ import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.LightningBolt;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
 
@@ -37,18 +37,18 @@ public class SttWinLogicBehavior implements IGameBehavior {
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		events.listen(GameLogicEvents.GAME_OVER, winner -> minigameEnded = true);
 
-		events.listen(GamePhaseEvents.TICK, () -> checkForGameEndCondition(game, game.level()));
+		events.listen(GamePhaseEvents.TICK, () -> checkForGameEndCondition(game));
 	}
 
-	private void checkForGameEndCondition(IGamePhase game, Level world) {
+	private void checkForGameEndCondition(IGamePhase game) {
 		if (minigameEnded) {
 			if (spawnLightningBoltsOnFinish) {
-				spawnLightningBoltsEverywhere(game, world);
+				spawnLightningBoltsEverywhere(game);
 			}
 		}
 	}
 
-	private void spawnLightningBoltsEverywhere(IGamePhase game, Level world) {
+	private void spawnLightningBoltsEverywhere(IGamePhase game) {
 		if (game.ticks() % lightningBoltSpawnTickRate == 0) {
 			for (ServerPlayer player : game.participants()) {
 				int xOffset = (7 + game.random().nextInt(5)) * (game.random().nextBoolean() ? 1 : -1);
@@ -57,13 +57,14 @@ public class SttWinLogicBehavior implements IGameBehavior {
 				int posX = Mth.floor(player.getX()) + xOffset;
 				int posZ = Mth.floor(player.getZ()) + zOffset;
 
-				int posY = world.getHeight(Heightmap.Types.MOTION_BLOCKING, posX, posZ);
+				ServerLevel level = player.level();
+				int posY = level.getHeight(Heightmap.Types.MOTION_BLOCKING, posX, posZ);
 
-				LightningBolt lightning = MinigameEntities.QUIET_LIGHTNING_BOLT.get().create(world, EntitySpawnReason.EVENT);
+				LightningBolt lightning = MinigameEntities.QUIET_LIGHTNING_BOLT.get().create(level, EntitySpawnReason.EVENT);
 				lightning.snapTo(new Vec3(posX + 0.5, posY, posZ + 0.5));
 				lightning.setVisualOnly(true);
 
-				world.addFreshEntity(lightning);
+				level.addFreshEntity(lightning);
 			}
 		}
 	}

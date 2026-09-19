@@ -35,7 +35,7 @@ public record KillInVoidBehavior(String voidBelowRegionKey) implements IGameBeha
 			int minY = regions.getFirst().min().getY();
 			events.listen(GamePlayerEvents.TICK, player -> {
 				if (!shouldIgnorePlayer(player) && player.getY() < minY) {
-					player.kill(game.level());
+					player.kill(player.level());
 				}
 			});
 			return;
@@ -59,7 +59,7 @@ public record KillInVoidBehavior(String voidBelowRegionKey) implements IGameBeha
 				}
 			}
 			if (closestRegion != null && player.getY() < closestRegion.min().getY()) {
-				player.kill(game.level());
+				player.kill(player.level());
 			}
 		});
 	}

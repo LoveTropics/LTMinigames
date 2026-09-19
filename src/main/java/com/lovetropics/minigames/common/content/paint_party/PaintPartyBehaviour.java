@@ -120,7 +120,7 @@ public record PaintPartyBehaviour(Map<GameTeamKey, TeamConfig> teamConfigs, Bloc
 				return;
 			}
 			TeamConfig teamConfig = getTeamConfig(teamKey);
-			BlockState blockState = game.level().getBlockState(playerPos);
+			BlockState blockState = player.level().getBlockState(playerPos);
 			if (!blockState.isAir() && blockState.is(Tags.Blocks.DYED)) {
 				if (!blockState.is(teamConfig.blockTag())) {
 					tickOnOpponentTeamBlock(game, player, playerPos, teamConfig, blockState, teamKey);
@@ -240,7 +240,7 @@ public record PaintPartyBehaviour(Map<GameTeamKey, TeamConfig> teamConfigs, Bloc
 					if (player.getInventory().countItem(teamConfig.ammoItem.item().value()) < startAmmo) {
 						player.getInventory().add(teamConfig.ammoItem.create());
 						BlockParticleOption particle = new BlockParticleOption(ParticleTypes.BLOCK, teamConfig.blockType(), playerPos);
-						game.level().sendParticles(particle, playerPos.getX() + 0.5, playerPos.getY() + 1.5, playerPos.getZ() + 0.5, 150, 0, 0, 0, 0.15F);
+						player.level().sendParticles(particle, playerPos.getX() + 0.5, playerPos.getY() + 1.5, playerPos.getZ() + 0.5, 150, 0, 0, 0, 0.15F);
 					}
 				}
 			}

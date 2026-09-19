@@ -99,7 +99,7 @@ public final class TriviaBehaviour implements IGameBehavior {
 			}
 			return InteractionResult.PASS;
 		});
-		events.listen(TriviaEvents.ANSWER_TRIVIA_BLOCK_QUESTION, (player, pos, triviaBlockEntity, question, answer) -> {
+		events.listen(TriviaEvents.ANSWER_TRIVIA_BLOCK_QUESTION, (player, level, pos, triviaBlockEntity, question, answer) -> {
 			if (triviaBlockEntity.getState().lockedOut()) {
 				return false;
 			}
@@ -107,7 +107,7 @@ public final class TriviaBehaviour implements IGameBehavior {
 				player.sendSystemMessage(RiverRaceTexts.CORRECT_ANSWER);
 				com.lovetropics.minigames.common.util.Util.sendNotifySound(player, SoundRegistry.CORRECT.value(), SoundSource.BLOCKS, 1.0f, 1.0f);
 				if (triviaBlockEntity.markAsCorrect()) {
-					game.invoker(RiverRaceEvents.QUESTION_COMPLETED).onAnswer(player, triviaBlockEntity.getTriviaType(), pos);
+					game.invoker(RiverRaceEvents.QUESTION_COMPLETED).onAnswer(player, triviaBlockEntity.getTriviaType(), level, pos);
 				}
 				PacketDistributor.sendToPlayer(player, new TriviaAnswerResponseMessage(pos, triviaBlockEntity.getState()));
 			} else {
@@ -118,15 +118,15 @@ public final class TriviaBehaviour implements IGameBehavior {
 			}
 			return answer.correct();
 		});
-		events.listen(RiverRaceEvents.QUESTION_COMPLETED, (player, triviaType, triviaPos) -> {
+		events.listen(RiverRaceEvents.QUESTION_COMPLETED, (player, triviaType, level, triviaPos) -> {
 			switch (triviaType) {
 				case GATE -> {
-					game.level().destroyBlock(triviaPos, false);
-					findNeighboursOfTypeAndDestroy(game.scheduler(), game.level(), triviaPos, null);
+					level.destroyBlock(triviaPos, false);
+					findNeighboursOfTypeAndDestroy(game.scheduler(), level, triviaPos, null);
 				}
 				case COLLECTABLE -> giveCollectableFromBlock(game, player, triviaPos);
 				case REWARD -> {
-					if (game.level().getBlockEntity(triviaPos) instanceof TriviaChestBlockEntity chest) {
+					if (level.getBlockEntity(triviaPos) instanceof TriviaChestBlockEntity chest) {
 						player.openMenu(chest);
 					}
 				}

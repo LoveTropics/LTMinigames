@@ -9,6 +9,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.advancements.predicates.entity.EntityPredicate;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Util;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.server.level.ServerPlayer;
@@ -178,7 +179,7 @@ public interface ActionTarget {
 		@Override
 		public ActionSubjects<?> modifyTargets(IGamePhase game, ActionSubjects<?> targets, ActionSubjects<?> sources) {
 			return ActionSubjects.ofEntities(List.copyOf(Collections2.filter(targets.asEntities(game), entity ->
-					predicate.matches(game.level(), null, entity)
+					predicate.matches((ServerLevel) entity.level(), null, entity)
 			)));
 		}
 

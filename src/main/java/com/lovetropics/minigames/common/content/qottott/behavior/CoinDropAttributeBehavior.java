@@ -11,14 +11,13 @@ import com.lovetropics.minigames.common.core.game.state.statistics.StatisticKey;
 import com.lovetropics.minigames.common.core.game.state.statistics.StatisticsMap;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.TriState;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 
@@ -40,7 +39,7 @@ public record CoinDropAttributeBehavior(ItemStackTemplate item, StatisticKey<Int
 					int amount = Mth.floor(statistics.getInt(statistic) * coinDrops);
 					if (amount > 0) {
 						statistics.incrementInt(statistic, -amount);
-						spawnItems(game, player, amount, item.create());
+						spawnItems(player, amount, item.create());
 					}
 				}
 			}
@@ -48,13 +47,12 @@ public record CoinDropAttributeBehavior(ItemStackTemplate item, StatisticKey<Int
 		});
 	}
 
-	public static void spawnItems(IGamePhase game, Player player, int amount, ItemStack item) {
-		ServerLevel level = game.level();
-		RandomSource random = game.random();
+	public static void spawnItems(ServerPlayer player, int amount, ItemStack item) {
+		RandomSource random = player.getRandom();
 		for (int i = 0; i < amount; i++) {
-			ItemEntity entity = new ItemEntity(level, player.getRandomX(1.0), player.getRandomY(), player.getRandomZ(1.0), item.copyWithCount(1));
+			ItemEntity entity = new ItemEntity(player.level(), player.getRandomX(1.0), player.getRandomY(), player.getRandomZ(1.0), item.copyWithCount(1));
 			entity.setDeltaMovement(random.triangle(0.0, 0.155), random.triangle(0.2, 0.155), random.triangle(0.0, 0.155));
-			level.addFreshEntity(entity);
+			player.level().addFreshEntity(entity);
 		}
 		player.level().playSound(null, player.getX(), player.getY(), player.getZ(), SoundRegistry.COINS, SoundSource.PLAYERS, 1.0f, random.nextFloat() * 0.4f + 1.3f);
 	}

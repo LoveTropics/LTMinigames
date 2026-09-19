@@ -14,6 +14,7 @@ import com.lovetropics.minigames.common.core.game.player.PlayerRole;
 import com.lovetropics.minigames.common.core.game.state.statistics.StatisticKey;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeamKey;
 import com.lovetropics.minigames.common.core.game.state.team.TeamState;
+import com.lovetropics.minigames.common.util.Util;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -94,18 +95,18 @@ public record DeACoudreBehavior(
 
 		int points = switch (type) {
 			case NONE -> {
-				com.lovetropics.minigames.common.util.Util.sendNotifySound(player, SoundEvents.ANVIL_LAND, SoundSource.PLAYERS, 0.3f, 1.0f);
+				Util.sendNotifySound(player, SoundEvents.ANVIL_LAND, SoundSource.PLAYERS, 0.3f, 1.0f);
 				yield 0;
 			}
 			case NORMAL -> {
 				BlockState block = palette.blocks.get(Mth.abs(player.getUUID().hashCode()) % palette.blocks.size());
-				game.level().setBlockAndUpdate(blockPos, block);
-				com.lovetropics.minigames.common.util.Util.sendNotifySound(player, SoundEvents.AMETHYST_BLOCK_BREAK, SoundSource.PLAYERS, 1.0f, game.random().nextFloat() * 0.5f + 0.75f);
+				player.level().setBlockAndUpdate(blockPos, block);
+				Util.sendNotifySound(player, SoundEvents.AMETHYST_BLOCK_BREAK, SoundSource.PLAYERS, 1.0f, game.random().nextFloat() * 0.5f + 0.75f);
 				yield pointsPerBlock;
 			}
 			case BONUS -> {
-				game.level().setBlockAndUpdate(blockPos, palette.bonusBlock);
-				com.lovetropics.minigames.common.util.Util.sendNotifySound(player, SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 1.0f, 1.0f);
+				player.level().setBlockAndUpdate(blockPos, palette.bonusBlock);
+				Util.sendNotifySound(player, SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 1.0f, 1.0f);
 				yield pointsPerBonus;
 			}
 		};

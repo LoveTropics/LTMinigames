@@ -155,7 +155,7 @@ public final class CollectablesBehaviour implements IGameBehavior {
 			}
 		}
 		game.invoker(RiverRaceEvents.COLLECTABLE_PLACED).onCollectablePlaced(player, team, slotPos);
-		FireworkPalette.DYE_COLORS.spawn(slotPos.above(), game.level());
+		FireworkPalette.DYE_COLORS.spawn(slotPos.above(), player.level());
 		return TriState.DEFAULT;
 	}
 

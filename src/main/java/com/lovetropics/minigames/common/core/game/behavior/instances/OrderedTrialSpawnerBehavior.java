@@ -92,11 +92,11 @@ public record OrderedTrialSpawnerBehavior(
 				return false;
 			}
 			Holder<LootTable> lootTable = lootTables.get(index);
-			LootParams params = new LootParams.Builder(game.level()).create(LootContextParamSets.EMPTY);
+			LootParams params = new LootParams.Builder(level).create(LootContextParamSets.EMPTY);
 			for (ItemStack item : lootTable.value().getRandomItems(params)) {
-				DefaultDispenseItemBehavior.spawnItem(game.level(), item, 2, Direction.UP, Vec3.atBottomCenterOf(pos).relative(Direction.UP, 1.2));
+				DefaultDispenseItemBehavior.spawnItem(level, item, 2, Direction.UP, Vec3.atBottomCenterOf(pos).relative(Direction.UP, 1.2));
 			}
-			game.level().levelEvent(LevelEvent.ANIMATION_TRIAL_SPAWNER_EJECT_ITEM, pos, 0);
+			level.levelEvent(LevelEvent.ANIMATION_TRIAL_SPAWNER_EJECT_ITEM, pos, 0);
 			return true;
 		});
 
