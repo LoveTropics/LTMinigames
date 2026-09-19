@@ -119,7 +119,7 @@ public class PositionPlayersBehavior implements IGameBehavior {
 	private void spawnPlayerAsRole(IGamePhase game, UUID playerId, SpawnBuilder spawn, @Nullable PlayerRole role, @Nullable TeamState teams) {
 		BlockBox region = getSpawnRegionFor(playerId, role, teams);
 		if (region != null) {
-			BlockPos pos = tryFindEmptyPos(game, game.level().getRandom(), region);
+			BlockPos pos = tryFindEmptyPos(game, game.random(), region);
 			float angle = this.angle;
 			if (faceBox != null) {
 				angle = getAngleTo(pos, faceBox);

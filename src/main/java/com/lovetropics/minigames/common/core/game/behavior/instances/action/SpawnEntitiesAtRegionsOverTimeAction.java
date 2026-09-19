@@ -79,8 +79,8 @@ public class SpawnEntitiesAtRegionsOverTimeAction implements IGameBehavior {
 
 			ServerLevel level = game.level();
 			for (int i = 0; i < spawnsPerTick; i++) {
-				BlockBox region = regionsToSpawnAt.get(level.getRandom().nextInt(regionsToSpawnAt.size()));
-				BlockPos pos = region.sample(level.getRandom());
+				BlockBox region = regionsToSpawnAt.get(game.random().nextInt(regionsToSpawnAt.size()));
+				BlockPos pos = region.sample(game.random());
 				if (atHeightmap) {
 					pos = level.getHeightmapPos(Heightmap.Types.WORLD_SURFACE, pos);
 				}

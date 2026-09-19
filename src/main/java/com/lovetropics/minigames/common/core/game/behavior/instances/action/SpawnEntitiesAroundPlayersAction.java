@@ -99,9 +99,9 @@ public class SpawnEntitiesAroundPlayersAction implements IGameBehavior {
 	/// @return null if it fails, otherwise a real position
 	public @Nullable BlockPos getSpawnableRandomPositionNear(final IGamePhase game, BlockPos pos, int minDist, int maxDist, int loopAttempts, int yRange) {
 		for (int i = 0; i < loopAttempts; i++) {
-			BlockPos posTry = pos.offset(game.level().getRandom().nextInt(maxDist * 2) - maxDist,
-					game.level().getRandom().nextInt(yRange * 2) - yRange,
-					game.level().getRandom().nextInt(maxDist * 2) - maxDist);
+			BlockPos posTry = pos.offset(game.random().nextInt(maxDist * 2) - maxDist,
+					game.random().nextInt(yRange * 2) - yRange,
+					game.random().nextInt(maxDist * 2) - maxDist);
 
 			if (pos.distSqr(posTry) >= minDist * minDist && isSpawnablePosition(game, posTry)) {
 				return posTry;

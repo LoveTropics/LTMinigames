@@ -18,13 +18,12 @@ import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
-
 import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -106,7 +105,6 @@ public final class SetExtendingBlocksAction implements IGameBehavior {
 		ServerLevel world = game.level();
 		BlockPredicate replace = this.replace;
 		BlockStateProvider set = this.set;
-		RandomSource random = world.getRandom();
 
 		int flags = Block.UPDATE_ALL;
 		if (!notifyNeighbors) {
@@ -116,7 +114,7 @@ public final class SetExtendingBlocksAction implements IGameBehavior {
 
 		for (BlockPos pos : extendingBox) {
 			if (replace == null || replace.matches(world, pos)) {
-				BlockState state = set.getState(world, random, pos);
+				BlockState state = set.getState(world, game.random(), pos);
 				if (state.is(Blocks.WATER)) {
 					world.setBlock(pos, FluidFiller.WaterRule.mapBlockRisingWater(world.getBlockState(pos)), flags);
 				} else {

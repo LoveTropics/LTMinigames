@@ -59,7 +59,7 @@ public record ChestDropAction(String region, WeightedList<ResourceKey<LootTable>
 		}
 
 		ServerLevel level = game.level();
-		RandomSource random = level.getRandom();
+		RandomSource random = game.random();
 		BeaconState beacons = game.state().get(BeaconState.KEY);
 
 		List<DelayedDrop> delayedDrops = new ArrayList<>();

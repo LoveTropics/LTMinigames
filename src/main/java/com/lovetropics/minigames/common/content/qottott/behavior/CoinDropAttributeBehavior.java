@@ -1,6 +1,5 @@
 package com.lovetropics.minigames.common.content.qottott.behavior;
 
-import com.lovetropics.lib.codec.MoreCodecs;
 import com.lovetropics.minigames.SoundRegistry;
 import com.lovetropics.minigames.common.content.qottott.Qottott;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
@@ -51,7 +50,7 @@ public record CoinDropAttributeBehavior(ItemStackTemplate item, StatisticKey<Int
 
 	public static void spawnItems(final IGamePhase game, final Player player, final int amount, final ItemStack item) {
 		final ServerLevel level = game.level();
-		final RandomSource random = level.getRandom();
+		final RandomSource random = game.random();
 		for (int i = 0; i < amount; i++) {
 			final ItemEntity entity = new ItemEntity(level, player.getRandomX(1.0), player.getRandomY(), player.getRandomZ(1.0), item.copyWithCount(1));
 			entity.setDeltaMovement(random.triangle(0.0, 0.155), random.triangle(0.2, 0.155), random.triangle(0.0, 0.155));

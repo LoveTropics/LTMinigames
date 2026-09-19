@@ -10,7 +10,6 @@ import com.lovetropics.minigames.common.core.game.behavior.event.GameLogicEvents
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameTeamEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameWorldEvents;
-import com.lovetropics.minigames.common.core.game.player.PlayerSet;
 import com.lovetropics.minigames.common.core.game.state.statistics.PlayerKey;
 import com.lovetropics.minigames.common.core.game.state.statistics.StatisticKey;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeam;
@@ -21,8 +20,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.ChatFormatting;
-import net.minecraft.server.permissions.LevelBasedPermissionSet;
-import net.minecraft.util.Util;
 import net.minecraft.commands.CommandResultCallback;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -38,6 +35,8 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.ServerFunctionManager;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.LevelBasedPermissionSet;
+import net.minecraft.util.Util;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.level.block.Rotation;
@@ -89,7 +88,7 @@ public record SpeedCarbGolfBehaviour(Map<Identifier, String> potentialHoles, Map
 		Map<GameTeamKey, List<String>> teamProgress = new HashMap<>();
 		Map<String, HoleConfig> holeConfigs = new HashMap<>();
 		for (int i = 0; i < holesPerTeam; i++) {
-			Util.shuffle(holesToPickFrom, level.getRandom());
+			Util.shuffle(holesToPickFrom, game.random());
 			Identifier pickedHole = holesToPickFrom.removeFirst();
 			pickedHoles.add(pickedHole);
 		}

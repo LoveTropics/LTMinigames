@@ -287,9 +287,9 @@ public class SpleefBehavior implements IGameBehavior {
 			progressionTimer = forcedProgressionSeconds;
 			spleefMessage(Component.translatable(getFlavourTextKey("forced_progression"), Component.translatable("ltminigames.minigame.position." + (currentFloor + 1))).withStyle(ChatFormatting.YELLOW));
 			BlockPlacer.replace(game.level(), floorRegions[currentFloor], floorBreakingMaterial, BlockPlacer.Mode.REPLACE, floorMaterial, game.scheduler(),
-					(pos) -> (game.level().getRandom().nextInt(breakCount) * breakInterval),
+					(pos) -> (game.random().nextInt(breakCount) * breakInterval),
 					(pos) -> {
-						game.scheduler().runAfterTicks(15 + game.level().getRandom().nextInt(10), () -> {
+						game.scheduler().runAfterTicks(15 + game.random().nextInt(10), () -> {
 							if (breakEffects) {
 								game.level().destroyBlock(pos, false);
 							} else {

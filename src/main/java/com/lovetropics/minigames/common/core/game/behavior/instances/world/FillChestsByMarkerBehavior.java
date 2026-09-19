@@ -59,7 +59,7 @@ public class FillChestsByMarkerBehavior extends ChunkGeneratingBehavior {
 			return;
 		}
 
-		RandomSource random = world.getRandom();
+		RandomSource random = game.random();
 		Util.shuffle(chests, random);
 
 		if (percentage < 1.0f) {

@@ -32,6 +32,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.Util;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
@@ -201,8 +202,8 @@ public final class ColumnsOfChaosBehavior implements IGameBehavior {
 		}
 	}
 
-	private ItemStack getItemToGive(List<ItemStack> filteredItems, ServerLevel level) {
-		Util.shuffle(filteredItems, level.getRandom());
+	private ItemStack getItemToGive(List<ItemStack> filteredItems, RandomSource random) {
+		Util.shuffle(filteredItems, random);
 		return filteredItems.getFirst().copy();
 	}
 
@@ -225,7 +226,7 @@ public final class ColumnsOfChaosBehavior implements IGameBehavior {
 
 	Interval startInterval(IGamePhase game, int round) {
 		for (ServerPlayer participant : game.participants()) {
-			ItemStack item = getItemToGive(filteredItems, game.level());
+			ItemStack item = getItemToGive(filteredItems, game.random());
 			participant.addItem(item.copy());
 			com.lovetropics.minigames.common.util.Util.sendNotifySound(participant, SoundEvents.ARROW_HIT_PLAYER, SoundSource.NEUTRAL, 1, 1);
 		}

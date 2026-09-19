@@ -44,7 +44,7 @@ public final class WateryPlantBehavior implements IGameBehavior {
 
 	private void tickPlants(PlayerSet players, Plot plot, List<Plant> plants) {
 		long ticks = game.ticks();
-		RandomSource random = game.level().getRandom();
+		RandomSource random = game.random();
 
 		if (ticks % 5 != 0) {
 			return;
@@ -100,7 +100,7 @@ public final class WateryPlantBehavior implements IGameBehavior {
 				}
 
 				for (int i = 0; i < waterCount; i++) {
-					Vec3 sample = random(aabb, world.getRandom());
+					Vec3 sample = random(aabb, random);
 					double d3 = random.nextGaussian() * 0.05;
 					double d1 = random.nextGaussian() * 0.1;
 					double d2 = random.nextGaussian() * 0.05;

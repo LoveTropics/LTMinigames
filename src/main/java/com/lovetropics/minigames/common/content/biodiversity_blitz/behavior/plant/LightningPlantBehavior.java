@@ -49,7 +49,7 @@ public final class LightningPlantBehavior implements IGameBehavior {
 
 	private void tickPlants(PlayerSet players, Plot plot, List<Plant> plants) {
 		long ticks = game.ticks();
-		RandomSource random = game.level().getRandom();
+		RandomSource random = game.random();
 
 		if (ticks % INTERVAL_TICKS != 0) {
 			return;

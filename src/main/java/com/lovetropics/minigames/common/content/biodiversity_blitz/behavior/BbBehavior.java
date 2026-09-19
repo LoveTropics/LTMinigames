@@ -37,7 +37,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.util.RandomSource;
 import net.minecraft.util.TriState;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -55,8 +54,8 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FarmlandBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-
 import org.jspecify.annotations.Nullable;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -187,10 +186,9 @@ public final class BbBehavior implements IGameBehavior {
 
 	private void spawnSpectator(SpawnBuilder spawn) {
 		ServerLevel level = game.level();
-		RandomSource random = level.getRandom();
-		Plot plot = plots.getRandomPlot(random);
+		Plot plot = plots.getRandomPlot(game.random());
 		if (plot != null) {
-			spawn.teleportTo(level, plot.plantBounds.sample(random).above(5), plot.forward);
+			spawn.teleportTo(level, plot.plantBounds.sample(game.random()).above(5), plot.forward);
 		}
 
 		spawn.setGameMode(GameType.SPECTATOR);

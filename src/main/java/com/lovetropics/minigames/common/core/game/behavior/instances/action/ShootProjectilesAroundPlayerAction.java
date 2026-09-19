@@ -13,7 +13,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.projectile.hurtingprojectile.LargeFireball;
 import net.minecraft.world.level.Level;
@@ -87,7 +86,7 @@ public class ShootProjectilesAroundPlayerAction implements IGameBehavior {
 				playerToDelayToSpawn.put(id, cooldown);
 			} else {
 				ServerLevel world = game.level();
-				RandomSource random = world.getRandom();
+				RandomSource random = game.random();
 
 				cooldown = spawnRateBase + random.nextInt(spawnRateRandom);
 				playerToDelayToSpawn.put(id, cooldown);

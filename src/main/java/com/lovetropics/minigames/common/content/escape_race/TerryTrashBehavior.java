@@ -35,7 +35,6 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.LeverBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 import net.minecraft.world.level.storage.loot.LootParams;
@@ -140,14 +139,14 @@ public final class TerryTrashBehavior implements IGameBehavior {
 					BlockPos blockBox = game.mapRegions().getOrThrow(codeCheck.blockRegion).min();
 					BlockPos lightBox = game.mapRegions().getOrThrow(codeCheck.lightRegion).min();
 					if (codeCheck.blockPredicate.matches(world, blockBox)) {
-						BlockState goodBlock = codeCheck.goodCode.getState(world, world.getRandom(), blockBox);
+						BlockState goodBlock = codeCheck.goodCode.getState(world, game.random(), blockBox);
 						world.setBlockAndUpdate(lightBox, goodBlock);
 					} else {
-						BlockState badBlock = codeCheck.badCode.getState(world, world.getRandom(), blockBox);
+						BlockState badBlock = codeCheck.badCode.getState(world, game.random(), blockBox);
 						world.setBlockAndUpdate(lightBox, badBlock);
 						allMatch = false;
 					}
-					world.setBlockAndUpdate(blockBox, codeCheck.clearState.getState(world, world.getRandom(), blockBox));
+					world.setBlockAndUpdate(blockBox, codeCheck.clearState.getState(world, game.random(), blockBox));
 				}
 				if (allMatch) {
 					codeGood = allMatch;

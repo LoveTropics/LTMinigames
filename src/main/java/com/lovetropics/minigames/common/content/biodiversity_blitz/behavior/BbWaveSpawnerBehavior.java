@@ -125,7 +125,6 @@ public final class BbWaveSpawnerBehavior implements IGameBehavior {
 
 	private void tick() {
 		ServerLevel world = game.level();
-		RandomSource random = world.getRandom();
 		long ticks = game.ticks();
 
 		long timeTilNextWave = ticks % intervalTicks;
@@ -144,7 +143,7 @@ public final class BbWaveSpawnerBehavior implements IGameBehavior {
 
 			for (Plot plot : plots) {
 				PlayerSet players = teams.getPlayersForTeam(game, plot.team);
-				spawnWave(world, random, players, plot, sentWaves);
+				spawnWave(world, game.random(), players, plot, sentWaves);
 			}
 
 			sentWaves++;

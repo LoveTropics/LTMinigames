@@ -60,7 +60,7 @@ public record FillContainerInRegionWithLootTableBehaviour(
 				for (BlockPos pos : levelChunk.getBlockEntitiesPos()) {
 					if(containerRegion.contains(pos)) {
 						if (levelChunk.getBlockEntity(pos) instanceof RandomizableContainer container) {
-							container.setLootTable(lootTable, game.level().getRandom().nextLong());
+							container.setLootTable(lootTable, game.random().nextLong());
 						}
 					}
 				}

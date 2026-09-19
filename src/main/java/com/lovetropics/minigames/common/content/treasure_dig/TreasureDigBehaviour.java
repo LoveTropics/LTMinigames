@@ -55,7 +55,7 @@ public record TreasureDigBehaviour(
 				if (levelChunk.getBlockEntity(pos) instanceof ChestBlockEntity blockEntity) {
 					ResourceKey<LootTable> lootTable = lootTables().get(blockEntity.getBlockState().getBlock());
 					if (lootTable != null) {
-						blockEntity.setLootTable(lootTable, level.getRandom().nextLong());
+						blockEntity.setLootTable(lootTable, game.random().nextLong());
 					}
 				}
 			}

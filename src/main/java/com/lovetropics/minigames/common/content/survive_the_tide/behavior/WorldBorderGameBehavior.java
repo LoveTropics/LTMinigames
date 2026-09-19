@@ -73,7 +73,7 @@ public class WorldBorderGameBehavior implements IGameBehavior {
 		List<BlockBox> regions = new ArrayList<>(game.mapRegions().get(worldBorderCenterKey));
 
 		if (!regions.isEmpty()) {
-			BlockBox centerRegion = regions.get(game.level().getRandom().nextInt(regions.size()));
+			BlockBox centerRegion = regions.get(game.random().nextInt(regions.size()));
 			worldBorderCenter = centerRegion.centerBlock();
 		} else {
 			worldBorderCenter = BlockPos.ZERO;

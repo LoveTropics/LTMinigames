@@ -72,7 +72,7 @@ public class SpawnEntityAtRegionsAction implements IGameBehavior {
 			ServerLevel world = game.level();
 			for (final BlockBox region : regionsToSpawnAt) {
 				for (int i = 0; i < entityCountPerRegion; i++) {
-					BlockPos pos = region.sample(world.getRandom());
+					BlockPos pos = region.sample(game.random());
 					if (atHeightmap) {
 						pos = world.getHeightmapPos(Heightmap.Types.WORLD_SURFACE, pos);
 					}

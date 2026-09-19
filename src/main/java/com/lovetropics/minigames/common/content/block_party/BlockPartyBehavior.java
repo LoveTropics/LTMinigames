@@ -151,7 +151,7 @@ public final class BlockPartyBehavior implements IGameBehavior {
 	}
 
 	private void spawnPlayer(SpawnBuilder spawn) {
-		BlockPos floorPos = floorRegion.box.sample(game.level().getRandom());
+		BlockPos floorPos = floorRegion.box.sample(game.random());
 		spawn.teleportTo(game.level(), floorPos.above());
 	}
 
@@ -181,7 +181,7 @@ public final class BlockPartyBehavior implements IGameBehavior {
 
 	CountingDown startCountingDown(int round) {
 		ServerLevel level = game.level();
-		Floor floor = floorRegion.generateAndSet(level, level.getRandom(), blocks);
+		Floor floor = floorRegion.generateAndSet(level, game.random(), blocks);
 
 		ItemStack targetStack = new ItemStack(floor.target.getBlock());
 

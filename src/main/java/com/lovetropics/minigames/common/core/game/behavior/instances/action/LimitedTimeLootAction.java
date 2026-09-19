@@ -17,7 +17,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
@@ -72,9 +71,9 @@ public record LimitedTimeLootAction(
 					.withParameter(LootContextParams.BLOCK_STATE, blockState)
 					.create(LootContextParamSets.BLOCK);
 			for (ItemStack item : lootTable.getRandomItems(params)) {
-				double x = pos.getX() + 0.5 + Mth.nextDouble(level.getRandom(), -0.25, 0.25);
-				double y = pos.getY() + 0.5 + Mth.nextDouble(level.getRandom(), -0.25, 0.25) - EntityTypes.ITEM.getHeight() / 2.0;
-				double z = pos.getZ() + 0.5 + Mth.nextDouble(level.getRandom(), -0.25, 0.25);
+				double x = pos.getX() + 0.5 + Mth.nextDouble(game.random(), -0.25, 0.25);
+				double y = pos.getY() + 0.5 + Mth.nextDouble(game.random(), -0.25, 0.25) - EntityTypes.ITEM.getHeight() / 2.0;
+				double z = pos.getZ() + 0.5 + Mth.nextDouble(game.random(), -0.25, 0.25);
 				ItemEntity entity = new ItemEntity(level, x, y, z, item);
 				entity.setDefaultPickUpDelay();
 				drops.add(entity);
