@@ -137,7 +137,7 @@ public class GamePhaseManager implements IGameLookup {
 
 	private void onServerTick() {
 		for (GamePhase queuedGame : queuedGames) {
-			gamesByDimension.computeIfAbsent(queuedGame.dimension(), d -> new ArrayList<>()).add(queuedGame);
+			gamesByDimension.computeIfAbsent(queuedGame.level().dimension(), _ -> new ArrayList<>()).add(queuedGame);
 		}
 		queuedGames.clear();
 	}

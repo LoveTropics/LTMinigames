@@ -10,13 +10,11 @@ import com.lovetropics.minigames.common.core.game.util.GameScheduler;
 import com.lovetropics.minigames.common.core.integration.GameInstanceIntegrations;
 import com.lovetropics.minigames.common.core.map.MapRegions;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.Unit;
-import net.minecraft.world.level.Level;
 
 import org.jspecify.annotations.Nullable;
 
@@ -25,11 +23,6 @@ public interface IGamePhase {
 	ServerLevel level();
 
 	MapRegions mapRegions();
-
-	/// @return the dimension that this game takes places within
-	default ResourceKey<Level> dimension() {
-		return level().dimension();
-	}
 
 	default RandomSource random() {
 		return level().getRandom();

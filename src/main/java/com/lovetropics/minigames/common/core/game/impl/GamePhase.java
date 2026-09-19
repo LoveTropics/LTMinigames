@@ -32,12 +32,10 @@ import com.mojang.logging.LogUtils;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Unit;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -612,11 +610,6 @@ public class GamePhase implements IGamePhase {
 	@Override
 	public MapRegions mapRegions() {
 		return map.mapRegions();
-	}
-
-	@Override
-	public ResourceKey<Level> dimension() {
-		return map.dimension();
 	}
 
 	@Override
