@@ -1,12 +1,13 @@
 package com.lovetropics.minigames.common.core.game.behavior.event;
 
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.TriState;
 import net.minecraft.world.entity.Entity;
 
 public final class GameEntityEvents {
-	public static final GameEventType<Mounted> MOUNTED = GameEventType.create(Mounted.class, listeners -> (entityMounting, entityBeingMounted) -> {
+	public static final GameEventType<Mounted> MOUNTED = GameEventType.create(Mounted.class, listeners -> (level, entityMounting, entityBeingMounted) -> {
 		for (Mounted listener : listeners) {
-			TriState result = listener.onEntityMounted(entityMounting, entityBeingMounted);
+			TriState result = listener.onEntityMounted(level, entityMounting, entityBeingMounted);
 			if (!result.isDefault()) {
 				return result;
 			}
@@ -18,6 +19,6 @@ public final class GameEntityEvents {
 	}
 
 	public interface Mounted {
-		TriState onEntityMounted(Entity entityMounting, Entity entityBeingMounted);
+		TriState onEntityMounted(ServerLevel level, Entity entityMounting, Entity entityBeingMounted);
 	}
 }

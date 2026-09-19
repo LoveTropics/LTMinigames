@@ -9,6 +9,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.advancements.predicates.entity.EntityPredicate;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Explosion;
 
@@ -23,19 +24,19 @@ public record ScaleExplosionKnockbackBehavior(float factor, Optional<EntityPredi
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		events.listen(GameLivingEntityEvents.MODIFY_EXPLOSION_KNOCKBACK, (entity, explosion, knockback, originalKnockback) -> {
-			if (matches(game, entity, explosion)) {
+		events.listen(GameLivingEntityEvents.MODIFY_EXPLOSION_KNOCKBACK, (level, entity, explosion, knockback, originalKnockback) -> {
+			if (matches(level, entity, explosion)) {
 				return knockback.scale(factor);
 			}
 			return knockback;
 		});
 	}
 
-	private boolean matches(IGamePhase game, Entity entity, Explosion explosion) {
-		if (explodedPredicate.isPresent() && !explodedPredicate.get().matches(game.level(), explosion.center(), entity)) {
+	private boolean matches(ServerLevel level, Entity entity, Explosion explosion) {
+		if (explodedPredicate.isPresent() && !explodedPredicate.get().matches(level, explosion.center(), entity)) {
 			return false;
 		}
-		if (exploderPredicate.isPresent() && !exploderPredicate.get().matches(game.level(), explosion.center(), explosion.getDirectSourceEntity())) {
+		if (exploderPredicate.isPresent() && !exploderPredicate.get().matches(level, explosion.center(), explosion.getDirectSourceEntity())) {
 			return false;
 		}
 		return true;

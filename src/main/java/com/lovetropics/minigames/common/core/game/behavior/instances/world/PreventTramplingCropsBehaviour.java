@@ -6,7 +6,6 @@ import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameLivingEntityEvents;
-import com.lovetropics.minigames.common.core.game.behavior.event.GameWorldEvents;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -28,8 +27,12 @@ public record PreventTramplingCropsBehaviour (
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		List<BlockBox> blockBoxes = game.mapRegions().getAll(regions);
-		events.listen(GameLivingEntityEvents.FARMLAND_TRAMPLE, (entity, blockPos, blockState)
-				-> onTrampleFarmland(blockBoxes, entity, blockPos, blockState));
+		events.listen(GameLivingEntityEvents.FARMLAND_TRAMPLE, (level, entity, blockPos, blockState) -> {
+			if (level != game.level()) {
+				return TriState.DEFAULT;
+			}
+			return onTrampleFarmland(blockBoxes, entity, blockPos, blockState);
+		});
 	}
 
 	private TriState onTrampleFarmland(List<BlockBox> blockBoxes, Entity entity, BlockPos blockPos, BlockState blockState) {

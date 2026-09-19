@@ -45,7 +45,7 @@ public class TrialSpawnerStateMixin {
 			return;
 		}
 
-		if (game.invoker(GameWorldEvents.TRIAL_SPAWNER_EJECT_LOOT).onTrialSpawnerEjectLoot(pos, spawner)) {
+		if (game.invoker(GameWorldEvents.TRIAL_SPAWNER_EJECT_LOOT).onTrialSpawnerEjectLoot(level, pos, spawner)) {
 			stateData.apply(new TrialSpawnerStateData.Packed(
 					// Clear players, ends ejection state
 					Set.of(),

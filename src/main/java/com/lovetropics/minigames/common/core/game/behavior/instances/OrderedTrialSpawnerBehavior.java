@@ -57,7 +57,10 @@ public record OrderedTrialSpawnerBehavior(
 				})
 				.collect(Util.toMutableList());
 
-		events.listen(GameWorldEvents.CHUNK_LOAD, chunk -> {
+		events.listen(GameWorldEvents.CHUNK_LOAD, (level, chunk) -> {
+			if (level != game.level()) {
+				return;
+			}
 			for (Spawner spawner : spawners) {
 				if (!spawner.isInChunk(chunk.getPos())) {
 					continue;
@@ -77,7 +80,10 @@ public record OrderedTrialSpawnerBehavior(
 
 		MutableInt nextLootTableIndex = new MutableInt(0);
 
-		events.listen(GameWorldEvents.TRIAL_SPAWNER_EJECT_LOOT, (pos, trialSpawner) -> {
+		events.listen(GameWorldEvents.TRIAL_SPAWNER_EJECT_LOOT, (level, pos, trialSpawner) -> {
+			if (level != game.level()) {
+				return false;
+			}
 			if (spawners.stream().noneMatch(spawner -> spawner.pos.equals(pos))) {
 				return false;
 			}
@@ -94,12 +100,12 @@ public record OrderedTrialSpawnerBehavior(
 			return true;
 		});
 
-		events.listen(GameWorldEvents.SPAWN_PLACEMENT_CHECK, (pos, reason, entityType) -> {
+		events.listen(GameWorldEvents.SPAWN_PLACEMENT_CHECK, (level, pos, reason, entityType) -> {
 			if (reason != EntitySpawnReason.TRIAL_SPAWNER) {
 				return TriState.DEFAULT;
 			}
 			BlockPos belowPos = pos.below();
-			return game.level().getBlockState(belowPos).isCollisionShapeFullBlock(game.level(), belowPos) ? TriState.TRUE : TriState.DEFAULT;
+			return level.getBlockState(belowPos).isCollisionShapeFullBlock(level, belowPos) ? TriState.TRUE : TriState.DEFAULT;
 		});
 	}
 

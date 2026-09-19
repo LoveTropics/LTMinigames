@@ -49,7 +49,10 @@ public record PlaceTrashBehavior(Identifier positionData, int centerY, int range
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		Long2ObjectMap<LongList> trashByChunk = loadTrashByChunk(game);
 
-		events.listen(GameWorldEvents.CHUNK_LOAD, (chunk) -> {
+		events.listen(GameWorldEvents.CHUNK_LOAD, (level, chunk) -> {
+			if (level != game.level()) {
+				return;
+			}
 			LongList positions = trashByChunk.remove(chunk.getPos().pack());
 			if (positions == null) {
 				return;

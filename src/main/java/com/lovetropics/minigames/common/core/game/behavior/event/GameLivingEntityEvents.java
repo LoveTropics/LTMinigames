@@ -1,6 +1,7 @@
 package com.lovetropics.minigames.common.core.game.behavior.event;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.TriState;
 import net.minecraft.world.damagesource.DamageSource;
@@ -17,15 +18,15 @@ import java.util.Collection;
 import java.util.function.Consumer;
 
 public final class GameLivingEntityEvents {
-	public static final GameEventType<Tick> TICK = GameEventType.create(Tick.class, listeners -> entity -> {
+	public static final GameEventType<Tick> TICK = GameEventType.create(Tick.class, listeners -> (level, entity) -> {
 		for (Tick listener : listeners) {
-			listener.tick(entity);
+			listener.tick(level, entity);
 		}
 	});
 
-	public static final GameEventType<Death> DEATH = GameEventType.create(Death.class, listeners -> (entity, damageSource) -> {
+	public static final GameEventType<Death> DEATH = GameEventType.create(Death.class, listeners -> (level, entity, damageSource) -> {
 		for (Death listener : listeners) {
-			TriState result = listener.onDeath(entity, damageSource);
+			TriState result = listener.onDeath(level, entity, damageSource);
 			if (!result.isDefault()) {
 				return result;
 			}
@@ -34,9 +35,9 @@ public final class GameLivingEntityEvents {
 		return TriState.DEFAULT;
 	});
 
-	public static final GameEventType<MobDrop> MOB_DROP = GameEventType.create(MobDrop.class, listeners -> (entity, damageSource, drops) -> {
+	public static final GameEventType<MobDrop> MOB_DROP = GameEventType.create(MobDrop.class, listeners -> (level, entity, damageSource, drops) -> {
 		for (MobDrop listener : listeners) {
-			TriState result = listener.onMobDrop(entity, damageSource, drops);
+			TriState result = listener.onMobDrop(level, entity, damageSource, drops);
 			if (!result.isDefault()) {
 				return result;
 			}
@@ -45,9 +46,9 @@ public final class GameLivingEntityEvents {
 		return TriState.DEFAULT;
 	});
 
-	public static final GameEventType<FarmlandTrample> FARMLAND_TRAMPLE = GameEventType.create(FarmlandTrample.class, listeners -> (entity, pos, state) -> {
+	public static final GameEventType<FarmlandTrample> FARMLAND_TRAMPLE = GameEventType.create(FarmlandTrample.class, listeners -> (level, entity, pos, state) -> {
 		for (FarmlandTrample listener : listeners) {
-			TriState result = listener.onFarmlandTrample(entity, pos, state);
+			TriState result = listener.onFarmlandTrample(level, entity, pos, state);
 			if (!result.isDefault()) {
 				return result;
 			}
@@ -56,9 +57,9 @@ public final class GameLivingEntityEvents {
 		return TriState.DEFAULT;
 	});
 
-	public static final GameEventType<Spawn> SPAWNED = GameEventType.create(Spawn.class, listeners -> (entity, reason, player) -> {
+	public static final GameEventType<Spawn> SPAWNED = GameEventType.create(Spawn.class, listeners -> (level, entity, reason, player) -> {
 		for (Spawn listener : listeners) {
-			listener.onSpawn(entity, reason, player);
+			listener.onSpawn(level, entity, reason, player);
 		}
 	});
 
@@ -68,9 +69,9 @@ public final class GameLivingEntityEvents {
 		}
 	});
 
-	public static final GameEventType<ModifyExplosionKnockback> MODIFY_EXPLOSION_KNOCKBACK = GameEventType.create(ModifyExplosionKnockback.class, listeners -> (entity, explosion, knockback, initialKnockback) -> {
+	public static final GameEventType<ModifyExplosionKnockback> MODIFY_EXPLOSION_KNOCKBACK = GameEventType.create(ModifyExplosionKnockback.class, listeners -> (level, entity, explosion, knockback, initialKnockback) -> {
 		for (final ModifyExplosionKnockback listener : listeners) {
-			knockback = listener.getKnockback(entity, explosion, knockback, initialKnockback);
+			knockback = listener.getKnockback(level, entity, explosion, knockback, initialKnockback);
 		}
 		return knockback;
 	});
@@ -79,23 +80,23 @@ public final class GameLivingEntityEvents {
 	}
 
 	public interface Tick {
-		void tick(LivingEntity entity);
+		void tick(ServerLevel level, LivingEntity entity);
 	}
 
 	public interface Death {
-		TriState onDeath(LivingEntity entity, DamageSource damageSource);
+		TriState onDeath(ServerLevel level, LivingEntity entity, DamageSource damageSource);
 	}
 
 	public interface MobDrop {
-		TriState onMobDrop(LivingEntity entity, DamageSource damageSource, Collection<ItemEntity> drops);
+		TriState onMobDrop(ServerLevel level, LivingEntity entity, DamageSource damageSource, Collection<ItemEntity> drops);
 	}
 
 	public interface FarmlandTrample {
-		TriState onFarmlandTrample(Entity entity, BlockPos pos, BlockState state);
+		TriState onFarmlandTrample(ServerLevel level, Entity entity, BlockPos pos, BlockState state);
 	}
 
 	public interface Spawn {
-		void onSpawn(LivingEntity entity, EntitySpawnReason reason, @Nullable ServerPlayer player);
+		void onSpawn(ServerLevel level, LivingEntity entity, EntitySpawnReason reason, @Nullable ServerPlayer player);
 	}
 
 	public interface EnderTeleport {
@@ -103,6 +104,6 @@ public final class GameLivingEntityEvents {
 	}
 
 	public interface ModifyExplosionKnockback {
-		Vec3 getKnockback(Entity entity, Explosion explosion, Vec3 velocity, Vec3 initialVelocity);
+		Vec3 getKnockback(ServerLevel level, Entity entity, Explosion explosion, Vec3 velocity, Vec3 initialVelocity);
 	}
 }

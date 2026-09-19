@@ -89,7 +89,7 @@ public record PaintPartyBehaviour(Map<GameTeamKey, TeamConfig> teamConfigs, Bloc
 				);
 			}
 		});
-		events.listen(GameWorldEvents.EXPLOSION_DETONATE, (explosion, affectedBlocks, affectedEntities) -> {
+		events.listen(GameWorldEvents.EXPLOSION_DETONATE, (level, explosion, affectedBlocks, affectedEntities) -> {
 			if ((explosion.getDirectSourceEntity().is(EXPLODING_COCONUT) || explosion.getDirectSourceEntity() instanceof PaintBallEntity) && explosion.getIndirectSourceEntity() instanceof ServerPlayer throwingPlayer) {
 				GameTeamKey teamKey = teams.getTeamForPlayer(throwingPlayer);
 				if (teamKey == null) {
@@ -97,9 +97,9 @@ public record PaintPartyBehaviour(Map<GameTeamKey, TeamConfig> teamConfigs, Bloc
 				}
 				TeamConfig teamConfig = getTeamConfig(teamKey);
 				for (BlockPos pos : affectedBlocks) {
-					BlockState blockState = game.level().getBlockState(pos);
+					BlockState blockState = level.getBlockState(pos);
 					if (!blockState.isAir() && blockState.is(Tags.Blocks.DYED) && !blockState.is(teamConfig.blockTag())) {
-						paintBlock(game, pos, teamKey, teamConfig, blockState);
+						paintBlock(game, level, pos, teamKey, teamConfig, blockState);
 					}
 				}
 				affectedBlocks.clear();
@@ -260,18 +260,18 @@ public record PaintPartyBehaviour(Map<GameTeamKey, TeamConfig> teamConfigs, Bloc
 			PacketDistributor.sendToPlayer(player, new SetForcedPoseMessage(Optional.empty()));
 			return;
 		}
-		if (!hasNeighboringPaint(game, playerPos, teamConfig)) {
+		if (!hasNeighboringPaint(player.level(), playerPos, teamConfig)) {
 			return;
 		}
 		// Check if player has any blocks to place
 		if (player.getInventory().hasAnyMatching(itemStack -> itemStack.is(teamConfig.itemTag()))) {
 			// Player has blocks to place
-			paintBlock(game, playerPos, teamKey, teamConfig, blockState);
+			paintBlock(game, player.level(), playerPos, teamKey, teamConfig, blockState);
 			removeFromInventory(player, teamConfig, 1);
 		}
 	}
 
-	private void paintBlock(IGamePhase game, BlockPos pos, GameTeamKey teamKey, TeamConfig team, BlockState previousState) {
+	private void paintBlock(IGamePhase game, ServerLevel level, BlockPos pos, GameTeamKey teamKey, TeamConfig team, BlockState previousState) {
 		if (!previousState.equals(neutralBlock)) {
 			// Enemy team block, remove score from enemy
 			GameTeamKey teamFromBlockState = getTeamFromBlockState(previousState);
@@ -279,17 +279,17 @@ public record PaintPartyBehaviour(Map<GameTeamKey, TeamConfig> teamConfigs, Bloc
 				game.statistics().forTeam(teamFromBlockState).incrementInt(StatisticKey.POINTS, -1);
 			}
 		}
-		game.level().setBlock(pos, team.blockType(), Block.UPDATE_CLIENTS);
-		game.level().sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, team.blockType(), pos), pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 100, 0, 0, 0, 0.15F);
+		level.setBlock(pos, team.blockType(), Block.UPDATE_CLIENTS);
+		level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, team.blockType(), pos), pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 100, 0, 0, 0, 0.15F);
 		game.statistics().forTeam(teamKey).incrementInt(StatisticKey.POINTS, 1);
 	}
 
-	private static boolean hasNeighboringPaint(IGamePhase game, BlockPos pos, TeamConfig teamConfig) {
+	private static boolean hasNeighboringPaint(ServerLevel level, BlockPos pos, TeamConfig teamConfig) {
 		for (BlockPos neighborPos : BlockPos.betweenClosed(pos.offset(-1, -1, -1), pos.offset(1, 1, 1))) {
 			if (neighborPos.equals(pos)) {
 				continue;
 			}
-			if (game.level().getBlockState(neighborPos).is(teamConfig.blockTag())) {
+			if (level.getBlockState(neighborPos).is(teamConfig.blockTag())) {
 				return true;
 			}
 		}

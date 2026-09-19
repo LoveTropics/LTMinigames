@@ -118,7 +118,7 @@ public record ScoreMobInGoalBehavior(
 
 		BooleanSupplier canScore = scorePeriod.map(period -> period.createPredicate(game, channel)).orElse(() -> true);
 
-		events.listen(GameLivingEntityEvents.TICK, entity -> {
+		events.listen(GameLivingEntityEvents.TICK, (level, entity) -> {
 			if (!canScoreWith(entity) || !canScore.getAsBoolean()) {
 				return;
 			}

@@ -53,13 +53,13 @@ public final class SttPetsBehavior implements IGameBehavior {
 
 		events.listen(GamePhaseEvents.TICK, this::tick);
 
-		events.listen(GameLivingEntityEvents.SPAWNED, (entity, reason, player) -> {
+		events.listen(GameLivingEntityEvents.SPAWNED, (level, entity, reason, player) -> {
 			if (reason == EntitySpawnReason.SPAWN_ITEM_USE && player != null && entity instanceof PathfinderMob) {
 				onCreatureSpawnedFromEgg((PathfinderMob) entity, player);
 			}
 		});
 
-		events.listen(GameLivingEntityEvents.DEATH, (entity, damageSource) -> {
+		events.listen(GameLivingEntityEvents.DEATH, (level, entity, damageSource) -> {
 			if (entity instanceof PathfinderMob mob) {
 				onCreatureDeath(mob);
 			}

@@ -13,6 +13,6 @@ public record QuietExplosionsBehavior() implements IGameBehavior {
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		events.listen(GameWorldEvents.EXPLOSION_SOUND, (explosion, sound) -> SoundRegistry.QUIET_EXPLOSION);
+		events.listen(GameWorldEvents.EXPLOSION_SOUND, (level, explosion, sound) -> SoundRegistry.QUIET_EXPLOSION);
 	}
 }

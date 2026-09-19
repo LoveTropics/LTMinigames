@@ -1,7 +1,6 @@
 package com.lovetropics.minigames.common.core.game.behavior.instances.world;
 
 import com.lovetropics.lib.BlockBox;
-import com.lovetropics.lib.codec.MoreCodecs;
 import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
@@ -12,13 +11,13 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Container;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -54,19 +53,22 @@ public record DistributeLootBehavior(
 				game.level().getChunkSource().updateChunkForced(ChunkPos.unpack(chunkKey), true)
 		);
 
-		events.listen(GameWorldEvents.CHUNK_LOAD, chunk -> {
+		events.listen(GameWorldEvents.CHUNK_LOAD, (level, chunk) -> {
+			if (level != game.level()) {
+				return;
+			}
 			ChunkPos chunkPos = chunk.getPos();
 			if (pendingChunks.remove(chunkPos.pack()) && pendingChunks.isEmpty()) {
-				onRegionFullyLoaded(game, region);
+				onRegionFullyLoaded(game, level, region);
 			}
 		});
 	}
 
-	private void onRegionFullyLoaded(IGamePhase game, Collection<BlockBox> boxes) {
+	private void onRegionFullyLoaded(IGamePhase game, ServerLevel level, Collection<BlockBox> boxes) {
 		List<Container> containers = new ArrayList<>();
 		boxes.forEach(box -> {
 			box.asChunks().forEach(chunkKey -> {
-				LevelChunk chunk = game.level().getChunk(ChunkPos.getX(chunkKey), ChunkPos.getZ(chunkKey));
+				LevelChunk chunk = level.getChunk(ChunkPos.getX(chunkKey), ChunkPos.getZ(chunkKey));
 				for (BlockEntity blockEntity : chunk.getBlockEntities().values()) {
 					BlockPos pos = blockEntity.getBlockPos();
 					if (!box.contains(pos.getX(), box.min().getY(), pos.getZ())) {
@@ -76,7 +78,7 @@ public record DistributeLootBehavior(
 						containers.add(container);
 					}
 				}
-				game.level().getChunkSource().updateChunkForced(chunk.getPos(), false);
+				level.getChunkSource().updateChunkForced(chunk.getPos(), false);
 			});
 		});
 

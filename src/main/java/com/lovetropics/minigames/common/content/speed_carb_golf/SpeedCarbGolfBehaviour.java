@@ -72,11 +72,10 @@ public record SpeedCarbGolfBehaviour(Map<Identifier, String> potentialHoles, Map
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		ServerLevel level = game.level();
 		ServerFunctionManager serverFunctionManager = game.server().getFunctions();
 		CommandFunction<CommandSourceStack> changeHoleNumber = serverFunctionManager.get(changeHoleNumberFunction).orElseThrow();
 		CommandFunction<CommandSourceStack> startHole = serverFunctionManager.get(startHoleFunction).orElseThrow();
-		CommandSourceStack commandSourceStack = game.server().createCommandSourceStack().withLevel(level)
+		CommandSourceStack commandSourceStack = game.server().createCommandSourceStack().withLevel(game.level())
 				.withSuppressedOutput().withPermission(LevelBasedPermissionSet.ADMIN).withSource(game.server());
 		TeamState teams = game.instanceState().getOrThrow(TeamState.KEY);
 		Identifier blankHoleId = Identifier.fromNamespaceAndPath("lt", "golf/blank");
@@ -132,7 +131,7 @@ public record SpeedCarbGolfBehaviour(Map<Identifier, String> potentialHoles, Map
 //                }
 //            }
 //        });
-		events.listen(GameWorldEvents.ENTITY_REMOVED, (entity) -> {
+		events.listen(GameWorldEvents.ENTITY_REMOVED, (level, entity) -> {
 			if (entity.getType().builtInRegistryHolder().is(FIDDLER_CRAB)) {
 				if (entity.entityTags().contains("golfCrab")) {
 					String hole = "";
@@ -145,9 +144,9 @@ public record SpeedCarbGolfBehaviour(Map<Identifier, String> potentialHoles, Map
 					if (!hole.isBlank()) {
 						hole = hole.replace("hole", "");
 						hole = hole.replace("Crab", "");
-						Objective globalGolfObjective = game.level().getScoreboard().getObjective("golf.global");
+						Objective globalGolfObjective = level.getScoreboard().getObjective("golf.global");
 						if (globalGolfObjective != null) {
-							ReadOnlyScoreInfo scoreInfo = game.level().getScoreboard().getPlayerScoreInfo(entity, globalGolfObjective);
+							ReadOnlyScoreInfo scoreInfo = level.getScoreboard().getPlayerScoreInfo(entity, globalGolfObjective);
 							if (scoreInfo != null && scoreInfo.value() == 2) {
 								UUID foundPlayer = assignedHoles.get(hole);
 								if (foundPlayer != null) {
@@ -216,7 +215,7 @@ public record SpeedCarbGolfBehaviour(Map<Identifier, String> potentialHoles, Map
 				}
 			}
 		});
-		events.listen(GameWorldEvents.ENTITY_ADDED, (entity) -> {
+		events.listen(GameWorldEvents.ENTITY_ADDED, (level, entity) -> {
 			if (entity.getType() == EntityTypes.MARKER) {
 				if (entity.entityTags().contains("golfStart") || entity.entityTags().contains("golfEnd")) {
 					boolean isStart = entity.entityTags().contains("golfStart");
@@ -248,7 +247,7 @@ public record SpeedCarbGolfBehaviour(Map<Identifier, String> potentialHoles, Map
 					String regionKey = holeRegions.get(team.key()).get(i);
 					BlockBox region = game.mapRegions().getOrThrow(regionKey);
 					holeConfigs.put(regionKey, new HoleConfig(potentialHoles.get(pickedHole), holeNumber));
-					loadGolfHole(game, team, level, pickedHole, structureplacesettings, region, regionKey, holeNumber,
+					loadGolfHole(game, team, game.level(), pickedHole, structureplacesettings, region, regionKey, holeNumber,
 							changeHoleNumber, commandSourceStack, true);
 					if (!players.hasNext()) {
 						players = playersForTeam.iterator();
@@ -271,7 +270,7 @@ public record SpeedCarbGolfBehaviour(Map<Identifier, String> potentialHoles, Map
 			UUID targetPlayer = assignedHoles.get(currentTeamHole);
 			if (player == targetPlayer) {
 				spawnBuilder.run(serverPlayer -> {
-					startHoleForPlayer(game, serverPlayer, currentTeamHole, level, startHole);
+					startHoleForPlayer(game, serverPlayer, currentTeamHole, game.level(), startHole);
 					serverPlayer.sendSystemMessage(SpeedCarbGolfTexts.YOUR_TURN.withStyle(ChatFormatting.GREEN));
 					MutableComponent component = SpeedCarbGolfTexts.PLAYERS_TURN.apply(serverPlayer.getDisplayName()).withStyle(ChatFormatting.GREEN);
 					teams.getPlayersForTeam(game, playerTeam).forEach(otherPlayer -> {

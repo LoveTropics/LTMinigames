@@ -15,7 +15,6 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Explosion;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.trialspawner.TrialSpawner;
 import net.minecraft.world.level.block.state.BlockState;
@@ -27,28 +26,28 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 
 public final class GameWorldEvents {
-	public static final GameEventType<ChunkLoad> CHUNK_LOAD = GameEventType.create(ChunkLoad.class, listeners -> (chunk) -> {
+	public static final GameEventType<ChunkLoad> CHUNK_LOAD = GameEventType.create(ChunkLoad.class, listeners -> (level, chunk) -> {
 		for (ChunkLoad listener : listeners) {
-			listener.onChunkLoad(chunk);
+			listener.onChunkLoad(level, chunk);
 		}
 	});
 
-	public static final GameEventType<ExplosionSound> EXPLOSION_SOUND = GameEventType.create(ExplosionSound.class, listeners -> (explosion, sound) -> {
+	public static final GameEventType<ExplosionSound> EXPLOSION_SOUND = GameEventType.create(ExplosionSound.class, listeners -> (level, explosion, sound) -> {
 		for (ExplosionSound listener : listeners) {
-			sound = listener.updateExplosionSound(explosion, sound);
+			sound = listener.updateExplosionSound(level, explosion, sound);
 		}
 		return sound;
 	});
 
-	public static final GameEventType<ExplosionDetonate> EXPLOSION_DETONATE = GameEventType.create(ExplosionDetonate.class, listeners -> (explosion, affectedBlocks, affectedEntities) -> {
+	public static final GameEventType<ExplosionDetonate> EXPLOSION_DETONATE = GameEventType.create(ExplosionDetonate.class, listeners -> (level, explosion, affectedBlocks, affectedEntities) -> {
 		for (ExplosionDetonate listener : listeners) {
-			listener.onExplosionDetonate(explosion, affectedBlocks, affectedEntities);
+			listener.onExplosionDetonate(level, explosion, affectedBlocks, affectedEntities);
 		}
 	});
 
-	public static final GameEventType<SaplingGrow> SAPLING_GROW = GameEventType.create(SaplingGrow.class, listeners -> (world, pos) -> {
+	public static final GameEventType<SaplingGrow> SAPLING_GROW = GameEventType.create(SaplingGrow.class, listeners -> (level, pos) -> {
 		for (SaplingGrow listener : listeners) {
-			TriState result = listener.onSaplingGrow(world, pos);
+			TriState result = listener.onSaplingGrow(level, pos);
 			if (!result.isDefault()) {
 				return result;
 			}
@@ -86,27 +85,27 @@ public final class GameWorldEvents {
 		}
 	});
 
-	public static final GameEventType<EntityAdded> ENTITY_ADDED = GameEventType.create(EntityAdded.class, listeners -> (entity) -> {
+	public static final GameEventType<EntityAdded> ENTITY_ADDED = GameEventType.create(EntityAdded.class, listeners -> (level, entity) -> {
 		for (EntityAdded listener : listeners) {
-			listener.onEntityAdded(entity);
+			listener.onEntityAdded(level, entity);
 		}
 	});
 
-	public static final GameEventType<EntityRemoved> ENTITY_REMOVED = GameEventType.create(EntityRemoved.class, listeners -> (entity) -> {
+	public static final GameEventType<EntityRemoved> ENTITY_REMOVED = GameEventType.create(EntityRemoved.class, listeners -> (level, entity) -> {
 		for (EntityRemoved listener : listeners) {
-			listener.onEntityRemoved(entity);
+			listener.onEntityRemoved(level, entity);
 		}
 	});
 
-	public static final GameEventType<ProjectileImpact> PROJECTILE_IMPACT = GameEventType.create(ProjectileImpact.class, listeners -> (projectile, hitResult) -> {
+	public static final GameEventType<ProjectileImpact> PROJECTILE_IMPACT = GameEventType.create(ProjectileImpact.class, listeners -> (level, projectile, hitResult) -> {
 		for (ProjectileImpact listener : listeners) {
-			listener.onProjectileImpact(projectile, hitResult);
+			listener.onProjectileImpact(level, projectile, hitResult);
 		}
 	});
 
-	public static final GameEventType<SpawnPlacementCheck> SPAWN_PLACEMENT_CHECK = GameEventType.create(SpawnPlacementCheck.class, listeners -> (pos, reason, entityType) -> {
+	public static final GameEventType<SpawnPlacementCheck> SPAWN_PLACEMENT_CHECK = GameEventType.create(SpawnPlacementCheck.class, listeners -> (level, pos, reason, entityType) -> {
 		for (SpawnPlacementCheck listener : listeners) {
-			TriState result = listener.canSpawn(pos, reason, entityType);
+			TriState result = listener.canSpawn(level, pos, reason, entityType);
 			if (!result.isDefault()) {
 				return result;
 			}
@@ -114,9 +113,9 @@ public final class GameWorldEvents {
 		return TriState.DEFAULT;
 	});
 
-	public static final GameEventType<TrialSpawnerEjectLoot> TRIAL_SPAWNER_EJECT_LOOT = GameEventType.create(TrialSpawnerEjectLoot.class, listeners -> (pos, trialSpawner) -> {
+	public static final GameEventType<TrialSpawnerEjectLoot> TRIAL_SPAWNER_EJECT_LOOT = GameEventType.create(TrialSpawnerEjectLoot.class, listeners -> (level, pos, trialSpawner) -> {
 		for (TrialSpawnerEjectLoot listener : listeners) {
-			if (listener.onTrialSpawnerEjectLoot(pos, trialSpawner)) {
+			if (listener.onTrialSpawnerEjectLoot(level, pos, trialSpawner)) {
 				return true;
 			}
 		}
@@ -144,23 +143,23 @@ public final class GameWorldEvents {
 	}
 
 	public interface ChunkLoad {
-		void onChunkLoad(ChunkAccess chunk);
+		void onChunkLoad(ServerLevel level, ChunkAccess chunk);
 	}
 
 	public interface ExplosionSound {
-		Holder<SoundEvent> updateExplosionSound(Explosion explosion, Holder<SoundEvent> sound);
+		Holder<SoundEvent> updateExplosionSound(ServerLevel level, Explosion explosion, Holder<SoundEvent> sound);
 	}
 
 	public interface ExplosionDetonate {
-		void onExplosionDetonate(Explosion explosion, List<BlockPos> affectedBlocks, List<Entity> affectedEntities);
+		void onExplosionDetonate(ServerLevel level, Explosion explosion, List<BlockPos> affectedBlocks, List<Entity> affectedEntities);
 	}
 
 	public interface SaplingGrow {
-		TriState onSaplingGrow(Level world, BlockPos pos);
+		TriState onSaplingGrow(ServerLevel level, BlockPos pos);
 	}
 
 	public interface CropGrow {
-		TriState onCropGrow(Level world, BlockPos pos);
+		TriState onCropGrow(ServerLevel level, BlockPos pos);
 	}
 
 	public interface SetWeather {
@@ -176,23 +175,23 @@ public final class GameWorldEvents {
 	}
 
 	public interface EntityAdded {
-		void onEntityAdded(Entity entity);
+		void onEntityAdded(ServerLevel level, Entity entity);
 	}
 
 	public interface EntityRemoved {
-		void onEntityRemoved(Entity entity);
+		void onEntityRemoved(ServerLevel level, Entity entity);
 	}
 
 	public interface ProjectileImpact {
-		void onProjectileImpact(Projectile projectile, HitResult result);
+		void onProjectileImpact(ServerLevel level, Projectile projectile, HitResult result);
 	}
 
 	public interface SpawnPlacementCheck {
-		TriState canSpawn(BlockPos pos, EntitySpawnReason reason, EntityType<?> entityType);
+		TriState canSpawn(ServerLevel level, BlockPos pos, EntitySpawnReason reason, EntityType<?> entityType);
 	}
 
 	public interface TrialSpawnerEjectLoot {
-		boolean onTrialSpawnerEjectLoot(BlockPos pos, TrialSpawner trialSpawner);
+		boolean onTrialSpawnerEjectLoot(ServerLevel level, BlockPos pos, TrialSpawner trialSpawner);
 	}
 
 	public interface ModifyLootTable {

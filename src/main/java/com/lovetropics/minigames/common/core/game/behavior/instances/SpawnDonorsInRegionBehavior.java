@@ -11,7 +11,6 @@ import com.lovetropics.minigames.common.core.game.behavior.event.GamePackageEven
 import com.lovetropics.minigames.common.core.integration.GameInstanceIntegrations;
 import com.lovetropics.minigames.common.core.integration.game_actions.Donation;
 import com.lovetropics.minigames.common.core.integration.state.DonationScale;
-import com.lovetropics.minigames.common.util.EntityTemplate;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -26,8 +25,6 @@ import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.WritableBookContent;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -71,7 +68,7 @@ public record SpawnDonorsInRegionBehavior(
 		});
 
 		// Drop sassy book on death
-		events.listen(GameLivingEntityEvents.MOB_DROP, (e, d, r) -> {
+		events.listen(GameLivingEntityEvents.MOB_DROP, (level, e, d, r) -> {
 			if (e.hasData(LoveTropicsAttachments.DONATION)) {
 				ItemStack book = new ItemStack(Items.WRITTEN_BOOK, 1);
 				final Donation donation = e.getData(LoveTropicsAttachments.DONATION);

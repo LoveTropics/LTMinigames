@@ -92,16 +92,17 @@ public final class GameEventDispatcher {
 	public void onServerTickEnd(ServerTickEvent.Post event) {
 		LoadedChunk queuedChunk;
 		ResourceKey<Level> lastDimension = null;
+		ServerLevel level = null;
 		IGamePhase game = null;
 		while ((queuedChunk = loadedChunksQueue.poll()) != null) {
 			if (lastDimension != queuedChunk.dimension) {
-				ServerLevel level = event.getServer().getLevel(queuedChunk.dimension);
 				lastDimension = queuedChunk.dimension;
+				level = event.getServer().getLevel(queuedChunk.dimension);
 				game = level != null ? gameLookup.getGamePhaseInDimension(level) : null;
 			}
-			if (game != null) {
-				LevelChunk chunk = game.level().getChunk(queuedChunk.pos.x(), queuedChunk.pos.z());
-				game.invoker(GameWorldEvents.CHUNK_LOAD).onChunkLoad(chunk);
+			if (level != null && game != null) {
+				LevelChunk chunk = level.getChunk(queuedChunk.pos.x(), queuedChunk.pos.z());
+				game.invoker(GameWorldEvents.CHUNK_LOAD).onChunkLoad(level, chunk);
 			}
 		}
 	}
@@ -192,7 +193,7 @@ public final class GameEventDispatcher {
 
 	@SubscribeEvent
 	public void onLivingUpdate(EntityTickEvent.Post event) {
-		if (event.getEntity() instanceof LivingEntity entity) {
+		if (event.getEntity() instanceof LivingEntity entity && entity.level() instanceof ServerLevel level) {
 			IGamePhase game = gameLookup.getGamePhaseFor(entity);
 			if (game != null) {
 				if (entity instanceof ServerPlayer && game.participants().contains(entity)) {
@@ -204,7 +205,7 @@ public final class GameEventDispatcher {
 				}
 
 				try {
-					game.invoker(GameLivingEntityEvents.TICK).tick(entity);
+					game.invoker(GameLivingEntityEvents.TICK).tick(level, entity);
 				} catch (Exception e) {
 					LoveTropics.LOGGER.warn("Failed to dispatch living tick event", e);
 				}
@@ -246,7 +247,7 @@ public final class GameEventDispatcher {
 			}
 		} else {
 			try {
-				game.invoker(GameLivingEntityEvents.DEATH).onDeath(entity, event.getSource());
+				game.invoker(GameLivingEntityEvents.DEATH).onDeath((ServerLevel) entity.level(), entity, event.getSource());
 			} catch (Exception e) {
 				LoveTropics.LOGGER.warn("Failed to dispatch entity death event", e);
 			}
@@ -266,11 +267,13 @@ public final class GameEventDispatcher {
 	@SubscribeEvent
 	public void onMobDrop(LivingDropsEvent event) {
 		LivingEntity entity = event.getEntity();
-
+		if (!(entity.level() instanceof ServerLevel level)) {
+			return;
+		}
 		IGamePhase game = gameLookup.getGamePhaseFor(entity);
 		if (game != null) {
 			try {
-				TriState result = game.invoker(GameLivingEntityEvents.MOB_DROP).onMobDrop(entity, event.getSource(), event.getDrops());
+				TriState result = game.invoker(GameLivingEntityEvents.MOB_DROP).onMobDrop(level, entity, event.getSource(), event.getDrops());
 				if (result.isFalse()) {
 					event.setCanceled(true);
 				}
@@ -295,9 +298,9 @@ public final class GameEventDispatcher {
 	@SubscribeEvent
 	public void onFarmlandTrample(BlockEvent.FarmlandTrampleEvent event) {
 		IGamePhase game = gameLookup.getGamePhaseFor(event.getEntity());
-		if (game != null) {
+		if (game != null && event.getLevel() instanceof ServerLevel level) {
 			try {
-				TriState result = game.invoker(GameLivingEntityEvents.FARMLAND_TRAMPLE).onFarmlandTrample(event.getEntity(), event.getPos(), event.getState());
+				TriState result = game.invoker(GameLivingEntityEvents.FARMLAND_TRAMPLE).onFarmlandTrample(level, event.getEntity(), event.getPos(), event.getState());
 				if (result.isFalse()) {
 					event.setCanceled(true);
 				}
@@ -473,7 +476,7 @@ public final class GameEventDispatcher {
 		IGamePhase game = gameLookup.getGamePhaseAt(level, BlockPos.containing(explosion.center()));
 		if (game != null) {
 			try {
-				return game.invoker(GameWorldEvents.EXPLOSION_SOUND).updateExplosionSound(explosion, sound);
+				return game.invoker(GameWorldEvents.EXPLOSION_SOUND).updateExplosionSound(level, explosion, sound);
 			} catch (Exception e) {
 				LoveTropics.LOGGER.warn("Failed to dispatch explosion event", e);
 			}
@@ -483,10 +486,13 @@ public final class GameEventDispatcher {
 
 	@SubscribeEvent
 	public void onExplosionDetonate(ExplosionEvent.Detonate event) {
-		IGamePhase game = gameLookup.getGamePhaseAt(event.getLevel(), BlockPos.containing(event.getExplosion().center()));
+		if (!(event.getLevel() instanceof ServerLevel level)) {
+			return;
+		}
+		IGamePhase game = gameLookup.getGamePhaseAt(level, BlockPos.containing(event.getExplosion().center()));
 		if (game != null) {
 			try {
-				game.invoker(GameWorldEvents.EXPLOSION_DETONATE).onExplosionDetonate(event.getExplosion(), event.getAffectedBlocks(), event.getAffectedEntities());
+				game.invoker(GameWorldEvents.EXPLOSION_DETONATE).onExplosionDetonate(level, event.getExplosion(), event.getAffectedBlocks(), event.getAffectedEntities());
 			} catch (Exception e) {
 				LoveTropics.LOGGER.warn("Failed to dispatch explosion event", e);
 			}
@@ -497,9 +503,9 @@ public final class GameEventDispatcher {
 	public void onExplosionKnockback(ExplosionKnockbackEvent event) {
 		Entity entity = event.getAffectedEntity();
 		IGamePhase game = gameLookup.getGamePhaseFor(entity);
-		if (game != null) {
+		if (game != null && entity.level() instanceof ServerLevel level) {
 			try {
-				event.setKnockbackVelocity(game.invoker(GameLivingEntityEvents.MODIFY_EXPLOSION_KNOCKBACK).getKnockback(entity, event.getExplosion(), event.getKnockbackVelocity(), event.getKnockbackVelocity()));
+				event.setKnockbackVelocity(game.invoker(GameLivingEntityEvents.MODIFY_EXPLOSION_KNOCKBACK).getKnockback(level, entity, event.getExplosion(), event.getKnockbackVelocity(), event.getKnockbackVelocity()));
 			} catch (Exception e) {
 				LoveTropics.LOGGER.warn("Failed to dispatch explosion event", e);
 			}
@@ -508,10 +514,13 @@ public final class GameEventDispatcher {
 
 	@SubscribeEvent
 	public void onTreeGrow(BlockGrowFeatureEvent event) {
-		IGamePhase game = gameLookup.getGamePhaseAt((Level) event.getLevel(), event.getPos());
+		if (!(event.getLevel() instanceof ServerLevel level)) {
+			return;
+		}
+		IGamePhase game = gameLookup.getGamePhaseAt(level, event.getPos());
 		if (game != null) {
 			try {
-				TriState result = game.invoker(GameWorldEvents.SAPLING_GROW).onSaplingGrow(game.level(), event.getPos());
+				TriState result = game.invoker(GameWorldEvents.SAPLING_GROW).onSaplingGrow(level, event.getPos());
 				if (result.isFalse()) {
 					event.setCanceled(true);
 				}
@@ -523,10 +532,13 @@ public final class GameEventDispatcher {
 
 	@SubscribeEvent
 	public void onCropGrow(CropGrowEvent.Pre event) {
-		IGamePhase game = gameLookup.getGamePhaseAt((Level) event.getLevel(), event.getPos());
+		if (!(event.getLevel() instanceof ServerLevel level)) {
+			return;
+		}
+		IGamePhase game = gameLookup.getGamePhaseAt(level, event.getPos());
 		if (game != null) {
 			try {
-				TriState result = game.invoker(GameWorldEvents.CROP_GROW).onCropGrow(game.level(), event.getPos());
+				TriState result = game.invoker(GameWorldEvents.CROP_GROW).onCropGrow(level, event.getPos());
 				if (result.isFalse()) {
 					event.setResult(CropGrowEvent.Pre.Result.DO_NOT_GROW);
 				} else if(result.isTrue()) {
@@ -546,9 +558,9 @@ public final class GameEventDispatcher {
 		Entity entityBeingMounted = event.getEntityBeingMounted();
 
 		IGamePhase game = gameLookup.getGamePhaseFor(entityBeingMounted);
-		if (game != null) {
+		if (game != null && event.getLevel() instanceof ServerLevel level) {
 			try {
-				TriState result = game.invoker(GameEntityEvents.MOUNTED).onEntityMounted(entityMounting, entityBeingMounted);
+				TriState result = game.invoker(GameEntityEvents.MOUNTED).onEntityMounted(level, entityMounting, entityBeingMounted);
 				if (result.isFalse()) {
 					event.setCanceled(true);
 				}
@@ -613,25 +625,34 @@ public final class GameEventDispatcher {
 
 	@SubscribeEvent
 	public void onEntityAddedToLevel(EntityJoinLevelEvent event) {
-		IGamePhase gamePhase = gameLookup.getGamePhaseInDimension(event.getLevel());
+		if (!(event.getLevel() instanceof ServerLevel level)) {
+			return;
+		}
+		IGamePhase gamePhase = gameLookup.getGamePhaseInDimension(level);
 		if (gamePhase != null) {
-			gamePhase.invoker(GameWorldEvents.ENTITY_ADDED).onEntityAdded(event.getEntity());
+			gamePhase.invoker(GameWorldEvents.ENTITY_ADDED).onEntityAdded(level, event.getEntity());
 		}
 	}
 
 	@SubscribeEvent
 	public void onEntityRemovedFromLevel(EntityLeaveLevelEvent event) {
-		IGamePhase gamePhase = gameLookup.getGamePhaseInDimension(event.getLevel());
+		if (!(event.getLevel() instanceof ServerLevel level)) {
+			return;
+		}
+		IGamePhase gamePhase = gameLookup.getGamePhaseInDimension(level);
 		if (gamePhase != null) {
-			gamePhase.invoker(GameWorldEvents.ENTITY_REMOVED).onEntityRemoved(event.getEntity());
+			gamePhase.invoker(GameWorldEvents.ENTITY_REMOVED).onEntityRemoved(level, event.getEntity());
 		}
 	}
 
 	@SubscribeEvent
 	public void onEntityRemovedFromLevel(ProjectileImpactEvent event) {
-		IGamePhase gamePhase = gameLookup.getGamePhaseInDimension(event.getProjectile().level());
+		if (!(event.getProjectile().level() instanceof ServerLevel level)) {
+			return;
+		}
+		IGamePhase gamePhase = gameLookup.getGamePhaseFor(event.getProjectile());
 		if (gamePhase != null) {
-			gamePhase.invoker(GameWorldEvents.PROJECTILE_IMPACT).onProjectileImpact(event.getProjectile(), event.getRayTraceResult());
+			gamePhase.invoker(GameWorldEvents.PROJECTILE_IMPACT).onProjectileImpact(level, event.getProjectile(), event.getRayTraceResult());
 		}
 	}
 
@@ -641,9 +662,10 @@ public final class GameEventDispatcher {
 			// Not main thread, not safe!
 			return;
 		}
-		IGamePhase game = gameLookup.getGamePhaseAt(event.getLevel().getLevel(), event.getPos());
+		ServerLevel level = event.getLevel().getLevel();
+		IGamePhase game = gameLookup.getGamePhaseAt(level, event.getPos());
 		if (game != null) {
-			switch (game.invoker(GameWorldEvents.SPAWN_PLACEMENT_CHECK).canSpawn(event.getPos(), event.getSpawnType(), event.getEntityType())) {
+			switch (game.invoker(GameWorldEvents.SPAWN_PLACEMENT_CHECK).canSpawn(level, event.getPos(), event.getSpawnType(), event.getEntityType())) {
 				case TRUE -> event.setResult(MobSpawnEvent.SpawnPlacementCheck.Result.SUCCEED);
 				case FALSE -> event.setResult(MobSpawnEvent.SpawnPlacementCheck.Result.FAIL);
 			}

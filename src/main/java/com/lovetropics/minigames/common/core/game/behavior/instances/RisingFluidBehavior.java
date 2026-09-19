@@ -61,7 +61,7 @@ public class RisingFluidBehavior implements IGameBehavior {
         });
 
         if (fillType == FluidFiller.Type.WATER) {
-            events.listen(GameLivingEntityEvents.TICK, this::onLivingUpdateInWater);
+            events.listen(GameLivingEntityEvents.TICK, (level, entity) -> onLivingUpdateInWater(entity));
         }
         events.listen(GamePhaseEvents.TICK, () -> tick(game));
     }

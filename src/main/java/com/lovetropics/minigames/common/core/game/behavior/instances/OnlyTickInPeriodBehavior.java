@@ -53,9 +53,9 @@ public record OnlyTickInPeriodBehavior(ProgressChannel channel, ProgressionPerio
 		}
 
 		if (conditionalEvents.hasListeners(GameLivingEntityEvents.TICK)) {
-			events.listen(GameLivingEntityEvents.TICK, entity -> {
+			events.listen(GameLivingEntityEvents.TICK, (level, entity) -> {
 				if (predicate.getAsBoolean()) {
-					conditionalEvents.invoker(GameLivingEntityEvents.TICK).tick(entity);
+					conditionalEvents.invoker(GameLivingEntityEvents.TICK).tick(level, entity);
 				}
 			});
 		}

@@ -27,7 +27,7 @@ public class EntityTypeMixin<T extends Entity> {
 		if (entity instanceof LivingEntity livingEntity && source instanceof ServerPlayer serverPlayer) {
 			IGamePhase game = GamePhaseManager.get().getGamePhaseFor(entity);
 			if (game != null) {
-				game.invoker(GameLivingEntityEvents.SPAWNED).onSpawn(livingEntity, spawnType, serverPlayer);
+				game.invoker(GameLivingEntityEvents.SPAWNED).onSpawn(level, livingEntity, spawnType, serverPlayer);
 			}
 		}
 	}

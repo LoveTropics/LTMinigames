@@ -27,14 +27,14 @@ public record ProjectileBreakBlockBehavior(
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
-		events.listen(GameWorldEvents.PROJECTILE_IMPACT, (projectile, hitResult) -> {
+		events.listen(GameWorldEvents.PROJECTILE_IMPACT, (level, projectile, hitResult) -> {
 			if (hitResult.getType() != HitResult.Type.BLOCK) {
 				return;
 			}
 			BlockHitResult blockHitResult = (BlockHitResult) hitResult;
 			BlockPos blockPos = blockHitResult.getBlockPos();
-			if (blockPredicate.matches(game.level(), blockPos) && projectilePredicate.matches(game.level(), null, projectile)) {
-				game.level().removeBlock(blockPos, false);
+			if (blockPredicate.matches(level, blockPos) && projectilePredicate.matches(level, null, projectile)) {
+				level.removeBlock(blockPos, false);
 			}
 		});
 	}

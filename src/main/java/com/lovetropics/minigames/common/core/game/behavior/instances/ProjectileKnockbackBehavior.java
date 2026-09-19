@@ -10,7 +10,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.advancements.predicates.entity.EntityPredicate;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -31,23 +30,23 @@ public record ProjectileKnockbackBehavior(
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
-		events.listen(GameWorldEvents.PROJECTILE_IMPACT, (projectile, hitResult) -> {
+		events.listen(GameWorldEvents.PROJECTILE_IMPACT, (level, projectile, hitResult) -> {
 			if (hitResult.getType() != HitResult.Type.ENTITY) {
 				return;
 			}
-			if (projectilePredicate.isPresent() && !projectilePredicate.get().matches(game.level(), null, projectile)) {
+			if (projectilePredicate.isPresent() && !projectilePredicate.get().matches(level, null, projectile)) {
 				return;
 			}
 			EntityHitResult entityHitResult = (EntityHitResult) hitResult;
 			if (entityHitResult.getEntity() instanceof LivingEntity target) {
-				if (targetPredicate.isPresent() && !targetPredicate.get().matches(game.level(), null, target)) {
+				if (targetPredicate.isPresent() && !targetPredicate.get().matches(level, null, target)) {
 					return;
 				}
 				double deltaX = -projectile.getDeltaMovement().x;
 				double deltaZ = -projectile.getDeltaMovement().z;
 				target.knockback(strength, deltaX, deltaZ, target.damageSources().generic(), 0);
 				target.hurtMarked = true;
-				game.level().broadcastDamageEvent(target, target.damageSources().generic());
+				level.broadcastDamageEvent(target, target.damageSources().generic());
 			}
 		});
 	}

@@ -82,10 +82,10 @@ public final class BbBehavior implements IGameBehavior {
 		events.listen(GamePlayerEvents.DEATH, this::onPlayerDeath);
 		events.listen(GameWorldEvents.EXPLOSION_DETONATE, this::onExplosion);
 		// Don't grow any trees- we handle that ourselves
-		events.listen(GameWorldEvents.SAPLING_GROW, (w, p) -> TriState.FALSE);
+		events.listen(GameWorldEvents.SAPLING_GROW, (level, p) -> TriState.FALSE);
 		events.listen(GamePlayerEvents.ATTACK, this::onAttack);
 		// Custom mob drops
-		events.listen(GameLivingEntityEvents.MOB_DROP, (e, d, r) -> {
+		events.listen(GameLivingEntityEvents.MOB_DROP, (level, e, d, r) -> {
 			r.removeIf(i -> !i.getItem().is(BiodiversityBlitz.OSA_POINT.asItem()));
 
 			r.add(new ItemEntity(e.level(), e.getX(), e.getY(), e.getZ(), new ItemStack(BiodiversityBlitz.OSA_POINT.get(), 1)));
@@ -93,7 +93,7 @@ public final class BbBehavior implements IGameBehavior {
 			return TriState.DEFAULT;
 		});
 		events.listen(GameLivingEntityEvents.FARMLAND_TRAMPLE, this::onTrampleFarmland);
-		events.listen(GameEntityEvents.MOUNTED, (mounting, beingMounted) -> {
+		events.listen(GameEntityEvents.MOUNTED, (level, mounting, beingMounted) -> {
 			if (mounting instanceof ServerPlayer) {
 				return TriState.DEFAULT;
 			} else {
@@ -163,7 +163,7 @@ public final class BbBehavior implements IGameBehavior {
 		return InteractionResult.PASS;
 	}
 
-	private TriState onTrampleFarmland(Entity entity, BlockPos pos, BlockState state) {
+	private TriState onTrampleFarmland(ServerLevel level, Entity entity, BlockPos pos, BlockState state) {
 		if (!tutorial.isTutorialFinished()) {
 			return TriState.FALSE;
 		}
@@ -199,7 +199,7 @@ public final class BbBehavior implements IGameBehavior {
 		teleportToRegion(player, plot.spawn, plot.forward);
 	}
 
-	private void onExplosion(Explosion explosion, List<BlockPos> affectedBlocks, List<Entity> affectedEntities) {
+	private void onExplosion(ServerLevel level, Explosion explosion, List<BlockPos> affectedBlocks, List<Entity> affectedEntities) {
 		affectedEntities.removeIf(e -> e instanceof Player);
 
 		// Remove from filtered explosions

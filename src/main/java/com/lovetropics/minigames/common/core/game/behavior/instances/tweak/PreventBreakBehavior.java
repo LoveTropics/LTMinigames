@@ -28,10 +28,10 @@ public record PreventBreakBehavior(List<BlockPredicate> predicates) implements I
 			}
 			return TriState.DEFAULT;
 		});
-		events.listen(GameWorldEvents.EXPLOSION_DETONATE, (explosion, affectedBlocks, affectedEntities) -> {
+		events.listen(GameWorldEvents.EXPLOSION_DETONATE, (level, explosion, affectedBlocks, affectedEntities) -> {
 			affectedBlocks.removeIf(pos -> {
 				for (BlockPredicate predicate : predicates) {
-					if (predicate.matches(game.level(), pos)) {
+					if (predicate.matches(level, pos)) {
 						return true;
 					}
 				}

@@ -14,6 +14,7 @@ import it.unimi.dsi.fastutil.longs.LongSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.RandomizableContainer;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -43,20 +44,23 @@ public record FillContainerInRegionWithLootTableBehaviour(
 				game.level().getChunkSource().updateChunkForced(ChunkPos.unpack(chunkKey), true)
 		);
 
-		events.listen(GameWorldEvents.CHUNK_LOAD, chunk -> {
+		events.listen(GameWorldEvents.CHUNK_LOAD, (level, chunk) -> {
+			if (level != game.level()) {
+				return;
+			}
 			ChunkPos chunkPos = chunk.getPos();
 			if (pendingChunks.remove(chunkPos.pack()) && pendingChunks.isEmpty()) {
-				onRegionFullyLoaded(game, containerRegions);
+				onRegionFullyLoaded(game, level, containerRegions);
 			}
 		});
 	}
 
 
-	private void onRegionFullyLoaded(IGamePhase game, Collection<BlockBox> boxes) {
+	private void onRegionFullyLoaded(IGamePhase game, ServerLevel level, Collection<BlockBox> boxes) {
 		// Rushes dodgy code for filling the chests
 		boxes.forEach(containerRegion -> {
 			for (long chunk : containerRegion.asChunks()) {
-				LevelChunk levelChunk = game.level().getChunk(ChunkPos.getX(chunk), ChunkPos.getZ(chunk));
+				LevelChunk levelChunk = level.getChunk(ChunkPos.getX(chunk), ChunkPos.getZ(chunk));
 				for (BlockPos pos : levelChunk.getBlockEntitiesPos()) {
 					if(containerRegion.contains(pos)) {
 						if (levelChunk.getBlockEntity(pos) instanceof RandomizableContainer container) {

@@ -1,7 +1,6 @@
 package com.lovetropics.minigames.common.content.box_hunt;
 
 import com.google.common.collect.Lists;
-import com.lovetropics.lib.codec.MoreCodecs;
 import com.lovetropics.minigames.common.core.game.GameException;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
@@ -9,7 +8,6 @@ import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameWorldEvents;
 import com.lovetropics.minigames.common.core.game.player.PlayerSet;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeam;
-import com.lovetropics.minigames.common.core.game.state.team.GameTeamKey;
 import com.lovetropics.minigames.common.core.game.state.team.TeamState;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -39,7 +37,10 @@ public record UpdateWordBoxesInWorldBehaviour(
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		TeamState teams = game.instanceState().getOrThrow(TeamState.KEY);
-		events.listen(GameWorldEvents.CHUNK_LOAD, (chunk) -> {
+		events.listen(GameWorldEvents.CHUNK_LOAD, (level, chunk) -> {
+			if (level != game.level()) {
+				return;
+			}
 			GameTeam teamByKey = teams.getTeamByKey(teamKey);
 			if(teamByKey == null) {
 				throw new GameException(Component.literal("Bad team key!"));

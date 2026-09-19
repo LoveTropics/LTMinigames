@@ -16,9 +16,8 @@ public record DisableTntDestructionBehavior(BlockStatePredicate blockPredicate) 
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
-		events.listen(GameWorldEvents.EXPLOSION_DETONATE, (explosion, affectedBlocks, affectedEntities) -> {
-			ServerLevel world = game.level();
-			affectedBlocks.removeIf(pos -> blockPredicate.test(world.getBlockState(pos)));
+		events.listen(GameWorldEvents.EXPLOSION_DETONATE, (level, explosion, affectedBlocks, affectedEntities) -> {
+			affectedBlocks.removeIf(pos -> blockPredicate.test(level.getBlockState(pos)));
 		});
 	}
 }
