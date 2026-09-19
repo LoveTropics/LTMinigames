@@ -3,10 +3,10 @@ package com.lovetropics.minigames.common.core.game;
 import com.lovetropics.lib.slideshow.SlideshowApi;
 import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.util.LTGameTestFakePlayer;
+import com.lovetropics.minigames.common.util.duck.PrimaryLevelDataAccess;
 import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.protocol.game.ClientboundChangeDifficultyPacket;
 import net.minecraft.network.protocol.game.ClientboundGameEventPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
@@ -23,9 +23,8 @@ import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
-import net.minecraft.world.level.GameType;
-import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.level.storage.ValueInput;
@@ -36,7 +35,7 @@ import org.slf4j.Logger;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public final class PlayerIsolation {
 	public static final PlayerIsolation INSTANCE = new PlayerIsolation();
@@ -56,8 +55,7 @@ public final class PlayerIsolation {
 	/// Saves player data and then teleports them
 	public ServerPlayer teleportTo(final ServerPlayer player, final ServerLevel newLevel, final Vec3 position, final float yRot, final float xRot) {
 		final TransferableState transferableState = TransferableState.copyOf(player);
-		return reloadPlayer(player, (newPlayer, reporter) -> {
-			newPlayer.setServerLevel(newLevel);
+		return reloadPlayer(player, newLevel, newPlayer -> {
 			newPlayer.snapTo(position.x, position.y, position.z, yRot, xRot);
 			newPlayer.addTag(ISOLATED_TAG);
 			transferableState.restore(newPlayer);
@@ -72,124 +70,118 @@ public final class PlayerIsolation {
 		return player;
 	}
 
-	private ServerPlayer reloadPlayerFromDisk(final ServerPlayer player) {
-		return reloadPlayer(player, (newPlayer, reporter) -> {
-			final MinecraftServer server = player.level().getServer();
-			final PlayerList playerList = server.getPlayerList();
+	private ServerPlayer reloadPlayerFromDisk(ServerPlayer player) {
+		final MinecraftServer server = player.level().getServer();
+		final PlayerList playerList = server.getPlayerList();
+		final Optional<CompoundTag> playerTag = playerList.loadPlayerData(player.nameAndId());
 
-			final Optional<CompoundTag> playerTag = playerList.loadPlayerData(newPlayer.nameAndId());
+		try (ProblemReporter.ScopedCollector reporter = new ProblemReporter.ScopedCollector(player.problemPath(), LOGGER)) {
+			Optional<ValueInput> input = playerTag.map(tag -> TagValueInput.create(reporter, server.registryAccess(), tag));
 
-			playerTag.ifPresent(tag -> {
-				ValueInput input = TagValueInput.create(reporter, player.level().registryAccess(), tag);
-				newPlayer.load(input);
-			});
-
-			final ServerLevel newLevel = playerTag
-					.flatMap(input -> input.read(ServerPlayer.TAG_DIMENSION, Level.RESOURCE_KEY_CODEC))
+			ServerLevel newLevel = input.flatMap(i -> i.read(ServerPlayer.SavedPosition.MAP_CODEC))
+					.flatMap(ServerPlayer.SavedPosition::dimension)
 					.map(server::getLevel)
 					.orElse(server.overworld());
 
-			newPlayer.setServerLevel(newLevel);
-
-			playerTag.ifPresent(tag -> {
-				ValueInput input = TagValueInput.create(reporter, player.level().registryAccess(), tag);
-				input.read("playerGameType", GameType.LEGACY_ID_CODEC).ifPresent(newPlayer::setGameMode);
-
-			});
-		});
-	}
-
-	public ServerPlayer reloadPlayerFromTag(final CompoundTag tag, final ServerPlayer player) {
-		return reloadPlayer(player, (newPlayer, reporter) -> {
-			final ValueInput input = TagValueInput.create(reporter, player.level().registryAccess(), tag);
-
-			final MinecraftServer server = player.level().getServer();
-			final ServerLevel newLevel = input.read(ServerPlayer.TAG_DIMENSION, Level.RESOURCE_KEY_CODEC)
-					.map(server::getLevel)
-					.orElse(server.overworld());
-
-			newPlayer.setServerLevel(newLevel);
-
-			newPlayer.load(input);
-			input.read("playerGameType", GameType.LEGACY_ID_CODEC).ifPresent(newPlayer::setGameMode);
-			newPlayer.addTag(ISOLATED_TAG);
-		});
-	}
-
-	private ServerPlayer reloadPlayer(final ServerPlayer oldPlayer, final BiConsumer<ServerPlayer, ProblemReporter.ScopedCollector> initializer) {
-		try (ProblemReporter.ScopedCollector reporter = new ProblemReporter.ScopedCollector(oldPlayer.problemPath(), LOGGER)) {
-			if (oldPlayer instanceof LTGameTestFakePlayer) {
-				initializer.accept(oldPlayer, reporter);
-				return oldPlayer;
-			}
-
-			final MinecraftServer server = oldPlayer.level().getServer();
-			final PlayerList playerList = server.getPlayerList();
-
-			reloadingPlayers.add(oldPlayer.getUUID());
-			oldPlayer.addTag(RELOADING_TAG);
-
-			final ServerPlayer newPlayer = recreatePlayer(oldPlayer);
-			SlideshowApi.replacePlayer(oldPlayer, newPlayer);
-
-			EventHooks.firePlayerLoggedOut(oldPlayer);
-
-			// Only called once - when player enters the first game phase they enter
-			// this way, we only save to disk once
-			if (!isIsolated(oldPlayer)) {
-				((PlayerListAccess) playerList).ltminigames$save(oldPlayer);
-			}
-
-			oldPlayer.unRide();
-			oldPlayer.level().removePlayerImmediately(oldPlayer, Entity.RemovalReason.DISCARDED);
-			((PlayerListAccess) playerList).ltminigames$remove(oldPlayer);
-			((PlayerListAccess) playerList).ltminigames$firePlayerLoading(newPlayer);
-
-			initializer.accept(newPlayer, reporter);
-			newPlayer.addTag(RELOADING_TAG);
-			newPlayer.onUpdateAbilities();
-
-			final ServerLevel newLevel = newPlayer.level();
-			final LevelData levelData = newLevel.getLevelData();
-			newPlayer.connection.send(new ClientboundRespawnPacket(
-					newPlayer.createCommonSpawnInfo(newLevel),
-					(byte) 0
-			));
-			newPlayer.connection.teleport(newPlayer.getX(), newPlayer.getY(), newPlayer.getZ(), newPlayer.getYRot(), newPlayer.getXRot());
-			newPlayer.connection.send(new ClientboundSetDefaultSpawnPositionPacket(newLevel.getRespawnData()));
-			newPlayer.connection.send(new ClientboundChangeDifficultyPacket(levelData.getDifficulty(), levelData.isDifficultyLocked()));
-
-			sendGameRules(newPlayer, newLevel.getGameRules());
-
-			newLevel.addRespawnedPlayer(newPlayer);
-
-			playerList.sendPlayerPermissionLevel(newPlayer);
-			playerList.sendActivePlayerEffects(newPlayer);
-			playerList.sendLevelInfo(newPlayer, newLevel);
-			playerList.sendAllPlayerInfo(newPlayer);
-
-			newPlayer.initInventoryMenu();
-			newPlayer.setHealth(newPlayer.getHealth());
-			newPlayer.connection.send(new ClientboundSetHealthPacket(newPlayer.getHealth(), newPlayer.getFoodData().getFoodLevel(), newPlayer.getFoodData().getSaturationLevel()));
-			// It's not possible to specify to the client to drop its base attributes anymore - so just resync everything
-			resyncAttributes(oldPlayer, newPlayer);
-
-			((PlayerListAccess) playerList).ltminigames$add(newPlayer);
-
-			playerList.broadcastAll(new ClientboundPlayerInfoUpdatePacket(ClientboundPlayerInfoUpdatePacket.Action.UPDATE_GAME_MODE, newPlayer));
-
-			EventHooks.firePlayerLoggedIn(newPlayer);
-			final ResourceKey<Level> oldDimension = oldPlayer.level().dimension();
-			final ResourceKey<Level> newDimension = newLevel.dimension();
-			if (oldDimension != newDimension) {
-				EventHooks.firePlayerChangedDimensionEvent(newPlayer, oldDimension, newDimension);
-			}
-
-			newPlayer.removeTag(RELOADING_TAG);
-			reloadingPlayers.remove(oldPlayer.getUUID());
-
-			return newPlayer;
+			return reloadPlayer(player, newLevel, newPlayer ->
+					input.ifPresent(newPlayer::load)
+			);
 		}
+	}
+
+	public ServerPlayer reloadPlayerFromTag(CompoundTag tag, ServerPlayer player) {
+		MinecraftServer server = player.level().getServer();
+
+		try (ProblemReporter.ScopedCollector reporter = new ProblemReporter.ScopedCollector(player.problemPath(), LOGGER)) {
+			ValueInput input = TagValueInput.create(reporter, server.registryAccess(), tag);
+
+			ServerLevel newLevel = input.read(ServerPlayer.SavedPosition.MAP_CODEC)
+					.flatMap(ServerPlayer.SavedPosition::dimension)
+					.map(server::getLevel)
+					.orElse(server.overworld());
+
+			return reloadPlayer(player, newLevel, newPlayer -> {
+				newPlayer.load(input);
+				newPlayer.addTag(ISOLATED_TAG);
+			});
+		}
+	}
+
+	private ServerPlayer reloadPlayer(ServerPlayer oldPlayer, ServerLevel newLevel, Consumer<ServerPlayer> initializer) {
+		if (oldPlayer instanceof LTGameTestFakePlayer) {
+			initializer.accept(oldPlayer);
+			return oldPlayer;
+		}
+
+		MinecraftServer server = oldPlayer.level().getServer();
+		PlayerList playerList = server.getPlayerList();
+
+		reloadingPlayers.add(oldPlayer.getUUID());
+		oldPlayer.addTag(RELOADING_TAG);
+
+		final ServerPlayer newPlayer = recreatePlayer(oldPlayer, newLevel);
+		SlideshowApi.replacePlayer(oldPlayer, newPlayer);
+
+		EventHooks.firePlayerLoggedOut(oldPlayer);
+
+		// Only called once - when player enters the first game phase they enter
+		// this way, we only save to disk once
+		if (!isIsolated(oldPlayer)) {
+			((PlayerListAccess) playerList).ltminigames$save(oldPlayer);
+			// Usually we don't save+load in singleplayer within a single session, so the last singleplayer ID would only get updated upon saving
+			if (server.isSingleplayerOwner(oldPlayer.nameAndId()) && server.getWorldData() instanceof PrimaryLevelDataAccess levelData) {
+				levelData.ltminigames$setSinglePlayerUUID(oldPlayer.getUUID());
+			}
+		}
+
+		oldPlayer.unRide();
+		oldPlayer.level().removePlayerImmediately(oldPlayer, Entity.RemovalReason.DISCARDED);
+		((PlayerListAccess) playerList).ltminigames$remove(oldPlayer);
+		((PlayerListAccess) playerList).ltminigames$firePlayerLoading(newPlayer);
+
+		initializer.accept(newPlayer);
+		newPlayer.addTag(RELOADING_TAG);
+		newPlayer.onUpdateAbilities();
+
+		final LevelData levelData = newLevel.getLevelData();
+		newPlayer.connection.send(new ClientboundRespawnPacket(
+				newPlayer.createCommonSpawnInfo(newLevel),
+				(byte) 0
+		));
+		newPlayer.connection.teleport(newPlayer.getX(), newPlayer.getY(), newPlayer.getZ(), newPlayer.getYRot(), newPlayer.getXRot());
+		newPlayer.connection.send(new ClientboundSetDefaultSpawnPositionPacket(newLevel.getRespawnData()));
+		newPlayer.connection.send(new ClientboundChangeDifficultyPacket(levelData.getDifficulty(), levelData.isDifficultyLocked()));
+
+		sendGameRules(newPlayer, newLevel.getGameRules());
+
+		newLevel.addRespawnedPlayer(newPlayer);
+
+		playerList.sendPlayerPermissionLevel(newPlayer);
+		playerList.sendActivePlayerEffects(newPlayer);
+		playerList.sendLevelInfo(newPlayer, newLevel);
+		playerList.sendAllPlayerInfo(newPlayer);
+
+		newPlayer.initInventoryMenu();
+		newPlayer.setHealth(newPlayer.getHealth());
+		newPlayer.connection.send(new ClientboundSetHealthPacket(newPlayer.getHealth(), newPlayer.getFoodData().getFoodLevel(), newPlayer.getFoodData().getSaturationLevel()));
+		// It's not possible to specify to the client to drop its base attributes anymore - so just resync everything
+		resyncAttributes(oldPlayer, newPlayer);
+
+		((PlayerListAccess) playerList).ltminigames$add(newPlayer);
+
+		playerList.broadcastAll(new ClientboundPlayerInfoUpdatePacket(ClientboundPlayerInfoUpdatePacket.Action.UPDATE_GAME_MODE, newPlayer));
+
+		EventHooks.firePlayerLoggedIn(newPlayer);
+		final ResourceKey<Level> oldDimension = oldPlayer.level().dimension();
+		final ResourceKey<Level> newDimension = newLevel.dimension();
+		if (oldDimension != newDimension) {
+			EventHooks.firePlayerChangedDimensionEvent(newPlayer, oldDimension, newDimension);
+		}
+
+		newPlayer.removeTag(RELOADING_TAG);
+		reloadingPlayers.remove(oldPlayer.getUUID());
+
+		return newPlayer;
 	}
 
 	private static void resyncAttributes(ServerPlayer oldPlayer, ServerPlayer newPlayer) {
@@ -205,8 +197,8 @@ public final class PlayerIsolation {
 		newAttributes.getAttributesToSync().clear();
 	}
 
-	private static ServerPlayer recreatePlayer(final ServerPlayer oldPlayer) {
-		final ServerPlayer newPlayer = new ServerPlayer(oldPlayer.level().getServer(), oldPlayer.level(), oldPlayer.getGameProfile(), oldPlayer.clientInformation());
+	private static ServerPlayer recreatePlayer(ServerPlayer oldPlayer, ServerLevel newLevel) {
+		ServerPlayer newPlayer = new ServerPlayer(oldPlayer.level().getServer(), newLevel, oldPlayer.getGameProfile(), oldPlayer.clientInformation());
 		newPlayer.connection = oldPlayer.connection;
 		newPlayer.connection.player = newPlayer;
 		newPlayer.setId(oldPlayer.getId());

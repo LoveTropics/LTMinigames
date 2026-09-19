@@ -3,16 +3,12 @@ package com.lovetropics.minigames.mixin;
 import com.lovetropics.minigames.common.core.game.PlayerIsolation;
 import com.lovetropics.minigames.common.core.game.PlayerListAccess;
 import com.lovetropics.minigames.common.core.game.impl.GameLobbyManager;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.PlayerList;
-import net.minecraft.world.level.storage.PlayerDataStorage;
 import net.neoforged.neoforge.event.EventHooks;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
@@ -26,24 +22,13 @@ import java.util.UUID;
 public abstract class PlayerListMixin implements PlayerListAccess {
 	@Shadow
 	@Final
-	private MinecraftServer server;
-	@Shadow
-	@Final
 	private List<ServerPlayer> players;
 	@Shadow
 	@Final
 	private Map<UUID, ServerPlayer> playersByUUID;
-	@Shadow
-	@Final
-	private PlayerDataStorage playerIo;
 
 	@Shadow
 	protected abstract void save(ServerPlayer player);
-
-	// Todo 26.1 Port
-//	@Shadow
-//	@Nullable
-//	public abstract CompoundTag getSingleplayerData();
 
 	@Inject(method = "save", at = @At("HEAD"), cancellable = true)
 	private void save(final ServerPlayer player, final CallbackInfo ci) {
@@ -55,25 +40,6 @@ public abstract class PlayerListMixin implements PlayerListAccess {
 	@Override
 	public void ltminigames$save(ServerPlayer player) {
 		save(player);
-
-		// Todo 26.1 Port
-		// We usually don't load the singleplayer player multiple times, so we need to overwrite this value with what we serialised
-//		if (server.isSingleplayerOwner(player.nameAndId())) {
-//			CompoundTag loadedPlayerTag = server.getWorldData().getLoadedPlayerTag();
-//			CompoundTag singleplayerData = getSingleplayerData();
-//			if (loadedPlayerTag != null && singleplayerData != null) {
-//				ltminigames$clear(loadedPlayerTag);
-//				loadedPlayerTag.merge(singleplayerData);
-//			}
-//		}
-	}
-
-	@Unique
-	private static void ltminigames$clear(CompoundTag tag) {
-		// We have clear() at home
-		for (String key : List.copyOf(tag.keySet())) {
-			tag.remove(key);
-		}
 	}
 
 	@Override
