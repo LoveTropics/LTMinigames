@@ -26,8 +26,9 @@ import com.lovetropics.minigames.common.content.connect4.ConnectFour;
 import com.lovetropics.minigames.common.content.connect4.ConnectFourTexts;
 import com.lovetropics.minigames.common.content.crafting_bee.CraftingBee;
 import com.lovetropics.minigames.common.content.crafting_bee.CraftingBeeTexts;
-import com.lovetropics.minigames.common.content.dance_off.DanceOff;
+import com.lovetropics.minigames.common.content.drr_showdown.DDRShowdown;
 import com.lovetropics.minigames.common.content.de_a_coudre.DeACoudre;
+import com.lovetropics.minigames.common.content.drr_showdown.DDRShowdownTexts;
 import com.lovetropics.minigames.common.content.escape_race.EscapeRace;
 import com.lovetropics.minigames.common.content.escape_race.EscapeRaceParticles;
 import com.lovetropics.minigames.common.content.escape_race.EscapeRaceTexts;
@@ -178,6 +179,7 @@ public class LoveTropics {
 			GameDataAccessor.KEYS.forEach(consumer);
 			KeybindsTexts.collectTranslations(consumer);
 			EscapeRaceTexts.collectTranslations(consumer);
+			DDRShowdownTexts.KEYS.forEach(consumer);
 		});
 
 		registrate.generic(TAB_ID.getPath(), Registries.CREATIVE_MODE_TAB, () -> CreativeModeTab.builder()
@@ -228,7 +230,7 @@ public class LoveTropics {
 		PaintParty.init();
 		SpeedCarbGolf.init();
 		EscapeRace.init();
-		DanceOff.init();
+		DDRShowdown.init();
 
 		DriftwoodRider.ATTACHMENT_TYPES.register(modBus);
 		ChatChannelStore.ATTACHMENT_TYPES.register(modBus);

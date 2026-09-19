@@ -1,15 +1,15 @@
-package com.lovetropics.minigames.common.content.dance_off;
+package com.lovetropics.minigames.common.content.drr_showdown;
 
 import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.util.registry.GameBehaviorEntry;
 import com.lovetropics.minigames.common.util.registry.LoveTropicsRegistrate;
 
-public class DanceOff {
+public class DDRShowdown {
 
 	private static final LoveTropicsRegistrate REGISTRATE = LoveTropics.registrate();
 
-	public static final GameBehaviorEntry<DanceOffBehavior> DANCE_OFF = REGISTRATE.object("dance_off")
-			.behavior(DanceOffBehavior.CODEC)
+	public static final GameBehaviorEntry<DDRShowdownBehavior> DDR_SHOWDOWN = REGISTRATE.object("ddr_showdown")
+			.behavior(DDRShowdownBehavior.CODEC)
 			.register();
 
 

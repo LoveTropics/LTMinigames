@@ -89,6 +89,9 @@ public final class StatisticKey<T> {
 	public static final StatisticKey<Integer> MISSED_TRASH = ofInt("missed_trash").displays(unit("missed"));
 	public static final StatisticKey<Integer> WRONG_BIN = ofInt("wrong_bin").displays(unit("wrong bin"));
 
+	// DDR Showdown
+	public static final StatisticKey<Integer> DDR_SCORE = ofInt("ddr_score").displays(unit("points"));
+
 	private final Class<T> type;
 	private final String key;
 	private final Codec<T> valueCodec;

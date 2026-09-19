@@ -460,4 +460,11 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 		return this.getState() == DDRMachineState.PLAYING || !shouldDisplayLevels();
 	}
 
+	public int getCurrentScore() {
+		if (serverSession != null) {
+			return serverSession.getCurrentLevelScore();
+		}
+		return 0;
+	}
+
 }

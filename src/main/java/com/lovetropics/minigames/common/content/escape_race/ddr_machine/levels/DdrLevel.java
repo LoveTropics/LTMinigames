@@ -73,8 +73,8 @@ public record DdrLevel(
 		return track.value().lengthInTicks();
 	}
 
-	public long lastRecordedTick() {
-		return inputs.stream().mapToLong(TimedDdrInput::tick).max().orElse(this.lengthInTicks());
+	public int lastRecordedTick() {
+		return Math.toIntExact(inputs.stream().mapToLong(TimedDdrInput::tick).max().orElse(this.lengthInTicks()));
 	}
 
 	public static Path pathFor(Identifier id) {
