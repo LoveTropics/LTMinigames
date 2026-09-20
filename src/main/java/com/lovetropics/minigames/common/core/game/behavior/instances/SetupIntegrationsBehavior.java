@@ -11,15 +11,23 @@ import com.lovetropics.minigames.common.core.game.state.GameStateMap;
 import com.lovetropics.minigames.common.core.game.util.GameTexts;
 import com.lovetropics.minigames.common.core.integration.BackendIntegrations;
 import com.lovetropics.minigames.common.core.integration.GameInstanceIntegrations;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 
-import org.jspecify.annotations.Nullable;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.resources.Identifier;
+
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public final class SetupIntegrationsBehavior implements IGameBehavior {
-	public static final MapCodec<SetupIntegrationsBehavior> CODEC = MapCodec.unit(SetupIntegrationsBehavior::new);
-
-	private @Nullable GameInstanceIntegrations integrations;
+public record SetupIntegrationsBehavior(
+		Optional<Identifier> backendId,
+		Optional<String> statisticsKey
+) implements IGameBehavior {
+	public static final MapCodec<SetupIntegrationsBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+			Identifier.CODEC.optionalFieldOf("backend_id").forGetter(SetupIntegrationsBehavior::backendId),
+			Codec.STRING.optionalFieldOf("statistics_key").forGetter(SetupIntegrationsBehavior::statisticsKey)
+	).apply(i, SetupIntegrationsBehavior::new));
 
 	// TODO: we could potentially have state entries & the IGamePhase come through the constructor with codec hacks
 	@Override
@@ -28,12 +36,15 @@ public final class SetupIntegrationsBehavior implements IGameBehavior {
 			if (!BackendIntegrations.get().isConnected()) {
 				throw new GameException(GameTexts.Status.integrationsNotConnected());
 			}
-			integrations = BackendIntegrations.get().getOrOpen(instanceState, game);
+			Identifier backendId = this.backendId.orElse(game.definition().id());
+			String statisticsKey = this.statisticsKey.orElse(game.definition().id().getPath());
+			BackendIntegrations.get().open(instanceState, game, backendId, statisticsKey);
 		}
 	}
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
+		GameInstanceIntegrations integrations = game.instanceState().getOrNull(GameInstanceIntegrations.KEY);
 		if (integrations == null) {
 			return;
 		}

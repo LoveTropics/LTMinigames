@@ -12,6 +12,7 @@ import com.lovetropics.minigames.common.core.game.state.GameStateMap;
 import com.lovetropics.minigames.common.core.integration.game_actions.GameActionType;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ExtraCodecs;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -131,10 +132,8 @@ public final class BackendIntegrations {
 		}
 	}
 
-	public GameInstanceIntegrations getOrOpen(GameStateMap instanceState, IGamePhase game) {
-		GameInstanceIntegrations instance = instanceState.getOrRegister(GameInstanceIntegrations.KEY, new GameInstanceIntegrations(game, this));
-		liveInstance = instance;
-		return instance;
+	public void open(GameStateMap instanceState, IGamePhase game, Identifier backendId, String statisticsKey) {
+		liveInstance = instanceState.getOrRegister(GameInstanceIntegrations.KEY, new GameInstanceIntegrations(game, backendId, statisticsKey, this));
 	}
 
 	private void schedulePost(Function<ScheduledExecutorService, CompletableFuture<?>> futureSupplier) {

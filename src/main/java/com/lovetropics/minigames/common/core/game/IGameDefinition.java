@@ -17,18 +17,6 @@ public interface IGameDefinition {
 	/// @return The identifier for this minigame definition.
 	Identifier id();
 
-	default Identifier backendId() {
-		return id();
-	}
-
-	/// An identifier for telemetry usage, so that variants of games can share
-	/// statistics. Defaults to the ID if not set in the JSON.
-	///
-	/// @return The statistics key for this minigame.
-	default String statisticsKey() {
-		return id().getPath();
-	}
-
 	Component name();
 
 	default @Nullable Component subtitle() {

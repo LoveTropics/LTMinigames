@@ -19,8 +19,6 @@ import java.util.function.UnaryOperator;
 
 public class GameBuilder {
 	private final Identifier id;
-	private @Nullable Identifier backendId;
-	private @Nullable String statisticsKey;
 	private @Nullable Component name;
 	private @Nullable Component subtitle;
 	private @Nullable Identifier icon;
@@ -32,19 +30,7 @@ public class GameBuilder {
 
 	public GameBuilder(Identifier id) {
 		this.id = id;
-		backendId = id;
-		statisticsKey = id.getPath();
 		name = Component.literal(id.toString());
-	}
-
-	public GameBuilder setBackendId(Identifier backendId) {
-		this.backendId = backendId;
-		return this;
-	}
-
-	public GameBuilder setStatisticsKey(String statisticsKey) {
-		this.statisticsKey = statisticsKey;
-		return this;
 	}
 
 	public GameBuilder setName(Component name) {
@@ -89,7 +75,7 @@ public class GameBuilder {
 
 	public GameConfig build() {
 		Objects.requireNonNull(playing, "Playing phase must be initialized");
-		return new GameConfig(id, backendId, statisticsKey, name, subtitle, icon, maximumParticipants, introSlideshow, waiting, playing, hideFromList);
+		return new GameConfig(id, name, subtitle, icon, maximumParticipants, introSlideshow, waiting, playing, hideFromList);
 	}
 
 	public static final class PhaseBuilder {

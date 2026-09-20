@@ -14,8 +14,6 @@ import java.util.Optional;
 /// Stores data-driven info about a minigame
 public record GameConfig(
 		Identifier id,
-		Identifier backendId,
-		String statisticsKey,
 		Component name,
 		@Nullable Component subtitle,
 		@Nullable Identifier icon,
@@ -27,8 +25,6 @@ public record GameConfig(
 ) implements IGameDefinition {
 	public static Codec<GameConfig> codec(Identifier id) {
 		return RecordCodecBuilder.create(i -> i.group(
-				Identifier.CODEC.optionalFieldOf("backend_id").forGetter(c -> Optional.of(c.backendId)),
-				Codec.STRING.optionalFieldOf("statistics_key").forGetter(c -> Optional.of(c.statisticsKey)),
 				ComponentSerialization.CODEC.fieldOf("name").forGetter(c -> c.name),
 				ComponentSerialization.CODEC.optionalFieldOf("subtitle").forGetter(c -> Optional.ofNullable(c.subtitle)),
 				Identifier.CODEC.optionalFieldOf("icon").forGetter(c -> Optional.ofNullable(c.icon)),
@@ -37,14 +33,12 @@ public record GameConfig(
 				GamePhaseConfig.CODEC.optionalFieldOf("waiting").forGetter(c -> Optional.ofNullable(c.waiting)),
 				GamePhaseConfig.MAP_CODEC.forGetter(c -> c.playing),
 				Codec.BOOL.optionalFieldOf("hide_from_list", false).forGetter(c -> c.hideFromList)
-		).apply(i, (backendIdOpt, statisticsKeyOpt, name, subtitleOpt, iconOpt, maximumParticipants, introSlideshowOpt, waitingOpt, active, hideFromList) -> {
-			Identifier backendId = backendIdOpt.orElse(id);
-			String statisticsKey = statisticsKeyOpt.orElse(id.getPath());
+		).apply(i, (name, subtitleOpt, iconOpt, maximumParticipants, introSlideshowOpt, waitingOpt, active, hideFromList) -> {
 			Component subtitle = subtitleOpt.orElse(null);
 			Identifier icon = iconOpt.orElse(null);
 			Identifier introSlideshow = introSlideshowOpt.orElse(null);
 			GamePhaseConfig waiting = waitingOpt.orElse(null);
-			return new GameConfig(id, backendId, statisticsKey, name, subtitle, icon, maximumParticipants, introSlideshow, waiting, active, hideFromList);
+			return new GameConfig(id, name, subtitle, icon, maximumParticipants, introSlideshow, waiting, active, hideFromList);
 		}));
 	}
 

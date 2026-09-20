@@ -28,6 +28,7 @@ import com.mojang.serialization.JsonOps;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 
 import org.jspecify.annotations.Nullable;
@@ -50,6 +51,8 @@ public final class GameInstanceIntegrations implements IGameState {
 	private final UUID gameUuid = UUID.randomUUID();
 
 	private final IGamePhase topLevelGame;
+	private final Identifier backendId;
+	private final String statisticsKey;
 	private final List<IGamePhase> allGames = new ArrayList<>();
 
 	private final BackendIntegrations integrations;
@@ -58,8 +61,10 @@ public final class GameInstanceIntegrations implements IGameState {
 
 	private boolean closed;
 
-	public GameInstanceIntegrations(IGamePhase topLevelGame, BackendIntegrations integrations) {
+	public GameInstanceIntegrations(IGamePhase topLevelGame, Identifier backendId, String statisticsKey, BackendIntegrations integrations) {
 		this.topLevelGame = topLevelGame;
+		this.backendId = backendId;
+		this.statisticsKey = statisticsKey;
 		this.integrations = integrations;
 		actions = new GameActionHandler(this);
 
@@ -233,8 +238,8 @@ public final class GameInstanceIntegrations implements IGameState {
 
 		IGameDefinition definition = topLevelGame.definition();
 		JsonObject game = new JsonObject();
-		game.addProperty("id", definition.backendId().toString());
-		game.addProperty("telemetry_key", definition.statisticsKey());
+		game.addProperty("id", backendId.toString());
+		game.addProperty("telemetry_key", statisticsKey);
 		game.addProperty("name", definition.name().getString());
 		payload.add("minigame", game);
 
