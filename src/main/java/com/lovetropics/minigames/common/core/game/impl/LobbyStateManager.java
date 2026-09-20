@@ -1,7 +1,6 @@
 package com.lovetropics.minigames.common.core.game.impl;
 
 import com.lovetropics.minigames.client.lobby.state.ClientCurrentGame;
-import com.lovetropics.minigames.common.core.game.IGameDefinition;
 import com.lovetropics.minigames.common.core.game.lobby.LobbyControls;
 import com.mojang.logging.LogUtils;
 import net.minecraft.network.chat.Component;
@@ -59,8 +58,7 @@ final class LobbyStateManager {
 		LOGGER.error("Encountered lobby error, pausing: {}", error.getString()); // Todo The main error message that causes this does not seem to passed to here currently
 		GamePhase phase = state.phase;
 		if (phase != null) {
-			IGameDefinition definition = phase.definition();
-			return new LobbyState.Errored(definition, error);
+			return new LobbyState.Errored(phase.config(), error);
 		} else {
 			return new LobbyState.Paused();
 		}

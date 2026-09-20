@@ -4,7 +4,7 @@ import com.lovetropics.minigames.client.lobby.manage.ClientManageLobbyMessage;
 import com.lovetropics.minigames.client.lobby.manage.state.update.ClientLobbyUpdate;
 import com.lovetropics.minigames.client.lobby.state.ClientCurrentGame;
 import com.lovetropics.minigames.client.lobby.state.ClientGameDefinition;
-import com.lovetropics.minigames.common.core.game.IGameDefinition;
+import com.lovetropics.minigames.common.core.game.config.GameConfig;
 import com.lovetropics.minigames.common.core.game.lobby.LobbyControls;
 import com.lovetropics.minigames.common.core.game.lobby.LobbyVisibility;
 import com.lovetropics.minigames.common.core.game.lobby.QueuedGame;
@@ -14,8 +14,8 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.PacketDistributor;
-
 import org.jspecify.annotations.Nullable;
+
 import java.util.function.UnaryOperator;
 
 public final class LobbyManagement {
@@ -76,7 +76,7 @@ public final class LobbyManagement {
 		sendUpdates(updates -> updates.setName(name));
 	}
 
-	public void enqueueGame(IGameDefinition game) {
+	public void enqueueGame(GameConfig game) {
 		QueuedGame queued = lobby.gameQueue.enqueue(game);
 		sendUpdates(updates -> updates.updateQueue(lobby.getGameQueue(), queued.networkId()));
 	}
@@ -103,7 +103,7 @@ public final class LobbyManagement {
 		// TODO: This shouldn't be here!
 		GamePhase topPhase = lobby.state.getTopPhase();
 		if (topPhase != null && type == LobbyControls.Type.RESTART) {
-			QueuedGame queuedGame = lobby.gameQueue.enqueue(topPhase.definition());
+			QueuedGame queuedGame = lobby.gameQueue.enqueue(topPhase.config());
 			reorderQueuedGame(queuedGame.networkId(), 0);
 		}
 		if (action != null) {

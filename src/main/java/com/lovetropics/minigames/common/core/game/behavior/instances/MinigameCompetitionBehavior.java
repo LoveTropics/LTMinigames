@@ -77,7 +77,7 @@ public final class MinigameCompetitionBehavior implements IGameBehavior {
 
 		subGames.queueAll(initialQueue);
 
-		int maxParticipants = topGame.definition().getMaximumParticipantCount();
+		int maxParticipants = topGame.definition().maximumParticipants();
 		events.listen(GamePlayerEvents.SELECT_ROLE_ON_JOIN, (player, requestedRole) -> {
 			if (participantsLocked || requestedRole != PlayerRole.PARTICIPANT) {
 				// Pass through to JoinLateWithRoleBehavior

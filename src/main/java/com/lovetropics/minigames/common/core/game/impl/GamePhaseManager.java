@@ -2,10 +2,10 @@ package com.lovetropics.minigames.common.core.game.impl;
 
 import com.lovetropics.minigames.LoveTropics;
 import com.lovetropics.minigames.common.core.game.GameException;
-import com.lovetropics.minigames.common.core.game.IGameDefinition;
 import com.lovetropics.minigames.common.core.game.IGameLookup;
-import com.lovetropics.minigames.common.core.game.IGamePhaseDefinition;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
+import com.lovetropics.minigames.common.core.game.config.GameConfig;
+import com.lovetropics.minigames.common.core.game.config.GamePhaseConfig;
 import com.lovetropics.minigames.common.core.game.map.GameMap;
 import com.lovetropics.minigames.common.core.game.map.IGameMapProvider;
 import com.lovetropics.minigames.common.core.game.util.GameTexts;
@@ -21,8 +21,8 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
-
 import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -44,29 +44,29 @@ public class GamePhaseManager implements IGameLookup {
 		return INSTANCE;
 	}
 
-	public CompletableFuture<GamePhase> createTopPhase(GameInstance game, IGamePhaseDefinition phaseDefinition) {
-		return createPhase(game, null, game.definition(), phaseDefinition);
+	public CompletableFuture<GamePhase> createTopPhase(GameInstance game, GamePhaseConfig phaseDefinition) {
+		return createPhase(game, null, game.config(), phaseDefinition);
 	}
 
-	public CompletableFuture<GamePhase> createSubPhase(GamePhase parentPhase, IGameDefinition subGameDefinition) {
-		return createPhase(parentPhase.game, parentPhase, subGameDefinition, subGameDefinition.getPlayingPhase());
+	public CompletableFuture<GamePhase> createSubPhase(GamePhase parentPhase, GameConfig subGameDefinition) {
+		return createPhase(parentPhase.game, parentPhase, subGameDefinition, subGameDefinition.playing());
 	}
 
-	private CompletableFuture<GamePhase> createPhase(GameInstance game, @Nullable GamePhase parentPhase, IGameDefinition definition, IGamePhaseDefinition phaseDefinition) {
+	private CompletableFuture<GamePhase> createPhase(GameInstance game, @Nullable GamePhase parentPhase, GameConfig config, GamePhaseConfig phaseDefinition) {
 		try {
 			checkCanAddGamePhase(phaseDefinition);
 		} catch (GameException e) {
 			return CompletableFuture.failedFuture(e);
 		}
 
-		CompletableFuture<GameMap> mapFuture = phaseDefinition.getMap().open(game.server());
+		CompletableFuture<GameMap> mapFuture = phaseDefinition.map().open(game.server());
 
 		IGameBehavior behavior = phaseDefinition.createBehavior();
 
 		return mapFuture
 				.thenApplyAsync(map -> {
 					// TODO: Rather have the async CompletableFuture part only prepare the map - create the GamePhase only from the outside
-					GamePhase phase = new GamePhase(game, parentPhase, map, definition, behavior);
+					GamePhase phase = new GamePhase(game, parentPhase, map, config, behavior);
 					queuedGames.add(phase);
 					return phase;
 				}, game.server())
@@ -79,8 +79,8 @@ public class GamePhaseManager implements IGameLookup {
 				});
 	}
 
-	void checkCanAddGamePhase(IGamePhaseDefinition definition) throws GameException {
-		IGameMapProvider map = definition.getMap();
+	void checkCanAddGamePhase(GamePhaseConfig definition) throws GameException {
+		IGameMapProvider map = definition.map();
 		for (ResourceKey<Level> dimension : map.getPossibleDimensions()) {
 			List<GamePhase> games = gamesByDimension.getOrDefault(dimension, Collections.emptyList());
 			if (!games.isEmpty()) {

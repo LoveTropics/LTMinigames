@@ -9,6 +9,7 @@ import com.lovetropics.minigames.client.lobby.state.message.LobbyUpdateMessage;
 import com.lovetropics.minigames.common.core.game.GameResult;
 import com.lovetropics.minigames.common.core.game.IGameDefinition;
 import com.lovetropics.minigames.common.core.game.PlayerIsolation;
+import com.lovetropics.minigames.common.core.game.config.GameConfig;
 import com.lovetropics.minigames.common.core.game.lobby.GameLobbyMetadata;
 import com.lovetropics.minigames.common.core.game.lobby.LobbyControls;
 import com.lovetropics.minigames.common.core.game.lobby.LobbyStateListener;
@@ -194,8 +195,8 @@ public final class GameLobby {
 	}
 
 	private void onGameInstanceStart(GameInstance game) {
-		IGameDefinition definition = game.definition();
-		if (definition.getWaitingPhase().isPresent() && needsRolePrompt) {
+		GameConfig config = game.config();
+		if (config.waiting() != null && needsRolePrompt) {
 			PlayerRoleSelections roleSelections = players.getRoleSelections();
 			roleSelections.clearAndPromptAll(players);
 		}

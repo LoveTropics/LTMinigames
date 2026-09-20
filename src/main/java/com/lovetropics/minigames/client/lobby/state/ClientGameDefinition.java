@@ -1,14 +1,14 @@
 package com.lovetropics.minigames.client.lobby.state;
 
-import com.lovetropics.minigames.common.core.game.IGameDefinition;
+import com.lovetropics.minigames.common.core.game.config.GameConfig;
 import com.lovetropics.minigames.common.core.game.config.GameConfigs;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
-
 import org.jspecify.annotations.Nullable;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,13 +28,13 @@ public record ClientGameDefinition(
 				.collect(Collectors.toList());
 	}
 
-	public static ClientGameDefinition from(IGameDefinition definition) {
+	public static ClientGameDefinition from(GameConfig config) {
 		return new ClientGameDefinition(
-				definition.id(),
-				definition.name(),
-				definition.subtitle(),
-				definition.icon(),
-				definition.getMaximumParticipantCount()
+				config.id(),
+				config.name(),
+				config.subtitle(),
+				config.icon(),
+				config.maximumParticipants()
 		);
 	}
 

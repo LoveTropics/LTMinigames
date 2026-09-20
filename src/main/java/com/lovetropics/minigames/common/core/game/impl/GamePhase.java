@@ -16,6 +16,7 @@ import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePlayerEvents;
 import com.lovetropics.minigames.common.core.game.behavior.event.SubGameEvents;
 import com.lovetropics.minigames.common.core.game.command.GameCommandSet;
+import com.lovetropics.minigames.common.core.game.config.GameConfig;
 import com.lovetropics.minigames.common.core.game.map.GameMap;
 import com.lovetropics.minigames.common.core.game.player.MutablePlayerSet;
 import com.lovetropics.minigames.common.core.game.player.PlayerIterable;
@@ -58,8 +59,7 @@ public class GamePhase implements IGamePhase {
 	private static final Logger LOGGER = LogUtils.getLogger();
 
 	/* package-private */ final GameInstance game;
-	// TODO: Narrow the data that we need to expose from this
-	private final IGameDefinition definition;
+	private final GameConfig config;
 	private final @Nullable GamePhase parentPhase;
 
 	private final ServerLevel level;
@@ -87,10 +87,10 @@ public class GamePhase implements IGamePhase {
 	private @Nullable GameStopReason stopReason;
 	private boolean destroyed;
 
-	/* package-private */ GamePhase(GameInstance game, @Nullable GamePhase parentPhase, GameMap map, IGameDefinition definition, IGameBehavior behavior) {
+	/* package-private */ GamePhase(GameInstance game, @Nullable GamePhase parentPhase, GameMap map, GameConfig config, IGameBehavior behavior) {
 		this.game = game;
 		this.parentPhase = parentPhase;
-		this.definition = definition;
+		this.config = config;
 
 		// TODO: Don't do that :(
 		focusedLive = game.lobby().metadata.visibility().isFocusedLive();
@@ -113,7 +113,7 @@ public class GamePhase implements IGamePhase {
 		behavior.register(this, events);
 		invoker(GamePhaseEvents.CREATE).create();
 
-		Identifier introSlideshow = definition().introSlideshow();
+		Identifier introSlideshow = config.introSlideshow();
 		if (introSlideshow != null) {
 			events.listen(GamePlayerEvents.JOIN, player ->
 					SlideshowApi.preload(player, introSlideshow)
@@ -122,7 +122,7 @@ public class GamePhase implements IGamePhase {
 	}
 
 	public void assignRolesFrom(TeamAllocator<PlayerRole, PlayerKey> roleAllocator) {
-		roleAllocator.setSizeForTeam(PlayerRole.PARTICIPANT, definition().getMaximumParticipantCount());
+		roleAllocator.setSizeForTeam(PlayerRole.PARTICIPANT, definition().maximumParticipants());
 		invoker(GamePlayerEvents.ALLOCATE_ROLES).onAllocateRoles(roleAllocator);
 
 		roleAllocator.allocate(this::setPlayerRole);
@@ -359,7 +359,7 @@ public class GamePhase implements IGamePhase {
 		if (isStopped()) {
 			throw new IllegalStateException("Cannot create sub-phase for stopped game");
 		}
-		CompletableFuture<GamePhase> future = GamePhaseManager.get().createSubPhase(this, subGameConfig);
+		CompletableFuture<GamePhase> future = GamePhaseManager.get().createSubPhase(this, (GameConfig) subGameConfig);
 		PendingSubPhaseImpl pendingPhase = new PendingSubPhaseImpl(future, server());
 		pendingSubPhases.add(pendingPhase);
 		return pendingPhase;
@@ -383,9 +383,13 @@ public class GamePhase implements IGamePhase {
 		return allPlayers;
 	}
 
+	public GameConfig config() {
+		return config;
+	}
+
 	@Override
 	public IGameDefinition definition() {
-		return definition;
+		return config;
 	}
 
 	@Override

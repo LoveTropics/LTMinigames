@@ -1,12 +1,11 @@
 package com.lovetropics.minigames.common.core.game.impl;
 
-import com.lovetropics.minigames.common.core.game.IGameDefinition;
 import com.lovetropics.minigames.common.core.game.config.GameConfig;
 import com.lovetropics.minigames.common.core.game.lobby.QueuedGame;
 import com.lovetropics.minigames.common.dev.DevQuickPlay;
 import net.minecraft.util.Mth;
-
 import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -25,7 +24,7 @@ public final class LobbyGameQueue implements Iterable<QueuedGame> {
 		return null;
 	}
 
-	public QueuedGame enqueue(IGameDefinition game) {
+	public QueuedGame enqueue(GameConfig game) {
 		QueuedGame entry = QueuedGame.create(game);
 		entries.add(entry);
 		return entry;

@@ -42,7 +42,7 @@ public final class ClientLobbyQueue implements Iterable<ClientLobbyQueuedGame> {
 
 	private ClientLobbyQueuedGame byIdOrThrow(int key) {
 		ClientLobbyQueuedGame game = games.get(key);
-		return Objects.requireNonNull(game, "game in queue with missing definition");
+		return Objects.requireNonNull(game, "game in queue with missing config");
 	}
 
 	public int indexById(int id) {

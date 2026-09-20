@@ -7,18 +7,17 @@ import com.lovetropics.minigames.client.lobby.state.ClientGameDefinition;
 import com.lovetropics.minigames.common.core.game.GamePhaseType;
 import com.lovetropics.minigames.common.core.game.GameResult;
 import com.lovetropics.minigames.common.core.game.GameStopReason;
-import com.lovetropics.minigames.common.core.game.IGameDefinition;
-import com.lovetropics.minigames.common.core.game.IGamePhaseDefinition;
+import com.lovetropics.minigames.common.core.game.config.GameConfig;
+import com.lovetropics.minigames.common.core.game.config.GamePhaseConfig;
 import com.lovetropics.minigames.common.core.game.lobby.LobbyControls;
 import com.lovetropics.minigames.common.core.game.lobby.QueuedGame;
 import com.lovetropics.minigames.common.core.game.rewards.GameRewardsMap;
 import com.lovetropics.minigames.common.dev.DevQuickPlay;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-
 import org.jspecify.annotations.Nullable;
+
 import java.util.Objects;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
@@ -39,7 +38,7 @@ abstract class LobbyState {
 	protected @Nullable ClientCurrentGame getClientCurrentGame() {
 		if (phase != null) {
 			GamePhaseType phaseType = Objects.requireNonNullElse(phaseType(), GamePhaseType.WAITING);
-			return new ClientCurrentGame(ClientGameDefinition.from(phase.game.definition()), phaseType);
+			return new ClientCurrentGame(ClientGameDefinition.from(phase.game.config()), phaseType);
 		}
 		return null;
 	}
@@ -66,10 +65,10 @@ abstract class LobbyState {
 	}
 
 	static final class Errored extends Paused {
-		final IGameDefinition game;
+		final GameConfig game;
 		final Component error;
 
-		Errored(IGameDefinition game, Component error) {
+		Errored(GameConfig game, Component error) {
 			this.game = game;
 			this.error = error;
 		}
@@ -106,9 +105,9 @@ abstract class LobbyState {
 			private @Nullable LobbyState nextGameState(GameLobby lobby, @Nullable GamePhase phase) {
 			QueuedGame game = lobby.gameQueue.next();
 			if (game != null) {
-				Pending pending = createGame(lobby, phase, game.definition());
+				Pending pending = createGame(lobby, phase, game.config());
 				pending.pendingGame = new ClientCurrentGame(
-						ClientGameDefinition.from(game.definition()),
+						ClientGameDefinition.from(game.config()),
 						GamePhaseType.WAITING
 				);
 				return pending;
@@ -117,14 +116,13 @@ abstract class LobbyState {
 			}
 		}
 
-		private Pending createGame(GameLobby lobby, @Nullable GamePhase lastPhase, IGameDefinition definition) {
-			GameInstance game = new GameInstance(lobby, definition);
+		private Pending createGame(GameLobby lobby, @Nullable GamePhase lastPhase, GameConfig config) {
+			GameInstance game = new GameInstance(lobby, config);
 			game.instanceState().register(GameRewardsMap.STATE, lobby.getRewardsMap());
 
-			IGamePhaseDefinition playingDefinition = definition.getPlayingPhase();
-			Optional<IGamePhaseDefinition> waitingDefinition = definition.getWaitingPhase();
-			if (waitingDefinition.isPresent()) {
-				CompletableFuture<LobbyState> waiting = createWaiting(lobby, game, waitingDefinition.get(), playingDefinition);
+			GamePhaseConfig playingDefinition = config.playing();
+			if (config.waiting() != null) {
+				CompletableFuture<LobbyState> waiting = createWaiting(lobby, game, config.waiting(), playingDefinition);
 				return new Pending(lastPhase, waiting, null);
 			} else {
 				CompletableFuture<LobbyState> playing = createPlaying(game, playingDefinition);
@@ -132,12 +130,12 @@ abstract class LobbyState {
 			}
 		}
 
-		private CompletableFuture<LobbyState> createPlaying(GameInstance game, IGamePhaseDefinition definition) {
-			return GamePhaseManager.get().createTopPhase(game, definition).thenApply(Playing::new);
+		private CompletableFuture<LobbyState> createPlaying(GameInstance game, GamePhaseConfig config) {
+			return GamePhaseManager.get().createTopPhase(game, config).thenApply(Playing::new);
 		}
 
-		private CompletableFuture<LobbyState> createWaiting(GameLobby lobby, GameInstance game, IGamePhaseDefinition definition, IGamePhaseDefinition playing) {
-			return GamePhaseManager.get().createTopPhase(game, definition)
+		private CompletableFuture<LobbyState> createWaiting(GameLobby lobby, GameInstance game, GamePhaseConfig config, GamePhaseConfig playing) {
+			return GamePhaseManager.get().createTopPhase(game, config)
 					.thenApply(waiting -> {
 						Supplier<LobbyState> start = () -> {
 							CompletableFuture<LobbyState> next = createPlaying(game, playing);
@@ -148,7 +146,7 @@ abstract class LobbyState {
 		}
 
 		private @Nullable SlideshowInstanceHandle openIntroSlideshow(GameLobby lobby, GameInstance game) {
-			Identifier slideshowId = game.definition().introSlideshow();
+			Identifier slideshowId = game.config().introSlideshow();
 			SlideshowInstanceHandle slideshow = slideshowId != null ? SlideshowApi.open(slideshowId) : null;
 			if (slideshow != null) {
 				slideshow.play();

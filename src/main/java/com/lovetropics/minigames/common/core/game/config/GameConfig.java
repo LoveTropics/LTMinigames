@@ -1,14 +1,13 @@
 package com.lovetropics.minigames.common.core.game.config;
 
 import com.lovetropics.minigames.common.core.game.IGameDefinition;
-import com.lovetropics.minigames.common.core.game.IGamePhaseDefinition;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.resources.Identifier;
-
 import org.jspecify.annotations.Nullable;
+
 import java.util.Optional;
 
 /// Stores data-driven info about a minigame
@@ -40,20 +39,5 @@ public record GameConfig(
 			GamePhaseConfig waiting = waitingOpt.orElse(null);
 			return new GameConfig(id, name, subtitle, icon, maximumParticipants, introSlideshow, waiting, active, hideFromList);
 		}));
-	}
-
-	@Override
-	public int getMaximumParticipantCount() {
-		return maximumParticipants;
-	}
-
-	@Override
-	public IGamePhaseDefinition getPlayingPhase() {
-		return playing;
-	}
-
-	@Override
-	public Optional<IGamePhaseDefinition> getWaitingPhase() {
-		return Optional.ofNullable(waiting);
 	}
 }

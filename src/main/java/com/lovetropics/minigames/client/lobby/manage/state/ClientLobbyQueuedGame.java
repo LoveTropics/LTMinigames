@@ -6,7 +6,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 
 public record ClientLobbyQueuedGame(ClientGameDefinition definition) {
 	public static ClientLobbyQueuedGame from(QueuedGame game) {
-		ClientGameDefinition definition = ClientGameDefinition.from(game.definition());
+		ClientGameDefinition definition = ClientGameDefinition.from(game.config());
 		return new ClientLobbyQueuedGame(definition);
 	}
 

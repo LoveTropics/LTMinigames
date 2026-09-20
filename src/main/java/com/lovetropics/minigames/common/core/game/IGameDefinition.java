@@ -2,9 +2,7 @@ package com.lovetropics.minigames.common.core.game;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-
 import org.jspecify.annotations.Nullable;
-import java.util.Optional;
 
 /// Used as a discriminant for a registered minigame. Defines the logic of the
 /// minigame as it is actively running, and provides methods to customize the
@@ -23,14 +21,6 @@ public interface IGameDefinition {
 		return null;
 	}
 
-	default @Nullable Identifier icon() {
-		return null;
-	}
-
-	default @Nullable Identifier introSlideshow() {
-		return null;
-	}
-
 	/// Will only select up to this many participants to actually play
 	/// in the started minigame. The rest of the players registered for
 	/// the minigame will be slotted in as spectators where they can watch
@@ -38,17 +28,7 @@ public interface IGameDefinition {
 	///
 	/// @return The maximum amount of players that can be participants in the
 	/// minigame.
-	default int getMaximumParticipantCount() {
+	default int maximumParticipants() {
 		return Integer.MAX_VALUE;
-	}
-
-	default boolean hideFromList() {
-		return false;
-	}
-
-	IGamePhaseDefinition getPlayingPhase();
-
-	default Optional<IGamePhaseDefinition> getWaitingPhase() {
-		return Optional.empty();
 	}
 }

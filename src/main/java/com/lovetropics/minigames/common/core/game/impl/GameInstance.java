@@ -1,6 +1,6 @@
 package com.lovetropics.minigames.common.core.game.impl;
 
-import com.lovetropics.minigames.common.core.game.IGameDefinition;
+import com.lovetropics.minigames.common.core.game.config.GameConfig;
 import com.lovetropics.minigames.common.core.game.state.GameStateMap;
 import net.minecraft.server.MinecraftServer;
 
@@ -9,22 +9,22 @@ public final class GameInstance {
 	// TODO: Remove this backward reference
 	private final GameLobby lobby;
 	private final MinecraftServer server;
-	private final IGameDefinition definition;
+	private final GameConfig config;
 
 	private final GameStateMap stateMap = new GameStateMap();
 
-	GameInstance(GameLobby lobby, IGameDefinition definition) {
+	GameInstance(GameLobby lobby, GameConfig config) {
 		this.lobby = lobby;
 		server = lobby.getServer();
-		this.definition = definition;
+		this.config = config;
 	}
 
 	public MinecraftServer server() {
 		return server;
 	}
 
-	public IGameDefinition definition() {
-		return definition;
+	public GameConfig config() {
+		return config;
 	}
 
 	public GameStateMap instanceState() {
