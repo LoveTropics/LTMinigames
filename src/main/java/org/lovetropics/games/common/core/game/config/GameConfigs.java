@@ -41,6 +41,7 @@ import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+// TODO: GameConfigs should become an entirely lobby concept eventually, and move to that subproject
 // TODO: Replace with a dynamic registry - currently blocked by not being able to /reload those
 @EventBusSubscriber(modid = LoveTropics.ID)
 public final class GameConfigs {

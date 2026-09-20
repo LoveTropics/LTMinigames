@@ -2,9 +2,6 @@ package org.lovetropics.games.gametests.api;
 
 import org.lovetropics.games.common.core.game.GameResult;
 import org.lovetropics.games.common.core.game.GameStopReason;
-import org.lovetropics.games.common.core.game.impl.GameLobby;
-import org.lovetropics.games.common.core.game.impl.GameLobbyManager;
-import org.lovetropics.games.common.core.game.lobby.LobbyControls;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
 import org.lovetropics.games.mixin.gametest.GameTestHelperAccess;
 import org.lovetropics.games.mixin.gametest.GameTestInfoAccess;
@@ -49,6 +46,9 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.NullMarked;
+import org.lovetropics.games.lobbies.GameLobby;
+import org.lovetropics.games.lobbies.GameLobbyManager;
+import org.lovetropics.games.lobbies.LobbyControls;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;

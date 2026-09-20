@@ -2,17 +2,6 @@ package org.lovetropics.games.common.core.network;
 
 import org.lovetropics.games.LoveTropics;
 import org.lovetropics.games.client.gui.ClientFadeToBlack;
-import org.lovetropics.games.client.lobby.JoinLobbyPacket;
-import org.lovetropics.games.client.lobby.LeaveLobbyPacket;
-import org.lovetropics.games.client.lobby.ManageOrCreateLobbyPacket;
-import org.lovetropics.games.client.lobby.manage.ClientManageLobbyMessage;
-import org.lovetropics.games.client.lobby.manage.ServerManageLobbyMessage;
-import org.lovetropics.games.client.lobby.select_role.SelectRoleMessage;
-import org.lovetropics.games.client.lobby.select_role.SelectRolePromptMessage;
-import org.lovetropics.games.client.lobby.state.message.JoinedLobbyMessage;
-import org.lovetropics.games.client.lobby.state.message.LeftLobbyMessage;
-import org.lovetropics.games.client.lobby.state.message.LobbyPlayersMessage;
-import org.lovetropics.games.client.lobby.state.message.LobbyUpdateMessage;
 import org.lovetropics.games.client.toast.ShowNotificationToastMessage;
 import org.lovetropics.games.common.core.network.ddr.ClientboundDdrInputHitPacket;
 import org.lovetropics.games.common.core.network.ddr.ServerboundDdrInputPacket;
@@ -44,23 +33,9 @@ public final class LoveTropicsNetwork {
 
 		registrar.playToServer(SpectatePlayerAndTeleportMessage.TYPE, SpectatePlayerAndTeleportMessage.STREAM_CODEC, SpectatePlayerAndTeleportMessage::handle);
 
-		registrar.playToClient(LobbyUpdateMessage.TYPE, LobbyUpdateMessage.STREAM_CODEC);
-		registrar.playToClient(JoinedLobbyMessage.TYPE, JoinedLobbyMessage.STREAM_CODEC);
-		registrar.playToClient(LeftLobbyMessage.TYPE, LeftLobbyMessage.STREAM_CODEC);
-		registrar.playToClient(LobbyPlayersMessage.TYPE, LobbyPlayersMessage.STREAM_CODEC);
-
 		registrar.playToClient(ShowNotificationToastMessage.TYPE, ShowNotificationToastMessage.STREAM_CODEC);
 
-		registrar.playToClient(ClientManageLobbyMessage.TYPE, ClientManageLobbyMessage.STREAM_CODEC);
-		registrar.playToServer(ServerManageLobbyMessage.TYPE, ServerManageLobbyMessage.STREAM_CODEC, ServerManageLobbyMessage::handle);
-
 		registrar.playToClient(SetGameClientStateMessage.TYPE, SetGameClientStateMessage.STREAM_CODEC);
-
-		registrar.playToClient(SelectRolePromptMessage.TYPE, SelectRolePromptMessage.STREAM_CODEC);
-		registrar.playToServer(SelectRoleMessage.TYPE, SelectRoleMessage.STREAM_CODEC, SelectRoleMessage::handle);
-		registrar.playToServer(ManageOrCreateLobbyPacket.TYPE, ManageOrCreateLobbyPacket.STREAM_CODEC, ManageOrCreateLobbyPacket::handle);
-		registrar.playToServer(JoinLobbyPacket.TYPE, JoinLobbyPacket.STREAM_CODEC, JoinLobbyPacket::handle);
-		registrar.playToServer(LeaveLobbyPacket.TYPE, LeaveLobbyPacket.STREAM_CODEC, LeaveLobbyPacket::handle);
 
 		registrar.playToClient(SpectatorPlayerActivityMessage.TYPE, SpectatorPlayerActivityMessage.STREAM_CODEC);
 
@@ -93,18 +68,9 @@ public final class LoveTropicsNetwork {
 		event.register(AddWorkspaceRegionMessage.TYPE, AddWorkspaceRegionMessage::handle);
 		event.register(UpdateWorkspaceRegionMessage.TYPE, UpdateWorkspaceRegionMessage::handleClientbound);
 
-		event.register(LobbyUpdateMessage.TYPE, LobbyUpdateMessage::handle);
-		event.register(JoinedLobbyMessage.TYPE, JoinedLobbyMessage::handle);
-		event.register(LeftLobbyMessage.TYPE, LeftLobbyMessage::handle);
-		event.register(LobbyPlayersMessage.TYPE, LobbyPlayersMessage::handle);
-
 		event.register(ShowNotificationToastMessage.TYPE, ShowNotificationToastMessage::handle);
 
-		event.register(ClientManageLobbyMessage.TYPE, ClientManageLobbyMessage::handle);
-
 		event.register(SetGameClientStateMessage.TYPE, SetGameClientStateMessage::handle);
-
-		event.register(SelectRolePromptMessage.TYPE, SelectRolePromptMessage::handle);
 
 		event.register(SpectatorPlayerActivityMessage.TYPE, SpectatorPlayerActivityMessage::handle);
 

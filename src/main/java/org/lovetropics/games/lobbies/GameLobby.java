@@ -1,0 +1,357 @@
+package org.lovetropics.games.lobbies;
+
+import com.google.common.collect.Lists;
+import org.lovetropics.games.common.core.game.GameResult;
+import org.lovetropics.games.common.core.game.IGameDefinition;
+import org.lovetropics.games.common.core.game.config.GameConfig;
+import org.lovetropics.games.common.core.game.player.PlayerIterable;
+import org.lovetropics.games.common.core.game.player.PlayerRole;
+import org.lovetropics.games.common.core.game.rewards.GameRewardsMap;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Unit;
+import net.neoforged.neoforge.network.PacketDistributor;
+import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.lobbies.client.state.ClientCurrentGame;
+import org.lovetropics.games.lobbies.network.JoinedLobbyMessage;
+import org.lovetropics.games.lobbies.network.LeftLobbyMessage;
+import org.lovetropics.games.lobbies.network.LobbyPlayersMessage;
+import org.lovetropics.games.lobbies.network.LobbyUpdateMessage;
+
+import java.util.List;
+import java.util.stream.Stream;
+
+/// This is what is created when the command /game create is run - it is not the 'waiting room' lobby, it is a game lobby, as in
+/// basically a 'party' of players that will play games together.
+///
+/// A game lobby can have many games in its queue, each will be given a GameInstance.
+public final class GameLobby {
+	final GameLobbyManager manager;
+	final MinecraftServer server;
+	GameLobbyMetadata metadata;
+
+	final LobbyGameQueue gameQueue;
+	final LobbyStateManager state;
+	final LobbyPlayerManager players;
+	final LobbyManagement management;
+	final LobbyTrackingPlayers trackingPlayers;
+
+	final LobbyStateListener stateListener = LobbyStateListener.compose(
+			new NetworkUpdateListener(),
+			new ChatNotifyListener()
+	);
+	private final GameRewardsMap rewardsMap = new GameRewardsMap();
+
+	private boolean needsRolePrompt = false;
+	private boolean closed;
+
+	GameLobby(GameLobbyManager manager, MinecraftServer server, GameLobbyMetadata metadata) {
+		this.manager = manager;
+		this.server = server;
+		this.metadata = metadata;
+
+		gameQueue = new LobbyGameQueue();
+		state = new LobbyStateManager(this);
+		players = new LobbyPlayerManager(this);
+		management = new LobbyManagement(this);
+		trackingPlayers = new LobbyTrackingPlayers(this);
+	}
+
+	public MinecraftServer getServer() {
+		return server;
+	}
+
+	public GameLobbyMetadata getMetadata() {
+		return metadata;
+	}
+
+	public LobbyPlayerManager getPlayers() {
+		return players;
+	}
+
+	public LobbyGameQueue getGameQueue() {
+		return gameQueue;
+	}
+
+	public @Nullable GamePhase getTopPhase() {
+		return state.getTopPhase();
+	}
+
+	public Stream<GamePhase> allSubPhases() {
+		GamePhase topPhase = getTopPhase();
+		return topPhase != null ? topPhase.allSubPhases() : Stream.empty();
+	}
+
+	public @Nullable ClientCurrentGame getClientCurrentGame() {
+		return state.getClientCurrentGame();
+	}
+
+	public LobbyControls getControls() {
+		return state.controls();
+	}
+
+	public LobbyManagement getManagement() {
+		return management;
+	}
+
+	public PlayerIterable getTrackingPlayers() {
+		return trackingPlayers;
+	}
+
+	public boolean isVisibleTo(CommandSourceStack source) {
+		if (management.canManage(source)) {
+			return true;
+		}
+
+		return metadata.visibility().isPublic();
+	}
+
+	public boolean isVisibleTo(ServerPlayer player) {
+		return isVisibleTo(player.createCommandSourceStack());
+	}
+
+	void setName(String name) {
+		metadata = metadata.withName(name);
+		stateListener.onLobbyNameChange(this);
+	}
+
+	void setVisibility(LobbyVisibility visibility) {
+		metadata = manager.setVisibility(this, visibility);
+		trackingPlayers.rebuildTracking();
+	}
+
+	void tick() {
+		LobbyStateManager.Change change = state.tick();
+		if (change != null) {
+			GameResult<Unit> result = onStateChange(change);
+			if (result.isError()) {
+				onStateChange(state.handleError(result.getError()));
+			}
+		}
+	}
+
+	private GameResult<Unit> onStateChange(LobbyStateManager.Change change) {
+		GamePhase oldPhase = change.oldPhase();
+		GamePhase newPhase = change.newPhase();
+		if (newPhase != oldPhase) {
+			GameResult<Unit> result = onGamePhaseChange(oldPhase, newPhase);
+			if (result.isError()) {
+				return result;
+			}
+		}
+
+		management.onGameStateChange();
+		stateListener.onLobbyStateChange(this);
+
+		return GameResult.ok();
+	}
+
+	public GameRewardsMap getRewardsMap() {
+		return rewardsMap;
+	}
+
+	// If old phase is null, it probably means we're entering from the main event world
+	private GameResult<Unit> onGamePhaseChange(@Nullable GamePhase oldPhase, @Nullable GamePhase newPhase) {
+		GameResult<Unit> result = GameResult.ok();
+
+		if (oldPhase != null) {
+			List<ServerPlayer> removedPlayers = oldPhase.removeAllPlayers();
+			if (newPhase == null) {
+				onQueuePaused(removedPlayers);
+			}
+		}
+
+		if (newPhase != null) {
+			newPhase.assignRolesFrom(players.createRoleAllocator());
+			result = newPhase.addPlayersAndStart(players, metadata.initiator());
+		}
+
+		GameInstance oldGame = oldPhase != null ? oldPhase.game : null;
+		GameInstance newGame = newPhase != null ? newPhase.game : null;
+		if (oldGame != newGame) {
+			onGameInstanceChange(oldGame, newGame);
+		}
+
+		stateListener.onGamePhaseChange(this);
+
+		return result;
+	}
+
+	private void onGameInstanceChange(@Nullable GameInstance oldGame, @Nullable GameInstance newGame) {
+		if (oldGame != null) {
+			needsRolePrompt = true;
+		}
+		if (newGame != null) {
+			onGameInstanceStart(newGame);
+		}
+	}
+
+	private void onGameInstanceStart(GameInstance game) {
+		GameConfig config = game.config();
+		if (config.waiting() != null && needsRolePrompt) {
+			PlayerRoleSelections roleSelections = players.getRoleSelections();
+			roleSelections.clearAndPromptAll(players);
+		}
+	}
+
+	void onQueuePaused(List<ServerPlayer> removedPlayers) {
+		for (ServerPlayer player : removedPlayers) {
+			onPlayerExitGame(PlayerIsolation.INSTANCE.restore(player));
+		}
+
+		stateListener.onLobbyPaused(this);
+	}
+
+	void onPlayerLoggedIn(ServerPlayer player) {
+		trackingPlayers.onPlayerLoggedIn(player);
+	}
+
+	ServerPlayer onPlayerLoggedOut(ServerPlayer player) {
+		trackingPlayers.onPlayerLoggedOut(player);
+
+		return players.logOut(player);
+	}
+
+	void onPlayerRegister(ServerPlayer player) {
+		manager.addPlayerToLobby(player, this);
+
+		stateListener.onPlayerJoin(this, player);
+
+		GamePhase phase = state.getTopPhase();
+		if (phase != null) {
+			PlayerRole selectedRole = players.getRoleSelections().getSelectedRoleFor(player.getUUID());
+			phase.addPlayer(player, selectedRole);
+		}
+
+		management.onPlayersChanged();
+	}
+
+	ServerPlayer onPlayerLeave(ServerPlayer player, boolean loggingOut) {
+		GamePhase phase = state.getTopPhase();
+		if (phase != null) {
+			player = phase.removePlayer(player, loggingOut);
+
+			// Don't try to restore the player if they're logging out, as we never save their in-game state anyway
+			if (!loggingOut) {
+				player = PlayerIsolation.INSTANCE.restore(player);
+			}
+		}
+
+		stateListener.onPlayerLeave(this, player);
+		management.stopManaging(player);
+
+		management.onPlayersChanged();
+
+		manager.removePlayerFromLobby(player, this);
+
+		rewardsMap.grant(player);
+
+		return player;
+	}
+
+	// TODO: better abstract this logic?
+	void onPlayerExitGame(ServerPlayer player) {
+		rewardsMap.grant(player);
+	}
+
+	void onPlayerStartTracking(ServerPlayer player) {
+		stateListener.onPlayerStartTracking(this, player);
+	}
+
+	void onPlayerStopTracking(ServerPlayer player) {
+		stateListener.onPlayerStopTracking(this, player);
+	}
+
+	void close(boolean serverStopping) {
+		if (closed) {
+			return;
+		}
+		closed = true;
+
+		try {
+			management.disable();
+			LobbyStateManager.Change close = state.close();
+			if (close != null) {
+				onStateChange(close);
+			}
+
+			LobbyPlayerManager players = getPlayers();
+			for (ServerPlayer player : Lists.newArrayList(players)) {
+				players.remove(player, serverStopping);
+			}
+
+			stateListener.onLobbyStop(this);
+			gameQueue.clear();
+		} finally {
+			manager.removeLobby(this);
+		}
+	}
+
+	public @Nullable IGameDefinition getCurrentGameDefinition() {
+		GamePhase topPhase = getTopPhase();
+		return topPhase != null ? topPhase.definition() : null;
+	}
+
+	static final class ChatNotifyListener implements LobbyStateListener {
+		@Override
+		public void onPlayerStartTracking(GameLobby lobby, ServerPlayer player) {
+			player.sendSystemMessage(GameLobbyTexts.Status.lobbyOpened(lobby), false);
+		}
+
+		@Override
+		public void onLobbyPaused(GameLobby lobby) {
+			lobby.getPlayers().sendMessage(GameLobbyTexts.Status.lobbyPaused());
+		}
+
+		@Override
+		public void onLobbyStop(GameLobby lobby) {
+			lobby.getPlayers().sendMessage(GameLobbyTexts.Status.lobbyStopped());
+		}
+	}
+
+	static final class NetworkUpdateListener implements LobbyStateListener {
+		@Override
+		public void onPlayerJoin(GameLobby lobby, ServerPlayer player) {
+			PacketDistributor.sendToPlayer(player, JoinedLobbyMessage.create(lobby));
+			lobby.getTrackingPlayers().sendPacket(LobbyPlayersMessage.update(lobby));
+		}
+
+		@Override
+		public void onPlayerLeave(GameLobby lobby, ServerPlayer player) {
+			PacketDistributor.sendToPlayer(player, new LeftLobbyMessage());
+			lobby.getTrackingPlayers().sendPacket(LobbyPlayersMessage.update(lobby));
+		}
+
+		@Override
+		public void onPlayerStartTracking(GameLobby lobby, ServerPlayer player) {
+			PacketDistributor.sendToPlayer(player, LobbyUpdateMessage.update(lobby));
+			PacketDistributor.sendToPlayer(player, LobbyPlayersMessage.update(lobby));
+		}
+
+		@Override
+		public void onPlayerStopTracking(GameLobby lobby, ServerPlayer player) {
+			PacketDistributor.sendToPlayer(player, LobbyUpdateMessage.remove(lobby));
+		}
+
+		@Override
+		public void onLobbyStateChange(GameLobby lobby) {
+			lobby.getTrackingPlayers().sendPacket(LobbyUpdateMessage.update(lobby));
+		}
+
+		@Override
+		public void onLobbyNameChange(GameLobby lobby) {
+			lobby.getTrackingPlayers().sendPacket(LobbyUpdateMessage.update(lobby));
+		}
+
+		@Override
+		public void onLobbyStop(GameLobby lobby) {
+			lobby.getTrackingPlayers().sendPacket(LobbyUpdateMessage.remove(lobby));
+		}
+
+		@Override
+		public void onGamePhaseChange(GameLobby lobby) {
+			lobby.getTrackingPlayers().sendPacket(LobbyUpdateMessage.update(lobby));
+		}
+	}
+}

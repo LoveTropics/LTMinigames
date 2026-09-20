@@ -16,6 +16,9 @@ Minigame engine for the LoveTropics livestream event.
 [[mixins]]
 config = "ltminigames.mixins.json"
 
+[[mixins]]
+config = "ltgames_lobbies.mixins.json"
+
 [[dependencies.${ mod_id }]]
 modId = "neoforge"
 type = "required"

@@ -1,0 +1,245 @@
+package org.lovetropics.games.lobbies;
+
+import org.lovetropics.games.common.core.game.GameResult;
+import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.portal.TeleportTransition;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.EntityTravelToDimensionEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.server.ServerStoppingEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import org.jspecify.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+@EventBusSubscriber
+public class GameLobbyManager {
+	private static final GameLobbyManager INSTANCE = new GameLobbyManager();
+
+	private final List<GameLobby> lobbies = new ArrayList<>();
+
+	private final Map<UUID, GameLobby> lobbiesByPlayer = new Object2ObjectOpenHashMap<>();
+
+	private @Nullable GameLobby focusedLiveLobby;
+
+	public static GameLobbyManager get() {
+		return INSTANCE;
+	}
+
+	public GameResult<GameLobby> createGameLobby(String name, ServerPlayer initiator) {
+		GameLobby currentLobby = lobbiesByPlayer.get(initiator.getUUID());
+		if (currentLobby != null) {
+			return GameResult.error(GameLobbyTexts.Commands.ALREADY_IN_LOBBY);
+		}
+
+		GameLobbyId id = GameLobbyId.next();
+		GameLobbyMetadata metadata = new GameLobbyMetadata(id, PlayerKey.from(initiator), name);
+
+		GameLobby lobby = new GameLobby(this, initiator.level().getServer(), metadata);
+		lobbies.add(lobby);
+
+		return GameResult.ok(lobby);
+	}
+
+	public @Nullable GameLobby getLobbyFor(Player player) {
+		if (player.level().isClientSide()) {
+			return null;
+		}
+		return lobbiesByPlayer.get(player.getUUID());
+	}
+
+	public @Nullable GameLobby getLobbyFor(CommandSourceStack source) {
+		if (source.getEntity() instanceof Player player) {
+			return getLobbyFor(player);
+		}
+		return null;
+	}
+
+	public @Nullable GameLobby getLobby(Predicate<GameLobby> pred) {
+		return lobbies.stream().filter(pred).findFirst().orElse(null);
+	}
+
+	public Collection<? extends GameLobby> getAllLobbies() {
+		return lobbies;
+	}
+
+	public @Nullable GameLobby getLobbyByNetworkId(int id) {
+		for (GameLobby lobby : lobbies) {
+			if (lobby.getMetadata().id().networkId() == id) {
+				return lobby;
+			}
+		}
+		return null;
+	}
+
+	public @Nullable GameLobby getLobbyById(UUID id) {
+		for (GameLobby lobby : lobbies) {
+			if (lobby.getMetadata().id().uuid().equals(id)) {
+				return lobby;
+			}
+		}
+		return null;
+	}
+
+	void addPlayerToLobby(ServerPlayer player, GameLobby lobby) {
+		lobbiesByPlayer.put(player.getUUID(), lobby);
+	}
+
+	void removePlayerFromLobby(ServerPlayer player, GameLobby lobby) {
+		lobbiesByPlayer.remove(player.getUUID(), lobby);
+	}
+
+	void removeLobby(GameLobby lobby) {
+		lobbies.remove(lobby);
+
+		if (focusedLiveLobby == lobby) {
+			setFocusedLiveLobby(null);
+		}
+	}
+
+	GameLobbyMetadata setVisibility(GameLobby lobby, LobbyVisibility visibility) {
+		if (visibility.isFocusedLive()) {
+			if (!setFocusedLive(lobby)) {
+				return lobby.metadata;
+			}
+		}
+
+		return lobby.metadata.withVisibility(visibility);
+	}
+
+	private boolean setFocusedLive(GameLobby lobby) {
+		if (focusedLiveLobby == null) {
+			setFocusedLiveLobby(lobby);
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	private void setFocusedLiveLobby(@Nullable GameLobby lobby) {
+		focusedLiveLobby = lobby;
+
+		for (GameLobby otherLobby : lobbies) {
+			otherLobby.management.onFocusedLiveLobbyChanged();
+		}
+	}
+
+	boolean hasFocusedLiveLobby() {
+		return focusedLiveLobby != null;
+	}
+
+	@SubscribeEvent
+	public static void onServerStopping(ServerStoppingEvent event) {
+		List<GameLobby> lobbies = new ArrayList<>(INSTANCE.lobbies);
+		for (GameLobby lobby : lobbies) {
+			lobby.close(true);
+		}
+	}
+
+	@SubscribeEvent
+	public static void onServerTick(ServerTickEvent.Post event) {
+		for (GameLobby lobby : INSTANCE.lobbies) {
+			lobby.tick();
+		}
+	}
+
+	@SubscribeEvent
+	public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
+		ServerPlayer player = (ServerPlayer) event.getEntity();
+		if (!PlayerIsolation.INSTANCE.isReloading(player)) {
+			for (GameLobby lobby : INSTANCE.lobbies) {
+				lobby.onPlayerLoggedIn(player);
+			}
+		}
+	}
+
+	/// When a player logs out, remove them from the currently running game instance
+	/// if they are inside, and teleport back them to their original state.
+	///
+	/// Also if they have registered for a game poll, they will be removed from the
+	/// list of registered players.
+	public static ServerPlayer onPlayerLoggedOut(ServerPlayer player) {
+		if (!PlayerIsolation.INSTANCE.isReloading(player)) {
+			for (GameLobby lobby : INSTANCE.lobbies) {
+				player = lobby.onPlayerLoggedOut(player);
+			}
+		}
+		return player;
+	}
+
+	public Stream<? extends GameLobby> getVisibleLobbies(CommandSourceStack source) {
+		return getAllLobbies().stream()
+				.filter(lobby -> lobby.isVisibleTo(source));
+	}
+
+	@SubscribeEvent
+	public static void onPlayerTryChangeDimension(EntityTravelToDimensionEvent event) {
+		if (!(event.getEntity() instanceof ServerPlayer player)) {
+			return;
+		}
+
+		ServerLevel targetLevel = player.level().getServer().getLevel(event.getDimension());
+		if (targetLevel == null) {
+			return;
+		}
+
+		GameLobby lobby = INSTANCE.getLobbyFor(player);
+		GamePhase targetPhase = GamePhaseManager.get().getGamePhaseInDimension(targetLevel);
+		if (targetPhase != null && targetPhase.game.lobby() != lobby) {
+			player.sendSystemMessage(GameLobbyTexts.Commands.cannotTeleportIntoGame(), true);
+			event.setCanceled(true);
+		}
+	}
+
+	public static @Nullable ServerPlayer onPlayerTeleport(ServerPlayer player, TeleportTransition transition) {
+		GameLobby lobby = INSTANCE.getLobbyFor(player);
+		GamePhase targetPhase = GamePhaseManager.get().getGamePhaseAt(transition.newLevel(), transition.position());
+		if (targetPhase != null && targetPhase.game.lobby() != lobby) {
+			player.sendSystemMessage(GameLobbyTexts.Commands.cannotTeleportIntoGame(), true);
+			return player;
+		}
+		GamePhase playerPhase = GamePhaseManager.get().getGamePhaseFor(player);
+		if (targetPhase == null || playerPhase == targetPhase) {
+			return null;
+		}
+		return targetPhase.teleportFrom(player, playerPhase);
+	}
+
+	@SubscribeEvent
+	public static void onPlayerChangedDimension(PlayerEvent.PlayerChangedDimensionEvent event) {
+		if (!(event.getEntity() instanceof ServerPlayer player)) {
+			return;
+		}
+
+		GameLobby lobby = GameLobbyManager.get().getLobbyFor(player);
+		if (lobby == null) {
+			return;
+		}
+
+		Set<ResourceKey<Level>> validDimensions = lobby.allSubPhases()
+				.map(game -> game.level().dimension())
+				.collect(Collectors.toSet());
+
+		if (validDimensions.contains(event.getFrom()) && !validDimensions.contains(event.getTo())) {
+			if (lobby.getPlayers().remove(player, false)) {
+				player.sendSystemMessage(GameLobbyTexts.Status.leftGameDimension(), false);
+			}
+		}
+	}
+}

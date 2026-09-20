@@ -13,8 +13,6 @@
     "EntitySelectorMixin",
     "ItemFrameMixin",
     "MinecraftServerMixin",
-    "PlayerListMixin",
-    "PrimaryLevelDataMixin",
     "RideCommandMixin",
     "ServerPlayerMixin",
     "TrialSpawnerAccess",
@@ -60,9 +58,7 @@
     "client.ModelFeatureRendererMixin",
     "client.MouseHandlerMixin",
     "client.OptionsMixin",
-    "client.PlayerTabOverlayGuiMixin",
-    "client.ScrollWheelHandlerMixin",
-    "client.dev.MainMixin"
+    "client.ScrollWheelHandlerMixin"
   ],
   "injectors": {
     "defaultRequire": 1
