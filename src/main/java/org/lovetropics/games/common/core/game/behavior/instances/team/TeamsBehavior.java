@@ -159,7 +159,7 @@ public final class TeamsBehavior implements IGameBehavior {
 
 		Component teamName = team.config().name().copy()
 				.withStyle(ChatFormatting.BOLD)
-				.withColor(team.config().teamColor().textColor());
+				.withColor(team.config().textColor());
 
 		player.sendSystemMessage(MinigameTexts.ON_TEAM.apply(teamName), false);
 	}

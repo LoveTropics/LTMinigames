@@ -36,7 +36,7 @@ public record SpawnFireworksAction(
 			TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
 			GameTeamKey team = teams != null ? teams.getTeamForPlayer(player) : null;
 			if (team != null) {
-				return FireworkPalette.forDye(teams.getTeamOrThrow(team).config().dye());
+				return FireworkPalette.forDye(teams.getTeamOrThrow(team).config().dyeColor());
 			}
 		}
 		return FireworkPalette.DYE_COLORS;

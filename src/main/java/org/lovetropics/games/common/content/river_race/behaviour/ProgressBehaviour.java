@@ -122,7 +122,7 @@ public record ProgressBehaviour(
 		}
 
 		public RiverRaceClientBarState.Team build() {
-			return new RiverRaceClientBarState.Team(team.config().dye(), progress, new IntArrayList(playerPositions));
+			return new RiverRaceClientBarState.Team(team.config().dyeColor().getTextureDiffuseColor(), progress, new IntArrayList(playerPositions));
 		}
 	}
 

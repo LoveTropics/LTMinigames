@@ -193,8 +193,8 @@ public class VictoryPointsBehavior implements IGameBehavior {
 			int secondPercent = getPercentInZone(zone, secondTeam, pointsInZone);
 			sidebar.add(zone.displayName());
 			sidebar.add(RiverRaceTexts.SIDEBAR_TEAM_PROGRESS.apply(
-					Component.literal(String.valueOf(firstPercent)).withColor(firstTeam.config().teamColor().textColor()),
-					Component.literal(String.valueOf(secondPercent)).withColor(secondTeam.config().teamColor().textColor())
+					Component.literal(String.valueOf(firstPercent)).withColor(firstTeam.config().textColor()),
+					Component.literal(String.valueOf(secondPercent)).withColor(secondTeam.config().textColor())
 			));
 		}
 

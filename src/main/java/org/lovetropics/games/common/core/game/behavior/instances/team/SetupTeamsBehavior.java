@@ -53,12 +53,12 @@ public final class SetupTeamsBehavior implements IGameBehavior {
 
 			@Override
 			public Component getNameFor(GameTeam team) {
-				return MinigameTexts.JOIN_TEAM.apply(team.config().name()).withColor(team.config().teamColor().textColor());
+				return MinigameTexts.JOIN_TEAM.apply(team.config().name()).withColor(team.config().textColor());
 			}
 
 			@Override
 			public Item getItemFor(GameTeam team) {
-				return Items.WOOL.pick(team.config().dye());
+				return Items.WOOL.pick(team.config().dyeColor());
 			}
 		};
 
@@ -82,7 +82,7 @@ public final class SetupTeamsBehavior implements IGameBehavior {
 	private void onRequestJoinTeam(ServerPlayer player, GameTeam team) {
 		teamState.setPlayerPreference(player.getUUID(), team.key());
 
-		Component teamName = team.config().name().copy().withColor(team.config().teamColor().textColor()).withStyle(ChatFormatting.BOLD);
+		Component teamName = team.config().name().copy().withColor(team.config().textColor()).withStyle(ChatFormatting.BOLD);
 		player.sendSystemMessage(MinigameTexts.JOINED_TEAM.apply(teamName), false);
 	}
 }

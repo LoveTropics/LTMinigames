@@ -32,12 +32,12 @@ public record RiverRaceClientBarState(
 	}
 
 	public record Team(
-			DyeColor color,
+			int color,
 			int progress,
 			IntList players
 	) {
 		public static final StreamCodec<ByteBuf, Team> STREAM_CODEC = StreamCodec.composite(
-				DyeColor.STREAM_CODEC, Team::color,
+				ByteBufCodecs.RGB_COLOR, Team::color,
 				ByteBufCodecs.VAR_INT, Team::progress,
 				ByteBufCodecs.collection(IntArrayList::new, ByteBufCodecs.VAR_INT), Team::players,
 				Team::new

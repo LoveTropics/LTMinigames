@@ -355,7 +355,7 @@ public class CraftingBeeBehavior implements IGameBehavior {
 
 	private static BlockState getGlassBlockForTeam(GameTeamConfig teamConfig) {
 		for (Holder<Block> block : BuiltInRegistries.BLOCK.getTagOrEmpty(Tags.Blocks.GLASS_BLOCKS)) {
-			if (block.value() instanceof StainedGlassBlock stainedGlass && stainedGlass.getColor() == teamConfig.dye()) {
+			if (block.value() instanceof StainedGlassBlock stainedGlass && stainedGlass.getColor() == teamConfig.dyeColor()) {
 				return stainedGlass.defaultBlockState();
 			}
 		}

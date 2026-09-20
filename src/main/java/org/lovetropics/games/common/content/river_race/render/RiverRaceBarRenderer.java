@@ -83,7 +83,7 @@ public final class RiverRaceBarRenderer {
 		int barY = top ? MAP_TOP + MAP_MARGIN_Y - BAR_HEIGHT - 1 : MAP_TOP + MAP_HEIGHT - MAP_MARGIN_Y + 1;
 		int pointerY = top ? 0 : MAP_TOP + MAP_HEIGHT - MAP_MARGIN_Y + BAR_HEIGHT;
 
-		int teamColor = team.color().getTextureDiffuseColor();
+		int teamColor = team.color();
 		graphics.blitSprite(RenderPipelines.GUI_TEXTURED, BAR_SPRITE, left, barY, team.progress(), BAR_HEIGHT, teamColor);
 
 		IntList playerPositions = team.players();
