@@ -8,18 +8,27 @@ import com.lovetropics.minigames.common.core.game.behavior.action.GameActionCont
 import com.lovetropics.minigames.common.core.game.behavior.action.GameActionList;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GamePackageEvents;
+import com.lovetropics.minigames.common.core.game.behavior.event.GamePhaseEvents;
 import com.lovetropics.minigames.common.core.game.state.GamePackageState;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeam;
 import com.lovetropics.minigames.common.core.game.state.team.TeamState;
 import com.lovetropics.minigames.common.core.integration.game_actions.GamePackage;
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.context.CommandContext;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.TriState;
 import net.minecraft.util.Util;
 import net.minecraft.util.context.ContextKeySet;
 import net.minecraft.util.context.ContextMap;
+import net.minecraft.world.entity.Entity;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 
@@ -47,12 +56,33 @@ public final class DonationPackageBehavior implements IGameBehavior {
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
+		events.listen(GamePhaseEvents.REGISTER_COMMANDS, (commands, _) -> {
+			LiteralArgumentBuilder<CommandSourceStack> subcommand = Commands.literal(data.id())
+					.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS));
+			switch (data.targetSelectionMode()) {
+				case SPECIFIC -> subcommand.then(Commands.argument("target", EntityArgument.player())
+						.executes(ctx -> spawnPackageFromCommand(game, ctx, EntityArgument.getPlayer(ctx, "target"))));
+				case RANDOM, ALL -> subcommand.executes(ctx -> spawnPackageFromCommand(game, ctx, null));
+			}
+			commands.register(Commands.literal("package").then(subcommand));
+		});
+
 		events.listen(GamePackageEvents.RECEIVE_PACKAGE, gamePackage -> onGamePackageReceived(game, gamePackage));
 
 		receiveActions.register(game, events);
 
 		PackageCostModifierBehavior.State costModifier = game.state().get(PackageCostModifierBehavior.State.KEY);
 		game.state().get(GamePackageState.KEY).addPackageType(data.apply(costModifier));
+	}
+
+	private int spawnPackageFromCommand(IGamePhase game, CommandContext<CommandSourceStack> ctx, @Nullable ServerPlayer target) {
+		GamePackage gamePackage = new GamePackage(data.id(), "LoveTropics", Optional.ofNullable(target).map(Entity::getUUID), Optional.empty());
+		switch (onGamePackageReceived(game, gamePackage)) {
+			case TRUE -> ctx.getSource().sendSuccess(() -> Component.translatable("Successfully sent '%s'", data.id()), true);
+			case DEFAULT -> ctx.getSource().sendFailure(Component.translatable("'%s' was not processed", data.id()));
+			case FALSE -> ctx.getSource().sendFailure(Component.translatable("'%s' was rejected", data.id()));
+		}
+		return Command.SINGLE_SUCCESS;
 	}
 
 	private TriState onGamePackageReceived(IGamePhase game, GamePackage gamePackage) {

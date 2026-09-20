@@ -66,7 +66,6 @@ import com.lovetropics.minigames.common.core.command.game.CancelGameCommand;
 import com.lovetropics.minigames.common.core.command.game.ExecuteAtRegionCommand;
 import com.lovetropics.minigames.common.core.command.game.FinishGameCommand;
 import com.lovetropics.minigames.common.core.command.game.GameActionCommand;
-import com.lovetropics.minigames.common.core.command.game.GamePackageCommand;
 import com.lovetropics.minigames.common.core.command.game.GameSetRoleCommand;
 import com.lovetropics.minigames.common.core.command.game.GameStatisticCommand;
 import com.lovetropics.minigames.common.core.command.game.GolfCommand;
@@ -312,7 +311,6 @@ public class LoveTropics {
 		LeaveGameCommand.register(dispatcher);
 		MapCommand.register(dispatcher);
 		TemporaryDimensionCommand.register(dispatcher);
-		GamePackageCommand.register(dispatcher);
 		ManageGameLobbyCommand.register(dispatcher);
 		ExtendedBossBarCommand.register(dispatcher);
 		ChatCommand.register(dispatcher);
