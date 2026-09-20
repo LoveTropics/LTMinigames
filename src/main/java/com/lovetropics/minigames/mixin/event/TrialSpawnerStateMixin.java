@@ -1,8 +1,8 @@
 package com.lovetropics.minigames.mixin.event;
 
+import com.lovetropics.minigames.common.core.game.IGameLookup;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameWorldEvents;
-import com.lovetropics.minigames.common.core.game.impl.GamePhaseManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.entity.trialspawner.TrialSpawner;
@@ -30,7 +30,7 @@ public class TrialSpawnerStateMixin {
 			return;
 		}
 
-		IGamePhase game = GamePhaseManager.get().getGamePhaseAt(level, pos);
+		IGamePhase game = IGameLookup.get().getGamePhaseAt(level, pos);
 		if (game == null) {
 			return;
 		}

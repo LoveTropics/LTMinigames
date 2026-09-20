@@ -2,8 +2,8 @@ package com.lovetropics.minigames.common.core.command.game;
 
 import com.lovetropics.minigames.common.core.command.argument.StatisticKeyArgument;
 import com.lovetropics.minigames.common.core.command.argument.StatisticValueArgument;
+import com.lovetropics.minigames.common.core.game.IGameLookup;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
-import com.lovetropics.minigames.common.core.game.impl.GamePhaseManager;
 import com.lovetropics.minigames.common.core.game.state.statistics.GameStatistics;
 import com.lovetropics.minigames.common.core.game.state.statistics.StatisticKey;
 import com.lovetropics.minigames.common.core.game.state.statistics.StatisticsMap;
@@ -155,7 +155,7 @@ public class GameStatisticCommand {
 	}
 
 	private static IGamePhase getGameFor(CommandSourceStack source) throws CommandSyntaxException {
-		IGamePhase game = GamePhaseManager.get().getGamePhaseFor(source);
+		IGamePhase game = IGameLookup.get().getGamePhaseFor(source);
 		if (game == null) {
 			throw NOT_IN_GAME.create();
 		}
@@ -182,7 +182,7 @@ public class GameStatisticCommand {
 	}
 
 	private static CompletableFuture<Suggestions> suggestTeams(CommandContext<CommandSourceStack> context, SuggestionsBuilder builder) {
-		IGamePhase game = GamePhaseManager.get().getGamePhaseFor(context.getSource());
+		IGamePhase game = IGameLookup.get().getGamePhaseFor(context.getSource());
 		TeamState teams = game != null ? game.instanceState().getOrNull(TeamState.KEY) : null;
 		if (teams != null) {
 			return SharedSuggestionProvider.suggest(teams.getTeamKeys().stream().map(GameTeamKey::id), builder);
@@ -193,7 +193,7 @@ public class GameStatisticCommand {
 	private static GameTeam getTeam(CommandContext<CommandSourceStack> context, String name) throws CommandSyntaxException {
 		String teamKey = StringArgumentType.getString(context, name);
 
-		IGamePhase game = GamePhaseManager.get().getGamePhaseFor(context.getSource());
+		IGamePhase game = IGameLookup.get().getGamePhaseFor(context.getSource());
 		TeamState teams = game != null ? game.instanceState().getOrNull(TeamState.KEY) : null;
 		GameTeam team = teams != null ? teams.getTeamByKey(teamKey) : null;
 		if (team == null) {

@@ -53,6 +53,7 @@ import com.lovetropics.minigames.common.core.data.LoveTropicsAttachments;
 import com.lovetropics.minigames.common.core.entity.MinigameEntities;
 import com.lovetropics.minigames.common.core.extension.LimitedSpawnerAttachment;
 import com.lovetropics.minigames.common.core.game.GameLootModifier;
+import com.lovetropics.minigames.common.core.game.IGameLookup;
 import com.lovetropics.minigames.common.core.game.behavior.GameBehaviorTypes;
 import com.lovetropics.minigames.common.core.game.client_state.GameClientStateTypes;
 import com.lovetropics.minigames.common.core.game.impl.GameEventDispatcher;
@@ -208,8 +209,8 @@ public class LoveTropics {
 		modContainer.registerConfig(ModConfig.Type.CLIENT, ConfigLT.CLIENT_CONFIG);
 		modContainer.registerConfig(ModConfig.Type.COMMON, ConfigLT.SERVER_CONFIG);
 
-		GameEventDispatcher eventDispatcher = new GameEventDispatcher(GamePhaseManager.get());
-		NeoForge.EVENT_BUS.register(eventDispatcher);
+		IGameLookup.Binder.bind(GamePhaseManager.get());
+		NeoForge.EVENT_BUS.register(new GameEventDispatcher());
 
 		modBus.addListener(this::registerLootModifiers);
 

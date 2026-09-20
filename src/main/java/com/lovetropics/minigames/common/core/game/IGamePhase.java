@@ -1,6 +1,7 @@
 package com.lovetropics.minigames.common.core.game;
 
 import com.lovetropics.minigames.common.core.game.behavior.event.GameEventType;
+import com.lovetropics.minigames.common.core.game.command.GameCommandSet;
 import com.lovetropics.minigames.common.core.game.player.PlayerIterable;
 import com.lovetropics.minigames.common.core.game.player.PlayerRole;
 import com.lovetropics.minigames.common.core.game.player.PlayerSet;
@@ -105,4 +106,6 @@ public interface IGamePhase {
 	}
 
 	boolean isFocusedLive();
+
+	GameCommandSet commandSet();
 }

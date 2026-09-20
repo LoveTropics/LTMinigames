@@ -2,8 +2,8 @@ package com.lovetropics.minigames.common.core.command.game;
 
 import com.lovetropics.minigames.common.core.game.GameResult;
 import com.lovetropics.minigames.common.core.game.GameStopReason;
+import com.lovetropics.minigames.common.core.game.IGameLookup;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
-import com.lovetropics.minigames.common.core.game.impl.GamePhaseManager;
 import com.lovetropics.minigames.common.core.game.util.GameTexts;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -37,7 +37,7 @@ public class CancelGameCommand {
 
 	private static int cancel(CommandContext<CommandSourceStack> ctx, boolean confirmed) throws CommandSyntaxException {
 		return GameCommand.executeGameAction(() -> {
-			IGamePhase game = GamePhaseManager.get().getGamePhaseFor(ctx.getSource());
+			IGamePhase game = IGameLookup.get().getGamePhaseFor(ctx.getSource());
 			if (game == null) {
 				return GameResult.error(GameTexts.Commands.NOT_IN_GAME);
 			}

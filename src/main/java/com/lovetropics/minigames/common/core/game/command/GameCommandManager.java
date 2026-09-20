@@ -1,8 +1,8 @@
 package com.lovetropics.minigames.common.core.game.command;
 
 import com.lovetropics.minigames.LoveTropics;
-import com.lovetropics.minigames.common.core.game.impl.GamePhase;
-import com.lovetropics.minigames.common.core.game.impl.GamePhaseManager;
+import com.lovetropics.minigames.common.core.game.IGameLookup;
+import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.StringReader;
@@ -13,8 +13,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.CommandEvent;
-
 import org.jspecify.annotations.Nullable;
+
 import java.util.concurrent.CompletableFuture;
 
 @EventBusSubscriber(modid = LoveTropics.ID)
@@ -27,12 +27,12 @@ public class GameCommandManager {
 			return;
 		}
 		CommandSourceStack source = parse.getContext().getSource();
-		GamePhase gamePhase = (GamePhase) GamePhaseManager.get().getGamePhaseFor(source);
+		IGamePhase gamePhase = IGameLookup.get().getGamePhaseFor(source);
 		if (gamePhase == null) {
 			return;
 		}
 		String commandString = parse.getReader().getString();
-		ParseResults<CommandSourceStack> gameParse = gamePhase.getCommandSet().dispatcher().parse(commandString, source);
+		ParseResults<CommandSourceStack> gameParse = gamePhase.commandSet().dispatcher().parse(commandString, source);
 		// Heuristic based on vibes - if we parsed more than would be without the game commands, it's probably the error we want
 		if (isParseSuccess(gameParse) || gameParse.getReader().getCursor() > parse.getReader().getCursor()) {
 			event.setParseResults(gameParse);
@@ -44,9 +44,9 @@ public class GameCommandManager {
 	}
 
 	public static void addCommandsForClient(ServerPlayer player, RootCommandNode<CommandSourceStack> root) {
-		GamePhase gamePhase = GamePhaseManager.get().getGamePhaseFor(player);
+		IGamePhase gamePhase = IGameLookup.get().getGamePhaseFor(player);
 		if (gamePhase != null) {
-			root.addChild(gamePhase.getCommandSet().baseCommand());
+			root.addChild(gamePhase.commandSet().baseCommand());
 		}
 	}
 
@@ -55,7 +55,7 @@ public class GameCommandManager {
 			return null;
 		}
 		CommandSourceStack source = parse.getContext().getSource();
-		GamePhase gamePhase = (GamePhase) GamePhaseManager.get().getGamePhaseFor(source);
+		IGamePhase gamePhase = IGameLookup.get().getGamePhaseFor(source);
 		if (gamePhase == null) {
 			return null;
 		}
@@ -63,7 +63,7 @@ public class GameCommandManager {
 		if (gameReader.canRead() && gameReader.peek() == '/') {
 			gameReader.skip();
 		}
-		CommandDispatcher<CommandSourceStack> gameDispatcher = gamePhase.getCommandSet().dispatcher();
+		CommandDispatcher<CommandSourceStack> gameDispatcher = gamePhase.commandSet().dispatcher();
 		return gameDispatcher.getCompletionSuggestions(gameDispatcher.parse(gameReader, source));
 	}
 }

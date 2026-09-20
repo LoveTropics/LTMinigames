@@ -3,8 +3,8 @@ package com.lovetropics.minigames.common.content.escape_race.vending_machine;
 import com.google.common.collect.Lists;
 import com.lovetropics.minigames.SoundRegistry;
 import com.lovetropics.minigames.common.content.escape_race.EscapeRace;
+import com.lovetropics.minigames.common.core.game.IGameLookup;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
-import com.lovetropics.minigames.common.core.game.impl.GamePhaseManager;
 import com.lovetropics.minigames.common.core.network.vending.ClientboundVendingMachineDropPacket;
 import com.lovetropics.minigames.common.core.network.vending.SelectVendingMachineItemMessage;
 import com.lovetropics.minigames.common.core.network.vending.ServerboundVendingMachinePurchasePacket;
@@ -128,7 +128,7 @@ public class VendingMachineEntity extends Entity implements ContainerEntity {
 		if (selectedItem.isEmpty()) {
 			return;
 		}
-		IGamePhase game = GamePhaseManager.get().getGamePhaseFor(player);
+		IGamePhase game = IGameLookup.get().getGamePhaseFor(player);
 		if (game != null && game.invoker(VendingMachineEvents.PURCHASE_ITEM).tryPurchaseItem(player, this, selectedItem).isFalse()) {
 			playSound(SoundRegistry.INCORRECT.value());
 			return;

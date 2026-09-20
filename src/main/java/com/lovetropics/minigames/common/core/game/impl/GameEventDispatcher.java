@@ -70,11 +70,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public final class GameEventDispatcher {
 	public static GameEventDispatcher instance;
 
-	private final IGameLookup gameLookup;
+	private final IGameLookup gameLookup = IGameLookup.get();
 	private final Queue<LoadedChunk> loadedChunksQueue = new ConcurrentLinkedQueue<>();
 
-	public GameEventDispatcher(IGameLookup gameLookup) {
-		this.gameLookup = gameLookup;
+	public GameEventDispatcher() {
 		instance = this;
 	}
 

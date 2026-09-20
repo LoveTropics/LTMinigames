@@ -1,7 +1,6 @@
 package com.lovetropics.minigames.common.core.game;
 
 import com.lovetropics.minigames.common.core.game.behavior.event.GameWorldEvents;
-import com.lovetropics.minigames.common.core.game.impl.GamePhaseManager;
 import com.mojang.serialization.MapCodec;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.world.entity.Entity;
@@ -18,9 +17,9 @@ public record GameLootModifier() implements IGlobalLootModifier {
 		Entity entity = context.getOptionalParameter(LootContextParams.THIS_ENTITY);
 		IGamePhase game;
 		if (entity != null) {
-			game = GamePhaseManager.get().getGamePhaseFor(entity);
+			game = IGameLookup.get().getGamePhaseFor(entity);
 		} else {
-			game = GamePhaseManager.get().getGamePhaseInDimension(context.getLevel());
+			game = IGameLookup.get().getGamePhaseInDimension(context.getLevel());
 		}
 		if (game == null) {
 			return generatedLoot;

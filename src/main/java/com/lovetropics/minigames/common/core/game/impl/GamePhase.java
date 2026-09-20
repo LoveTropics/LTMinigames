@@ -636,7 +636,8 @@ public class GamePhase implements IGamePhase {
 		return focusedLive;
 	}
 
-	public GameCommandSet getCommandSet() {
+	@Override
+	public GameCommandSet commandSet() {
 		return commandSet;
 	}
 

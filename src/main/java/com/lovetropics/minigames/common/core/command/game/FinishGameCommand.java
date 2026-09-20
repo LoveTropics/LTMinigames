@@ -2,9 +2,9 @@ package com.lovetropics.minigames.common.core.command.game;
 
 import com.lovetropics.minigames.common.core.game.GameResult;
 import com.lovetropics.minigames.common.core.game.GameStopReason;
+import com.lovetropics.minigames.common.core.game.IGameLookup;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameLogicEvents;
-import com.lovetropics.minigames.common.core.game.impl.GamePhaseManager;
 import com.lovetropics.minigames.common.core.game.util.GameTexts;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
@@ -18,7 +18,7 @@ public class FinishGameCommand {
 				literal("game")
 						.then(literal("finish")
 								.executes(c -> GameCommand.executeGameAction(() -> {
-									IGamePhase game = GamePhaseManager.get().getGamePhaseFor(c.getSource());
+									IGamePhase game = IGameLookup.get().getGamePhaseFor(c.getSource());
 									if (game == null) {
 										return GameResult.error(GameTexts.Commands.NOT_IN_GAME);
 									}

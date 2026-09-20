@@ -1,8 +1,8 @@
 package com.lovetropics.minigames.common.core.command.game;
 
 import com.lovetropics.minigames.common.core.command.argument.PlayerRoleArgument;
+import com.lovetropics.minigames.common.core.game.IGameLookup;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
-import com.lovetropics.minigames.common.core.game.impl.GamePhaseManager;
 import com.lovetropics.minigames.common.core.game.player.PlayerRole;
 import com.lovetropics.minigames.common.core.game.util.GameTexts;
 import com.mojang.brigadier.context.CommandContext;
@@ -41,7 +41,7 @@ public class GameSetRoleCommand {
 	}
 
 	private static int setRole(CommandContext<CommandSourceStack> context, Collection<ServerPlayer> players, PlayerRole role) throws CommandSyntaxException {
-		IGamePhase game = GamePhaseManager.get().getGamePhaseFor(context.getSource());
+		IGamePhase game = IGameLookup.get().getGamePhaseFor(context.getSource());
 		if (game == null) {
 			throw NOT_IN_GAME.create();
 		}
