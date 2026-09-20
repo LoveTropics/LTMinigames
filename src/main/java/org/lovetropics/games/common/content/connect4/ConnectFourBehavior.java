@@ -247,7 +247,7 @@ public class ConnectFourBehavior implements IGameBehavior {
 		PlayingTeam nextTeam = playingTeams.next();
 		PlayerKey nextPlayer = nextTeam.players().next();
 
-		game.allPlayers().sendMessage(ConnectFourTexts.TEAM_GOES_NEXT.apply(teams.getTeamByKey(nextTeam.key).config().styledName()), true);
+		game.allPlayers().sendMessage(ConnectFourTexts.TEAM_GOES_NEXT.apply(teams.getTeamByKey(nextTeam.key).styledName()), true);
 
 		nextTeam.timer().start();
 

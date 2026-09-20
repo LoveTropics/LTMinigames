@@ -60,7 +60,7 @@ public record BbInGameScoreboardBehavior(Vec3 start, Vec3 end, boolean side, Gam
 	private ClientBbScoreboardState createState(CurrencyManager currency, PlotsState plots, GameTeam leftTeam, GameTeam rightTeam) {
 		return new ClientBbScoreboardState(start, end, side, BiodiversityBlitzTexts.SCOREBOARD_TITLE, List.of(
 				CommonComponents.EMPTY, CommonComponents.EMPTY,
-				leftTeam.config().styledName(), rightTeam.config().styledName(),
+				leftTeam.styledName(), rightTeam.styledName(),
 				formatPoints(currency, leftTeam.key()), formatPoints(currency, rightTeam.key()),
 				formatIncrement(plots, leftTeam.key()), formatIncrement(plots, rightTeam.key())
 		));

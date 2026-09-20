@@ -3,30 +3,6 @@ package org.lovetropics.games.common.content.crafting_bee;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimaps;
 import com.lovetropics.lib.BlockBox;
-import org.lovetropics.games.common.content.crafting_bee.ingredient.IngredientDecomposer;
-import org.lovetropics.games.common.core.game.GameException;
-import org.lovetropics.games.common.core.game.GameWinner;
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
-import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
-import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import org.lovetropics.games.common.core.game.behavior.event.GameLogicEvents;
-import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
-import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
-import org.lovetropics.games.common.core.game.client_state.GameClientState;
-import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
-import org.lovetropics.games.common.core.game.client_state.instance.CraftingBeeCraftsClientState;
-import org.lovetropics.games.common.core.game.player.PlayerSet;
-import org.lovetropics.games.common.core.game.state.TimedGameState;
-import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
-import org.lovetropics.games.common.core.game.state.team.GameTeam;
-import org.lovetropics.games.common.core.game.state.team.GameTeamConfig;
-import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
-import org.lovetropics.games.common.core.game.state.team.TeamState;
-import org.lovetropics.games.common.core.game.util.GameBossBar;
-import org.lovetropics.games.common.core.game.util.GameWidgets;
-import org.lovetropics.games.common.core.game.util.TemplatedText;
-import org.lovetropics.games.common.util.Util;
 import com.mojang.math.Transformation;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -36,7 +12,6 @@ import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -61,14 +36,35 @@ import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeHolder;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.StainedGlassBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.Tags;
 import org.joml.Vector3f;
+import org.lovetropics.games.common.content.crafting_bee.ingredient.IngredientDecomposer;
+import org.lovetropics.games.common.core.game.GameException;
+import org.lovetropics.games.common.core.game.GameWinner;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.core.game.behavior.event.GameLogicEvents;
+import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
+import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
+import org.lovetropics.games.common.core.game.client_state.GameClientState;
+import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
+import org.lovetropics.games.common.core.game.client_state.instance.CraftingBeeCraftsClientState;
+import org.lovetropics.games.common.core.game.player.PlayerSet;
+import org.lovetropics.games.common.core.game.state.TimedGameState;
+import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
+import org.lovetropics.games.common.core.game.state.team.GameTeam;
+import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
+import org.lovetropics.games.common.core.game.state.team.TeamState;
+import org.lovetropics.games.common.core.game.util.GameBossBar;
+import org.lovetropics.games.common.core.game.util.GameWidgets;
+import org.lovetropics.games.common.core.game.util.TemplatedText;
+import org.lovetropics.games.common.util.Util;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -180,12 +176,12 @@ public class CraftingBeeBehavior implements IGameBehavior {
 			GameBossBar timerBar = widgets.openBossBar(CommonComponents.EMPTY, BossEvent.BossBarColor.WHITE, BossEvent.BossBarOverlay.NOTCHED_10);
 			teams.getPlayersForTeam(game, team.key()).forEach(timerBar::addPlayer);
 
-			GameBossBar taskBar = widgets.openBossBar(team.config().styledName(), team.config().bossBarColor(), BossEvent.BossBarOverlay.PROGRESS);
+			GameBossBar taskBar = widgets.openBossBar(team.styledName(), team.bossBarColor(), BossEvent.BossBarOverlay.PROGRESS);
 			taskBar.setProgress(0.0f);
 
 			teamStates.put(team.key(), new CraftingTeamState(
 					taskDisplays,
-					getGlassBlockForTeam(team.config()),
+					team.glassBlock().defaultBlockState(),
 					taskBar,
 					timerBar,
 					new TimedGameState(timePerTeam, 0)
@@ -324,9 +320,8 @@ public class CraftingBeeBehavior implements IGameBehavior {
 		game.statistics().forTeam(team).set(StatisticKey.ITEMS_CRAFTED, (int) completed);
 
 		GameTeam gameTeam = teams.getTeamByKey(team);
-		GameTeamConfig teamConfig = gameTeam.config();
 
-		setTeamTaskProgress(teamConfig, team, (int) completed, teamTasks.size(), teamTasks.indexOf(task));
+		setTeamTaskProgress(gameTeam, (int) completed, teamTasks.size(), teamTasks.indexOf(task));
 
 		PlayerSet teamPlayers = teams.getPlayersForTeam(game, team);
 		teamPlayers.playSound(SoundEvents.FIREWORK_ROCKET_LAUNCH, SoundSource.PLAYERS, 1.0f, 1.0f);
@@ -340,10 +335,10 @@ public class CraftingBeeBehavior implements IGameBehavior {
 		}
 	}
 
-	private void setTeamTaskProgress(GameTeamConfig teamConfig, GameTeamKey team, int count, int totalCount, int taskIndex) {
-		game.allPlayers().sendMessage(CraftingBeeTexts.TEAM_HAS_COMPLETED_RECIPES.apply(teamConfig.styledName(), count, totalCount));
+	private void setTeamTaskProgress(GameTeam team, int count, int totalCount, int taskIndex) {
+		game.allPlayers().sendMessage(CraftingBeeTexts.TEAM_HAS_COMPLETED_RECIPES.apply(team.styledName(), count, totalCount));
 
-		CraftingTeamState teamState = teamStates.get(team);
+		CraftingTeamState teamState = teamStates.get(team.key());
 		float progress = count / (float) totalCount;
 		teamState.taskBar.setProgress(progress);
 
@@ -351,15 +346,6 @@ public class CraftingBeeBehavior implements IGameBehavior {
 		BlockPos glass = taskDisplay.beaconGlassPos;
 		game.level().setBlockAndUpdate(glass, teamState.beaconGlass);
 		taskDisplay.itemDisplay.setBrightnessOverride(new Brightness(0, 13));
-	}
-
-	private static BlockState getGlassBlockForTeam(GameTeamConfig teamConfig) {
-		for (Holder<Block> block : BuiltInRegistries.BLOCK.getTagOrEmpty(Tags.Blocks.GLASS_BLOCKS)) {
-			if (block.value() instanceof StainedGlassBlock stainedGlass && stainedGlass.getColor() == teamConfig.dyeColor()) {
-				return stainedGlass.defaultBlockState();
-			}
-		}
-		return Blocks.GLASS.defaultBlockState();
 	}
 
 	private void triggerGameOver(GameWinner winner) {

@@ -178,9 +178,9 @@ public class VictoryPointsBehavior implements IGameBehavior {
 
 		sidebar.add(RiverRaceTexts.SIDEBAR_HEADER.apply(
 				Component.literal(String.valueOf(game.statistics().forTeam(firstTeam.key()).getInt(StatisticKey.VICTORY_POINTS))),
-				firstTeam.config().styledName(),
+				firstTeam.styledName(),
 				Component.literal(String.valueOf(game.statistics().forTeam(secondTeam.key()).getInt(StatisticKey.VICTORY_POINTS))),
-				secondTeam.config().styledName()
+				secondTeam.styledName()
 		));
 
 		for (RiverRaceState.Zone zone : riverRace.getZones()) {
@@ -193,8 +193,8 @@ public class VictoryPointsBehavior implements IGameBehavior {
 			int secondPercent = getPercentInZone(zone, secondTeam, pointsInZone);
 			sidebar.add(zone.displayName());
 			sidebar.add(RiverRaceTexts.SIDEBAR_TEAM_PROGRESS.apply(
-					Component.literal(String.valueOf(firstPercent)).withColor(firstTeam.config().textColor()),
-					Component.literal(String.valueOf(secondPercent)).withColor(secondTeam.config().textColor())
+					Component.literal(String.valueOf(firstPercent)).withColor(firstTeam.textColor()),
+					Component.literal(String.valueOf(secondPercent)).withColor(secondTeam.textColor())
 			));
 		}
 

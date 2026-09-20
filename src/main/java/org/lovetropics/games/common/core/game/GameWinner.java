@@ -69,7 +69,7 @@ public sealed interface GameWinner {
 	record Team(GameTeam team) implements GameWinner {
 		@Override
 		public Component name() {
-			return team.config().styledName();
+			return team.styledName();
 		}
 
 		@Override

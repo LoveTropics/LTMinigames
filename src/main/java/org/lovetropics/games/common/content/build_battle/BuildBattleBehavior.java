@@ -77,7 +77,7 @@ public final class BuildBattleBehavior implements IGameBehavior {
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		selectorItems = new SelectorItems<>(new VoteItemsHandlers(this), new Integer[]{1, 2, 3, 4, 5, 6});
+		selectorItems = new SelectorItems<>(new VoteItemsHandlers(this), List.of(1, 2, 3, 4, 5, 6));
 
 		GameWidgets widgets = GameWidgets.getOrRegister(game, events);
 

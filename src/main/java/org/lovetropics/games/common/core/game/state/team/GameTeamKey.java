@@ -20,7 +20,7 @@ public record GameTeamKey(String id) implements StatisticHolder {
 	public Component getName(IGamePhase game) {
 		TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
 		GameTeam team = teams != null ? teams.getTeamByKey(this) : null;
-		return team != null ? team.config().styledName() : MinigameTexts.UNKNOWN;
+		return team != null ? team.styledName() : MinigameTexts.UNKNOWN;
 	}
 
 	@Override

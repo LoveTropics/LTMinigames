@@ -97,7 +97,7 @@ public record DonationPackageNotification(
 
 	private Component getReceiverName(@Nullable GameTeam receiver) {
 		if (receiver != null) {
-			return receiver.config().styledName();
+			return receiver.styledName();
 		}
 		return MinigameTexts.EVERYONE_RECEIVER;
 	}

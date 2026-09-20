@@ -106,7 +106,7 @@ public class GameStatisticCommand {
 												.executes(context -> {
 													GameTeam team = getTeam(context, "team");
 													StatisticKey<?> statisticKey = StatisticKeyArgument.get(context, "statistic");
-													return getStatistic(context.getSource(), s -> s.forTeam(team), team.config().styledName(), statisticKey);
+													return getStatistic(context.getSource(), s -> s.forTeam(team), team.styledName(), statisticKey);
 												})
 										)
 								)
@@ -136,7 +136,7 @@ public class GameStatisticCommand {
 														.executes(context -> {
 															GameTeam team = getTeam(context, "team");
 															StatisticKey<?> statisticKey = StatisticKeyArgument.get(context, "statistic");
-															return setStatistic(context, s -> s.forTeam(team), team.config().styledName(), statisticKey);
+															return setStatistic(context, s -> s.forTeam(team), team.styledName(), statisticKey);
 														})
 												)
 										)

@@ -1,22 +1,5 @@
 package org.lovetropics.games.common.core.game.behavior.instances.team;
 
-import com.lovetropics.lib.permission.PermissionsApi;
-import com.lovetropics.lib.permission.role.Role;
-import com.lovetropics.lib.permission.role.RoleReader;
-import org.lovetropics.games.common.content.MinigameTexts;
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
-import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
-import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
-import org.lovetropics.games.common.core.game.behavior.event.GameTeamEvents;
-import org.lovetropics.games.common.core.game.player.PlayerRole;
-import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
-import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
-import org.lovetropics.games.common.core.game.state.team.GameTeam;
-import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
-import org.lovetropics.games.common.core.game.state.team.TeamState;
-import org.lovetropics.games.common.core.game.util.TeamAllocator;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -32,9 +15,24 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Team;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.content.MinigameTexts;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
+import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
+import org.lovetropics.games.common.core.game.behavior.event.GameTeamEvents;
+import org.lovetropics.games.common.core.game.player.PlayerRole;
+import org.lovetropics.games.common.core.game.state.GameStateMap;
+import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
+import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
+import org.lovetropics.games.common.core.game.state.team.GameTeam;
+import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
+import org.lovetropics.games.common.core.game.state.team.TeamSetupState;
+import org.lovetropics.games.common.core.game.state.team.TeamState;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -51,6 +49,7 @@ public final class TeamsBehavior implements IGameBehavior {
 	private final boolean staticTeamIds;
 	private final boolean playerCollision;
 
+	private @Nullable TeamSetupState teamSetup;
 	private TeamState teams;
 
 	public TeamsBehavior(boolean friendlyFire, boolean staticTeamIds, boolean playerCollision) {
@@ -60,13 +59,38 @@ public final class TeamsBehavior implements IGameBehavior {
 	}
 
 	@Override
+	public void registerState(IGamePhase game, GameStateMap phaseState, GameStateMap instanceState) {
+		TeamState existingTeams = instanceState.getOrNull(TeamState.KEY);
+		// We might run this behavior after teams have already been set up (for example in a sub-game), and we don't want to set it up twice
+		if (existingTeams == null) {
+			teamSetup = instanceState.getOrThrow(TeamSetupState.KEY);
+			TeamState newTeams = teamSetup.createInitialTeamState();
+			instanceState.register(TeamState.KEY, newTeams);
+			teams = newTeams;
+		} else {
+			teams = existingTeams;
+		}
+	}
+
+	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
-		teams = game.instanceState().getOrThrow(TeamState.KEY);
+		TeamSetupState teamSetup = this.teamSetup;
+		if (teamSetup != null) {
+			events.listen(GamePlayerEvents.BEFORE_ADD_PLAYERS, (participants, spectators) ->
+					teamSetup.allocatePlayers(teams, participants)
+			);
+			events.listen(GamePlayerEvents.ALLOCATE_ROLES, allocator -> {
+				// All players that are assigned to a team should also be forced to be participating
+				teamSetup.assignedPlayers().forEach(player ->
+						allocator.addPlayer(player, PlayerRole.PARTICIPANT)
+				);
+			});
+			this.teamSetup = null;
+		}
 
 		addTeamsToScoreboard(game);
 
 		events.listen(GamePlayerEvents.BEFORE_ADD_PLAYERS, (participants, spectators) -> {
-			teams.allocatePlayers(participants);
 			Map<PlayerKey, GameTeamKey> participantTeams = new HashMap<>();
 			for (PlayerKey participant : participants) {
 				GameTeamKey team = teams.getTeamForPlayer(participant);
@@ -88,7 +112,6 @@ public final class TeamsBehavior implements IGameBehavior {
 		});
 
 		events.listen(GamePhaseEvents.DESTROY, () -> onDestroy(game));
-		events.listen(GamePlayerEvents.ALLOCATE_ROLES, this::reassignPlayerRoles);
 
 		events.listen(GamePlayerEvents.LEAVE, player -> removePlayerFromTeams(game, player));
 		events.listen(GamePlayerEvents.DAMAGE, this::onPlayerHurt);
@@ -114,8 +137,8 @@ public final class TeamsBehavior implements IGameBehavior {
 			scoreboardTeam = scoreboard.addPlayerTeam(teamId);
 		}
 
-		scoreboardTeam.setDisplayName(team.config().name());
-		scoreboardTeam.setColor(Optional.of(team.config().teamColor()));
+		scoreboardTeam.setDisplayName(team.plainName());
+		scoreboardTeam.setColor(Optional.of(team.teamColor()));
 		scoreboardTeam.setAllowFriendlyFire(friendlyFire);
 		scoreboardTeam.setCollisionRule(playerCollision ? Team.CollisionRule.ALWAYS : Team.CollisionRule.NEVER);
 
@@ -127,17 +150,6 @@ public final class TeamsBehavior implements IGameBehavior {
 			return team.id();
 		} else {
 			return team.id() + "_" + RandomStringUtils.insecure().nextAlphabetic(3);
-		}
-	}
-
-	private void reassignPlayerRoles(TeamAllocator<PlayerRole, PlayerKey> allocator) {
-		// All players that are assigned to a team should also be forced to be participating
-		List<Role> assignedRoles = teams.assignedRoles();
-		for (PlayerKey player : allocator.getKnownPlayers()) {
-			RoleReader roles = PermissionsApi.lookup().byPlayerId(player.id());
-			if (assignedRoles.stream().anyMatch(roles::has)) {
-				allocator.addPlayer(player, PlayerRole.PARTICIPANT);
-			}
 		}
 	}
 
@@ -157,9 +169,7 @@ public final class TeamsBehavior implements IGameBehavior {
 		PlayerTeam scoreboardTeam = scoreboardTeams.get(team.key());
 		scoreboard.addPlayerToTeam(player.getScoreboardName(), scoreboardTeam);
 
-		Component teamName = team.config().name().copy()
-				.withStyle(ChatFormatting.BOLD)
-				.withColor(team.config().textColor());
+		Component teamName = team.styledName().withStyle(ChatFormatting.BOLD);
 
 		player.sendSystemMessage(MinigameTexts.ON_TEAM.apply(teamName), false);
 	}

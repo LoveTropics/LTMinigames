@@ -15,7 +15,9 @@ import net.minecraft.world.item.ItemStack;
 
 import org.jspecify.annotations.Nullable;
 
-public record SelectorItems<V>(Handlers<V> handlers, V[] values) {
+import java.util.Collection;
+
+public record SelectorItems<V>(Handlers<V> handlers, Collection<V> values) {
 	public void applyTo(EventRegistrar events) {
 		events.listen(GamePlayerEvents.USE_ITEM, this::onUseItem);
 		events.listen(GamePlayerEvents.THROW_ITEM, this::onThrowItem);

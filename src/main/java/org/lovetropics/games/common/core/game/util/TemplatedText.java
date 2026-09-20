@@ -47,7 +47,7 @@ public record TemplatedText(Component template) {
 				values.put("item", item.getHoverName())
 		);
 		Optional.ofNullable(context.getOptional(GameActionContextKeys.TEAM)).ifPresent(team ->
-				values.put("team", team.config().styledName())
+				values.put("team", team.styledName())
 		);
 		Optional.ofNullable(context.getOptional(GameActionContextKeys.NAME)).ifPresent(name ->
 				values.put("name", name)

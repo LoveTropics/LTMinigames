@@ -55,9 +55,9 @@ public class VacationDaysBehaviour implements IGameBehavior {
 
 		sidebar.add(EscapeRaceTexts.SIDEBAR_HEADER.apply(
 				Component.literal(String.valueOf(game.statistics().forTeam(firstTeam.key()).getInt(StatisticKey.VACATION_DAYS))),
-				firstTeam.config().styledName(),
+				firstTeam.styledName(),
 				Component.literal(String.valueOf(game.statistics().forTeam(secondTeam.key()).getInt(StatisticKey.VACATION_DAYS))),
-				secondTeam.config().styledName()
+				secondTeam.styledName()
 		));
 
 		return sidebar.toArray(new Component[0]);

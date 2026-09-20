@@ -118,7 +118,7 @@ public record AddEquipmentAction(List<ItemStackTemplate> items, Optional<ItemSta
 	}
 
 	private static void setColor(GameTeam team, ItemStack stack) {
-		int color = team.config().dyeColor().getTextureDiffuseColor();
+		int color = team.dyeColor().getTextureDiffuseColor();
 		stack.set(DataComponents.DYED_COLOR, new DyedItemColor(color));
 	}
 
