@@ -6,7 +6,6 @@ import com.lovetropics.minigames.common.content.biodiversity_blitz.plot.plant.Pl
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
-import com.lovetropics.minigames.common.util.BlockStatePredicate;
 import com.lovetropics.minigames.common.util.world.DelegatingWorldGenLevel;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -17,6 +16,9 @@ import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderSet;
+import net.minecraft.core.RegistryCodecs;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.WorldGenLevel;
@@ -24,14 +26,17 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
-
 import org.jspecify.annotations.Nullable;
+
 import java.util.function.Predicate;
 
-public record PlaceFeaturePlantBehavior(Holder<ConfiguredFeature<?, ?>> feature, BlockStatePredicate blocks) implements IGameBehavior {
+public record PlaceFeaturePlantBehavior(
+		Holder<ConfiguredFeature<?, ?>> feature,
+		HolderSet<Block> blocks
+) implements IGameBehavior {
 	public static final MapCodec<PlaceFeaturePlantBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			ConfiguredFeature.CODEC.fieldOf("feature").forGetter(c -> c.feature),
-			BlockStatePredicate.CODEC.fieldOf("blocks").forGetter(c -> c.blocks)
+			RegistryCodecs.homogeneousList(Registries.BLOCK).fieldOf("blocks").forGetter(c -> c.blocks)
 	).apply(i, PlaceFeaturePlantBehavior::new));
 
 	@Override
@@ -48,7 +53,7 @@ public record PlaceFeaturePlantBehavior(Holder<ConfiguredFeature<?, ?>> feature,
 	}
 
 	private @Nullable Long2ObjectMap<BlockState> generateFeature(ServerLevel level, BlockPos pos, ConfiguredFeature<?, ?> feature) {
-		BlockCapturingLevel capturingLevel = new BlockCapturingLevel(level, blocks);
+		BlockCapturingLevel capturingLevel = new BlockCapturingLevel(level, state -> state.is(blocks));
 
 		ChunkGenerator chunkGenerator = level.getChunkSource().getGenerator();
 		if (feature.place(capturingLevel, chunkGenerator, level.getRandom(), pos)) {

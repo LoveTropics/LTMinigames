@@ -4,20 +4,28 @@ import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.behavior.event.EventRegistrar;
 import com.lovetropics.minigames.common.core.game.behavior.event.GameWorldEvents;
-import com.lovetropics.minigames.common.util.BlockStatePredicate;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.advancements.predicates.BlockPredicate;
 
-public record DisableTntDestructionBehavior(BlockStatePredicate blockPredicate) implements IGameBehavior {
+import java.util.Optional;
+
+public record DisableTntDestructionBehavior(
+		Optional<BlockPredicate> blockPredicate
+) implements IGameBehavior {
 	public static final MapCodec<DisableTntDestructionBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			BlockStatePredicate.CODEC.optionalFieldOf("block_predicate", BlockStatePredicate.ANY).forGetter(c -> c.blockPredicate)
+			BlockPredicate.CODEC.optionalFieldOf("block_predicate").forGetter(DisableTntDestructionBehavior::blockPredicate)
 	).apply(i, DisableTntDestructionBehavior::new));
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
-		events.listen(GameWorldEvents.EXPLOSION_DETONATE, (level, explosion, affectedBlocks, affectedEntities) -> {
-			affectedBlocks.removeIf(pos -> blockPredicate.test(level.getBlockState(pos)));
-		});
+		if (blockPredicate.isEmpty()) {
+			events.listen(GameWorldEvents.EXPLOSION_DETONATE, (_, _, affectedBlocks, _) -> affectedBlocks.clear());
+		} else {
+			BlockPredicate blockPredicate = this.blockPredicate.get();
+			events.listen(GameWorldEvents.EXPLOSION_DETONATE, (level, _, affectedBlocks, _) ->
+					affectedBlocks.removeIf(pos -> blockPredicate.matches(level, pos))
+			);
+		}
 	}
 }
