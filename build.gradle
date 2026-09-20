@@ -1,29 +1,12 @@
 plugins {
-    id 'eclipse'
-    id 'idea'
-    id 'java-library'
     id 'net.neoforged.moddev' version '2.0.141'
+    id 'conventions'
 }
 
 group = 'org.lovetropics'
 base {
     archivesName = 'LTMinigames'
 }
-
-ext.buildnumber = 0
-project.buildnumber = System.getenv('BUILD_NUMBER') ?: 'custom'
-
-if (System.getenv('GHA_RELEASE_WORKFLOW')) {
-    version = "${mod_version}"
-} else if (System.getenv('GITHUB_RUN_NUMBER')) {
-    project.buildnumber = System.getenv('GITHUB_RUN_NUMBER')
-    version = "${mod_version}-${release_type}+${buildnumber}-gha"
-} else {
-    project.buildnumber = System.getenv('BUILD_NUMBER') ?: 'custom'
-    version = "${mod_version}-${release_type}+${buildnumber}"
-}
-
-java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
 sourceSets.main.resources {
     srcDir 'src/generated/resources'
@@ -35,16 +18,20 @@ sourceSets.test.resources {
     include 'data/ltminigames/structure/**'
 }
 
-neoForge {
-    version = project.neo_version
+def mod_id = 'ltminigames'
 
+conventions {
+    modId = mod_id
+}
+
+neoForge {
     addModdingDependenciesTo sourceSets.test
 
     mods {
-        "${project.mod_id}" {
+        "${mod_id}" {
             sourceSet sourceSets.main
         }
-        "${project.mod_id}_test" {
+        "${mod_id}_test" {
             sourceSet sourceSets.main
             sourceSet sourceSets.test
         }
@@ -56,7 +43,7 @@ neoForge {
             loadedMods = [mods."${mod_id}"]
 
             programArguments.addAll '--username', 'Dev###'
-            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+            systemProperty 'neoforge.enabledGameTestNamespaces', mod_id
         }
 
         server {
@@ -64,7 +51,7 @@ neoForge {
             loadedMods = [mods."${mod_id}"]
 
             programArgument '--nogui'
-            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+            systemProperty 'neoforge.enabledGameTestNamespaces', mod_id
         }
 
         gameTestServer {
@@ -72,14 +59,14 @@ neoForge {
             sourceSet = sourceSets.test
             loadedMods = [mods."${mod_id}_test"]
 
-            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+            systemProperty 'neoforge.enabledGameTestNamespaces', mod_id
         }
 
         data {
             clientData()
             loadedMods = [mods."${mod_id}_test"]
 
-            programArguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
+            programArguments.addAll '--mod', mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
         }
 
         configureEach {
@@ -88,20 +75,6 @@ neoForge {
             jvmArgument("-Dmixin.debug.export=true")
         }
     }
-}
-
-configurations {
-    modImpl
-    implementation.extendsFrom(modImpl)
-    testImplementation.extendsFrom(modImpl)
-
-    modRuntime
-    runtimeOnly.extendsFrom(modRuntime)
-    testRuntimeOnly.extendsFrom(modRuntime)
-
-    modCompile
-    compileOnly.extendsFrom(modCompile)
-    testCompileOnly.extendsFrom(modCompile)
 }
 
 repositories {
@@ -131,16 +104,14 @@ repositories {
 dependencies {
     runtimeOnly 'maven.modrinth:tropicraft:9.11.0+26.2'
 
-    // TODO: HACK - We get Registrate at runtime through JarJar from Tropicraft. We should rather prefer to depend on the slim jar.
-    jarJar(compileOnly("com.tterrag.registrate:Registrate:MC26.2-${registrate_version}") {
+    jarJar("com.tterrag.registrate:Registrate:MC26.2-${registrate_version}") {
         version {
             strictly "[MC26.2-${registrate_version},MC26.3)"
             prefer "MC26.2-${registrate_version}"
         }
-    })
+    }
 
-    jarJar(implementation("org.lovetropics:LTLib:$ltlib_version"))
-//    runtimeOnly("org.lovetropics:LTLib:$ltlib_version")
+    jarJar("org.lovetropics:LTLib:$ltlib_version")
 
     runtimeOnly "org.lovetropics:LTExtras:$ltextras_version"
 
@@ -161,48 +132,4 @@ test {
     testLogging {
         events "passed", "skipped", "failed"
     }
-}
-
-tasks.register('sourceJar', Jar) {
-    dependsOn classes
-    archiveClassifier = 'sources'
-    from sourceSets.main.java
-}
-
-var generateModMetadata = tasks.register('generateModMetadata', ProcessResources) {
-    var replaceProperties = [
-            minecraft_version      : minecraft_version,
-            minecraft_version_range: minecraft_version_range,
-            neo_version            : neo_version,
-            neo_version_range      : neo_version_range,
-            loader_version_range   : loader_version_range,
-            mod_id                 : mod_id,
-            mod_version            : mod_version,
-    ]
-    inputs.properties replaceProperties
-    expand replaceProperties
-    from 'src/main/templates'
-    into 'build/generated/sources/modMetadata'
-}
-sourceSets.main.resources.srcDir generateModMetadata
-
-neoForge.ideSyncTask generateModMetadata
-
-tasks.withType(JavaCompile).configureEach {
-    options.encoding = 'UTF-8'
-}
-
-idea {
-    module {
-        downloadSources = true
-        downloadJavadoc = true
-    }
-}
-
-tasks.withType(JavaCompile) {
-    options.compilerArgs << "-Xmaxerrs" << "100000"
-}
-
-tasks.withType(ProcessResources).configureEach {
-    outputs.upToDateWhen { false }
 }
