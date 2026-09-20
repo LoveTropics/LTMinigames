@@ -1,17 +1,16 @@
 package com.lovetropics.minigames.common.core.game.client_state;
 
 import com.lovetropics.minigames.LoveTropics;
-import com.lovetropics.minigames.common.core.game.PlayerIsolation;
 import com.lovetropics.minigames.common.core.network.SetGameClientStateMessage;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.players.PlayerList;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
-
 import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
@@ -44,11 +43,11 @@ public final class GameClientStateSender {
 		}
 	}
 
+	// Not listening to PlayerLoggedOutEvent, because we trigger it when reloading from/to a minigame world
 	@SubscribeEvent
-	public static void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
-		if (event.getEntity() instanceof ServerPlayer player && !PlayerIsolation.INSTANCE.isReloading(player)) {
-			INSTANCE.players.remove(player.getUUID());
-		}
+	public static void onServerTick(ServerTickEvent.Post event) {
+		PlayerList playerList = event.getServer().getPlayerList();
+		INSTANCE.players.keySet().removeIf(id -> playerList.getPlayer(id) == null);
 	}
 
 	public static final class PlayerEntry {
