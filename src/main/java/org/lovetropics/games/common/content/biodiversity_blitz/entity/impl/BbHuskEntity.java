@@ -1,0 +1,98 @@
+package org.lovetropics.games.common.content.biodiversity_blitz.entity.impl;
+
+import org.lovetropics.games.common.content.biodiversity_blitz.entity.BbMobEntity;
+import org.lovetropics.games.common.content.biodiversity_blitz.entity.ai.BbGroundNavigator;
+import org.lovetropics.games.common.content.biodiversity_blitz.entity.ai.BbMobBrain;
+import org.lovetropics.games.common.content.biodiversity_blitz.entity.ai.BbTargetPlayerGoal;
+import org.lovetropics.games.common.content.biodiversity_blitz.entity.ai.DestroyCropGoal;
+import org.lovetropics.games.common.content.biodiversity_blitz.plot.Plot;
+import org.lovetropics.games.common.util.duck.ClearableFluidInteraction;
+import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.entity.SpawnGroupData;
+import net.minecraft.world.entity.ai.goal.ZombieAttackGoal;
+import net.minecraft.world.entity.ai.navigation.PathNavigation;
+import net.minecraft.world.entity.monster.zombie.Husk;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.pathfinder.PathType;
+import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.common.NeoForgeMod;
+import org.jspecify.annotations.Nullable;
+
+public class BbHuskEntity extends Husk implements BbMobEntity {
+	private final BbMobBrain mobBrain;
+	private final Plot plot;
+
+	public BbHuskEntity(EntityType<? extends Husk> type, Level level, Plot plot) {
+		super(type, level);
+		mobBrain = new BbMobBrain(plot.walls);
+		this.plot = plot;
+
+		setPathfindingMalus(PathType.DAMAGING_IN_NEIGHBOR, BERRY_BUSH_MALUS);
+	}
+
+	@Override
+	protected PathNavigation createNavigation(Level level) {
+		return new BbGroundNavigator(this);
+	}
+
+	@Override
+	protected void addBehaviourGoals() {
+		goalSelector.addGoal(2, new DestroyCropGoal(this));
+		goalSelector.addGoal(3, new ZombieAttackGoal(this, BbMobEntity.ATTACK_MOVE_SPEED, false));
+
+		targetSelector.addGoal(1, new BbTargetPlayerGoal(this));
+	}
+
+	@Override
+	protected Vec3 maybeBackOffFromEdge(Vec3 offset, MoverType mover) {
+		return mobBrain.getPlotWalls().collide(getBoundingBox(), offset);
+	}
+
+	@Override
+	public @Nullable SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, EntitySpawnReason reason, @Nullable SpawnGroupData spawnData) {
+		setLeftHanded(random.nextFloat() < 0.05F);
+		return spawnData;
+	}
+
+	@Override
+	public BbMobBrain getMobBrain() {
+		return mobBrain;
+	}
+
+	@Override
+	public Mob asMob() {
+		return this;
+	}
+
+	@Override
+	public Plot getPlot() {
+		return plot;
+	}
+
+	@Override
+	protected void pushEntities() {
+	}
+
+	@Override
+	public void updateSwimming() {
+		// Just use the default navigator, we never need to swim
+	}
+
+	@Override
+	protected boolean updateFluidInteraction() {
+		super.updateFluidInteraction();
+		((ClearableFluidInteraction) getFluidInteraction()).ltminigames$removeFluid(NeoForgeMod.WATER_TYPE.value());
+		wasTouchingWater = false;
+		return getFluidInteraction().isInAnyFluid();
+	}
+
+	@Override
+	public boolean isPushedByFluid() {
+		return false;
+	}
+}

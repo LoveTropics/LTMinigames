@@ -1,0 +1,50 @@
+package org.lovetropics.games.common.core.network.trivia;
+
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.content.river_race.TriviaEvents;
+import org.lovetropics.games.common.content.river_race.behaviour.TriviaBehaviour;
+import org.lovetropics.games.common.content.river_race.block.HasTrivia;
+import org.lovetropics.games.common.core.game.IGameLookup;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
+
+public record SelectTriviaAnswerMessage(BlockPos triviaBlock, int selectedAnswer) implements CustomPacketPayload {
+	public static final Type<SelectTriviaAnswerMessage> TYPE = new Type<>(LoveTropics.id("select_trivia_answer"));
+	public static final StreamCodec<ByteBuf, SelectTriviaAnswerMessage> STREAM_CODEC = StreamCodec.composite(
+			BlockPos.STREAM_CODEC, SelectTriviaAnswerMessage::triviaBlock,
+			ByteBufCodecs.VAR_INT, SelectTriviaAnswerMessage::selectedAnswer,
+			SelectTriviaAnswerMessage::new
+	);
+
+	public static void handle(SelectTriviaAnswerMessage message, IPayloadContext context) {
+		ServerPlayer player = (ServerPlayer) context.player();
+		if (!player.isWithinBlockInteractionRange(message.triviaBlock(), ServerPlayer.BLOCK_INTERACTION_DISTANCE_VERIFICATION_BUFFER)) {
+			return;
+		}
+		IGamePhase game = IGameLookup.get().getGamePhaseFor(player);
+		ServerLevel level = player.level();
+		if (game != null && level.getBlockEntity(message.triviaBlock) instanceof HasTrivia triviaBlock) {
+			TriviaBehaviour.TriviaQuestion question = triviaBlock.getQuestion();
+			if (question == null) {
+				return;
+			}
+			TriviaBehaviour.TriviaQuestion.TriviaQuestionAnswer selectedAnswer = question.getAnswer(message.selectedAnswer);
+			if (selectedAnswer != null) {
+				game.invoker(TriviaEvents.ANSWER_TRIVIA_BLOCK_QUESTION).onAnswerQuestion(player, level, message.triviaBlock(), triviaBlock, question, selectedAnswer);
+//                triviaBlock.handleAnswerSelection(context.player(), message.selectedAnswer());
+			}
+		}
+	}
+
+	@Override
+	public Type<SelectTriviaAnswerMessage> type() {
+		return TYPE;
+	}
+}

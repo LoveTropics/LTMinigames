@@ -1,0 +1,155 @@
+package org.lovetropics.games.common.core.game.impl;
+
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.core.game.GameException;
+import org.lovetropics.games.common.core.game.IGameLookup;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.config.GameConfig;
+import org.lovetropics.games.common.core.game.config.GamePhaseConfig;
+import org.lovetropics.games.common.core.game.map.GameMap;
+import org.lovetropics.games.common.core.game.map.IGameMapProvider;
+import org.lovetropics.games.common.core.game.util.GameTexts;
+import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.server.ServerStoppingEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import org.jspecify.annotations.Nullable;
+
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+
+@EventBusSubscriber(modid = LoveTropics.ID)
+public class GamePhaseManager implements IGameLookup {
+	private static final GamePhaseManager INSTANCE = new GamePhaseManager();
+
+	private final Queue<GamePhase> queuedGames = new ArrayDeque<>();
+
+	private final Map<ResourceKey<Level>, List<GamePhase>> gamesByDimension = new Reference2ObjectOpenHashMap<>();
+
+	public static GamePhaseManager get() {
+		return INSTANCE;
+	}
+
+	public CompletableFuture<GamePhase> createTopPhase(GameInstance game, GamePhaseConfig phaseDefinition) {
+		return createPhase(game, null, game.config(), phaseDefinition);
+	}
+
+	public CompletableFuture<GamePhase> createSubPhase(GamePhase parentPhase, GameConfig subGameDefinition) {
+		return createPhase(parentPhase.game, parentPhase, subGameDefinition, subGameDefinition.playing());
+	}
+
+	private CompletableFuture<GamePhase> createPhase(GameInstance game, @Nullable GamePhase parentPhase, GameConfig config, GamePhaseConfig phaseDefinition) {
+		try {
+			checkCanAddGamePhase(phaseDefinition);
+		} catch (GameException e) {
+			return CompletableFuture.failedFuture(e);
+		}
+
+		CompletableFuture<GameMap> mapFuture = phaseDefinition.map().open(game.server());
+
+		IGameBehavior behavior = phaseDefinition.createBehavior();
+
+		return mapFuture
+				.thenApplyAsync(map -> {
+					// TODO: Rather have the async CompletableFuture part only prepare the map - create the GamePhase only from the outside
+					GamePhase phase = new GamePhase(game, parentPhase, map, config, behavior);
+					queuedGames.add(phase);
+					return phase;
+				}, game.server())
+				.exceptionally(throwable -> {
+					GameException gameException = GameException.unwrap(throwable);
+					if (gameException != null) {
+						throw new CompletionException(gameException);
+					}
+					throw new CompletionException(new GameException(Component.literal("An unexpected exception occurred while creating game phase ").append(throwable.getMessage()), throwable)); // Todo I added the throwable message here, error does not seem to passed all the way done so I just did this for now - UnReal
+				});
+	}
+
+	void checkCanAddGamePhase(GamePhaseConfig definition) throws GameException {
+		IGameMapProvider map = definition.map();
+		for (ResourceKey<Level> dimension : map.getPossibleDimensions()) {
+			List<GamePhase> games = gamesByDimension.getOrDefault(dimension, Collections.emptyList());
+			if (!games.isEmpty()) {
+				throw new GameException(GameTexts.Commands.GAMES_INTERSECT);
+			}
+		}
+	}
+
+	@Override
+	public @Nullable GamePhase getGamePhaseFor(Player player) {
+		return getGamePhaseInDimension(player.level());
+	}
+
+	@Override
+	public @Nullable GamePhase getGamePhaseAt(Level level, Vec3 pos) {
+		return getGamePhaseInDimension(level);
+	}
+
+	@Override
+	public @Nullable GamePhase getGamePhaseInDimension(Level level) {
+		if (level.isClientSide()) {
+			return null;
+		}
+		List<GamePhase> games = gamesByDimension.get(level.dimension());
+		if (games != null && games.size() == 1) {
+			return games.getFirst();
+		}
+		return null;
+	}
+
+	@SubscribeEvent
+	public static void onServerStopping(ServerStoppingEvent event) {
+		INSTANCE.onServerStopping();
+	}
+
+	@SubscribeEvent
+	public static void onServerTick(ServerTickEvent.Pre event) {
+		INSTANCE.onServerTick();
+	}
+
+	@SubscribeEvent
+	public static void onLevelTick(LevelTickEvent.Post event) {
+		if (event.getLevel() instanceof ServerLevel level) {
+			INSTANCE.onLevelTick(level);
+		}
+	}
+
+	private void onServerStopping() {
+		for (List<GamePhase> phases : gamesByDimension.values()) {
+			phases.forEach(GamePhase::stopForServerShutdown);
+		}
+		gamesByDimension.clear();
+	}
+
+	private void onServerTick() {
+		for (GamePhase queuedGame : queuedGames) {
+			gamesByDimension.computeIfAbsent(queuedGame.level().dimension(), _ -> new ArrayList<>()).add(queuedGame);
+		}
+		queuedGames.clear();
+	}
+
+	private void onLevelTick(ServerLevel level) {
+		List<GamePhase> games = gamesByDimension.get(level.dimension());
+		if (games == null) {
+			return;
+		}
+		games.removeIf(GamePhase::tick);
+		if (games.isEmpty()) {
+			gamesByDimension.remove(level.dimension());
+		}
+	}
+}

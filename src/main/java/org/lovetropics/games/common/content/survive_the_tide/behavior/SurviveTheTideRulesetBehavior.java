@@ -1,0 +1,73 @@
+package org.lovetropics.games.common.content.survive_the_tide.behavior;
+
+import org.lovetropics.games.common.core.game.GameException;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.core.game.behavior.event.GameLivingEntityEvents;
+import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
+import org.lovetropics.games.common.core.game.behavior.instances.ImmediateRespawnBehavior;
+import org.lovetropics.games.common.core.game.state.progress.ProgressChannel;
+import org.lovetropics.games.common.core.game.state.progress.ProgressHolder;
+import org.lovetropics.games.common.core.game.state.progress.ProgressionPeriod;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.util.TriState;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.gamerules.GameRules;
+
+public class SurviveTheTideRulesetBehavior implements IGameBehavior {
+	public static final MapCodec<SurviveTheTideRulesetBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+			ProgressionPeriod.CODEC.fieldOf("safe_period").forGetter(c -> c.safePeriod),
+			Codec.BOOL.optionalFieldOf("force_drop_items_on_death", true).forGetter(c -> c.forceDropItemsOnDeath)
+	).apply(i, SurviveTheTideRulesetBehavior::new));
+
+	private final ProgressionPeriod safePeriod;
+	private final boolean forceDropItemsOnDeath;
+
+	private ProgressHolder progression;
+
+	public SurviveTheTideRulesetBehavior(ProgressionPeriod safePeriod, boolean forceDropItemsOnDeath) {
+		this.safePeriod = safePeriod;
+		this.forceDropItemsOnDeath = forceDropItemsOnDeath;
+	}
+
+	@Override
+	public void register(IGamePhase game, EventRegistrar events) throws GameException {
+		progression = ProgressChannel.MAIN.getOrThrow(game);
+
+		events.listen(GamePlayerEvents.DEATH, this::onPlayerDeath);
+		events.listen(GamePlayerEvents.DAMAGE, this::onPlayerHurt);
+		events.listen(GamePlayerEvents.ATTACK, this::onPlayerAttackEntity);
+
+		events.listen(GameLivingEntityEvents.ENDER_PEARL_TELEPORT, (player, x, y, z, damage, callback) -> {
+			callback.accept(0f); // Set ender pearl damage to 0
+		});
+	}
+
+	private TriState onPlayerDeath(ServerPlayer player, DamageSource damageSource) {
+		if (forceDropItemsOnDeath && player.level().getGameRules().get(GameRules.KEEP_INVENTORY)) {
+			ImmediateRespawnBehavior.destroyVanishingCursedItems(player.getInventory());
+			player.getInventory().dropAll();
+		}
+		return TriState.DEFAULT;
+	}
+
+	private TriState onPlayerHurt(ServerPlayer player, DamageSource source, float amount) {
+		if ((source.getEntity() instanceof ServerPlayer || source.is(DamageTypeTags.IS_PROJECTILE)) && progression.is(safePeriod)) {
+			return TriState.FALSE;
+		}
+		return TriState.DEFAULT;
+	}
+
+	private TriState onPlayerAttackEntity(ServerPlayer player, Entity target) {
+		if (target instanceof ServerPlayer && progression.is(safePeriod)) {
+			return TriState.FALSE;
+		}
+		return TriState.DEFAULT;
+	}
+}

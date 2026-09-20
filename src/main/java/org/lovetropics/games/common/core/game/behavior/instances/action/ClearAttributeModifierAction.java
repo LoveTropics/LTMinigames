@@ -1,0 +1,34 @@
+package org.lovetropics.games.common.core.game.behavior.instances.action;
+
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.Holder;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+
+public record ClearAttributeModifierAction(Holder<Attribute> attribute, Identifier id) implements IGameBehavior {
+	public static final MapCodec<ClearAttributeModifierAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+			Attribute.CODEC.fieldOf("attribute").forGetter(ClearAttributeModifierAction::attribute),
+			Identifier.CODEC.fieldOf("id").forGetter(ClearAttributeModifierAction::id)
+	).apply(i, ClearAttributeModifierAction::new));
+
+	@Override
+	public void register(IGamePhase game, EventRegistrar events) {
+		events.applyToEntities(game, (context, level, entity) -> {
+			if (!(entity instanceof LivingEntity livingEntity)) {
+				return false;
+			}
+			AttributeInstance attribute = livingEntity.getAttribute(this.attribute);
+			if (attribute != null) {
+				attribute.removeModifier(id);
+				return true;
+			}
+			return false;
+		});
+	}
+}

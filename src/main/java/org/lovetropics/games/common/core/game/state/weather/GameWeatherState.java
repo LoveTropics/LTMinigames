@@ -1,0 +1,78 @@
+package org.lovetropics.games.common.core.game.state.weather;
+
+import org.lovetropics.games.common.core.game.behavior.event.GameWorldEvents;
+import org.lovetropics.games.common.core.game.state.GameStateKey;
+import org.lovetropics.games.common.core.game.state.IGameState;
+import org.lovetropics.games.common.core.game.weather.WeatherController;
+import org.lovetropics.games.common.core.game.weather.WeatherEvent;
+import org.lovetropics.games.common.core.game.weather.WeatherEventType;
+import net.minecraft.SharedConstants;
+
+import org.jspecify.annotations.Nullable;
+
+public final class GameWeatherState implements IGameState {
+	public static final GameStateKey<GameWeatherState> KEY = GameStateKey.create("Weather State");
+
+	private final WeatherController controller;
+	private final GameWorldEvents.SetWeather weatherListener;
+
+	private @Nullable WeatherEvent event;
+
+	private int weatherCooldown = 0;
+	private final int weatherCooldownBetweenStates = 11 * SharedConstants.TICKS_PER_SECOND;
+
+	public GameWeatherState(WeatherController controller, GameWorldEvents.SetWeather weatherListener) {
+		this.controller = controller;
+		this.weatherListener = weatherListener;
+	}
+
+	public void clear() {
+		clearEvent();
+		setWind(0.0F);
+	}
+
+	public void tick() {
+		if (weatherCooldown > 0) {
+			weatherCooldown--;
+		}
+		WeatherEvent event = this.event;
+		if (event != null && event.tick() == WeatherEvent.TickResult.STOP) {
+			clearEvent();
+			weatherCooldown = weatherCooldownBetweenStates;
+		}
+	}
+
+	public void setWind(float wind) {
+		controller.setWind(wind);
+	}
+
+	public void setEvent(@Nullable WeatherEvent event) {
+		WeatherEvent lastEvent = this.event;
+		if (lastEvent != null) {
+			lastEvent.remove(controller);
+		}
+
+		this.event = event;
+		if (event != null) {
+			event.apply(controller);
+		}
+
+		weatherListener.onSetWeather(lastEvent, event);
+	}
+
+	public void clearEvent() {
+		setEvent(null);
+	}
+
+	public @Nullable WeatherEvent getEvent() {
+		return event;
+	}
+
+	public @Nullable WeatherEventType getEventType() {
+		return event != null ? event.getType() : null;
+	}
+
+	public boolean canStartWeatherEvent() {
+		return weatherCooldown == 0;
+	}
+}

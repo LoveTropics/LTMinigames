@@ -1,0 +1,118 @@
+package org.lovetropics.games.common.core.command.game;
+
+import org.lovetropics.games.common.core.command.argument.GameLobbyArgument;
+import org.lovetropics.games.common.core.command.argument.PlayerRoleArgument;
+import org.lovetropics.games.common.core.game.GameResult;
+import org.lovetropics.games.common.core.game.impl.GameLobby;
+import org.lovetropics.games.common.core.game.impl.GameLobbyManager;
+import org.lovetropics.games.common.core.game.impl.LobbyPlayerManager;
+import org.lovetropics.games.common.core.game.player.PlayerRole;
+import org.lovetropics.games.common.core.game.util.GameTexts;
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Unit;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import org.jspecify.annotations.Nullable;
+
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import static net.minecraft.commands.Commands.argument;
+import static net.minecraft.commands.Commands.literal;
+
+@EventBusSubscriber
+public class JoinGameCommand {
+	@SubscribeEvent
+	public static void register(RegisterCommandsEvent event) {
+		// @formatter:off
+		event.getDispatcher().register(
+			literal("game")
+				.then(joinBuilder("register"))
+				.then(joinBuilder("join"))
+				.then(joinBuilder("play"))
+				.then(literal("force").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+					.then(argument("player", EntityArgument.players())
+					.executes(JoinGameCommand::forcePlayerJoin)
+				))
+		);
+		// @formatter:on
+	}
+
+	private static LiteralArgumentBuilder<CommandSourceStack> joinBuilder(String name) {
+		// @formatter:off
+		return literal(name)
+				.executes(ctx -> joinAsRole(ctx, null, null))
+				.then(GameLobbyArgument.argument("lobby")
+					.executes(ctx -> joinAsRole(ctx, GameLobbyArgument.get(ctx, "lobby"), null))
+					.then(literal("as").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+						.then(PlayerRoleArgument.argument("role")
+						.executes(ctx -> joinAsRole(ctx, GameLobbyArgument.get(ctx, "lobby"), PlayerRoleArgument.get(ctx, "role")))
+					))
+				);
+		// @formatter:on
+	}
+
+	private static int joinAsRole(CommandContext<CommandSourceStack> ctx, @Nullable GameLobby givenLobby, @Nullable PlayerRole forcedRole) throws CommandSyntaxException {
+		return joinAsRole(givenLobby, forcedRole, ctx.getSource().getPlayerOrException(), ctx.getSource());
+	}
+
+	public static int joinAsRole(@Nullable GameLobby givenLobby, @Nullable PlayerRole forcedRole, ServerPlayer player, CommandSourceStack source) throws CommandSyntaxException{
+		GameLobby lobby = resolveLobby(source, givenLobby, forcedRole).orElseThrow();
+		LobbyPlayerManager players = lobby.getPlayers();
+
+		CompletableFuture<GameResult<Unit>> joinFuture;
+		if (forcedRole == null) {
+			joinFuture = CompletableFuture.supplyAsync(() -> players.joinAndPrompt(player), source.getServer()).thenCompose(Function.identity());
+		} else {
+			joinFuture = CompletableFuture.completedFuture(players.join(player, forcedRole));
+		}
+
+		GameResult.handleException("An unexpected error has occurred", joinFuture).thenAcceptAsync(result -> {
+			if (result.isOk()) {
+				source.sendSuccess(() -> GameTexts.Commands.joinedLobby(lobby), false);
+			} else {
+				source.sendFailure(result.getError());
+			}
+		}, source.getServer());
+
+		return Command.SINGLE_SUCCESS;
+	}
+
+	private static GameResult<GameLobby> resolveLobby(CommandSourceStack source, @Nullable GameLobby givenLobby, @Nullable PlayerRole forcedRole) {
+		if (givenLobby != null) {
+			return GameResult.ok(givenLobby);
+		} else {
+			List<? extends GameLobby> lobbies = GameLobbyManager.get().getVisibleLobbies(source).collect(Collectors.toList());
+			if (lobbies.size() == 1) {
+				return GameResult.ok(lobbies.getFirst());
+			} else if (lobbies.isEmpty()) {
+				return GameResult.error(GameTexts.Commands.NO_JOINABLE_LOBBIES);
+			}
+
+			return GameResult.error(GameTexts.Commands.lobbySelector(lobbies, forcedRole));
+		}
+	}
+
+	private static int forcePlayerJoin(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+		ServerPlayer player = EntityArgument.getPlayer(context, "player");
+		GameLobby lobby = GameLobbyManager.get().getLobbyFor(player);
+		if (lobby == null) {
+			throw new SimpleCommandExceptionType(GameTexts.Commands.NOT_IN_LOBBY).create();
+		}
+
+		lobby.getPlayers().forceRole(player, PlayerRole.PARTICIPANT);
+
+		return Command.SINGLE_SUCCESS;
+	}
+}

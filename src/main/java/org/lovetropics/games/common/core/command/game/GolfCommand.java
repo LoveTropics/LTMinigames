@@ -1,0 +1,51 @@
+package org.lovetropics.games.common.core.command.game;
+
+import org.lovetropics.games.common.core.game.persistent.behavior.crab.CrabGolfWinBehavior;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.server.level.ServerPlayer;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
+
+import static net.minecraft.commands.Commands.argument;
+import static net.minecraft.commands.Commands.literal;
+
+@EventBusSubscriber
+public class GolfCommand {
+	@SubscribeEvent
+	public static void register(RegisterCommandsEvent event) {
+		event.getDispatcher().register(literal("persistentgame")
+			.then(literal("golf").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+				.then(literal("highscore")
+					.then(argument("hole", IntegerArgumentType.integer())
+						.then(argument("target", EntityArgument.player())
+							.executes(ctx -> {
+								int hole = IntegerArgumentType.getInteger(ctx, "hole");
+								ServerPlayer player = EntityArgument.getPlayer(ctx, "target");
+
+								int score = CrabGolfWinBehavior.GolfData.get(ctx.getSource().getLevel()).getHighScoreFor(hole, player);
+
+								return score;
+							})
+						)
+					)
+				)
+				.then(literal("clear")
+					.then(argument("hole", IntegerArgumentType.integer())
+						.executes(ctx -> {
+							int hole = IntegerArgumentType.getInteger(ctx, "hole");
+
+							CommandSourceStack source = ctx.getSource();
+							CrabGolfWinBehavior.GolfData.get(source.getLevel()).clearHole(hole);
+
+							return 0;
+						})
+					)
+				)
+			)
+		);
+	}
+}

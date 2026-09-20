@@ -1,0 +1,46 @@
+package org.lovetropics.games.common.content.biodiversity_blitz.behavior.plant;
+
+import org.lovetropics.games.common.content.biodiversity_blitz.behavior.event.BbPlantEvents;
+import org.lovetropics.games.common.content.biodiversity_blitz.plot.plant.Plant;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.block.LevelEvent;
+import net.minecraft.world.level.block.state.BlockState;
+
+public abstract class AgingPlantBehavior implements IGameBehavior {
+	protected final int interval;
+
+	public AgingPlantBehavior(int interval) {
+		this.interval = interval;
+	}
+
+	@Override
+	public void register(IGamePhase game, EventRegistrar events) {
+		events.listen(BbPlantEvents.TICK, (players, plot, plants) -> {
+			long ticks = game.ticks();
+			if (ticks % interval != 0) {
+				return;
+			}
+
+			for (Plant plant : plants) {
+				for (BlockPos pos : plant.coverage()) {
+					BlockState state = plot.level.getBlockState(pos);
+					BlockState agedState = ageUp(game.random(), state);
+
+					if (state != agedState) {
+						for (BlockPos plantPos : plant.coverage()) {
+							plot.level.levelEvent(LevelEvent.PARTICLES_AND_SOUND_PLANT_GROWTH, plantPos, 0);
+						}
+
+						plot.level.setBlockAndUpdate(pos, agedState);
+					}
+				}
+			}
+		});
+	}
+
+	protected abstract BlockState ageUp(RandomSource random, BlockState state);
+}

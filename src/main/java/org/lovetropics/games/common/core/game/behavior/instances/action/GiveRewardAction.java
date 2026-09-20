@@ -1,0 +1,65 @@
+package org.lovetropics.games.common.core.game.behavior.instances.action;
+
+import org.lovetropics.games.common.core.game.GameException;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.core.game.rewards.GameRewardsMap;
+import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
+import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
+import org.lovetropics.games.common.core.game.state.team.TeamState;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
+import net.minecraft.world.item.ItemStackTemplate;
+
+import java.util.List;
+import java.util.Optional;
+
+public record GiveRewardAction(List<ItemStackTemplate> items, List<Identifier> collectibles, Optional<StatisticBinding> statisticBinding) implements IGameBehavior {
+	public static final MapCodec<GiveRewardAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+			ItemStackTemplate.CODEC.listOf().optionalFieldOf("items", List.of()).forGetter(GiveRewardAction::items),
+			Identifier.CODEC.listOf().optionalFieldOf("collectibles", List.of()).forGetter(GiveRewardAction::collectibles),
+			StatisticBinding.CODEC.optionalFieldOf("statistic_binding").forGetter(GiveRewardAction::statisticBinding)
+	).apply(i, GiveRewardAction::new));
+
+	@Override
+	public void register(IGamePhase game, EventRegistrar events) throws GameException {
+		GameRewardsMap rewards = game.instanceState().getOrThrow(GameRewardsMap.STATE);
+		events.applyToPlayers(game, (context, target) -> {
+			for (ItemStackTemplate item : items) {
+				int count = statisticBinding.map(binding -> binding.resolve(game, target)).orElse(item.count());
+				rewards.forPlayer(target).give(item.create().copyWithCount(count));
+			}
+			for (Identifier collectible : collectibles) {
+				rewards.forPlayer(target).giveCollectible(collectible);
+			}
+			return true;
+		});
+	}
+
+	public record StatisticBinding(StatisticKey<Integer> statistic, float multiplier, boolean fromTeam) {
+		public static final Codec<StatisticBinding> CODEC = RecordCodecBuilder.create(i -> i.group(
+				StatisticKey.INT_CODEC.fieldOf("statistic").forGetter(StatisticBinding::statistic),
+				Codec.FLOAT.optionalFieldOf("multiplier", 1.0f).forGetter(StatisticBinding::multiplier),
+				Codec.BOOL.optionalFieldOf("from_team", false).forGetter(StatisticBinding::fromTeam)
+		).apply(i, StatisticBinding::new));
+
+		public int resolve(IGamePhase game, ServerPlayer player) {
+			float value = 0.0f;
+			if (fromTeam) {
+				TeamState teams = game.instanceState().getOrThrow(TeamState.KEY);
+				GameTeamKey team = teams.getTeamForPlayer(player);
+				if (team != null) {
+					value += game.statistics().forTeam(team).getInt(statistic);
+				}
+			} else {
+				value = game.statistics().forPlayer(player).getInt(statistic);
+			}
+			return Mth.floor(multiplier * value);
+		}
+	}
+}

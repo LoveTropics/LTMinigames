@@ -1,0 +1,71 @@
+package org.lovetropics.games.common.content.survive_the_tide.behavior;
+
+import org.lovetropics.games.common.core.entity.MinigameEntities;
+import org.lovetropics.games.common.core.game.GameException;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.core.game.behavior.event.GameLogicEvents;
+import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.LightningBolt;
+import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.phys.Vec3;
+
+public class SttWinLogicBehavior implements IGameBehavior {
+	public static final MapCodec<SttWinLogicBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+			Codec.BOOL.optionalFieldOf("spawn_lightning_bolts_on_finish", false).forGetter(c -> c.spawnLightningBoltsOnFinish),
+			Codec.INT.optionalFieldOf("lightning_bolt_spawn_tick_rate", 60).forGetter(c -> c.lightningBoltSpawnTickRate)
+	).apply(i, SttWinLogicBehavior::new));
+
+	protected final boolean spawnLightningBoltsOnFinish;
+	protected final int lightningBoltSpawnTickRate;
+	protected boolean minigameEnded;
+
+	public SttWinLogicBehavior(boolean spawnLightningBoltsOnFinish, int lightningBoltSpawnTickRate) {
+		this.spawnLightningBoltsOnFinish = spawnLightningBoltsOnFinish;
+		this.lightningBoltSpawnTickRate = lightningBoltSpawnTickRate;
+	}
+
+	@Override
+	public void register(IGamePhase game, EventRegistrar events) throws GameException {
+		events.listen(GameLogicEvents.GAME_OVER, winner -> minigameEnded = true);
+
+		events.listen(GamePhaseEvents.TICK, () -> checkForGameEndCondition(game));
+	}
+
+	private void checkForGameEndCondition(IGamePhase game) {
+		if (minigameEnded) {
+			if (spawnLightningBoltsOnFinish) {
+				spawnLightningBoltsEverywhere(game);
+			}
+		}
+	}
+
+	private void spawnLightningBoltsEverywhere(IGamePhase game) {
+		if (game.ticks() % lightningBoltSpawnTickRate == 0) {
+			for (ServerPlayer player : game.participants()) {
+				int xOffset = (7 + game.random().nextInt(5)) * (game.random().nextBoolean() ? 1 : -1);
+				int zOffset = (7 + game.random().nextInt(5)) * (game.random().nextBoolean() ? 1 : -1);
+
+				int posX = Mth.floor(player.getX()) + xOffset;
+				int posZ = Mth.floor(player.getZ()) + zOffset;
+
+				ServerLevel level = player.level();
+				int posY = level.getHeight(Heightmap.Types.MOTION_BLOCKING, posX, posZ);
+
+				LightningBolt lightning = MinigameEntities.QUIET_LIGHTNING_BOLT.get().create(level, EntitySpawnReason.EVENT);
+				lightning.snapTo(new Vec3(posX + 0.5, posY, posZ + 0.5));
+				lightning.setVisualOnly(true);
+
+				level.addFreshEntity(lightning);
+			}
+		}
+	}
+}

@@ -1,0 +1,362 @@
+package org.lovetropics.games.common.core.command;
+
+import com.lovetropics.lib.BlockBox;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.core.command.argument.DimensionArgument;
+import org.lovetropics.games.common.core.command.argument.MapWorkspaceArgument;
+import org.lovetropics.games.common.core.map.MapExportReader;
+import org.lovetropics.games.common.core.map.MapExportWriter;
+import org.lovetropics.games.common.core.map.MapMetadata;
+import org.lovetropics.games.common.core.map.MapRegions;
+import org.lovetropics.games.common.core.map.SavedRegions;
+import org.lovetropics.games.common.core.map.VoidChunkGenerator;
+import org.lovetropics.games.common.core.map.workspace.MapWorkspace;
+import org.lovetropics.games.common.core.map.workspace.MapWorkspaceManager;
+import org.lovetropics.games.common.core.map.workspace.WorkspaceDimensionConfig;
+import org.lovetropics.games.common.core.map.workspace.WorkspacePositionTracker;
+import org.lovetropics.games.common.core.map.workspace.WorkspaceRegions;
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
+import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
+import net.minecraft.ChatFormatting;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.IdentifierArgument;
+import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Util;
+import net.minecraft.world.level.dimension.LevelStem;
+import net.minecraft.world.level.storage.LevelStorageSource;
+import net.minecraft.world.phys.Vec3;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+
+import static net.minecraft.commands.Commands.argument;
+import static net.minecraft.commands.Commands.literal;
+
+@EventBusSubscriber
+public final class MapCommand {
+	private static final DynamicCommandExceptionType WORKSPACE_ALREADY_EXISTS = new DynamicCommandExceptionType(id ->
+			Component.literal("Workspace already exists with id '" + id + "'")
+	);
+	private static final DynamicCommandExceptionType MAP_DOES_NOT_EXIST = new DynamicCommandExceptionType(id ->
+			Component.literal("Map does not exist with id '" + id + "'")
+	);
+
+	private static final SimpleCommandExceptionType NOT_IN_WORKSPACE = new SimpleCommandExceptionType(Component.literal("You are not in a workspace!"));
+
+	@SubscribeEvent
+	public static void register(RegisterCommandsEvent event) {
+		// @formatter:off
+        event.getDispatcher().register(
+            literal("map")
+				.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                .then(literal("open")
+                    .then(argument("id", StringArgumentType.string())
+						.then(DimensionArgument.argument("dimension")
+						.executes(context ->{
+							LevelStem dimension = DimensionArgument.get(context, "dimension");
+							return openMap(context, dimension);
+						})
+					)
+						.executes(context -> {
+							MinecraftServer server = context.getSource().getServer();
+							LevelStem dimension = new LevelStem(server.overworld().dimensionTypeRegistration(), new VoidChunkGenerator(server));
+							return openMap(context, dimension);
+						})
+                ))
+				.then(literal("delete")
+					.then(MapWorkspaceArgument.argument("id")
+					.executes(MapCommand::deleteMap)
+				))
+				.then(literal("join")
+					.then(MapWorkspaceArgument.argument("id")
+					.executes(MapCommand::joinMap)
+				))
+				.then(literal("leave").executes(MapCommand::leaveMap))
+				.then(literal("export")
+					.then(MapWorkspaceArgument.argument("id")
+					.executes(MapCommand::exportMap)
+				))
+				.then(literal("import")
+					.then(argument("location", IdentifierArgument.id())
+							.then(DimensionArgument.argument("dimension")
+							.executes(context ->{
+								LevelStem dimension = DimensionArgument.get(context, "dimension");
+								return importMap(context, dimension);
+							})
+						)
+							.executes(context -> {
+								MinecraftServer server = context.getSource().getServer();
+								LevelStem dimension = new LevelStem(server.overworld().dimensionTypeRegistration(), new VoidChunkGenerator(server));
+								return importMap(context, dimension);
+							})
+					)
+				)
+				.then(literal("region")
+					.then(literal("add")
+						.then(argument("key", StringArgumentType.string())
+								.then(argument("min", BlockPosArgument.blockPos())
+								.then(argument("max", BlockPosArgument.blockPos())
+								.executes(MapCommand::addRegion)
+							))
+								.executes(MapCommand::addRegionHere)
+						)
+					)
+					.then(literal("rename")
+							.then(argument("from", StringArgumentType.string())
+									.then(argument("to", StringArgumentType.string())
+											.executes(MapCommand::renameRegionHere)
+									)
+							)
+					)
+					.then(literal("hide")
+							.executes(MapCommand::showHideRegions))
+				)
+        );
+        // @formatter:on
+	}
+
+	private static int openMap(CommandContext<CommandSourceStack> context, LevelStem dimension) throws CommandSyntaxException {
+		CommandSourceStack source = context.getSource();
+		MinecraftServer server = source.getServer();
+		MapWorkspaceManager workspaceManager = MapWorkspaceManager.get(server);
+
+		String id = StringArgumentType.getString(context, "id");
+		if (workspaceManager.hasWorkspace(id)) {
+			throw WORKSPACE_ALREADY_EXISTS.create(id);
+		}
+
+		long seed = server.overworld().getSeed();
+		WorkspaceDimensionConfig dimensionConfig = new WorkspaceDimensionConfig(dimension.type(), dimension.generator(), seed);
+
+		workspaceManager.openWorkspace(id, dimensionConfig).thenAcceptAsync(workspace -> {
+			source.sendSuccess(() -> {
+				MutableComponent message = Component.literal("Opened workspace with id '" + id + "'. ").withStyle(ChatFormatting.AQUA);
+				Component join = Component.literal("Click here to join")
+						.withStyle(style -> {
+							String command = "/map join " + id;
+							return style.withColor(ChatFormatting.BLUE)
+									.withUnderlined(true)
+									.withClickEvent(new ClickEvent.RunCommand(command))
+									.withHoverEvent(new HoverEvent.ShowText(Component.literal(command)));
+						});
+				return message.append(join);
+			}, false);
+		}, server);
+
+		return Command.SINGLE_SUCCESS;
+	}
+
+	private static int deleteMap(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+		CommandSourceStack source = context.getSource();
+		MapWorkspaceManager workspaceManager = MapWorkspaceManager.get(source.getServer());
+
+		MapWorkspace workspace = MapWorkspaceArgument.get(context, "id");
+		workspaceManager.deleteWorkspace(workspace.id());
+
+		source.sendSuccess(() -> Component.literal("Deleted workspace with id '" + workspace.id() + "'. ").withStyle(ChatFormatting.GOLD), false);
+
+		return Command.SINGLE_SUCCESS;
+	}
+
+	private static int leaveMap(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+		ServerPlayer player = context.getSource().getPlayerOrException();
+
+		WorkspacePositionTracker.Position returnPosition = WorkspacePositionTracker.getReturnPositionFor(player);
+		if (returnPosition != null) {
+			returnPosition.applyTo(player);
+		} else {
+			ServerLevel level = context.getSource().getServer().overworld();
+			player.teleportTo(level, 0.5, 65.0, 0.5, Set.of(), player.getYRot(), player.getXRot(), true);
+		}
+
+		return Command.SINGLE_SUCCESS;
+	}
+
+	private static int joinMap(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+		ServerPlayer player = context.getSource().getPlayerOrException();
+
+		MapWorkspace workspace = MapWorkspaceArgument.get(context, "id");
+
+		WorkspacePositionTracker.Position position = WorkspacePositionTracker.getPositionFor(player, workspace);
+		if (position != null) {
+			position.applyTo(player);
+		} else {
+			ServerLevel level = workspace.dimensionHandle().asLevel();
+			BlockPos pos = level.getRespawnData().pos();
+			player.teleportTo(level, pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5, Set.of(), player.getYRot(), player.getXRot(), true);
+		}
+
+		if (player.mayFly()) {
+			player.getAbilities().flying = true;
+			player.onUpdateAbilities();
+		}
+
+		return Command.SINGLE_SUCCESS;
+	}
+
+	private static int addRegion(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+		WorkspaceRegions regions = getCurrentRegions(context);
+
+		String key = StringArgumentType.getString(context, "key");
+		BlockPos min = BlockPosArgument.getSpawnablePos(context, "min");
+		BlockPos max = BlockPosArgument.getSpawnablePos(context, "max");
+
+		regions.add(context.getSource().getLevel(), key, BlockBox.of(min, max));
+
+		return Command.SINGLE_SUCCESS;
+	}
+
+	private static int addRegionHere(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+		WorkspaceRegions regions = getCurrentRegions(context);
+		Vec3 pos = context.getSource().getPosition();
+
+		String key = StringArgumentType.getString(context, "key");
+
+		regions.add(context.getSource().getLevel(), key, BlockBox.of(BlockPos.containing(pos)));
+
+		return Command.SINGLE_SUCCESS;
+	}
+
+	private static int renameRegionHere(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+		WorkspaceRegions regions = getCurrentRegions(context);
+		Vec3 pos = context.getSource().getPosition();
+		BlockPos blockPos = BlockPos.containing(pos);
+
+		String from = StringArgumentType.getString(context, "from");
+		String to = StringArgumentType.getString(context, "to");
+		if (!regions.rename(context.getSource().getLevel(), from, to, blockPos)) {
+			context.getSource().sendFailure(Component.literal("No region with name " + from + " at " + blockPos.toShortString()));
+		}
+
+		return Command.SINGLE_SUCCESS;
+	}
+
+	private static int showHideRegions(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+		WorkspaceRegions regions = getCurrentRegions(context);
+		regions.showHide(context.getSource().getPlayerOrException());
+
+		return Command.SINGLE_SUCCESS;
+	}
+
+	private static int exportMap(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+		CommandSourceStack source = context.getSource();
+		MapWorkspace workspace = MapWorkspaceArgument.get(context, "id");
+
+		MinecraftServer server = source.getServer();
+
+		CompletableFuture<Void> saveAll = saveWorkspace(server, workspace);
+
+		saveAll.thenRunAsync(() -> {
+			LevelStorageSource.LevelStorageAccess save = server.storageSource;
+			Path dimensionDirectory = save.getDimensionPath(workspace.dimensionKey());
+
+			Identifier id = LoveTropics.id(workspace.id());
+			Path exportPath = MapExportWriter.pathFor(id);
+
+			try {
+				Files.createDirectories(exportPath.getParent());
+
+				try (MapExportWriter writer = MapExportWriter.open(exportPath)) {
+					MapRegions regions = workspace.regions().compile();
+					writer.writeMetadata(new MapMetadata(id, workspace.worldSettings(), regions));
+					writer.writeWorldData(dimensionDirectory);
+
+					source.sendSuccess(() -> Component.literal("Successfully exported map!"), false);
+				}
+			} catch (Exception e) {
+				source.sendFailure(Component.literal("Failed to export map!"));
+				LoveTropics.LOGGER.error("Failed to export map", e);
+			}
+		}, Util.backgroundExecutor());
+
+		return Command.SINGLE_SUCCESS;
+	}
+
+	private static CompletableFuture<Void> saveWorkspace(MinecraftServer server, MapWorkspace workspace) {
+		return server.submit(() -> {
+			ServerLevel workspaceWorld = server.getLevel(workspace.dimensionKey());
+			workspaceWorld.save(null, true, false);
+		});
+	}
+
+	private static MapWorkspace getCurrentWorkspace(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+		CommandSourceStack source = context.getSource();
+		MapWorkspaceManager workspaceManager = MapWorkspaceManager.get(source.getServer());
+
+		MapWorkspace workspace = workspaceManager.getWorkspace(source.getLevel().dimension());
+		if (workspace == null) {
+			throw NOT_IN_WORKSPACE.create();
+		}
+
+		return workspace;
+	}
+
+	private static WorkspaceRegions getCurrentRegions(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+		CommandSourceStack source = context.getSource();
+		MapWorkspaceManager workspaceManager = MapWorkspaceManager.get(source.getServer());
+
+		MapWorkspace workspace = workspaceManager.getWorkspace(source.getLevel().dimension());
+		if (workspace == null) {
+			// fallback to saved level regions
+			return SavedRegions.get(source.getLevel()).regions();
+		}
+
+		return workspace.regions();
+	}
+
+	private static int importMap(CommandContext<CommandSourceStack> context, LevelStem dimension) throws CommandSyntaxException {
+		Identifier location = IdentifierArgument.getId(context, "location");
+		String id = location.getPath();
+
+		CommandSourceStack source = context.getSource();
+		MinecraftServer server = source.getServer();
+		MapWorkspaceManager workspaceManager = MapWorkspaceManager.get(server);
+
+		if (workspaceManager.hasWorkspace(id)) {
+			throw WORKSPACE_ALREADY_EXISTS.create(id);
+		}
+
+		if (!MapExportReader.exists(server, location)) {
+			throw MAP_DOES_NOT_EXIST.create(location);
+		}
+
+		long seed = server.overworld().getSeed();
+		WorkspaceDimensionConfig dimensionConfig = new WorkspaceDimensionConfig(dimension.type(), dimension.generator(), seed);
+
+		workspaceManager.openWorkspace(id, dimensionConfig).thenAcceptAsync(workspace -> {
+			try {
+				try (MapExportReader reader = MapExportReader.open(server, location)) {
+					MapMetadata metadata = reader.loadInto(server, workspace.dimensionKey());
+					workspace.importFrom(metadata);
+
+					source.sendSuccess(() -> Component.literal("Successfully imported workspace into '" + id + "'"), false);
+				}
+			} catch (IOException e) {
+				source.sendFailure(Component.literal("Failed to import workspace!"));
+				e.printStackTrace();
+			}
+		}, Util.backgroundExecutor());
+
+		return Command.SINGLE_SUCCESS;
+	}
+}

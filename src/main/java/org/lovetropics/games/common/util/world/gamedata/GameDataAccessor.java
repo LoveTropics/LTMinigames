@@ -1,0 +1,107 @@
+package org.lovetropics.games.common.util.world.gamedata;
+
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.core.game.util.TranslationCollector;
+import com.mojang.brigadier.builder.ArgumentBuilder;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.suggestion.SuggestionProvider;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.SharedSuggestionProvider;
+import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.commands.arguments.GameProfileArgument;
+import net.minecraft.commands.arguments.NbtPathArgument;
+import net.minecraft.commands.arguments.IdentifierArgument;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.commands.data.DataAccessor;
+import net.minecraft.server.commands.data.DataCommands;
+import net.minecraft.server.players.NameAndId;
+import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Collection;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.function.Function;
+
+public class GameDataAccessor implements DataAccessor {
+
+	public static final TranslationCollector KEYS = new TranslationCollector(LoveTropics.ID + ".commands.gamedata.");
+
+	public static final TranslationCollector.Fun5 STORAGE_GET = KEYS.add5("storage.get", "%s in %s for %s after scale factor of %s is %s");
+	public static final TranslationCollector.Fun2 STORAGE_MODIFIED = KEYS.add2("storage.modified", "Modified %s in %s");
+	public static final TranslationCollector.Fun3 STORAGE_QUERY = KEYS.add3("storage.query", "Gamedata for %s in %s has the following contents: %s");
+
+	static final SuggestionProvider<CommandSourceStack> SUGGEST_GAMEDATA = ((context, builder) -> SharedSuggestionProvider.suggestResource(
+			getGameDataStorage(context).playerData.keySet(), builder
+	));
+
+	public static final Function<String, DataCommands.DataProvider> PROVIDER = (str) -> new DataCommands.DataProvider() {
+		@Override
+		public DataAccessor access(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+			Collection<NameAndId> gameProfiles = GameProfileArgument.getGameProfiles(context, "player");
+			if (gameProfiles.size() != 1) {
+				throw EntityArgument.ERROR_NOT_SINGLE_PLAYER.create();
+			}
+			Optional<NameAndId> playerProfile = gameProfiles.stream().findFirst();
+			return new GameDataAccessor(context.getSource().getLevel(), getGameDataStorage(context),
+					IdentifierArgument.getId(context, str), playerProfile.get());
+		}
+
+		@Override
+		public ArgumentBuilder<CommandSourceStack, ?> wrap(ArgumentBuilder<CommandSourceStack, ?> builder, Function<ArgumentBuilder<CommandSourceStack, ?>, ArgumentBuilder<CommandSourceStack, ?>> action) {
+			return builder.then(
+					Commands.literal("gamedata")
+							.then(Commands.argument(str, IdentifierArgument.id()).suggests(GameDataAccessor.SUGGEST_GAMEDATA)
+									.then(action.apply(Commands.argument("player", GameProfileArgument.gameProfile()))))
+			);
+		}
+	};
+
+	@NotNull
+	private static GameDataStorage getGameDataStorage(CommandContext<CommandSourceStack> context) {
+		return GameDataStorage.get(context.getSource().getLevel());
+	}
+
+	private final Level level;
+	private final GameDataStorage gameDataStorage;
+	private final Identifier id;
+	private final NameAndId player;
+
+	public GameDataAccessor(Level level, GameDataStorage gameDataStorage, Identifier id, NameAndId player) {
+		this.level = level;
+		this.gameDataStorage = gameDataStorage;
+		this.id = id;
+		this.player = player;
+	}
+
+	@Override
+	public void setData(CompoundTag other) throws CommandSyntaxException {
+		gameDataStorage.set(id, player.id(), other);
+	}
+
+	@Override
+	public CompoundTag getData() throws CommandSyntaxException {
+		return gameDataStorage.get(id, player.id());
+	}
+
+	@Override
+	public Component getModifiedSuccess() {
+		return STORAGE_MODIFIED.apply(player.name(), Component.translationArg(id));
+	}
+
+	@Override
+	public Component getPrintSuccess(Tag nbt) {
+		return STORAGE_QUERY.apply(player.name(), Component.translationArg(id), NbtUtils.toPrettyComponent(nbt));
+	}
+
+	@Override
+	public Component getPrintSuccess(NbtPathArgument.NbtPath path, double scale, int value) {
+		return STORAGE_GET.apply(path.asString(), Component.translationArg(id), player.name(), String.format(Locale.ROOT, "%.2f", scale), value);
+	}
+}

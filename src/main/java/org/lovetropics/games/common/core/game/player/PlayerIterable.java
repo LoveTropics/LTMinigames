@@ -1,0 +1,143 @@
+package org.lovetropics.games.common.core.game.player;
+
+import com.google.common.base.Predicate;
+import com.google.common.collect.AbstractIterator;
+import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
+import org.lovetropics.games.common.core.network.ClientboundFadeToBlackPacket;
+import org.lovetropics.games.common.core.network.ClientboundPlayerFaceDVDPackets;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.network.protocol.game.ClientboundClearTitlesPacket;
+import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket;
+import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
+import net.minecraft.network.protocol.game.ClientboundSetTitlesAnimationPacket;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.players.PlayerList;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
+import net.minecraft.util.Util;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.neoforged.neoforge.network.PacketDistributor;
+import org.jspecify.annotations.Nullable;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
+@FunctionalInterface
+public interface PlayerIterable extends Iterable<ServerPlayer> {
+	static PlayerIterable from(Iterable<ServerPlayer> players) {
+		return players::iterator;
+	}
+
+	default PlayerIterable filter(Predicate<? super ServerPlayer> predicate) {
+		return () -> Iterators.filter(iterator(), predicate);
+	}
+
+	default PlayerIterable excluding(ServerPlayer player) {
+		return filter(target -> target != player);
+	}
+
+	@Override
+	Iterator<ServerPlayer> iterator();
+
+	default Stream<ServerPlayer> stream() {
+		return StreamSupport.stream(spliterator(), false);
+	}
+
+	default void sendMessage(Component message, boolean actionBar) {
+		for (ServerPlayer player : this) {
+			player.sendSystemMessage(message, actionBar);
+		}
+	}
+
+	default void sendMessage(Component message) {
+		sendMessage(message, false);
+	}
+
+	default void addPotionEffect(MobEffectInstance effect) {
+		for (ServerPlayer player : this) {
+			player.addEffect(new MobEffectInstance(effect));
+		}
+	}
+
+	default void playSound(SoundEvent sound, SoundSource category, float volume, float pitch) {
+		for (ServerPlayer player : this) {
+			org.lovetropics.games.common.util.Util.sendNotifySound(player, sound, category, volume, pitch);
+		}
+	}
+
+	default void sendPacket(Packet<?> packet) {
+		for (ServerPlayer player : this) {
+			player.connection.send(packet);
+		}
+	}
+
+	default void sendPacket(CustomPacketPayload message) {
+		for (ServerPlayer player : this) {
+			PacketDistributor.sendToPlayer(player, message);
+		}
+	}
+
+	default void showTitle(@Nullable Component title, @Nullable Component subtitle, int fadeIn, int stay, int fadeOut) {
+		sendPacket(new ClientboundClearTitlesPacket(true));
+		sendPacket(new ClientboundSetTitlesAnimationPacket(fadeIn, stay, fadeOut));
+		sendPacket(new ClientboundSetTitleTextPacket(title != null ? title : CommonComponents.space()));
+		if (subtitle != null) {
+			sendPacket(new ClientboundSetSubtitleTextPacket(subtitle));
+		}
+	}
+
+	default void showTitle(Component title, int fadeIn, int stay, int fadeOut) {
+		showTitle(title, null, fadeIn, stay, fadeOut);
+	}
+
+	default void fadeToBlack(int fadeDuration) {
+		sendPacket(new ClientboundFadeToBlackPacket(true, fadeDuration));
+	}
+
+	default void fadeFromBlack(int fadeDuration) {
+		sendPacket(new ClientboundFadeToBlackPacket(false, fadeDuration));
+	}
+
+	default void addPlayerFaceDVD(UUID uuid, int lengthInTicks) {
+		sendPacket(new ClientboundPlayerFaceDVDPackets.Add(uuid, lengthInTicks));
+	}
+
+	default void clearPlayerFaceDVD() {
+		sendPacket(new ClientboundPlayerFaceDVDPackets.Clear());
+	}
+
+	static Iterator<ServerPlayer> resolvingIterator(MinecraftServer server, Iterator<UUID> ids) {
+		PlayerList playerList = server.getPlayerList();
+		return new AbstractIterator<>() {
+			@Override
+			protected ServerPlayer computeNext() {
+				while (true) {
+					if (!ids.hasNext()) {
+						return endOfData();
+					}
+
+					UUID id = ids.next();
+					ServerPlayer player = playerList.getPlayer(id);
+					if (player != null) {
+						return player;
+					}
+				}
+			}
+		};
+	}
+
+	default List<ServerPlayer> shuffledCopy(RandomSource random) {
+		List<ServerPlayer> players = Lists.newArrayList(iterator());
+		Util.shuffle(players, random);
+		return players;
+	}
+}

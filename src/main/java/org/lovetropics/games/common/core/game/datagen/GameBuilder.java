@@ -1,0 +1,99 @@
+package org.lovetropics.games.common.core.game.datagen;
+
+import com.google.common.base.Suppliers;
+import org.lovetropics.games.common.core.game.behavior.BehaviorTemplate;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.instances.CompositeBehavior;
+import org.lovetropics.games.common.core.game.config.GameConfig;
+import org.lovetropics.games.common.core.game.config.GamePhaseConfig;
+import org.lovetropics.games.common.core.game.map.IGameMapProvider;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+
+import org.jspecify.annotations.Nullable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.function.UnaryOperator;
+
+public class GameBuilder {
+	private final Identifier id;
+	private @Nullable Component name;
+	private @Nullable Component subtitle;
+	private @Nullable Identifier icon;
+	private int maximumParticipants = 50;
+	private @Nullable Identifier introSlideshow;
+	private @Nullable GamePhaseConfig waiting;
+	private @Nullable GamePhaseConfig playing;
+	private boolean hideFromList;
+
+	public GameBuilder(Identifier id) {
+		this.id = id;
+		name = Component.literal(id.toString());
+	}
+
+	public GameBuilder setName(Component name) {
+		this.name = name;
+		return this;
+	}
+
+	public GameBuilder setSubtitle(@Nullable Component subtitle) {
+		this.subtitle = subtitle;
+		return this;
+	}
+
+	public GameBuilder setIcon(@Nullable Identifier icon) {
+		this.icon = icon;
+		return this;
+	}
+
+	public GameBuilder setMaximumParticipants(int maximumParticipants) {
+		this.maximumParticipants = maximumParticipants;
+		return this;
+	}
+
+	public GameBuilder setIntroSlideshow(@Nullable Identifier introSlideshow) {
+		this.introSlideshow = introSlideshow;
+		return this;
+	}
+
+	public GameBuilder withWaitingPhase(IGameMapProvider map, UnaryOperator<PhaseBuilder> builderConsumer) {
+		waiting = builderConsumer.apply(new PhaseBuilder(map)).create();
+		return this;
+	}
+
+	public GameBuilder withPlayingPhase(IGameMapProvider map, UnaryOperator<PhaseBuilder> builderConsumer) {
+		playing = builderConsumer.apply(new PhaseBuilder(map)).create();
+		return this;
+	}
+
+	public GameBuilder setHideFromList(boolean hideFromList) {
+		this.hideFromList = hideFromList;
+		return this;
+	}
+
+	public GameConfig build() {
+		Objects.requireNonNull(playing, "Playing phase must be initialized");
+		return new GameConfig(id, name, subtitle, icon, maximumParticipants, introSlideshow, waiting, playing, hideFromList);
+	}
+
+	public static final class PhaseBuilder {
+		private final IGameMapProvider map;
+		private final List<IGameBehavior> behaviors = new ArrayList<>();
+
+		public PhaseBuilder(IGameMapProvider map) {
+			this.map = map;
+		}
+
+		public PhaseBuilder withBehavior(IGameBehavior... behavior) {
+			Collections.addAll(behaviors, behavior);
+			return this;
+		}
+
+		public GamePhaseConfig create() {
+			CompositeBehavior composite = new CompositeBehavior(List.copyOf(behaviors));
+			return new GamePhaseConfig(map, new BehaviorTemplate.Direct(Suppliers.ofInstance(composite)));
+		}
+	}
+}

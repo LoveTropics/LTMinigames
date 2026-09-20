@@ -1,0 +1,113 @@
+package org.lovetropics.games.common.content.survive_the_tide.behavior;
+
+import org.lovetropics.games.common.content.MinigameTexts;
+import org.lovetropics.games.common.content.survive_the_tide.SurviveTheTideTexts;
+import org.lovetropics.games.common.core.game.GameException;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
+import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
+import org.lovetropics.games.common.core.game.state.progress.ProgressChannel;
+import org.lovetropics.games.common.core.game.state.progress.ProgressHolder;
+import org.lovetropics.games.common.core.game.state.progress.ProgressionPeriod;
+import org.lovetropics.games.common.core.game.state.weather.GameWeatherState;
+import org.lovetropics.games.common.core.game.util.GameSidebar;
+import org.lovetropics.games.common.core.game.util.GameWidgets;
+import org.lovetropics.games.common.core.game.weather.WeatherEventType;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.ChatFormatting;
+import net.minecraft.SharedConstants;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
+
+// TODO: make it generic and data-driven
+public class SttSidebarBehavior implements IGameBehavior {
+	public static final MapCodec<SttSidebarBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+			ProgressionPeriod.CODEC.fieldOf("safe_period").forGetter(b -> b.safePeriod),
+			ProgressionPeriod.CODEC.fieldOf("tide_rising_period").forGetter(b -> b.tideRisingPeriod),
+			ProgressionPeriod.CODEC.fieldOf("iceberg_growth_period").forGetter(b -> b.icebergGrowthPeriod),
+			ProgressionPeriod.CODEC.fieldOf("explosive_storm_period").forGetter(b -> b.explosiveStormPeriod)
+	).apply(i, SttSidebarBehavior::new));
+
+	private final ProgressionPeriod safePeriod;
+	private final ProgressionPeriod tideRisingPeriod;
+	private final ProgressionPeriod icebergGrowthPeriod;
+	private final ProgressionPeriod explosiveStormPeriod;
+
+	private GameWidgets widgets;
+	private GameSidebar sidebar;
+
+	private IGamePhase game;
+	private ProgressHolder progression;
+	private GameWeatherState weather;
+
+	private int initialPlayerCount;
+
+	private long lastUpdateTime;
+	private boolean dirty;
+
+	public SttSidebarBehavior(ProgressionPeriod safePeriod, ProgressionPeriod tideRisingPeriod, ProgressionPeriod icebergGrowthPeriod, ProgressionPeriod explosiveStormPeriod) {
+		this.safePeriod = safePeriod;
+		this.tideRisingPeriod = tideRisingPeriod;
+		this.icebergGrowthPeriod = icebergGrowthPeriod;
+		this.explosiveStormPeriod = explosiveStormPeriod;
+	}
+
+	@Override
+	public void register(IGamePhase game, EventRegistrar events) throws GameException {
+		this.game = game;
+		widgets = GameWidgets.getOrRegister(game, events);
+
+		progression = ProgressChannel.MAIN.getOrThrow(game);
+		weather = game.state().getOrThrow(GameWeatherState.KEY);
+
+		events.listen(GamePhaseEvents.START, initiator -> {
+			sidebar = widgets.openGlobalSidebar(game.definition().name().copy().withStyle(ChatFormatting.YELLOW, ChatFormatting.BOLD));
+			initialPlayerCount = game.participants().size();
+		});
+
+		events.listen(GamePlayerEvents.SET_ROLE, (player, role, lastRole) -> dirty = true);
+
+		events.listen(GamePhaseEvents.TICK, () -> {
+			if (dirty || game.ticks() - lastUpdateTime > SharedConstants.TICKS_PER_SECOND) {
+				sidebar.set(buildSidebar());
+				lastUpdateTime = game.ticks();
+				dirty = false;
+			}
+		});
+	}
+
+	private Component[] buildSidebar() {
+		return new Component[]{
+				SurviveTheTideTexts.SIDEBAR_WEATHER.apply(weatherName()),
+				phaseState(),
+				CommonComponents.EMPTY,
+				playersState()
+		};
+	}
+
+	private Component weatherName() {
+		WeatherEventType type = weather.getEventType();
+		return type != null ? type.getName() : MinigameTexts.CLEAR_WEATHER;
+	}
+
+	private Component phaseState() {
+		if (progression.is(safePeriod)) {
+			return SurviveTheTideTexts.SIDEBAR_PVP_DISABLED;
+		} else if (progression.is(tideRisingPeriod)) {
+			return SurviveTheTideTexts.SIDEBAR_TIDE_RISING;
+		} else if (progression.is(icebergGrowthPeriod)) {
+			return SurviveTheTideTexts.SIDEBAR_ICEBERGS_FORMING;
+		} else if (progression.is(explosiveStormPeriod)) {
+			return SurviveTheTideTexts.SIDEBAR_EXPLOSIVE_STORM;
+		}
+		return CommonComponents.EMPTY;
+	}
+
+	private Component playersState() {
+		int playerCount = game.participants().size();
+		return SurviveTheTideTexts.SIDEBAR_PLAYER_COUNT.apply(playerCount, initialPlayerCount);
+	}
+}

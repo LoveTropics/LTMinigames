@@ -1,0 +1,169 @@
+package org.lovetropics.games.common.content.biodiversity_blitz.entity;
+
+import com.lovetropics.lib.BlockBox;
+import org.lovetropics.games.common.content.biodiversity_blitz.behavior.event.BbEvents;
+import org.lovetropics.games.common.content.biodiversity_blitz.entity.impl.BbCreeperEntity;
+import org.lovetropics.games.common.content.biodiversity_blitz.entity.impl.BbDrownedEntity;
+import org.lovetropics.games.common.content.biodiversity_blitz.entity.impl.BbHuskEntity;
+import org.lovetropics.games.common.content.biodiversity_blitz.entity.impl.BbPillagerEntity;
+import org.lovetropics.games.common.content.biodiversity_blitz.entity.impl.BbVindicatorEntity;
+import org.lovetropics.games.common.content.biodiversity_blitz.entity.impl.BbZoglinEntity;
+import org.lovetropics.games.common.content.biodiversity_blitz.entity.impl.BbZombieEntity;
+import org.lovetropics.games.common.content.biodiversity_blitz.entity.impl.BbZombiePiglinEntity;
+import org.lovetropics.games.common.content.biodiversity_blitz.plot.Plot;
+import com.mojang.serialization.Codec;
+import net.minecraft.util.Util;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
+import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
+
+import java.util.Collections;
+import java.util.Locale;
+import java.util.Set;
+import java.util.WeakHashMap;
+
+public final class BbMobSpawner {
+	public static Set<Entity> spawnWaveEntities(RandomSource random, Plot plot, int count, int waveIndex, WaveSelector waveSelector, BbEvents.ModifyWaveMobs modifier) {
+		ServerLevel level = plot.level;
+		Set<Entity> entities = Collections.newSetFromMap(new WeakHashMap<>());
+
+		modifier.modifyWave(entities, random, level, plot, waveIndex);
+
+		for (Entity entity : entities) {
+			BlockBox mobSpawn = Util.getRandom(plot.mobSpawns, random);
+
+			spawnEntity(level, random, mobSpawn, plot, entity);
+		}
+
+		for (int i = 0; i < count; i++) {
+			int plotIdx = random.nextInt(plot.mobSpawns.size());
+			Mob entity = waveSelector.selectEntityForWave(random, level, plot, plotIdx, waveIndex);
+
+			entities.add(entity);
+			spawnEntity(level, random, plot.mobSpawns.get(plotIdx), plot, entity);
+		}
+
+		return entities;
+	}
+
+	public static void spawnEntity(ServerLevel level, RandomSource random, BlockBox mobSpawn, Plot plot, Entity entity) {
+		AABB spawnBounds = mobSpawn.asAabb().inflate(-entity.getBbWidth(), 0.0f, -entity.getBbWidth());
+		double x = spawnBounds.minX + spawnBounds.getXsize() * random.nextFloat();
+		double y = spawnBounds.minY;
+		double z = spawnBounds.minZ + spawnBounds.getZsize() * random.nextFloat();
+		BlockPos pos = BlockPos.containing(x, y, z);
+		Direction direction = plot.forward.getOpposite();
+		entity.snapTo(x, y, z, direction.toYRot(), 0);
+
+		level.addFreshEntity(entity);
+
+		if (entity instanceof Mob mob) {
+			mob.finalizeSpawn(level, level.getCurrentDifficultyAt(pos), EntitySpawnReason.MOB_SUMMONED, null);
+		}
+	}
+
+	// TODO: data-drive, more entity types & getting harder as time goes on
+	public static Mob selectEntityForWave(RandomSource random, Level level, Plot plot, int plotIndex, int waveIndex) {
+		PlotWaveState waveState = plot.waveState;
+
+		// Devious, awful, no good hardcoded mob spawning
+
+		boolean isJungle = plotIndex <= 1;
+		boolean isWater = plotIndex == 2 || plotIndex == 3;
+
+		if (!isWater && random.nextInt(6) == 0 && waveIndex > 4 && plot.nextCurrencyIncrement >= 4) {
+			return new BbZoglinEntity(EntityTypes.ZOGLIN, level, plot);
+		}
+
+		if (!isWater && random.nextInt(5) == 0 && waveIndex > 4 && plot.nextCurrencyIncrement >= 3) {
+			return new BbVindicatorEntity(EntityTypes.VINDICATOR, level, plot);
+		}
+
+		if (!isWater && random.nextInt(5) == 0 && waveIndex > 4 && plot.nextCurrencyIncrement >= 2) {
+			return new BbZombiePiglinEntity(EntityTypes.ZOMBIFIED_PIGLIN, level, plot);
+		}
+
+		if (random.nextInt(6) == 0 && waveIndex > 4 && plot.nextCurrencyIncrement >= 3) {
+			return new BbCreeperEntity(EntityTypes.CREEPER, level, plot);
+		}
+
+		if (random.nextInt(3) == 0 && waveIndex > 2 && plot.nextCurrencyIncrement >= 2) {
+			return new BbPillagerEntity(EntityTypes.PILLAGER, level, plot);
+		}
+
+		// Zombies in jungle
+		if (isJungle) {
+			return new BbZombieEntity(EntityTypes.ZOMBIE, level, plot);
+		}
+
+		// Drowned in water
+		if (plotIndex == 2 || plotIndex == 3) {
+			return new BbDrownedEntity(EntityTypes.DROWNED, level, plot);
+		}
+
+		// Husks in desert
+		return new BbHuskEntity(EntityTypes.HUSK, level, plot);
+	}
+
+	@FunctionalInterface
+	public interface WaveSelector {
+		Mob selectEntityForWave(RandomSource random, Level level, Plot plot, int plotIndex, int waveIndex);
+	}
+
+	public enum BbEntityTypes implements StringRepresentable {
+		CREEPER(EntityTypes.CREEPER, BbCreeperEntity::new, "Creeper"),
+		PILLAGER(EntityTypes.PILLAGER, BbPillagerEntity::new, "Pillager"),
+		VINDICATOR(EntityTypes.VINDICATOR, BbVindicatorEntity::new, "Vindicator"),
+		PIGMAN(EntityTypes.ZOMBIFIED_PIGLIN, BbZombiePiglinEntity::new, "Piglin"),
+		ZOGLIN(EntityTypes.ZOGLIN, BbZoglinEntity::new, "Zoglin"),
+		HUSK(EntityTypes.HUSK, BbHuskEntity::new, "Husk");
+
+		public static final Codec<BbEntityTypes> CODEC = StringRepresentable.fromEnum(BbEntityTypes::values);
+
+		private final EntityType<?> entityType;
+		private final Creator<?> creator;
+		private final String englishName;
+
+		<T extends Mob> BbEntityTypes(EntityType<T> entityType, Creator<T> creator, String englishName) {
+			this.creator = creator;
+			this.entityType = entityType;
+			this.englishName = englishName;
+		}
+
+		public Mob create(Level level, Plot plot) {
+			return creator.create((EntityType) entityType, level, plot);
+		}
+
+		@Override
+		public String getSerializedName() {
+			return name().toLowerCase(Locale.ROOT);
+		}
+
+		public MutableComponent getName() {
+			return Component.translatable(getTranslationKey());
+		}
+
+		public String getTranslationKey() {
+			return "ltminigames.bb_entities." + getSerializedName();
+		}
+
+		public String getEnglishName() {
+			return englishName;
+		}
+
+		interface Creator<T extends Mob> {
+			Mob create(EntityType<T> type, Level level, Plot plot);
+		}
+	}
+}

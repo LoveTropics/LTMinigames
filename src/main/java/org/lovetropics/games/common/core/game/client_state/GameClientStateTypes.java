@@ -1,0 +1,111 @@
+package org.lovetropics.games.common.core.game.client_state;
+
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.core.game.client_state.instance.BeSpeedyState;
+import org.lovetropics.games.common.core.game.client_state.instance.BeaconClientState;
+import org.lovetropics.games.common.core.game.client_state.instance.BingoBoardClientState;
+import org.lovetropics.games.common.core.game.client_state.instance.BreakDelayState;
+import org.lovetropics.games.common.core.game.client_state.instance.CollidersClientState;
+import org.lovetropics.games.common.core.game.client_state.instance.CraftingBeeCraftsClientState;
+import org.lovetropics.games.common.core.game.client_state.instance.DisableBobbingState;
+import org.lovetropics.games.common.core.game.client_state.instance.controls.DisableMouseMovementClientState;
+import org.lovetropics.games.common.core.game.client_state.instance.DisablePlayerCollision;
+import org.lovetropics.games.common.core.game.client_state.instance.DisablePlayerMovementState;
+import org.lovetropics.games.common.core.game.client_state.instance.FogClientState;
+import org.lovetropics.games.common.core.game.client_state.instance.ForcePerspectiveClientState;
+import org.lovetropics.games.common.core.game.client_state.instance.GlowTeamMembersState;
+import org.lovetropics.games.common.core.game.client_state.instance.HealthTagClientState;
+import org.lovetropics.games.common.core.game.client_state.instance.HideNameTagsState;
+import org.lovetropics.games.common.core.game.client_state.instance.HidePlayersState;
+import org.lovetropics.games.common.core.game.client_state.instance.DisableRecipeBookClientState;
+import org.lovetropics.games.common.core.game.client_state.instance.HideRecipeBookClientState;
+import org.lovetropics.games.common.core.game.client_state.instance.HighlightBlocksState;
+import org.lovetropics.games.common.core.game.client_state.instance.InvertControlsClientState;
+import org.lovetropics.games.common.core.game.client_state.instance.PointTagClientState;
+import org.lovetropics.games.common.core.game.client_state.instance.ReplaceTexturesClientState;
+import org.lovetropics.games.common.core.game.client_state.instance.ResourcePackClientState;
+import org.lovetropics.games.common.core.game.client_state.instance.SidebarClientState;
+import org.lovetropics.games.common.core.game.client_state.instance.SoundVolumeModifier;
+import org.lovetropics.games.common.core.game.client_state.instance.SpectatingClientState;
+import org.lovetropics.games.common.core.game.client_state.instance.StatisticOverlayState;
+import org.lovetropics.games.common.core.game.client_state.instance.controls.RemapMovementClientState;
+import org.lovetropics.games.common.core.game.client_state.instance.TeamMembersClientState;
+import org.lovetropics.games.common.core.game.client_state.instance.controls.InvertScrollWheelClientState;
+import org.lovetropics.games.common.core.game.client_state.instance.controls.RemapHotbarKeysClientState;
+import org.lovetropics.games.common.util.registry.GameClientTweakEntry;
+import org.lovetropics.games.common.util.registry.LoveTropicsRegistrate;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import net.minecraft.core.Registry;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceKey;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.registries.DeferredRegister;
+
+public final class GameClientStateTypes {
+	public static final ResourceKey<Registry<GameClientStateType<?>>> REGISTRY_KEY = ResourceKey.createRegistryKey(LoveTropics.id("game_client_state"));
+
+	public static final DeferredRegister<GameClientStateType<?>> REGISTER = DeferredRegister.create(REGISTRY_KEY, LoveTropics.ID);
+
+	public static final Registry<GameClientStateType<?>> REGISTRY = REGISTER.makeRegistry(builder -> builder.sync(true));
+
+	private static final LoveTropicsRegistrate REGISTRATE = LoveTropics.registrate();
+
+	public static final Codec<GameClientStateType<?>> TYPE_CODEC = Codec.lazyInitialized(REGISTRY::byNameCodec);
+
+	public static final GameClientTweakEntry<ReplaceTexturesClientState> REPLACE_TEXTURES = register("replace_textures", ReplaceTexturesClientState.CODEC);
+	public static final GameClientTweakEntry<SpectatingClientState> SPECTATING = register("spectating", SpectatingClientState.CODEC);
+	public static final GameClientTweakEntry<ResourcePackClientState> RESOURCE_PACK = register("resource_pack", ResourcePackClientState.CODEC);
+	public static final GameClientTweakEntry<HealthTagClientState> HEALTH_TAG = register("health_tag", HealthTagClientState.CODEC);
+	public static final GameClientTweakEntry<SidebarClientState> SIDEBAR = register("sidebar", SidebarClientState.CODEC);
+	public static final GameClientTweakEntry<BeaconClientState> BEACON = register("beacon", BeaconClientState.CODEC);
+	public static final GameClientTweakEntry<FogClientState> FOG = register("fog", FogClientState.CODEC);
+	public static final GameClientTweakEntry<TeamMembersClientState> TEAM_MEMBERS = register("team_members", TeamMembersClientState.CODEC);
+	public static final GameClientTweakEntry<GlowTeamMembersState> GLOW_TEAM_MEMBERS = registerUnit("glow_team_members", GlowTeamMembersState.INSTANCE);
+	public static final GameClientTweakEntry<PointTagClientState> POINT_TAGS = register("point_tags", PointTagClientState.CODEC);
+	public static final GameClientTweakEntry<DisableRecipeBookClientState> DISABLE_RECIPE_BOOK = register("disable_recipe_book", DisableRecipeBookClientState.CODEC);
+	public static final GameClientTweakEntry<HighlightBlocksState> HIGHLIGHT_BLOCKS = register("highlight_blocks", HighlightBlocksState.CODEC, HighlightBlocksState.STREAM_CODEC);
+	public static final GameClientTweakEntry<CraftingBeeCraftsClientState> CRAFTING_BEE_CRAFTS = register("crafting_bee_crafts", CraftingBeeCraftsClientState.CODEC);
+	public static final GameClientTweakEntry<BingoBoardClientState> BINGO_BOARD = register("bingo_board", BingoBoardClientState.CODEC);
+	public static final GameClientTweakEntry<InvertControlsClientState> INVERT_CONTROLS = register("invert_controls", InvertControlsClientState.CODEC);
+	public static final GameClientTweakEntry<RemapMovementClientState> REMAP_MOVEMENT = register("remap_movement", RemapMovementClientState.CODEC, RemapMovementClientState.STREAM_CODEC);
+	public static final GameClientTweakEntry<CollidersClientState> COLLIDERS = register("colliders", CollidersClientState.CODEC, CollidersClientState.STREAM_CODEC);
+	public static final GameClientTweakEntry<HideNameTagsState> HIDE_NAME_TAGS = registerUnit("hide_name_tags", HideNameTagsState.INSTANCE);
+	public static final GameClientTweakEntry<DisableBobbingState> DISABLE_BOBBING = registerUnit("disable_bobbing", DisableBobbingState.INSTANCE);
+	public static final GameClientTweakEntry<BeSpeedyState> BE_SPEEDY = registerUnit("be_speedy", BeSpeedyState.INSTANCE);
+	public static final GameClientTweakEntry<DisablePlayerMovementState> DISABLE_PLAYER_MOVEMENT = registerUnit("disable_player_movement", DisablePlayerMovementState.INSTANCE);
+	public static final GameClientTweakEntry<DisablePlayerCollision> DISABLE_PLAYER_COLLISION = registerUnit("disable_player_collision", DisablePlayerCollision.INSTANCE);
+	public static final GameClientTweakEntry<SoundVolumeModifier> SOUND_VOLUME_MODIFIER = register("sound_volume_modifier", SoundVolumeModifier.CODEC, SoundVolumeModifier.STREAM_CODEC);
+	public static final GameClientTweakEntry<HidePlayersState> HIDE_PLAYERS = register("hide_players", HidePlayersState.CODEC, HidePlayersState.STREAM_CODEC);
+	public static final GameClientTweakEntry<StatisticOverlayState> STATISTIC_OVERLAY = register("statistic_overlay", StatisticOverlayState.CODEC, StatisticOverlayState.STREAM_CODEC);
+	public static final GameClientTweakEntry<BreakDelayState> BREAK_DELAY = registerUnit("break_delay", BreakDelayState.INSTANCE);
+	public static final GameClientTweakEntry<ForcePerspectiveClientState> FORCE_PERSPECTIVE = register("force_perspective", ForcePerspectiveClientState.CODEC, ForcePerspectiveClientState.STREAM_CODEC);
+	public static final GameClientTweakEntry<HideRecipeBookClientState> HIDE_RECIPE_BOOK = registerUnit("hide_recipe_book", HideRecipeBookClientState.INSTANCE);
+	public static final GameClientTweakEntry<DisableMouseMovementClientState> DISABLE_MOUSE_MOVEMENT = register("disable_mouse_movement", DisableMouseMovementClientState.CODEC, DisableMouseMovementClientState.STREAM_CODEC);
+	public static final GameClientTweakEntry<RemapHotbarKeysClientState> REMAP_QUICK_KEYS = register("remap_hotbar_keys", RemapHotbarKeysClientState.CODEC, RemapHotbarKeysClientState.STREAM_CODEC);
+	public static final GameClientTweakEntry<InvertScrollWheelClientState> INVERT_SCROLL_WHEEL = registerUnit("invert_scroll_wheel", InvertScrollWheelClientState.INSTANCE);
+
+	public static <T extends GameClientState> GameClientTweakEntry<T> register(String name, MapCodec<T> codec) {
+		return REGISTRATE.object(name)
+				.clientState(codec)
+				.register();
+	}
+
+	public static <T extends GameClientState> GameClientTweakEntry<T> register(String name, MapCodec<T> codec, StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec) {
+		return REGISTRATE.object(name)
+				.clientState(codec).streamCodec(streamCodec)
+				.register();
+	}
+
+	public static <T extends GameClientState> GameClientTweakEntry<T> registerUnit(String name, T instance) {
+		return REGISTRATE.object(name)
+				.clientState(MapCodec.unit(instance))
+				.streamCodec(StreamCodec.unit(instance))
+				.register();
+	}
+
+	public static void init(IEventBus modBus) {
+		REGISTER.register(modBus);
+	}
+}

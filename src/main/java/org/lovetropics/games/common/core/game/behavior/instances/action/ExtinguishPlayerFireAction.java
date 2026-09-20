@@ -1,0 +1,22 @@
+package org.lovetropics.games.common.core.game.behavior.instances.action;
+
+import org.lovetropics.games.common.core.game.GameException;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import com.mojang.serialization.MapCodec;
+
+public record ExtinguishPlayerFireAction() implements IGameBehavior {
+	public static final MapCodec<ExtinguishPlayerFireAction> CODEC = MapCodec.unit(ExtinguishPlayerFireAction::new);
+
+	@Override
+	public void register(IGamePhase game, EventRegistrar events) throws GameException {
+		events.applyToEntities(game, (context, level, target) -> {
+			if (target.isOnFire()) {
+				target.extinguishFire();
+				return true;
+			}
+			return false;
+		});
+	}
+}

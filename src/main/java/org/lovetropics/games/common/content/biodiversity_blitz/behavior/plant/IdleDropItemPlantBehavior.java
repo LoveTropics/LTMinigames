@@ -1,0 +1,67 @@
+package org.lovetropics.games.common.content.biodiversity_blitz.behavior.plant;
+
+import org.lovetropics.games.common.content.biodiversity_blitz.behavior.event.BbPlantEvents;
+import org.lovetropics.games.common.content.biodiversity_blitz.plot.Plot;
+import org.lovetropics.games.common.content.biodiversity_blitz.plot.plant.Plant;
+import org.lovetropics.games.common.core.game.GameException;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.core.game.player.PlayerSet;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStackTemplate;
+
+import java.util.List;
+
+public final class IdleDropItemPlantBehavior implements IGameBehavior {
+	public static final MapCodec<IdleDropItemPlantBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+			ItemStackTemplate.CODEC.fieldOf("item").forGetter(b -> b.item),
+			Codec.INT.fieldOf("interval").forGetter(b -> b.interval)
+	).apply(i, IdleDropItemPlantBehavior::new));
+	private final ItemStackTemplate item;
+	private final int interval;
+
+	private IGamePhase game;
+
+	public IdleDropItemPlantBehavior(ItemStackTemplate item, int interval) {
+		this.item = item;
+		this.interval = interval;
+	}
+
+	@Override
+	public void register(IGamePhase game, EventRegistrar events) throws GameException {
+		this.game = game;
+		events.listen(BbPlantEvents.TICK, this::tickPlants);
+	}
+
+	private void tickPlants(PlayerSet players, Plot plot, List<Plant> plants) {
+		long ticks = game.ticks();
+		RandomSource random = game.random();
+
+		if (ticks % interval != 0) {
+			return;
+		}
+
+		ServerLevel level = plot.level;
+
+		for (Plant plant : plants) {
+			BlockPos.MutableBlockPos pos = plant.coverage().random(random).mutable();
+
+			for (int i = 0; i < 8; i++) {
+				if (level.getBlockState(pos).isAir()) {
+					level.addFreshEntity(new ItemEntity(level, pos.getX(), pos.getY(), pos.getZ(), item.create()));
+					break;
+				}
+
+				pos.move(Direction.DOWN);
+			}
+		}
+	}
+}
