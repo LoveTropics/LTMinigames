@@ -8,8 +8,8 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
-import org.lovetropics.games.LoveTropics;
 import org.lovetropics.games.lobbies.GameLobby;
+import org.lovetropics.games.lobbies.LobbiesMod;
 import org.lovetropics.games.lobbies.LobbyPlayerManager;
 import org.lovetropics.games.lobbies.client.ClientLobbyManager;
 
@@ -17,7 +17,7 @@ import java.util.Set;
 import java.util.UUID;
 
 public record LobbyPlayersMessage(int id, Set<UUID> players) implements CustomPacketPayload {
-	public static final Type<LobbyPlayersMessage> TYPE = new Type<>(LoveTropics.id("lobby_players"));
+	public static final Type<LobbyPlayersMessage> TYPE = new Type<>(LobbiesMod.id("lobby_players"));
 
 	public static final StreamCodec<ByteBuf, LobbyPlayersMessage> STREAM_CODEC = StreamCodec.composite(
 			ByteBufCodecs.VAR_INT, LobbyPlayersMessage::id,

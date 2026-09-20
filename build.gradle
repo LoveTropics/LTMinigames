@@ -8,10 +8,6 @@ base {
     archivesName = 'LTMinigames'
 }
 
-sourceSets.main.resources {
-    srcDir 'src/generated/resources'
-    exclude 'testing/**'
-}
 sourceSets.test.resources {
     srcDir 'src/generated/resources'
     include 'testing/**'
@@ -35,12 +31,15 @@ neoForge {
             sourceSet sourceSets.main
             sourceSet sourceSets.test
         }
+        "ltgames_lobbies" {
+            sourceSet project(':lobbies').sourceSets.main
+        }
     }
 
     runs {
         client {
             client()
-            loadedMods = [mods."${mod_id}"]
+            loadedMods = [mods."${mod_id}", mods.ltgames_lobbies]
 
             programArguments.addAll '--username', 'Dev###'
             systemProperty 'neoforge.enabledGameTestNamespaces', mod_id
@@ -48,7 +47,7 @@ neoForge {
 
         server {
             server()
-            loadedMods = [mods."${mod_id}"]
+            loadedMods = [mods."${mod_id}", mods.ltgames_lobbies]
 
             programArgument '--nogui'
             systemProperty 'neoforge.enabledGameTestNamespaces', mod_id
@@ -77,32 +76,11 @@ neoForge {
     }
 }
 
-repositories {
-    maven {
-        url = 'https://maven.gegy.dev/releases'
-        content {
-            includeGroup 'org.lovetropics'
-            includeGroup 'com.tterrag.registrate'
-            includeGroup 'eu.pb4'
-        }
-    }
-    maven {
-        url = 'https://api.modrinth.com/maven'
-        content {
-            includeGroup 'maven.modrinth'
-        }
-    }
-    maven {
-        name = 'CurseMaven'
-        url = 'https://www.cursemaven.com'
-        content {
-            includeGroup('curse.maven')
-        }
-    }
-}
-
 dependencies {
     runtimeOnly 'maven.modrinth:tropicraft:9.11.0+26.2'
+
+    jarJar(runtimeOnly(project(':lobbies')))
+    testImplementation project(':lobbies')
 
     jarJar("com.tterrag.registrate:Registrate:MC26.2-${registrate_version}") {
         version {

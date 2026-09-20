@@ -6,15 +6,15 @@ license = "Mozilla Public License Version 2.0"
 [[mods]]
 modId = "${mod_id}"
 version = "${mod_version}"
-displayName = "LTMinigames"
+displayName = "LTMinigames - Lobbies"
 displayURL = "https://lovetropics.org"
 authors = "The Love Tropics team"
 description = '''
-Minigame engine for the LoveTropics livestream event.
+Lobby-based game runner for Love Tropics.
 '''
 
 [[mixins]]
-config = "ltminigames.mixins.json"
+config = "ltgames_lobbies.mixins.json"
 
 [[dependencies.${ mod_id }]]
 modId = "neoforge"

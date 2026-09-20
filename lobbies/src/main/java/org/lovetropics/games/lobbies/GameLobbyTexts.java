@@ -1,15 +1,14 @@
 package org.lovetropics.games.lobbies;
 
+import org.lovetropics.games.common.core.game.IGameDefinition;
+import org.lovetropics.games.common.core.game.player.PlayerRole;
+import org.lovetropics.games.common.core.game.util.GameTexts;
+import org.lovetropics.games.common.core.game.util.TranslationCollector;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import org.jspecify.annotations.Nullable;
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.core.game.IGameDefinition;
-import org.lovetropics.games.common.core.game.player.PlayerRole;
-import org.lovetropics.games.common.core.game.util.GameTexts;
-import org.lovetropics.games.common.core.game.util.TranslationCollector;
 
 import java.util.Collection;
 import java.util.function.BiConsumer;
@@ -26,7 +25,7 @@ public final class GameLobbyTexts {
 	}
 
 	public static final class Commands {
-		private static final TranslationCollector KEYS = new TranslationCollector(LoveTropics.ID + ".command.");
+		private static final TranslationCollector KEYS = new TranslationCollector(LobbiesMod.ID + ".command.");
 
 		private static final TranslationCollector.Fun1 JOINED_LOBBY = KEYS.add1("joined_lobby", "You have joined %s!");
 		private static final TranslationCollector.Fun1 LEFT_LOBBY = KEYS.add1("left_lobby", "You have left %s!");
@@ -87,7 +86,7 @@ public final class GameLobbyTexts {
 	}
 
 	public static final class Status {
-		private static final TranslationCollector KEYS = new TranslationCollector(LoveTropics.ID + ".status.");
+		private static final TranslationCollector KEYS = new TranslationCollector(LobbiesMod.ID + ".status.");
 
 		private static final TranslationCollector.Fun2 LOBBY_OPENED = KEYS.add2("lobby_opened", "%s has opened for registration! %s to get a chance to play!");
 
@@ -123,7 +122,7 @@ public final class GameLobbyTexts {
 	}
 
 	public static final class Ui {
-		private static final TranslationCollector KEYS = new TranslationCollector(LoveTropics.ID + ".ui.");
+		private static final TranslationCollector KEYS = new TranslationCollector(LobbiesMod.ID + ".ui.");
 
 		public static final Component MANAGE_GAME_LOBBY = KEYS.add("manage_game_lobby", "Manage Game Lobby");
 		public static final Component LOBBY_NAME = KEYS.add("lobby_name", "Lobby Name");
@@ -144,6 +143,9 @@ public final class GameLobbyTexts {
 
 		public static final Component PARTICIPATING = KEYS.add("participating", "Participating");
 		public static final Component SPECTATING = KEYS.add("spectating", "Spectating");
+
+		public static final Component FREE_CAMERA = KEYS.add("free_camera", "Free Camera");
+		public static final TranslationCollector.Fun1 CLICK_TO_SELECT = KEYS.add1("click_to_select", "%s [Click to Select]");
 
 		public static final Component LOBBY_PUBLIC = KEYS.add("visibility.public", "Public");
 		public static final Component LOBBY_PUBLIC_LIVE = KEYS.add("visibility.public_live", "Public (Live)");

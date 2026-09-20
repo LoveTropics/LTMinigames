@@ -5,15 +5,15 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
-import org.lovetropics.games.LoveTropics;
 import org.lovetropics.games.lobbies.GameLobby;
+import org.lovetropics.games.lobbies.LobbiesMod;
 import org.lovetropics.games.lobbies.client.ClientLobbyManager;
 import org.lovetropics.games.lobbies.client.state.ClientCurrentGame;
 
 import java.util.Optional;
 
 public record LobbyUpdateMessage(int id, Optional<Update> update) implements CustomPacketPayload {
-	public static final Type<LobbyUpdateMessage> TYPE = new Type<>(LoveTropics.id("lobby_update"));
+	public static final Type<LobbyUpdateMessage> TYPE = new Type<>(LobbiesMod.id("lobby_update"));
 
 	public static final StreamCodec<RegistryFriendlyByteBuf, LobbyUpdateMessage> STREAM_CODEC = StreamCodec.composite(
 			ByteBufCodecs.VAR_INT, LobbyUpdateMessage::id,

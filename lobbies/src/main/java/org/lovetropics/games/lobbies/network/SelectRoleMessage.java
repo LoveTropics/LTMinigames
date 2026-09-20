@@ -1,6 +1,5 @@
 package org.lovetropics.games.lobbies.network;
 
-import org.lovetropics.games.LoveTropics;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -10,9 +9,10 @@ import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.lovetropics.games.lobbies.GameLobby;
 import org.lovetropics.games.lobbies.GameLobbyManager;
+import org.lovetropics.games.lobbies.LobbiesMod;
 
 public record SelectRoleMessage(int lobbyId, boolean play) implements CustomPacketPayload {
-	public static final Type<SelectRoleMessage> TYPE = new Type<>(LoveTropics.id("select_role"));
+	public static final Type<SelectRoleMessage> TYPE = new Type<>(LobbiesMod.id("select_role"));
 
 	public static final StreamCodec<ByteBuf, SelectRoleMessage> STREAM_CODEC = StreamCodec.composite(
 			ByteBufCodecs.VAR_INT, SelectRoleMessage::lobbyId,

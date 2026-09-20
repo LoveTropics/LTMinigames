@@ -6,13 +6,13 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
-import org.lovetropics.games.LoveTropics;
 import org.lovetropics.games.lobbies.GameLobby;
 import org.lovetropics.games.lobbies.GameLobbyManager;
 import org.lovetropics.games.lobbies.GameLobbyTexts;
+import org.lovetropics.games.lobbies.LobbiesMod;
 
 public record LeaveLobbyPacket() implements CustomPacketPayload {
-	public static final Type<LeaveLobbyPacket> TYPE = new Type<>(LoveTropics.id("leave_lobby"));
+	public static final Type<LeaveLobbyPacket> TYPE = new Type<>(LobbiesMod.id("leave_lobby"));
 
 	public static final LeaveLobbyPacket INSTANCE = new LeaveLobbyPacket();
 

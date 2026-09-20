@@ -1,6 +1,5 @@
 package org.lovetropics.games.lobbies.network;
 
-import org.lovetropics.games.LoveTropics;
 import org.lovetropics.games.common.core.game.GameResult;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -11,10 +10,11 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.lovetropics.games.lobbies.GameLobby;
 import org.lovetropics.games.lobbies.GameLobbyManager;
 import org.lovetropics.games.lobbies.GameLobbyTexts;
+import org.lovetropics.games.lobbies.LobbiesMod;
 import org.lovetropics.games.lobbies.command.ManageGameLobbyCommand;
 
 public record ManageOrCreateLobbyPacket() implements CustomPacketPayload {
-	public static final Type<ManageOrCreateLobbyPacket> TYPE = new Type<>(LoveTropics.id("lobby_manage"));
+	public static final Type<ManageOrCreateLobbyPacket> TYPE = new Type<>(LobbiesMod.id("lobby_manage"));
 
 	public static final ManageOrCreateLobbyPacket INSTANCE = new ManageOrCreateLobbyPacket();
 

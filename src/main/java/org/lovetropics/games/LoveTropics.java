@@ -96,7 +96,6 @@ import net.neoforged.neoforge.event.AddPackFindersEvent;
 import net.neoforged.neoforge.event.entity.living.MobSpawnEvent;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import net.neoforged.neoforge.registries.RegisterEvent;
-import org.lovetropics.games.lobbies.GameLobbyTexts;
 import org.slf4j.Logger;
 
 import java.nio.file.Files;
@@ -124,7 +123,6 @@ public class LoveTropics {
 		registrate.addDataGenerator(ProviderType.LANG, prov -> {
 			BiConsumer<String, String> consumer = prov::add;
 			GameTexts.collectTranslations(consumer);
-			GameLobbyTexts.collectTranslations(consumer);
 			MinigameTexts.KEYS.forEach(consumer);
 			Bingo.KEYS.forEach(consumer);
 			BiodiversityBlitzTexts.collectTranslations(consumer);

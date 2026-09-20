@@ -7,11 +7,11 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
-import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.lobbies.LobbiesMod;
 import org.lovetropics.games.lobbies.command.JoinGameCommand;
 
 public record JoinLobbyPacket() implements CustomPacketPayload {
-	public static final Type<JoinLobbyPacket> TYPE = new Type<>(LoveTropics.id("join_lobby"));
+	public static final Type<JoinLobbyPacket> TYPE = new Type<>(LobbiesMod.id("join_lobby"));
 
 	public static final JoinLobbyPacket INSTANCE = new JoinLobbyPacket();
 

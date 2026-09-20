@@ -1,0 +1,28 @@
+plugins {
+    id 'conventions'
+}
+
+def mod_id = 'ltgames_lobbies'
+
+conventions {
+    modId = mod_id
+}
+
+neoForge {
+    mods {
+        "$mod_id" {
+            sourceSet sourceSets.main
+        }
+    }
+
+    runs {
+        lobbiesData {
+            clientData()
+            programArguments.addAll '--mod', mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
+        }
+    }
+}
+
+dependencies {
+    implementation rootProject
+}

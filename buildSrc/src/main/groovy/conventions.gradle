@@ -22,6 +22,11 @@ if (System.getenv('GHA_RELEASE_WORKFLOW')) {
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
+sourceSets.main.resources {
+    srcDir 'src/generated/resources'
+    exclude 'testing/**'
+}
+
 neoForge {
     version = project.neo_version
 

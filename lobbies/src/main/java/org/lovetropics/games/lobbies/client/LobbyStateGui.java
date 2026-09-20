@@ -1,6 +1,5 @@
 package org.lovetropics.games.lobbies.client;
 
-import org.lovetropics.games.LoveTropics;
 import org.lovetropics.games.client.LTKeybinds;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -19,6 +18,7 @@ import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.lobbies.LobbiesMod;
 import org.lovetropics.games.lobbies.LobbyStatus;
 import org.lovetropics.games.lobbies.client.state.ClientCurrentGame;
 import org.lovetropics.games.lobbies.network.JoinLobbyPacket;
@@ -56,7 +56,7 @@ public class LobbyStateGui {
 
 	@SubscribeEvent
 	public static void registerOverlays(RegisterGuiLayersEvent event) {
-		event.registerBelow(VanillaGuiLayers.CONTEXTUAL_INFO_BAR_BACKGROUND, LoveTropics.id("minigame_lobby"), (graphics, deltaTracker) -> {
+		event.registerBelow(VanillaGuiLayers.CONTEXTUAL_INFO_BAR_BACKGROUND, LobbiesMod.id("minigame_lobby"), (graphics, deltaTracker) -> {
 			if (Minecraft.getInstance().gui.hud.isHidden()) {
 				return;
 			}
