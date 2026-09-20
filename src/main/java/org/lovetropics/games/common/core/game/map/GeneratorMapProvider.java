@@ -89,7 +89,10 @@ public record GeneratorMapProvider(
 	private Map<ResourceKey<Level>, RuntimeDimensionHandle> openDimensions(MinecraftServer server, long seed, MapWorldInfo worldInfo) {
 		RuntimeDimensions dimensions = RuntimeDimensions.get(server);
 		Map<ResourceKey<Level>, RuntimeDimensionHandle> handles = new LinkedHashMap<>();
-		handles.put(Level.OVERWORLD, openDimension(dimensions, generator, dimensionType, seed, worldInfo));
+		RuntimeDimensionHandle overworld = openDimension(dimensions, generator, dimensionType, seed, worldInfo);
+		// The shared world info runs its clocks for the first level that asks for them - make sure that it is the overworld
+		overworld.asLevel().clockManager();
+		handles.put(Level.OVERWORLD, overworld);
 		nether.ifPresent(config -> handles.put(Level.NETHER, openDimension(dimensions, config.generator(), config.dimensionType(), seed, worldInfo)));
 		end.ifPresent(config -> handles.put(Level.END, openDimension(dimensions, config.generator(), config.dimensionType(), seed, worldInfo)));
 		return handles;

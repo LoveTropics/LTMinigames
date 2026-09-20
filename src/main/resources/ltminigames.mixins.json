@@ -27,7 +27,6 @@
     "command.CommandsMixin",
     "command.ServerGamePacketListenerImplMixin",
     "dimension.BaseFireBlockMixin",
-    "dimension.ChunkStorageMixin",
     "dimension.EndPortalBlockMixin",
     "dimension.MapServerLevelMixin",
     "dimension.NetherPortalBlockMixin",
@@ -43,12 +42,12 @@
     "event.ServerLevelMixin",
     "event.TrapdoorBlockMixin",
     "event.TrialSpawnerStateMixin",
+    "gametest.GameTestHelperAccess",
+    "gametest.GameTestInfoAccess",
     "gametest.GTNetworkFiltersMixin",
     "gametest.GTPlayerListMixin",
     "gametest.GTPlayerMixin",
-    "gametest.GTReportGameListenerMixin",
-    "gametest.GameTestHelperAccess",
-    "gametest.GameTestInfoAccess"
+    "gametest.GTReportGameListenerMixin"
   ],
   "client": [
     "client.AbstractRecipeBookScreenMixin",
