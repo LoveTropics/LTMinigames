@@ -1,10 +1,10 @@
 package com.lovetropics.minigames;
 
 import com.google.common.base.Suppliers;
-import com.lovetropics.minigames.client.game.handler.GameSidebarRenderer;
-import com.lovetropics.minigames.client.game.handler.spectate.SpectatingUi;
 import com.lovetropics.minigames.client.KeybindsTexts;
 import com.lovetropics.minigames.client.LTKeybinds;
+import com.lovetropics.minigames.client.game.handler.GameSidebarRenderer;
+import com.lovetropics.minigames.client.game.handler.spectate.SpectatingUi;
 import com.lovetropics.minigames.client.lobby.LobbyStateGui;
 import com.lovetropics.minigames.client.render.block.TriviaChestRenderer;
 import com.lovetropics.minigames.common.config.ConfigLT;
@@ -26,8 +26,8 @@ import com.lovetropics.minigames.common.content.connect4.ConnectFour;
 import com.lovetropics.minigames.common.content.connect4.ConnectFourTexts;
 import com.lovetropics.minigames.common.content.crafting_bee.CraftingBee;
 import com.lovetropics.minigames.common.content.crafting_bee.CraftingBeeTexts;
-import com.lovetropics.minigames.common.content.drr_showdown.DDRShowdown;
 import com.lovetropics.minigames.common.content.de_a_coudre.DeACoudre;
+import com.lovetropics.minigames.common.content.drr_showdown.DDRShowdown;
 import com.lovetropics.minigames.common.content.drr_showdown.DDRShowdownTexts;
 import com.lovetropics.minigames.common.content.escape_race.EscapeRace;
 import com.lovetropics.minigames.common.content.escape_race.EscapeRaceParticles;
@@ -85,7 +85,6 @@ import com.lovetropics.minigames.common.core.game.impl.GameEventDispatcher;
 import com.lovetropics.minigames.common.core.game.impl.GamePhaseManager;
 import com.lovetropics.minigames.common.core.game.persistent.PersistentGameBehaviors;
 import com.lovetropics.minigames.common.core.game.persistent.behavior.parkour.Parkour;
-import com.lovetropics.minigames.common.core.game.predicate.entity.EntityPredicates;
 import com.lovetropics.minigames.common.core.game.predicate.loot.LootItemConditions;
 import com.lovetropics.minigames.common.core.game.util.GameTexts;
 import com.lovetropics.minigames.common.core.integration.BackendIntegrations;
@@ -107,8 +106,8 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.world.entity.EntitySpawnReason;
@@ -206,7 +205,6 @@ public class LoveTropics {
 
 		GameBehaviorTypes.init(modBus);
 		PersistentGameBehaviors.init(modBus);
-		EntityPredicates.init(modBus);
 		LootItemConditions.init();
 		GameClientStateTypes.init(modBus);
 		StreamHosts.init();

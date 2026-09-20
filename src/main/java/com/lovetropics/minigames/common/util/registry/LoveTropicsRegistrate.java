@@ -3,7 +3,6 @@ package com.lovetropics.minigames.common.util.registry;
 import com.lovetropics.minigames.common.core.game.behavior.IGameBehavior;
 import com.lovetropics.minigames.common.core.game.client_state.GameClientState;
 import com.lovetropics.minigames.common.core.game.persistent.PersistentGameBehavior;
-import com.lovetropics.minigames.common.core.game.predicate.entity.EntityPredicate;
 import com.mojang.serialization.MapCodec;
 import com.tterrag.registrate.AbstractRegistrate;
 import net.minecraft.world.effect.MobEffect;
@@ -45,18 +44,6 @@ public final class LoveTropicsRegistrate extends AbstractRegistrate<LoveTropicsR
 
 	public <T extends PersistentGameBehavior, P> PersistentGameBehaviorBuilder<T, P> persistentBehavior(P parent, String name, MapCodec<T> codec) {
 		return entry(name, callback -> new PersistentGameBehaviorBuilder<>(this, parent, name, callback, codec));
-	}
-
-	public <T extends EntityPredicate> EntityPredicateBuilder<T, LoveTropicsRegistrate> entityPredicate(MapCodec<T> codec) {
-		return entityPredicate(this, currentName(), codec);
-	}
-
-	public <T extends EntityPredicate> EntityPredicateBuilder<T, LoveTropicsRegistrate> entityPredicate(String name, MapCodec<T> codec) {
-		return entityPredicate(this, name, codec);
-	}
-
-	public <T extends EntityPredicate, P> EntityPredicateBuilder<T, P> entityPredicate(P parent, String name, MapCodec<T> codec) {
-		return entry(name, callback -> new EntityPredicateBuilder<>(this, parent, name, callback, codec));
 	}
 
 	public <T extends MapCodec<? extends LootItemCondition>> LootItemConditionTypeBuilder<T, LoveTropicsRegistrate> lootItemConditionType(Supplier<T> lootItemConditionTypeSupplier) {
