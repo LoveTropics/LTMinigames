@@ -85,7 +85,6 @@ import com.lovetropics.minigames.common.core.game.impl.GameEventDispatcher;
 import com.lovetropics.minigames.common.core.game.impl.GamePhaseManager;
 import com.lovetropics.minigames.common.core.game.persistent.PersistentGameBehaviors;
 import com.lovetropics.minigames.common.core.game.persistent.behavior.parkour.Parkour;
-import com.lovetropics.minigames.common.core.game.predicate.loot.LootItemConditions;
 import com.lovetropics.minigames.common.core.game.util.GameTexts;
 import com.lovetropics.minigames.common.core.integration.BackendIntegrations;
 import com.lovetropics.minigames.common.core.item.MinigameDataComponents;
@@ -205,7 +204,6 @@ public class LoveTropics {
 
 		GameBehaviorTypes.init(modBus);
 		PersistentGameBehaviors.init(modBus);
-		LootItemConditions.init();
 		GameClientStateTypes.init(modBus);
 		StreamHosts.init();
 
