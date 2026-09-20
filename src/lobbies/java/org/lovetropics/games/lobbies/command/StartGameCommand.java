@@ -16,11 +16,12 @@ import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import org.lovetropics.games.lobbies.GameLobby;
 import org.lovetropics.games.lobbies.GameLobbyManager;
 import org.lovetropics.games.lobbies.GameLobbyTexts;
+import org.lovetropics.games.lobbies.LobbiesMod;
 import org.lovetropics.games.lobbies.LobbyControls;
 
 import static net.minecraft.commands.Commands.literal;
 
-@EventBusSubscriber
+@EventBusSubscriber(modid = LobbiesMod.ID)
 public class StartGameCommand {
 	private static final SimpleCommandExceptionType NOT_IN_LOBBY = new SimpleCommandExceptionType(GameLobbyTexts.Commands.NOT_IN_LOBBY);
 	private static final SimpleCommandExceptionType CANNOT_START_LOBBY = new SimpleCommandExceptionType(GameLobbyTexts.Commands.CANNOT_START_LOBBY);

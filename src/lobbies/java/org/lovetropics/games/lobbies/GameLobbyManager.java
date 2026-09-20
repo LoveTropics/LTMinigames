@@ -28,7 +28,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@EventBusSubscriber
+@EventBusSubscriber(modid = LobbiesMod.ID)
 public class GameLobbyManager {
 	private static final GameLobbyManager INSTANCE = new GameLobbyManager();
 

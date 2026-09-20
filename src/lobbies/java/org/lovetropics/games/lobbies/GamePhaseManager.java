@@ -30,7 +30,7 @@ import java.util.Queue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
-@EventBusSubscriber
+@EventBusSubscriber(modid = LobbiesMod.ID)
 public class GamePhaseManager implements IGameLookup {
 	private static final GamePhaseManager INSTANCE = new GamePhaseManager();
 

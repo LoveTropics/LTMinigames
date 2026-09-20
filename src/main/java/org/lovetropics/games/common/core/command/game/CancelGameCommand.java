@@ -1,5 +1,6 @@
 package org.lovetropics.games.common.core.command.game;
 
+import org.lovetropics.games.LoveTropics;
 import org.lovetropics.games.common.core.game.GameResult;
 import org.lovetropics.games.common.core.game.GameStopReason;
 import org.lovetropics.games.common.core.game.IGameLookup;
@@ -18,7 +19,7 @@ import net.neoforged.neoforge.event.RegisterCommandsEvent;
 
 import static net.minecraft.commands.Commands.literal;
 
-@EventBusSubscriber
+@EventBusSubscriber(modid = LoveTropics.ID)
 public class CancelGameCommand {
 	@SubscribeEvent
 	public static void register(RegisterCommandsEvent event) {

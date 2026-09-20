@@ -14,12 +14,13 @@ import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import org.lovetropics.games.lobbies.GameLobby;
 import org.lovetropics.games.lobbies.GameLobbyManager;
 import org.lovetropics.games.lobbies.GameLobbyTexts;
+import org.lovetropics.games.lobbies.LobbiesMod;
 import org.lovetropics.games.lobbies.LobbyManagement;
 import org.lovetropics.games.lobbies.command.argument.GameLobbyArgument;
 
 import static net.minecraft.commands.Commands.literal;
 
-@EventBusSubscriber
+@EventBusSubscriber(modid = LobbiesMod.ID)
 public class ManageGameLobbyCommand {
 	private static final SimpleCommandExceptionType NO_MANAGE_PERMISSION = new SimpleCommandExceptionType(GameLobbyTexts.Commands.NO_MANAGE_PERMISSION);
 	private static final SimpleCommandExceptionType NOT_IN_LOBBY = new SimpleCommandExceptionType(GameLobbyTexts.Commands.NOT_IN_LOBBY);

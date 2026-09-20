@@ -20,7 +20,7 @@ import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.Nullable;
 
-@EventBusSubscriber(Dist.CLIENT)
+@EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
 public class ClientFadeToBlack {
 	private static boolean enabled;
 	private static float speed = 1.0f;

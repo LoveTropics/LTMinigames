@@ -1,5 +1,6 @@
 package org.lovetropics.games.common.core.game.client_state.instance;
 
+import org.lovetropics.games.LoveTropics;
 import org.lovetropics.games.client.game.ClientGameStateManager;
 import org.lovetropics.games.common.core.game.client_state.GameClientState;
 import org.lovetropics.games.common.core.game.client_state.GameClientStateType;
@@ -25,7 +26,7 @@ import net.neoforged.neoforge.client.event.sound.PlaySoundEvent;
 import java.util.HashMap;
 import java.util.Map;
 
-@EventBusSubscriber(Dist.CLIENT)
+@EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
 public record SoundVolumeModifier(
 		Map<Holder<SoundEvent>, Float> volumes
 ) implements GameClientState {

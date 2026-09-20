@@ -5,9 +5,11 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlersEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.lobbies.LobbiesMod;
 import org.lovetropics.games.lobbies.client.select_role.ClientRoleSelection;
 
-@EventBusSubscriber
+@EventBusSubscriber(modid = LobbiesMod.ID)
 public class GameLobbiesNetwork {
 	private static final String VERSION = "1";
 

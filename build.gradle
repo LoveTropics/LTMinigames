@@ -1,11 +1,41 @@
+import net.neoforged.moddevgradle.dsl.ModModel
+
 plugins {
     id 'net.neoforged.moddev' version '2.0.141'
-    id 'conventions'
+    id 'eclipse'
+    id 'idea'
+    id 'java-library'
 }
 
 group = 'org.lovetropics'
 base {
     archivesName = 'LTMinigames'
+}
+
+def env = System.getenv()
+if (env.GITHUB_RUN_NUMBER) {
+    version = "$mod_version.${env.GITHUB_RUN_NUMBER}"
+} else {
+    version = "$mod_version.0-SNAPSHOT"
+}
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(25)
+
+ext {
+    splitModules = [
+            'lobbies'
+    ]
+}
+
+for (String name : splitModules) {
+    sourceSets.create(name, {
+        java {
+            srcDir "src/${name}/java"
+        }
+        resources {
+            srcDir "src/${name}/resources"
+        }
+    })
 }
 
 sourceSets.test.resources {
@@ -14,41 +44,68 @@ sourceSets.test.resources {
     include 'data/ltminigames/structure/**'
 }
 
+sourceSets.main.resources {
+    srcDir 'src/generated/resources'
+    exclude 'testing/**'
+}
+
 def mod_id = 'ltminigames'
 
-conventions {
-    modId = mod_id
+configurations {
+    libImplementation
+    libCompileOnly
+    implementation.extendsFrom libImplementation
+    compileOnly.extendsFrom libCompileOnly
+}
+
+for (String name : splitModules) {
+    def sourceSet = sourceSets.named(name).get()
+    def libImplementation = configurations.named("libImplementation").get()
+    def libCompileOnly = configurations.named("libCompileOnly").get()
+    configurations.named(sourceSet.implementationConfigurationName).get().extendsFrom libImplementation
+    configurations.named(sourceSet.compileOnlyConfigurationName).get().extendsFrom libCompileOnly
 }
 
 neoForge {
+    version = project.neo_version
+    accessTransformers = [project.file("src/main/resources/META-INF/accesstransformer.cfg")]
+
     addModdingDependenciesTo sourceSets.test
+
+    List<ModModel> defaultModsToLoad = new ArrayList<>()
+    for (String name : splitModules) {
+        def sourceSet = sourceSets.named(name)
+        addModdingDependenciesTo(sourceSet.get())
+        ModModel modModel = mods.maybeCreate(name)
+//        modModel.modSourceSets.add(sourceSet.get()) // See line below, using this does not work
+        defaultModsToLoad.add(modModel)
+    }
 
     mods {
         "${mod_id}" {
             sourceSet sourceSets.main
+            sourceSet sourceSets.lobbies // Look right now this is the only way it works
         }
         "${mod_id}_test" {
             sourceSet sourceSets.main
             sourceSet sourceSets.test
         }
-        "ltgames_lobbies" {
-            sourceSet project(':lobbies').sourceSets.main
-        }
     }
+
+
+    defaultModsToLoad.add(mods.named(mod_id).get())
 
     runs {
         client {
             client()
-            loadedMods = [mods."${mod_id}", mods.ltgames_lobbies]
-
+            loadedMods = defaultModsToLoad
             programArguments.addAll '--username', 'Dev###'
             systemProperty 'neoforge.enabledGameTestNamespaces', mod_id
         }
 
         server {
             server()
-            loadedMods = [mods."${mod_id}", mods.ltgames_lobbies]
-
+            loadedMods.addAll defaultModsToLoad
             programArgument '--nogui'
             systemProperty 'neoforge.enabledGameTestNamespaces', mod_id
         }
@@ -56,16 +113,19 @@ neoForge {
         gameTestServer {
             type = "gameTestServer"
             sourceSet = sourceSets.test
-            loadedMods = [mods."${mod_id}_test"]
 
             systemProperty 'neoforge.enabledGameTestNamespaces', mod_id
         }
 
         data {
             clientData()
-            loadedMods = [mods."${mod_id}_test"]
-
+            loadedMods.addAll defaultModsToLoad
             programArguments.addAll '--mod', mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
+
+            // Todo fix this part
+            for (String name : splitModules) {
+                programArguments.addAll('--mod', 'ltgames_lobbies', '--existing', file("src/${name}/resources/").absolutePath)
+            }
         }
 
         configureEach {
@@ -74,14 +134,46 @@ neoForge {
             jvmArgument("-Dmixin.debug.export=true")
         }
     }
+
+}
+
+repositories {
+    maven {
+        url = 'https://maven.gegy.dev/releases'
+        content {
+            includeGroup 'org.lovetropics'
+            includeGroup 'com.tterrag.registrate'
+            includeGroup 'eu.pb4'
+        }
+    }
+    maven {
+        url = 'https://api.modrinth.com/maven'
+        content {
+            includeGroup 'maven.modrinth'
+        }
+    }
+    maven {
+        name = 'CurseMaven'
+        url = 'https://www.cursemaven.com'
+        content {
+            includeGroup('curse.maven')
+        }
+    }
 }
 
 dependencies {
+    jarJar(libImplementation "org.lovetropics:LTLib:$ltlib_version")
+    jarJar(libCompileOnly "org.lovetropics:peekaboo-api:$peekaboo_version")
+    libCompileOnly "com.tterrag.registrate:Registrate:MC26.2-${registrate_version}"
+
     runtimeOnly 'maven.modrinth:tropicraft:9.11.0+26.2'
+    runtimeOnly("org.lovetropics:peekaboo:$peekaboo_version") {
+        transitive = false
+    }
+    runtimeOnly "org.lovetropics:lt-multimedia:$multimedia_version"
+    runtimeOnly "org.lovetropics:LTExtras:$ltextras_version"
 
-    jarJar(runtimeOnly(project(':lobbies')))
-    testImplementation project(':lobbies')
-
+    // TODO: HACK - We get Registrate at runtime through JarJar from Tropicraft. We should rather prefer to depend on the slim jar.
     jarJar("com.tterrag.registrate:Registrate:MC26.2-${registrate_version}") {
         version {
             strictly "[MC26.2-${registrate_version},MC26.3)"
@@ -89,20 +181,15 @@ dependencies {
         }
     }
 
-    jarJar("org.lovetropics:LTLib:$ltlib_version")
-
-    runtimeOnly "org.lovetropics:LTExtras:$ltextras_version"
-
-    jarJar(compileOnly("org.lovetropics:peekaboo-api:$peekaboo_version"))
-    runtimeOnly("org.lovetropics:peekaboo:$peekaboo_version") {
-        transitive = false
-    }
-
-    runtimeOnly "org.lovetropics:lt-multimedia:$multimedia_version"
-
     testImplementation platform("org.junit:junit-bom:5.7.0")
     testImplementation "org.junit.jupiter:junit-jupiter"
     testRuntimeOnly "org.junit.platform:junit-platform-launcher"
+
+    for (String module : splitModules) {
+        runtimeOnly sourceSets.named(module).get().output
+        "${sourceSets.named(module).get().implementationConfigurationName}" sourceSets.main.output
+        testImplementation sourceSets.named(module).get().output
+    }
 }
 
 test {
@@ -111,3 +198,55 @@ test {
         events "passed", "skipped", "failed"
     }
 }
+
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.compilerArgs << "-Xmaxerrs" << "100000"
+}
+
+tasks.register('sourceJar', Jar) {
+    dependsOn classes
+    archiveClassifier = 'sources'
+    from sourceSets.main.java
+}
+
+idea {
+    module {
+        downloadSources = true
+        downloadJavadoc = true
+    }
+}
+
+
+tasks.withType(ProcessResources).configureEach {
+    outputs.upToDateWhen { false }
+}
+
+var generateModMetadata = tasks.register('generateModMetadata', ProcessResources) {
+    var replaceProperties = [
+            minecraft_version      : minecraft_version,
+            minecraft_version_range: minecraft_version_range,
+            neo_version            : neo_version,
+            neo_version_range      : neo_version_range,
+            loader_version_range   : loader_version_range,
+            mod_version            : mod_version,
+    ]
+    inputs.properties replaceProperties
+    expand replaceProperties
+    from 'src/main/templates'
+    into 'build/generated/sources/modMetadata'
+}
+sourceSets.main.resources.srcDir generateModMetadata
+
+neoForge.ideSyncTask generateModMetadata
+
+
+tasks.withType(Copy) {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+
+tasks.named('jar', Jar, { jar ->
+    from([sourceSets.main.output, sourceSets.lobbies.output])
+})

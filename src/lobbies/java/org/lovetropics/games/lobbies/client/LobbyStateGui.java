@@ -26,7 +26,7 @@ import org.lovetropics.games.lobbies.network.LeaveLobbyPacket;
 
 import java.util.Collection;
 
-@EventBusSubscriber(Dist.CLIENT)
+@EventBusSubscriber(modid = LobbiesMod.ID, value = Dist.CLIENT)
 public class LobbyStateGui {
 
 	private static final int PADDING = 2;

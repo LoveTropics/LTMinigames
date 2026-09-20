@@ -1,5 +1,6 @@
 package org.lovetropics.games.common.core.command;
 
+import org.lovetropics.games.LoveTropics;
 import org.lovetropics.games.common.core.chat.ChatChannel;
 import org.lovetropics.games.common.core.chat.ChatChannelStore;
 import org.lovetropics.games.common.core.command.argument.ChatChannelArgument;
@@ -16,7 +17,7 @@ import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
 
-@EventBusSubscriber
+@EventBusSubscriber(modid = LoveTropics.ID)
 public class ChatCommand {
 	public static void register(RegisterCommandsEvent event) {
 		CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();

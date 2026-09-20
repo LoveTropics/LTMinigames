@@ -1,5 +1,6 @@
 package org.lovetropics.games.common.core.command.game;
 
+import org.lovetropics.games.LoveTropics;
 import org.lovetropics.games.common.core.command.argument.PlayerRoleArgument;
 import org.lovetropics.games.common.core.game.IGameLookup;
 import org.lovetropics.games.common.core.game.IGamePhase;
@@ -22,7 +23,7 @@ import java.util.Collection;
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
 
-@EventBusSubscriber
+@EventBusSubscriber(modid = LoveTropics.ID)
 public class GameSetRoleCommand {
 	private static final SimpleCommandExceptionType NOT_IN_GAME = new SimpleCommandExceptionType(GameTexts.Commands.NOT_IN_GAME);
 

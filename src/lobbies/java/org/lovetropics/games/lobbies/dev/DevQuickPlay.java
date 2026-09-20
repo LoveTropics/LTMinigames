@@ -36,12 +36,13 @@ import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.lobbies.GameLobby;
 import org.lovetropics.games.lobbies.GameLobbyManager;
+import org.lovetropics.games.lobbies.LobbiesMod;
 import org.lovetropics.games.lobbies.LobbyControls;
 import org.slf4j.Logger;
 
 import java.util.function.Function;
 
-@EventBusSubscriber
+@EventBusSubscriber(modid = LobbiesMod.ID)
 public class DevQuickPlay {
 	public static final String OPTION_NAME = "quickPlayMinigame";
 	private static final String LEVEL_NAME = "Minigames";

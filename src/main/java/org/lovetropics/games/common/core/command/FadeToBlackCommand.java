@@ -1,5 +1,6 @@
 package org.lovetropics.games.common.core.command;
 
+import org.lovetropics.games.LoveTropics;
 import org.lovetropics.games.common.core.game.player.PlayerIterable;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
@@ -13,7 +14,7 @@ import static net.minecraft.commands.Commands.literal;
 import static net.minecraft.commands.arguments.EntityArgument.players;
 import static net.minecraft.commands.arguments.TimeArgument.time;
 
-@EventBusSubscriber
+@EventBusSubscriber(modid = LoveTropics.ID)
 public class FadeToBlackCommand {
 	@SubscribeEvent
 	public static void register(RegisterCommandsEvent event) {

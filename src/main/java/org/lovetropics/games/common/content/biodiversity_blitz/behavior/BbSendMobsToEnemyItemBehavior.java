@@ -3,6 +3,7 @@ package org.lovetropics.games.common.content.biodiversity_blitz.behavior;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
+import org.lovetropics.games.LoveTropics;
 import org.lovetropics.games.common.content.biodiversity_blitz.BiodiversityBlitz;
 import org.lovetropics.games.common.content.biodiversity_blitz.BiodiversityBlitzTexts;
 import org.lovetropics.games.common.content.biodiversity_blitz.behavior.event.BbEvents;
@@ -117,7 +118,7 @@ public final class BbSendMobsToEnemyItemBehavior implements IGameBehavior {
 		return builder.build();
 	}
 
-	@EventBusSubscriber(Dist.CLIENT)
+	@EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
 	public static final class Client {
 		@SubscribeEvent
 		static void appendTooltips(RenderTooltipEvent.GatherComponents event) {

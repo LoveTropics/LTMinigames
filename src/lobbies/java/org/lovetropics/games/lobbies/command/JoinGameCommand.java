@@ -20,6 +20,7 @@ import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.lobbies.GameLobby;
 import org.lovetropics.games.lobbies.GameLobbyManager;
 import org.lovetropics.games.lobbies.GameLobbyTexts;
+import org.lovetropics.games.lobbies.LobbiesMod;
 import org.lovetropics.games.lobbies.LobbyPlayerManager;
 import org.lovetropics.games.lobbies.command.argument.GameLobbyArgument;
 
@@ -31,7 +32,7 @@ import java.util.stream.Collectors;
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
 
-@EventBusSubscriber
+@EventBusSubscriber(modid = LobbiesMod.ID)
 public class JoinGameCommand {
 	@SubscribeEvent
 	public static void register(RegisterCommandsEvent event) {

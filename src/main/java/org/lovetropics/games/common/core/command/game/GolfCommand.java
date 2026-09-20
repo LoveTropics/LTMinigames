@@ -1,5 +1,6 @@
 package org.lovetropics.games.common.core.command.game;
 
+import org.lovetropics.games.LoveTropics;
 import org.lovetropics.games.common.core.game.persistent.behavior.crab.CrabGolfWinBehavior;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import net.minecraft.commands.CommandSourceStack;
@@ -13,7 +14,7 @@ import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
 
-@EventBusSubscriber
+@EventBusSubscriber(modid = LoveTropics.ID)
 public class GolfCommand {
 	@SubscribeEvent
 	public static void register(RegisterCommandsEvent event) {

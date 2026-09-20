@@ -18,7 +18,7 @@ import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 
 import org.jspecify.annotations.Nullable;
 
-@EventBusSubscriber(Dist.CLIENT)
+@EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
 public final class BbClientRenderEffects {
 	private static final int PADDING = 2;
 

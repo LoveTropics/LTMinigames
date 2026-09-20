@@ -17,7 +17,7 @@ import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import org.joml.Matrix3x2fStack;
 
-@EventBusSubscriber(Dist.CLIENT)
+@EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
 public final class RiverRaceBarRenderer {
 	private static final int MAP_TOP = 3;
 
