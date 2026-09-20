@@ -3,18 +3,14 @@ package org.lovetropics.games.common.core.game.persistent;
 import org.lovetropics.games.common.core.game.behavior.event.GameEventListeners;
 import org.lovetropics.games.common.core.game.behavior.event.GameEventType;
 import org.lovetropics.games.common.core.game.player.MutablePlayerSet;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 
 public class PersistentGameInstance implements PersistentGame {
-	private final MutablePlayerSet players;
+	private final MutablePlayerSet players = new MutablePlayerSet();
 	private final GameEventListeners events = new GameEventListeners();
-	private final MinecraftServer server;
 	private final ServerLevel level;
 
-	public PersistentGameInstance(MinecraftServer server, ServerLevel level) {
-		players = new MutablePlayerSet(server);
-		this.server = server;
+	public PersistentGameInstance(ServerLevel level) {
 		this.level = level;
 	}
 

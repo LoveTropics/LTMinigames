@@ -45,7 +45,7 @@ public class PersistentGames {
 				continue;
 			}
 
-			PersistentGameInstance game = new PersistentGameInstance(server, level);
+			PersistentGameInstance game = new PersistentGameInstance(level);
 
 			for (PersistentBehaviorTemplate behavior : config.behaviors()) {
 				behavior.instantiate().register(game, game.events());

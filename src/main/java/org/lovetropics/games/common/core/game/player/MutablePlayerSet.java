@@ -6,23 +6,24 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 
 import org.jspecify.annotations.Nullable;
+
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.UUID;
 
 public final class MutablePlayerSet implements PlayerSet {
-	private final MinecraftServer server;
+	private @Nullable MinecraftServer server;
 	private final Set<UUID> players = new ObjectOpenHashSet<>();
-
-	public MutablePlayerSet(MinecraftServer server) {
-		this.server = server;
-	}
 
 	public void clear() {
 		players.clear();
 	}
 
 	public boolean add(ServerPlayer player) {
+		if (server == null) {
+			server = player.level().getServer();
+		}
 		return players.add(player.getUUID());
 	}
 
@@ -41,6 +42,9 @@ public final class MutablePlayerSet implements PlayerSet {
 
 	@Override
 	public @Nullable ServerPlayer getPlayerBy(UUID id) {
+		if (server == null) {
+			return null;
+		}
 		return players.contains(id) ? server.getPlayerList().getPlayer(id) : null;
 	}
 
@@ -51,6 +55,9 @@ public final class MutablePlayerSet implements PlayerSet {
 
 	@Override
 	public Iterator<ServerPlayer> iterator() {
+		if (server == null) {
+			return Collections.emptyIterator();
+		}
 		return PlayerIterable.resolvingIterator(server, players.iterator());
 	}
 }

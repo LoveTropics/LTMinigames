@@ -10,12 +10,10 @@ import java.util.UUID;
 
 final class LobbyTrackingPlayers implements PlayerSet {
 	private final GameLobby lobby;
-	private final MutablePlayerSet tracking;
+	private final MutablePlayerSet tracking = new MutablePlayerSet();
 
 	LobbyTrackingPlayers(GameLobby lobby) {
 		this.lobby = lobby;
-		tracking = new MutablePlayerSet(lobby.getServer());
-
 		rebuildTracking();
 	}
 

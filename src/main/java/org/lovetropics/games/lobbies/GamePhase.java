@@ -2,6 +2,16 @@ package org.lovetropics.games.lobbies;
 
 import com.google.common.collect.Lists;
 import com.lovetropics.lib.slideshow.SlideshowApi;
+import com.mojang.logging.LogUtils;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Unit;
+import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.core.game.GameResult;
 import org.lovetropics.games.common.core.game.GameStopReason;
 import org.lovetropics.games.common.core.game.IGameDefinition;
@@ -27,16 +37,6 @@ import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
 import org.lovetropics.games.common.core.game.util.GameScheduler;
 import org.lovetropics.games.common.core.game.util.TeamAllocator;
 import org.lovetropics.games.common.core.map.MapRegions;
-import com.mojang.logging.LogUtils;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.Unit;
-import net.minecraft.world.phys.Vec3;
-import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
@@ -64,7 +64,7 @@ public class GamePhase implements IGamePhase {
 	private final GameMap map;
 	private final GameStateMap phaseState = new GameStateMap();
 
-	private final MutablePlayerSet allPlayers;
+	private final MutablePlayerSet allPlayers = new MutablePlayerSet();
 	private final Map<UUID, PlayerRole> roles = new HashMap<>();
 	private final Map<PlayerRole, PlayerSet> playersByRole = new EnumMap<>(PlayerRole.class);
 
@@ -97,7 +97,6 @@ public class GamePhase implements IGamePhase {
 		level = Objects.requireNonNull(server.getLevel(map.dimension()), "Game dimension not loaded");
 		this.map = map;
 
-		allPlayers = new MutablePlayerSet(server);
 		for (PlayerRole role : PlayerRole.ROLES) {
 			playersByRole.put(role, allPlayers.filter(player -> roles.get(player.getUUID()) == role));
 		}
@@ -358,7 +357,7 @@ public class GamePhase implements IGamePhase {
 			throw new IllegalStateException("Cannot create sub-phase for stopped game");
 		}
 		CompletableFuture<GamePhase> future = GamePhaseManager.get().createSubPhase(this, (GameConfig) subGameConfig);
-		PendingSubPhaseImpl pendingPhase = new PendingSubPhaseImpl(future, server());
+		PendingSubPhaseImpl pendingPhase = new PendingSubPhaseImpl(future);
 		pendingSubPhases.add(pendingPhase);
 		return pendingPhase;
 	}
@@ -645,14 +644,13 @@ public class GamePhase implements IGamePhase {
 
 	private class PendingSubPhaseImpl implements PendingSubPhase {
 		private final CompletableFuture<GamePhase> future;
-		private final MutablePlayerSet queuedPlayers;
+		private final MutablePlayerSet queuedPlayers = new MutablePlayerSet();
 		private final List<CreateHandler> createHandlers = new ArrayList<>();
 		private final List<Consumer<Exception>> errorHandlers = new ArrayList<>();
 		private boolean registered;
 
-		private PendingSubPhaseImpl(CompletableFuture<GamePhase> future, MinecraftServer server) {
+		private PendingSubPhaseImpl(CompletableFuture<GamePhase> future) {
 			this.future = future;
-			queuedPlayers = new MutablePlayerSet(server);
 		}
 
 		private void checkPending() {

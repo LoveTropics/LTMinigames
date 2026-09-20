@@ -18,11 +18,10 @@ import java.util.function.UnaryOperator;
 public final class LobbyManagement {
 	private final GameLobby lobby;
 
-	private final MutablePlayerSet managingPlayers;
+	private final MutablePlayerSet managingPlayers = new MutablePlayerSet();
 
 	LobbyManagement(GameLobby lobby) {
 		this.lobby = lobby;
-		managingPlayers = new MutablePlayerSet(lobby.getServer());
 	}
 
 	void disable() {

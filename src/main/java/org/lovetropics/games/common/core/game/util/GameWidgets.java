@@ -55,7 +55,7 @@ public final class GameWidgets implements IGameState {
 	}
 
 	public GameSidebar openSidebar(Component title) {
-		return registerWidget(new GameSidebar(this, game.server(), title), false);
+		return registerWidget(new GameSidebar(this, title), false);
 	}
 
 	public GameBossBar openBossBar(Component title, BossEvent.BossBarColor color, BossEvent.BossBarOverlay overlay) {
@@ -63,7 +63,7 @@ public final class GameWidgets implements IGameState {
 	}
 
 	public GameSidebar openGlobalSidebar(Component title) {
-		return registerWidget(new GameSidebar(this, game.server(), title), true);
+		return registerWidget(new GameSidebar(this, title), true);
 	}
 
 	public GameBossBar openGlobalBossBar(Component title, BossEvent.BossBarColor color, BossEvent.BossBarOverlay overlay) {

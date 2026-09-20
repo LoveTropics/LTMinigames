@@ -5,21 +5,19 @@ import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
 import org.lovetropics.games.common.core.game.client_state.instance.SidebarClientState;
 import org.lovetropics.games.common.core.game.player.MutablePlayerSet;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.util.Arrays;
 
 public final class GameSidebar implements GameWidget {
 	private final GameWidgets widgets;
-	private final MutablePlayerSet players;
+	private final MutablePlayerSet players = new MutablePlayerSet();
 	private final Component title;
 
 	private Component[] display = new Component[0];
 
-	public GameSidebar(GameWidgets widgets, MinecraftServer server, Component title) {
+	public GameSidebar(GameWidgets widgets, Component title) {
 		this.widgets = widgets;
-		players = new MutablePlayerSet(server);
 		this.title = title;
 	}
 
