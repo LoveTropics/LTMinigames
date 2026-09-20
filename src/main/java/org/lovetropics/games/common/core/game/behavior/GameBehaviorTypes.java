@@ -109,6 +109,7 @@ import org.lovetropics.games.common.core.game.behavior.instances.action.SpawnTor
 import org.lovetropics.games.common.core.game.behavior.instances.action.SpectatorActivityAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.StartProgressChannelAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.SwapPlayersAction;
+import org.lovetropics.games.common.core.game.behavior.instances.action.TeamDispatchAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.TeleportToRegionAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.TransformPlayerTornadoAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.WeatherEventAction;
@@ -159,7 +160,6 @@ import org.lovetropics.games.common.core.game.behavior.instances.trigger.PhaseCh
 import org.lovetropics.games.common.core.game.behavior.instances.trigger.PlayerTickTrigger;
 import org.lovetropics.games.common.core.game.behavior.instances.trigger.ScheduledActionsTrigger;
 import org.lovetropics.games.common.core.game.behavior.instances.trigger.SetRoleTrigger;
-import org.lovetropics.games.common.core.game.behavior.instances.trigger.SpawnTeamsTrigger;
 import org.lovetropics.games.common.core.game.behavior.instances.trigger.SpawnTrigger;
 import org.lovetropics.games.common.core.game.behavior.instances.trigger.StatisticThresholdTrigger;
 import org.lovetropics.games.common.core.game.behavior.instances.trigger.TopPlayerTrigger;
@@ -360,6 +360,7 @@ public class GameBehaviorTypes {
 	public static final GameBehaviorEntry<TopPlayerTrigger> TOP_PLAYER_TRIGGER = register("top_player_trigger", TopPlayerTrigger.CODEC);
 	public static final GameBehaviorEntry<SetRoleTrigger> SET_ROLE = register("set_role", SetRoleTrigger.CODEC);
 	public static final GameBehaviorEntry<SpawnTrigger> SPAWN = register("on_spawn", SpawnTrigger.CODEC);
+	public static final GameBehaviorEntry<TeamDispatchAction> TEAM_DISPATCH = register("team_dispatch", TeamDispatchAction.CODEC);
 	public static final GameBehaviorEntry<ItemPickedUpTrigger> ITEM_PICKED_UP = register("item_picked_up", ItemPickedUpTrigger.CODEC);
 	public static final GameBehaviorEntry<GiveItemsToKillerBehavior> GIVE_ITEMS_TO_KILLER = register("give_items_to_killer", GiveItemsToKillerBehavior.CODEC);
 	public static final GameBehaviorEntry<CountdownEffectsBehavior> COUNTDOWN_EFFECTS = register("countdown_effects", CountdownEffectsBehavior.CODEC);
@@ -388,7 +389,6 @@ public class GameBehaviorTypes {
 	public static final GameBehaviorEntry<QuietExplosionsBehavior> QUIET_EXPLOSIONS = register("quiet_explosions", QuietExplosionsBehavior.CODEC);
 	public static final GameBehaviorEntry<LimitedTimeLootAction> LIMITED_TIME_LOOT = register("limited_time_loot", LimitedTimeLootAction.CODEC);
 	public static final GameBehaviorEntry<BlockBreakTrigger> BLOCK_BREAK = register("block_break", BlockBreakTrigger.CODEC);
-	public static final GameBehaviorEntry<SpawnTeamsTrigger> SPAWN_TEAMS_TRIGGER = register("on_spawn_teams", SpawnTeamsTrigger.CODEC);
 	public static final GameBehaviorEntry<DisguiseAsPlayerBoxBehaviour> DISGUISE_AS_PLAYER_BOX = register("disguise_as_player_box", DisguiseAsPlayerBoxBehaviour.CODEC);
 	public static final GameBehaviorEntry<UpdateWordBoxesInWorldBehaviour> UPDATE_WORD_BOXES_IN_WORLD = register("update_word_boxes_in_world", UpdateWordBoxesInWorldBehaviour.CODEC);
 	public static final GameBehaviorEntry<IncreaseRandomTickRateInRegionBehaviour> INCREASE_RANDOM_TICK_RATE_IN_REGION = register("increase_random_tick_rate_in_region", IncreaseRandomTickRateInRegionBehaviour.CODEC);
