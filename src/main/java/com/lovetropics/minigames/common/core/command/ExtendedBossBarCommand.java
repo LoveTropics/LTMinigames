@@ -1,7 +1,6 @@
 package com.lovetropics.minigames.common.core.command;
 
 import com.mojang.brigadier.Command;
-import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.CommandSourceStack;
@@ -11,16 +10,21 @@ import net.minecraft.commands.arguments.IdentifierArgument;
 import net.minecraft.server.bossevents.CustomBossEvent;
 import net.minecraft.server.commands.BossBarCommands;
 import net.minecraft.server.level.ServerPlayer;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
 
 import java.util.Collection;
 
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
 
+@EventBusSubscriber
 public final class ExtendedBossBarCommand {
-	public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
+	@SubscribeEvent
+	public static void register(RegisterCommandsEvent event) {
 		// @formatter:off
-		dispatcher.register(
+		event.getDispatcher().register(
 			literal("bossbar")
 				.then(literal("players").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
 					.then(literal("add")

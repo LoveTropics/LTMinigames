@@ -11,16 +11,21 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.CommonColors;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 
 import java.util.List;
 
+@EventBusSubscriber(Dist.CLIENT)
 public final class GameSidebarRenderer {
 
 	private static final int PADDING = 2;
 	private static final int MARGIN = 1;
 
+	@SubscribeEvent
 	public static void registerOverlays(RegisterGuiLayersEvent event) {
 		event.registerBelow(VanillaGuiLayers.CONTEXTUAL_INFO_BAR_BACKGROUND, LoveTropics.id("minigame_sidebar"), (graphics, deltaTracker) -> {
 			if (Minecraft.getInstance().gui.hud.isHidden()) {

@@ -27,7 +27,7 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.jspecify.annotations.Nullable;
 import java.util.Collection;
 
-@EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
+@EventBusSubscriber(Dist.CLIENT)
 public class LobbyStateGui {
 
 	private static final int PADDING = 2;
@@ -55,6 +55,7 @@ public class LobbyStateGui {
 		hasBossBar = true;
 	}
 
+	@SubscribeEvent
 	public static void registerOverlays(RegisterGuiLayersEvent event) {
 		event.registerBelow(VanillaGuiLayers.CONTEXTUAL_INFO_BAR_BACKGROUND, LoveTropics.id("minigame_lobby"), (graphics, deltaTracker) -> {
 			if (Minecraft.getInstance().gui.hud.isHidden()) {

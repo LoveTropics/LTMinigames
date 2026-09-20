@@ -1,15 +1,12 @@
 package com.lovetropics.minigames.common.core.command;
 
-
 import com.lovetropics.minigames.common.core.game.client_state.GameClientState;
 import com.lovetropics.minigames.common.core.game.client_state.GameClientStateType;
 import com.lovetropics.minigames.common.core.game.client_state.GameClientStateTypes;
 import com.mojang.brigadier.Command;
-import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.DataResult;
-import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.CompoundTagArgument;
 import net.minecraft.commands.arguments.ResourceArgument;
@@ -18,15 +15,20 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
 
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
 
+@EventBusSubscriber
 public class ClientStateCommand {
-	public static void register(CommandBuildContext buildContext, CommandDispatcher<CommandSourceStack> dispatcher) {
-		ResourceArgument<GameClientStateType<?>> clientStateArgument = ResourceArgument.resource(buildContext, GameClientStateTypes.REGISTRY_KEY);
+	@SubscribeEvent
+	public static void register(RegisterCommandsEvent event) {
+		ResourceArgument<GameClientStateType<?>> clientStateArgument = ResourceArgument.resource(event.getBuildContext(), GameClientStateTypes.REGISTRY_KEY);
 
-		dispatcher.register(literal("clientstate")
+		event.getDispatcher().register(literal("clientstate")
 				.then(literal("set")
 						.then(argument("state", clientStateArgument)
 								.then(argument("data", CompoundTagArgument.compoundTag())

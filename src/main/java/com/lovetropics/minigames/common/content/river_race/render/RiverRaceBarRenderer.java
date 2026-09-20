@@ -17,7 +17,7 @@ import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import org.joml.Matrix3x2fStack;
 
-@EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
+@EventBusSubscriber(Dist.CLIENT)
 public final class RiverRaceBarRenderer {
 	private static final int MAP_TOP = 3;
 
@@ -36,6 +36,7 @@ public final class RiverRaceBarRenderer {
 	private static final Identifier POINTER_BOTTOM_SPRITE = LoveTropics.id("minigames/river_race/pointer_bottom");
 	private static final Identifier LOCKED_SPRITE = LoveTropics.id("minigames/river_race/locked");
 
+	@SubscribeEvent
 	public static void registerOverlays(RegisterGuiLayersEvent event) {
 		event.registerAbove(VanillaGuiLayers.BOSS_OVERLAY, LoveTropics.id("river_race_bar"), (graphics, deltaTracker) -> {
 			if (Minecraft.getInstance().gui.hud.isHidden()) {

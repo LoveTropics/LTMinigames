@@ -1,12 +1,10 @@
 package com.lovetropics.minigames.common.content.escape_race.ddr_machine;
 
 import com.mojang.brigadier.Command;
-import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
-import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.ResourceArgument;
@@ -15,17 +13,22 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.JukeboxSong;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
 
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
 
+@EventBusSubscriber
 public final class DDRCommand {
 
 	private static final SimpleCommandExceptionType NOT_DDRING = new SimpleCommandExceptionType(Component.literal("You are not playing DDR!"));
 
-	public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext context) {
+	@SubscribeEvent
+	public static void register(RegisterCommandsEvent event) {
 		// @formatter:off
-        dispatcher.register(
+        event.getDispatcher().register(
             literal("ddr")
 				.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
 				.requires(CommandSourceStack::isPlayer)
@@ -33,7 +36,7 @@ public final class DDRCommand {
 							.then(literal("record")
 									.then(literal("stop")
 											.executes(DDRCommand::stopRecording))
-									.then(argument("track", ResourceArgument.resource(context, Registries.JUKEBOX_SONG))
+									.then(argument("track", ResourceArgument.resource(event.getBuildContext(), Registries.JUKEBOX_SONG))
 											.then(argument("name", StringArgumentType.string())
 													.executes(DDRCommand::startRecording))))
 					)

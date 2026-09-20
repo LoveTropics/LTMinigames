@@ -16,7 +16,6 @@ import com.lovetropics.minigames.common.core.map.workspace.WorkspaceDimensionCon
 import com.lovetropics.minigames.common.core.map.workspace.WorkspacePositionTracker;
 import com.lovetropics.minigames.common.core.map.workspace.WorkspaceRegions;
 import com.mojang.brigadier.Command;
-import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -40,6 +39,9 @@ import net.minecraft.util.Util;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -50,6 +52,7 @@ import java.util.concurrent.CompletableFuture;
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
 
+@EventBusSubscriber
 public final class MapCommand {
 	private static final DynamicCommandExceptionType WORKSPACE_ALREADY_EXISTS = new DynamicCommandExceptionType(id ->
 			Component.literal("Workspace already exists with id '" + id + "'")
@@ -60,9 +63,10 @@ public final class MapCommand {
 
 	private static final SimpleCommandExceptionType NOT_IN_WORKSPACE = new SimpleCommandExceptionType(Component.literal("You are not in a workspace!"));
 
-	public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
+	@SubscribeEvent
+	public static void register(RegisterCommandsEvent event) {
 		// @formatter:off
-        dispatcher.register(
+        event.getDispatcher().register(
             literal("map")
 				.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                 .then(literal("open")

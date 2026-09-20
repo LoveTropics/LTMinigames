@@ -5,7 +5,6 @@ import com.lovetropics.minigames.common.core.game.GameStopReason;
 import com.lovetropics.minigames.common.core.game.IGamePhase;
 import com.lovetropics.minigames.common.core.game.impl.GamePhaseManager;
 import com.lovetropics.minigames.common.core.game.util.GameTexts;
-import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.CommandSourceStack;
@@ -13,13 +12,18 @@ import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Player;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
 
 import static net.minecraft.commands.Commands.literal;
 
+@EventBusSubscriber
 public class CancelGameCommand {
-	public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
+	@SubscribeEvent
+	public static void register(RegisterCommandsEvent event) {
 		// @formatter:off
-		dispatcher.register(
+		event.getDispatcher().register(
 				literal("game")
 						.then(literal("cancel").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
 								.executes(context -> cancel(context, false))

@@ -4,7 +4,6 @@ import com.lovetropics.minigames.common.core.game.GameResult;
 import com.lovetropics.minigames.common.core.game.impl.GameLobby;
 import com.lovetropics.minigames.common.core.game.impl.GameLobbyManager;
 import com.lovetropics.minigames.common.core.game.util.GameTexts;
-import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -13,15 +12,20 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.server.level.ServerPlayer;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
 
 import java.util.Collection;
 
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
 
+@EventBusSubscriber
 public class LeaveGameCommand {
-	public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
-		dispatcher.register(
+	@SubscribeEvent
+	public static void register(RegisterCommandsEvent event) {
+		event.getDispatcher().register(
 				literal("game")
 						.then(unregisterBuilder("unregister"))
 						.then(unregisterBuilder("leave"))

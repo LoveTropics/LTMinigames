@@ -11,7 +11,6 @@ import com.lovetropics.minigames.common.core.game.state.team.GameTeam;
 import com.lovetropics.minigames.common.core.game.state.team.GameTeamKey;
 import com.lovetropics.minigames.common.core.game.state.team.TeamState;
 import com.lovetropics.minigames.common.core.game.util.GameTexts;
-import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -30,8 +29,11 @@ import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.server.level.ServerPlayer;
-
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import org.jspecify.annotations.Nullable;
+
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
@@ -41,13 +43,15 @@ import static net.minecraft.commands.Commands.literal;
 import static net.minecraft.commands.arguments.EntityArgument.getPlayer;
 import static net.minecraft.commands.arguments.EntityArgument.player;
 
+@EventBusSubscriber
 public class GameStatisticCommand {
 	private static final SimpleCommandExceptionType NOT_IN_GAME = new SimpleCommandExceptionType(GameTexts.Commands.NOT_IN_GAME);
 	private static final DynamicCommandExceptionType NO_TEAM = new DynamicCommandExceptionType(GameTexts.Commands::noTeam);
 	private static final DynamicCommandExceptionType MALFORMED_STATISTICS = new DynamicCommandExceptionType(error -> Component.literal("Could not parse statistics: " + error));
 
-	public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
-		dispatcher.register(literal("game").then(literal("stat")
+	@SubscribeEvent
+	public static void register(RegisterCommandsEvent event) {
+		event.getDispatcher().register(literal("game").then(literal("stat")
 				.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
 				.then(literal("import")
 						.then(Commands.argument("tag", NbtTagArgument.nbtTag())

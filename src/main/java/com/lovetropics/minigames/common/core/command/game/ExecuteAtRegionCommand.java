@@ -7,6 +7,9 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import net.minecraft.commands.CommandSourceStack;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -16,8 +19,11 @@ import static com.mojang.brigadier.arguments.StringArgumentType.string;
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
 
+@EventBusSubscriber
 public class ExecuteAtRegionCommand {
-	public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
+	@SubscribeEvent
+	public static void register(RegisterCommandsEvent event) {
+		CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
 		LiteralCommandNode<CommandSourceStack> executeRoot = (LiteralCommandNode<CommandSourceStack>) dispatcher.findNode(List.of("execute"));
 		dispatcher.register(
 				literal("execute").then(literal("atregion")

@@ -7,10 +7,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.renderer.state.gui.GuiRenderState;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.CommonColors;
 import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.gui.GuiLayer;
@@ -18,7 +18,7 @@ import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 
 import java.util.function.UnaryOperator;
 
-@EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
+@EventBusSubscriber(value = Dist.CLIENT)
 public class EscapeRaceBucksRenderer {
 	private static final int PADDING = 2;
 	private static final int ITEM_SIZE = 16;
@@ -31,6 +31,7 @@ public class EscapeRaceBucksRenderer {
 		}
 	});
 
+	@SubscribeEvent
 	public static void registerOverlays(RegisterGuiLayersEvent event) {
 		event.wrapLayer(VanillaGuiLayers.CONTEXTUAL_INFO_BAR_BACKGROUND, (layer) -> ((guiGraphics, deltaTracker) -> {
 			EscapeRaceClientBucksState escapeRaceClientBucksState = ClientGameStateManager.getOrNull(EscapeRace.BREAK_BUCK_STATE);

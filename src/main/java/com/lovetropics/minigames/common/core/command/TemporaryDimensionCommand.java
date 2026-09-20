@@ -3,7 +3,6 @@ package com.lovetropics.minigames.common.core.command;
 import com.lovetropics.minigames.common.core.dimension.RuntimeDimensionHandle;
 import com.lovetropics.minigames.common.core.dimension.RuntimeDimensions;
 import com.mojang.brigadier.Command;
-import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
@@ -15,10 +14,14 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
 
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
 
+@EventBusSubscriber
 public class TemporaryDimensionCommand {
 	private static final DynamicCommandExceptionType NOT_TEMPORARY_DIMENSION = new DynamicCommandExceptionType(o ->
 			Component.literal("Not a temporary dimension: '" + o + "'"));
@@ -26,9 +29,10 @@ public class TemporaryDimensionCommand {
 	private static final DynamicCommandExceptionType DIMENSION_HAS_PLAYERS = new DynamicCommandExceptionType(o ->
 			Component.literal("'" + o + "' contains players, use '/temporary-dimension close " + o + " force' to close anyway."));
 
-	public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
+	@SubscribeEvent
+	public static void register(RegisterCommandsEvent event) {
 		// @formatter:off
-        dispatcher.register(
+        event.getDispatcher().register(
                 literal("temporary-dimension")
                         .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                         .then(literal("list")

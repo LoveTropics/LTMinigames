@@ -1,6 +1,8 @@
 package com.lovetropics.minigames.common.config;
 
 import com.lovetropics.minigames.common.core.integration.BackendIntegrations;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.neoforge.common.ModConfigSpec;
 import net.neoforged.neoforge.common.ModConfigSpec.BooleanValue;
@@ -9,6 +11,7 @@ import net.neoforged.neoforge.common.ModConfigSpec.ConfigValue;
 import net.neoforged.neoforge.common.ModConfigSpec.DoubleValue;
 import net.neoforged.neoforge.common.ModConfigSpec.IntValue;
 
+@EventBusSubscriber
 public class ConfigLT {
 
 	private static final Builder CLIENT_BUILDER = new Builder();
@@ -119,6 +122,7 @@ public class ConfigLT {
 	public static final ModConfigSpec CLIENT_CONFIG = CLIENT_BUILDER.build();
 	public static final ModConfigSpec SERVER_CONFIG = COMMON_BUILDER.build();
 
+	@SubscribeEvent
 	public static void onLoad(ModConfigEvent.Loading event) {
 		if (event.getConfig().getSpec() == SERVER_CONFIG) {
 			onServerConfigLoad();
@@ -126,6 +130,7 @@ public class ConfigLT {
 	}
 
 	/// values used during runtime that require processing from disk
+	@SubscribeEvent
 	public static void onReload(ModConfigEvent.Reloading event) {
 		if (event.getConfig().getSpec() == SERVER_CONFIG) {
 			onServerConfigLoad();

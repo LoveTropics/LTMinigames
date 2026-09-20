@@ -17,6 +17,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ExtraCodecs;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
+import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import org.jspecify.annotations.Nullable;
@@ -206,14 +208,24 @@ public final class BackendIntegrations {
 		}
 	}
 
-	public void onServerAboutToStart() {
+	@SubscribeEvent
+	public static void onServerAboutToStart(ServerAboutToStartEvent event) {
+		get().onServerAboutToStart();
+	}
+
+	@SubscribeEvent
+	public static void onServerStopping(ServerStoppingEvent event) {
+		get().onServerStop();
+	}
+
+	private void onServerAboutToStart() {
 		post(ConfigLT.INTEGRATIONS.worldLoadEndpoint.get(), "");
 		if (subscriber == null) {
 			subscriber = buildSubscriber(uri, token);
 		}
 	}
 
-	public void onServerStop() {
+	private void onServerStop() {
 		post(ConfigLT.INTEGRATIONS.worldUnloadEndpoint.get(), "");
 		if (subscriber != null) {
 			subscriber.close();

@@ -30,6 +30,9 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.EntityHitResult;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import net.neoforged.neoforge.client.submit.RenderPhaseKeys;
@@ -38,6 +41,7 @@ import org.joml.Matrix4f;
 import java.util.ArrayList;
 import java.util.List;
 
+@EventBusSubscriber(Dist.CLIENT)
 public class VendingMachineEntityRenderer extends EntityRenderer<VendingMachineEntity, VendingMachineRenderState> {
 	private static final Identifier TEXTURE = LoveTropics.id("textures/entity/vending_machine.png");
 
@@ -216,6 +220,7 @@ public class VendingMachineEntityRenderer extends EntityRenderer<VendingMachineE
 		return itemScale;
 	}
 
+	@SubscribeEvent
 	public static void registerOverlays(RegisterGuiLayersEvent event) {
 		event.registerAbove(VanillaGuiLayers.EXPERIENCE_LEVEL, LoveTropics.id("vending_machine_info"), (graphics, deltaTracker) -> {
 			if (Minecraft.getInstance().gui.hud.isHidden()) {

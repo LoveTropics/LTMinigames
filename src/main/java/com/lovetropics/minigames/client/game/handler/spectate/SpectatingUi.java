@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-@EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
+@EventBusSubscriber(Dist.CLIENT)
 public final class SpectatingUi {
 	private static final Component FREE_CAMERA_TEXT = GameTexts.Ui.FREE_CAMERA.copy().withStyle(ChatFormatting.ITALIC);
 
@@ -183,6 +183,7 @@ public final class SpectatingUi {
 		return Mth.clamp(availableWidth / ENTRY_WIDTH, 1, MAX_ENTRIES_ON_SCREEN);
 	}
 
+	@SubscribeEvent
 	public static void registerOverlays(RegisterGuiLayersEvent event) {
 		event.registerBelow(VanillaGuiLayers.CONTEXTUAL_INFO_BAR_BACKGROUND, LoveTropics.id("minigame_spectator"), (graphics, deltaTracker) -> {
 			Minecraft minecraft = Minecraft.getInstance();

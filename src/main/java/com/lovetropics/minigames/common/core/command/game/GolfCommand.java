@@ -1,22 +1,23 @@
 package com.lovetropics.minigames.common.core.command.game;
 
 import com.lovetropics.minigames.common.core.game.persistent.behavior.crab.CrabGolfWinBehavior;
-import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
-import net.minecraft.commands.arguments.NbtTagArgument;
-import net.minecraft.commands.arguments.IdentifierArgument;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
 
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
 
+@EventBusSubscriber
 public class GolfCommand {
-	public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
-		dispatcher.register(literal("persistentgame")
+	@SubscribeEvent
+	public static void register(RegisterCommandsEvent event) {
+		event.getDispatcher().register(literal("persistentgame")
 			.then(literal("golf").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
 				.then(literal("highscore")
 					.then(argument("hole", IntegerArgumentType.integer())

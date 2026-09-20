@@ -11,7 +11,6 @@ import com.lovetropics.minigames.common.core.game.behavior.event.GameEventListen
 import com.lovetropics.minigames.common.core.game.config.GameConfigs;
 import com.lovetropics.minigames.common.core.game.impl.GamePhaseManager;
 import com.mojang.brigadier.Command;
-import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType;
@@ -22,15 +21,18 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
-import net.minecraft.commands.arguments.NbtTagArgument;
 import net.minecraft.commands.arguments.IdentifierArgument;
+import net.minecraft.commands.arguments.NbtTagArgument;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.entity.Entity;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
 
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
@@ -38,12 +40,14 @@ import java.util.concurrent.CompletableFuture;
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
 
+@EventBusSubscriber
 public class GameActionCommand {
 	private static final DynamicCommandExceptionType INVALID_ACTION = new DynamicCommandExceptionType(id -> Component.literal("No behavior with id: '" + id + "'"));
 	private static final Dynamic2CommandExceptionType MALFORMED_ACTION_DATA = new Dynamic2CommandExceptionType((id, error) -> Component.literal("Malformed action data for '" + id + "': " + error));
 
-	public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
-		dispatcher.register(literal("game")
+	@SubscribeEvent
+	public static void register(RegisterCommandsEvent event) {
+		event.getDispatcher().register(literal("game")
 				.then(literal("action").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
 						.then(argument("id", IdentifierArgument.id()).suggests(GameActionCommand::suggestBehaviors)
 								.then(argument("data", NbtTagArgument.nbtTag())

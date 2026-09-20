@@ -3,16 +3,12 @@ package com.lovetropics.minigames;
 import com.google.common.base.Suppliers;
 import com.lovetropics.minigames.client.KeybindsTexts;
 import com.lovetropics.minigames.client.LTKeybinds;
-import com.lovetropics.minigames.client.game.handler.GameSidebarRenderer;
-import com.lovetropics.minigames.client.game.handler.spectate.SpectatingUi;
-import com.lovetropics.minigames.client.lobby.LobbyStateGui;
 import com.lovetropics.minigames.client.render.block.TriviaChestRenderer;
 import com.lovetropics.minigames.common.config.ConfigLT;
 import com.lovetropics.minigames.common.content.MinigameTexts;
 import com.lovetropics.minigames.common.content.bingo.Bingo;
 import com.lovetropics.minigames.common.content.biodiversity_blitz.BiodiversityBlitz;
 import com.lovetropics.minigames.common.content.biodiversity_blitz.BiodiversityBlitzTexts;
-import com.lovetropics.minigames.common.content.biodiversity_blitz.client_state.render.BbClientRenderEffects;
 import com.lovetropics.minigames.common.content.block.LoveTropicsBlocks;
 import com.lovetropics.minigames.common.content.block.TrashType;
 import com.lovetropics.minigames.common.content.block_party.BlockParty;
@@ -32,16 +28,12 @@ import com.lovetropics.minigames.common.content.drr_showdown.DDRShowdownTexts;
 import com.lovetropics.minigames.common.content.escape_race.EscapeRace;
 import com.lovetropics.minigames.common.content.escape_race.EscapeRaceParticles;
 import com.lovetropics.minigames.common.content.escape_race.EscapeRaceTexts;
-import com.lovetropics.minigames.common.content.escape_race.client.EscapeRaceBucksRenderer;
-import com.lovetropics.minigames.common.content.escape_race.ddr_machine.DDRCommand;
-import com.lovetropics.minigames.common.content.escape_race.vending_machine.VendingMachineEntityRenderer;
 import com.lovetropics.minigames.common.content.paint_party.PaintParty;
 import com.lovetropics.minigames.common.content.paint_party.PaintPartyTexts;
 import com.lovetropics.minigames.common.content.qottott.Qottott;
 import com.lovetropics.minigames.common.content.qottott.QottottTexts;
 import com.lovetropics.minigames.common.content.river_race.RiverRace;
 import com.lovetropics.minigames.common.content.river_race.RiverRaceTexts;
-import com.lovetropics.minigames.common.content.river_race.render.RiverRaceBarRenderer;
 import com.lovetropics.minigames.common.content.speed_carb_golf.SpeedCarbGolf;
 import com.lovetropics.minigames.common.content.speed_carb_golf.SpeedCarbGolfTexts;
 import com.lovetropics.minigames.common.content.spleef.Spleef;
@@ -56,25 +48,8 @@ import com.lovetropics.minigames.common.content.turtle_race.RiderBehavior;
 import com.lovetropics.minigames.common.content.turtle_race.TurtleRace;
 import com.lovetropics.minigames.common.content.turtle_race.TurtleRaceTexts;
 import com.lovetropics.minigames.common.core.chat.ChatChannelStore;
-import com.lovetropics.minigames.common.core.command.ChatCommand;
-import com.lovetropics.minigames.common.core.command.ClientStateCommand;
-import com.lovetropics.minigames.common.core.command.ExtendedBossBarCommand;
 import com.lovetropics.minigames.common.core.command.LoveTropicsEntityOptions;
-import com.lovetropics.minigames.common.core.command.MapCommand;
-import com.lovetropics.minigames.common.core.command.TemporaryDimensionCommand;
-import com.lovetropics.minigames.common.core.command.game.CancelGameCommand;
-import com.lovetropics.minigames.common.core.command.game.ExecuteAtRegionCommand;
-import com.lovetropics.minigames.common.core.command.game.FinishGameCommand;
-import com.lovetropics.minigames.common.core.command.game.GameActionCommand;
-import com.lovetropics.minigames.common.core.command.game.GameSetRoleCommand;
-import com.lovetropics.minigames.common.core.command.game.GameStatisticCommand;
-import com.lovetropics.minigames.common.core.command.game.GolfCommand;
-import com.lovetropics.minigames.common.core.command.game.JoinGameCommand;
-import com.lovetropics.minigames.common.core.command.game.LeaveGameCommand;
-import com.lovetropics.minigames.common.core.command.game.ManageGameLobbyCommand;
-import com.lovetropics.minigames.common.core.command.game.StartGameCommand;
 import com.lovetropics.minigames.common.core.data.LoveTropicsAttachments;
-import com.lovetropics.minigames.common.core.dimension.RuntimeDimensions;
 import com.lovetropics.minigames.common.core.entity.MinigameEntities;
 import com.lovetropics.minigames.common.core.extension.LimitedSpawnerAttachment;
 import com.lovetropics.minigames.common.core.game.GameLootModifier;
@@ -85,7 +60,6 @@ import com.lovetropics.minigames.common.core.game.impl.GamePhaseManager;
 import com.lovetropics.minigames.common.core.game.persistent.PersistentGameBehaviors;
 import com.lovetropics.minigames.common.core.game.persistent.behavior.parkour.Parkour;
 import com.lovetropics.minigames.common.core.game.util.GameTexts;
-import com.lovetropics.minigames.common.core.integration.BackendIntegrations;
 import com.lovetropics.minigames.common.core.item.MinigameDataComponents;
 import com.lovetropics.minigames.common.core.item.MinigameItems;
 import com.lovetropics.minigames.common.core.map.VoidChunkGenerator;
@@ -95,18 +69,15 @@ import com.lovetropics.minigames.common.role.StreamHosts;
 import com.lovetropics.minigames.common.util.PredictedToggle;
 import com.lovetropics.minigames.common.util.registry.LoveTropicsRegistrate;
 import com.lovetropics.minigames.common.util.world.gamedata.GameDataAccessor;
-import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.logging.LogUtils;
 import com.tterrag.registrate.providers.DataProviderInitializer;
 import com.tterrag.registrate.providers.ProviderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
-import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.item.CreativeModeTab;
@@ -121,13 +92,9 @@ import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.fml.loading.FMLPaths;
-import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.AddPackFindersEvent;
-import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.living.MobSpawnEvent;
-import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
-import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import net.neoforged.neoforge.registries.RegisterEvent;
 import org.slf4j.Logger;
@@ -188,13 +155,7 @@ public class LoveTropics {
 	});
 
 	public LoveTropics(IEventBus modBus, ModContainer modContainer) {
-		NeoForge.EVENT_BUS.addListener(this::onServerAboutToStart);
-		NeoForge.EVENT_BUS.addListener(this::onServerStopping);
-		NeoForge.EVENT_BUS.addListener(this::registerCommands);
 		NeoForge.EVENT_BUS.addListener(this::onAttemptSpawn);
-
-		modBus.addListener(ConfigLT::onLoad);
-		modBus.addListener(ConfigLT::onReload);
 
 		// Registry objects
 		LoveTropicsBlocks.init();
@@ -252,16 +213,6 @@ public class LoveTropics {
 
 		modBus.addListener(this::registerLootModifiers);
 
-		modBus.addListener((RegisterGuiLayersEvent event) -> {
-			LobbyStateGui.registerOverlays(event);
-			GameSidebarRenderer.registerOverlays(event);
-			SpectatingUi.registerOverlays(event);
-			BbClientRenderEffects.registerOverlays(event);
-			RiverRaceBarRenderer.registerOverlays(event);
-			EscapeRaceBucksRenderer.registerOverlays(event);
-			VendingMachineEntityRenderer.registerOverlays(event);
-		});
-
 		if (!FMLEnvironment.isProduction()) {
 			loadDevPacks(modBus);
 		}
@@ -302,35 +253,6 @@ public class LoveTropics {
 		return Identifier.fromNamespaceAndPath(ID, location);
 	}
 
-	private void registerCommands(RegisterCommandsEvent event) {
-		CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
-		JoinGameCommand.register(dispatcher);
-		StartGameCommand.register(dispatcher);
-		FinishGameCommand.register(dispatcher);
-		CancelGameCommand.register(dispatcher);
-		LeaveGameCommand.register(dispatcher);
-		MapCommand.register(dispatcher);
-		TemporaryDimensionCommand.register(dispatcher);
-		ManageGameLobbyCommand.register(dispatcher);
-		ExtendedBossBarCommand.register(dispatcher);
-		ChatCommand.register(dispatcher);
-		ExecuteAtRegionCommand.register(dispatcher);
-		GameActionCommand.register(dispatcher);
-		DDRCommand.register(dispatcher, event.getBuildContext());
-		GameStatisticCommand.register(dispatcher);
-		GameSetRoleCommand.register(dispatcher);
-		GolfCommand.register(dispatcher);
-		ClientStateCommand.register(event.getBuildContext(), dispatcher);
-	}
-
-	private void onServerAboutToStart(ServerAboutToStartEvent event) {
-		BackendIntegrations.get().onServerAboutToStart();
-	}
-
-	private void onServerStopping(ServerStoppingEvent event) {
-		BackendIntegrations.get().onServerStop();
-	}
-
 	private void onAttemptSpawn(MobSpawnEvent.PositionCheck event) {
 		if (event.getSpawnType() == EntitySpawnReason.SPAWNER) {
 			MapWorkspaceManager workspace = MapWorkspaceManager.get(event.getLevel().getServer());
@@ -338,10 +260,6 @@ public class LoveTropics {
 				event.setResult(MobSpawnEvent.PositionCheck.Result.FAIL);
 			}
 		}
-	}
-
-	public static void onServerStoppingUnsafely(MinecraftServer server) {
-		RuntimeDimensions.onServerStoppingUnsafely(server);
 	}
 
 	@EventBusSubscriber(modid = ID, value = Dist.CLIENT)
