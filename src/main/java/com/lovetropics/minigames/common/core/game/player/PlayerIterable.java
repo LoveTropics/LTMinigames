@@ -32,7 +32,7 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 @FunctionalInterface
-public interface PlayerIterable extends PlayerOps, Iterable<ServerPlayer> {
+public interface PlayerIterable extends Iterable<ServerPlayer> {
 	static PlayerIterable from(Iterable<ServerPlayer> players) {
 		return players::iterator;
 	}
@@ -52,35 +52,34 @@ public interface PlayerIterable extends PlayerOps, Iterable<ServerPlayer> {
 		return StreamSupport.stream(spliterator(), false);
 	}
 
-	@Override
 	default void sendMessage(Component message, boolean actionBar) {
 		for (ServerPlayer player : this) {
 			player.sendSystemMessage(message, actionBar);
 		}
 	}
 
-	@Override
+	default void sendMessage(Component message) {
+		sendMessage(message, false);
+	}
+
 	default void addPotionEffect(MobEffectInstance effect) {
 		for (ServerPlayer player : this) {
 			player.addEffect(new MobEffectInstance(effect));
 		}
 	}
 
-	@Override
 	default void playSound(SoundEvent sound, SoundSource category, float volume, float pitch) {
 		for (ServerPlayer player : this) {
 			com.lovetropics.minigames.common.util.Util.sendNotifySound(player, sound, category, volume, pitch);
 		}
 	}
 
-	@Override
 	default void sendPacket(Packet<?> packet) {
 		for (ServerPlayer player : this) {
 			player.connection.send(packet);
 		}
 	}
 
-	@Override
 	default void sendPacket(CustomPacketPayload message) {
 		for (ServerPlayer player : this) {
 			PacketDistributor.sendToPlayer(player, message);
