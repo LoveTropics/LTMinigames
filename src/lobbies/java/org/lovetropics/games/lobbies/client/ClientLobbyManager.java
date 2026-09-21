@@ -7,12 +7,13 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.lobbies.LobbiesMod;
 import org.lovetropics.games.lobbies.client.state.ClientCurrentGame;
 
 import java.util.Collection;
 import java.util.Optional;
 
-@EventBusSubscriber(Dist.CLIENT)
+@EventBusSubscriber(modid = LobbiesMod.ID, value = Dist.CLIENT)
 public final class ClientLobbyManager {
 	private static final Int2ObjectMap<ClientLobbyState> LOBBIES = new Int2ObjectOpenHashMap<>();
 

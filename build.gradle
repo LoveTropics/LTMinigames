@@ -21,6 +21,10 @@ if (env.GITHUB_RUN_NUMBER) {
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
+/*
+Additional modules to add to the project, for splitting features up.
+By default the modules will have access to the main source set, minecraft, and add libraries.
+*/
 ext {
     splitModules = [
             'lobbies'
@@ -34,18 +38,19 @@ for (String name : splitModules) {
         }
         resources {
             srcDir "src/${name}/resources"
+            srcDir "src/generated/resources/ltgames_${name}"
         }
     })
 }
 
 sourceSets.test.resources {
-    srcDir 'src/generated/resources'
+//    srcDir 'src/generated/resources'
     include 'testing/**'
     include 'data/ltminigames/structure/**'
 }
 
 sourceSets.main.resources {
-    srcDir 'src/generated/resources'
+    srcDir 'src/generated/resources/ltminigames'
     exclude 'testing/**'
 }
 
@@ -76,21 +81,24 @@ neoForge {
     for (String name : splitModules) {
         def sourceSet = sourceSets.named(name)
         addModdingDependenciesTo(sourceSet.get())
-        ModModel modModel = mods.maybeCreate(name)
-//        modModel.modSourceSets.add(sourceSet.get()) // See line below, using this does not work
-        defaultModsToLoad.add(modModel)
     }
 
     mods {
         "${mod_id}" {
             sourceSet sourceSets.main
-            sourceSet sourceSets.lobbies // Look right now this is the only way it works
         }
         "${mod_id}_test" {
             sourceSet sourceSets.main
             sourceSet sourceSets.test
         }
     }
+
+    mods.named(mod_id, {
+        for (String name : splitModules) {
+            def sourceSet = sourceSets.named(name)
+            it.sourceSet(sourceSet.get())
+        }
+    })
 
 
     defaultModsToLoad.add(mods.named(mod_id).get())
@@ -124,7 +132,7 @@ neoForge {
 
             // Todo fix this part
             for (String name : splitModules) {
-                programArguments.addAll('--mod', 'ltgames_lobbies', '--existing', file("src/${name}/resources/").absolutePath)
+                programArguments.addAll('--mod', 'ltgames_' + name, '--existing', file("src/${name}/resources/").absolutePath)
             }
         }
 
@@ -248,5 +256,9 @@ tasks.withType(Copy) {
 
 
 tasks.named('jar', Jar, { jar ->
-    from([sourceSets.main.output, sourceSets.lobbies.output])
+    from([sourceSets.main.output])
+    for (String name : splitModules) {
+        def sourceSet = sourceSets.named(name)
+        jar.from(sourceSet.get().output)
+    }
 })

@@ -94,7 +94,7 @@ public class DevQuickPlay {
 		}
 	}
 
-	@EventBusSubscriber(Dist.CLIENT)
+	@EventBusSubscriber(modid = LobbiesMod.ID, value = Dist.CLIENT)
 	public static class Client {
 		private static boolean firstTitleScreen;
 

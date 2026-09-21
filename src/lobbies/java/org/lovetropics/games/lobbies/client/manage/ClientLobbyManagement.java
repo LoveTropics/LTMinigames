@@ -11,6 +11,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.lobbies.LobbiesMod;
 import org.lovetropics.games.lobbies.LobbyControls;
 import org.lovetropics.games.lobbies.LobbyVisibility;
 import org.lovetropics.games.lobbies.client.ClientGameDefinition;
@@ -28,7 +29,7 @@ import org.lovetropics.games.lobbies.network.ServerManageLobbyMessage;
 import java.util.List;
 import java.util.function.UnaryOperator;
 
-@EventBusSubscriber(Dist.CLIENT)
+@EventBusSubscriber(modid = LobbiesMod.ID, value = Dist.CLIENT)
 public final class ClientLobbyManagement {
 	private static @Nullable Session session;
 
