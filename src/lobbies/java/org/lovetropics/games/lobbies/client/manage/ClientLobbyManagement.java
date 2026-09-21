@@ -1,6 +1,5 @@
 package org.lovetropics.games.lobbies.client.manage;
 
-import org.lovetropics.games.client.LTKeybinds;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.client.Minecraft;
@@ -13,6 +12,7 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.lobbies.LobbiesMod;
 import org.lovetropics.games.lobbies.LobbyControls;
+import org.lovetropics.games.lobbies.LobbyKeybinds;
 import org.lovetropics.games.lobbies.LobbyVisibility;
 import org.lovetropics.games.lobbies.client.ClientGameDefinition;
 import org.lovetropics.games.lobbies.client.manage.screen.ManageLobbyScreen;
@@ -45,7 +45,7 @@ public final class ClientLobbyManagement {
 	@SubscribeEvent
 	public static void onKeyInput(ClientTickEvent.Post event) {
 		LocalPlayer player = Minecraft.getInstance().player;
-		if (player != null && LTKeybinds.MANAGE.consumeClick()) {
+		if (player != null && LobbyKeybinds.MANAGE.consumeClick()) {
 			ClientPacketDistributor.sendToServer(new ManageOrCreateLobbyPacket());
 		}
 	}

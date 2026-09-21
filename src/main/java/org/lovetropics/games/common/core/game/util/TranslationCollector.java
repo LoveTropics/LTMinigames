@@ -17,36 +17,36 @@ public class TranslationCollector {
 	}
 
 	public MutableComponent add(String key, String value) {
-		String fullKey = put(key, value);
+		String fullKey = addKey(key, value);
 		return Component.translatable(fullKey);
 	}
 
 	public Fun1 add1(String key, String value) {
-		String fullKey = put(key, value);
+		String fullKey = addKey(key, value);
 		return arg -> Component.translatable(fullKey, arg);
 	}
 
 	public Fun2 add2(String key, String value) {
-		String fullKey = put(key, value);
+		String fullKey = addKey(key, value);
 		return (a, b) -> Component.translatable(fullKey, a, b);
 	}
 
 	public Fun3 add3(String key, String value) {
-		String fullKey = put(key, value);
+		String fullKey = addKey(key, value);
 		return (a, b, c) -> Component.translatable(fullKey, a, b, c);
 	}
 
 	public Fun4 add4(String key, String value) {
-		String fullKey = put(key, value);
+		String fullKey = addKey(key, value);
 		return (a, b, c, d) -> Component.translatable(fullKey, a, b, c, d);
 	}
 
 	public Fun5 add5(String key, String value) {
-		String fullKey = put(key, value);
+		String fullKey = addKey(key, value);
 		return (a, b, c, d, e) -> Component.translatable(fullKey, a, b, c, d, e);
 	}
 
-	private String put(String key, String value) {
+	public String addKey(String key, String value) {
 		String fullKey = prefix + key;
 		if (values.putIfAbsent(fullKey, value) != null) {
 			throw new IllegalArgumentException("Duplicate translation for key: " + fullKey);

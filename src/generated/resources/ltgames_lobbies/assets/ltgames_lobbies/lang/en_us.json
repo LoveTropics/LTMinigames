@@ -1,4 +1,7 @@
 {
+  "key.ltgames_lobbies.join": "Join Lobby",
+  "key.ltgames_lobbies.leave": "Leave Lobby",
+  "key.ltgames_lobbies.manage": "Manage Lobby",
   "ltgames_lobbies.command.already_in_lobby": "You have already joined a lobby!",
   "ltgames_lobbies.command.cannot_start": "There is no game to start in this lobby!",
   "ltgames_lobbies.command.cannot_teleport_into_game": "You cannot teleport into a game without being a part of it!",

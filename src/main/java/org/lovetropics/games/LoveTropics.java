@@ -1,8 +1,35 @@
 package org.lovetropics.games;
 
 import com.google.common.base.Suppliers;
+import com.mojang.logging.LogUtils;
+import com.tterrag.registrate.providers.DataProviderInitializer;
+import com.tterrag.registrate.providers.ProviderType;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.item.CreativeModeTab;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.ModList;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.fml.loading.FMLPaths;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.AddPackFindersEvent;
+import net.neoforged.neoforge.event.entity.living.MobSpawnEvent;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
+import net.neoforged.neoforge.registries.RegisterEvent;
 import org.lovetropics.games.client.KeybindsTexts;
-import org.lovetropics.games.client.LTKeybinds;
 import org.lovetropics.games.client.render.block.TriviaChestRenderer;
 import org.lovetropics.games.common.config.ConfigLT;
 import org.lovetropics.games.common.content.MinigameTexts;
@@ -53,7 +80,6 @@ import org.lovetropics.games.common.core.data.LoveTropicsAttachments;
 import org.lovetropics.games.common.core.entity.MinigameEntities;
 import org.lovetropics.games.common.core.extension.LimitedSpawnerAttachment;
 import org.lovetropics.games.common.core.game.GameLootModifier;
-import org.lovetropics.games.common.core.game.IGameLookup;
 import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
 import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
 import org.lovetropics.games.common.core.game.impl.GameEventDispatcher;
@@ -69,34 +95,6 @@ import org.lovetropics.games.common.role.StreamHosts;
 import org.lovetropics.games.common.util.PredictedToggle;
 import org.lovetropics.games.common.util.registry.LoveTropicsRegistrate;
 import org.lovetropics.games.common.util.world.gamedata.GameDataAccessor;
-import com.mojang.logging.LogUtils;
-import com.tterrag.registrate.providers.DataProviderInitializer;
-import com.tterrag.registrate.providers.ProviderType;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.Identifier;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.packs.PackType;
-import net.minecraft.world.entity.EntitySpawnReason;
-import net.minecraft.world.item.CreativeModeTab;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.ModList;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.config.ModConfig;
-import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
-import net.neoforged.fml.loading.FMLEnvironment;
-import net.neoforged.fml.loading.FMLPaths;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.AddPackFindersEvent;
-import net.neoforged.neoforge.event.entity.living.MobSpawnEvent;
-import net.neoforged.neoforge.registries.NeoForgeRegistries;
-import net.neoforged.neoforge.registries.RegisterEvent;
 import org.slf4j.Logger;
 
 import java.nio.file.Files;
@@ -265,7 +263,6 @@ public class LoveTropics {
 	public static class ClientSetup {
 		@SubscribeEvent
 		public static void setupClient(FMLClientSetupEvent event) {
-			LTKeybinds.init();
 			BlockEntityRenderers.register(RiverRace.TRIVIA_CHEST_BLOCK_ENTITY.get(), TriviaChestRenderer::new);
 		}
 	}

@@ -1,6 +1,5 @@
 package org.lovetropics.games.lobbies.client;
 
-import org.lovetropics.games.client.LTKeybinds;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -19,6 +18,7 @@ import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.lobbies.LobbiesMod;
+import org.lovetropics.games.lobbies.LobbyKeybinds;
 import org.lovetropics.games.lobbies.LobbyStatus;
 import org.lovetropics.games.lobbies.client.state.ClientCurrentGame;
 import org.lovetropics.games.lobbies.network.JoinLobbyPacket;
@@ -41,10 +41,10 @@ public class LobbyStateGui {
 		if (player == null) {
 			return;
 		}
-		if (LTKeybinds.JOIN.consumeClick()) {
+		if (LobbyKeybinds.JOIN.consumeClick()) {
 			ClientPacketDistributor.sendToServer(new JoinLobbyPacket());
 		}
-		if (LTKeybinds.LEAVE.consumeClick()) {
+		if (LobbyKeybinds.LEAVE.consumeClick()) {
 			ClientPacketDistributor.sendToServer(new LeaveLobbyPacket());
 		}
 	}
@@ -194,9 +194,9 @@ public class LobbyStateGui {
 
 	private static String keyBindsText(boolean joined) {
 		if (!joined) {
-			return ChatFormatting.AQUA + "Join [" + LTKeybinds.JOIN.getTranslatedKeyMessage().getString().toUpperCase() + "]" + ChatFormatting.GRAY;
+			return ChatFormatting.AQUA + "Join [" + LobbyKeybinds.JOIN.getTranslatedKeyMessage().getString().toUpperCase() + "]" + ChatFormatting.GRAY;
 		} else {
-			return ChatFormatting.AQUA + "Leave [" + LTKeybinds.LEAVE.getTranslatedKeyMessage().getString().toUpperCase() + "]";
+			return ChatFormatting.AQUA + "Leave [" + LobbyKeybinds.LEAVE.getTranslatedKeyMessage().getString().toUpperCase() + "]";
 		}
 	}
 
