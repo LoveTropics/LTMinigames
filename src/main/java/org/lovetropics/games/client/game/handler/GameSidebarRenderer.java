@@ -19,7 +19,7 @@ import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 
 import java.util.List;
 
-@EventBusSubscriber(Dist.CLIENT)
+@EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
 public final class GameSidebarRenderer {
 
 	private static final int PADDING = 2;

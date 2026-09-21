@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-@EventBusSubscriber
+@EventBusSubscriber(modid = LoveTropics.ID)
 public record RiderBehavior(EntityTemplate entity, boolean force) implements IGameBehavior {
 	private static final Logger LOGGER = LogUtils.getLogger();
 

@@ -1,6 +1,7 @@
 package org.lovetropics.games.common.core.command.game;
 
 import com.google.common.collect.Streams;
+import org.lovetropics.games.LoveTropics;
 import org.lovetropics.games.common.core.game.IGameLookup;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
@@ -40,7 +41,7 @@ import java.util.concurrent.CompletableFuture;
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
 
-@EventBusSubscriber
+@EventBusSubscriber(modid = LoveTropics.ID)
 public class GameActionCommand {
 	private static final DynamicCommandExceptionType INVALID_ACTION = new DynamicCommandExceptionType(id -> Component.literal("No behavior with id: '" + id + "'"));
 	private static final Dynamic2CommandExceptionType MALFORMED_ACTION_DATA = new Dynamic2CommandExceptionType((id, error) -> Component.literal("Malformed action data for '" + id + "': " + error));

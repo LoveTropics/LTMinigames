@@ -16,11 +16,12 @@ import net.minecraft.world.item.JukeboxSong;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import org.lovetropics.games.LoveTropics;
 
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
 
-@EventBusSubscriber
+@EventBusSubscriber(modid = LoveTropics.ID)
 public final class DDRCommand {
 
 	private static final SimpleCommandExceptionType NOT_DDRING = new SimpleCommandExceptionType(Component.literal("You are not playing DDR!"));

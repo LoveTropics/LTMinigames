@@ -52,7 +52,7 @@ import java.util.concurrent.CompletableFuture;
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
 
-@EventBusSubscriber
+@EventBusSubscriber(modid = LoveTropics.ID)
 public final class MapCommand {
 	private static final DynamicCommandExceptionType WORKSPACE_ALREADY_EXISTS = new DynamicCommandExceptionType(id ->
 			Component.literal("Workspace already exists with id '" + id + "'")

@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-@EventBusSubscriber(Dist.CLIENT)
+@EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
 public final class SpectatingUi {
 	private static final Component FREE_CAMERA_TEXT = GameTexts.Ui.FREE_CAMERA.copy().withStyle(ChatFormatting.ITALIC);
 

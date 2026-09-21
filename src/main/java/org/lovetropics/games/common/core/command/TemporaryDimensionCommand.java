@@ -1,5 +1,6 @@
 package org.lovetropics.games.common.core.command;
 
+import org.lovetropics.games.LoveTropics;
 import org.lovetropics.games.common.core.dimension.RuntimeDimensionHandle;
 import org.lovetropics.games.common.core.dimension.RuntimeDimensions;
 import com.mojang.brigadier.Command;
@@ -21,7 +22,7 @@ import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
 
-@EventBusSubscriber
+@EventBusSubscriber(modid = LoveTropics.ID)
 public class TemporaryDimensionCommand {
 	private static final DynamicCommandExceptionType NOT_TEMPORARY_DIMENSION = new DynamicCommandExceptionType(o ->
 			Component.literal("Not a temporary dimension: '" + o + "'"));

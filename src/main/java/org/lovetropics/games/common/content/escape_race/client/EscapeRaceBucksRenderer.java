@@ -18,7 +18,7 @@ import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 
 import java.util.function.UnaryOperator;
 
-@EventBusSubscriber(value = Dist.CLIENT)
+@EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
 public class EscapeRaceBucksRenderer {
 	private static final int PADDING = 2;
 	private static final int ITEM_SIZE = 16;

@@ -1,5 +1,6 @@
 package org.lovetropics.games.common.core.command;
 
+import org.lovetropics.games.LoveTropics;
 import org.lovetropics.games.common.core.game.client_state.GameClientState;
 import org.lovetropics.games.common.core.game.client_state.GameClientStateType;
 import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
@@ -22,7 +23,7 @@ import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
 
-@EventBusSubscriber
+@EventBusSubscriber(modid = LoveTropics.ID)
 public class ClientStateCommand {
 	@SubscribeEvent
 	public static void register(RegisterCommandsEvent event) {

@@ -1,5 +1,6 @@
 package org.lovetropics.games.client.game.handler;
 
+import org.lovetropics.games.LoveTropics;
 import org.lovetropics.games.client.game.ClientGameStateManager;
 import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
 import org.lovetropics.games.common.core.game.client_state.instance.FogClientState;
@@ -10,7 +11,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ViewportEvent;
 
-@EventBusSubscriber(Dist.CLIENT)
+@EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
 public class GameFogModifier {
 	@SubscribeEvent(priority = EventPriority.HIGH)
 	static void onModifyFog(ViewportEvent.ComputeFogColor event) {

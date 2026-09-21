@@ -4,7 +4,7 @@ issueTrackerURL = "https://github.com/LoveTropics/LTMinigames/issues"
 license = "Mozilla Public License Version 2.0"
 
 [[mods]]
-modId = "${mod_id}"
+modId = "ltminigames"
 version = "${mod_version}"
 displayName = "LTMinigames"
 displayURL = "https://lovetropics.org"
@@ -16,17 +16,41 @@ Minigame engine for the LoveTropics livestream event.
 [[mixins]]
 config = "ltminigames.mixins.json"
 
-[[mixins]]
-config = "ltgames_lobbies.mixins.json"
-
-[[dependencies.${ mod_id }]]
+[[dependencies.ltminigames]]
 modId = "neoforge"
 type = "required"
 versionRange = "${neo_version_range}"
 ordering = "NONE"
 side = "BOTH"
 
-[[dependencies.${ mod_id }]]
+[[dependencies.ltminigames]]
+modId = "minecraft"
+type = "required"
+versionRange = "${minecraft_version_range}"
+ordering = "NONE"
+side = "BOTH"
+
+[[mods]]
+modId = "ltgames_lobbies"
+version = "${mod_version}"
+displayName = "LTMinigames - Lobbies"
+displayURL = "https://lovetropics.org"
+authors = "The Love Tropics team"
+description = '''
+Lobby-based game runner for Love Tropics.
+'''
+
+[[mixins]]
+config = "ltgames_lobbies.mixins.json"
+
+[[dependencies.ltgames_lobbies]]
+modId = "neoforge"
+type = "required"
+versionRange = "${neo_version_range}"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.ltgames_lobbies]]
 modId = "minecraft"
 type = "required"
 versionRange = "${minecraft_version_range}"

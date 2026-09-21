@@ -1,5 +1,6 @@
 package org.lovetropics.games.common.config;
 
+import org.lovetropics.games.LoveTropics;
 import org.lovetropics.games.common.core.integration.BackendIntegrations;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -11,7 +12,7 @@ import net.neoforged.neoforge.common.ModConfigSpec.ConfigValue;
 import net.neoforged.neoforge.common.ModConfigSpec.DoubleValue;
 import net.neoforged.neoforge.common.ModConfigSpec.IntValue;
 
-@EventBusSubscriber
+@EventBusSubscriber(modid = LoveTropics.ID)
 public class ConfigLT {
 
 	private static final Builder CLIENT_BUILDER = new Builder();

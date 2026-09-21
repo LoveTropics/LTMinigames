@@ -1,5 +1,6 @@
 package org.lovetropics.games.common.core.command.game;
 
+import org.lovetropics.games.LoveTropics;
 import org.lovetropics.games.common.core.command.argument.StatisticKeyArgument;
 import org.lovetropics.games.common.core.command.argument.StatisticValueArgument;
 import org.lovetropics.games.common.core.game.IGameLookup;
@@ -43,7 +44,7 @@ import static net.minecraft.commands.Commands.literal;
 import static net.minecraft.commands.arguments.EntityArgument.getPlayer;
 import static net.minecraft.commands.arguments.EntityArgument.player;
 
-@EventBusSubscriber
+@EventBusSubscriber(modid = LoveTropics.ID)
 public class GameStatisticCommand {
 	private static final SimpleCommandExceptionType NOT_IN_GAME = new SimpleCommandExceptionType(GameTexts.Commands.NOT_IN_GAME);
 	private static final DynamicCommandExceptionType NO_TEAM = new DynamicCommandExceptionType(GameTexts.Commands::noTeam);
