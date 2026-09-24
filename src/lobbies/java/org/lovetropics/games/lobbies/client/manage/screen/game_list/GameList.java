@@ -163,6 +163,11 @@ public final class GameList implements GuiEventListener, NarratableEntry {
 	}
 
 	public Optional<GuiEventListener> getChildAt(double mouseX, double mouseY) {
+		// had to do this to allow for mouse selection in the searchbar
+		Optional<GuiEventListener> widget = active.getWidgetAt(mouseX, mouseY);
+		if (widget.isPresent()) {
+			return widget;
+		}
 		if (active.isMouseOver(mouseX, mouseY)) {
 			return Optional.of(active);
 		}

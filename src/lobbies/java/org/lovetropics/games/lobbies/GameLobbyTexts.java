@@ -130,6 +130,7 @@ public final class GameLobbyTexts {
 		public static final Component FOCUS_LIVE = KEYS.add("focus_live", "Focus Live");
 		public static final Component GAME_QUEUE = KEYS.add("game_queue", "Game Queue");
 		public static final Component INSTALLED_GAMES = KEYS.add("installed_games", "Installed");
+		public static final Component SEARCH_GAMES = KEYS.add("search_games", "Search...");
 		public static final Component GAME_INACTIVE = KEYS.add("game_inactive", "Inactive");
 		public static final Component CLOSE_LOBBY = KEYS.add("close_lobby", "Close");
 

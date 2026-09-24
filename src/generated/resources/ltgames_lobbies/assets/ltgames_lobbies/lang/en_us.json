@@ -35,6 +35,7 @@
   "ltgames_lobbies.ui.manage_game_lobby": "Manage Game Lobby",
   "ltgames_lobbies.ui.participating": "Participating",
   "ltgames_lobbies.ui.publish": "Publish",
+  "ltgames_lobbies.ui.search_games": "Search...",
   "ltgames_lobbies.ui.select_play": "Play",
   "ltgames_lobbies.ui.select_player_role": "Select Player Role",
   "ltgames_lobbies.ui.select_role_message": "Welcome to the game lobby!\nBefore the game, %s.\n\nYou will be prompted before each game in this lobby.",

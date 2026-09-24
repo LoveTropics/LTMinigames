@@ -3,6 +3,7 @@ package org.lovetropics.games.lobbies.client.manage.screen.game_list;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -17,6 +18,7 @@ import org.lovetropics.games.lobbies.client.screen.flex.FlexSolver;
 import org.lovetropics.games.lobbies.client.screen.flex.Layout;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.function.IntConsumer;
 
@@ -27,6 +29,7 @@ public final class InstalledGameList extends AbstractGameList {
 	private final ClientLobbyManageState lobby;
 	private final IntConsumer select;
 
+	private final EditBox searchField;
 	private final Button enqueueButton;
 	private final Button cancelButton;
 
@@ -36,10 +39,14 @@ public final class InstalledGameList extends AbstractGameList {
 		this.select = select;
 
 		Flex root = new Flex().row();
-		Flex enqueue = root.child().size(20, 20).marginRight(2);
+		Flex search = root.child().grow(1.0F).height(20).marginRight(2);
+		Flex enqueue = root.child().size(20, 20).margin(2, 0);
 		Flex cancel = root.child().size(20, 20).marginLeft(2);
 
 		FlexSolver.Results solve = new FlexSolver(footer.content()).apply(root);
+		searchField = FlexUi.createTextField(solve.layout(search), screen.getMinecraft().font, GameLobbyTexts.Ui.SEARCH_GAMES);
+		searchField.setHint(GameLobbyTexts.Ui.SEARCH_GAMES);
+		searchField.setResponder(query -> updateEntries());
 		enqueueButton = FlexUi.createButton(solve.layout(enqueue), Component.literal("✔"), this::enqueue);
 		cancelButton = FlexUi.createButton(solve.layout(cancel), Component.literal("❌"), this::cancel);
 	}
@@ -55,6 +62,14 @@ public final class InstalledGameList extends AbstractGameList {
 	}
 
 	@Override
+	public Optional<GuiEventListener> getWidgetAt(double x, double y) {
+		if (searchField.isMouseOver(x, y)) {
+			return Optional.of(searchField);
+		}
+		return Optional.empty();
+	}
+
+	@Override
 	public boolean isMouseOver(double mouseX, double mouseY) {
 		return enqueueButton.isMouseOver(mouseX, mouseY) || cancelButton.isMouseOver(mouseX, mouseY) || super.isMouseOver(mouseX, mouseY);
 	}
@@ -64,12 +79,25 @@ public final class InstalledGameList extends AbstractGameList {
 		setSelected(null);
 
 		List<ClientGameDefinition> games = lobby.getInstalledGames();
+		String query = searchField.getValue().trim().toLowerCase(Locale.ROOT);
 
 		clearEntries();
+		setScrollAmount(0.0);
 		for (int id = 0; id < games.size(); id++) {
 			ClientGameDefinition game = games.get(id);
+			if (!matches(game, query)) {
+				continue;
+			}
 			addEntry(Entry.game(this, id, game));
 		}
+	}
+
+	private static boolean matches(ClientGameDefinition game, String query) {
+		if (query.isEmpty()) {
+			return true;
+		}
+		return game.name().getString().toLowerCase(Locale.ROOT).contains(query)
+				|| game.id().toString().contains(query);
 	}
 
 	private void enqueue(Button button) {
@@ -86,6 +114,7 @@ public final class InstalledGameList extends AbstractGameList {
 		super.renderOverlays(graphics, mouseX, mouseY, partialTicks);
 		enqueueButton.extractRenderState(graphics, mouseX, mouseY, partialTicks);
 		cancelButton.extractRenderState(graphics, mouseX, mouseY, partialTicks);
+		searchField.extractRenderState(graphics, mouseX, mouseY, partialTicks);
 	}
 
 	@Override

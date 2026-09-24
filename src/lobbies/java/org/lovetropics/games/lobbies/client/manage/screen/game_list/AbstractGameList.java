@@ -2,6 +2,7 @@ package org.lovetropics.games.lobbies.client.manage.screen.game_list;
 
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -13,6 +14,8 @@ import org.lovetropics.games.lobbies.client.screen.TrimmedText;
 import org.lovetropics.games.lobbies.client.screen.flex.Layout;
 import org.lovetropics.games.lobbies.client.screen.list.AbstractLTList;
 import org.lovetropics.games.lobbies.client.screen.list.LTListEntry;
+
+import java.util.Optional;
 
 public abstract class AbstractGameList extends AbstractLTList<AbstractGameList.Entry> {
 	private static final int TITLE_PADDING = 3;
@@ -32,6 +35,13 @@ public abstract class AbstractGameList extends AbstractLTList<AbstractGameList.E
 
 	private static Layout reserveHeader(Layout layout, int headerHeight) {
 		return layout.clip(layout.margin().grow(0, -headerHeight, 0, 0));
+	}
+
+	/**
+	 * Widgets owned by this list that should receive focus and input directly from the screen.
+	 */
+	public Optional<GuiEventListener> getWidgetAt(double x, double y) {
+		return Optional.empty();
 	}
 
 	@Override
