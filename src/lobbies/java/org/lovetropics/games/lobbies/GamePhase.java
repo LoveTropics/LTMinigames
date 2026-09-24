@@ -6,10 +6,12 @@ import com.mojang.logging.LogUtils;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Unit;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.core.game.GameResult;
@@ -132,7 +134,11 @@ public class GamePhase implements IGamePhase {
 
 		started = true;
 
-		commandSet = GameCommandSet.registerFor(this);
+		List<GamePhase> commandPhases = new ArrayList<>();
+		for (GamePhase phase = this; phase != null; phase = phase.parentPhase) {
+			commandPhases.add(phase);
+		}
+		commandSet = GameCommandSet.registerFor(commandPhases);
 
 		try {
 			invoker(GamePlayerEvents.BEFORE_ADD_PLAYERS).beforeAddPlayers(
@@ -611,6 +617,16 @@ public class GamePhase implements IGamePhase {
 	@Override
 	public MapRegions mapRegions() {
 		return map.mapRegions();
+	}
+
+	@Override
+	public ResourceKey<Level> dimension() {
+		return map.dimension();
+	}
+
+	@Override
+	public List<ResourceKey<Level>> dimensions() {
+		return map.allDimensions();
 	}
 
 	@Override

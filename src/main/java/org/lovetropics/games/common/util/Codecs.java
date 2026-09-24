@@ -120,7 +120,8 @@ public class Codecs {
 		return new Codec<>() {
 			@Override
 			public <T> DataResult<Pair<Supplier<A>, T>> decode(DynamicOps<T> ops, T input) {
-				return DataResult.success(Pair.of(() -> codec.decode(ops, input).getOrThrow().getFirst(), ops.empty()));
+				// Decode once up front, so that invalid input is reported when loading rather than when a copy is first needed
+				return codec.decode(ops, input).map(unused -> Pair.of(() -> codec.decode(ops, input).getOrThrow().getFirst(), ops.empty()));
 			}
 
 			@Override

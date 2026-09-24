@@ -149,6 +149,7 @@ import org.lovetropics.games.common.core.game.behavior.instances.trigger.BlockIn
 import org.lovetropics.games.common.core.game.behavior.instances.trigger.DelayedSequenceAction;
 import org.lovetropics.games.common.core.game.behavior.instances.trigger.GameFinishTrigger;
 import org.lovetropics.games.common.core.game.behavior.instances.trigger.GeneralEventsTrigger;
+import org.lovetropics.games.common.core.game.behavior.instances.trigger.ItemCraftedTrigger;
 import org.lovetropics.games.common.core.game.behavior.instances.trigger.ItemPickedUpTrigger;
 import org.lovetropics.games.common.core.game.behavior.instances.trigger.ItemPutInItemFrameTrigger;
 import org.lovetropics.games.common.core.game.behavior.instances.trigger.ItemUsedTrigger;
@@ -362,6 +363,7 @@ public class GameBehaviorTypes {
 	public static final GameBehaviorEntry<SpawnTrigger> SPAWN = register("on_spawn", SpawnTrigger.CODEC);
 	public static final GameBehaviorEntry<TeamDispatchAction> TEAM_DISPATCH = register("team_dispatch", TeamDispatchAction.CODEC);
 	public static final GameBehaviorEntry<ItemPickedUpTrigger> ITEM_PICKED_UP = register("item_picked_up", ItemPickedUpTrigger.CODEC);
+	public static final GameBehaviorEntry<ItemCraftedTrigger> ITEM_CRAFTED = register("item_crafted", ItemCraftedTrigger.CODEC);
 	public static final GameBehaviorEntry<GiveItemsToKillerBehavior> GIVE_ITEMS_TO_KILLER = register("give_items_to_killer", GiveItemsToKillerBehavior.CODEC);
 	public static final GameBehaviorEntry<CountdownEffectsBehavior> COUNTDOWN_EFFECTS = register("countdown_effects", CountdownEffectsBehavior.CODEC);
 	public static final GameBehaviorEntry<TriggerEveryPackageBehavior> TRIGGER_EVERY_PACKAGE = register("trigger_every_package", TriggerEveryPackageBehavior.CODEC);

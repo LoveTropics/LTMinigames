@@ -55,6 +55,8 @@ import org.lovetropics.games.common.content.drr_showdown.DDRShowdownTexts;
 import org.lovetropics.games.common.content.escape_race.EscapeRace;
 import org.lovetropics.games.common.content.escape_race.EscapeRaceParticles;
 import org.lovetropics.games.common.content.escape_race.EscapeRaceTexts;
+import org.lovetropics.games.common.content.mcsr.Mcsr;
+import org.lovetropics.games.common.content.mcsr.McsrTexts;
 import org.lovetropics.games.common.content.paint_party.PaintParty;
 import org.lovetropics.games.common.content.paint_party.PaintPartyTexts;
 import org.lovetropics.games.common.content.qottott.Qottott;
@@ -140,6 +142,7 @@ public class LoveTropics {
 			GameDataAccessor.KEYS.forEach(consumer);
 			KeybindsTexts.collectTranslations(consumer);
 			EscapeRaceTexts.collectTranslations(consumer);
+			McsrTexts.collectTranslations(consumer);
 			DDRShowdownTexts.KEYS.forEach(consumer);
 		});
 
@@ -183,6 +186,7 @@ public class LoveTropics {
 		PaintParty.init();
 		SpeedCarbGolf.init();
 		EscapeRace.init();
+		Mcsr.init();
 		DDRShowdown.init();
 
 		DriftwoodRider.ATTACHMENT_TYPES.register(modBus);

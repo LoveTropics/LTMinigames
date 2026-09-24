@@ -40,4 +40,8 @@ public record GameConfig(
 			return new GameConfig(id, name, subtitle, icon, maximumParticipants, introSlideshow, waiting, active, hideFromList);
 		}));
 	}
+
+	public GameConfig withPlayingPhase(GamePhaseConfig playing) {
+		return new GameConfig(id, name, subtitle, icon, maximumParticipants, introSlideshow, waiting, playing, hideFromList);
+	}
 }
