@@ -19,13 +19,18 @@ if (env.GITHUB_RUN_NUMBER) {
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
-/*
-Additional modules to add to the project, for splitting features up.
-By default the modules will have access to the main source set, minecraft, and add libraries.
-*/
 ext {
+    /*
+    Additional modules to add to the project, for splitting features up.
+    By default the modules will have access to the main source set, minecraft, and add libraries.
+    */
     splitModules = [
             'lobbies'
+    ]
+    //A map of game id's to display names to add quick run tasks for.
+    quickLoadMods = [
+        "lt:survive_the_tide/1/normal": "Survive the Tide 1 - Normal",
+        "lt:block_party/normal": "Block Party - Normal"
     ]
 }
 
@@ -128,8 +133,19 @@ neoForge {
             ideName = project.name + " - " + ideName.get()
             jvmArgument("-Dmixin.debug.export=true")
         }
-    }
 
+        quickLoadMods.each { gameId, runDisplayName ->
+            def runName = "quickPlay_${gameId.replaceAll(':', '_')}".toLowerCase().replace("/", "")
+            it.create(runName) {
+                client()
+                ideName = runDisplayName
+                loadedMods = defaultModsToLoad
+                programArguments.addAll '--username', 'Dev###'
+                programArguments.addAll '--quickPlayMinigame', gameId
+                ideFolderName = "Quick Play"
+            }
+        }
+    }
 }
 
 repositories {
