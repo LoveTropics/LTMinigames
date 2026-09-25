@@ -14,6 +14,7 @@ import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.lobbies.client.ClientGameDefinition;
 import org.lovetropics.games.lobbies.client.state.ClientCurrentGame;
 import org.lovetropics.games.lobbies.dev.DevQuickPlay;
+import org.lovetropics.games.lobbies.dev.DevQuickPlaySettings;
 
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -144,6 +145,9 @@ abstract class LobbyState {
 		}
 
 		private @Nullable SlideshowInstanceHandle openIntroSlideshow(GameLobby lobby, GameInstance game) {
+			if (DevQuickPlay.isEnabled() && DevQuickPlaySettings.SKIP_INTRO_SLIDESHOWS) {
+				return null;
+			}
 			Identifier slideshowId = game.config().introSlideshow();
 			SlideshowInstanceHandle slideshow = slideshowId != null ? SlideshowApi.open(slideshowId) : null;
 			if (slideshow != null) {
