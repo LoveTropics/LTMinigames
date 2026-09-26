@@ -10,11 +10,13 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.nbt.CompoundTag;
 import net.neoforged.fml.InterModComms;
+import org.lovetropics.games.common.core.game.weather.tornado.Tornado;
 
-public record SpawnTornadoAction(boolean sharknado) implements IGameBehavior {
-	public static final MapCodec<SpawnTornadoAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			Codec.BOOL.fieldOf("sharknado").forGetter(c -> c.sharknado)
-	).apply(i, SpawnTornadoAction::new));
+public record SpawnTornadoAction(Tornado tornado) implements IGameBehavior {
+	public static final MapCodec<SpawnTornadoAction> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+					Tornado.CODEC.fieldOf("tornado").forGetter(SpawnTornadoAction::tornado)
+			).apply(instance, SpawnTornadoAction::new)
+	);
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
@@ -22,13 +24,8 @@ public record SpawnTornadoAction(boolean sharknado) implements IGameBehavior {
 	}
 
 	private boolean spawnTornado(IGamePhase game) {
-
-		InterModComms.sendTo("weather2", sharknado ? "sharknado" : "tornado", () -> {
-			CompoundTag tag = new CompoundTag();
-			tag.putString("dimension", game.level().dimension().identifier().toString());
-			return tag;
-		});
-
+		tornado.postAsIMCMessage(game.level());
 		return true;
 	}
+
 }

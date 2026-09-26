@@ -10,6 +10,10 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.fml.InterModComms;
+import org.lovetropics.games.common.core.game.weather.tornado.PlayerController;
+import org.lovetropics.games.common.core.game.weather.tornado.Tornado;
+
+import java.util.Optional;
 
 public record TransformPlayerTornadoAction(int timeTicks, boolean baby) implements IGameBehavior {
 	public static final MapCodec<TransformPlayerTornadoAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
@@ -23,16 +27,15 @@ public record TransformPlayerTornadoAction(int timeTicks, boolean baby) implemen
 	}
 
 	private boolean transformPlayer(ServerPlayer player) {
-
-		InterModComms.sendTo("weather2", "player_tornado", () -> {
-			CompoundTag tag = new CompoundTag();
-			tag.putString("uuid", player.getUUID().toString());
-			tag.putInt("time_ticks", timeTicks);
-			tag.putBoolean("baby", baby);
-			tag.putString("dimension", player.level().dimension().identifier().toString());
-			return tag;
-		});
-
+		Tornado tornado = new Tornado(
+				Optional.of(new PlayerController(player.getUUID(), timeTicks)),
+				baby,
+				false,
+				Optional.empty(),
+				5,
+				5
+		);
+		tornado.postAsIMCMessage(player.level());
 		return true;
 	}
 }
