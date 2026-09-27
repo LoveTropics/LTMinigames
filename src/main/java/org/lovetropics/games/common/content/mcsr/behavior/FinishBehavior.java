@@ -16,7 +16,9 @@ import org.lovetropics.games.common.core.game.state.statistics.GameStatistics;
 import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
 import org.lovetropics.games.common.core.game.util.TranslationCollector;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -37,24 +39,40 @@ import java.util.Set;
 ///
 /// Must be in the same phase as the bingo board, as that is where the points are kept.
 public final class FinishBehavior implements IGameBehavior {
-	public static final MapCodec<FinishBehavior> CODEC = MapCodec.unit(FinishBehavior::new);
+	public static final MapCodec<FinishBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+			Codec.BOOL.optionalFieldOf("dragon_kill", true).forGetter(b -> b.dragonKill),
+			Codec.BOOL.optionalFieldOf("full_bnigo_card", true).forGetter(b -> b.fullBingoCard)
+	).apply(i, FinishBehavior::new));
 
+	private final boolean dragonKill;
+	private final boolean fullBingoCard;
 	private boolean over;
+
+	/// @param dragonKill whether killing the Ender Dragon finishes the game
+	/// @param fullBingoCard   whether completing every tile of the bingo card finishes the game
+	public FinishBehavior(boolean dragonKill, boolean fullBingoCard) {
+		this.dragonKill = dragonKill;
+		this.fullBingoCard = fullBingoCard;
+	}
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
-		events.listen(Bingo.BOARD_COMPLETED, player -> finish(game, player, McsrTexts.COMPLETED_BOARD));
+		if (fullBingoCard) {
+			events.listen(Bingo.BOARD_COMPLETED, player -> finish(game, player, McsrTexts.COMPLETED_BOARD));
+		}
 
-		events.listen(SubGameEvents.CREATE, (world, worldEvents) -> worldEvents.listen(GameLivingEntityEvents.DEATH, (level, entity, damageSource) -> {
-			if (entity.getType() == EntityTypes.ENDER_DRAGON) {
-				// The dragon is usually killed with beds, which don't credit anyone with the kill, so credit whoever owns the world
-				ServerPlayer owner = getParticipant(game, world.allPlayers());
-				if (owner != null) {
-					finish(game, owner, McsrTexts.KILLED_DRAGON);
+		if (dragonKill) {
+			events.listen(SubGameEvents.CREATE, (world, worldEvents) -> worldEvents.listen(GameLivingEntityEvents.DEATH, (level, entity, damageSource) -> {
+				if (entity.getType() == EntityTypes.ENDER_DRAGON) {
+					// The dragon is usually killed with beds, which don't credit anyone with the kill, so credit whoever owns the world
+					ServerPlayer owner = getParticipant(game, world.allPlayers());
+					if (owner != null) {
+						finish(game, owner, McsrTexts.KILLED_DRAGON);
+					}
 				}
-			}
-			return TriState.DEFAULT;
-		}));
+				return TriState.DEFAULT;
+			}));
+		}
 
 		events.listen(GameLogicEvents.REQUEST_GAME_OVER, () -> {
 			if (!over) {
