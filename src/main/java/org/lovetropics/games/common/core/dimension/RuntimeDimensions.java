@@ -19,6 +19,7 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.dimension.LevelStem;
+import net.minecraft.world.level.dimension.end.EnderDragonFight;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -247,6 +248,12 @@ public final class RuntimeDimensions {
 
 			temporaryDimensions.remove(dimensionKey);
 			links.remove(dimensionKey);
+
+			// The dragon fight only drops players from its boss bar while its level ticks, so do it before it's gone for good
+			EnderDragonFight dragonFight = level.getDragonFight();
+			if (dragonFight != null) {
+				server.getPlayerList().getPlayers().forEach(dragonFight::removePlayer);
+			}
 
 			NeoForge.EVENT_BUS.post(new LevelEvent.Unload(level));
 

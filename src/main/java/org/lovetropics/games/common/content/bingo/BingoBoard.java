@@ -153,8 +153,12 @@ public final class BingoBoard implements IGameState {
 			onBingo.apply(game, ContextMap.EMPTY, ActionSubjects.ofPlayer(player));
 		}
 
-		if (unlockOnClear > 0 && hasCompletedAllTiles(player.getUUID())) {
-			unlockTiles(unlockOnClear);
+		if (hasCompletedAllTiles(player.getUUID())) {
+			if (emptySlots.isEmpty()) {
+				game.invoker(Bingo.BOARD_COMPLETED).onBoardCompleted(player);
+			} else if (unlockOnClear > 0) {
+				unlockTiles(unlockOnClear);
+			}
 		}
 	}
 

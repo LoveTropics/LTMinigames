@@ -14,6 +14,7 @@ import org.lovetropics.games.common.core.game.config.GameConfig;
 import org.lovetropics.games.common.core.game.config.GameConfigs;
 import org.lovetropics.games.common.core.game.config.GamePhaseConfig;
 import org.lovetropics.games.common.core.game.map.GeneratorMapProvider;
+import org.lovetropics.games.common.core.game.util.GameWidgets;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -39,6 +40,9 @@ public record PlayerWorldsBehavior(Identifier world, Optional<Long> seed) implem
 	public void register(IGamePhase game, EventRegistrar events) {
 		IGameDefinition worldConfig = createWorldConfig(game);
 		Map<UUID, PlayerWorld> worlds = new HashMap<>();
+
+		// Players spend the game in their own world, but should still see the timer and such of the game
+		GameWidgets.getOrRegister(game, events).shareWithSubPhases(events);
 
 		events.listen(GamePhaseEvents.START, initiator -> {
 			for (ServerPlayer player : game.participants()) {

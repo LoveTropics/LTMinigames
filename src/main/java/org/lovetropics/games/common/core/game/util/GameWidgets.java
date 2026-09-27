@@ -4,6 +4,7 @@ import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
+import org.lovetropics.games.common.core.game.behavior.event.SubGameEvents;
 import org.lovetropics.games.common.core.game.state.GameStateKey;
 import org.lovetropics.games.common.core.game.state.IGameState;
 import net.minecraft.network.chat.Component;
@@ -18,6 +19,7 @@ public final class GameWidgets implements IGameState {
 	private final IGamePhase game;
 	private final List<GameWidget> allWidgets = new ArrayList<>();
 	private final List<GameWidget> globalWidgets = new ArrayList<>();
+	private boolean sharedWithSubPhases;
 
 	private GameWidgets(IGamePhase game) {
 		this.game = game;
@@ -54,6 +56,27 @@ public final class GameWidgets implements IGameState {
 		});
 	}
 
+	/// Also shows global widgets to the players in sub-phases of this phase, as they are no longer in this phase itself
+	/// Needed for timers in MCSR for instance
+	public void shareWithSubPhases(EventRegistrar events) {
+		if (sharedWithSubPhases) {
+			return;
+		}
+		sharedWithSubPhases = true;
+		events.listen(SubGameEvents.CREATE, (subGame, subEvents) -> {
+			subEvents.listen(GamePlayerEvents.ADD, player -> {
+				for (GameWidget widget : globalWidgets) {
+					widget.addPlayer(player);
+				}
+			});
+			subEvents.listen(GamePlayerEvents.REMOVE, player -> {
+				for (GameWidget widget : allWidgets) {
+					widget.removePlayer(player);
+				}
+			});
+		});
+	}
+
 	public GameSidebar openSidebar(Component title) {
 		return registerWidget(new GameSidebar(this, title), false);
 	}
@@ -74,7 +97,7 @@ public final class GameWidgets implements IGameState {
 		allWidgets.add(widget);
 		if (global) {
 			globalWidgets.add(widget);
-			game.allPlayers().forEach(widget::addPlayer);
+			game.allPlayers(sharedWithSubPhases).forEach(widget::addPlayer);
 		}
 		return widget;
 	}

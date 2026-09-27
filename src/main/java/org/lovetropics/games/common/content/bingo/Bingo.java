@@ -5,6 +5,7 @@ import org.lovetropics.games.common.core.game.behavior.event.GameEventType;
 import org.lovetropics.games.common.core.game.util.TranslationCollector;
 import org.lovetropics.games.common.util.registry.GameBehaviorEntry;
 import org.lovetropics.games.common.util.registry.LoveTropicsRegistrate;
+import net.minecraft.server.level.ServerPlayer;
 
 public class Bingo {
 	private static final LoveTropicsRegistrate REGISTRATE = LoveTropics.registrate();
@@ -16,6 +17,13 @@ public class Bingo {
 	public static final GameEventType<CaptureBingoTile> CAPTURE_TILE_EVENT = GameEventType.create(CaptureBingoTile.class, listeners -> (tile) -> {
 		for (CaptureBingoTile listener : listeners) {
 			listener.capture(tile);
+		}
+	});
+
+	/// Fired in the phase that owns the board once a player has completed every tile of a full board
+	public static final GameEventType<BoardCompleted> BOARD_COMPLETED = GameEventType.create(BoardCompleted.class, listeners -> (player) -> {
+		for (BoardCompleted listener : listeners) {
+			listener.onBoardCompleted(player);
 		}
 	});
 
@@ -38,5 +46,9 @@ public class Bingo {
 
 	public interface CaptureBingoTile {
 		void capture(int tileIndex);
+	}
+
+	public interface BoardCompleted {
+		void onBoardCompleted(ServerPlayer player);
 	}
 }
