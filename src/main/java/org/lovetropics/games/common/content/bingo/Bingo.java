@@ -5,6 +5,7 @@ import org.lovetropics.games.common.core.game.behavior.event.GameEventType;
 import org.lovetropics.games.common.core.game.util.TranslationCollector;
 import org.lovetropics.games.common.util.registry.GameBehaviorEntry;
 import org.lovetropics.games.common.util.registry.LoveTropicsRegistrate;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
 public class Bingo {
@@ -13,6 +14,16 @@ public class Bingo {
 
 	public static final TranslationCollector.Fun2 TILE_COMPLETED = KEYS.add2("tile_completed", "%s completed tile %s!");
 	public static final TranslationCollector.Fun1 TILES_UNLOCKED = KEYS.add1("tiles_unlocked", "New bingo tiles unlocked: %s");
+	public static final TranslationCollector.Fun1 LOCKED_HINT_CLEAR = KEYS.add1("locked_hint.clear", "Complete every tile to unlock %s more!");
+
+	// Board display
+	public static final Component BOARD_TITLE = KEYS.add("board.title", "Bingo");
+	public static final TranslationCollector.Fun3 BOARD_HEADER = KEYS.add3("board.header", "%s points - %s/%s tiles");
+	public static final TranslationCollector.Fun1 BOARD_LOCKED_COUNT = KEYS.add1("board.locked_count", "%s locked");
+	public static final Component TILE_LOCKED = KEYS.add("tile.locked", "Locked");
+	public static final Component TILE_DONE = KEYS.add("tile.done", "Done!");
+	public static final TranslationCollector.Fun1 TILE_REWARD = KEYS.add1("tile.reward", "+%s points");
+	public static final TranslationCollector.Fun1 TILE_COMPLETIONS = KEYS.add1("tile.completions", "Done by %s");
 
 	public static final GameEventType<CaptureBingoTile> CAPTURE_TILE_EVENT = GameEventType.create(CaptureBingoTile.class, listeners -> (tile) -> {
 		for (CaptureBingoTile listener : listeners) {

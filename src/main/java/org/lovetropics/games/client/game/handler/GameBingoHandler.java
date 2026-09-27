@@ -2,145 +2,144 @@ package org.lovetropics.games.client.game.handler;
 
 import org.lovetropics.games.LoveTropics;
 import org.lovetropics.games.client.LTKeybinds;
+import org.lovetropics.games.client.game.bingo.BingoBoardScreen;
 import org.lovetropics.games.common.core.game.client_state.instance.BingoBoardClientState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.resources.Identifier;
-import net.minecraft.util.FormattedCharSequence;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix3x2fStack;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
+/// Shows a compact bingo board in the corner of the screen, which can be opened in full with [BingoBoardScreen]
 @EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
 public class GameBingoHandler {
-	private static final int TILE_W = 64;
 	private static final int GAP = 4;
+	private static final int TILE_SIZE = 16 + 2 * 2; // 2px padding
 
-	private static final int ICON_SIZE = 20;
-	private static final int TOP_PADDING = 3;
-	private static final int SIDE_PADDING = 3;
-	private static final int ICON_TEXT_GAP = 2;
-	private static final int BOTTOM_PADDING = 3;
-	private static final int COMPACT_TILE_SIZE = 16 + 2 * 2; // 2px padding
+	public static final int COMPLETED_COLOR = 0xAA61be29;
+	public static final int TILE_COLOR = 0xAA222222;
+	public static final int LOCKED_COLOR = 0x66000000;
+	public static final int BORDER_COLOR = 0xFFFFFFFF;
+	public static final int LOCKED_BORDER_COLOR = 0xFF555555;
+	public static final int LOCKED_TEXT_COLOR = 0xFF888888;
 
-	private static int rows;
-	private static int columns;
 	@Nullable
-	private static List<Optional<BingoBoardClientState.Tile>> tiles;
+	private static BingoBoardClientState board;
 
 	static final ClientGameStateHandler<BingoBoardClientState> HANDLER = new ClientGameStateHandler<>() {
 		@Override
 		public void accept(BingoBoardClientState state) {
-			rows = state.rows();
-			columns = state.columns();
-			tiles = state.tiles();
+			board = state;
 		}
 
 		@Override
 		public void disable(BingoBoardClientState state) {
-			rows = 0;
-			columns = 0;
-			tiles = null;
+			board = null;
 		}
 	};
+
+	public static @Nullable BingoBoardClientState board() {
+		return board;
+	}
+
+	@SubscribeEvent
+	static void onClientTick(ClientTickEvent.Post event) {
+		Minecraft minecraft = Minecraft.getInstance();
+		while (LTKeybinds.EXPAND_BINGO_BOARD.consumeClick()) {
+			if (board != null && minecraft.gui.screen() == null) {
+				minecraft.setScreenAndShow(new BingoBoardScreen());
+			}
+		}
+	}
 
 	@SubscribeEvent
 	static void registerLayers(RegisterGuiLayersEvent event) {
 		event.registerAboveAll(Identifier.fromNamespaceAndPath(LoveTropics.ID, "bingo_board"), (guiGraphics, deltaTracker) -> {
-			if (rows <= 0 || columns <= 0 || tiles == null) return;
+			BingoBoardClientState board = GameBingoHandler.board;
+			if (board == null || board.rows() <= 0 || board.columns() <= 0 || Minecraft.getInstance().gui.screen() instanceof BingoBoardScreen) {
+				return;
+			}
+			int rows = board.rows();
+			int columns = board.columns();
+			List<Optional<BingoBoardClientState.Tile>> tiles = board.tiles();
 
 			Font font = Minecraft.getInstance().font;
 
 			int boardX = 20, boardY = 20;
+			int boardW = columns * TILE_SIZE + (columns - 1) * GAP;
+			int boardH = rows * TILE_SIZE + (rows - 1) * GAP;
 
-			int textAreaW = TILE_W - SIDE_PADDING * 2;
-
-			// Calculate maximum amount of lines needed so that they all tiles are equal
-			int maxLines = tiles.stream()
-					.flatMap(Optional::stream)
-					.map(t -> font.split(t.title(), textAreaW).size())
-					.max(Comparator.naturalOrder()).orElse(1);
-
-			boolean compact = !LTKeybinds.EXPAND_BINGO_BOARD.isDown();
-
-			int lineHeight = font.lineHeight;
-			int textAreaH = maxLines * lineHeight;
-
-			int tileW = compact ? COMPACT_TILE_SIZE : TILE_W;
-			int tileH = compact ? COMPACT_TILE_SIZE : TOP_PADDING + ICON_SIZE + ICON_TEXT_GAP + textAreaH + BOTTOM_PADDING;
-
-			int boardW = columns * tileW + (columns - 1) * GAP;
-			int boardH = rows * tileH + (rows - 1) * GAP;
-
-			// Full baord background
+			// Full board background
 			guiGraphics.fill(boardX - 3, boardY - 3, boardX + boardW + 3, boardY + boardH + 3, 0x66000000);
 
 			for (int r = 0; r < rows; r++) {
 				for (int c = 0; c < columns; c++) {
-					int x = boardX + c * (tileW + GAP);
-					int y = boardY + r * (tileH + GAP);
+					int x = boardX + c * (TILE_SIZE + GAP);
+					int y = boardY + r * (TILE_SIZE + GAP);
 
-					Optional<BingoBoardClientState.Tile> optionalTile = tiles.get((r * rows) + c);
-					if (optionalTile.isEmpty()) continue;
-
-					BingoBoardClientState.Tile tile = optionalTile.orElseThrow();
-
-					// Tile border and background
-					guiGraphics.fill(x, y, x + tileW, y + tileH, tile.completed() ? 0xAA61be29 : 0xAA222222);
-					guiGraphics.fill(x, y, x + tileW, y + 1, 0xFFFFFFFF);
-					guiGraphics.fill(x, y + tileH - 1, x + tileW, y + tileH, 0xFFFFFFFF);
-					guiGraphics.fill(x, y, x + 1, y + tileH, 0xFFFFFFFF);
-					guiGraphics.fill(x + tileW - 1, y, x + tileW, y + tileH, 0xFFFFFFFF);
-
-					if (compact) {
-						int iconX = x + (tileW - 16) / 2;
-						int iconY = y + (tileH - 16) / 2;
-
-						if (!tile.icon().isEmpty()) {
-							guiGraphics.item(tile.icon(), iconX, iconY);
-							guiGraphics.itemDecorations(font, tile.icon(), iconX, iconY);
+					int index = r * columns + c;
+					Optional<BingoBoardClientState.Tile> optionalTile = tiles.get(index);
+					if (optionalTile.isEmpty()) {
+						if (board.getLockedSlot(index).isPresent()) {
+							drawLockedBackground(guiGraphics, x, y, TILE_SIZE, TILE_SIZE);
+							drawLockedIcon(guiGraphics, font, x, y, TILE_SIZE, TILE_SIZE);
 						}
-
 						continue;
 					}
 
-					int iconX = x + (TILE_W - ICON_SIZE) / 2;
-					int iconY = y + TOP_PADDING;
+					BingoBoardClientState.Tile tile = optionalTile.orElseThrow();
+					drawTileBackground(guiGraphics, tile, x, y, TILE_SIZE, TILE_SIZE);
 
+					int iconX = x + (TILE_SIZE - 16) / 2;
+					int iconY = y + (TILE_SIZE - 16) / 2;
 					if (!tile.icon().isEmpty()) {
-						Matrix3x2fStack pose = guiGraphics.pose();
-						pose.pushMatrix();
-						float scale = ICON_SIZE / 16.0f;
-						pose.translate(iconX, iconY);
-						pose.scale(scale, scale);
-						guiGraphics.item(tile.icon(), 0, 0);
-						pose.popMatrix();
-
+						guiGraphics.item(tile.icon(), iconX, iconY);
 						guiGraphics.itemDecorations(font, tile.icon(), iconX, iconY);
 					}
 
-					int textAreaX = x + SIDE_PADDING;
-					int textAreaY = iconY + ICON_SIZE + ICON_TEXT_GAP;
-
-					List<FormattedCharSequence> lines = font.split(tile.title(), textAreaW);
-					int offset = (maxLines - lines.size()) * lineHeight / 2;
-
-					for (int i = 0; i < lines.size(); i++) {
-						FormattedCharSequence line = lines.get(i);
-						int lw = font.width(line);
-						int lx = textAreaX + (textAreaW - lw) / 2;
-						int ly = textAreaY + i * lineHeight + offset;
-						guiGraphics.text(font, line, lx, ly, 0xFFFFFFFF, false);
+					// How many players beat us to it, in the corner away from the item count
+					if (!tile.completed() && tile.completions() > 0) {
+						Matrix3x2fStack pose = guiGraphics.pose();
+						pose.pushMatrix();
+						pose.translate(x + 2, y + 2);
+						pose.scale(0.5f, 0.5f);
+						guiGraphics.text(font, String.valueOf(tile.completions()), 0, 0, 0xFFFFAA00, true);
+						pose.popMatrix();
 					}
 				}
 			}
 		});
+	}
+
+	public static void drawTileBackground(GuiGraphicsExtractor guiGraphics, BingoBoardClientState.Tile tile, int x, int y, int w, int h) {
+		guiGraphics.fill(x, y, x + w, y + h, tile.completed() ? COMPLETED_COLOR : TILE_COLOR);
+		drawBorder(guiGraphics, x, y, w, h, BORDER_COLOR);
+	}
+
+	public static void drawLockedBackground(GuiGraphicsExtractor guiGraphics, int x, int y, int w, int h) {
+		guiGraphics.fill(x, y, x + w, y + h, LOCKED_COLOR);
+		drawBorder(guiGraphics, x, y, w, h, LOCKED_BORDER_COLOR);
+	}
+
+	/// Draws a question mark in the middle of the given area, where a locked tile would have its icon
+	public static void drawLockedIcon(GuiGraphicsExtractor guiGraphics, Font font, int x, int y, int w, int h) {
+		String questionMark = "?";
+		guiGraphics.text(font, questionMark, x + (w - font.width(questionMark) + 1) / 2, y + (h - font.lineHeight) / 2 + 1, LOCKED_TEXT_COLOR, false);
+	}
+
+	private static void drawBorder(GuiGraphicsExtractor guiGraphics, int x, int y, int w, int h, int color) {
+		guiGraphics.fill(x, y, x + w, y + 1, color);
+		guiGraphics.fill(x, y + h - 1, x + w, y + h, color);
+		guiGraphics.fill(x, y, x + 1, y + h, color);
+		guiGraphics.fill(x + w - 1, y, x + w, y + h, color);
 	}
 }
