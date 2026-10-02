@@ -97,7 +97,7 @@ public class GameRewards {
 		grantCollectible(player, serializeItem(item, player.registryAccess()));
 	}
 
-	private static void grantCollectible(ServerPlayer player, Identifier id) {
+	public static void grantCollectible(ServerPlayer player, Identifier id) {
 		grantCollectible(player, id.toString());
 	}
 
