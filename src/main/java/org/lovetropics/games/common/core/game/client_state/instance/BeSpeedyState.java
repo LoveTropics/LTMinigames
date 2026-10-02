@@ -29,7 +29,7 @@ public class BeSpeedyState implements GameClientState {
 		}
 
 		LocalPlayer player = Minecraft.getInstance().player;
-		if (player == null || player.gameMode() == GameType.SPECTATOR || player.gameMode() == GameType.CREATIVE) {
+		if (player == null || player.gameMode() == GameType.SPECTATOR) {
 			return;
 		}
 
