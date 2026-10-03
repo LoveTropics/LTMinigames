@@ -1,5 +1,6 @@
 package org.lovetropics.games.common.core.command.game;
 
+import net.neoforged.bus.api.SubscribeEvent;
 import org.lovetropics.games.LoveTropics;
 import org.lovetropics.games.common.core.game.GameResult;
 import org.lovetropics.games.common.core.game.GameStopReason;
@@ -14,6 +15,7 @@ import static net.minecraft.commands.Commands.literal;
 
 @EventBusSubscriber(modid = LoveTropics.ID)
 public class FinishGameCommand {
+	@SubscribeEvent
 	public static void register(RegisterCommandsEvent event) {
 		event.getDispatcher().register(
 				literal("game")
