@@ -11,12 +11,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class TeamSetupState implements IGameState {
 	public static final GameStateKey<TeamSetupState> KEY = GameStateKey.create("Team Setup");
 
 	private final Map<GameTeamKey, Instance> teams = new HashMap<>();
+	// Warning: might contain stale teams, this is intentional such that a team being added/removed preserves assignments
 	private final Map<PlayerKey, GameTeamKey> assignments = new HashMap<>();
 	private final Map<PlayerKey, GameTeamKey> preferences = new HashMap<>();
 
@@ -26,6 +28,9 @@ public class TeamSetupState implements IGameState {
 
 	public void allocatePlayers(TeamState teams, Set<PlayerKey> participants) {
 		for (Map.Entry<PlayerKey, GameTeamKey> entry : assignments.entrySet()) {
+			if (!this.teams.containsKey(entry.getValue())) {
+				continue;
+			}
 			// Ensure we don't hold any assignments for players that don't end up part of the game
 			if (!participants.contains(entry.getKey())) {
 				continue;
@@ -40,7 +45,7 @@ public class TeamSetupState implements IGameState {
 	}
 
 	private void allocateToOpenTeams(TeamState teams, Set<PlayerKey> participants, List<Instance> openTeams) {
-		List<GameTeamKey> openTeamKeys = openTeams.stream().map(i -> i.team.key()).toList();
+		Set<GameTeamKey> openTeamKeys = openTeams.stream().map(i -> i.team.key()).collect(Collectors.toSet());
 		TeamAllocator<GameTeamKey, PlayerKey> teamAllocator = new TeamAllocator<>(openTeamKeys);
 
 		for (Instance instance : openTeams) {
@@ -73,19 +78,15 @@ public class TeamSetupState implements IGameState {
 		return teams.get(team);
 	}
 
-	private void validateTeam(GameTeamKey team) {
-		if (!teams.containsKey(team)) {
-			throw new IllegalArgumentException("Team " + team + " does not exist");
-		}
+	public void removeTeam(GameTeamKey team) {
+		teams.remove(team);
 	}
 
 	public void assignPlayer(PlayerKey player, GameTeamKey team) {
-		validateTeam(team);
 		assignments.put(player, team);
 	}
 
 	public void setPlayerPreference(ServerPlayer player, GameTeamKey team) {
-		validateTeam(team);
 		preferences.put(PlayerKey.from(player), team);
 	}
 

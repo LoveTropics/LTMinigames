@@ -3,6 +3,7 @@ package org.lovetropics.games.common.core.game.behavior.instances.team;
 import com.lovetropics.lib.permission.PermissionsApi;
 import com.lovetropics.lib.permission.role.Role;
 import com.lovetropics.lib.permission.role.RoleReader;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -13,9 +14,11 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.ChatFormatting;
+import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
+import net.minecraft.commands.arguments.ComponentArgument;
 import net.minecraft.commands.arguments.GameProfileArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
@@ -46,20 +49,22 @@ import java.util.List;
 import java.util.Map;
 
 public record SetupTeamsBehavior(
-		Map<GameTeamKey, TeamConfig> teams
+		Map<GameTeamKey, TeamConfig> initialTeams
 ) implements IGameBehavior {
 	public static final MapCodec<SetupTeamsBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			Codec.unboundedMap(GameTeamKey.CODEC, TeamConfig.CODEC).fieldOf("teams").forGetter(SetupTeamsBehavior::teams)
+			Codec.unboundedMap(GameTeamKey.CODEC, TeamConfig.CODEC).fieldOf("teams").forGetter(SetupTeamsBehavior::initialTeams)
 	).apply(i, SetupTeamsBehavior::new));
 
 	private static final Logger LOGGER = LogUtils.getLogger();
 
 	private static final DynamicCommandExceptionType NO_TEAM = new DynamicCommandExceptionType(team -> Component.literal("No team exists with id: " + team));
+	private static final DynamicCommandExceptionType NO_COLOR = new DynamicCommandExceptionType(color -> Component.literal("No color exists with id: " + color));
+	private static final DynamicCommandExceptionType TEAM_ALREADY_EXISTS = new DynamicCommandExceptionType(team -> Component.literal("Team already exists with id: " + team));
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
 		TeamSetupState teamState = game.instanceState().register(TeamSetupState.KEY, new TeamSetupState());
-		for (Map.Entry<GameTeamKey, TeamConfig> entry : teams.entrySet()) {
+		for (Map.Entry<GameTeamKey, TeamConfig> entry : initialTeams.entrySet()) {
 			TeamConfig config = entry.getValue();
 			TeamSetupState.Instance instance = teamState.addTeam(new GameTeam(entry.getKey(), config.dyeColor(), config.name()));
 			instance.setMaxPlayers(config.maxSize);
@@ -83,7 +88,7 @@ public record SetupTeamsBehavior(
 		resetSelectors(teamState, selectors);
 
 		events.listen(GamePhaseEvents.REGISTER_COMMANDS, (commands, buildContext) ->
-				registerCommands(commands, teamState, selectors)
+				registerCommands(commands, buildContext, teamState, selectors)
 		);
 	}
 
@@ -98,12 +103,58 @@ public record SetupTeamsBehavior(
 		}
 	}
 
-	private void registerCommands(GameCommandRegistrar commands, TeamSetupState teamState, SelectorItems<TeamSetupState.Instance> selectors) {
+	private void registerCommands(GameCommandRegistrar commands, CommandBuildContext buildContext, TeamSetupState teamState, SelectorItems<TeamSetupState.Instance> selectors) {
 		commands.register(Commands.literal("team")
 				.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+				.then(Commands.literal("add")
+						.then(Commands.argument("team", StringArgumentType.string())
+								.then(Commands.argument("name", ComponentArgument.textComponent(buildContext))
+										.then(Commands.argument("color", StringArgumentType.string())
+												.suggests((_, builder) ->
+														SharedSuggestionProvider.suggest(DyeColor.VALUES.stream().map(DyeColor::getSerializedName), builder)
+												)
+												.executes(context -> {
+													GameTeamKey key = new GameTeamKey(StringArgumentType.getString(context, "team"));
+													if (teamState.getTeam(key) != null) {
+														throw TEAM_ALREADY_EXISTS.create(key.id());
+													}
+													Component name = ComponentArgument.getResolvedComponent(context, "name");
+													String colorId = StringArgumentType.getString(context, "color");
+													DyeColor color = DyeColor.CODEC.byName(colorId);
+													if (color == null) {
+														throw NO_COLOR.create(colorId);
+													}
+													TeamSetupState.Instance instance = teamState.addTeam(new GameTeam(key, color, name));
+													instance.setOpenToJoin(false);
+													resetSelectors(teamState, selectors);
+													context.getSource().sendSuccess(
+															() -> Component.translatable("Added %s team, use %s to make it public",
+																	key.id(),
+																	Component.literal("/game team open").withStyle(ChatFormatting.GRAY)
+															),
+															true
+													);
+													return 1;
+												})
+										)
+								)
+						)
+				)
+				.then(Commands.literal("remove")
+						.then(Commands.argument("team", StringArgumentType.string())
+								.suggests(suggestTeam(teamState))
+								.executes(context -> {
+									TeamSetupState.Instance team = getTeamArgument(context, "team", teamState);
+									teamState.removeTeam(team.key());
+									resetSelectors(teamState, selectors);
+									context.getSource().sendSuccess(() -> Component.translatable("Removed %s team", team.team().styledName()), true);
+									return 1;
+								})
+						)
+				)
 				.then(Commands.literal("open")
 						.then(Commands.argument("team", StringArgumentType.string())
-								.suggests(suggestTeam())
+								.suggests(suggestTeam(teamState))
 								.executes(context -> {
 									TeamSetupState.Instance team = getTeamArgument(context, "team", teamState);
 									team.setOpenToJoin(true);
@@ -115,7 +166,7 @@ public record SetupTeamsBehavior(
 				)
 				.then(Commands.literal("close")
 						.then(Commands.argument("team", StringArgumentType.string())
-								.suggests(suggestTeam())
+								.suggests(suggestTeam(teamState))
 								.executes(context -> {
 									TeamSetupState.Instance team = getTeamArgument(context, "team", teamState);
 									team.setOpenToJoin(false);
@@ -125,10 +176,24 @@ public record SetupTeamsBehavior(
 								})
 						)
 				)
+				.then(Commands.literal("maxsize")
+						.then(Commands.argument("team", StringArgumentType.string())
+								.suggests(suggestTeam(teamState))
+								.then(Commands.argument("size", IntegerArgumentType.integer(1))
+										.executes(context -> {
+											TeamSetupState.Instance team = getTeamArgument(context, "team", teamState);
+											int maxSize = IntegerArgumentType.getInteger(context, "size");
+											team.setMaxPlayers(maxSize);
+											context.getSource().sendSuccess(() -> Component.translatable("Set maximum size of %s to %s", team.team().styledName(), maxSize), true);
+											return 1;
+										})
+								)
+						)
+				)
 				.then(Commands.literal("assign")
 						.then(Commands.argument("player", GameProfileArgument.gameProfile())
 								.then(Commands.argument("team", StringArgumentType.string())
-										.suggests(suggestTeam())
+										.suggests(suggestTeam(teamState))
 										.executes(context -> {
 											Collection<NameAndId> players = GameProfileArgument.getGameProfiles(context, "player");
 											GameTeamKey team = getTeamArgument(context, "team", teamState).key();
@@ -157,19 +222,19 @@ public record SetupTeamsBehavior(
 				.then(Commands.literal("list")
 						.executes(context -> {
 							CommandSourceStack source = context.getSource();
-							for (Map.Entry<GameTeamKey, TeamConfig> entry : teams.entrySet()) {
-								source.sendSystemMessage(entry.getValue().styledName());
-								List<PlayerKey> playersAssigned = teamState.playersAssignedTo(entry.getKey()).toList();
+							teamState.teamsStream().forEach(team -> {
+								source.sendSystemMessage(team.team().styledName());
+								List<PlayerKey> playersAssigned = teamState.playersAssignedTo(team.key()).toList();
 								for (PlayerKey player : playersAssigned) {
 									source.sendSystemMessage(Component.literal(" - ").append(player.name()).append(" (assigned)"));
 								}
-								List<PlayerKey> playersWithPreference = teamState.playersWithPreferenceFor(entry.getKey())
+								List<PlayerKey> playersWithPreference = teamState.playersWithPreferenceFor(team.key())
 										.filter(player -> !playersAssigned.contains(player))
 										.toList();
 								for (PlayerKey player : playersWithPreference) {
 									source.sendSystemMessage(Component.literal(" - ").append(player.name()).append(" (preference)"));
 								}
-							}
+							});
 							return 1;
 						})
 				)
@@ -184,15 +249,15 @@ public record SetupTeamsBehavior(
 				.orElseThrow(() -> NO_TEAM.create(teamId));
 	}
 
-	private SuggestionProvider<CommandSourceStack> suggestTeam() {
+	private static SuggestionProvider<CommandSourceStack> suggestTeam(TeamSetupState teams) {
 		return (_, builder) ->
-				SharedSuggestionProvider.suggest(teams.keySet().stream().map(GameTeamKey::id), builder);
+				SharedSuggestionProvider.suggest(teams.teamsStream().map(i -> i.key().id()), builder);
 	}
 
 	private Map<Role, GameTeamKey> buildRoleToTeamMap() {
 		// Preserve order: first-specified role matches
 		Map<Role, GameTeamKey> assignedRoles = new LinkedHashMap<>();
-		for (Map.Entry<GameTeamKey, TeamConfig> entry : teams.entrySet()) {
+		for (Map.Entry<GameTeamKey, TeamConfig> entry : initialTeams.entrySet()) {
 			for (String roleId : entry.getValue().assignedRoles()) {
 				Role role = PermissionsApi.provider().get(roleId);
 				if (role != null) {
