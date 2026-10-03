@@ -1,7 +1,5 @@
 package org.lovetropics.games.common.config;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.core.integration.BackendIntegrations;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.config.ModConfigEvent;
@@ -9,8 +7,9 @@ import net.neoforged.neoforge.common.ModConfigSpec;
 import net.neoforged.neoforge.common.ModConfigSpec.BooleanValue;
 import net.neoforged.neoforge.common.ModConfigSpec.Builder;
 import net.neoforged.neoforge.common.ModConfigSpec.ConfigValue;
-import net.neoforged.neoforge.common.ModConfigSpec.DoubleValue;
 import net.neoforged.neoforge.common.ModConfigSpec.IntValue;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.core.integration.BackendIntegrations;
 
 @EventBusSubscriber(modid = LoveTropics.ID)
 public class ConfigLT {
@@ -24,10 +23,6 @@ public class ConfigLT {
 
 	public static final class CategoryGeneral {
 
-		public final DoubleValue Precipitation_Particle_effect_rate;
-
-		public final BooleanValue UseCrouch;
-
 		public final IntValue donationDelay;
 
 		public final IntValue donationPackageDelay;
@@ -36,12 +31,6 @@ public class ConfigLT {
 
 		private CategoryGeneral() {
 			CLIENT_BUILDER.comment("General mod settings").push("general");
-
-			Precipitation_Particle_effect_rate = CLIENT_BUILDER
-					.defineInRange("Precipitation_Particle_effect_rate", 0.7D, 0D, 1D);
-
-			UseCrouch = CLIENT_BUILDER.comment("Enable crawling anywhere by pressing the sprint key while holding down the sneak key")
-					.define("UseCrawl", true);
 
 			donationDelay = COMMON_BUILDER
 					.comment("Delay (in seconds) between donation events")
