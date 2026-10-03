@@ -1,5 +1,15 @@
 package org.lovetropics.games.common.content.survive_the_tide.behavior;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.SpawnEggItem;
+import net.minecraft.world.phys.BlockHitResult;
+import org.lovetropics.games.common.content.survive_the_tide.SurviveTheTideTexts;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
@@ -43,6 +53,7 @@ public class SurviveTheTideRulesetBehavior implements IGameBehavior {
 		events.listen(GamePlayerEvents.DEATH, this::onPlayerDeath);
 		events.listen(GamePlayerEvents.DAMAGE, this::onPlayerHurt);
 		events.listen(GamePlayerEvents.ATTACK, this::onPlayerAttackEntity);
+		events.listen(GamePlayerEvents.USE_ITEM_ON_BLOCK, this::onPlayerUseItemOnBlock);
 
 		events.listen(GameLivingEntityEvents.ENDER_PEARL_TELEPORT, (player, x, y, z, damage, callback) -> {
 			callback.accept(0f); // Set ender pearl damage to 0
@@ -69,5 +80,17 @@ public class SurviveTheTideRulesetBehavior implements IGameBehavior {
 			return TriState.FALSE;
 		}
 		return TriState.DEFAULT;
+	}
+
+	private InteractionResult onPlayerUseItemOnBlock(ServerPlayer player, ServerLevel level, BlockPos pos, InteractionHand hand, BlockHitResult traceResult) {
+		if (progression.is(safePeriod)) {
+			ItemStack itemInHand = player.getItemInHand(hand);
+			if (itemInHand.getItem() instanceof SpawnEggItem) {
+				player.sendSystemMessage(SurviveTheTideTexts.CANT_USE_SPAWN_EGG, true);
+				return InteractionResult.SUCCESS;
+			}
+		}
+		return InteractionResult.PASS;
+
 	}
 }
