@@ -1,8 +1,5 @@
 package org.lovetropics.games.common.core.game.state.statistics;
 
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
-import org.lovetropics.games.common.core.game.state.team.TeamState;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
@@ -13,8 +10,12 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.players.NameAndId;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
+import org.lovetropics.games.common.core.game.state.team.TeamState;
 
 import java.net.Proxy;
 import java.util.Objects;
@@ -29,43 +30,51 @@ public final class PlayerKey implements StatisticHolder {
 			UUIDUtil.STRING_CODEC.fieldOf("id").forGetter(PlayerKey::id),
 			Codec.STRING.fieldOf("name").forGetter(PlayerKey::name),
 			SkinData.CODEC.optionalFieldOf("skin").forGetter(PlayerKey::skinData)
-	).apply(i, (id, name, skinData) -> new PlayerKey(new GameProfile(id, name))));
+	).apply(i, (id, name, skinData) -> new PlayerKey(new NameAndId(id, name))));
 
 	// TODO: We should probably update this format :(
 	public static final Codec<PlayerKey> UUID_CODEC = UUIDUtil.STRING_CODEC.xmap(
-			uuid -> new PlayerKey(new GameProfile(uuid, "Unknown")),
+			uuid -> new PlayerKey(new NameAndId(uuid, "Unknown")),
 			PlayerKey::id
 	);
 
-	private final GameProfile profile;
+	private final NameAndId nameAndId;
 
-	private PlayerKey(GameProfile profile) {
-		this.profile = profile;
+	private PlayerKey(NameAndId nameAndId) {
+		this.nameAndId = nameAndId;
 	}
 
 	public static PlayerKey from(GameProfile profile) {
-		return new PlayerKey(profile);
+		return new PlayerKey(new NameAndId(profile));
 	}
 
 	public static PlayerKey from(Player player) {
-		return new PlayerKey(player.getGameProfile());
+		return new PlayerKey(player.nameAndId());
+	}
+
+	public static PlayerKey from(NameAndId nameAndId) {
+		return new PlayerKey(nameAndId);
 	}
 
 	public UUID id() {
-		return profile.id();
+		return nameAndId.id();
 	}
 
 	public String name() {
-		return profile.name();
+		return nameAndId.name();
+	}
+
+	public NameAndId nameAndId() {
+		return nameAndId;
 	}
 
 	@Override
 	public String toString() {
-		return profile.name();
+		return nameAndId.name();
 	}
 
 	private Optional<SkinData> skinData() {
-		MinecraftProfileTexture skinTexture = SESSION_SERVICE.getTextures(profile).skin();
+		MinecraftProfileTexture skinTexture = SESSION_SERVICE.getTextures(new GameProfile(nameAndId.id(), nameAndId.name())).skin();
 		if (skinTexture != null) {
 			return Optional.of(new SkinData(
 					skinTexture.getUrl(),
@@ -92,7 +101,7 @@ public final class PlayerKey implements StatisticHolder {
 		}
 
 		if (obj instanceof PlayerKey key) {
-			return profile.id().equals(key.profile.id());
+			return nameAndId.id().equals(key.nameAndId.id());
 		}
 
 		return false;
@@ -100,11 +109,11 @@ public final class PlayerKey implements StatisticHolder {
 
 	@Override
 	public int hashCode() {
-		return profile.id().hashCode();
+		return nameAndId.id().hashCode();
 	}
 
 	public boolean matches(Entity entity) {
-		return entity instanceof ServerPlayer && entity.getUUID().equals(profile.id());
+		return entity instanceof ServerPlayer && entity.getUUID().equals(nameAndId.id());
 	}
 
 	@Override
