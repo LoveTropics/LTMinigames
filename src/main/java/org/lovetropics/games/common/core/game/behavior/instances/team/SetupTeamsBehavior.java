@@ -31,8 +31,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.lovetropics.lib.codec.MoreCodecs.inputOptionalFieldOf;
-
 public record SetupTeamsBehavior(
 		Map<GameTeamKey, TeamConfig> teams
 ) implements IGameBehavior {
@@ -134,9 +132,9 @@ public record SetupTeamsBehavior(
 	) {
 		public static final Codec<TeamConfig> CODEC = RecordCodecBuilder.create(i -> i.group(
 				ComponentSerialization.CODEC.fieldOf("name").forGetter(TeamConfig::name),
-				inputOptionalFieldOf(DyeColor.CODEC, "dye", DyeColor.WHITE).forGetter(TeamConfig::dyeColor),
-				inputOptionalFieldOf(Codec.STRING.listOf(), "assign_roles", List.of()).forGetter(TeamConfig::assignedRoles),
-				inputOptionalFieldOf(ExtraCodecs.POSITIVE_INT, "max_size", Integer.MAX_VALUE).forGetter(TeamConfig::maxSize)
+				ExtraCodecs.optionalAlwaysPresentFieldOf(DyeColor.CODEC, "dye", DyeColor.WHITE).forGetter(TeamConfig::dyeColor),
+				ExtraCodecs.optionalAlwaysPresentFieldOf(Codec.STRING.listOf(), "assign_roles", List.of()).forGetter(TeamConfig::assignedRoles),
+				ExtraCodecs.optionalAlwaysPresentFieldOf(ExtraCodecs.POSITIVE_INT, "max_size", Integer.MAX_VALUE).forGetter(TeamConfig::maxSize)
 		).apply(i, TeamConfig::new));
 
 		public MutableComponent styledName() {
