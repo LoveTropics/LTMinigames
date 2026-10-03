@@ -173,7 +173,7 @@ public class DropperBehavior implements PersistentGameBehavior {
 
 	@Override
 	public Supplier<? extends PersistentGameBehaviorType<?>> type() {
-		return PersistentGameBehaviors.PARKOUR;
+		return PersistentGameBehaviors.DROPPER;
 	}
 
 	public record Objectives(Objective win, Objective fail, Objective play, Objective stats) {
