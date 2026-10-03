@@ -1,7 +1,6 @@
 package org.lovetropics.games.common.core.game.state.statistics;
 
 import com.mojang.serialization.Codec;
-import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.NameAndId;
@@ -13,18 +12,8 @@ import org.lovetropics.games.common.core.game.state.team.TeamState;
 
 import java.util.UUID;
 
-public final class PlayerKey implements StatisticHolder {
-	// TODO: We should probably update this format :(
-	public static final Codec<PlayerKey> UUID_CODEC = UUIDUtil.STRING_CODEC.xmap(
-			uuid -> new PlayerKey(new NameAndId(uuid, "Unknown")),
-			PlayerKey::id
-	);
-
-	private final NameAndId nameAndId;
-
-	private PlayerKey(NameAndId nameAndId) {
-		this.nameAndId = nameAndId;
-	}
+public record PlayerKey(NameAndId nameAndId) implements StatisticHolder {
+	public static final Codec<PlayerKey> CODEC = NameAndId.CODEC.xmap(PlayerKey::new, PlayerKey::nameAndId);
 
 	public static PlayerKey from(Player player) {
 		return new PlayerKey(player.nameAndId());
@@ -42,31 +31,9 @@ public final class PlayerKey implements StatisticHolder {
 		return nameAndId.name();
 	}
 
-	public NameAndId nameAndId() {
-		return nameAndId;
-	}
-
 	@Override
 	public String toString() {
 		return nameAndId.name();
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-
-		if (obj instanceof PlayerKey key) {
-			return nameAndId.id().equals(key.nameAndId.id());
-		}
-
-		return false;
-	}
-
-	@Override
-	public int hashCode() {
-		return nameAndId.id().hashCode();
 	}
 
 	public boolean matches(Entity entity) {

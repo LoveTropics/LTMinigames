@@ -131,7 +131,7 @@ public final class StatisticKey<T> {
 	}
 
 	public static StatisticKey<PlayerKey> ofPlayer(String key) {
-		return StatisticKey.register(PlayerKey.class, key, PlayerKey.UUID_CODEC);
+		return StatisticKey.register(PlayerKey.class, key, PlayerKey.CODEC);
 	}
 
 	public static StatisticKey<GameTeamKey> ofTeam(String key) {
