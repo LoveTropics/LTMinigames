@@ -2,6 +2,8 @@ package org.lovetropics.games.common.core.integration;
 
 import com.google.gson.JsonObject;
 import com.lovetropics.lib.techstack.Crud;
+import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.datafixers.util.Unit;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -12,6 +14,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.players.NameAndId;
 import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.config.ConfigLT;
 import org.lovetropics.games.common.core.game.IGameDefinition;
@@ -39,6 +43,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -111,7 +116,7 @@ public final class GameInstanceIntegrations implements IGameState {
 		post(EVENT_START_GAME, new StartGame(
 				definition.name(),
 				Optional.ofNullable(definition.subtitle()),
-				Optional.ofNullable(initiator).map(Participant::new),
+				Optional.ofNullable(initiator).map(PlayerKey::nameAndId),
 				packPlayersAndTeams()
 		));
 		post(EVENT_REQUEST_PENDING_ACTIONS, Unit.INSTANCE);
@@ -177,13 +182,23 @@ public final class GameInstanceIntegrations implements IGameState {
 
 		List<Participant> participants = allGames.stream()
 				.flatMap(game -> game.participants().stream())
-				.map(player -> new Participant(PlayerKey.from(player)))
+				.map(this::packParticipant)
 				.toList();
 
 		return new PlayersAndTeams(
 				participants,
 				teams != null ? teams.stream().map(GameTeam::asPayload).toList() : List.of()
 		);
+	}
+
+	private Participant packParticipant(ServerPlayer player) {
+		MinecraftSessionService sessionService = player.level().getServer().services().sessionService();
+		GameProfile profile = player.getGameProfile();
+		Optional<Participant.Skin> skin = Optional.ofNullable(sessionService.getTextures(profile).skin()).map(skinTexture -> new Participant.Skin(
+				skinTexture.getUrl(),
+				Objects.requireNonNullElse(skinTexture.getMetadata("model"), "default")
+		));
+		return new Participant(profile.id(), profile.name(), skin);
 	}
 
 	private <T> void post(GameEventType<T> type, T payload) {
@@ -257,13 +272,13 @@ public final class GameInstanceIntegrations implements IGameState {
 	private record StartGame(
 			Component name,
 			Optional<Component> subtitle,
-			Optional<Participant> initiator,
+			Optional<NameAndId> initiator,
 			PlayersAndTeams playersAndTeams
 	) {
 		public static final MapCodec<StartGame> MAP_CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 				ComponentSerialization.CODEC.fieldOf("name").forGetter(StartGame::name),
 				ComponentSerialization.CODEC.optionalFieldOf("subtitle").forGetter(StartGame::subtitle),
-				Participant.CODEC.optionalFieldOf("initiator").forGetter(StartGame::initiator),
+				NameAndId.CODEC.optionalFieldOf("initiator").forGetter(StartGame::initiator),
 				PlayersAndTeams.MAP_CODEC.forGetter(StartGame::playersAndTeams)
 		).apply(i, StartGame::new));
 	}
@@ -323,9 +338,25 @@ public final class GameInstanceIntegrations implements IGameState {
 	}
 
 	private record Participant(
-			PlayerKey key
+			UUID id,
+			String name,
+			Optional<Skin> skin
 	) {
-		public static final Codec<Participant> CODEC = PlayerKey.FULL_CODEC.xmap(Participant::new, Participant::key);
+		public static final Codec<Participant> CODEC = RecordCodecBuilder.create(i -> i.group(
+				UUIDUtil.STRING_CODEC.fieldOf("id").forGetter(Participant::id),
+				Codec.STRING.fieldOf("name").forGetter(Participant::name),
+				Skin.CODEC.optionalFieldOf("skin").forGetter(Participant::skin)
+		).apply(i, Participant::new));
+
+		public record Skin(
+				String url,
+				String model
+		) {
+			public static final Codec<Skin> CODEC = RecordCodecBuilder.create(i -> i.group(
+					Codec.STRING.fieldOf("url").forGetter(Skin::url),
+					Codec.STRING.fieldOf("model").forGetter(Skin::model)
+			).apply(i, Skin::new));
+		}
 	}
 
 	private record GameEventType<T>(
