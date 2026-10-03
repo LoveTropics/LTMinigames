@@ -43,6 +43,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 
 public final class GameInstanceIntegrations implements IGameState {
 	public static final GameStateKey<GameInstanceIntegrations> KEY = GameStateKey.create("Game Integrations");
@@ -50,6 +51,13 @@ public final class GameInstanceIntegrations implements IGameState {
 	private static final Codec<List<DonationPackageData>> PACKAGES_CODEC = DonationPackageData.Payload.CODEC.codec()
 			.xmap(DonationPackageData.Payload::data, DonationPackageData::asPayload)
 			.listOf();
+
+	private static final GameEventType<StartGame> EVENT_START_GAME = GameEventType.createImportant(ConfigLT.INTEGRATIONS.minigameStartEndpoint, StartGame.MAP_CODEC);
+	private static final GameEventType<PlayersAndTeams> EVENT_UPDATE_PLAYERS = GameEventType.create(ConfigLT.INTEGRATIONS.minigamePlayerUpdateEndpoint, PlayersAndTeams.MAP_CODEC);
+	private static final GameEventType<Unit> EVENT_REQUEST_PENDING_ACTIONS = GameEventType.create(ConfigLT.INTEGRATIONS.pendingActionsEndpoint, MapCodec.unit(Unit.INSTANCE));
+	private static final GameEventType<UpdatePackages> EVENT_UPDATE_PACKAGES = GameEventType.createImportant(ConfigLT.INTEGRATIONS.minigameUpdatePackagesEndpoint, UpdatePackages.MAP_CODEC);
+	private static final GameEventType<FinishGame> EVENT_FINISH_GAME = GameEventType.createImportant(ConfigLT.INTEGRATIONS.minigameEndEndpoint, FinishGame.MAP_CODEC);
+	private static final GameEventType<Unit> EVENT_CANCEL_GAME = GameEventType.createImportant(ConfigLT.INTEGRATIONS.minigameCancelEndpoint, MapCodec.unit(Unit.INSTANCE));
 
 	private final UUID gameUuid = UUID.randomUUID();
 
@@ -73,9 +81,9 @@ public final class GameInstanceIntegrations implements IGameState {
 	}
 
 	private void addListeners(EventRegistrar events) {
-		events.listen(GamePlayerEvents.REMOVE, p -> sendParticipantsList());
-		events.listen(GamePlayerEvents.SET_ROLE, (p, r, lr) -> sendParticipantsList());
-		events.listen(GameTeamEvents.TEAMS_ALLOCATED, p -> sendParticipantsList());
+		events.listen(GamePlayerEvents.REMOVE, p -> post(EVENT_UPDATE_PLAYERS, packPlayersAndTeams()));
+		events.listen(GamePlayerEvents.SET_ROLE, (p, r, lr) -> post(EVENT_UPDATE_PLAYERS, packPlayersAndTeams()));
+		events.listen(GameTeamEvents.TEAMS_ALLOCATED, p -> post(EVENT_UPDATE_PLAYERS, packPlayersAndTeams()));
 
 		addSubGameListeners(events);
 	}
@@ -86,10 +94,10 @@ public final class GameInstanceIntegrations implements IGameState {
 			subEvents.listen(GamePhaseEvents.DESTROY, () -> {
 				allGames.remove(subGame);
 				sendPackagesUpdate();
-				sendParticipantsList();
+				post(EVENT_UPDATE_PLAYERS, packPlayersAndTeams());
 			});
 			sendPackagesUpdate();
-			sendParticipantsList();
+			post(EVENT_UPDATE_PLAYERS, packPlayersAndTeams());
 			addSubGameListeners(subEvents);
 		});
 	}
@@ -99,20 +107,16 @@ public final class GameInstanceIntegrations implements IGameState {
 			return;
 		}
 
-		sendMinigameStart(initiator);
-		requestQueuedActions();
-
-		addListeners(events);
-	}
-
-	private void sendMinigameStart(@Nullable PlayerKey initiator) {
 		IGameDefinition definition = topLevelGame.definition();
-		postImportant(ConfigLT.INTEGRATIONS.minigameStartEndpoint.get(), StartGame.MAP_CODEC, new StartGame(
+		post(EVENT_START_GAME, new StartGame(
 				definition.name(),
 				Optional.ofNullable(definition.subtitle()),
 				Optional.ofNullable(initiator).map(Participant::new),
 				packPlayersAndTeams()
 		));
+		post(EVENT_REQUEST_PENDING_ACTIONS, Unit.INSTANCE);
+
+		addListeners(events);
 	}
 
 	private void sendPackagesUpdate() {
@@ -128,12 +132,12 @@ public final class GameInstanceIntegrations implements IGameState {
 				.sorted(Comparator.comparing(DonationPackageData::id))
 				.toList();
 
-		postImportant(ConfigLT.INTEGRATIONS.minigameUpdatePackagesEndpoint.get(), UpdatePackages.MAP_CODEC, new UpdatePackages(sortedPackages));
+		post(EVENT_UPDATE_PACKAGES, new UpdatePackages(sortedPackages));
 	}
 
 	public void finish(IGamePhase phase) {
 		if (phase == topLevelGame) {
-			postImportant(ConfigLT.INTEGRATIONS.minigameEndEndpoint.get(), FinishGame.MAP_CODEC, new FinishGame(
+			post(EVENT_FINISH_GAME, new FinishGame(
 					Instant.now(),
 					phase.statistics(),
 					packPlayersAndTeams()
@@ -144,7 +148,7 @@ public final class GameInstanceIntegrations implements IGameState {
 
 	public void cancel(IGamePhase phase) {
 		if (phase == topLevelGame) {
-			postImportant(ConfigLT.INTEGRATIONS.minigameCancelEndpoint.get(), MapCodec.unit(Unit.INSTANCE), Unit.INSTANCE);
+			post(EVENT_CANCEL_GAME, Unit.INSTANCE);
 			close();
 		}
 	}
@@ -168,10 +172,6 @@ public final class GameInstanceIntegrations implements IGameState {
 		));
 	}
 
-	private void sendParticipantsList() {
-		post(ConfigLT.INTEGRATIONS.minigamePlayerUpdateEndpoint.get(), PlayersAndTeams.MAP_CODEC, packPlayersAndTeams());
-	}
-
 	private PlayersAndTeams packPlayersAndTeams() {
 		TeamState teams = topLevelGame.instanceState().getOrNull(TeamState.KEY);
 
@@ -186,28 +186,16 @@ public final class GameInstanceIntegrations implements IGameState {
 		);
 	}
 
-	private void requestQueuedActions() {
-		post(ConfigLT.INTEGRATIONS.pendingActionsEndpoint.get(), MapCodec.unit(Unit.INSTANCE), Unit.INSTANCE);
-	}
-
-	private <T> void post(String endpoint, MapCodec<T> codec, T payload) {
-		post(endpoint, codec, payload, false);
-	}
-
-	private <T> void postImportant(String endpoint, MapCodec<T> codec, T payload) {
-		post(endpoint, codec, payload, true);
-	}
-
-	private <T> void post(String endpoint, MapCodec<T> codec, T payload, boolean important) {
+	private <T> void post(GameEventType<T> type, T payload) {
 		if (closed) {
 			return;
 		}
 
 		GameEvent<T> event = new GameEvent<>(gameUuid, gameTypeDefinition, payload);
-		if (important) {
-			integrations.postAndRetry(endpoint, GameEvent.codec(codec), event);
+		if (type.important) {
+			integrations.postAndRetry(type.endpoint.get(), type.eventCodec, event);
 		} else {
-			integrations.post(endpoint, GameEvent.codec(codec), event);
+			integrations.post(type.endpoint.get(), type.eventCodec, event);
 		}
 	}
 
@@ -338,5 +326,20 @@ public final class GameInstanceIntegrations implements IGameState {
 			PlayerKey key
 	) {
 		public static final Codec<Participant> CODEC = PlayerKey.FULL_CODEC.xmap(Participant::new, Participant::key);
+	}
+
+	private record GameEventType<T>(
+			Supplier<String> endpoint,
+			MapCodec<T> payload,
+			boolean important,
+			Codec<GameEvent<T>> eventCodec
+	) {
+		public static <T> GameEventType<T> create(Supplier<String> endpoint, MapCodec<T> payload) {
+			return new GameEventType<>(endpoint, payload, false, GameEvent.codec(payload));
+		}
+
+		public static <T> GameEventType<T> createImportant(Supplier<String> endpoint, MapCodec<T> payload) {
+			return new GameEventType<>(endpoint, payload, true, GameEvent.codec(payload));
+		}
 	}
 }
