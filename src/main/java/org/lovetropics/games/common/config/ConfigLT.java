@@ -29,6 +29,8 @@ public class ConfigLT {
 
 		public final IntValue chatEventDelay;
 
+		public final BooleanValue skipIntroSlideshows;
+
 		private CategoryGeneral() {
 			CLIENT_BUILDER.comment("General mod settings").push("general");
 
@@ -44,6 +46,10 @@ public class ConfigLT {
 					.comment("Delay (in seconds) between chat events")
 					.defineInRange("chatEventDelay", 1, 0, 99999);
 
+			skipIntroSlideshows = COMMON_BUILDER
+					.comment("If true, minigame introduction slideshows will be skipped")
+					.define("skipIntroSlideshows", false);
+
 			CLIENT_BUILDER.pop();
 		}
 	}
@@ -54,6 +60,8 @@ public class ConfigLT {
 		public final ConfigValue<String> pollsServiceUrl;
 		public final ConfigValue<String> webSocketUrl;
 		public final ConfigValue<String> authToken;
+
+		public final BooleanValue alwaysPublishGames;
 
 		private CategoryIntegrations() {
 			COMMON_BUILDER.comment("Used for the LoveTropics charity drive.").push("techStack");
@@ -74,6 +82,10 @@ public class ConfigLT {
 			authToken = COMMON_BUILDER
 					.comment("Auth token used to authenticate with the tech stack")
 					.define("authToken", "sekrit");
+
+			alwaysPublishGames = COMMON_BUILDER
+					.comment("If true, lobbies will always be focused live")
+					.define("alwaysPublishGames", false);
 
 			COMMON_BUILDER.pop();
 		}

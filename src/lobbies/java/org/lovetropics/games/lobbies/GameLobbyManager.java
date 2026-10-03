@@ -1,7 +1,6 @@
 package org.lovetropics.games.lobbies;
 
-import org.lovetropics.games.common.core.game.GameResult;
-import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
+import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.resources.ResourceKey;
@@ -17,6 +16,11 @@ import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.config.ConfigLT;
+import org.lovetropics.games.common.core.game.GameResult;
+import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
+import org.lovetropics.games.common.core.integration.BackendIntegrations;
+import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,6 +35,8 @@ import java.util.stream.Stream;
 @EventBusSubscriber(modid = LobbiesMod.ID)
 public class GameLobbyManager {
 	private static final GameLobbyManager INSTANCE = new GameLobbyManager();
+
+	private static final Logger LOGGER = LogUtils.getLogger();
 
 	private final List<GameLobby> lobbies = new ArrayList<>();
 
@@ -53,6 +59,14 @@ public class GameLobbyManager {
 
 		GameLobby lobby = new GameLobby(this, initiator.level().getServer(), metadata);
 		lobbies.add(lobby);
+
+		if (ConfigLT.INTEGRATIONS.alwaysPublishGames.get()) {
+			if (BackendIntegrations.get().isConnected()) {
+				lobby.setVisibility(LobbyVisibility.PUBLIC_LIVE);
+			} else {
+				LOGGER.warn("Couldn't auto-publish lobby, not connected to techstack");
+			}
+		}
 
 		return GameResult.ok(lobby);
 	}

@@ -2,19 +2,19 @@ package org.lovetropics.games.lobbies;
 
 import com.lovetropics.lib.slideshow.SlideshowApi;
 import com.lovetropics.lib.slideshow.SlideshowInstanceHandle;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.config.ConfigLT;
 import org.lovetropics.games.common.core.game.GamePhaseType;
 import org.lovetropics.games.common.core.game.GameResult;
 import org.lovetropics.games.common.core.game.GameStopReason;
 import org.lovetropics.games.common.core.game.config.GameConfig;
 import org.lovetropics.games.common.core.game.config.GamePhaseConfig;
 import org.lovetropics.games.common.core.game.rewards.GameRewardsMap;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
-import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.lobbies.client.ClientGameDefinition;
 import org.lovetropics.games.lobbies.client.state.ClientCurrentGame;
 import org.lovetropics.games.lobbies.dev.DevQuickPlay;
-import org.lovetropics.games.lobbies.dev.DevQuickPlaySettings;
 
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -145,7 +145,7 @@ abstract class LobbyState {
 		}
 
 		private @Nullable SlideshowInstanceHandle openIntroSlideshow(GameLobby lobby, GameInstance game) {
-			if (DevQuickPlay.isEnabled() && DevQuickPlaySettings.SKIP_INTRO_SLIDESHOWS) {
+			if (DevQuickPlay.isEnabled() || ConfigLT.GENERAL.skipIntroSlideshows.get()) {
 				return null;
 			}
 			Identifier slideshowId = game.config().introSlideshow();

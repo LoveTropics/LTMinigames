@@ -1,10 +1,5 @@
 package org.lovetropics.games.lobbies.dev;
 
-import org.lovetropics.games.common.core.game.config.GameConfig;
-import org.lovetropics.games.common.core.game.config.GameConfigs;
-import org.lovetropics.games.common.core.game.player.PlayerRole;
-import org.lovetropics.games.common.core.integration.BackendIntegrations;
-import org.lovetropics.games.common.util.Scheduler;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
@@ -35,11 +30,14 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.core.game.config.GameConfig;
+import org.lovetropics.games.common.core.game.config.GameConfigs;
+import org.lovetropics.games.common.core.game.player.PlayerRole;
+import org.lovetropics.games.common.util.Scheduler;
 import org.lovetropics.games.lobbies.GameLobby;
 import org.lovetropics.games.lobbies.GameLobbyManager;
 import org.lovetropics.games.lobbies.LobbiesMod;
 import org.lovetropics.games.lobbies.LobbyControls;
-import org.lovetropics.games.lobbies.LobbyVisibility;
 import org.slf4j.Logger;
 
 import java.util.function.Function;
@@ -84,13 +82,6 @@ public class DevQuickPlay {
 		try {
 			GameLobby lobby = GameLobbyManager.get().createGameLobby("Lobby", player).orElseThrow();
 			lobby.getPlayers().join(player, PlayerRole.PARTICIPANT);
-			if (DevQuickPlaySettings.AUTO_PUBLISH) {
-				if (BackendIntegrations.get().isConnected()) {
-					lobby.getManagement().setVisibility(LobbyVisibility.PUBLIC_LIVE);
-				} else {
-					LOGGER.error("Background integration is not connected, cannot publish lobby");
-				}
-			}
 			lobby.getGameQueue().enqueue(gameConfig);
 			Scheduler.nextTick().execute(() -> {
 				LobbyControls.Action play = lobby.getControls().get(LobbyControls.Type.PLAY);
