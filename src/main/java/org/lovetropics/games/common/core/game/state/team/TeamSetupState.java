@@ -68,9 +68,9 @@ public class TeamSetupState implements IGameState {
 		}
 	}
 
-	public void assignPlayer(ServerPlayer player, GameTeamKey team) {
+	public void assignPlayer(PlayerKey player, GameTeamKey team) {
 		validateTeam(team);
-		assignments.put(PlayerKey.from(player), team);
+		assignments.put(player, team);
 	}
 
 	public void setPlayerPreference(ServerPlayer player, GameTeamKey team) {
@@ -78,10 +78,21 @@ public class TeamSetupState implements IGameState {
 		preferences.put(PlayerKey.from(player), team);
 	}
 
-	public void removePlayer(ServerPlayer player) {
-		PlayerKey key = PlayerKey.from(player);
-		assignments.remove(key);
-		preferences.remove(key);
+	public void removePlayer(PlayerKey player) {
+		assignments.remove(player);
+		preferences.remove(player);
+	}
+
+	public Stream<PlayerKey> playersAssignedTo(GameTeamKey team) {
+		return assignments.entrySet().stream()
+				.filter(e -> e.getValue().equals(team))
+				.map(Map.Entry::getKey);
+	}
+
+	public Stream<PlayerKey> playersWithPreferenceFor(GameTeamKey team) {
+		return preferences.entrySet().stream()
+				.filter(e -> e.getValue().equals(team))
+				.map(Map.Entry::getKey);
 	}
 
 	public Stream<PlayerKey> assignedPlayers() {
