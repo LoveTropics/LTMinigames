@@ -77,7 +77,7 @@ public record SetupTeamsBehavior(
 				}
 			}
 		});
-		events.listen(GamePlayerEvents.REMOVE, player1 -> teamState.removePlayer(PlayerKey.from(player1)));
+		events.listen(GamePlayerEvents.LEAVE, player -> teamState.removePlayer(PlayerKey.from(player)));
 
 		List<Map.Entry<GameTeamKey, TeamConfig>> openTeams = teams.entrySet().stream()
 				.filter(entry -> entry.getValue().assignedRoles.isEmpty())
