@@ -48,7 +48,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Supplier;
 
 public final class GameInstanceIntegrations implements IGameState {
 	public static final GameStateKey<GameInstanceIntegrations> KEY = GameStateKey.create("Game Integrations");
@@ -57,12 +56,12 @@ public final class GameInstanceIntegrations implements IGameState {
 			.xmap(DonationPackageData.Payload::data, DonationPackageData::asPayload)
 			.listOf();
 
-	private static final GameEventType<StartGame> EVENT_START_GAME = GameEventType.createImportant(ConfigLT.INTEGRATIONS.minigameStartEndpoint, StartGame.MAP_CODEC);
-	private static final GameEventType<PlayersAndTeams> EVENT_UPDATE_PLAYERS = GameEventType.create(ConfigLT.INTEGRATIONS.minigamePlayerUpdateEndpoint, PlayersAndTeams.MAP_CODEC);
-	private static final GameEventType<Unit> EVENT_REQUEST_PENDING_ACTIONS = GameEventType.create(ConfigLT.INTEGRATIONS.pendingActionsEndpoint, MapCodec.unit(Unit.INSTANCE));
-	private static final GameEventType<UpdatePackages> EVENT_UPDATE_PACKAGES = GameEventType.createImportant(ConfigLT.INTEGRATIONS.minigameUpdatePackagesEndpoint, UpdatePackages.MAP_CODEC);
-	private static final GameEventType<FinishGame> EVENT_FINISH_GAME = GameEventType.createImportant(ConfigLT.INTEGRATIONS.minigameEndEndpoint, FinishGame.MAP_CODEC);
-	private static final GameEventType<Unit> EVENT_CANCEL_GAME = GameEventType.createImportant(ConfigLT.INTEGRATIONS.minigameCancelEndpoint, MapCodec.unit(Unit.INSTANCE));
+	private static final GameEventType<StartGame> EVENT_START_GAME = GameEventType.createImportant("/start", StartGame.MAP_CODEC);
+	private static final GameEventType<PlayersAndTeams> EVENT_UPDATE_PLAYERS = GameEventType.create("/playerupdate", PlayersAndTeams.MAP_CODEC);
+	private static final GameEventType<Unit> EVENT_REQUEST_PENDING_ACTIONS = GameEventType.create("/pendingactions", MapCodec.unit(Unit.INSTANCE));
+	private static final GameEventType<UpdatePackages> EVENT_UPDATE_PACKAGES = GameEventType.createImportant("/updatepackages", UpdatePackages.MAP_CODEC);
+	private static final GameEventType<FinishGame> EVENT_FINISH_GAME = GameEventType.createImportant("/end", FinishGame.MAP_CODEC);
+	private static final GameEventType<Unit> EVENT_CANCEL_GAME = GameEventType.createImportant("/cancel", MapCodec.unit(Unit.INSTANCE));
 
 	private final UUID gameUuid = UUID.randomUUID();
 
@@ -86,9 +85,9 @@ public final class GameInstanceIntegrations implements IGameState {
 	}
 
 	private void addListeners(EventRegistrar events) {
-		events.listen(GamePlayerEvents.REMOVE, p -> post(EVENT_UPDATE_PLAYERS, packPlayersAndTeams()));
-		events.listen(GamePlayerEvents.SET_ROLE, (p, r, lr) -> post(EVENT_UPDATE_PLAYERS, packPlayersAndTeams()));
-		events.listen(GameTeamEvents.TEAMS_ALLOCATED, p -> post(EVENT_UPDATE_PLAYERS, packPlayersAndTeams()));
+		events.listen(GamePlayerEvents.REMOVE, _ -> post(EVENT_UPDATE_PLAYERS, packPlayersAndTeams()));
+		events.listen(GamePlayerEvents.SET_ROLE, (_, _, _) -> post(EVENT_UPDATE_PLAYERS, packPlayersAndTeams()));
+		events.listen(GameTeamEvents.TEAMS_ALLOCATED, _ -> post(EVENT_UPDATE_PLAYERS, packPlayersAndTeams()));
 
 		addSubGameListeners(events);
 	}
@@ -159,7 +158,7 @@ public final class GameInstanceIntegrations implements IGameState {
 	}
 
 	public void acknowledgeActionDelivery(GameActionRequest request) {
-		integrations.postAndRetry(ConfigLT.INTEGRATIONS.actionResolvedEndpoint.get(), ActionAcknowledgement.CODEC, new ActionAcknowledgement(
+		integrations.postAndRetry(ConfigLT.INTEGRATIONS.minigamesServiceUrl.get() + "/actionresolved", ActionAcknowledgement.CODEC, new ActionAcknowledgement(
 				request.type(),
 				request.uuid()
 		));
@@ -169,7 +168,7 @@ public final class GameInstanceIntegrations implements IGameState {
 		if (options.length < 2) {
 			throw new IllegalArgumentException("Poll must have more than 1 choice");
 		}
-		integrations.postPolling(ConfigLT.INTEGRATIONS.addPollEndpoint.get(), CreatePoll.MAP_CODEC.codec(), new CreatePoll(
+		integrations.post(ConfigLT.INTEGRATIONS.pollsServiceUrl.get() + "/add", CreatePoll.MAP_CODEC.codec(), new CreatePoll(
 				title,
 				Instant.now(),
 				duration,
@@ -207,10 +206,11 @@ public final class GameInstanceIntegrations implements IGameState {
 		}
 
 		GameEvent<T> event = new GameEvent<>(gameUuid, gameTypeDefinition, payload);
+		String uri = ConfigLT.INTEGRATIONS.minigamesServiceUrl.get() + type.path;
 		if (type.important) {
-			integrations.postAndRetry(type.endpoint.get(), type.eventCodec, event);
+			integrations.postAndRetry(uri, type.eventCodec, event);
 		} else {
-			integrations.post(type.endpoint.get(), type.eventCodec, event);
+			integrations.post(uri, type.eventCodec, event);
 		}
 	}
 
@@ -360,17 +360,17 @@ public final class GameInstanceIntegrations implements IGameState {
 	}
 
 	private record GameEventType<T>(
-			Supplier<String> endpoint,
+			String path,
 			MapCodec<T> payload,
 			boolean important,
 			Codec<GameEvent<T>> eventCodec
 	) {
-		public static <T> GameEventType<T> create(Supplier<String> endpoint, MapCodec<T> payload) {
-			return new GameEventType<>(endpoint, payload, false, GameEvent.codec(payload));
+		public static <T> GameEventType<T> create(String path, MapCodec<T> payload) {
+			return new GameEventType<>(path, payload, false, GameEvent.codec(payload));
 		}
 
-		public static <T> GameEventType<T> createImportant(Supplier<String> endpoint, MapCodec<T> payload) {
-			return new GameEventType<>(endpoint, payload, true, GameEvent.codec(payload));
+		public static <T> GameEventType<T> createImportant(String path, MapCodec<T> payload) {
+			return new GameEventType<>(path, payload, true, GameEvent.codec(payload));
 		}
 	}
 }

@@ -52,8 +52,7 @@ public final class BackendIntegrations {
 					.build()
 	);
 
-	private final IntegrationSender sender = DEBUG_LOGGING_BACKEND ? IntegrationSender.LOGGING : IntegrationSender.open();
-	private final IntegrationSender pollSender = DEBUG_LOGGING_BACKEND ? IntegrationSender.LOGGING : IntegrationSender.openPoll();
+	private final IntegrationSender sender = DEBUG_LOGGING_BACKEND ? IntegrationSender.LOGGING : IntegrationSender.open(ConfigLT.INTEGRATIONS.enabled, ConfigLT.INTEGRATIONS.authToken);
 
 	private @Nullable TechstackEventSubscriber subscriber;
 	private @Nullable GameInstanceIntegrations liveInstance;
@@ -119,6 +118,15 @@ public final class BackendIntegrations {
 		}
 	}
 
+	public void clearConfig() {
+		uri = "";
+		token = "";
+		if (subscriber != null) {
+			subscriber.close();
+			subscriber = null;
+		}
+	}
+
 	@SubscribeEvent
 	public static void tick(ServerTickEvent.Post event) {
 		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
@@ -149,42 +157,56 @@ public final class BackendIntegrations {
 	}
 
 	// TODO: It would be nice to have a more robust system for sending with retries - for example, if we send but the minigame didn't exist.. we probably shouldn't resend it
-	<T> void postAndRetry(String endpoint, Codec<T> codec, T body) {
+	<T> void postAndRetry(String url, Codec<T> codec, T body) {
+		URI uri;
+		try {
+			uri = new URI(url);
+		} catch (URISyntaxException e) {
+			LOGGER.warn("Cannot POST to URI because it is malformed: {}", url, e);
+			return;
+		}
 		schedulePost(executor -> {
 			CompletableFuture<?> future = new CompletableFuture<>();
-			postAndRetryInner(future, executor, endpoint, codec, body, 0);
+			postAndRetryInner(future, executor, uri, codec, body, 0);
 			return future;
 		});
 	}
 
-	private <T> void postAndRetryInner(CompletableFuture<?> future, ScheduledExecutorService executor, String endpoint, Codec<T> codec, T body, int depth) {
-		if (sender.post(endpoint, codec, body) || depth > MAX_RETRIES) {
+	private <T> void postAndRetryInner(CompletableFuture<?> future, ScheduledExecutorService executor, URI uri, Codec<T> codec, T body, int depth) {
+		if (sender.post(uri, codec, body) || depth > MAX_RETRIES) {
 			future.complete(null);
 		} else {
 			executor.schedule(
-					() -> postAndRetryInner(future, executor, endpoint, codec, body, depth + 1),
+					() -> postAndRetryInner(future, executor, uri, codec, body, depth + 1),
 					RETRY_DELAY_SECONDS,
 					TimeUnit.SECONDS
 			);
 		}
 	}
 
-	<T> void post(String endpoint, Codec<T> codec, T body) {
+	<T> void post(String url, Codec<T> codec, T body) {
+		URI uri;
+		try {
+			uri = new URI(url);
+		} catch (URISyntaxException e) {
+			LOGGER.warn("Cannot POST to URI because it is malformed: {}", url, e);
+			return;
+		}
 		schedulePost(_ -> {
-			sender.post(endpoint, codec, body);
+			sender.post(uri, codec, body);
 			return CompletableFuture.completedFuture(null);
 		});
 	}
 
-	<T> void postPolling(String endpoint, Codec<T> codec, T body) {
-		schedulePost(_ -> {
-			pollSender.post(endpoint, codec, body);
-			return CompletableFuture.completedFuture(null);
-		});
-	}
-
-	<T> CompletableFuture<Optional<T>> get(String endpoint, Codec<T> codec) {
-		return CompletableFuture.supplyAsync(() -> sender.get(endpoint, codec), EXECUTOR);
+	<T> CompletableFuture<Optional<T>> get(String url, Codec<T> codec) {
+		URI uri;
+		try {
+			uri = new URI(url);
+		} catch (URISyntaxException e) {
+			LOGGER.warn("Cannot GET from URI because it is malformed: {}", url, e);
+			return CompletableFuture.completedFuture(Optional.empty());
+		}
+		return CompletableFuture.supplyAsync(() -> sender.get(uri, codec), EXECUTOR);
 	}
 
 	public boolean isConnected() {
@@ -208,14 +230,14 @@ public final class BackendIntegrations {
 	}
 
 	private void onServerAboutToStart() {
-		post(ConfigLT.INTEGRATIONS.worldLoadEndpoint.get(), Unit.CODEC, Unit.INSTANCE);
+		post(ConfigLT.INTEGRATIONS.minigamesServiceUrl.get() + "/worldloaded", Unit.CODEC, Unit.INSTANCE);
 		if (subscriber == null) {
 			subscriber = buildSubscriber(uri, token);
 		}
 	}
 
 	private void onServerStop() {
-		post(ConfigLT.INTEGRATIONS.worldUnloadEndpoint.get(), Unit.CODEC, Unit.INSTANCE);
+		post(ConfigLT.INTEGRATIONS.minigamesServiceUrl.get() + "/worldunloaded", Unit.CODEC, Unit.INSTANCE);
 		if (subscriber != null) {
 			subscriber.close();
 			subscriber = null;
