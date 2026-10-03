@@ -1,6 +1,7 @@
 package org.lovetropics.games.common.core.game.state.team;
 
 import net.minecraft.server.level.ServerPlayer;
+import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.core.game.state.GameStateKey;
 import org.lovetropics.games.common.core.game.state.IGameState;
 import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
@@ -48,9 +49,15 @@ public class TeamSetupState implements IGameState {
 		}
 
 		for (PlayerKey player : participants) {
-			if (teams.getTeamForPlayer(player) == null) {
-				teamAllocator.addPlayer(player, preferences.get(player));
+			if (teams.getTeamForPlayer(player) != null) {
+				continue;
 			}
+			GameTeamKey preference = preferences.get(player);
+			// Team might have been closed since the player requested joining, ensure to filter it out
+			if (preference != null && !openTeamKeys.contains(preference)) {
+				preference = null;
+			}
+			teamAllocator.addPlayer(player, preference);
 		}
 
 		teamAllocator.allocate(teams::addPlayerTo);
@@ -60,6 +67,10 @@ public class TeamSetupState implements IGameState {
 		Instance instance = new Instance(team);
 		teams.put(team.key(), instance);
 		return instance;
+	}
+
+	public @Nullable Instance getTeam(GameTeamKey team) {
+		return teams.get(team);
 	}
 
 	private void validateTeam(GameTeamKey team) {
@@ -90,6 +101,10 @@ public class TeamSetupState implements IGameState {
 	}
 
 	public Stream<PlayerKey> playersWithPreferenceFor(GameTeamKey team) {
+		Instance instance = getTeam(team);
+		if (instance != null && !instance.openToJoin) {
+			return Stream.empty();
+		}
 		return preferences.entrySet().stream()
 				.filter(e -> e.getValue().equals(team))
 				.map(Map.Entry::getKey);
@@ -97,6 +112,10 @@ public class TeamSetupState implements IGameState {
 
 	public Stream<PlayerKey> assignedPlayers() {
 		return assignments.keySet().stream();
+	}
+
+	public Stream<Instance> teamsStream() {
+		return teams.values().stream();
 	}
 
 	public static class Instance {
@@ -108,12 +127,28 @@ public class TeamSetupState implements IGameState {
 			this.team = team;
 		}
 
+		public GameTeamKey key() {
+			return team.key();
+		}
+
+		public GameTeam team() {
+			return team;
+		}
+
 		public void setMaxPlayers(int maxPlayers) {
 			this.maxPlayers = maxPlayers;
 		}
 
 		public void setOpenToJoin(boolean openToJoin) {
 			this.openToJoin = openToJoin;
+		}
+
+		public boolean isOpenToJoin() {
+			return openToJoin;
+		}
+
+		public int getMaxPlayers() {
+			return maxPlayers;
 		}
 	}
 }

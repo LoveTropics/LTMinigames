@@ -79,28 +79,59 @@ public record SetupTeamsBehavior(
 		});
 		events.listen(GamePlayerEvents.LEAVE, player -> teamState.removePlayer(PlayerKey.from(player)));
 
-		List<Map.Entry<GameTeamKey, TeamConfig>> openTeams = teams.entrySet().stream()
-				.filter(entry -> entry.getValue().assignedRoles.isEmpty())
-				.toList();
-		if (openTeams.size() > 1) {
-			setupSelector(events, teamState, openTeams);
-		}
+		SelectorItems<TeamSetupState.Instance> selectors = setupSelector(events, teamState);
+		resetSelectors(teamState, selectors);
 
 		events.listen(GamePhaseEvents.REGISTER_COMMANDS, (commands, buildContext) ->
-				registerCommands(commands, teamState)
+				registerCommands(commands, teamState, selectors)
 		);
 	}
 
-	private void registerCommands(GameCommandRegistrar commands, TeamSetupState teamState) {
+	private static void resetSelectors(TeamSetupState teamState, SelectorItems<TeamSetupState.Instance> selectors) {
+		List<TeamSetupState.Instance> openTeams = teamState.teamsStream()
+				.filter(TeamSetupState.Instance::isOpenToJoin)
+				.toList();
+		if (openTeams.size() > 1) {
+			selectors.set(openTeams);
+		} else {
+			selectors.set(List.of());
+		}
+	}
+
+	private void registerCommands(GameCommandRegistrar commands, TeamSetupState teamState, SelectorItems<TeamSetupState.Instance> selectors) {
 		commands.register(Commands.literal("team")
 				.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+				.then(Commands.literal("open")
+						.then(Commands.argument("team", StringArgumentType.string())
+								.suggests(suggestTeam())
+								.executes(context -> {
+									TeamSetupState.Instance team = getTeamArgument(context, "team", teamState);
+									team.setOpenToJoin(true);
+									resetSelectors(teamState, selectors);
+									context.getSource().sendSuccess(() -> Component.translatable("Opened %s for public joins", team.team().styledName()), true);
+									return 1;
+								})
+						)
+				)
+				.then(Commands.literal("close")
+						.then(Commands.argument("team", StringArgumentType.string())
+								.suggests(suggestTeam())
+								.executes(context -> {
+									TeamSetupState.Instance team = getTeamArgument(context, "team", teamState);
+									team.setOpenToJoin(false);
+									resetSelectors(teamState, selectors);
+									context.getSource().sendSuccess(() -> Component.translatable("Closed %s for public joins", team.team().styledName()), true);
+									return 1;
+								})
+						)
+				)
 				.then(Commands.literal("assign")
 						.then(Commands.argument("player", GameProfileArgument.gameProfile())
 								.then(Commands.argument("team", StringArgumentType.string())
 										.suggests(suggestTeam())
 										.executes(context -> {
 											Collection<NameAndId> players = GameProfileArgument.getGameProfiles(context, "player");
-											GameTeamKey team = getTeamArgument(context, "team");
+											GameTeamKey team = getTeamArgument(context, "team", teamState).key();
 											for (NameAndId player : players) {
 												teamState.assignPlayer(PlayerKey.from(player), team);
 											}
@@ -145,10 +176,10 @@ public record SetupTeamsBehavior(
 		);
 	}
 
-	private GameTeamKey getTeamArgument(CommandContext<CommandSourceStack> context, String name) throws CommandSyntaxException {
+	private static TeamSetupState.Instance getTeamArgument(CommandContext<CommandSourceStack> context, String name, TeamSetupState teams) throws CommandSyntaxException {
 		String teamId = StringArgumentType.getString(context, name);
-		return teams.keySet().stream()
-				.filter(key -> key.id().equals(teamId))
+		return teams.teamsStream()
+				.filter(team -> team.key().id().equals(teamId))
 				.findFirst()
 				.orElseThrow(() -> NO_TEAM.create(teamId));
 	}
@@ -174,33 +205,33 @@ public record SetupTeamsBehavior(
 		return assignedRoles;
 	}
 
-	private void setupSelector(EventRegistrar events, TeamSetupState teamState, List<Map.Entry<GameTeamKey, TeamConfig>> openTeams) {
-		SelectorItems.Handlers<Map.Entry<GameTeamKey, TeamConfig>> handlers = new SelectorItems.Handlers<>() {
+	private SelectorItems<TeamSetupState.Instance> setupSelector(EventRegistrar events, TeamSetupState teamState) {
+		SelectorItems.Handlers<TeamSetupState.Instance> handlers = new SelectorItems.Handlers<>() {
 			@Override
-			public void onPlayerSelected(ServerPlayer player, Map.Entry<GameTeamKey, TeamConfig> team) {
-				teamState.setPlayerPreference(player, team.getKey());
+			public void onPlayerSelected(ServerPlayer player, TeamSetupState.Instance team) {
+				teamState.setPlayerPreference(player, team.key());
 
-				Component teamName = team.getValue().styledName().withStyle(ChatFormatting.BOLD);
+				Component teamName = team.team().styledName().withStyle(ChatFormatting.BOLD);
 				player.sendSystemMessage(MinigameTexts.JOINED_TEAM.apply(teamName), false);
 			}
 
 			@Override
-			public String getIdFor(Map.Entry<GameTeamKey, TeamConfig> team) {
-				return team.getKey().id();
+			public String getIdFor(TeamSetupState.Instance team) {
+				return team.key().id();
 			}
 
 			@Override
-			public Component getNameFor(Map.Entry<GameTeamKey, TeamConfig> team) {
-				return MinigameTexts.JOIN_TEAM.apply(team.getValue().styledName());
+			public Component getNameFor(TeamSetupState.Instance team) {
+				return MinigameTexts.JOIN_TEAM.apply(team.team().styledName());
 			}
 
 			@Override
-			public Item getItemFor(Map.Entry<GameTeamKey, TeamConfig> team) {
-				return Items.WOOL.pick(team.getValue().dyeColor());
+			public Item getItemFor(TeamSetupState.Instance team) {
+				return Items.WOOL.pick(team.team().dyeColor());
 			}
 		};
 
-		SelectorItems<Map.Entry<GameTeamKey, TeamConfig>> selectors = new SelectorItems<>(handlers, openTeams);
+		SelectorItems<TeamSetupState.Instance> selectors = new SelectorItems<>(handlers, List.of());
 		selectors.applyTo(events);
 
 		events.listen(GamePlayerEvents.SPAWN, (_, spawn, _) -> spawn.run(player -> {
@@ -209,6 +240,8 @@ public record SetupTeamsBehavior(
 			}
 			selectors.giveSelectorsTo(player);
 		}));
+
+		return selectors;
 	}
 
 	public record TeamConfig(
