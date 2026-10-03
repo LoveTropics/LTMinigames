@@ -12,6 +12,7 @@ import net.minecraft.util.LenientJsonParser;
 import net.minecraft.util.Util;
 import org.slf4j.Logger;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -29,7 +30,7 @@ public interface IntegrationSender {
 		return new Http(enabled, authToken);
 	}
 
-	<T> boolean post(URI uri, Codec<T> codec, T body);
+	<T> PostResult post(URI uri, Codec<T> codec, T body);
 
 	<T> Optional<T> get(URI uri, Codec<T> codec);
 
@@ -46,9 +47,9 @@ public interface IntegrationSender {
 		}
 
 		@Override
-		public <T> boolean post(URI uri, Codec<T> codec, T body) {
+		public <T> PostResult post(URI uri, Codec<T> codec, T body) {
 			if (isDisabled()) {
-				return true;
+				return PostResult.SUCCESS;
 			}
 
 			try {
@@ -63,17 +64,20 @@ public interface IntegrationSender {
 						HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8)
 				);
 
-				if (response.statusCode() >= 200 && response.statusCode() < 300) {
+				PostResult postResult = PostResult.fromStatusCode(response.statusCode());
+				if (postResult == PostResult.SUCCESS) {
 					LOGGER.debug("Received response from post to {}: {}", uri, response.body());
-					return true;
 				} else {
 					LOGGER.error("Received unexpected response code ({}) from {}: {}", response.statusCode(), uri, response.body());
 				}
+				return postResult;
+			} catch (IOException e) {
+				LOGGER.error("An IO error occurred POSTing {} to {}", body, uri, e);
+				return PostResult.IO_ERROR;
 			} catch (Exception e) {
-				LOGGER.error("An exception occurred while trying to POST {} to {}", body, uri, e);
+				LOGGER.error("An unexpected exception occurred while POSTing {} to {}", body, uri, e);
+				return PostResult.CLIENT_ERROR;
 			}
-
-			return false;
 		}
 
 		@Override
@@ -129,16 +133,43 @@ public interface IntegrationSender {
 		}
 
 		@Override
-		public <T> boolean post(URI uri, Codec<T> codec, T body) {
+		public <T> PostResult post(URI uri, Codec<T> codec, T body) {
 			JsonElement json = codec.encodeStart(JsonOps.INSTANCE, body).getOrThrow();
 			LOGGER.info("POST to {}\n: {}", uri, GSON.toJson(json));
-			return true;
+			return PostResult.SUCCESS;
 		}
 
 		@Override
 		public <T> Optional<T> get(URI uri, Codec<T> codec) {
 			LOGGER.info("GET from {}", uri);
 			return Optional.empty();
+		}
+	}
+
+	enum PostResult {
+		SUCCESS(false),
+		CLIENT_ERROR(false),
+		SERVER_ERROR(true),
+		IO_ERROR(true),
+		;
+
+		private final boolean shouldRetry;
+
+		PostResult(boolean shouldRetry) {
+			this.shouldRetry = shouldRetry;
+		}
+
+		private static PostResult fromStatusCode(int code) {
+			if (code >= 200 && code < 300) {
+				return SUCCESS;
+			} else if (code >= 500 && code < 600) {
+				return SERVER_ERROR;
+			}
+			return CLIENT_ERROR;
+		}
+
+		public boolean shouldRetry() {
+			return shouldRetry;
 		}
 	}
 }

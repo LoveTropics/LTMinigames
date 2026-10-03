@@ -156,7 +156,6 @@ public final class BackendIntegrations {
 		);
 	}
 
-	// TODO: It would be nice to have a more robust system for sending with retries - for example, if we send but the minigame didn't exist.. we probably shouldn't resend it
 	<T> void postAndRetry(String url, Codec<T> codec, T body) {
 		URI uri;
 		try {
@@ -173,7 +172,8 @@ public final class BackendIntegrations {
 	}
 
 	private <T> void postAndRetryInner(CompletableFuture<?> future, ScheduledExecutorService executor, URI uri, Codec<T> codec, T body, int depth) {
-		if (sender.post(uri, codec, body) || depth > MAX_RETRIES) {
+		IntegrationSender.PostResult result = sender.post(uri, codec, body);
+		if (!result.shouldRetry() || depth > MAX_RETRIES) {
 			future.complete(null);
 		} else {
 			executor.schedule(
