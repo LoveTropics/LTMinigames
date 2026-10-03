@@ -28,9 +28,9 @@ import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import org.jetbrains.annotations.Nullable;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -196,4 +196,6 @@ public class Codecs {
 			return GAME_RULES_CODEC.encode(input, ops, prefix);
 		}
 	}
+
+	public static final Codec<Instant> EPOCH_SECOND = Codec.LONG.xmap(Instant::ofEpochSecond, Instant::getEpochSecond);
 }

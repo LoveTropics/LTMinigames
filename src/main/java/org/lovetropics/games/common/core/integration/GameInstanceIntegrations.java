@@ -1,9 +1,18 @@
 package org.lovetropics.games.common.core.integration;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.lovetropics.lib.techstack.Crud;
+import com.mojang.datafixers.util.Unit;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import net.minecraft.core.UUIDUtil;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.MinecraftServer;
+import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.config.ConfigLT;
 import org.lovetropics.games.common.core.game.IGameDefinition;
 import org.lovetropics.games.common.core.game.IGamePhase;
@@ -23,15 +32,9 @@ import org.lovetropics.games.common.core.game.state.team.GameTeam;
 import org.lovetropics.games.common.core.game.state.team.TeamState;
 import org.lovetropics.games.common.core.integration.game_actions.GameActionHandler;
 import org.lovetropics.games.common.core.integration.game_actions.GameActionRequest;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.JsonOps;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.ComponentSerialization;
-import net.minecraft.resources.Identifier;
-import net.minecraft.server.MinecraftServer;
+import org.lovetropics.games.common.core.integration.game_actions.GameActionType;
+import org.lovetropics.games.common.util.Codecs;
 
-import org.jspecify.annotations.Nullable;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -51,8 +54,7 @@ public final class GameInstanceIntegrations implements IGameState {
 	private final UUID gameUuid = UUID.randomUUID();
 
 	private final IGamePhase topLevelGame;
-	private final Identifier backendId;
-	private final String statisticsKey;
+	private final GameTypeDefinition gameTypeDefinition;
 	private final List<IGamePhase> allGames = new ArrayList<>();
 
 	private final BackendIntegrations integrations;
@@ -63,8 +65,7 @@ public final class GameInstanceIntegrations implements IGameState {
 
 	public GameInstanceIntegrations(IGamePhase topLevelGame, Identifier backendId, String statisticsKey, BackendIntegrations integrations) {
 		this.topLevelGame = topLevelGame;
-		this.backendId = backendId;
-		this.statisticsKey = statisticsKey;
+		gameTypeDefinition = new GameTypeDefinition(backendId, statisticsKey, topLevelGame.definition().name().getString());
 		this.integrations = integrations;
 		actions = new GameActionHandler(this);
 
@@ -105,30 +106,17 @@ public final class GameInstanceIntegrations implements IGameState {
 	}
 
 	private void sendMinigameStart(@Nullable PlayerKey initiator) {
-		JsonObject payload = new JsonObject();
-		if (initiator != null) {
-			payload.add("initiator", PlayerKey.FULL_CODEC.encodeStart(JsonOps.INSTANCE, initiator).getOrThrow());
-		}
-		payload.add("participants", serializeParticipantsArray());
-		payload.add("teams", serializeTeamsArray());
-		addGameDefinitionData(payload);
-
-		postImportant(ConfigLT.INTEGRATIONS.minigameStartEndpoint.get(), payload);
+		IGameDefinition definition = topLevelGame.definition();
+		postImportant(ConfigLT.INTEGRATIONS.minigameStartEndpoint.get(), StartGame.MAP_CODEC, new StartGame(
+				definition.name(),
+				Optional.ofNullable(definition.subtitle()),
+				Optional.ofNullable(initiator).map(Participant::new),
+				packPlayersAndTeams()
+		));
 	}
 
 	private void sendPackagesUpdate() {
-		JsonObject payload = new JsonObject();
-		addGameDefinitionData(payload);
-		postImportant(ConfigLT.INTEGRATIONS.minigameUpdatePackagesEndpoint.get(), payload);
-	}
-
-	private void addGameDefinitionData(JsonObject payload) {
 		IGameDefinition definition = topLevelGame.definition();
-		payload.add("name", ComponentSerialization.CODEC.encodeStart(JsonOps.INSTANCE, definition.name()).getOrThrow());
-		Component subtitle = definition.subtitle();
-		if (subtitle != null) {
-			payload.add("subtitle", ComponentSerialization.CODEC.encodeStart(JsonOps.INSTANCE, subtitle).getOrThrow());
-		}
 
 		Set<DonationPackageData> allPackages = new ObjectOpenHashSet<>();
 		for (IGamePhase game : allGames) {
@@ -142,111 +130,90 @@ public final class GameInstanceIntegrations implements IGameState {
 				.sorted(Comparator.comparing(DonationPackageData::id))
 				.toList();
 
-		payload.add("packages", PACKAGES_CODEC.encodeStart(JsonOps.INSTANCE, sortedPackages).getOrThrow());
+		postImportant(ConfigLT.INTEGRATIONS.minigameUpdatePackagesEndpoint.get(), UpdatePackages.MAP_CODEC, new UpdatePackages(
+				definition.name(),
+				Optional.ofNullable(definition.subtitle()),
+				sortedPackages
+		));
 	}
 
 	public void finish(IGamePhase phase) {
 		if (phase == topLevelGame) {
-			JsonObject payload = new JsonObject();
-			payload.addProperty("finish_time_utc", Instant.now().getEpochSecond());
-			payload.add("statistics", GameStatistics.CODEC.encodeStart(JsonOps.INSTANCE, phase.statistics()).getOrThrow());
-			payload.add("participants", serializeParticipantsArray());
-			payload.add("teams", serializeTeamsArray());
-
-			postImportant(ConfigLT.INTEGRATIONS.minigameEndEndpoint.get(), payload);
-
+			postImportant(ConfigLT.INTEGRATIONS.minigameEndEndpoint.get(), FinishGame.MAP_CODEC, new FinishGame(
+					Instant.now(),
+					phase.statistics(),
+					packPlayersAndTeams()
+			));
 			close();
 		}
 	}
 
 	public void cancel(IGamePhase phase) {
 		if (phase == topLevelGame) {
-			postImportant(ConfigLT.INTEGRATIONS.minigameCancelEndpoint.get(), new JsonObject());
+			postImportant(ConfigLT.INTEGRATIONS.minigameCancelEndpoint.get(), MapCodec.unit(Unit.INSTANCE), Unit.INSTANCE);
 			close();
 		}
 	}
 
 	public void acknowledgeActionDelivery(GameActionRequest request) {
-		JsonObject object = new JsonObject();
-		object.addProperty("request", request.type().getId());
-		object.addProperty("uuid", request.uuid().toString());
-
-		integrations.postAndRetry(ConfigLT.INTEGRATIONS.actionResolvedEndpoint.get(), object);
+		integrations.postAndRetry(ConfigLT.INTEGRATIONS.actionResolvedEndpoint.get(), ActionAcknowledgement.CODEC, new ActionAcknowledgement(
+				request.type(),
+				request.uuid()
+		));
 	}
 
 	public void createPoll(String title, String duration, String... options) {
 		if (options.length < 2) {
 			throw new IllegalArgumentException("Poll must have more than 1 choice");
 		}
-		JsonObject object = new JsonObject();
-		object.addProperty("title", title);
-		object.addProperty("start", Instant.now().getEpochSecond());
-		object.addProperty("duration", duration);
-		JsonArray array = new JsonArray();
-		for (String option : options) {
-			array.add(option);
-		}
-		object.add("options", array);
-		integrations.postPolling(ConfigLT.INTEGRATIONS.addPollEndpoint.get(), object);
+		integrations.postPolling(ConfigLT.INTEGRATIONS.addPollEndpoint.get(), CreatePoll.MAP_CODEC.codec(), new CreatePoll(
+				title,
+				Instant.now(),
+				duration,
+				List.of(options)
+		));
 	}
 
 	private void sendParticipantsList() {
-		JsonObject payload = new JsonObject();
-		payload.add("participants", serializeParticipantsArray());
-		payload.add("teams", serializeTeamsArray());
-		post(ConfigLT.INTEGRATIONS.minigamePlayerUpdateEndpoint.get(), payload);
+		post(ConfigLT.INTEGRATIONS.minigamePlayerUpdateEndpoint.get(), PlayersAndTeams.MAP_CODEC, packPlayersAndTeams());
 	}
 
-	private JsonElement serializeParticipantsArray() {
-		List<PlayerKey> players = allGames.stream()
-				.flatMap(game -> game.participants().stream())
-				.map(PlayerKey::from)
-				.toList();
-		return PlayerKey.FULL_CODEC.listOf().encodeStart(JsonOps.INSTANCE, players).getOrThrow();
-	}
-
-	private JsonArray serializeTeamsArray() {
+	private PlayersAndTeams packPlayersAndTeams() {
 		TeamState teams = topLevelGame.instanceState().getOrNull(TeamState.KEY);
-		if (teams == null) {
-			return new JsonArray();
-		}
-		JsonArray teamsArray = new JsonArray();
-		for (GameTeam team : teams) {
-			teamsArray.add(GameTeam.Payload.CODEC.encodeStart(JsonOps.INSTANCE, team.asPayload()).getOrThrow());
-		}
-		return teamsArray;
+
+		List<Participant> participants = allGames.stream()
+				.flatMap(game -> game.participants().stream())
+				.map(player -> new Participant(PlayerKey.from(player)))
+				.toList();
+
+		return new PlayersAndTeams(
+				participants,
+				teams != null ? teams.stream().map(GameTeam::asPayload).toList() : List.of()
+		);
 	}
 
 	private void requestQueuedActions() {
-		post(ConfigLT.INTEGRATIONS.pendingActionsEndpoint.get(), new JsonObject());
+		post(ConfigLT.INTEGRATIONS.pendingActionsEndpoint.get(), MapCodec.unit(Unit.INSTANCE), Unit.INSTANCE);
 	}
 
-	private void post(String endpoint, JsonObject payload) {
-		post(endpoint, payload, false);
+	private <T> void post(String endpoint, MapCodec<T> codec, T payload) {
+		post(endpoint, codec, payload, false);
 	}
 
-	private void postImportant(String endpoint, JsonObject payload) {
-		post(endpoint, payload, true);
+	private <T> void postImportant(String endpoint, MapCodec<T> codec, T payload) {
+		post(endpoint, codec, payload, true);
 	}
 
-	private void post(String endpoint, JsonObject payload, boolean important) {
+	private <T> void post(String endpoint, MapCodec<T> codec, T payload, boolean important) {
 		if (closed) {
 			return;
 		}
 
-		payload.addProperty("id", gameUuid.toString());
-
-		IGameDefinition definition = topLevelGame.definition();
-		JsonObject game = new JsonObject();
-		game.addProperty("id", backendId.toString());
-		game.addProperty("telemetry_key", statisticsKey);
-		game.addProperty("name", definition.name().getString());
-		payload.add("minigame", game);
-
+		GameEvent<T> event = new GameEvent<>(gameUuid, gameTypeDefinition, payload);
 		if (important) {
-			integrations.postAndRetry(endpoint, payload);
+			integrations.postAndRetry(endpoint, GameEvent.codec(codec), event);
 		} else {
-			integrations.post(endpoint, payload);
+			integrations.post(endpoint, GameEvent.codec(codec), event);
 		}
 	}
 
@@ -277,5 +244,110 @@ public final class GameInstanceIntegrations implements IGameState {
 				game.invoker(GamePackageEvents.RECEIVE_POLL_EVENT).onReceivePollEvent(object, crud);
 			}
 		}
+	}
+
+	private record GameEvent<T>(
+			UUID id,
+			GameTypeDefinition minigame,
+			T payload
+	) {
+		public static <T> Codec<GameEvent<T>> codec(MapCodec<T> payloadCodec) {
+			return RecordCodecBuilder.create(i -> i.group(
+					UUIDUtil.STRING_CODEC.fieldOf("id").forGetter(GameEvent::id),
+					GameTypeDefinition.CODEC.fieldOf("minigame").forGetter(GameEvent::minigame),
+					payloadCodec.forGetter(GameEvent::payload)
+			).apply(i, GameEvent<T>::new));
+		}
+	}
+
+	private record GameTypeDefinition(
+			Identifier id,
+			String telemetryKey,
+			String name
+	) {
+		public static final Codec<GameTypeDefinition> CODEC = RecordCodecBuilder.create(i -> i.group(
+				Identifier.CODEC.fieldOf("id").forGetter(GameTypeDefinition::id),
+				Codec.STRING.fieldOf("telemetry_key").forGetter(GameTypeDefinition::telemetryKey),
+				Codec.STRING.fieldOf("name").forGetter(GameTypeDefinition::name)
+		).apply(i, GameTypeDefinition::new));
+	}
+
+	private record StartGame(
+			Component name,
+			Optional<Component> subtitle,
+			Optional<Participant> initiator,
+			PlayersAndTeams playersAndTeams
+	) {
+		public static final MapCodec<StartGame> MAP_CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+				ComponentSerialization.CODEC.fieldOf("name").forGetter(StartGame::name),
+				ComponentSerialization.CODEC.optionalFieldOf("subtitle").forGetter(StartGame::subtitle),
+				Participant.CODEC.optionalFieldOf("initiator").forGetter(StartGame::initiator),
+				PlayersAndTeams.MAP_CODEC.forGetter(StartGame::playersAndTeams)
+		).apply(i, StartGame::new));
+	}
+
+	private record FinishGame(
+			Instant finishTime,
+			GameStatistics statistics,
+			PlayersAndTeams playersAndTeams
+	) {
+		public static final MapCodec<FinishGame> MAP_CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+				Codecs.EPOCH_SECOND.fieldOf("finish_time_utc").forGetter(FinishGame::finishTime),
+				GameStatistics.CODEC.fieldOf("statistics").forGetter(FinishGame::statistics),
+				PlayersAndTeams.MAP_CODEC.forGetter(FinishGame::playersAndTeams)
+		).apply(i, FinishGame::new));
+	}
+
+	private record UpdatePackages(
+			// TODO: Why are these here? We don't even use them in the backend
+			Component name,
+			Optional<Component> subtitle,
+			List<DonationPackageData> packages
+	) {
+		public static final MapCodec<UpdatePackages> MAP_CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+				ComponentSerialization.CODEC.fieldOf("name").forGetter(UpdatePackages::name),
+				ComponentSerialization.CODEC.optionalFieldOf("subtitle").forGetter(UpdatePackages::subtitle),
+				PACKAGES_CODEC.fieldOf("packages").forGetter(UpdatePackages::packages)
+		).apply(i, UpdatePackages::new));
+	}
+
+	private record ActionAcknowledgement(
+			GameActionType request,
+			UUID uuid
+	) {
+		public static final Codec<ActionAcknowledgement> CODEC = RecordCodecBuilder.create(i -> i.group(
+				GameActionType.CODEC.fieldOf("request").forGetter(ActionAcknowledgement::request),
+				UUIDUtil.STRING_CODEC.fieldOf("uuid").forGetter(ActionAcknowledgement::uuid)
+		).apply(i, ActionAcknowledgement::new));
+	}
+
+	private record CreatePoll(
+			String title,
+			Instant start,
+			String duration,
+			List<String> options
+	) {
+		public static final MapCodec<CreatePoll> MAP_CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+				Codec.STRING.fieldOf("title").forGetter(CreatePoll::title),
+				Codecs.EPOCH_SECOND.fieldOf("start").forGetter(CreatePoll::start),
+				Codec.STRING.fieldOf("duration").forGetter(CreatePoll::duration),
+				Codec.STRING.listOf().fieldOf("options").forGetter(CreatePoll::options)
+		).apply(i, CreatePoll::new));
+	}
+
+	private record PlayersAndTeams(
+			List<Participant> participants,
+			List<GameTeam.Payload> teams
+	) {
+		public static final MapCodec<PlayersAndTeams> MAP_CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+				Participant.CODEC.listOf().fieldOf("participants").forGetter(PlayersAndTeams::participants),
+				GameTeam.Payload.CODEC.listOf().fieldOf("teams").forGetter(PlayersAndTeams::teams)
+		).apply(i, PlayersAndTeams::new));
+	}
+
+	private record Participant(
+			PlayerKey key
+	) {
+		public static final Codec<Participant> CODEC = PlayerKey.FULL_CODEC.xmap(Participant::new, Participant::key);
 	}
 }

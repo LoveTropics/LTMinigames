@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 public final class TeamState implements IGameState, Iterable<GameTeam> {
 	public static final GameStateKey<TeamState> KEY = GameStateKey.create("Teams");
@@ -146,6 +147,10 @@ public final class TeamState implements IGameState, Iterable<GameTeam> {
 	@Override
 	public Iterator<GameTeam> iterator() {
 		return teams.iterator();
+	}
+
+	public Stream<GameTeam> stream() {
+		return teams.stream();
 	}
 
 	public int size() {

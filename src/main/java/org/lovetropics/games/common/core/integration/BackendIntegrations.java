@@ -2,19 +2,14 @@ package org.lovetropics.games.common.core.integration;
 
 import com.google.common.base.Suppliers;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.google.gson.JsonElement;
 import com.lovetropics.lib.techstack.Crud;
 import com.lovetropics.lib.techstack.TechstackEventSubscriber;
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.config.ConfigLT;
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.state.GameStateMap;
-import org.lovetropics.games.common.core.integration.game_actions.GameActionType;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ExtraCodecs;
+import net.minecraft.util.Unit;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
@@ -22,6 +17,11 @@ import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.config.ConfigLT;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.state.GameStateMap;
+import org.lovetropics.games.common.core.integration.game_actions.GameActionType;
 import org.slf4j.Logger;
 
 import java.net.URI;
@@ -149,47 +149,36 @@ public final class BackendIntegrations {
 	}
 
 	// TODO: It would be nice to have a more robust system for sending with retries - for example, if we send but the minigame didn't exist.. we probably shouldn't resend it
-	void postAndRetry(String endpoint, JsonElement body) {
-		postAndRetry(endpoint, body, 0);
-	}
-
-	private void postAndRetry(String endpoint, JsonElement body, int depth) {
+	<T> void postAndRetry(String endpoint, Codec<T> codec, T body) {
 		schedulePost(executor -> {
 			CompletableFuture<?> future = new CompletableFuture<>();
-			postAndRetryInner(future, executor, endpoint, body, depth);
+			postAndRetryInner(future, executor, endpoint, codec, body, 0);
 			return future;
 		});
 	}
 
-	private void postAndRetryInner(CompletableFuture<?> future, ScheduledExecutorService executor, String endpoint, JsonElement body, int depth) {
-		if (sender.post(endpoint, body) || depth > MAX_RETRIES) {
+	private <T> void postAndRetryInner(CompletableFuture<?> future, ScheduledExecutorService executor, String endpoint, Codec<T> codec, T body, int depth) {
+		if (sender.post(endpoint, codec, body) || depth > MAX_RETRIES) {
 			future.complete(null);
 		} else {
 			executor.schedule(
-					() -> postAndRetryInner(future, executor, endpoint, body, depth + 1),
+					() -> postAndRetryInner(future, executor, endpoint, codec, body, depth + 1),
 					RETRY_DELAY_SECONDS,
 					TimeUnit.SECONDS
 			);
 		}
 	}
 
-	void post(String endpoint, JsonElement body) {
-		schedulePost(executor -> {
-			sender.post(endpoint, body);
+	<T> void post(String endpoint, Codec<T> codec, T body) {
+		schedulePost(_ -> {
+			sender.post(endpoint, codec, body);
 			return CompletableFuture.completedFuture(null);
 		});
 	}
 
-	void post(String endpoint, String body) {
-		schedulePost(executor -> {
-			sender.post(endpoint, body);
-			return CompletableFuture.completedFuture(null);
-		});
-	}
-
-	void postPolling(String endpoint, JsonElement body) {
-		schedulePost(executor -> {
-			pollSender.post(endpoint, body);
+	<T> void postPolling(String endpoint, Codec<T> codec, T body) {
+		schedulePost(_ -> {
+			pollSender.post(endpoint, codec, body);
 			return CompletableFuture.completedFuture(null);
 		});
 	}
@@ -219,14 +208,14 @@ public final class BackendIntegrations {
 	}
 
 	private void onServerAboutToStart() {
-		post(ConfigLT.INTEGRATIONS.worldLoadEndpoint.get(), "");
+		post(ConfigLT.INTEGRATIONS.worldLoadEndpoint.get(), Unit.CODEC, Unit.INSTANCE);
 		if (subscriber == null) {
 			subscriber = buildSubscriber(uri, token);
 		}
 	}
 
 	private void onServerStop() {
-		post(ConfigLT.INTEGRATIONS.worldUnloadEndpoint.get(), "");
+		post(ConfigLT.INTEGRATIONS.worldUnloadEndpoint.get(), Unit.CODEC, Unit.INSTANCE);
 		if (subscriber != null) {
 			subscriber.close();
 			subscriber = null;

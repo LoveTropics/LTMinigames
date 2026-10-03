@@ -36,16 +36,13 @@ public interface IntegrationSender {
 		return new IntegrationSender.Http(() -> "https://polling.lovetropics.com", integrations.authToken);
 	}
 
-	default boolean post(String endpoint, JsonElement body) {
-		return post(endpoint, new Gson().toJson(body));
-	}
-
-	boolean post(String endpoint, String body);
+	<T> boolean post(String endpoint, Codec<T> codec, T body);
 
 	<T> Optional<T> get(String endpoint, Codec<T> codec);
 
 	final class Http implements IntegrationSender {
 		private static final HttpClient CLIENT = HttpClient.newBuilder().executor(Util.ioPool()).build();
+		private static final Gson GSON = new GsonBuilder().create();
 
 		private final Supplier<String> url;
 		private final Supplier<String> authToken;
@@ -56,17 +53,19 @@ public interface IntegrationSender {
 		}
 
 		@Override
-		public boolean post(String endpoint, String body) {
+		public <T> boolean post(String endpoint, Codec<T> codec, T body) {
 			if (isDisabled()) {
 				return true;
 			}
 
 			try {
-				LOGGER.debug("Posting {} to {}/{}", body, url.get(), endpoint);
+				JsonElement json = codec.encodeStart(JsonOps.INSTANCE, body).getOrThrow();
+
+				LOGGER.debug("Posting {} to {}/{}", json, url.get(), endpoint);
 
 				HttpResponse<String> response = CLIENT.send(
 						request(endpoint)
-								.POST(HttpRequest.BodyPublishers.ofString(body, StandardCharsets.UTF_8))
+								.POST(HttpRequest.BodyPublishers.ofString(GSON.toJson(json), StandardCharsets.UTF_8))
 								.build(),
 						HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8)
 				);
@@ -78,7 +77,7 @@ public interface IntegrationSender {
 					LOGGER.error("Received unexpected response code ({}) from {}/{}: {}", response.statusCode(), url.get(), endpoint, response.body());
 				}
 			} catch (Exception e) {
-				LOGGER.error("An exception occurred while trying to POST to {}/{}", url.get(), endpoint, e);
+				LOGGER.error("An exception occurred while trying to POST {} to {}/{}", body, url.get(), endpoint, e);
 			}
 
 			return false;
@@ -134,13 +133,9 @@ public interface IntegrationSender {
 		}
 
 		@Override
-		public boolean post(String endpoint, JsonElement body) {
-			return post(endpoint, GSON.toJson(body));
-		}
-
-		@Override
-		public boolean post(String endpoint, String body) {
-			LOGGER.info("POST to {}\n: {}", endpoint, body);
+		public <T> boolean post(String endpoint, Codec<T> codec, T body) {
+			JsonElement json = codec.encodeStart(JsonOps.INSTANCE, body).getOrThrow();
+			LOGGER.info("POST to {}\n: {}", endpoint, GSON.toJson(json));
 			return true;
 		}
 
