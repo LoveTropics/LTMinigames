@@ -1,5 +1,6 @@
 package org.lovetropics.games.common.core.game.state.statistics;
 
+import net.minecraft.server.players.NameAndId;
 import org.lovetropics.games.common.core.game.state.GameStateKey;
 import org.lovetropics.games.common.core.game.state.IGameState;
 import org.lovetropics.games.common.core.game.state.team.GameTeam;
@@ -19,7 +20,7 @@ public final class GameStatistics implements IGameState {
 	public static final Codec<GameStatistics> CODEC = RecordCodecBuilder.create(i -> i.group(
 			StatisticsMap.CODEC.fieldOf("global").forGetter(GameStatistics::global),
 			PlayerEntry.CODEC.listOf().fieldOf("players").forGetter(statistics -> statistics.byPlayer.entrySet().stream()
-					.map(entry -> new PlayerEntry(entry.getKey(), entry.getValue()))
+					.map(entry -> new PlayerEntry(entry.getKey().nameAndId(), entry.getValue()))
 					.toList()),
 			TeamEntry.CODEC.listOf().fieldOf("teams").forGetter(statistics -> statistics.byTeam.entrySet().stream()
 					.map(entry -> new TeamEntry(entry.getKey(), entry.getValue()))
@@ -28,7 +29,7 @@ public final class GameStatistics implements IGameState {
 		GameStatistics statistics = new GameStatistics();
 		statistics.global.copyFrom(global);
 		for (PlayerEntry player : players) {
-			statistics.byPlayer.put(player.profile, player.statistics);
+			statistics.byPlayer.put(PlayerKey.from(player.profile), player.statistics);
 		}
 		for (TeamEntry team : teams) {
 			statistics.byTeam.put(team.id, team.statistics);
@@ -117,11 +118,11 @@ public final class GameStatistics implements IGameState {
 	}
 
 	private record PlayerEntry(
-			PlayerKey profile,
+			NameAndId profile,
 			StatisticsMap statistics
 	) {
 		public static final Codec<PlayerEntry> CODEC = RecordCodecBuilder.create(i -> i.group(
-				PlayerKey.FULL_CODEC.fieldOf("profile").forGetter(PlayerEntry::profile),
+				NameAndId.CODEC.fieldOf("profile").forGetter(PlayerEntry::profile),
 				StatisticsMap.CODEC.fieldOf("statistics").forGetter(PlayerEntry::statistics)
 		).apply(i, PlayerEntry::new));
 	}
