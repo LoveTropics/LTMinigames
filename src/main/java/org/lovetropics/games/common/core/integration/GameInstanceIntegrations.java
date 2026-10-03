@@ -116,8 +116,6 @@ public final class GameInstanceIntegrations implements IGameState {
 	}
 
 	private void sendPackagesUpdate() {
-		IGameDefinition definition = topLevelGame.definition();
-
 		Set<DonationPackageData> allPackages = new ObjectOpenHashSet<>();
 		for (IGamePhase game : allGames) {
 			GamePackageState packageState = game.state().getOrNull(GamePackageState.KEY);
@@ -130,11 +128,7 @@ public final class GameInstanceIntegrations implements IGameState {
 				.sorted(Comparator.comparing(DonationPackageData::id))
 				.toList();
 
-		postImportant(ConfigLT.INTEGRATIONS.minigameUpdatePackagesEndpoint.get(), UpdatePackages.MAP_CODEC, new UpdatePackages(
-				definition.name(),
-				Optional.ofNullable(definition.subtitle()),
-				sortedPackages
-		));
+		postImportant(ConfigLT.INTEGRATIONS.minigameUpdatePackagesEndpoint.get(), UpdatePackages.MAP_CODEC, new UpdatePackages(sortedPackages));
 	}
 
 	public void finish(IGamePhase phase) {
@@ -299,14 +293,9 @@ public final class GameInstanceIntegrations implements IGameState {
 	}
 
 	private record UpdatePackages(
-			// TODO: Why are these here? We don't even use them in the backend
-			Component name,
-			Optional<Component> subtitle,
 			List<DonationPackageData> packages
 	) {
 		public static final MapCodec<UpdatePackages> MAP_CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-				ComponentSerialization.CODEC.fieldOf("name").forGetter(UpdatePackages::name),
-				ComponentSerialization.CODEC.optionalFieldOf("subtitle").forGetter(UpdatePackages::subtitle),
 				PACKAGES_CODEC.fieldOf("packages").forGetter(UpdatePackages::packages)
 		).apply(i, UpdatePackages::new));
 	}
