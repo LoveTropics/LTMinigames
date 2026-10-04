@@ -7,14 +7,20 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.living.MobSpawnEvent;
+import net.neoforged.neoforge.event.level.LevelEvent;
 import org.jspecify.annotations.Nullable;
 import org.lovetropics.dimensions.RuntimeDimensionHandle;
 import org.lovetropics.dimensions.RuntimeDimensions;
 import org.lovetropics.dimensions.SharedDimensionState;
 import org.lovetropics.maps.MapWorldSettings;
+import org.lovetropics.maps.editor.MapsEditorMod;
 import org.lovetropics.maps.editor.map.SavedRegions;
 
 import java.util.List;
@@ -22,6 +28,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
+@EventBusSubscriber(modid = MapsEditorMod.ID)
 public final class MapWorkspaceManager extends SavedData {
 	// TODO: Update this!
 	public static final String LEGACY_NAMESPACE = "ltminigames";
@@ -45,6 +52,7 @@ public final class MapWorkspaceManager extends SavedData {
 	}
 
 	public static MapWorkspaceManager get(MinecraftServer server) {
+		// TODO: Move to universal storage
 		return server.overworld().getDataStorage().computeIfAbsent(TYPE);
 	}
 
@@ -127,6 +135,25 @@ public final class MapWorkspaceManager extends SavedData {
 			manager.workspaces.put(workspaceData.id(), workspace);
 		}
 		return manager;
+	}
+
+	@SubscribeEvent
+	public static void onServerLoad(LevelEvent.Load event) {
+		// Make sure the workspace dimensions are available BEFORE joining players
+		if (event.getLevel() instanceof ServerLevel level && level.dimension() == Level.OVERWORLD) {
+			// TODO: Fix this when we make this storage universal
+			level.getDataStorage().computeIfAbsent(TYPE);
+		}
+	}
+
+	@SubscribeEvent
+	public static void onAttemptSpawn(MobSpawnEvent.PositionCheck event) {
+		if (event.getSpawnType() == EntitySpawnReason.SPAWNER) {
+			MapWorkspaceManager workspace = MapWorkspaceManager.get(event.getLevel().getServer());
+			if (workspace.getWorkspace(event.getLevel().getLevel().dimension()) != null) {
+				event.setResult(MobSpawnEvent.PositionCheck.Result.FAIL);
+			}
+		}
 	}
 
 	@Override
