@@ -53,8 +53,10 @@ public record LoadMapProvider(
 	public CompletableFuture<GameMap> open(MinecraftServer server) {
 		Holder<DimensionType> dimensionType = this.dimensionType.orElse(server.overworld().dimensionTypeRegistration());
 		LevelStem dimension = new LevelStem(dimensionType, new VoidChunkGenerator(server));
-		MapWorldInfo worldInfo = MapWorldInfo.create(server, new MapWorldSettings());
-		RuntimeDimensionConfig config = new RuntimeDimensionConfig(dimension, worldInfo);
+		// TODO: Shouldn't use MapWorldSettings at all here
+		MapWorldSettings settings = new MapWorldSettings();
+		MapWorldInfo worldInfo = MapWorldInfo.create(server, settings);
+		RuntimeDimensionConfig config = new RuntimeDimensionConfig(dimension, worldInfo, settings.gameRules);
 
 		return CompletableFuture.supplyAsync(() -> openDimension(server, config), server)
 				.thenApplyAsync(handle -> loadMapInto(server, handle), Util.backgroundExecutor())

@@ -5,7 +5,6 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.clock.ServerClockManager;
-import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.saveddata.WeatherData;
 import net.minecraft.world.level.storage.ServerLevelData;
 import org.lovetropics.games.common.core.map.MapWorldInfo;
@@ -33,13 +32,6 @@ public class MapServerLevelMixin {
 	private void getMapWeatherData(CallbackInfoReturnable<WeatherData> cir) {
 		if (serverLevelData instanceof MapWorldInfo mapInfo) {
 			cir.setReturnValue(mapInfo.getWeatherData());
-		}
-	}
-
-	@Inject(method = "getGameRules", at = @At("HEAD"), cancellable = true)
-	private void getMapGameRules(CallbackInfoReturnable<GameRules> cir) {
-		if (serverLevelData instanceof MapWorldInfo mapInfo) {
-			cir.setReturnValue(mapInfo.getGameRules());
 		}
 	}
 

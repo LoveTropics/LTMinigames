@@ -3,14 +3,14 @@
   "package": "org.lovetropics.dimensions.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "BaseFireBlockMixin",
-    "EndPortalBlockMixin",
     "EntitySelectorMixin",
     "MinecraftServerMixin",
-    "NetherPortalBlockMixin",
     "SimpleRegistryMixin",
-    "TheEndGatewayBlockEntityMixin",
-    "WorldGenSettingsMixin"
+    "WorldGenSettingsMixin",
+    "link.BaseFireBlockMixin",
+    "link.EndPortalBlockMixin",
+    "link.NetherPortalBlockMixin",
+    "link.TheEndGatewayBlockEntityMixin"
   ],
   "client": [
   ],

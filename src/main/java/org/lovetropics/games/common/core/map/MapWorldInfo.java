@@ -78,10 +78,6 @@ public final class MapWorldInfo extends DerivedLevelData {
 		return settings.weather;
 	}
 
-	public GameRules getGameRules() {
-		return settings.gameRules;
-	}
-
 	public void setDifficulty(Difficulty difficulty) {
 		settings.difficulty = difficulty;
 	}

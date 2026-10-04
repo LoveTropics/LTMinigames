@@ -8,6 +8,7 @@ import net.minecraft.util.ProgressListener;
 import net.minecraft.util.Util;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.BiomeManager;
+import net.minecraft.world.level.gamerules.GameRules;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 
@@ -18,6 +19,7 @@ import java.util.List;
 
 	private final RuntimeDimensionHandle handle;
 	private final boolean temporary;
+	private final @Nullable GameRules overrideGameRules;
 
 	public RuntimeServerLevel(
 			MinecraftServer server,
@@ -39,6 +41,7 @@ import java.util.List;
 		);
 		handle = new RuntimeDimensionHandle(this);
 		this.temporary = temporary;
+		overrideGameRules = config.overrideGameRules();
 	}
 
 	@Override
@@ -63,5 +66,10 @@ import java.util.List;
 
 	public boolean isTemporary() {
 		return temporary;
+	}
+
+	@Override
+	public GameRules getGameRules() {
+		return overrideGameRules != null ? overrideGameRules : super.getGameRules();
 	}
 }

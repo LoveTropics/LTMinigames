@@ -1,4 +1,4 @@
-package org.lovetropics.dimensions.mixin;
+package org.lovetropics.dimensions.mixin.link;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
