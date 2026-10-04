@@ -41,6 +41,8 @@ public record MapWorldSettings(
 	).apply(i, MapWorldSettings::new));
 
 	public void setupInto(MinecraftServer server, SharedDimensionState sharedState) {
+		sharedState.gameRules().setAll(gameRules, server);
+
 		Holder.Reference<WorldClock> overworldClock = server.registryAccess().getOrThrow(WorldClocks.OVERWORLD);
 		sharedState.clockManager().setTotalTicks(overworldClock, timeOfDay());
 
