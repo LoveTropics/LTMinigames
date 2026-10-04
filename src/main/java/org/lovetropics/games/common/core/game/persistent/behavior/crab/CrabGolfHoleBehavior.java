@@ -22,6 +22,7 @@ import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import org.lovetropics.games.common.core.game.GameRegions;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
@@ -29,8 +30,6 @@ import org.lovetropics.games.common.core.game.persistent.PersistentGame;
 import org.lovetropics.games.common.core.game.persistent.PersistentGameBehavior;
 import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviorType;
 import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviors;
-import org.lovetropics.games.common.core.map.MapRegions;
-import org.lovetropics.games.common.core.map.SavedRegions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -96,7 +95,7 @@ public class CrabGolfHoleBehavior implements PersistentGameBehavior {
 	@Override
 	public void register(PersistentGame game, EventRegistrar events) {
 		events.listen(GamePhaseEvents.START, initiator -> {
-			MapRegions regions = SavedRegions.get(game.level()).regions().compile();
+			GameRegions regions = game.regions();
 			mainRegions.addAll(regions.get(mainRegionName));
 			startRegion = regions.getAny(startRegionName);
 			holeRegion = regions.getAny(holeRegionName);
@@ -313,7 +312,7 @@ public class CrabGolfHoleBehavior implements PersistentGameBehavior {
 			this.needsStop = needsStop;
 		}
 
-		public void initialize(MapRegions regions) {
+		public void initialize(GameRegions regions) {
 			inRegion = regions.getAny(in);
 			outRegion = regions.getAny(out);
 		}

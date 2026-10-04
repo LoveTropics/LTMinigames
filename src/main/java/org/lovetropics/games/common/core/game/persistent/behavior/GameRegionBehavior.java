@@ -12,7 +12,6 @@ import org.lovetropics.games.common.core.game.persistent.PersistentGame;
 import org.lovetropics.games.common.core.game.persistent.PersistentGameBehavior;
 import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviorType;
 import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviors;
-import org.lovetropics.games.common.core.map.SavedRegions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +33,7 @@ public class GameRegionBehavior implements PersistentGameBehavior {
 	@Override
 	public void register(PersistentGame game, EventRegistrar events) {
 		events.listen(GamePhaseEvents.START, initiator -> {
-			regions.addAll(SavedRegions.get(game.level()).regions().compile().get(region));
+			regions.addAll(game.regions().get(region));
 		});
 
 		events.listen(GamePhaseEvents.TICK, () -> {

@@ -24,6 +24,7 @@ import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.ScoreAccess;
 import net.minecraft.world.scores.ScoreHolder;
 import net.minecraft.world.scores.criteria.ObjectiveCriteria;
+import org.lovetropics.games.common.core.game.GameRegions;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
@@ -32,8 +33,6 @@ import org.lovetropics.games.common.core.game.persistent.PersistentGameBehavior;
 import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviorType;
 import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviors;
 import org.lovetropics.games.common.core.game.rewards.GameRewards;
-import org.lovetropics.games.common.core.map.MapRegions;
-import org.lovetropics.games.common.core.map.SavedRegions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -80,7 +79,7 @@ public class DropperBehavior implements PersistentGameBehavior {
 			String failRegion = this.id + "_fail";
 			String successRegion = this.id + "_success";
 			String dropperRegion = this.id + "_dropper";
-			MapRegions regions = SavedRegions.get(game.level()).regions().compile();
+			GameRegions regions = game.regions();
 			regions.getAll(failRegion).forEach(blockBox -> failLocations.add(blockBox.center()));
 			regions.getAll(successRegion).forEach(blockBox -> successLocations.add(blockBox.center()));
 			dropperRegionBox = regions.getAny(dropperRegion);

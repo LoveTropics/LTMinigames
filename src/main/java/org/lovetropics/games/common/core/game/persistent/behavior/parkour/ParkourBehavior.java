@@ -18,8 +18,6 @@ import org.lovetropics.games.common.core.game.persistent.PersistentGame;
 import org.lovetropics.games.common.core.game.persistent.PersistentGameBehavior;
 import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviorType;
 import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviors;
-import org.lovetropics.games.common.core.map.MapRegions;
-import org.lovetropics.games.common.core.map.SavedRegions;
 
 import java.util.HashMap;
 import java.util.List;
@@ -45,10 +43,8 @@ public class ParkourBehavior implements PersistentGameBehavior {
 	@Override
 	public void register(PersistentGame game, EventRegistrar events) {
 		events.listen(GamePhaseEvents.START, initiator -> {
-			MapRegions regions = SavedRegions.get(game.level()).regions().compile();
-
 			for (String s : checkpoints) {
-				this.regions.put(s, regions.getAny(s));
+				this.regions.put(s, game.regions().getAny(s));
 			}
 		});
 
