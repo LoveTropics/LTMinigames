@@ -8,12 +8,12 @@ import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.saveddata.WeatherData;
-import org.lovetropics.games.common.util.Codecs;
 
 public final class MapWorldSettings {
-
+	// Ignore game rules that may have been added by other mods and removed
+	private static final Codec<GameRules> GAME_RULES_CODEC = GameRules.codec(FeatureFlags.VANILLA_SET).promotePartial(_ -> {});
 	public static final Codec<MapWorldSettings> CODEC = RecordCodecBuilder.create(i -> i.group(
-			Codecs.LinientGamerulesCodec.CODEC.fieldOf("game_rules").forGetter(s -> s.gameRules),
+			GAME_RULES_CODEC.fieldOf("game_rules").forGetter(s -> s.gameRules),
 			Codec.LONG.fieldOf("time_of_day").forGetter(s -> s.timeOfDay),
 			Codec.INT.fieldOf("sunny_time").forGetter(s -> s.weather.getClearWeatherTime()),
 			Codec.BOOL.fieldOf("raining").forGetter(s -> s.weather.isRaining()),
