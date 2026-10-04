@@ -7,7 +7,7 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.storage.ServerLevelData;
-import org.lovetropics.games.common.core.dimension.RuntimeDimensionConfig;
+import org.lovetropics.dimensions.RuntimeDimensionConfig;
 
 public record WorkspaceDimensionConfig(Holder<DimensionType> dimensionType, ChunkGenerator generator, long seed) {
 	public static final Codec<WorkspaceDimensionConfig> CODEC = RecordCodecBuilder.create(i -> i.group(

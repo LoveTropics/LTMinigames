@@ -1,0 +1,21 @@
+{
+  "required": true,
+  "package": "org.lovetropics.dimensions.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "BaseFireBlockMixin",
+    "EndPortalBlockMixin",
+    "EntitySelectorMixin",
+    "MinecraftServerMixin",
+    "NetherPortalBlockMixin",
+    "SimpleRegistryMixin",
+    "TheEndGatewayBlockEntityMixin",
+    "WorldGenSettingsMixin"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "minVersion": "0.8"
+}

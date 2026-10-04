@@ -2,7 +2,7 @@ package org.lovetropics.games.common.core.map.workspace;
 
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
-import org.lovetropics.games.common.core.dimension.RuntimeDimensionHandle;
+import org.lovetropics.dimensions.RuntimeDimensionHandle;
 import org.lovetropics.games.common.core.map.MapMetadata;
 import org.lovetropics.games.common.core.map.MapWorldSettings;
 

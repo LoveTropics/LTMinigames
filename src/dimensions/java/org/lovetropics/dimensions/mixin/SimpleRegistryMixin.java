@@ -1,4 +1,4 @@
-package org.lovetropics.games.mixin.dimension;
+package org.lovetropics.dimensions.mixin;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.Reference2IntMap;
@@ -7,7 +7,7 @@ import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.RegistrationInfo;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import org.lovetropics.games.common.core.dimension.RegistryEntryRemover;
+import org.lovetropics.dimensions.duck.RegistryEntryRemover;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -38,7 +38,7 @@ public class SimpleRegistryMixin<T> implements RegistryEntryRemover<T> {
 	private Map<T, Holder.Reference<T>> unregisteredIntrusiveHolders;
 
 	@Override
-	public boolean ltminigames$remove(T entry) {
+	public boolean ltdimensions$remove(T entry) {
 		int rawId = toId.removeInt(entry);
 		if (rawId == -1) {
 			return false;
@@ -64,8 +64,8 @@ public class SimpleRegistryMixin<T> implements RegistryEntryRemover<T> {
 	}
 
 	@Override
-	public boolean ltminigames$remove(Identifier key) {
+	public boolean ltdimensions$remove(Identifier key) {
 		Holder.Reference<T> entry = byLocation.get(key);
-		return entry != null && ltminigames$remove(entry.value());
+		return entry != null && ltdimensions$remove(entry.value());
 	}
 }

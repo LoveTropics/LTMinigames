@@ -2,7 +2,7 @@ package org.lovetropics.games.common.core.map.workspace;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import org.lovetropics.games.common.core.dimension.RuntimeDimensionHandle;
+import org.lovetropics.dimensions.RuntimeDimensionHandle;
 import org.lovetropics.games.common.core.map.MapRegions;
 import org.lovetropics.games.common.core.map.MapWorldSettings;
 

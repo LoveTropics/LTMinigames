@@ -1,4 +1,4 @@
-package org.lovetropics.games.common.core.dimension;
+package org.lovetropics.dimensions;
 
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;

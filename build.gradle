@@ -25,7 +25,8 @@ ext {
     By default the modules will have access to the main source set, minecraft, and add libraries.
     */
     splitModules = [
-            'lobbies'
+            "dimensions": "ltdimensions",
+            "lobbies": "ltgames_lobbies"
     ]
     //A map of game id's to display names to add quick run tasks for.
     quickLoadMods = [
@@ -34,9 +35,9 @@ ext {
     ]
 }
 
-for (String name : splitModules) {
+splitModules.each { name, mod_id ->
     sourceSets.create(name) {
-        resources.srcDir "src/generated/resources/ltgames_${name}"
+        resources.srcDir "src/generated/resources/${mod_id}"
     }
 }
 
@@ -59,7 +60,7 @@ configurations {
     compileOnly.extendsFrom libCompileOnly
 }
 
-for (String name : splitModules) {
+for (String name : splitModules.keySet()) {
     def sourceSet = sourceSets.named(name).get()
     def libImplementation = configurations.named("libImplementation").get()
     def libCompileOnly = configurations.named("libCompileOnly").get()
@@ -72,14 +73,14 @@ neoForge {
 
     addModdingDependenciesTo sourceSets.test
 
-    for (String name : splitModules) {
+    for (String name : splitModules.keySet()) {
         def sourceSet = sourceSets.named(name)
         addModdingDependenciesTo(sourceSet.get())
     }
 
     mods.create(mod_id) {
         it.sourceSet(sourceSets.main)
-        for (String name : splitModules) {
+        for (String name : splitModules.keySet()) {
             def sourceSet = sourceSets.named(name)
             it.sourceSet(sourceSet.get())
         }
@@ -93,7 +94,7 @@ neoForge {
     def defaultModsToLoad = [mods.named(mod_id).get()]
 
     def allModIds = [mod_id]
-    allModIds += splitModules.collect { "ltgames_$it" }
+    allModIds += splitModules.values()
 
     runs {
         client {
@@ -123,7 +124,7 @@ neoForge {
 
             programArguments.addAll '--mod', allModIds.join(','), '--all', '--output', file('src/generated/resources/').absolutePath, '--existing', file('src/main/resources/').absolutePath
 
-            for (String name : splitModules) {
+            for (String name : splitModules.keySet()) {
                 programArguments.addAll('--existing', file("src/${name}/resources/").absolutePath)
             }
         }
@@ -196,10 +197,12 @@ dependencies {
     testImplementation "org.junit.jupiter:junit-jupiter"
     testRuntimeOnly "org.junit.platform:junit-platform-launcher"
 
+    lobbiesImplementation sourceSets.main.output
     runtimeOnly sourceSets.lobbies.output
 
-    for (String module : splitModules) {
-        "${sourceSets.named(module).get().implementationConfigurationName}" sourceSets.main.output
+    implementation sourceSets.dimensions.output
+
+    for (String module : splitModules.keySet()) {
         testImplementation sourceSets.named(module).get().output
     }
 }
@@ -218,7 +221,7 @@ tasks.withType(JavaCompile).configureEach {
 
 tasks.named('jar', Jar) {
     from([sourceSets.main.output])
-    for (String name : splitModules) {
+    for (String name : splitModules.keySet()) {
         def sourceSet = sourceSets.named(name)
         from(sourceSet.get().output)
     }

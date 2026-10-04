@@ -1,4 +1,4 @@
-package org.lovetropics.games.mixin.dimension;
+package org.lovetropics.dimensions.mixin;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -14,7 +14,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
-import org.lovetropics.games.common.core.dimension.RuntimeDimensions;
+import org.lovetropics.dimensions.RuntimeDimensions;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;

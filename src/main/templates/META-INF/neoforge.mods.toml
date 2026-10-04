@@ -56,3 +56,30 @@ type = "required"
 versionRange = "${minecraft_version_range}"
 ordering = "NONE"
 side = "BOTH"
+
+[[mods]]
+modId = "ltdimensions"
+version = "${mod_version}"
+displayName = "LTDimensions"
+displayURL = "https://lovetropics.org"
+authors = "The Love Tropics team"
+description = '''
+Runtime dimension creation.
+'''
+
+[[mixins]]
+config = "ltdimensions.mixins.json"
+
+[[dependencies.ltdimensions]]
+modId = "neoforge"
+type = "required"
+versionRange = "${neo_version_range}"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.ltdimensions]]
+modId = "minecraft"
+type = "required"
+versionRange = "${minecraft_version_range}"
+ordering = "NONE"
+side = "BOTH"

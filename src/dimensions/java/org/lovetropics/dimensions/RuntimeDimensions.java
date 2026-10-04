@@ -1,5 +1,6 @@
-package org.lovetropics.games.common.core.dimension;
+package org.lovetropics.dimensions;
 
+import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
@@ -29,10 +30,9 @@ import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.jspecify.annotations.Nullable;
-import org.lovetropics.games.LoveTropics;
+import org.lovetropics.dimensions.duck.RegistryEntryRemover;
+import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -47,9 +47,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
-@EventBusSubscriber(modid = LoveTropics.ID)
+@EventBusSubscriber(modid = LTDimensionsMod.ID)
 public final class RuntimeDimensions {
-	private static final Logger LOGGER = LogManager.getLogger(RuntimeDimensions.class);
+	private static final Logger LOGGER = LogUtils.getLogger();
 
 	private static @Nullable RuntimeDimensions instance;
 
@@ -296,7 +296,7 @@ public final class RuntimeDimensions {
 
 	private static Identifier generateTemporaryDimensionKey() {
 		String random = RandomStringUtils.insecure().next(16, "abcdefghijklmnopqrstuvwxyz0123456789");
-		return LoveTropics.id("tmp_" + random);
+		return LTDimensionsMod.id("tmp_" + random);
 	}
 
 	public boolean isTemporaryDimension(ResourceKey<Level> dimension) {

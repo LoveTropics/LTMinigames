@@ -1,4 +1,4 @@
-package org.lovetropics.games.common.core.dimension;
+package org.lovetropics.dimensions;
 
 import com.google.common.base.Preconditions;
 import net.minecraft.resources.ResourceKey;

@@ -1,20 +1,22 @@
-package org.lovetropics.games.common.core.dimension;
+package org.lovetropics.dimensions.duck;
 
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.resources.Identifier;
+import org.jetbrains.annotations.ApiStatus;
 
+@ApiStatus.Internal
 public interface RegistryEntryRemover<T> {
 	@SuppressWarnings("unchecked")
 	static <T> boolean remove(MappedRegistry<T> registry, Identifier key) {
-		return ((RegistryEntryRemover<T>) registry).ltminigames$remove(key);
+		return ((RegistryEntryRemover<T>) registry).ltdimensions$remove(key);
 	}
 
 	@SuppressWarnings("unchecked")
 	static <T> boolean remove(MappedRegistry<T> registry, T value) {
-		return ((RegistryEntryRemover<T>) registry).ltminigames$remove(value);
+		return ((RegistryEntryRemover<T>) registry).ltdimensions$remove(value);
 	}
 
-	boolean ltminigames$remove(T value);
+	boolean ltdimensions$remove(T value);
 
-	boolean ltminigames$remove(Identifier key);
+	boolean ltdimensions$remove(Identifier key);
 }

@@ -17,8 +17,8 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.EntityTravelToDimensionEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.dimensions.RuntimeDimensions;
 import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.core.dimension.RuntimeDimensions;
 
 import java.util.Optional;
 import java.util.Set;
