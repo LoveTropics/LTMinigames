@@ -100,7 +100,7 @@ public record GeneratorMapProvider(
 
 	private static RuntimeDimensionHandle openDimension(RuntimeDimensions dimensions, ChunkGenerator generator, Holder<DimensionType> dimensionType, long seed, MapWorldInfo worldInfo) {
 		LevelStem dimension = new LevelStem(dimensionType, generator, OptionalLong.of(seed));
-		return dimensions.openTemporary(new RuntimeDimensionConfig(dimension, seed, worldInfo));
+		return dimensions.openTemporary(new RuntimeDimensionConfig(dimension, worldInfo));
 	}
 
 	private CompletableFuture<GameMap> createMap(MinecraftServer server, Map<ResourceKey<Level>, RuntimeDimensionHandle> dimensions) {

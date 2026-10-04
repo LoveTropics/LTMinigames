@@ -9,6 +9,8 @@ import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.storage.ServerLevelData;
 import org.lovetropics.dimensions.RuntimeDimensionConfig;
 
+import java.util.OptionalLong;
+
 public record WorkspaceDimensionConfig(Holder<DimensionType> dimensionType, ChunkGenerator generator, long seed) {
 	public static final Codec<WorkspaceDimensionConfig> CODEC = RecordCodecBuilder.create(i -> i.group(
 			DimensionType.CODEC.fieldOf("dimension_type").forGetter(c -> c.dimensionType),
@@ -17,6 +19,6 @@ public record WorkspaceDimensionConfig(Holder<DimensionType> dimensionType, Chun
 	).apply(i, WorkspaceDimensionConfig::new));
 
 	public RuntimeDimensionConfig toRuntimeConfig(ServerLevelData worldInfo) {
-		return new RuntimeDimensionConfig(new LevelStem(dimensionType, generator), seed, worldInfo);
+		return new RuntimeDimensionConfig(new LevelStem(dimensionType, generator, OptionalLong.of(seed)), worldInfo);
 	}
 }

@@ -35,7 +35,7 @@ public record VoidMapProvider(Optional<String> name, Optional<Holder<DimensionTy
 		LevelStem dimension = new LevelStem(dimensionType, new VoidChunkGenerator(server));
 
 		MapWorldInfo worldInfo = MapWorldInfo.create(server, new MapWorldSettings());
-		RuntimeDimensionConfig config = new RuntimeDimensionConfig(dimension, 0, worldInfo);
+		RuntimeDimensionConfig config = new RuntimeDimensionConfig(dimension, worldInfo);
 
 		return CompletableFuture.supplyAsync(() -> {
 			RuntimeDimensionHandle dimensionHandle = RuntimeDimensions.get(server).openTemporary(config);

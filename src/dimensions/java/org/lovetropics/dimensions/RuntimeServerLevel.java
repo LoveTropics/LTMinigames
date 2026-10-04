@@ -33,7 +33,7 @@ import java.util.List;
 				dimension,
 				config.levelStem(),
 				false,
-				BiomeManager.obfuscateSeed(config.seed()),
+				BiomeManager.obfuscateSeed(server.getWorldGenSettings().options().seed()),
 				List.of(),
 				false
 		);
