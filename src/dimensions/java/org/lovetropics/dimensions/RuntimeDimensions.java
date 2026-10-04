@@ -121,15 +121,6 @@ public final class RuntimeDimensions {
 		return openLevel(key, config, true);
 	}
 
-	public @Nullable RuntimeDimensionHandle openTemporaryWithKey(Identifier key, RuntimeDimensionConfig config) {
-		ResourceKey<Level> worldKey = ResourceKey.create(Registries.DIMENSION, key);
-		if (server.getLevel(worldKey) == null) {
-			return openLevel(key, config, true);
-		} else {
-			return null;
-		}
-	}
-
 	private RuntimeDimensionHandle openLevel(Identifier key, RuntimeDimensionConfig config, boolean temporary) {
 		ResourceKey<Level> levelKey = ResourceKey.create(Registries.DIMENSION, key);
 

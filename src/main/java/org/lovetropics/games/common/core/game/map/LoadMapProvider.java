@@ -5,18 +5,14 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Holder;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.util.Util;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.lovetropics.dimensions.RuntimeDimensionConfig;
 import org.lovetropics.dimensions.RuntimeDimensionHandle;
 import org.lovetropics.dimensions.RuntimeDimensions;
@@ -35,17 +31,13 @@ import java.util.concurrent.CompletableFuture;
 public record LoadMapProvider(
 		Optional<String> name,
 		Identifier loadFrom,
-		Optional<Holder<DimensionType>> dimensionType,
-		Optional<Identifier> dimension
+		Optional<Holder<DimensionType>> dimensionType
 ) implements IGameMapProvider {
 	public static final MapCodec<LoadMapProvider> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			Codec.STRING.optionalFieldOf("name").forGetter(c -> c.name),
 			Identifier.CODEC.fieldOf("load_from").forGetter(c -> c.loadFrom),
-			DimensionType.CODEC.optionalFieldOf("dimension_type").forGetter(c -> c.dimensionType),
-			Identifier.CODEC.optionalFieldOf("dimension").forGetter(c -> c.dimension)
+			DimensionType.CODEC.optionalFieldOf("dimension_type").forGetter(c -> c.dimensionType)
 	).apply(i, LoadMapProvider::new));
-
-	private static final Logger LOGGER = LogManager.getLogger(LoadMapProvider.class);
 
 	@Override
 	public MapCodec<LoadMapProvider> getCodec() {
@@ -54,7 +46,7 @@ public record LoadMapProvider(
 
 	@Override
 	public List<ResourceKey<Level>> getPossibleDimensions() {
-		return dimension.map(location -> List.of(ResourceKey.create(Registries.DIMENSION, location))).orElseGet(List::of);
+		return List.of();
 	}
 
 	@Override
@@ -77,34 +69,17 @@ public record LoadMapProvider(
 	}
 
 	private RuntimeDimensionHandle openDimension(MinecraftServer server, RuntimeDimensionConfig config) {
-		RuntimeDimensions dimensions = RuntimeDimensions.get(server);
-		if (dimension.isEmpty()) {
-			return dimensions.openTemporary(config);
-		}
-
-		RuntimeDimensionHandle handle = dimensions.openTemporaryWithKey(dimension.get(), config);
-		if (handle != null) {
-			return handle;
-		} else {
-			throw new GameException(Component.literal("Dimension already loaded in '" + dimension.get() + "'"));
-		}
+		return RuntimeDimensions.get(server).openTemporary(config);
 	}
 
 	private Pair<RuntimeDimensionHandle, MapMetadata> loadMapInto(MinecraftServer server, RuntimeDimensionHandle handle) {
-		Identifier path = loadFrom.withPath(p -> "maps/" + p + ".zip");
-
-		Optional<Resource> resource = server.getResourceManager().getResource(path);
-		if (resource.isEmpty()) {
-			throw new GameException(Component.literal("No map exists at '" + path + "'"));
-		}
-
 		try {
-			try (MapExportReader reader = MapExportReader.open(resource.get().open())) {
+			try (MapExportReader reader = MapExportReader.open(server, loadFrom)) {
 				MapMetadata metadata = reader.loadInto(server, handle.asKey());
 				return Pair.of(handle, metadata);
 			}
 		} catch (IOException e) {
-			throw new GameException(Component.literal("Failed to load map from '" + path + "'" + e.getMessage()), e);
+			throw new GameException(Component.literal("Failed to load map with id '" + loadFrom + "'" + e.getMessage()), e);
 		}
 	}
 }
