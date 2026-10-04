@@ -22,6 +22,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.core.game.GameException;
+import org.lovetropics.games.common.core.game.GameRegions;
 import org.lovetropics.games.common.core.game.GameWinner;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
@@ -37,7 +38,6 @@ import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
 import org.lovetropics.games.common.core.game.util.GameBossBar;
 import org.lovetropics.games.common.core.game.util.GameSidebar;
 import org.lovetropics.games.common.core.game.util.GameWidgets;
-import org.lovetropics.games.common.core.map.MapRegions;
 import org.lovetropics.games.common.role.StreamHosts;
 import org.lovetropics.games.common.util.Util;
 
@@ -466,7 +466,7 @@ public class RaceTrackBehavior implements IGameBehavior {
 				Codec.STRING.fieldOf("prefix").forGetter(PathData::prefix)
 		).apply(i, PathData::new));
 
-		public RaceTrackPath compile(MapRegions regions, boolean loop) {
+		public RaceTrackPath compile(GameRegions regions, boolean loop) {
 			RaceTrackPath.Builder path = RaceTrackPath.builder();
 
 			List<BlockPos> positions = collectPositions(regions);
@@ -481,7 +481,7 @@ public class RaceTrackBehavior implements IGameBehavior {
 			return path.build();
 		}
 
-		private List<BlockPos> collectPositions(MapRegions regions) {
+		private List<BlockPos> collectPositions(GameRegions regions) {
 			List<BlockPos> positions = new ArrayList<>();
 			for (int index = start; index <= end; index++) {
 				BlockBox box = regions.getAny(prefix + index);

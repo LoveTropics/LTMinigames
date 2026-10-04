@@ -12,13 +12,13 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.levelgen.Heightmap;
 import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.core.game.GameException;
+import org.lovetropics.games.common.core.game.GameRegions;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.action.ActionSubjects;
 import org.lovetropics.games.common.core.game.behavior.action.GameActionList;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GameActionEvents;
-import org.lovetropics.games.common.core.map.MapRegions;
 import org.lovetropics.games.common.util.EntityTemplate;
 
 import java.util.ArrayList;
@@ -54,7 +54,7 @@ public class SpawnEntityAtRegionsAction implements IGameBehavior {
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		MapRegions regions = game.mapRegions();
+		GameRegions regions = game.mapRegions();
 
 		faceRegion.ifPresent(key -> faceBox = regions.getOrThrow(key));
 		entitySpawnActions.ifPresent(actions -> actions.register(game, events));

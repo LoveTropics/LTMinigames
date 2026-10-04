@@ -18,7 +18,6 @@ import org.lovetropics.games.common.core.game.state.GameStateMap;
 import org.lovetropics.games.common.core.game.state.statistics.GameStatistics;
 import org.lovetropics.games.common.core.game.util.GameScheduler;
 import org.lovetropics.games.common.core.integration.GameInstanceIntegrations;
-import org.lovetropics.games.common.core.map.MapRegions;
 
 import java.util.List;
 
@@ -26,7 +25,7 @@ public interface IGamePhase {
 	/// @return the world that this game takes place within
 	ServerLevel level();
 
-	MapRegions mapRegions();
+	GameRegions mapRegions();
 
 	/// @return the dimension that this game takes places within
 	default ResourceKey<Level> dimension() {

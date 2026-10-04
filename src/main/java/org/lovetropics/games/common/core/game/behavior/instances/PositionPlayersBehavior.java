@@ -11,6 +11,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.core.game.GameRegions;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.SpawnBuilder;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
@@ -23,7 +24,6 @@ import org.lovetropics.games.common.core.game.state.team.GameTeam;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
 import org.lovetropics.games.common.core.game.state.team.TeamState;
 import org.lovetropics.games.common.core.game.util.CycledSpawner;
-import org.lovetropics.games.common.core.map.MapRegions;
 import org.slf4j.Logger;
 
 import java.util.HashMap;
@@ -72,7 +72,7 @@ public class PositionPlayersBehavior implements IGameBehavior {
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
-		MapRegions regions = game.mapRegions();
+		GameRegions regions = game.mapRegions();
 
 		faceRegion.ifPresent(key -> faceBox = regions.getOrThrow(key));
 

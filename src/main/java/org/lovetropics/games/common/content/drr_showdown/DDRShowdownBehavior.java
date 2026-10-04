@@ -23,6 +23,7 @@ import org.lovetropics.games.common.content.escape_race.ddr_machine.levels.DdrLe
 import org.lovetropics.games.common.content.escape_race.event.EscapeRaceEvents;
 import org.lovetropics.games.common.content.turtle_race.RiderBehavior;
 import org.lovetropics.games.common.core.game.GameException;
+import org.lovetropics.games.common.core.game.GameRegions;
 import org.lovetropics.games.common.core.game.GameWinner;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
@@ -37,7 +38,6 @@ import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
 import org.lovetropics.games.common.core.game.util.GameBossBar;
 import org.lovetropics.games.common.core.game.util.GameWidgets;
-import org.lovetropics.games.common.core.map.MapRegions;
 import org.slf4j.Logger;
 
 import java.util.ArrayDeque;
@@ -86,7 +86,7 @@ public class DDRShowdownBehavior implements IGameBehavior {
 		bossBar = widgets.openGlobalBossBar(ddrLevel.displayName(), BossEvent.BossBarColor.BLUE, BossEvent.BossBarOverlay.PROGRESS);
 		bossBar.setProgress(0f);
 
-		MapRegions regions = game.mapRegions();
+		GameRegions regions = game.mapRegions();
 		List<BlockBox> ddrSpawn = regions.get(ddrSpawnRegion).stream().toList();
 		Queue<DDRMachineEntity> spawnedMachines = new ArrayDeque<>();
 

@@ -11,9 +11,9 @@ import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.content.biodiversity_blitz.entity.PlotWalls;
 import org.lovetropics.games.common.content.biodiversity_blitz.entity.PlotWaveState;
 import org.lovetropics.games.common.content.biodiversity_blitz.plot.plant.PlantMap;
+import org.lovetropics.games.common.core.game.GameRegions;
 import org.lovetropics.games.common.core.game.map.RegionPattern;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
-import org.lovetropics.games.common.core.map.MapRegions;
 
 import java.util.List;
 
@@ -64,7 +64,7 @@ public final class Plot {
 		this.walls = new PlotWalls(walls);
 	}
 
-	public static Plot create(ServerLevel level, GameTeamKey team, Config config, RegionKeys regionKeys, MapRegions regions) {
+	public static Plot create(ServerLevel level, GameTeamKey team, Config config, RegionKeys regionKeys, GameRegions regions) {
 		BlockBox plantBounds = regionKeys.plot.getOrThrow(regions, config.key);
 		BlockBox bounds = BlockBox.of(
 				new BlockPos(plantBounds.min().getX(), level.getMinY(), plantBounds.min().getZ()),

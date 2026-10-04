@@ -22,10 +22,10 @@ import net.minecraft.world.item.component.TypedEntityData;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import org.lovetropics.games.LoveTropics;
 import org.lovetropics.games.common.core.data.LoveTropicsAttachments;
+import org.lovetropics.games.common.core.game.GameRegions;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.integration.game_actions.Donation;
 import org.lovetropics.games.common.core.integration.state.DonationScale;
-import org.lovetropics.games.common.core.map.MapRegions;
 import org.lovetropics.peekaboo.api.Disguise;
 import org.lovetropics.peekaboo.api.EntityDisguiseHolder;
 import org.slf4j.Logger;
@@ -64,7 +64,7 @@ public class SpawnDonorUtils {
 		Disguise disguise = getDisguise(scaleAmount).withEntity(Optional.of(TypedEntityData.of(DUMMY.value(), tag)));
 		EntityDisguiseHolder.set(spawnedMob, disguise);
 
-		MapRegions mapRegions = game.mapRegions();
+		GameRegions mapRegions = game.mapRegions();
 		List<BlockBox> regionsToSpawnAt = new ArrayList<>();
 		for (String key : regions) {
 			regionsToSpawnAt.addAll(mapRegions.get(key));

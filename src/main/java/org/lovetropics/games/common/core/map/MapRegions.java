@@ -7,11 +7,8 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
-import net.minecraft.network.chat.Component;
-import org.jspecify.annotations.Nullable;
-import org.lovetropics.games.common.core.game.GameException;
+import org.lovetropics.games.common.core.game.GameRegions;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -19,7 +16,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public final class MapRegions {
+public final class MapRegions implements GameRegions {
 	private static final Codec<BlockPos> LEGACY_POS_CODEC = RecordCodecBuilder.create(i -> i.group(
 			Codec.INT.fieldOf("x").forGetter(Vec3i::getX),
 			Codec.INT.fieldOf("y").forGetter(Vec3i::getY),
@@ -57,45 +54,14 @@ public final class MapRegions {
 		this.regions.putAll(regions.regions);
 	}
 
+	@Override
 	public Set<String> keySet() {
 		return regions.keySet();
 	}
 
+	@Override
 	public Collection<BlockBox> get(String key) {
 		return regions.get(key);
-	}
-
-	public @Nullable BlockBox getAny(String key) {
-		Collection<BlockBox> regions = this.regions.get(key);
-		if (!regions.isEmpty()) {
-			return regions.iterator().next();
-		} else {
-			return null;
-		}
-	}
-
-	public List<BlockBox> getAll(String... keys) {
-		return getAll(Arrays.asList(keys));
-	}
-
-	public List<BlockBox> getAll(Collection<String> keys) {
-		return keys.stream().flatMap(key -> get(key).stream()).toList();
-	}
-
-	public List<BlockBox> getAllOrThrow(String key) {
-		List<BlockBox> boxes = getAll(key);
-		if (boxes.isEmpty()) {
-			throw new GameException(Component.literal("Missing expected region with key '" + key + "'"));
-		}
-		return boxes;
-	}
-
-	public BlockBox getOrThrow(String key) {
-		BlockBox box = getAny(key);
-		if (box == null) {
-			throw new GameException(Component.literal("Missing expected region with key '" + key + "'"));
-		}
-		return box;
 	}
 
 	public boolean isEmpty() {

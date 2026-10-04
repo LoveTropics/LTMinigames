@@ -9,12 +9,12 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.level.levelgen.Heightmap;
+import org.lovetropics.games.common.core.game.GameRegions;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GameActionEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
-import org.lovetropics.games.common.core.map.MapRegions;
 import org.lovetropics.games.common.util.EntityTemplate;
 
 import java.util.List;
@@ -51,7 +51,7 @@ public class SpawnEntitiesAtRegionsOverTimeAction implements IGameBehavior {
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
-		MapRegions regions = game.mapRegions();
+		GameRegions regions = game.mapRegions();
 
 		regionsToSpawnAt.clear();
 		for (String key : regionsToSpawnAtKeys) {

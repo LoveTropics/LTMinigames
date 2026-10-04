@@ -12,6 +12,7 @@ import org.lovetropics.games.common.content.biodiversity_blitz.client_state.Chec
 import org.lovetropics.games.common.content.biodiversity_blitz.plot.Plot;
 import org.lovetropics.games.common.content.biodiversity_blitz.plot.PlotsState;
 import org.lovetropics.games.common.core.game.GameException;
+import org.lovetropics.games.common.core.game.GameRegions;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
@@ -56,7 +57,7 @@ public final class BbAssignPlotsBehavior implements IGameBehavior {
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
-		MapRegions regions = game.mapRegions();
+		GameRegions regions = game.mapRegions();
 
 		events.listen(GamePhaseEvents.CREATE, () -> {
 			teamPlots.forEach((teamKey, config) -> {
