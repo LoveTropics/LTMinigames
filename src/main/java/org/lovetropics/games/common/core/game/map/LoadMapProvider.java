@@ -16,11 +16,10 @@ import net.minecraft.world.level.dimension.LevelStem;
 import org.lovetropics.dimensions.RuntimeDimensionConfig;
 import org.lovetropics.dimensions.RuntimeDimensionHandle;
 import org.lovetropics.dimensions.RuntimeDimensions;
+import org.lovetropics.dimensions.SharedDimensionState;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.map.MapExportReader;
 import org.lovetropics.games.common.core.map.MapMetadata;
-import org.lovetropics.games.common.core.map.MapWorldInfo;
-import org.lovetropics.games.common.core.map.MapWorldSettings;
 import org.lovetropics.games.common.core.map.VoidChunkGenerator;
 
 import java.io.IOException;
@@ -53,10 +52,8 @@ public record LoadMapProvider(
 	public CompletableFuture<GameMap> open(MinecraftServer server) {
 		Holder<DimensionType> dimensionType = this.dimensionType.orElse(server.overworld().dimensionTypeRegistration());
 		LevelStem dimension = new LevelStem(dimensionType, new VoidChunkGenerator(server));
-		// TODO: Shouldn't use MapWorldSettings at all here
-		MapWorldSettings settings = new MapWorldSettings();
-		MapWorldInfo worldInfo = MapWorldInfo.create(server, settings);
-		RuntimeDimensionConfig config = new RuntimeDimensionConfig(dimension, worldInfo, settings.gameRules);
+		SharedDimensionState sharedState = SharedDimensionState.createFresh(server);
+		RuntimeDimensionConfig config = new RuntimeDimensionConfig(dimension, sharedState);
 
 		return CompletableFuture.supplyAsync(() -> openDimension(server, config), server)
 				.thenApplyAsync(handle -> loadMapInto(server, handle), Util.backgroundExecutor())
@@ -64,7 +61,7 @@ public record LoadMapProvider(
 					RuntimeDimensionHandle dimensionHandle = pair.getFirst();
 					MapMetadata metadata = pair.getSecond();
 					// The level is already running, so its clocks must be updated from the server thread
-					worldInfo.importFrom(metadata.settings());
+					metadata.settings().setupInto(server, sharedState);
 					return new GameMap(name.orElse(null), dimensionHandle.asKey(), metadata.regions())
 							.onClose(game -> dimensionHandle.markForDeletion());
 				}, server);

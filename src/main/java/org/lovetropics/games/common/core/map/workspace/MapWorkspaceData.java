@@ -23,6 +23,6 @@ public record MapWorkspaceData(
 		WorkspaceRegions regions = new WorkspaceRegions(dimensionHandle.asKey(), false);
 		regions.importFrom(this.regions);
 
-		return new MapWorkspace(id, dimension, worldSettings, regions, dimensionHandle);
+		return new MapWorkspace(id, dimension, regions, dimensionHandle);
 	}
 }

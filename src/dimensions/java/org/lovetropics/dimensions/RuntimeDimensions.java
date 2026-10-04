@@ -270,6 +270,10 @@ public final class RuntimeDimensions {
 		return level instanceof RuntimeServerLevel runtimeLevel ? runtimeLevel.handle() : null;
 	}
 
+	public @Nullable SharedDimensionState getSharedStateFor(ServerLevel level) {
+		return level instanceof RuntimeServerLevel runtimeLevel ? runtimeLevel.sharedState() : null;
+	}
+
 	/// Makes the given dimensions stand in for the vanilla Overworld, Nether and End for each other, until they are deleted
 	public void link(LinkedDimensions linkedDimensions) {
 		for (ResourceKey<Level> dimension : linkedDimensions.dimensions()) {

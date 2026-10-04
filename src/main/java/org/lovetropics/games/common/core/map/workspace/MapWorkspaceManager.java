@@ -13,8 +13,8 @@ import net.minecraft.world.level.saveddata.SavedDataType;
 import org.jspecify.annotations.Nullable;
 import org.lovetropics.dimensions.RuntimeDimensionHandle;
 import org.lovetropics.dimensions.RuntimeDimensions;
+import org.lovetropics.dimensions.SharedDimensionState;
 import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.core.map.MapWorldInfo;
 import org.lovetropics.games.common.core.map.MapWorldSettings;
 import org.lovetropics.games.common.core.map.SavedRegions;
 
@@ -47,21 +47,22 @@ public final class MapWorkspaceManager extends SavedData {
 	}
 
 	public CompletableFuture<MapWorkspace> openWorkspace(String id, WorkspaceDimensionConfig dimensionConfig) {
-		MapWorldSettings settings = MapWorldSettings.createFromOverworld(server);
-
-		return CompletableFuture.supplyAsync(() -> getOrCreateDimension(id, dimensionConfig, settings), server)
+		return CompletableFuture.supplyAsync(() -> getOrCreateDimension(id, dimensionConfig, null), server)
 				.thenApplyAsync(dimensionHandle -> {
-					MapWorkspace workspace = new MapWorkspace(id, dimensionConfig, settings, dimensionHandle);
+					MapWorkspace workspace = new MapWorkspace(id, dimensionConfig, dimensionHandle);
 					workspaces.putIfAbsent(id, workspace);
 
 					return workspace;
 				}, server);
 	}
 
-	private RuntimeDimensionHandle getOrCreateDimension(String id, WorkspaceDimensionConfig dimensionConfig, MapWorldSettings mapSettings) {
+	private RuntimeDimensionHandle getOrCreateDimension(String id, WorkspaceDimensionConfig dimensionConfig, @Nullable MapWorldSettings mapSettings) {
 		return RuntimeDimensions.get(server).getOrOpenPersistent(LoveTropics.id(id), () -> {
-			MapWorldInfo worldInfo = MapWorldInfo.create(server, mapSettings);
-			return dimensionConfig.toRuntimeConfig(worldInfo, mapSettings.gameRules);
+			SharedDimensionState dimensionState = SharedDimensionState.createFresh(server);
+			if (mapSettings != null) {
+				mapSettings.setupInto(server, dimensionState);
+			}
+			return dimensionConfig.toRuntimeConfig(dimensionState);
 		});
 	}
 

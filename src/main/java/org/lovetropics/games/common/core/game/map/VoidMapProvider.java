@@ -10,9 +10,8 @@ import net.minecraft.world.level.dimension.LevelStem;
 import org.lovetropics.dimensions.RuntimeDimensionConfig;
 import org.lovetropics.dimensions.RuntimeDimensionHandle;
 import org.lovetropics.dimensions.RuntimeDimensions;
+import org.lovetropics.dimensions.SharedDimensionState;
 import org.lovetropics.games.common.core.map.MapRegions;
-import org.lovetropics.games.common.core.map.MapWorldInfo;
-import org.lovetropics.games.common.core.map.MapWorldSettings;
 import org.lovetropics.games.common.core.map.VoidChunkGenerator;
 
 import java.util.Optional;
@@ -34,10 +33,8 @@ public record VoidMapProvider(Optional<String> name, Optional<Holder<DimensionTy
 		Holder<DimensionType> dimensionType = this.dimensionType.orElse(server.overworld().dimensionTypeRegistration());
 		LevelStem dimension = new LevelStem(dimensionType, new VoidChunkGenerator(server));
 
-		// TODO: Shouldn't use MapWorldSettings at all here
-		MapWorldSettings settings = new MapWorldSettings();
-		MapWorldInfo worldInfo = MapWorldInfo.create(server, settings);
-		RuntimeDimensionConfig config = new RuntimeDimensionConfig(dimension, worldInfo, settings.gameRules);
+		SharedDimensionState dimensionState = SharedDimensionState.createFresh(server);
+		RuntimeDimensionConfig config = new RuntimeDimensionConfig(dimension, dimensionState);
 
 		return CompletableFuture.supplyAsync(() -> {
 			RuntimeDimensionHandle dimensionHandle = RuntimeDimensions.get(server).openTemporary(config);

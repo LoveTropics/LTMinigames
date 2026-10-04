@@ -6,10 +6,9 @@ import net.minecraft.core.Holder;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
-import net.minecraft.world.level.gamerules.GameRules;
-import net.minecraft.world.level.storage.ServerLevelData;
 import org.jspecify.annotations.Nullable;
 import org.lovetropics.dimensions.RuntimeDimensionConfig;
+import org.lovetropics.dimensions.SharedDimensionState;
 
 import java.util.OptionalLong;
 
@@ -20,11 +19,10 @@ public record WorkspaceDimensionConfig(Holder<DimensionType> dimensionType, Chun
 			Codec.LONG.fieldOf("seed").forGetter(c -> c.seed)
 	).apply(i, WorkspaceDimensionConfig::new));
 
-	public RuntimeDimensionConfig toRuntimeConfig(ServerLevelData worldInfo, @Nullable GameRules overrideGameRules) {
+	public RuntimeDimensionConfig toRuntimeConfig(@Nullable SharedDimensionState sharedState) {
 		return new RuntimeDimensionConfig(
 				new LevelStem(dimensionType, generator, OptionalLong.of(seed)),
-				worldInfo,
-				overrideGameRules
+				sharedState
 		);
 	}
 }

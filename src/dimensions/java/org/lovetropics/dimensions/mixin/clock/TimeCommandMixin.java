@@ -1,4 +1,4 @@
-package org.lovetropics.games.mixin.clock;
+package org.lovetropics.dimensions.mixin.clock;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;

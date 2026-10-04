@@ -35,6 +35,7 @@ import org.lovetropics.games.common.core.map.MapExportReader;
 import org.lovetropics.games.common.core.map.MapExportWriter;
 import org.lovetropics.games.common.core.map.MapMetadata;
 import org.lovetropics.games.common.core.map.MapRegions;
+import org.lovetropics.games.common.core.map.MapWorldSettings;
 import org.lovetropics.games.common.core.map.SavedRegions;
 import org.lovetropics.games.common.core.map.VoidChunkGenerator;
 import org.lovetropics.games.common.core.map.workspace.MapWorkspace;
@@ -278,7 +279,8 @@ public final class MapCommand {
 
 				try (MapExportWriter writer = MapExportWriter.open(exportPath)) {
 					MapRegions regions = workspace.regions().compile();
-					writer.writeMetadata(new MapMetadata(id, workspace.worldSettings(), regions));
+					MapWorldSettings settings = MapWorldSettings.copyOf(workspace.dimensionHandle().asLevel());
+					writer.writeMetadata(new MapMetadata(id, settings, regions));
 					writer.writeWorldData(dimensionDirectory);
 
 					source.sendSuccess(() -> Component.literal("Successfully exported map!"), false);

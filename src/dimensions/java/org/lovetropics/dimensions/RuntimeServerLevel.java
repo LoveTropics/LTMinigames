@@ -6,20 +6,27 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.ProgressListener;
 import net.minecraft.util.Util;
+import net.minecraft.world.Difficulty;
+import net.minecraft.world.clock.ServerClockManager;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.gamerules.GameRules;
+import net.minecraft.world.level.saveddata.WeatherData;
+import net.minecraft.world.level.storage.DerivedLevelData;
+import net.minecraft.world.level.storage.ServerLevelData;
+import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 
 import java.util.List;
 
-/* package-private */ class RuntimeServerLevel extends ServerLevel {
+@ApiStatus.Internal
+public class RuntimeServerLevel extends ServerLevel {
 	private static final Logger LOGGER = LogUtils.getLogger();
 
 	private final RuntimeDimensionHandle handle;
 	private final boolean temporary;
-	private final @Nullable GameRules overrideGameRules;
+	private final @Nullable SharedDimensionState sharedState;
 
 	public RuntimeServerLevel(
 			MinecraftServer server,
@@ -31,7 +38,12 @@ import java.util.List;
 				server,
 				Util.backgroundExecutor(),
 				server.storageSource,
-				config.worldInfo(),
+				new DerivedLevelData(server.getWorldData(), (ServerLevelData) server.overworld().getLevelData()) {
+					@Override
+					public Difficulty getDifficulty() {
+						return config.sharedState() != null ? config.sharedState().difficulty() : super.getDifficulty();
+					}
+				},
 				dimension,
 				config.levelStem(),
 				false,
@@ -41,7 +53,15 @@ import java.util.List;
 		);
 		handle = new RuntimeDimensionHandle(this);
 		this.temporary = temporary;
-		overrideGameRules = config.overrideGameRules();
+		sharedState = config.sharedState();
+
+		// Matching ServerLevel::prepareWeather, which references MinecraftServer directly
+		if (sharedState != null && sharedState.weather().isRaining()) {
+			rainLevel = 1.0f;
+			if (sharedState.weather().isThundering()) {
+				thunderLevel = 1.0f;
+			}
+		}
 	}
 
 	@Override
@@ -69,7 +89,21 @@ import java.util.List;
 	}
 
 	@Override
+	public ServerClockManager clockManager() {
+		return sharedState != null ? sharedState.clockManager() : super.clockManager();
+	}
+
+	@Override
 	public GameRules getGameRules() {
-		return overrideGameRules != null ? overrideGameRules : super.getGameRules();
+		return sharedState != null ? sharedState.gameRules() : super.getGameRules();
+	}
+
+	@Override
+	public WeatherData getWeatherData() {
+		return sharedState != null ? sharedState.weather() : super.getWeatherData();
+	}
+
+	public @Nullable SharedDimensionState sharedState() {
+		return sharedState;
 	}
 }

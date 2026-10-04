@@ -16,16 +16,14 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
-import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.storage.LevelData;
 import org.lovetropics.dimensions.LinkedDimensions;
 import org.lovetropics.dimensions.RuntimeDimensionConfig;
 import org.lovetropics.dimensions.RuntimeDimensionHandle;
 import org.lovetropics.dimensions.RuntimeDimensions;
+import org.lovetropics.dimensions.SharedDimensionState;
 import org.lovetropics.games.common.core.map.MapRegions;
-import org.lovetropics.games.common.core.map.MapWorldInfo;
-import org.lovetropics.games.common.core.map.MapWorldSettings;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -74,11 +72,9 @@ public record GeneratorMapProvider(
 	public CompletableFuture<GameMap> open(MinecraftServer server) {
 		long seed = this.seed.orElseGet(() -> server.overworld().getRandom().nextLong());
 		// Shared between all the dimensions, so that settings like difficulty apply to all of them
-		// TODO: Shouldn't use MapWorldSettings at all here
-		MapWorldSettings settings = new MapWorldSettings();
-		MapWorldInfo worldInfo = MapWorldInfo.create(server, settings);
+		SharedDimensionState dimensionState = SharedDimensionState.createFresh(server);
 
-		return CompletableFuture.supplyAsync(() -> openDimensions(server, seed, worldInfo, settings.gameRules), server)
+		return CompletableFuture.supplyAsync(() -> openDimensions(server, seed, dimensionState), server)
 				.thenCompose(dimensions -> createMap(server, dimensions)
 						.whenComplete((map, throwable) -> {
 							if (throwable != null) {
@@ -89,21 +85,21 @@ public record GeneratorMapProvider(
 	}
 
 	/// @return the opened dimensions keyed by the vanilla dimension that each stands in for
-	private Map<ResourceKey<Level>, RuntimeDimensionHandle> openDimensions(MinecraftServer server, long seed, MapWorldInfo worldInfo, GameRules gameRules) {
+	private Map<ResourceKey<Level>, RuntimeDimensionHandle> openDimensions(MinecraftServer server, long seed, SharedDimensionState sharedDimensionState) {
 		RuntimeDimensions dimensions = RuntimeDimensions.get(server);
 		Map<ResourceKey<Level>, RuntimeDimensionHandle> handles = new LinkedHashMap<>();
-		RuntimeDimensionHandle overworld = openDimension(dimensions, generator, dimensionType, seed, worldInfo, gameRules);
+		RuntimeDimensionHandle overworld = openDimension(dimensions, generator, dimensionType, seed, sharedDimensionState);
 		// The shared world info runs its clocks for the first level that asks for them - make sure that it is the overworld
 		overworld.asLevel().clockManager();
 		handles.put(Level.OVERWORLD, overworld);
-		nether.ifPresent(config -> handles.put(Level.NETHER, openDimension(dimensions, config.generator(), config.dimensionType(), seed, worldInfo, gameRules)));
-		end.ifPresent(config -> handles.put(Level.END, openDimension(dimensions, config.generator(), config.dimensionType(), seed, worldInfo, gameRules)));
+		nether.ifPresent(config -> handles.put(Level.NETHER, openDimension(dimensions, config.generator(), config.dimensionType(), seed, sharedDimensionState)));
+		end.ifPresent(config -> handles.put(Level.END, openDimension(dimensions, config.generator(), config.dimensionType(), seed, sharedDimensionState)));
 		return handles;
 	}
 
-	private static RuntimeDimensionHandle openDimension(RuntimeDimensions dimensions, ChunkGenerator generator, Holder<DimensionType> dimensionType, long seed, MapWorldInfo worldInfo, GameRules gameRules) {
+	private static RuntimeDimensionHandle openDimension(RuntimeDimensions dimensions, ChunkGenerator generator, Holder<DimensionType> dimensionType, long seed, SharedDimensionState sharedDimensionState) {
 		LevelStem dimension = new LevelStem(dimensionType, generator, OptionalLong.of(seed));
-		return dimensions.openTemporary(new RuntimeDimensionConfig(dimension, worldInfo, gameRules));
+		return dimensions.openTemporary(new RuntimeDimensionConfig(dimension, sharedDimensionState));
 	}
 
 	private CompletableFuture<GameMap> createMap(MinecraftServer server, Map<ResourceKey<Level>, RuntimeDimensionHandle> dimensions) {
