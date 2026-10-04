@@ -11,8 +11,8 @@ import org.lovetropics.dimensions.RuntimeDimensionConfig;
 import org.lovetropics.dimensions.RuntimeDimensionHandle;
 import org.lovetropics.dimensions.RuntimeDimensions;
 import org.lovetropics.dimensions.SharedDimensionState;
-import org.lovetropics.games.common.core.map.MapRegions;
-import org.lovetropics.games.common.core.map.VoidChunkGenerator;
+import org.lovetropics.games.common.util.world.VoidChunkGenerator;
+import org.lovetropics.maps.MapRegions;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;

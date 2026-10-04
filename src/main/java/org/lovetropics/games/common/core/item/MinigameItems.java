@@ -8,9 +8,6 @@ public class MinigameItems {
 
 	private static final LoveTropicsRegistrate REGISTRATE = LoveTropics.registrate();
 
-	public static final ItemEntry<EditRegionItem> EDIT_REGION = REGISTRATE.item("edit_region", EditRegionItem::new)
-			.register();
-
 	/// Powerups and Sabotages
 	// Sabotages
 	public static final ItemEntry<PowerupItem> UPSET_STOMACH = REGISTRATE.item("upset_stomach", PowerupItem::new).register();

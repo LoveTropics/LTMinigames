@@ -18,18 +18,12 @@ import org.lovetropics.games.common.core.network.trivia.TriviaAnswerResponseMess
 import org.lovetropics.games.common.core.network.vending.ClientboundVendingMachineDropPacket;
 import org.lovetropics.games.common.core.network.vending.SelectVendingMachineItemMessage;
 import org.lovetropics.games.common.core.network.vending.ServerboundVendingMachinePurchasePacket;
-import org.lovetropics.games.common.core.network.workspace.AddWorkspaceRegionMessage;
-import org.lovetropics.games.common.core.network.workspace.SetWorkspaceMessage;
-import org.lovetropics.games.common.core.network.workspace.UpdateWorkspaceRegionMessage;
 
 @EventBusSubscriber(modid = LoveTropics.ID)
 public final class LoveTropicsNetwork {
 	@SubscribeEvent
 	public static void register(RegisterPayloadHandlersEvent event) {
 		PayloadRegistrar registrar = event.registrar(LoveTropics.getCompatVersion());
-		registrar.playToClient(SetWorkspaceMessage.TYPE, SetWorkspaceMessage.STREAM_CODEC);
-		registrar.playToClient(AddWorkspaceRegionMessage.TYPE, AddWorkspaceRegionMessage.STREAM_CODEC);
-		registrar.playBidirectional(UpdateWorkspaceRegionMessage.TYPE, UpdateWorkspaceRegionMessage.STREAM_CODEC, UpdateWorkspaceRegionMessage::handleServerbound);
 
 		registrar.playToServer(SpectatePlayerAndTeleportMessage.TYPE, SpectatePlayerAndTeleportMessage.STREAM_CODEC, SpectatePlayerAndTeleportMessage::handle);
 
@@ -64,10 +58,6 @@ public final class LoveTropicsNetwork {
 
 	@SubscribeEvent
 	public static void registerClientHandler(RegisterClientPayloadHandlersEvent event) {
-		event.register(SetWorkspaceMessage.TYPE, SetWorkspaceMessage::handle);
-		event.register(AddWorkspaceRegionMessage.TYPE, AddWorkspaceRegionMessage::handle);
-		event.register(UpdateWorkspaceRegionMessage.TYPE, UpdateWorkspaceRegionMessage::handleClientbound);
-
 		event.register(ShowNotificationToastMessage.TYPE, ShowNotificationToastMessage::handle);
 
 		event.register(SetGameClientStateMessage.TYPE, SetGameClientStateMessage::handle);

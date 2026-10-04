@@ -26,6 +26,8 @@ ext {
     */
     splitModules = [
             "dimensions": "ltdimensions",
+            "maps": null,
+            "editor": "ltmaps_editor",
             "lobbies": "ltgames_lobbies"
     ]
     //A map of game id's to display names to add quick run tasks for.
@@ -37,7 +39,9 @@ ext {
 
 splitModules.each { name, mod_id ->
     sourceSets.create(name) {
-        resources.srcDir "src/generated/resources/${mod_id}"
+        if (mod_id != null) {
+            resources.srcDir "src/generated/resources/${mod_id}"
+        }
     }
 }
 
@@ -94,7 +98,7 @@ neoForge {
     def defaultModsToLoad = [mods.named(mod_id).get()]
 
     def allModIds = [mod_id]
-    allModIds += splitModules.values()
+    allModIds += splitModules.values().findAll { it != null }
 
     runs {
         client {
@@ -198,9 +202,17 @@ dependencies {
     testRuntimeOnly "org.junit.platform:junit-platform-launcher"
 
     lobbiesImplementation sourceSets.main.output
-    runtimeOnly sourceSets.lobbies.output
+    lobbiesImplementation sourceSets.maps.output
+    // TODO: Remove this editor -> main dependency (currently only VoidChunkGenerator)
+    editorImplementation sourceSets.main.output
+    editorImplementation sourceSets.maps.output
+    editorImplementation sourceSets.dimensions.output
+    mapsImplementation sourceSets.dimensions.output
 
     implementation sourceSets.dimensions.output
+    implementation sourceSets.maps.output
+    runtimeOnly sourceSets.lobbies.output
+    runtimeOnly sourceSets.editor.output
 
     for (String module : splitModules.keySet()) {
         testImplementation sourceSets.named(module).get().output

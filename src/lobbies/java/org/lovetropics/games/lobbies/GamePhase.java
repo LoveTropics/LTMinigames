@@ -1,6 +1,7 @@
 package org.lovetropics.games.lobbies;
 
 import com.google.common.collect.Lists;
+import com.lovetropics.lib.BlockBox;
 import com.lovetropics.lib.slideshow.SlideshowApi;
 import com.mojang.logging.LogUtils;
 import net.minecraft.nbt.CompoundTag;
@@ -14,6 +15,7 @@ import net.minecraft.util.Unit;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.core.game.GameRegions;
 import org.lovetropics.games.common.core.game.GameResult;
 import org.lovetropics.games.common.core.game.GameStopReason;
 import org.lovetropics.games.common.core.game.IGameDefinition;
@@ -38,10 +40,10 @@ import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
 import org.lovetropics.games.common.core.game.util.GameScheduler;
 import org.lovetropics.games.common.core.game.util.TeamAllocator;
-import org.lovetropics.games.common.core.map.MapRegions;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
@@ -64,6 +66,18 @@ public class GamePhase implements IGamePhase {
 
 	private final ServerLevel level;
 	private final GameMap map;
+	private final GameRegions gameRegions = new GameRegions() {
+		@Override
+		public Set<String> keySet() {
+			return map.mapRegions().keySet();
+		}
+
+		@Override
+		public Collection<BlockBox> get(String key) {
+			return map.mapRegions().get(key);
+		}
+	};
+
 	private final GameStateMap phaseState = new GameStateMap();
 
 	private final MutablePlayerSet allPlayers = new MutablePlayerSet();
@@ -615,8 +629,8 @@ public class GamePhase implements IGamePhase {
 	}
 
 	@Override
-	public MapRegions mapRegions() {
-		return map.mapRegions();
+	public GameRegions mapRegions() {
+		return gameRegions;
 	}
 
 	@Override

@@ -83,3 +83,27 @@ type = "required"
 versionRange = "${minecraft_version_range}"
 ordering = "NONE"
 side = "BOTH"
+
+[[mods]]
+modId = "ltmaps_editor"
+version = "${mod_version}"
+displayName = "LTMaps Editor"
+displayURL = "https://lovetropics.org"
+authors = "The Love Tropics team"
+description = '''
+Minigame map editor for Love Tropics.
+'''
+
+[[dependencies.ltmaps_editor]]
+modId = "neoforge"
+type = "required"
+versionRange = "${neo_version_range}"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.ltmaps_editor]]
+modId = "minecraft"
+type = "required"
+versionRange = "${minecraft_version_range}"
+ordering = "NONE"
+side = "BOTH"

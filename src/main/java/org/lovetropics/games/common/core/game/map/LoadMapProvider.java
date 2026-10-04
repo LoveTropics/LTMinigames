@@ -18,9 +18,9 @@ import org.lovetropics.dimensions.RuntimeDimensionHandle;
 import org.lovetropics.dimensions.RuntimeDimensions;
 import org.lovetropics.dimensions.SharedDimensionState;
 import org.lovetropics.games.common.core.game.GameException;
-import org.lovetropics.games.common.core.map.MapExportReader;
-import org.lovetropics.games.common.core.map.MapMetadata;
-import org.lovetropics.games.common.core.map.VoidChunkGenerator;
+import org.lovetropics.games.common.util.world.VoidChunkGenerator;
+import org.lovetropics.maps.MapExportReader;
+import org.lovetropics.maps.MapMetadata;
 
 import java.io.IOException;
 import java.util.List;

@@ -10,6 +10,18 @@ import java.util.List;
 import java.util.Set;
 
 public interface GameRegions {
+	GameRegions EMPTY = new GameRegions() {
+		@Override
+		public Set<String> keySet() {
+			return Set.of();
+		}
+
+		@Override
+		public Collection<BlockBox> get(String key) {
+			return List.of();
+		}
+	};
+
 	Set<String> keySet();
 
 	Collection<BlockBox> get(String key);

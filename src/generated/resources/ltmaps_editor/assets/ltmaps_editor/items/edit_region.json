@@ -1,0 +1,6 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "ltmaps_editor:item/edit_region"
+  }
+}

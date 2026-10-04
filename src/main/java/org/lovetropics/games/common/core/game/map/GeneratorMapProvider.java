@@ -23,7 +23,7 @@ import org.lovetropics.dimensions.RuntimeDimensionConfig;
 import org.lovetropics.dimensions.RuntimeDimensionHandle;
 import org.lovetropics.dimensions.RuntimeDimensions;
 import org.lovetropics.dimensions.SharedDimensionState;
-import org.lovetropics.games.common.core.map.MapRegions;
+import org.lovetropics.maps.MapRegions;
 
 import java.util.ArrayList;
 import java.util.Iterator;

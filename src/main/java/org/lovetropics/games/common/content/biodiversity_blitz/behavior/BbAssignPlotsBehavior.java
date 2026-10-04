@@ -23,7 +23,6 @@ import org.lovetropics.games.common.core.game.player.PlayerRole;
 import org.lovetropics.games.common.core.game.state.GameStateMap;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
 import org.lovetropics.games.common.core.game.state.team.TeamState;
-import org.lovetropics.games.common.core.map.MapRegions;
 import org.slf4j.Logger;
 
 import java.util.Map;

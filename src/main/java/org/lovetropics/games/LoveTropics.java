@@ -11,7 +11,6 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.packs.PackType;
-import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.item.CreativeModeTab;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
@@ -26,7 +25,6 @@ import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.AddPackFindersEvent;
-import net.neoforged.neoforge.event.entity.living.MobSpawnEvent;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import net.neoforged.neoforge.registries.RegisterEvent;
 import org.lovetropics.games.client.KeybindsTexts;
@@ -76,6 +74,7 @@ import org.lovetropics.games.common.content.treasure_dig.TreasureDig;
 import org.lovetropics.games.common.content.turtle_race.RiderBehavior;
 import org.lovetropics.games.common.content.turtle_race.TurtleRace;
 import org.lovetropics.games.common.content.turtle_race.TurtleRaceTexts;
+import org.lovetropics.games.common.util.world.VoidChunkGenerator;
 import org.lovetropics.games.common.core.chat.ChatChannelStore;
 import org.lovetropics.games.common.core.command.LoveTropicsEntityOptions;
 import org.lovetropics.games.common.core.data.LoveTropicsAttachments;
@@ -90,8 +89,6 @@ import org.lovetropics.games.common.core.game.persistent.behavior.parkour.Parkou
 import org.lovetropics.games.common.core.game.util.GameTexts;
 import org.lovetropics.games.common.core.item.MinigameDataComponents;
 import org.lovetropics.games.common.core.item.MinigameItems;
-import org.lovetropics.games.common.core.map.VoidChunkGenerator;
-import org.lovetropics.games.common.core.map.workspace.MapWorkspaceManager;
 import org.lovetropics.games.common.dev.DevPackSource;
 import org.lovetropics.games.common.role.StreamHosts;
 import org.lovetropics.games.common.util.PredictedToggle;
@@ -156,8 +153,6 @@ public class LoveTropics {
 	});
 
 	public LoveTropics(IEventBus modBus, ModContainer modContainer) {
-		NeoForge.EVENT_BUS.addListener(this::onAttemptSpawn);
-
 		// Registry objects
 		LoveTropicsBlocks.init();
 		MinigameItems.init();
@@ -252,15 +247,6 @@ public class LoveTropics {
 
 	public static Identifier id(String location) {
 		return Identifier.fromNamespaceAndPath(ID, location);
-	}
-
-	private void onAttemptSpawn(MobSpawnEvent.PositionCheck event) {
-		if (event.getSpawnType() == EntitySpawnReason.SPAWNER) {
-			MapWorkspaceManager workspace = MapWorkspaceManager.get(event.getLevel().getServer());
-			if (workspace.getWorkspace(event.getLevel().getLevel().dimension()) != null) {
-				event.setResult(MobSpawnEvent.PositionCheck.Result.FAIL);
-			}
-		}
 	}
 
 	@EventBusSubscriber(modid = ID, value = Dist.CLIENT)
