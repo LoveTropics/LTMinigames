@@ -2,13 +2,6 @@ package org.lovetropics.games.common.content.turtle_race;
 
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.core.game.GameException;
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
-import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
-import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -20,6 +13,13 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.core.game.GameException;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
+import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 
 import java.util.UUID;
 

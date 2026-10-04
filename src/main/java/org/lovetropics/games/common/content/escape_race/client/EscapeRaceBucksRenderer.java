@@ -1,8 +1,5 @@
 package org.lovetropics.games.common.content.escape_race.client;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.client.game.ClientGameStateManager;
-import org.lovetropics.games.common.content.escape_race.EscapeRace;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -15,6 +12,9 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.gui.GuiLayer;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.client.game.ClientGameStateManager;
+import org.lovetropics.games.common.content.escape_race.EscapeRace;
 
 import java.util.function.UnaryOperator;
 

@@ -1,9 +1,9 @@
 package org.lovetropics.games.common.content.escape_race.event;
 
-import org.lovetropics.games.common.content.escape_race.ddr_machine.levels.DdrLevel;
-import org.lovetropics.games.common.core.game.behavior.event.GameEventType;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerPlayer;
+import org.lovetropics.games.common.content.escape_race.ddr_machine.levels.DdrLevel;
+import org.lovetropics.games.common.core.game.behavior.event.GameEventType;
 
 public class EscapeRaceEvents {
 

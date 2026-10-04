@@ -1,8 +1,8 @@
 package org.lovetropics.games.common.core.map;
 
 import net.minecraft.nbt.NbtIo;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.world.level.Level;

@@ -1,5 +1,8 @@
 package org.lovetropics.games.common.core.game.behavior.instances.statistics;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import org.lovetropics.games.common.core.game.GameWinner;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
@@ -17,9 +20,6 @@ import org.lovetropics.games.common.core.game.state.statistics.StatisticsMap;
 import org.lovetropics.games.common.core.game.state.team.GameTeam;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
 import org.lovetropics.games.common.core.game.state.team.TeamState;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import java.util.function.Supplier;
 

@@ -1,11 +1,11 @@
 package org.lovetropics.games.common.content.river_race;
 
-import org.lovetropics.games.common.content.river_race.behaviour.TriviaBehaviour;
-import org.lovetropics.games.common.content.river_race.block.HasTrivia;
-import org.lovetropics.games.common.core.game.behavior.event.GameEventType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import org.lovetropics.games.common.content.river_race.behaviour.TriviaBehaviour;
+import org.lovetropics.games.common.content.river_race.block.HasTrivia;
+import org.lovetropics.games.common.core.game.behavior.event.GameEventType;
 
 public class TriviaEvents {
 

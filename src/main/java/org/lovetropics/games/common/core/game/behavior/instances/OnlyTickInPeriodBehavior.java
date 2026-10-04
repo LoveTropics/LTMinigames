@@ -1,5 +1,7 @@
 package org.lovetropics.games.common.core.game.behavior.instances;
 
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
 import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
@@ -12,8 +14,6 @@ import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.state.GameStateMap;
 import org.lovetropics.games.common.core.game.state.progress.ProgressChannel;
 import org.lovetropics.games.common.core.game.state.progress.ProgressionPeriod;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;

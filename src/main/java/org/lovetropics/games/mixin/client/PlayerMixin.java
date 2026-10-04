@@ -1,11 +1,11 @@
 package org.lovetropics.games.mixin.client;
 
-import org.lovetropics.games.client.game.ClientGameStateManager;
-import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import org.lovetropics.games.client.game.ClientGameStateManager;
+import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
 import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(Player.class)

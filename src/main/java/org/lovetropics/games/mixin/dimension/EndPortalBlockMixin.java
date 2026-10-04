@@ -3,7 +3,6 @@ package org.lovetropics.games.mixin.dimension;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
-import org.lovetropics.games.common.core.dimension.LinkedDimensions;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
@@ -15,6 +14,7 @@ import net.minecraft.world.level.portal.TeleportTransition;
 import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.core.dimension.LinkedDimensions;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 

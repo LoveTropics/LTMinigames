@@ -1,14 +1,14 @@
 package org.lovetropics.games.common.core.game.behavior.instances;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.SubGameEvents;
 import org.lovetropics.games.common.core.game.state.GameStateMap;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 public record InSubGamesBehavior(
 		IGameBehavior behavior,

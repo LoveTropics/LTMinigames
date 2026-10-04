@@ -1,10 +1,5 @@
 package org.lovetropics.games.common.core.game.persistent.behavior.crab;
 
-import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import org.lovetropics.games.common.core.game.persistent.PersistentGame;
-import org.lovetropics.games.common.core.game.persistent.PersistentGameBehavior;
-import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviorType;
-import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviors;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -15,6 +10,11 @@ import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntitySpawnRequest;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.core.game.persistent.PersistentGame;
+import org.lovetropics.games.common.core.game.persistent.PersistentGameBehavior;
+import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviorType;
+import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviors;
 
 import java.util.function.Supplier;
 

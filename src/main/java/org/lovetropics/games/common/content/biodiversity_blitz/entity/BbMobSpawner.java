@@ -1,6 +1,22 @@
 package org.lovetropics.games.common.content.biodiversity_blitz.entity;
 
 import com.lovetropics.lib.BlockBox;
+import com.mojang.serialization.Codec;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
+import net.minecraft.util.StringRepresentable;
+import net.minecraft.util.Util;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import org.lovetropics.games.common.content.biodiversity_blitz.behavior.event.BbEvents;
 import org.lovetropics.games.common.content.biodiversity_blitz.entity.impl.BbCreeperEntity;
 import org.lovetropics.games.common.content.biodiversity_blitz.entity.impl.BbDrownedEntity;
@@ -11,22 +27,6 @@ import org.lovetropics.games.common.content.biodiversity_blitz.entity.impl.BbZog
 import org.lovetropics.games.common.content.biodiversity_blitz.entity.impl.BbZombieEntity;
 import org.lovetropics.games.common.content.biodiversity_blitz.entity.impl.BbZombiePiglinEntity;
 import org.lovetropics.games.common.content.biodiversity_blitz.plot.Plot;
-import com.mojang.serialization.Codec;
-import net.minecraft.util.Util;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.RandomSource;
-import net.minecraft.util.StringRepresentable;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntitySpawnReason;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.EntityTypes;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.AABB;
 
 import java.util.Collections;
 import java.util.Locale;

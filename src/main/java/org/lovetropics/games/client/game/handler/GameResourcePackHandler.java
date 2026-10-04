@@ -1,9 +1,9 @@
 package org.lovetropics.games.client.game.handler;
 
-import org.lovetropics.games.common.core.game.client_state.instance.ResourcePackClientState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackRepository;
+import org.lovetropics.games.common.core.game.client_state.instance.ResourcePackClientState;
 
 import java.util.List;
 import java.util.function.Predicate;

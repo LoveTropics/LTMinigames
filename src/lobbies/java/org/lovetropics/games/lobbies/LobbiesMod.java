@@ -1,10 +1,10 @@
 package org.lovetropics.games.lobbies;
 
-import org.lovetropics.games.common.core.game.IGameLookup;
 import com.tterrag.registrate.Registrate;
 import com.tterrag.registrate.providers.ProviderType;
 import net.minecraft.resources.Identifier;
 import net.neoforged.fml.common.Mod;
+import org.lovetropics.games.common.core.game.IGameLookup;
 
 import java.util.function.BiConsumer;
 

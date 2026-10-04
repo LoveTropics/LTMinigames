@@ -1,10 +1,5 @@
 package org.lovetropics.games.common.core.game.behavior.instances.donation;
 
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
-import org.lovetropics.games.common.core.game.behavior.action.GameActionContextKeys;
-import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import org.lovetropics.games.common.util.Util;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -15,6 +10,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.item.enchantment.Enchantments;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.action.GameActionContextKeys;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.util.Util;
 
 public record GivePlayerHeadPackageBehavior(boolean forced) implements IGameBehavior {
 	public static final MapCodec<GivePlayerHeadPackageBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(

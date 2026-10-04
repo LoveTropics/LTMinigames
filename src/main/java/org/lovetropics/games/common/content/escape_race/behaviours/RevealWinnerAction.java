@@ -1,5 +1,7 @@
 package org.lovetropics.games.common.content.escape_race.behaviours;
 
+import com.mojang.serialization.MapCodec;
+import net.minecraft.network.chat.Component;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
@@ -9,8 +11,6 @@ import org.lovetropics.games.common.core.game.state.statistics.Placement;
 import org.lovetropics.games.common.core.game.state.statistics.PlacementOrder;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
-import com.mojang.serialization.MapCodec;
-import net.minecraft.network.chat.Component;
 
 public record RevealWinnerAction() implements IGameBehavior {
 	public static final MapCodec<RevealWinnerAction> CODEC = MapCodec.unit(RevealWinnerAction::new);

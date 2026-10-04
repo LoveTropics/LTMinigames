@@ -1,5 +1,11 @@
 package org.lovetropics.games.common.content.biodiversity_blitz.behavior;
 
+import com.mojang.logging.LogUtils;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import org.lovetropics.games.common.content.biodiversity_blitz.behavior.event.BbEvents;
 import org.lovetropics.games.common.content.biodiversity_blitz.behavior.tutorial.TutorialState;
 import org.lovetropics.games.common.content.biodiversity_blitz.client_state.CheckeredPlotsState;
@@ -17,12 +23,6 @@ import org.lovetropics.games.common.core.game.state.GameStateMap;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
 import org.lovetropics.games.common.core.game.state.team.TeamState;
 import org.lovetropics.games.common.core.map.MapRegions;
-import com.mojang.logging.LogUtils;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
 import org.slf4j.Logger;
 
 import java.util.Map;

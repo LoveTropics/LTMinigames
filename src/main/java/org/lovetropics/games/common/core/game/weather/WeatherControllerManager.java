@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.core.game.weather;
 
-import org.lovetropics.games.LoveTropics;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
@@ -14,6 +13,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import org.lovetropics.games.LoveTropics;
 
 import java.util.Map;
 import java.util.function.Function;

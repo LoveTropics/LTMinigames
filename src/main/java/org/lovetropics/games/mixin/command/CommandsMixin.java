@@ -1,11 +1,11 @@
 package org.lovetropics.games.mixin.command;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import org.lovetropics.games.common.core.game.command.GameCommandManager;
 import com.mojang.brigadier.tree.RootCommandNode;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.server.level.ServerPlayer;
+import org.lovetropics.games.common.core.game.command.GameCommandManager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

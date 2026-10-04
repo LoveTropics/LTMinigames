@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.util;
 
-import org.lovetropics.games.LoveTropics;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -9,6 +8,7 @@ import net.minecraft.util.Mth;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
+import org.lovetropics.games.LoveTropics;
 
 public record PredictedToggle(
 		boolean enabled,

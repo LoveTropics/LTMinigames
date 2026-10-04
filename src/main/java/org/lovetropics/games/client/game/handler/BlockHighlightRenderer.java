@@ -1,9 +1,5 @@
 package org.lovetropics.games.client.game.handler;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.client.game.ClientGameStateManager;
-import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
-import org.lovetropics.games.common.core.game.client_state.instance.HighlightBlocksState;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
@@ -21,6 +17,10 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.SubmitCustomGeometryEvent;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.client.game.ClientGameStateManager;
+import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
+import org.lovetropics.games.common.core.game.client_state.instance.HighlightBlocksState;
 
 import java.util.List;
 

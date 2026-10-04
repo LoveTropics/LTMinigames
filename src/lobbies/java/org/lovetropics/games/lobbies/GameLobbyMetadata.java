@@ -1,9 +1,8 @@
 package org.lovetropics.games.lobbies;
 
+import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
 import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
-
-import org.jspecify.annotations.Nullable;
 
 public record GameLobbyMetadata(GameLobbyId id, PlayerKey initiator, String name, LobbyVisibility visibility) {
 	public GameLobbyMetadata(GameLobbyId id, PlayerKey initiator, String name) {

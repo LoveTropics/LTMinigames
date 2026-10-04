@@ -1,5 +1,11 @@
 package org.lovetropics.games.common.core.game.persistent;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.registries.DeferredRegister;
 import org.lovetropics.games.LoveTropics;
 import org.lovetropics.games.common.core.game.persistent.behavior.CompositePersistentBehavior;
 import org.lovetropics.games.common.core.game.persistent.behavior.GameRegionBehavior;
@@ -12,12 +18,6 @@ import org.lovetropics.games.common.core.game.persistent.behavior.crab.CrabGolfW
 import org.lovetropics.games.common.core.game.persistent.behavior.dropper.DropperBehavior;
 import org.lovetropics.games.common.core.game.persistent.behavior.parkour.ParkourBehavior;
 import org.lovetropics.games.common.util.registry.LoveTropicsRegistrate;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceKey;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.registries.DeferredRegister;
 
 public class PersistentGameBehaviors {
 	public static final ResourceKey<Registry<PersistentGameBehaviorType<?>>> REGISTRY_KEY = ResourceKey.createRegistryKey(LoveTropics.id("persistent_behaviors"));

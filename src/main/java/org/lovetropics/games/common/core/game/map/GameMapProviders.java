@@ -1,10 +1,10 @@
 package org.lovetropics.games.common.core.game.map;
 
 import com.lovetropics.lib.codec.CodecRegistry;
-import org.lovetropics.games.LoveTropics;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.resources.Identifier;
+import org.lovetropics.games.LoveTropics;
 
 import java.util.function.Function;
 

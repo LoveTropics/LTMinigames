@@ -1,13 +1,13 @@
 package org.lovetropics.games.common.core.map;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.core.map.workspace.WorkspaceRegions;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.core.map.workspace.WorkspaceRegions;
 
 // WorkspaceRegions for persistent worlds
 public class SavedRegions extends SavedData {

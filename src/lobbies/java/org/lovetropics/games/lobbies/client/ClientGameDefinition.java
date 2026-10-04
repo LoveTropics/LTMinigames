@@ -1,13 +1,13 @@
 package org.lovetropics.games.lobbies.client;
 
-import org.lovetropics.games.common.core.game.config.GameConfig;
-import org.lovetropics.games.common.core.game.config.GameConfigs;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.core.game.config.GameConfig;
+import org.lovetropics.games.common.core.game.config.GameConfigs;
 
 import java.util.List;
 import java.util.stream.Collectors;

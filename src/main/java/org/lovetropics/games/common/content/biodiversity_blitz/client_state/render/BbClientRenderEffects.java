@@ -1,10 +1,5 @@
 package org.lovetropics.games.common.content.biodiversity_blitz.client_state.render;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.client.game.ClientGameStateManager;
-import org.lovetropics.games.common.content.biodiversity_blitz.BiodiversityBlitz;
-import org.lovetropics.games.common.content.biodiversity_blitz.client_state.ClientBbSelfState;
-import org.lovetropics.games.common.content.biodiversity_blitz.client_state.CurrencyTargetState;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -15,8 +10,12 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
-
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.client.game.ClientGameStateManager;
+import org.lovetropics.games.common.content.biodiversity_blitz.BiodiversityBlitz;
+import org.lovetropics.games.common.content.biodiversity_blitz.client_state.ClientBbSelfState;
+import org.lovetropics.games.common.content.biodiversity_blitz.client_state.CurrencyTargetState;
 
 @EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
 public final class BbClientRenderEffects {

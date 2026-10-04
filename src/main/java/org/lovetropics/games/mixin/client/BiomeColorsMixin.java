@@ -1,11 +1,11 @@
 package org.lovetropics.games.mixin.client;
 
-import org.lovetropics.games.client.game.ClientGameStateManager;
-import org.lovetropics.games.common.content.biodiversity_blitz.BiodiversityBlitz;
-import org.lovetropics.games.common.content.biodiversity_blitz.client_state.CheckeredPlotsState;
 import net.minecraft.client.renderer.BiomeColors;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.core.BlockPos;
+import org.lovetropics.games.client.game.ClientGameStateManager;
+import org.lovetropics.games.common.content.biodiversity_blitz.BiodiversityBlitz;
+import org.lovetropics.games.common.content.biodiversity_blitz.client_state.CheckeredPlotsState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

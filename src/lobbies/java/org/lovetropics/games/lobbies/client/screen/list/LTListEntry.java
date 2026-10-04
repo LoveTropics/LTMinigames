@@ -1,12 +1,11 @@
 package org.lovetropics.games.lobbies.client.screen.list;
 
-import org.lovetropics.games.lobbies.client.screen.list.AbstractLTList.Reorder;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.ObjectSelectionList.Entry;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.MouseButtonEvent;
-
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.lobbies.client.screen.list.AbstractLTList.Reorder;
 
 public abstract class LTListEntry<T extends LTListEntry<T>> extends Entry<T> {
 

@@ -1,13 +1,13 @@
 package org.lovetropics.games.common.core.integration.game_actions;
 
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.event.GamePackageEvents;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.TriState;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.event.GamePackageEvents;
 import org.slf4j.Logger;
 
 import java.util.Optional;

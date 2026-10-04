@@ -1,5 +1,17 @@
 package org.lovetropics.games.common.content.escape_race.behaviours;
 
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import net.minecraft.ChatFormatting;
+import net.minecraft.SharedConstants;
+import net.minecraft.commands.Commands;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.TriState;
 import org.lovetropics.games.common.content.escape_race.EscapeRace;
 import org.lovetropics.games.common.content.escape_race.EscapeRaceParticles;
 import org.lovetropics.games.common.content.escape_race.EscapeRaceTexts;
@@ -18,18 +30,6 @@ import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticsMap;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
 import org.lovetropics.games.common.core.game.state.team.TeamState;
-import com.mojang.brigadier.arguments.IntegerArgumentType;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import net.minecraft.ChatFormatting;
-import net.minecraft.SharedConstants;
-import net.minecraft.commands.Commands;
-import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.TriState;
 
 public record BreakBucksBehaviour(
 		float particleSpreadX,

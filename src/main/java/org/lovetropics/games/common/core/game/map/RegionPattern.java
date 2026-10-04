@@ -1,10 +1,10 @@
 package org.lovetropics.games.common.core.game.map;
 
 import com.lovetropics.lib.BlockBox;
-import org.lovetropics.games.common.core.map.MapRegions;
 import com.mojang.serialization.Codec;
-
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.core.map.MapRegions;
+
 import java.util.Collection;
 
 public record RegionPattern(String pattern) {

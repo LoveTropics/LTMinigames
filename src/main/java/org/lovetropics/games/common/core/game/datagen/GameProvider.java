@@ -1,11 +1,11 @@
 package org.lovetropics.games.common.core.game.datagen;
 
-import org.lovetropics.games.common.core.game.config.GameConfig;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.Identifier;
+import org.lovetropics.games.common.core.game.config.GameConfig;
 
 import java.nio.file.Path;
 import java.util.ArrayList;

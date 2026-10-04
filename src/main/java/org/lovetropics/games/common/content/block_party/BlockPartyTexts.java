@@ -1,9 +1,9 @@
 package org.lovetropics.games.common.content.block_party;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.core.game.util.TranslationCollector;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.core.game.util.TranslationCollector;
 
 public final class BlockPartyTexts {
 	public static final TranslationCollector KEYS = new TranslationCollector(LoveTropics.ID + ".minigame.block_party.");

@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.content.escape_race.client.ddr.render;
 
-import org.lovetropics.games.LoveTropics;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.Identifier;
@@ -8,8 +7,9 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.TextureAtlasStitchedEvent;
-
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.LoveTropics;
+
 import java.util.Objects;
 
 @EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)

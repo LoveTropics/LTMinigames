@@ -1,6 +1,17 @@
 package org.lovetropics.games.common.core.game.behavior.instances;
 
 import com.lovetropics.lib.codec.MoreCodecs;
+import com.mojang.datafixers.util.Either;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.ChatFormatting;
+import net.minecraft.SharedConstants;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
+import net.minecraft.util.Mth;
+import net.minecraft.world.BossEvent;
+import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.content.MinigameTexts;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
@@ -13,18 +24,7 @@ import org.lovetropics.games.common.core.game.util.GameBossBar;
 import org.lovetropics.games.common.core.game.util.GameWidgets;
 import org.lovetropics.games.common.core.game.util.TemplatedText;
 import org.lovetropics.games.common.util.Util;
-import com.mojang.datafixers.util.Either;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.ChatFormatting;
-import net.minecraft.SharedConstants;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.ComponentSerialization;
-import net.minecraft.util.Mth;
-import net.minecraft.world.BossEvent;
 
-import org.jspecify.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;

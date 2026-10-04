@@ -1,5 +1,10 @@
 package org.lovetropics.games.common.content.survive_the_tide.behavior;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.SharedConstants;
+import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
@@ -9,11 +14,6 @@ import org.lovetropics.games.common.core.game.state.progress.ProgressChannel;
 import org.lovetropics.games.common.core.game.state.progress.ProgressHolder;
 import org.lovetropics.games.common.core.game.state.weather.GameWeatherState;
 import org.lovetropics.games.common.core.game.weather.WeatherEventType;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.SharedConstants;
-import org.jspecify.annotations.Nullable;
 
 public class SurviveTheTideWindController implements IGameBehavior {
 	public static final MapCodec<SurviveTheTideWindController> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(

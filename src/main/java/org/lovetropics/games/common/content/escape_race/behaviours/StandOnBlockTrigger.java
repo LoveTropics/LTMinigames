@@ -1,12 +1,5 @@
 package org.lovetropics.games.common.content.escape_race.behaviours;
 
-import org.lovetropics.games.common.core.game.GameException;
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
-import org.lovetropics.games.common.core.game.behavior.action.ActionSubjects;
-import org.lovetropics.games.common.core.game.behavior.action.GameActionList;
-import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -14,6 +7,13 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.advancements.predicates.BlockPredicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.context.ContextMap;
+import org.lovetropics.games.common.core.game.GameException;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.action.ActionSubjects;
+import org.lovetropics.games.common.core.game.behavior.action.GameActionList;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 
 import java.util.Set;
 import java.util.UUID;

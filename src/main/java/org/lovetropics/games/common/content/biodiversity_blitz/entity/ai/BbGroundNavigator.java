@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.content.biodiversity_blitz.entity.ai;
 
-import org.lovetropics.games.common.content.biodiversity_blitz.entity.BbMobEntity;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
@@ -11,6 +10,7 @@ import net.minecraft.world.level.pathfinder.PathfindingContext;
 import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import org.lovetropics.games.common.content.biodiversity_blitz.entity.BbMobEntity;
 
 public final class BbGroundNavigator extends GroundPathNavigation {
 	// Increase how far we can search for a path - should be ok for performance, as we're limited to 2D anyway

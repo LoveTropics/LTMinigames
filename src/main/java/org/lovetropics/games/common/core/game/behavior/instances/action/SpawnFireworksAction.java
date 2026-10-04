@@ -1,11 +1,6 @@
 package org.lovetropics.games.common.core.game.behavior.instances.action;
 
 import com.lovetropics.lib.entity.FireworkPalette;
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
-import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
-import org.lovetropics.games.common.core.game.state.team.TeamState;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -13,6 +8,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.levelgen.Heightmap;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
+import org.lovetropics.games.common.core.game.state.team.TeamState;
 
 public record SpawnFireworksAction(
 		boolean useTeamColor

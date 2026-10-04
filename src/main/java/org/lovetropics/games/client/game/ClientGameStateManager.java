@@ -1,16 +1,15 @@
 package org.lovetropics.games.client.game;
 
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
+import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.LoveTropics;
 import org.lovetropics.games.client.game.handler.ClientGameStateHandlers;
 import org.lovetropics.games.common.core.game.client_state.GameClientState;
 import org.lovetropics.games.common.core.game.client_state.GameClientStateMap;
 import org.lovetropics.games.common.core.game.client_state.GameClientStateType;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
-
-import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.function.Supplier;

@@ -1,7 +1,5 @@
 package org.lovetropics.games.common.content.escape_race.client.ddr.render;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.content.escape_race.ddr_machine.DDRMachineEntity;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.ClientAvatarEntity;
@@ -16,6 +14,8 @@ import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.ViewportEvent;
 import net.neoforged.neoforge.client.renderstate.AvatarRenderStateModifier;
 import net.neoforged.neoforge.client.renderstate.RegisterRenderStateModifiersEvent;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.content.escape_race.ddr_machine.DDRMachineEntity;
 
 @EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
 public class DDRMachineClientEventHandler {

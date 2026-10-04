@@ -1,10 +1,10 @@
 package org.lovetropics.games.mixin.client;
 
-import org.lovetropics.games.client.game.ClientGameStateManager;
-import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import org.lovetropics.games.client.game.ClientGameStateManager;
+import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;

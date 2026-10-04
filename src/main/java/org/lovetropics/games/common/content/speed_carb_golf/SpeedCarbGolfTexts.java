@@ -1,8 +1,8 @@
 package org.lovetropics.games.common.content.speed_carb_golf;
 
+import net.minecraft.network.chat.MutableComponent;
 import org.lovetropics.games.LoveTropics;
 import org.lovetropics.games.common.core.game.util.TranslationCollector;
-import net.minecraft.network.chat.MutableComponent;
 
 public class SpeedCarbGolfTexts {
 	public static final TranslationCollector KEYS = new TranslationCollector(LoveTropics.ID + ".minigame.speed_carb_golf.");

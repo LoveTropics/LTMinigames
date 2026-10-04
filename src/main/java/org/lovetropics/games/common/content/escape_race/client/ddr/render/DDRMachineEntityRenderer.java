@@ -1,11 +1,5 @@
 package org.lovetropics.games.common.content.escape_race.client.ddr.render;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.content.escape_race.client.ddr.DdrScreen;
-import org.lovetropics.games.common.content.escape_race.ddr_machine.DDRMachineEntity;
-import org.lovetropics.games.common.content.escape_race.ddr_machine.DdrInput;
-import org.lovetropics.games.common.content.escape_race.ddr_machine.levels.DdrLevel;
-import org.lovetropics.games.common.content.escape_race.ddr_machine.levels.TimedDdrInput;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.SharedConstants;
@@ -28,6 +22,12 @@ import net.minecraft.util.ARGB;
 import net.minecraft.util.CommonColors;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemDisplayContext;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.content.escape_race.client.ddr.DdrScreen;
+import org.lovetropics.games.common.content.escape_race.ddr_machine.DDRMachineEntity;
+import org.lovetropics.games.common.content.escape_race.ddr_machine.DdrInput;
+import org.lovetropics.games.common.content.escape_race.ddr_machine.levels.DdrLevel;
+import org.lovetropics.games.common.content.escape_race.ddr_machine.levels.TimedDdrInput;
 
 import java.util.ArrayList;
 import java.util.List;

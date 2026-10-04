@@ -1,5 +1,10 @@
 package org.lovetropics.games.common.core.game.behavior.instances.statistics;
 
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.SharedConstants;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionResult;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
@@ -8,11 +13,6 @@ import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
 import org.lovetropics.games.common.core.game.state.statistics.GameStatistics;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.SharedConstants;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionResult;
 
 public final class TimeSurvivedTrackerBehavior implements IGameBehavior {
 	public static final MapCodec<TimeSurvivedTrackerBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(

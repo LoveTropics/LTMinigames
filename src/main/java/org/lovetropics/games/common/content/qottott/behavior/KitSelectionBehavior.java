@@ -1,14 +1,6 @@
 package org.lovetropics.games.common.content.qottott.behavior;
 
 import com.lovetropics.lib.BlockBox;
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
-import org.lovetropics.games.common.core.game.behavior.action.ActionSubjects;
-import org.lovetropics.games.common.core.game.behavior.action.GameActionList;
-import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
-import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
-import org.lovetropics.games.common.core.game.player.PlayerRole;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -24,6 +16,14 @@ import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.component.TypedEntityData;
 import net.minecraft.world.phys.Vec3;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.action.ActionSubjects;
+import org.lovetropics.games.common.core.game.behavior.action.GameActionList;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
+import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
+import org.lovetropics.games.common.core.game.player.PlayerRole;
 import org.slf4j.Logger;
 
 import java.util.Collection;

@@ -1,16 +1,6 @@
 package org.lovetropics.games.common.content.river_race.behaviour;
 
 import com.lovetropics.lib.BlockBox;
-import org.lovetropics.games.common.content.river_race.RiverRaceState;
-import org.lovetropics.games.common.content.river_race.microgames.MicrogameEvents;
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.SpawnBuilder;
-import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
-import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
-import org.lovetropics.games.common.core.game.player.PlayerRole;
-import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
-import org.lovetropics.games.common.core.game.state.team.TeamState;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -21,6 +11,16 @@ import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket;
 import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
 import net.minecraft.network.protocol.game.ClientboundSetTitlesAnimationPacket;
 import net.minecraft.server.level.ServerPlayer;
+import org.lovetropics.games.common.content.river_race.RiverRaceState;
+import org.lovetropics.games.common.content.river_race.microgames.MicrogameEvents;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.SpawnBuilder;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
+import org.lovetropics.games.common.core.game.player.PlayerRole;
+import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
+import org.lovetropics.games.common.core.game.state.team.TeamState;
 
 import java.util.Map;
 import java.util.stream.Collectors;

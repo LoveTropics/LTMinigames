@@ -1,12 +1,12 @@
 package org.lovetropics.games.common.content.bingo;
 
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import org.lovetropics.games.LoveTropics;
 import org.lovetropics.games.common.core.game.behavior.event.GameEventType;
 import org.lovetropics.games.common.core.game.util.TranslationCollector;
 import org.lovetropics.games.common.util.registry.GameBehaviorEntry;
 import org.lovetropics.games.common.util.registry.LoveTropicsRegistrate;
-import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
 
 public class Bingo {
 	private static final LoveTropicsRegistrate REGISTRATE = LoveTropics.registrate();

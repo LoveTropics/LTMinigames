@@ -1,8 +1,5 @@
 package org.lovetropics.games.common.content.crafting_bee;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.util.registry.GameBehaviorEntry;
-import org.lovetropics.games.common.util.registry.LoveTropicsRegistrate;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
@@ -12,6 +9,9 @@ import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.item.crafting.ShapelessRecipe;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.util.registry.GameBehaviorEntry;
+import org.lovetropics.games.common.util.registry.LoveTropicsRegistrate;
 
 import java.util.function.Supplier;
 

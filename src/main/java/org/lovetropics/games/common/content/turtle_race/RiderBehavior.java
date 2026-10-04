@@ -1,13 +1,5 @@
 package org.lovetropics.games.common.content.turtle_race;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.core.game.GameException;
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
-import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
-import org.lovetropics.games.common.core.game.player.PlayerRole;
-import org.lovetropics.games.common.util.EntityTemplate;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -23,6 +15,14 @@ import net.neoforged.neoforge.event.entity.EntityMountEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.jetbrains.annotations.Nullable;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.core.game.GameException;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
+import org.lovetropics.games.common.core.game.player.PlayerRole;
+import org.lovetropics.games.common.util.EntityTemplate;
 import org.slf4j.Logger;
 
 import java.util.Map;

@@ -1,8 +1,8 @@
 package org.lovetropics.games.common.core.chat;
 
-import org.lovetropics.games.common.core.game.util.GameTexts;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.StringRepresentable;
+import org.lovetropics.games.common.core.game.util.GameTexts;
 
 import java.util.Arrays;
 import java.util.stream.Stream;

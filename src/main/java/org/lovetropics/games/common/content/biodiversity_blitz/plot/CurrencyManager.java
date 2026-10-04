@@ -1,12 +1,5 @@
 package org.lovetropics.games.common.content.biodiversity_blitz.plot;
 
-import org.lovetropics.games.common.content.biodiversity_blitz.behavior.event.BbEvents;
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.state.GameStateKey;
-import org.lovetropics.games.common.core.game.state.IGameState;
-import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
-import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
-import org.lovetropics.games.common.core.game.state.team.TeamState;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.server.level.ServerPlayer;
@@ -14,6 +7,13 @@ import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import org.lovetropics.games.common.content.biodiversity_blitz.behavior.event.BbEvents;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.state.GameStateKey;
+import org.lovetropics.games.common.core.game.state.IGameState;
+import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
+import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
+import org.lovetropics.games.common.core.game.state.team.TeamState;
 
 import java.util.List;
 import java.util.UUID;

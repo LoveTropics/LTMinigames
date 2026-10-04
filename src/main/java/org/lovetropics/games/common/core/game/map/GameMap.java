@@ -1,11 +1,11 @@
 package org.lovetropics.games.common.core.game.map;
 
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.map.MapRegions;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
-
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.map.MapRegions;
+
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Stream;

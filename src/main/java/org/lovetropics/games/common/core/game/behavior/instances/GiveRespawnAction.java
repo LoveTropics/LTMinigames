@@ -1,5 +1,10 @@
 package org.lovetropics.games.common.core.game.behavior.instances;
 
+import com.mojang.serialization.MapCodec;
+import net.minecraft.ChatFormatting;
+import net.minecraft.SharedConstants;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
@@ -9,11 +14,6 @@ import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
 import org.lovetropics.games.common.core.game.player.PlayerSet;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
-import com.mojang.serialization.MapCodec;
-import net.minecraft.ChatFormatting;
-import net.minecraft.SharedConstants;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 
 import java.util.ArrayDeque;
 import java.util.Objects;

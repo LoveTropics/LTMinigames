@@ -1,8 +1,5 @@
 package org.lovetropics.games.client.game.handler;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.client.game.ClientGameStateManager;
-import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.ClientAvatarEntity;
@@ -30,6 +27,9 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RenderPlayerEvent;
 import net.neoforged.neoforge.client.renderstate.AvatarRenderStateModifier;
 import net.neoforged.neoforge.client.renderstate.RegisterRenderStateModifiersEvent;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.client.game.ClientGameStateManager;
+import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
 
 @EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
 public final class HealthTagRenderer {

@@ -1,10 +1,10 @@
 package org.lovetropics.games.lobbies.client.state;
 
-import org.lovetropics.games.common.core.game.GamePhaseType;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.codec.StreamCodec;
+import org.lovetropics.games.common.core.game.GamePhaseType;
 import org.lovetropics.games.lobbies.client.ClientGameDefinition;
 
 import java.util.Optional;

@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.core.game.behavior.instances.world;
 
-import org.lovetropics.games.common.core.game.IGamePhase;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -8,7 +7,6 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import net.minecraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -17,6 +15,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.util.Util;
 import net.minecraft.util.random.WeightedList;
 import net.minecraft.world.RandomizableContainer;
 import net.minecraft.world.level.block.Block;
@@ -25,6 +24,7 @@ import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.storage.loot.LootTable;
+import org.lovetropics.games.common.core.game.IGamePhase;
 
 import java.util.Collection;
 import java.util.List;

@@ -1,6 +1,5 @@
 package org.lovetropics.games.mixin.gametest;
 
-import org.lovetropics.games.common.util.LTGameTestFakePlayer;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.embedded.EmbeddedChannel;
 import net.minecraft.network.Connection;
@@ -12,6 +11,7 @@ import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.server.players.PlayerList;
 import net.neoforged.fml.util.ObfuscationReflectionHelper;
 import org.jetbrains.annotations.Nullable;
+import org.lovetropics.games.common.util.LTGameTestFakePlayer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;

@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.content.escape_race.client.ddr.sound;
 
-import org.lovetropics.games.common.content.escape_race.ddr_machine.DDRMachineEntity;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance;
 import net.minecraft.client.resources.sounds.Sound;
@@ -13,6 +12,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.Util;
 import net.minecraft.world.item.JukeboxSong;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.content.escape_race.ddr_machine.DDRMachineEntity;
 
 import javax.sound.sampled.AudioFormat;
 import java.io.IOException;

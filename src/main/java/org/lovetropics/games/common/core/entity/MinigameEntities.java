@@ -1,10 +1,10 @@
 package org.lovetropics.games.common.core.entity;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.util.registry.LoveTropicsRegistrate;
 import com.tterrag.registrate.util.entry.EntityEntry;
 import net.minecraft.client.renderer.entity.LightningBoltRenderer;
 import net.minecraft.world.entity.MobCategory;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.util.registry.LoveTropicsRegistrate;
 
 import static net.minecraft.world.level.storage.loot.LootTable.lootTable;
 

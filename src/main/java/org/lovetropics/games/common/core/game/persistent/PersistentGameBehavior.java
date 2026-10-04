@@ -1,13 +1,13 @@
 package org.lovetropics.games.common.core.game.persistent;
 
-import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import org.lovetropics.games.common.core.game.persistent.behavior.CompositePersistentBehavior;
-import org.lovetropics.games.common.util.Codecs;
 import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.core.game.persistent.behavior.CompositePersistentBehavior;
+import org.lovetropics.games.common.util.Codecs;
 
 import java.util.function.Consumer;
 import java.util.function.Function;

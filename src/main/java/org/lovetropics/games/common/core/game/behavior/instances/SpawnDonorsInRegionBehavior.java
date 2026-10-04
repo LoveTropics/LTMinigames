@@ -1,16 +1,5 @@
 package org.lovetropics.games.common.core.game.behavior.instances;
 
-import org.lovetropics.games.common.core.data.LoveTropicsAttachments;
-import org.lovetropics.games.common.core.game.GameException;
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
-import org.lovetropics.games.common.core.game.behavior.SpawnDonorUtils;
-import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import org.lovetropics.games.common.core.game.behavior.event.GameLivingEntityEvents;
-import org.lovetropics.games.common.core.game.behavior.event.GamePackageEvents;
-import org.lovetropics.games.common.core.integration.GameInstanceIntegrations;
-import org.lovetropics.games.common.core.integration.game_actions.Donation;
-import org.lovetropics.games.common.core.integration.state.DonationScale;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -24,6 +13,17 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.WritableBookContent;
+import org.lovetropics.games.common.core.data.LoveTropicsAttachments;
+import org.lovetropics.games.common.core.game.GameException;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.SpawnDonorUtils;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.core.game.behavior.event.GameLivingEntityEvents;
+import org.lovetropics.games.common.core.game.behavior.event.GamePackageEvents;
+import org.lovetropics.games.common.core.integration.GameInstanceIntegrations;
+import org.lovetropics.games.common.core.integration.game_actions.Donation;
+import org.lovetropics.games.common.core.integration.state.DonationScale;
 
 import java.util.List;
 import java.util.Optional;

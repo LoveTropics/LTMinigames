@@ -1,13 +1,13 @@
 package org.lovetropics.games.mixin;
 
-import org.lovetropics.games.common.core.game.impl.GameEventDispatcher;
-import org.lovetropics.games.common.util.duck.ServerPlayerExtension;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.Level;
+import org.lovetropics.games.common.core.game.impl.GameEventDispatcher;
+import org.lovetropics.games.common.util.duck.ServerPlayerExtension;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;

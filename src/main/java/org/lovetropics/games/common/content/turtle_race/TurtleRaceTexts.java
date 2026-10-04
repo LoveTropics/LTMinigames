@@ -1,11 +1,11 @@
 package org.lovetropics.games.common.content.turtle_race;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.core.game.util.TranslationCollector;
-import org.lovetropics.games.common.util.Util;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.core.game.util.TranslationCollector;
+import org.lovetropics.games.common.util.Util;
 
 public class TurtleRaceTexts {
 	public static final TranslationCollector KEYS = new TranslationCollector(LoveTropics.ID + ".minigame.turtle_race.");

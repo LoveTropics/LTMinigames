@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.content.river_race.block;
 
-import org.lovetropics.games.common.content.river_race.RiverRace;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -40,8 +39,8 @@ import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.content.river_race.RiverRace;
 
 public class TriviaChestBlock extends AbstractChestBlock<ChestBlockEntity> {
 	public static final MapCodec<TriviaChestBlock> CODEC = simpleCodec(TriviaChestBlock::new);

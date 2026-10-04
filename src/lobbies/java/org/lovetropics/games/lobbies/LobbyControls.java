@@ -1,10 +1,10 @@
 package org.lovetropics.games.lobbies;
 
-import org.lovetropics.games.common.core.game.GameResult;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.Unit;
-
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.core.game.GameResult;
+
 import java.util.EnumMap;
 import java.util.Map;
 

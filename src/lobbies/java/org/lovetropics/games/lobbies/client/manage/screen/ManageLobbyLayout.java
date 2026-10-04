@@ -1,11 +1,11 @@
 package org.lovetropics.games.lobbies.client.manage.screen;
 
+import net.minecraft.client.gui.screens.Screen;
 import org.lovetropics.games.lobbies.client.screen.flex.Align;
 import org.lovetropics.games.lobbies.client.screen.flex.Box;
 import org.lovetropics.games.lobbies.client.screen.flex.Flex;
 import org.lovetropics.games.lobbies.client.screen.flex.FlexSolver;
 import org.lovetropics.games.lobbies.client.screen.flex.Layout;
-import net.minecraft.client.gui.screens.Screen;
 
 final class ManageLobbyLayout {
 	static final int PADDING = 8;

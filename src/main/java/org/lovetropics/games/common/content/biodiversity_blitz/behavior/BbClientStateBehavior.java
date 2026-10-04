@@ -1,5 +1,9 @@
 package org.lovetropics.games.common.content.biodiversity_blitz.behavior;
 
+import com.mojang.serialization.MapCodec;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import net.minecraft.server.level.ServerPlayer;
 import org.lovetropics.games.common.content.biodiversity_blitz.BiodiversityBlitz;
 import org.lovetropics.games.common.content.biodiversity_blitz.behavior.event.BbEvents;
 import org.lovetropics.games.common.content.biodiversity_blitz.client_state.ClientBbSelfState;
@@ -10,10 +14,6 @@ import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.client_state.GameClientState;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
 import org.lovetropics.games.common.core.game.state.team.TeamState;
-import com.mojang.serialization.MapCodec;
-import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import net.minecraft.server.level.ServerPlayer;
 
 import java.util.function.Consumer;
 

@@ -1,6 +1,13 @@
 package org.lovetropics.games.common.core.game.behavior.instances.donation;
 
 import com.google.common.collect.Lists;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.TriState;
+import net.minecraft.util.Util;
+import net.minecraft.world.entity.Entity;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
 import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
@@ -13,13 +20,6 @@ import org.lovetropics.games.common.core.game.state.GamePackageState;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
 import org.lovetropics.games.common.core.game.state.team.TeamState;
 import org.lovetropics.games.common.core.integration.game_actions.GamePackage;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.util.Util;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.TriState;
-import net.minecraft.world.entity.Entity;
 
 import java.util.List;
 import java.util.Optional;

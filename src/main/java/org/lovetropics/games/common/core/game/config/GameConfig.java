@@ -1,12 +1,12 @@
 package org.lovetropics.games.common.core.game.config;
 
-import org.lovetropics.games.common.core.game.IGameDefinition;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.core.game.IGameDefinition;
 
 import java.util.Optional;
 

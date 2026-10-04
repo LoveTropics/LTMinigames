@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.core.game.behavior.event;
 
-import org.lovetropics.games.common.core.game.weather.WeatherEvent;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -21,8 +20,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.phys.HitResult;
-
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.core.game.weather.WeatherEvent;
+
 import java.util.List;
 
 public final class GameWorldEvents {

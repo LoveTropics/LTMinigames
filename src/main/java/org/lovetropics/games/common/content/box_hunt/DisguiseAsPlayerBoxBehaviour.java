@@ -1,10 +1,5 @@
 package org.lovetropics.games.common.content.box_hunt;
 
-import org.lovetropics.games.common.core.game.GameException;
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
-import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
@@ -15,6 +10,11 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.item.component.TypedEntityData;
 import net.minecraft.world.phys.Vec3;
+import org.lovetropics.games.common.core.game.GameException;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.peekaboo.api.Disguise;
 import org.lovetropics.peekaboo.api.EntityDisguiseHolder;
 

@@ -1,14 +1,5 @@
 package org.lovetropics.games.common.content.qottott.behavior;
 
-import org.lovetropics.games.SoundRegistry;
-import org.lovetropics.games.common.content.qottott.Qottott;
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
-import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
-import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
-import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
-import org.lovetropics.games.common.core.game.state.statistics.StatisticsMap;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.server.level.ServerPlayer;
@@ -20,6 +11,15 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
+import org.lovetropics.games.SoundRegistry;
+import org.lovetropics.games.common.content.qottott.Qottott;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
+import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
+import org.lovetropics.games.common.core.game.state.statistics.StatisticsMap;
 
 import java.util.function.Supplier;
 

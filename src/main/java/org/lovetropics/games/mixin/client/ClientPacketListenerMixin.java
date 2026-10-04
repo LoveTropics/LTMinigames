@@ -2,9 +2,9 @@ package org.lovetropics.games.mixin.client;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import org.lovetropics.games.common.content.turtle_race.RiderBehavior;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.world.entity.Entity;
+import org.lovetropics.games.common.content.turtle_race.RiderBehavior;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 

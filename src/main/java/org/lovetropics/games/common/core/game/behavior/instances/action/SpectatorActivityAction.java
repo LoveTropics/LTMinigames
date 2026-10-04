@@ -1,13 +1,13 @@
 package org.lovetropics.games.common.core.game.behavior.instances.action;
 
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.chat.TextColor;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.network.SpectatorPlayerActivityMessage;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.network.chat.TextColor;
 
 public record SpectatorActivityAction(TextColor style) implements IGameBehavior {
 	public static final MapCodec<SpectatorActivityAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(

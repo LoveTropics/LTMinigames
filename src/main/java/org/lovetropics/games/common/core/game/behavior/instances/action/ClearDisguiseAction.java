@@ -1,9 +1,9 @@
 package org.lovetropics.games.common.core.game.behavior.instances.action;
 
+import com.mojang.serialization.MapCodec;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import com.mojang.serialization.MapCodec;
 import org.lovetropics.peekaboo.api.Disguise;
 import org.lovetropics.peekaboo.api.EntityDisguiseHolder;
 

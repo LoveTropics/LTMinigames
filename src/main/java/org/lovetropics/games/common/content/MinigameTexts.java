@@ -1,11 +1,11 @@
 package org.lovetropics.games.common.content;
 
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 import org.lovetropics.games.LoveTropics;
 import org.lovetropics.games.common.core.game.behavior.instances.donation.DonationPackageData;
 import org.lovetropics.games.common.core.game.util.TranslationCollector;
 import org.lovetropics.games.common.util.Util;
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
 
 public final class MinigameTexts {
 	public static final TranslationCollector KEYS = new TranslationCollector(LoveTropics.ID + ".minigame.");

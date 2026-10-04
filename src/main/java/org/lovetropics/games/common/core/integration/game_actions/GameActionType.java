@@ -1,10 +1,10 @@
 package org.lovetropics.games.common.core.integration.game_actions;
 
-import org.lovetropics.games.common.config.ConfigLT;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.SharedConstants;
 import net.minecraft.util.StringRepresentable;
+import org.lovetropics.games.common.config.ConfigLT;
 
 import java.util.function.Supplier;
 

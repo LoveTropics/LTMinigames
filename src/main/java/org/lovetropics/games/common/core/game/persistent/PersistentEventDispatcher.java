@@ -1,8 +1,5 @@
 package org.lovetropics.games.common.core.game.persistent;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
-import org.lovetropics.games.common.core.game.impl.GameEventDispatcher;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.TriState;
@@ -14,6 +11,9 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
+import org.lovetropics.games.common.core.game.impl.GameEventDispatcher;
 
 @EventBusSubscriber(modid = LoveTropics.ID)
 public class PersistentEventDispatcher {

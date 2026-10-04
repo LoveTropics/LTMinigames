@@ -2,7 +2,6 @@ package org.lovetropics.games.mixin.event;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
-import org.lovetropics.games.common.core.game.impl.GameEventDispatcher;
 import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ExplosionParticleInfo;
 import net.minecraft.core.particles.ParticleOptions;
@@ -15,6 +14,7 @@ import net.minecraft.world.level.ExplosionDamageCalculator;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerExplosion;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.core.game.impl.GameEventDispatcher;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

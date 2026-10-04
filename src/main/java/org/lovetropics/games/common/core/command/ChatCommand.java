@@ -1,10 +1,5 @@
 package org.lovetropics.games.common.core.command;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.core.chat.ChatChannel;
-import org.lovetropics.games.common.core.chat.ChatChannelStore;
-import org.lovetropics.games.common.core.command.argument.ChatChannelArgument;
-import org.lovetropics.games.common.core.game.util.GameTexts;
 import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.MessageArgument;
@@ -13,6 +8,11 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.core.chat.ChatChannel;
+import org.lovetropics.games.common.core.chat.ChatChannelStore;
+import org.lovetropics.games.common.core.command.argument.ChatChannelArgument;
+import org.lovetropics.games.common.core.game.util.GameTexts;
 
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;

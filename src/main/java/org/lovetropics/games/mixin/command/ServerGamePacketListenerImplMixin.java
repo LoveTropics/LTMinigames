@@ -2,12 +2,12 @@ package org.lovetropics.games.mixin.command;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import org.lovetropics.games.common.core.game.command.GameCommandManager;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.suggestion.Suggestions;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import org.lovetropics.games.common.core.game.command.GameCommandManager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 

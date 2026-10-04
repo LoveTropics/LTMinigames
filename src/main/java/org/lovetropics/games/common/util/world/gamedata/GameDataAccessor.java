@@ -1,7 +1,5 @@
 package org.lovetropics.games.common.util.world.gamedata;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.core.game.util.TranslationCollector;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -11,8 +9,8 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.GameProfileArgument;
-import net.minecraft.commands.arguments.NbtPathArgument;
 import net.minecraft.commands.arguments.IdentifierArgument;
+import net.minecraft.commands.arguments.NbtPathArgument;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
@@ -23,6 +21,8 @@ import net.minecraft.server.commands.data.DataCommands;
 import net.minecraft.server.players.NameAndId;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.core.game.util.TranslationCollector;
 
 import java.util.Collection;
 import java.util.Locale;

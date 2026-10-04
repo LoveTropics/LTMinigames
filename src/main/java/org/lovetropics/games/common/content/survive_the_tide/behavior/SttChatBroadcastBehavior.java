@@ -1,5 +1,11 @@
 package org.lovetropics.games.common.content.survive_the_tide.behavior;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
@@ -7,12 +13,6 @@ import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
 import org.lovetropics.games.common.core.game.player.PlayerSet;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
 
 import java.util.Iterator;
 

@@ -1,7 +1,5 @@
 package org.lovetropics.games.common.content.escape_race.ddr_machine.levels;
 
-import org.lovetropics.games.common.content.escape_race.EscapeRaceTexts;
-import org.lovetropics.games.common.content.escape_race.ddr_machine.DdrInput;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -15,6 +13,8 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.util.Util;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.content.escape_race.EscapeRaceTexts;
+import org.lovetropics.games.common.content.escape_race.ddr_machine.DdrInput;
 
 public class DdrServerSession {
 	private static final int PERFECT_TOLERANCE = 1;

@@ -1,18 +1,17 @@
 package org.lovetropics.games.common.core.game.client_state.instance;
 
 import com.google.common.collect.ImmutableList;
-import org.lovetropics.games.common.core.game.client_state.GameClientState;
-import org.lovetropics.games.common.core.game.client_state.GameClientStateType;
-import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
-import org.lovetropics.games.common.core.game.util.ColliderSet;
 import com.mojang.serialization.MapCodec;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
-
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.core.game.client_state.GameClientState;
+import org.lovetropics.games.common.core.game.client_state.GameClientStateType;
+import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
+import org.lovetropics.games.common.core.game.util.ColliderSet;
 
 public record CollidersClientState(ColliderSet colliders) implements GameClientState {
 	public static final MapCodec<CollidersClientState> CODEC = ColliderSet.CODEC.xmap(CollidersClientState::new, CollidersClientState::colliders);

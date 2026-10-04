@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.core.game;
 
-import org.lovetropics.games.common.core.game.behavior.event.GameWorldEvents;
 import com.mojang.serialization.MapCodec;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.world.entity.Entity;
@@ -8,6 +7,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.neoforged.neoforge.common.loot.IGlobalLootModifier;
+import org.lovetropics.games.common.core.game.behavior.event.GameWorldEvents;
 
 public record GameLootModifier() implements IGlobalLootModifier {
 	public static final MapCodec<GameLootModifier> CODEC = MapCodec.unit(GameLootModifier::new);

@@ -1,17 +1,5 @@
 package org.lovetropics.games.common.core.game.behavior.instances;
 
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.SpawnBuilder;
-import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
-import org.lovetropics.games.common.core.game.behavior.action.ActionSubjects;
-import org.lovetropics.games.common.core.game.behavior.action.GameActionList;
-import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
-import org.lovetropics.games.common.core.game.player.PlayerRole;
-import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
-import org.lovetropics.games.common.core.game.state.statistics.StatisticsMap;
-import org.lovetropics.games.common.core.game.util.TemplatedText;
-import org.lovetropics.games.common.util.Util;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -27,6 +15,18 @@ import net.minecraft.world.entity.monster.warden.WardenAi;
 import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.SpawnBuilder;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.action.ActionSubjects;
+import org.lovetropics.games.common.core.game.behavior.action.GameActionList;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
+import org.lovetropics.games.common.core.game.player.PlayerRole;
+import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
+import org.lovetropics.games.common.core.game.state.statistics.StatisticsMap;
+import org.lovetropics.games.common.core.game.util.TemplatedText;
+import org.lovetropics.games.common.util.Util;
 
 import java.util.Map;
 import java.util.Optional;

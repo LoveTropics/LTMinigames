@@ -1,16 +1,16 @@
 package org.lovetropics.games.common.core.game.behavior.instances.action;
 
 import com.lovetropics.lib.codec.MoreCodecs;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.LivingEntity;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
 import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.entity.LivingEntity;
 
 import java.util.List;
 import java.util.function.Supplier;

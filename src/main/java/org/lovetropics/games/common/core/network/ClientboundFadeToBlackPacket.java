@@ -1,10 +1,10 @@
 package org.lovetropics.games.common.core.network;
 
-import org.lovetropics.games.LoveTropics;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import org.lovetropics.games.LoveTropics;
 
 public record ClientboundFadeToBlackPacket(boolean fadeIn, int duration) implements CustomPacketPayload {
 	public static final Type<ClientboundFadeToBlackPacket> TYPE = new Type<>(LoveTropics.id("fade_to_black"));

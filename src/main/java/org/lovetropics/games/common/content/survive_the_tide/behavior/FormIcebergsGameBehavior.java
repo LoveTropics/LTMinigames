@@ -1,6 +1,10 @@
 package org.lovetropics.games.common.content.survive_the_tide.behavior;
 
 import com.lovetropics.lib.BlockBox;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.BlockPos;
 import org.lovetropics.games.common.content.survive_the_tide.IcebergLine;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
@@ -10,10 +14,6 @@ import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.state.progress.ProgressChannel;
 import org.lovetropics.games.common.core.game.state.progress.ProgressHolder;
 import org.lovetropics.games.common.core.game.state.progress.ProgressionPeriod;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.core.BlockPos;
 
 import java.util.ArrayList;
 import java.util.List;

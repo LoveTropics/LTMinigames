@@ -1,8 +1,8 @@
 package org.lovetropics.games.common.core.game.state.progress;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.lovetropics.games.common.core.game.state.GameStateKey;
 import org.lovetropics.games.common.core.game.state.IGameState;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 
 import java.util.Map;
 

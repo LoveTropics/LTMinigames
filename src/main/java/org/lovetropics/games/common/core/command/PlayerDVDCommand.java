@@ -1,8 +1,6 @@
 package org.lovetropics.games.common.core.command;
 
 import com.google.common.collect.Iterables;
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.core.game.player.PlayerIterable;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.GameProfileArgument;
@@ -10,6 +8,8 @@ import net.minecraft.server.players.NameAndId;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.core.game.player.PlayerIterable;
 
 import static com.mojang.brigadier.arguments.IntegerArgumentType.getInteger;
 import static net.minecraft.commands.Commands.argument;

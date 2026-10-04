@@ -1,8 +1,5 @@
 package org.lovetropics.games.lobbies.command;
 
-import org.lovetropics.games.common.core.command.argument.PlayerRoleArgument;
-import org.lovetropics.games.common.core.game.GameResult;
-import org.lovetropics.games.common.core.game.player.PlayerRole;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -17,6 +14,9 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.core.command.argument.PlayerRoleArgument;
+import org.lovetropics.games.common.core.game.GameResult;
+import org.lovetropics.games.common.core.game.player.PlayerRole;
 import org.lovetropics.games.lobbies.GameLobby;
 import org.lovetropics.games.lobbies.GameLobbyManager;
 import org.lovetropics.games.lobbies.GameLobbyTexts;

@@ -1,5 +1,10 @@
 package org.lovetropics.games.common.core.game.behavior;
 
+import com.mojang.datafixers.util.Either;
+import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.DynamicOps;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
@@ -7,11 +12,6 @@ import org.lovetropics.games.common.core.game.behavior.instances.CompositeBehavi
 import org.lovetropics.games.common.core.game.config.GameConfigs;
 import org.lovetropics.games.common.core.game.state.GameStateMap;
 import org.lovetropics.games.common.util.Codecs;
-import com.mojang.datafixers.util.Either;
-import com.mojang.datafixers.util.Pair;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.DataResult;
-import com.mojang.serialization.DynamicOps;
 
 import java.util.List;
 import java.util.function.Consumer;

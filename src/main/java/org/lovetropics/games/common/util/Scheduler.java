@@ -1,10 +1,10 @@
 package org.lovetropics.games.common.util;
 
-import org.lovetropics.games.LoveTropics;
 import net.minecraft.server.MinecraftServer;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import org.lovetropics.games.LoveTropics;
 
 import java.util.ArrayList;
 import java.util.List;

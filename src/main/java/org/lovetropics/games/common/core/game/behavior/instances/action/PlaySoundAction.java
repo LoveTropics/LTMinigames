@@ -1,11 +1,6 @@
 package org.lovetropics.games.common.core.game.behavior.instances.action;
 
 import com.lovetropics.lib.codec.MoreCodecs;
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
-import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
-import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -15,6 +10,11 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
+import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 
 import java.util.function.Supplier;
 

@@ -1,10 +1,10 @@
 package org.lovetropics.games.common.core.game.behavior.instances.action;
 
+import com.mojang.serialization.MapCodec;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import com.mojang.serialization.MapCodec;
 
 public record ExtinguishPlayerFireAction() implements IGameBehavior {
 	public static final MapCodec<ExtinguishPlayerFireAction> CODEC = MapCodec.unit(ExtinguishPlayerFireAction::new);

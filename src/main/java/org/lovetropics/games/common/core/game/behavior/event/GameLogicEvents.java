@@ -1,8 +1,8 @@
 package org.lovetropics.games.common.core.game.behavior.event;
 
+import net.minecraft.server.level.ServerPlayer;
 import org.lovetropics.games.common.core.game.GameWinner;
 import org.lovetropics.games.common.core.game.state.team.GameTeam;
-import net.minecraft.server.level.ServerPlayer;
 
 public final class GameLogicEvents {
 	public static final GameEventType<GameOver> GAME_OVER = GameEventType.create(GameOver.class, listeners -> winner -> {

@@ -1,9 +1,5 @@
 package org.lovetropics.games.client.render.block;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.client.render.block.state.TriviaChestBlockEntityRenderState;
-import org.lovetropics.games.common.content.river_race.block.TriviaChestBlock;
-import org.lovetropics.games.common.content.river_race.block.TriviaChestBlockEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.client.model.geom.ModelLayers;
@@ -27,6 +23,10 @@ import net.minecraft.world.level.block.ChestBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.client.render.block.state.TriviaChestBlockEntityRenderState;
+import org.lovetropics.games.common.content.river_race.block.TriviaChestBlock;
+import org.lovetropics.games.common.content.river_race.block.TriviaChestBlockEntity;
 
 public class TriviaChestRenderer implements BlockEntityRenderer<TriviaChestBlockEntity, TriviaChestBlockEntityRenderState> {
 	private static final SpriteId MATERIAL = new SpriteId(Sheets.CHEST_SHEET, LoveTropics.id("entity/chest/trivia"));

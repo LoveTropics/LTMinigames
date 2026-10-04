@@ -1,7 +1,5 @@
 package org.lovetropics.games.common.core.map.workspace;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.core.dimension.RuntimeDimensions;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.registries.Registries;
@@ -18,8 +16,10 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.EntityTravelToDimensionEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.core.dimension.RuntimeDimensions;
+
 import java.util.Optional;
 import java.util.Set;
 

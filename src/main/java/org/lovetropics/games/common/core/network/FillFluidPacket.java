@@ -1,7 +1,5 @@
 package org.lovetropics.games.common.core.network;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.core.game.util.FluidFiller;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -12,6 +10,8 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.core.game.util.FluidFiller;
 
 public record FillFluidPacket(FluidFiller.Type fillType, BlockPos min, BlockPos max) implements CustomPacketPayload {
 	public static final Type<FillFluidPacket> TYPE = new Type<>(LoveTropics.id("fill_fluid"));

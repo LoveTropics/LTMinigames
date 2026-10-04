@@ -1,12 +1,12 @@
 package org.lovetropics.games.common.content.survive_the_tide.item;
 
-import org.lovetropics.games.common.content.survive_the_tide.entity.DriftwoodEntity;
-import org.lovetropics.games.common.content.survive_the_tide.entity.DriftwoodRider;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
+import org.lovetropics.games.common.content.survive_the_tide.entity.DriftwoodEntity;
+import org.lovetropics.games.common.content.survive_the_tide.entity.DriftwoodRider;
 
 public class PaddleItem extends Item {
 	public PaddleItem(Properties properties) {

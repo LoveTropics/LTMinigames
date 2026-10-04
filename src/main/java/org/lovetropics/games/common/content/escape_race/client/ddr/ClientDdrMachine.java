@@ -1,13 +1,5 @@
 package org.lovetropics.games.common.content.escape_race.client.ddr;
 
-import org.lovetropics.games.common.content.escape_race.client.ddr.sound.DdrSoundInstance;
-import org.lovetropics.games.common.content.escape_race.ddr_machine.DDRMachineEntity;
-import org.lovetropics.games.common.content.escape_race.ddr_machine.DdrInput;
-import org.lovetropics.games.common.content.escape_race.ddr_machine.levels.DdrLevel;
-import org.lovetropics.games.common.content.escape_race.ddr_machine.levels.DdrLevelInputQueue;
-import org.lovetropics.games.common.content.escape_race.ddr_machine.levels.DdrServerSession;
-import org.lovetropics.games.common.content.escape_race.ddr_machine.levels.TimedDdrInput;
-import org.lovetropics.games.common.core.network.ddr.ServerboundDdrInputPacket;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
@@ -18,8 +10,16 @@ import net.minecraft.world.item.JukeboxSong;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
-
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.content.escape_race.client.ddr.sound.DdrSoundInstance;
+import org.lovetropics.games.common.content.escape_race.ddr_machine.DDRMachineEntity;
+import org.lovetropics.games.common.content.escape_race.ddr_machine.DdrInput;
+import org.lovetropics.games.common.content.escape_race.ddr_machine.levels.DdrLevel;
+import org.lovetropics.games.common.content.escape_race.ddr_machine.levels.DdrLevelInputQueue;
+import org.lovetropics.games.common.content.escape_race.ddr_machine.levels.DdrServerSession;
+import org.lovetropics.games.common.content.escape_race.ddr_machine.levels.TimedDdrInput;
+import org.lovetropics.games.common.core.network.ddr.ServerboundDdrInputPacket;
+
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;

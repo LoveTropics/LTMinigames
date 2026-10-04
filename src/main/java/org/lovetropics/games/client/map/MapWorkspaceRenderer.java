@@ -1,8 +1,6 @@
 package org.lovetropics.games.client.map;
 
 import com.lovetropics.lib.BlockBox;
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.core.map.workspace.ClientWorkspaceRegions;
 import it.unimi.dsi.fastutil.HashCommon;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
@@ -19,6 +17,8 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.core.map.workspace.ClientWorkspaceRegions;
 
 import java.util.OptionalDouble;
 import java.util.Set;

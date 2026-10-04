@@ -1,15 +1,14 @@
 package org.lovetropics.games.common.core.game;
 
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.content.MinigameTexts;
 import org.lovetropics.games.common.core.game.behavior.action.ActionSubjects;
 import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
 import org.lovetropics.games.common.core.game.state.team.GameTeam;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
 import org.lovetropics.games.common.core.game.state.team.TeamState;
-import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
-
-import org.jspecify.annotations.Nullable;
 
 public sealed interface GameWinner {
 	static GameWinner byPlayerKey(IGamePhase game, PlayerKey key) {

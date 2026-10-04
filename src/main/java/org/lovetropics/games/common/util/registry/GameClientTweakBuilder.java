@@ -1,16 +1,15 @@
 package org.lovetropics.games.common.util.registry;
 
-import org.lovetropics.games.common.core.game.client_state.GameClientState;
-import org.lovetropics.games.common.core.game.client_state.GameClientStateType;
-import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
 import com.mojang.serialization.MapCodec;
 import com.tterrag.registrate.builders.AbstractBuilder;
 import com.tterrag.registrate.builders.BuilderCallback;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.neoforged.neoforge.registries.DeferredHolder;
-
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.core.game.client_state.GameClientState;
+import org.lovetropics.games.common.core.game.client_state.GameClientStateType;
+import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
 
 public final class GameClientTweakBuilder<T extends GameClientState, P> extends AbstractBuilder<GameClientStateType<?>, GameClientStateType<T>, P, GameClientTweakBuilder<T, P>> {
 	private final MapCodec<T> codec;

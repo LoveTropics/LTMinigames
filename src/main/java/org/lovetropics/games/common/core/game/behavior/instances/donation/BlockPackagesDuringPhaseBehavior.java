@@ -1,5 +1,10 @@
 package org.lovetropics.games.common.core.game.behavior.instances.donation;
 
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.util.ExtraCodecs;
+import net.minecraft.util.TriState;
+import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
@@ -8,11 +13,6 @@ import org.lovetropics.games.common.core.game.behavior.event.GamePackageEvents;
 import org.lovetropics.games.common.core.game.state.progress.ProgressChannel;
 import org.lovetropics.games.common.core.game.state.progress.ProgressHolder;
 import org.lovetropics.games.common.core.game.state.progress.ProgressionPeriod;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.util.ExtraCodecs;
-import net.minecraft.util.TriState;
-import org.apache.commons.lang3.mutable.MutableBoolean;
 
 import java.util.List;
 

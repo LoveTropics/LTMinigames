@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.content.river_race.block;
 
-import org.lovetropics.games.common.content.river_race.RiverRace;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
@@ -8,6 +7,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import org.lovetropics.games.common.content.river_race.RiverRace;
 
 public class TriviaBlock extends Block implements EntityBlock {
 

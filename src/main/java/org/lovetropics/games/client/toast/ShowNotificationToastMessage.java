@@ -1,12 +1,12 @@
 package org.lovetropics.games.client.toast;
 
-import org.lovetropics.games.LoveTropics;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
+import org.lovetropics.games.LoveTropics;
 
 public record ShowNotificationToastMessage(Component message, NotificationStyle style) implements CustomPacketPayload {
 	public static final Type<ShowNotificationToastMessage> TYPE = new Type<>(LoveTropics.id("show_notification_toast"));

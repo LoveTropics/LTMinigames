@@ -1,11 +1,5 @@
 package org.lovetropics.games.common.core.game.behavior.instances;
 
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
-import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
-import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import org.lovetropics.games.common.core.game.behavior.event.GameWorldEvents;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -13,6 +7,12 @@ import net.minecraft.advancements.predicates.entity.EntityPredicate;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
+import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.core.game.behavior.event.GameWorldEvents;
 
 import java.util.Optional;
 import java.util.function.Supplier;

@@ -1,5 +1,12 @@
 package org.lovetropics.games.common.core.game.behavior.instances;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.SharedConstants;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
+import net.minecraft.util.StringRepresentable;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
@@ -14,13 +21,6 @@ import org.lovetropics.games.common.core.game.state.team.TeamState;
 import org.lovetropics.games.common.core.game.util.GameSidebar;
 import org.lovetropics.games.common.core.game.util.GameWidgets;
 import org.lovetropics.games.common.core.game.util.TemplatedText;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.SharedConstants;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.ComponentSerialization;
-import net.minecraft.util.StringRepresentable;
 
 import java.util.ArrayList;
 import java.util.List;

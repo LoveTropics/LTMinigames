@@ -1,8 +1,8 @@
 package org.lovetropics.games.common.core.item;
 
+import com.tterrag.registrate.util.entry.ItemEntry;
 import org.lovetropics.games.LoveTropics;
 import org.lovetropics.games.common.util.registry.LoveTropicsRegistrate;
-import com.tterrag.registrate.util.entry.ItemEntry;
 
 public class MinigameItems {
 

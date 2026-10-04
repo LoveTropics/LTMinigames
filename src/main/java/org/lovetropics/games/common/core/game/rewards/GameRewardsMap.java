@@ -1,9 +1,9 @@
 package org.lovetropics.games.common.core.game.rewards;
 
-import org.lovetropics.games.common.core.game.state.GameStateKey;
-import org.lovetropics.games.common.core.game.state.IGameState;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.server.level.ServerPlayer;
+import org.lovetropics.games.common.core.game.state.GameStateKey;
+import org.lovetropics.games.common.core.game.state.IGameState;
 
 import java.util.Map;
 import java.util.UUID;

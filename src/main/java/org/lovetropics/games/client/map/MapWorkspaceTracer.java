@@ -2,8 +2,6 @@ package org.lovetropics.games.client.map;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.core.map.workspace.ClientWorkspaceRegions;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
@@ -16,8 +14,10 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
-
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.core.map.workspace.ClientWorkspaceRegions;
+
 import java.util.Set;
 import java.util.function.Function;
 

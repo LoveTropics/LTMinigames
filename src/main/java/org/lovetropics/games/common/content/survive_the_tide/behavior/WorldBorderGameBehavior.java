@@ -1,18 +1,6 @@
 package org.lovetropics.games.common.content.survive_the_tide.behavior;
 
 import com.lovetropics.lib.BlockBox;
-import org.lovetropics.games.common.core.game.GameException;
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
-import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
-import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
-import org.lovetropics.games.common.core.game.client_state.GameClientState;
-import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
-import org.lovetropics.games.common.core.game.state.BeaconState;
-import org.lovetropics.games.common.core.game.state.progress.ProgressChannel;
-import org.lovetropics.games.common.core.game.state.progress.ProgressHolder;
-import org.lovetropics.games.common.core.game.state.progress.ProgressionPeriod;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -26,6 +14,18 @@ import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.level.levelgen.Heightmap;
+import org.lovetropics.games.common.core.game.GameException;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
+import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
+import org.lovetropics.games.common.core.game.client_state.GameClientState;
+import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
+import org.lovetropics.games.common.core.game.state.BeaconState;
+import org.lovetropics.games.common.core.game.state.progress.ProgressChannel;
+import org.lovetropics.games.common.core.game.state.progress.ProgressHolder;
+import org.lovetropics.games.common.core.game.state.progress.ProgressionPeriod;
 
 import java.util.ArrayList;
 import java.util.List;

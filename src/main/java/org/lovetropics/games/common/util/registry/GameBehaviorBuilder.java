@@ -1,12 +1,12 @@
 package org.lovetropics.games.common.util.registry;
 
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
-import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import com.mojang.serialization.MapCodec;
 import com.tterrag.registrate.builders.AbstractBuilder;
 import com.tterrag.registrate.builders.BuilderCallback;
 import net.neoforged.neoforge.registries.DeferredHolder;
+import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
+import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 
 public final class GameBehaviorBuilder<T extends IGameBehavior, P> extends AbstractBuilder<GameBehaviorType<?>, GameBehaviorType<T>, P, GameBehaviorBuilder<T, P>> {
 	private final MapCodec<T> codec;

@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.core.game.util;
 
-import org.lovetropics.games.common.core.game.behavior.action.GameActionContextKeys;
 import com.mojang.serialization.Codec;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import net.minecraft.network.chat.Component;
@@ -10,6 +9,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.util.Unit;
 import net.minecraft.util.context.ContextMap;
+import org.lovetropics.games.common.core.game.behavior.action.GameActionContextKeys;
 
 import java.util.Map;
 import java.util.Optional;

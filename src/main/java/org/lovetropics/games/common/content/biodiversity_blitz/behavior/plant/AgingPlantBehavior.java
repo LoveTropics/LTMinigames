@@ -1,14 +1,14 @@
 package org.lovetropics.games.common.content.biodiversity_blitz.behavior.plant;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.block.LevelEvent;
+import net.minecraft.world.level.block.state.BlockState;
 import org.lovetropics.games.common.content.biodiversity_blitz.behavior.event.BbPlantEvents;
 import org.lovetropics.games.common.content.biodiversity_blitz.plot.plant.Plant;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import net.minecraft.core.BlockPos;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.block.LevelEvent;
-import net.minecraft.world.level.block.state.BlockState;
 
 public abstract class AgingPlantBehavior implements IGameBehavior {
 	protected final int interval;

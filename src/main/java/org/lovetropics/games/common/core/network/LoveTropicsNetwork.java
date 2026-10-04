@@ -1,5 +1,10 @@
 package org.lovetropics.games.common.core.network;
 
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlersEvent;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import org.lovetropics.games.LoveTropics;
 import org.lovetropics.games.client.gui.ClientFadeToBlack;
 import org.lovetropics.games.client.toast.ShowNotificationToastMessage;
@@ -16,11 +21,6 @@ import org.lovetropics.games.common.core.network.vending.ServerboundVendingMachi
 import org.lovetropics.games.common.core.network.workspace.AddWorkspaceRegionMessage;
 import org.lovetropics.games.common.core.network.workspace.SetWorkspaceMessage;
 import org.lovetropics.games.common.core.network.workspace.UpdateWorkspaceRegionMessage;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlersEvent;
-import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
-import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 @EventBusSubscriber(modid = LoveTropics.ID)
 public final class LoveTropicsNetwork {

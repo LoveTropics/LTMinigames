@@ -1,6 +1,8 @@
 package org.lovetropics.games.common.core.command.game;
 
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import org.lovetropics.games.LoveTropics;
 import org.lovetropics.games.common.core.game.GameResult;
 import org.lovetropics.games.common.core.game.GameStopReason;
@@ -8,8 +10,6 @@ import org.lovetropics.games.common.core.game.IGameLookup;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.event.GameLogicEvents;
 import org.lovetropics.games.common.core.game.util.GameTexts;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.RegisterCommandsEvent;
 
 import static net.minecraft.commands.Commands.literal;
 

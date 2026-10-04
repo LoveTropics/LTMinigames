@@ -4,8 +4,6 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.AbstractIterator;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
-import org.lovetropics.games.common.core.network.ClientboundFadeToBlackPacket;
-import org.lovetropics.games.common.core.network.ClientboundPlayerFaceDVDPackets;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
@@ -24,6 +22,8 @@ import net.minecraft.util.Util;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.core.network.ClientboundFadeToBlackPacket;
+import org.lovetropics.games.common.core.network.ClientboundPlayerFaceDVDPackets;
 
 import java.util.Iterator;
 import java.util.List;

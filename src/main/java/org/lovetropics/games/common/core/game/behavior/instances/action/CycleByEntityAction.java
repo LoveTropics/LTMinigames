@@ -1,5 +1,10 @@
 package org.lovetropics.games.common.core.game.behavior.instances.action;
 
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import net.minecraft.world.entity.Entity;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
@@ -7,11 +12,6 @@ import org.lovetropics.games.common.core.game.behavior.action.ActionSubjects;
 import org.lovetropics.games.common.core.game.behavior.action.GameActionList;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GameActionEvents;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import net.minecraft.world.entity.Entity;
 
 import java.util.List;
 import java.util.UUID;

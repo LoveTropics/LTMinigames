@@ -1,10 +1,5 @@
 package org.lovetropics.games.common.core.game.behavior.instances.action;
 
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
-import org.lovetropics.games.common.core.game.behavior.action.GameActionContextKeys;
-import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import org.lovetropics.games.common.util.Util;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -17,6 +12,11 @@ import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.item.component.TypedEntityData;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.action.GameActionContextKeys;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.util.Util;
 import org.lovetropics.peekaboo.api.Disguise;
 import org.lovetropics.peekaboo.api.EntityDisguiseHolder;
 import org.slf4j.Logger;

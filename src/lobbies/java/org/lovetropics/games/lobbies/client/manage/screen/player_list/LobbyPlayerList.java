@@ -1,6 +1,5 @@
 package org.lovetropics.games.lobbies.client.manage.screen.player_list;
 
-import org.lovetropics.games.client.screen.ClientPlayerInfo;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.PlayerFaceExtractor;
@@ -9,6 +8,7 @@ import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import org.lovetropics.games.client.screen.ClientPlayerInfo;
 import org.lovetropics.games.lobbies.GameLobbyTexts;
 import org.lovetropics.games.lobbies.client.manage.state.ClientLobbyManageState;
 import org.lovetropics.games.lobbies.client.manage.state.ClientLobbyPlayer;

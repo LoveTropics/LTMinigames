@@ -1,17 +1,6 @@
 package org.lovetropics.games.common.content.qottott.behavior;
 
 import com.lovetropics.lib.BlockBox;
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
-import org.lovetropics.games.common.core.game.behavior.action.GameActionContextKeys;
-import org.lovetropics.games.common.core.game.behavior.action.GameActionList;
-import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
-import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
-import org.lovetropics.games.common.core.game.behavior.instances.ConfiguredSound;
-import org.lovetropics.games.common.core.game.client_state.GameClientState;
-import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
-import org.lovetropics.games.common.core.game.state.BeaconState;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -35,6 +24,17 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.action.GameActionContextKeys;
+import org.lovetropics.games.common.core.game.behavior.action.GameActionList;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
+import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
+import org.lovetropics.games.common.core.game.behavior.instances.ConfiguredSound;
+import org.lovetropics.games.common.core.game.client_state.GameClientState;
+import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
+import org.lovetropics.games.common.core.game.state.BeaconState;
 
 import java.util.Collection;
 import java.util.List;

@@ -3,13 +3,13 @@ package org.lovetropics.games.mixin.dimension;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
-import org.lovetropics.games.common.core.dimension.LinkedDimensions;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.NetherPortalBlock;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.core.dimension.LinkedDimensions;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 

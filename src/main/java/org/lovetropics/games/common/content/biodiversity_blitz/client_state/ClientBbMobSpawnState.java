@@ -1,11 +1,11 @@
 package org.lovetropics.games.common.content.biodiversity_blitz.client_state;
 
 import com.lovetropics.lib.BlockBox;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import org.lovetropics.games.common.content.biodiversity_blitz.BiodiversityBlitz;
 import org.lovetropics.games.common.core.game.client_state.GameClientState;
 import org.lovetropics.games.common.core.game.client_state.GameClientStateType;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import java.util.List;
 

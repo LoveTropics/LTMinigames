@@ -1,18 +1,6 @@
 package org.lovetropics.games.common.content.escape_race.behaviours;
 
 import com.lovetropics.lib.BlockBox;
-import org.lovetropics.games.common.content.survive_the_tide.SurviveTheTide;
-import org.lovetropics.games.common.content.survive_the_tide.block.BigRedButtonBlock;
-import org.lovetropics.games.common.content.survive_the_tide.block.BigRedButtonBlockEntity;
-import org.lovetropics.games.common.core.game.GameException;
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
-import org.lovetropics.games.common.core.game.behavior.action.ActionSubjects;
-import org.lovetropics.games.common.core.game.behavior.action.GameActionList;
-import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
-import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
-import org.lovetropics.games.mixin.ItemFrameMixin;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -27,6 +15,18 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.CopperBulbBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import org.lovetropics.games.common.content.survive_the_tide.SurviveTheTide;
+import org.lovetropics.games.common.content.survive_the_tide.block.BigRedButtonBlock;
+import org.lovetropics.games.common.content.survive_the_tide.block.BigRedButtonBlockEntity;
+import org.lovetropics.games.common.core.game.GameException;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.action.ActionSubjects;
+import org.lovetropics.games.common.core.game.behavior.action.GameActionList;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
+import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
+import org.lovetropics.games.mixin.ItemFrameMixin;
 
 import java.util.HashMap;
 import java.util.List;

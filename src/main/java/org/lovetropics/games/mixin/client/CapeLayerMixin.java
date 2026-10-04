@@ -1,11 +1,11 @@
 package org.lovetropics.games.mixin.client;
 
-import org.lovetropics.games.common.content.escape_race.client.ddr.render.DDRMachinePlayerHelper;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.layers.CapeLayer;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
+import org.lovetropics.games.common.content.escape_race.client.ddr.render.DDRMachinePlayerHelper;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;

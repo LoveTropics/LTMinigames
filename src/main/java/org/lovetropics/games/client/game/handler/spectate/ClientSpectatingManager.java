@@ -1,8 +1,5 @@
 package org.lovetropics.games.client.game.handler.spectate;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.client.game.handler.ClientGameStateHandler;
-import org.lovetropics.games.common.core.game.client_state.instance.SpectatingClientState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.spectator.SpectatorGui;
 import net.minecraft.client.player.LocalPlayer;
@@ -14,6 +11,9 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RenderFrameEvent;
 import net.neoforged.neoforge.client.event.ViewportEvent;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.client.game.handler.ClientGameStateHandler;
+import org.lovetropics.games.common.core.game.client_state.instance.SpectatingClientState;
 
 import java.util.UUID;
 

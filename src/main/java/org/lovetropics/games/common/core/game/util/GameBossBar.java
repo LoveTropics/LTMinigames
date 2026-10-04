@@ -1,11 +1,11 @@
 package org.lovetropics.games.common.core.game.util;
 
-import org.lovetropics.games.common.core.game.player.PlayerSet;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.BossEvent;
+import org.lovetropics.games.common.core.game.player.PlayerSet;
 
 import java.util.List;
 import java.util.UUID;

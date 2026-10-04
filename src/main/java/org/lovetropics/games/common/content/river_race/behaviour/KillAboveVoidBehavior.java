@@ -1,13 +1,5 @@
 package org.lovetropics.games.common.content.river_race.behaviour;
 
-import org.lovetropics.games.common.content.river_race.RiverRace;
-import org.lovetropics.games.common.core.entity.MinigameEntities;
-import org.lovetropics.games.common.core.game.GameException;
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
-import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
-import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -19,6 +11,14 @@ import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
+import org.lovetropics.games.common.content.river_race.RiverRace;
+import org.lovetropics.games.common.core.entity.MinigameEntities;
+import org.lovetropics.games.common.core.game.GameException;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 
 import java.util.UUID;
 import java.util.function.Supplier;

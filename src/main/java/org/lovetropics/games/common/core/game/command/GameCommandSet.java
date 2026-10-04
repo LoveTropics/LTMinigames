@@ -1,12 +1,12 @@
 package org.lovetropics.games.common.core.game.command;
 
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 
 import java.util.List;
 

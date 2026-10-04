@@ -1,8 +1,5 @@
 package org.lovetropics.games.common.core.game.behavior.instances.action;
 
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
-import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Holder;
@@ -10,6 +7,9 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 
 public record AddAttributeModifierAction(Holder<Attribute> attribute, AttributeModifier modifier) implements IGameBehavior {
 	public static final MapCodec<AddAttributeModifierAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(

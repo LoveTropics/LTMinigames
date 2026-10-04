@@ -1,12 +1,5 @@
 package org.lovetropics.games.common.core.game.map;
 
-import org.lovetropics.games.common.core.dimension.RuntimeDimensionConfig;
-import org.lovetropics.games.common.core.dimension.RuntimeDimensionHandle;
-import org.lovetropics.games.common.core.dimension.RuntimeDimensions;
-import org.lovetropics.games.common.core.map.MapRegions;
-import org.lovetropics.games.common.core.map.MapWorldInfo;
-import org.lovetropics.games.common.core.map.MapWorldSettings;
-import org.lovetropics.games.common.core.map.VoidChunkGenerator;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -14,6 +7,13 @@ import net.minecraft.core.Holder;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
+import org.lovetropics.games.common.core.dimension.RuntimeDimensionConfig;
+import org.lovetropics.games.common.core.dimension.RuntimeDimensionHandle;
+import org.lovetropics.games.common.core.dimension.RuntimeDimensions;
+import org.lovetropics.games.common.core.map.MapRegions;
+import org.lovetropics.games.common.core.map.MapWorldInfo;
+import org.lovetropics.games.common.core.map.MapWorldSettings;
+import org.lovetropics.games.common.core.map.VoidChunkGenerator;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;

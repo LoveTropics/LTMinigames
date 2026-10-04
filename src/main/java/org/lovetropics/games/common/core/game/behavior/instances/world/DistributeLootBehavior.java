@@ -1,28 +1,28 @@
 package org.lovetropics.games.common.core.game.behavior.instances.world;
 
 import com.lovetropics.lib.BlockBox;
-import org.lovetropics.games.common.core.game.GameException;
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
-import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import org.lovetropics.games.common.core.game.behavior.event.GameWorldEvents;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.RandomSource;
+import net.minecraft.util.Util;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.chunk.LevelChunk;
+import org.lovetropics.games.common.core.game.GameException;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.core.game.behavior.event.GameWorldEvents;
 
 import java.util.ArrayList;
 import java.util.Collection;

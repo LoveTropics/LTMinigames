@@ -1,12 +1,12 @@
 package org.lovetropics.games.common.core.network.ddr;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.content.escape_race.ddr_machine.DDRMachineEntity;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.content.escape_race.ddr_machine.DDRMachineEntity;
 
 public record ClientboundDdrInputHitPacket(int entityId, long inputTick) implements CustomPacketPayload {
 	public static final Type<ClientboundDdrInputHitPacket> TYPE = new Type<>(LoveTropics.id("ddr_input_hit"));

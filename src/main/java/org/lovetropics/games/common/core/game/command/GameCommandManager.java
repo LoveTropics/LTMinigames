@@ -1,8 +1,5 @@
 package org.lovetropics.games.common.core.game.command;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.core.game.IGameLookup;
-import org.lovetropics.games.common.core.game.IGamePhase;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.StringReader;
@@ -14,6 +11,9 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.CommandEvent;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.core.game.IGameLookup;
+import org.lovetropics.games.common.core.game.IGamePhase;
 
 import java.util.concurrent.CompletableFuture;
 

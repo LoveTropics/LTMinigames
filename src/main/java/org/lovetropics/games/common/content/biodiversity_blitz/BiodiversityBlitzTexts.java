@@ -1,11 +1,11 @@
 package org.lovetropics.games.common.content.biodiversity_blitz;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.content.biodiversity_blitz.entity.BbMobSpawner;
-import org.lovetropics.games.common.core.game.util.TranslationCollector;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.content.biodiversity_blitz.entity.BbMobSpawner;
+import org.lovetropics.games.common.core.game.util.TranslationCollector;
 
 import java.util.function.BiConsumer;
 

@@ -1,5 +1,16 @@
 package org.lovetropics.games.common.content.biodiversity_blitz.behavior.plant;
 
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.TriState;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
+import net.minecraft.world.level.block.state.BlockState;
 import org.lovetropics.games.common.content.biodiversity_blitz.BiodiversityBlitz;
 import org.lovetropics.games.common.content.biodiversity_blitz.BiodiversityBlitzTexts;
 import org.lovetropics.games.common.content.biodiversity_blitz.behavior.event.BbEvents;
@@ -13,17 +24,6 @@ import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.ChatFormatting;
-import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.TriState;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ItemStackTemplate;
-import net.minecraft.world.level.block.state.BlockState;
 import org.lovetropics.games.common.util.Util;
 
 public final class PlantItemBehavior implements IGameBehavior {

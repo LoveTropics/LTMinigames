@@ -1,16 +1,16 @@
 package org.lovetropics.games.common.core.game.persistent.behavior.crab;
 
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.persistent.PersistentGame;
 import org.lovetropics.games.common.core.game.persistent.PersistentGameBehavior;
 import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviorType;
 import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviors;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ItemStackTemplate;
 
 import java.util.ArrayList;
 import java.util.HashMap;

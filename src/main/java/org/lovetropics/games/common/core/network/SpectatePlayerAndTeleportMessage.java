@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.core.network;
 
-import org.lovetropics.games.LoveTropics;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.codec.StreamCodec;
@@ -8,6 +7,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
+import org.lovetropics.games.LoveTropics;
 
 import java.util.Set;
 import java.util.UUID;

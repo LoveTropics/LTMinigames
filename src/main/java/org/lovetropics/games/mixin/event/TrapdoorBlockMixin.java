@@ -1,8 +1,5 @@
 package org.lovetropics.games.mixin.event;
 
-import org.lovetropics.games.common.core.game.IGameLookup;
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.event.GameWorldEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.TriState;
@@ -11,6 +8,9 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.TrapDoorBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.redstone.Orientation;
+import org.lovetropics.games.common.core.game.IGameLookup;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.event.GameWorldEvents;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

@@ -1,10 +1,5 @@
 package org.lovetropics.games.common.content.survive_the_tide.block;
 
-import org.lovetropics.games.common.content.survive_the_tide.SurviveTheTide;
-import org.lovetropics.games.common.core.game.IGameLookup;
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.state.team.GameTeam;
-import org.lovetropics.games.common.core.game.state.team.TeamState;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
@@ -24,6 +19,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.Nullable;
+import org.lovetropics.games.common.content.survive_the_tide.SurviveTheTide;
+import org.lovetropics.games.common.core.game.IGameLookup;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.state.team.GameTeam;
+import org.lovetropics.games.common.core.game.state.team.TeamState;
 
 public class BigRedButtonBlockEntity extends BlockEntity {
 	private static final String TAG_PRESSED = "pressed";

@@ -1,10 +1,5 @@
 package org.lovetropics.games.common.core.extension;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.content.river_race.event.RiverRaceEvents;
-import org.lovetropics.games.common.core.game.IGameLookup;
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.mixin.BaseSpawnerAccessor;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -24,6 +19,11 @@ import net.neoforged.neoforge.event.entity.living.FinalizeSpawnEvent;
 import net.neoforged.neoforge.event.entity.living.MobSpawnEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.content.river_race.event.RiverRaceEvents;
+import org.lovetropics.games.common.core.game.IGameLookup;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.mixin.BaseSpawnerAccessor;
 
 import java.util.HashSet;
 import java.util.Iterator;

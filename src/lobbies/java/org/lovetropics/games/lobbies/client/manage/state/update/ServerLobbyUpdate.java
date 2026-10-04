@@ -1,13 +1,13 @@
 package org.lovetropics.games.lobbies.client.manage.state.update;
 
-import org.lovetropics.games.common.core.game.config.GameConfig;
-import org.lovetropics.games.common.core.game.config.GameConfigs;
-import org.lovetropics.games.common.util.PartialUpdate;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.codec.StreamDecoder;
 import net.minecraft.resources.Identifier;
+import org.lovetropics.games.common.core.game.config.GameConfig;
+import org.lovetropics.games.common.core.game.config.GameConfigs;
+import org.lovetropics.games.common.util.PartialUpdate;
 import org.lovetropics.games.lobbies.LobbyControls;
 import org.lovetropics.games.lobbies.LobbyManagement;
 import org.lovetropics.games.lobbies.LobbyVisibility;

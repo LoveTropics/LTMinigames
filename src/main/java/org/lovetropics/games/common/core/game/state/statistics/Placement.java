@@ -1,18 +1,18 @@
 package org.lovetropics.games.common.core.game.state.statistics;
 
 import com.google.common.collect.Iterators;
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.player.PlayerIterable;
-import org.lovetropics.games.common.core.game.player.PlayerSet;
-import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
-import org.lovetropics.games.common.core.game.state.team.TeamState;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import org.apache.commons.lang3.StringUtils;
-
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.player.PlayerIterable;
+import org.lovetropics.games.common.core.game.player.PlayerSet;
+import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
+import org.lovetropics.games.common.core.game.state.team.TeamState;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;

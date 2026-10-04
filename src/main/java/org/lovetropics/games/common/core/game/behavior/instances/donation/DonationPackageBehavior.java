@@ -1,18 +1,6 @@
 package org.lovetropics.games.common.core.game.behavior.instances.donation;
 
 import com.google.common.collect.Lists;
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
-import org.lovetropics.games.common.core.game.behavior.action.ActionSubjects;
-import org.lovetropics.games.common.core.game.behavior.action.GameActionContextKeys;
-import org.lovetropics.games.common.core.game.behavior.action.GameActionList;
-import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import org.lovetropics.games.common.core.game.behavior.event.GamePackageEvents;
-import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
-import org.lovetropics.games.common.core.game.state.GamePackageState;
-import org.lovetropics.games.common.core.game.state.team.GameTeam;
-import org.lovetropics.games.common.core.game.state.team.TeamState;
-import org.lovetropics.games.common.core.integration.game_actions.GamePackage;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -30,6 +18,18 @@ import net.minecraft.util.context.ContextKeySet;
 import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.entity.Entity;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.action.ActionSubjects;
+import org.lovetropics.games.common.core.game.behavior.action.GameActionContextKeys;
+import org.lovetropics.games.common.core.game.behavior.action.GameActionList;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.core.game.behavior.event.GamePackageEvents;
+import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
+import org.lovetropics.games.common.core.game.state.GamePackageState;
+import org.lovetropics.games.common.core.game.state.team.GameTeam;
+import org.lovetropics.games.common.core.game.state.team.TeamState;
+import org.lovetropics.games.common.core.integration.game_actions.GamePackage;
 import org.slf4j.Logger;
 
 import java.util.List;

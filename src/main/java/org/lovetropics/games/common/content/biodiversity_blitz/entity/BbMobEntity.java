@@ -1,10 +1,10 @@
 package org.lovetropics.games.common.content.biodiversity_blitz.entity;
 
-import org.lovetropics.games.common.content.biodiversity_blitz.entity.ai.BbMobBrain;
-import org.lovetropics.games.common.content.biodiversity_blitz.plot.Plot;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
+import org.lovetropics.games.common.content.biodiversity_blitz.entity.ai.BbMobBrain;
+import org.lovetropics.games.common.content.biodiversity_blitz.plot.Plot;
 
 import java.util.function.Predicate;
 

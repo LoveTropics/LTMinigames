@@ -1,6 +1,5 @@
 package org.lovetropics.games.lobbies.client.screen.list;
 
-import org.lovetropics.games.lobbies.client.screen.flex.Layout;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -10,6 +9,7 @@ import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.util.Mth;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.lobbies.client.screen.flex.Layout;
 
 import java.util.List;
 

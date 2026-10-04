@@ -1,16 +1,6 @@
 package org.lovetropics.games.common.core.command.game;
 
 import com.google.common.collect.Streams;
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.core.game.IGameLookup;
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
-import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
-import org.lovetropics.games.common.core.game.behavior.action.ActionSubjects;
-import org.lovetropics.games.common.core.game.behavior.event.GameActionEvents;
-import org.lovetropics.games.common.core.game.behavior.event.GameEventListeners;
-import org.lovetropics.games.common.core.game.config.GameConfigs;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -34,6 +24,16 @@ import net.minecraft.world.entity.Entity;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.core.game.IGameLookup;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
+import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.action.ActionSubjects;
+import org.lovetropics.games.common.core.game.behavior.event.GameActionEvents;
+import org.lovetropics.games.common.core.game.behavior.event.GameEventListeners;
+import org.lovetropics.games.common.core.game.config.GameConfigs;
 
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;

@@ -1,12 +1,5 @@
 package org.lovetropics.games.common.content.survive_the_tide.behavior;
 
-import org.lovetropics.games.common.core.entity.MinigameEntities;
-import org.lovetropics.games.common.core.game.GameException;
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
-import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import org.lovetropics.games.common.core.game.behavior.event.GameLogicEvents;
-import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -17,6 +10,13 @@ import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
+import org.lovetropics.games.common.core.entity.MinigameEntities;
+import org.lovetropics.games.common.core.game.GameException;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.core.game.behavior.event.GameLogicEvents;
+import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 
 public class SttWinLogicBehavior implements IGameBehavior {
 	public static final MapCodec<SttWinLogicBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(

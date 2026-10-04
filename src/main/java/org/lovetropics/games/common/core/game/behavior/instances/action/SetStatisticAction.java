@@ -1,5 +1,12 @@
 package org.lovetropics.games.common.core.game.behavior.instances.action;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
+import net.minecraft.util.StringRepresentable;
+import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
 import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
@@ -12,14 +19,7 @@ import org.lovetropics.games.common.core.game.state.statistics.StatisticsMap;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
 import org.lovetropics.games.common.core.game.state.team.TeamState;
 import org.lovetropics.games.common.util.LinearSpline;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.Mth;
-import net.minecraft.util.StringRepresentable;
 
-import org.jspecify.annotations.Nullable;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;

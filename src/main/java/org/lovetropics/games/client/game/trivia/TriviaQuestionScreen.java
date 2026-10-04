@@ -1,10 +1,5 @@
 package org.lovetropics.games.client.game.trivia;
 
-import org.lovetropics.games.common.content.river_race.RiverRaceTexts;
-import org.lovetropics.games.common.content.river_race.behaviour.TriviaBehaviour;
-import org.lovetropics.games.common.content.river_race.block.TriviaBlockEntity;
-import org.lovetropics.games.common.core.network.trivia.RequestTriviaStateUpdateMessage;
-import org.lovetropics.games.common.core.network.trivia.SelectTriviaAnswerMessage;
 import com.mojang.blaze3d.platform.Window;
 import net.minecraft.ChatFormatting;
 import net.minecraft.SharedConstants;
@@ -24,6 +19,11 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import org.lovetropics.games.common.content.river_race.RiverRaceTexts;
+import org.lovetropics.games.common.content.river_race.behaviour.TriviaBehaviour;
+import org.lovetropics.games.common.content.river_race.block.TriviaBlockEntity;
+import org.lovetropics.games.common.core.network.trivia.RequestTriviaStateUpdateMessage;
+import org.lovetropics.games.common.core.network.trivia.SelectTriviaAnswerMessage;
 
 import java.util.HashSet;
 import java.util.List;

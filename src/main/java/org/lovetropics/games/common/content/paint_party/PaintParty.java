@@ -1,14 +1,14 @@
 package org.lovetropics.games.common.content.paint_party;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.content.paint_party.entity.PaintBallEntity;
-import org.lovetropics.games.common.util.registry.GameBehaviorEntry;
-import org.lovetropics.games.common.util.registry.LoveTropicsRegistrate;
 import com.tterrag.registrate.util.entry.RegistryEntry;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.content.paint_party.entity.PaintBallEntity;
+import org.lovetropics.games.common.util.registry.GameBehaviorEntry;
+import org.lovetropics.games.common.util.registry.LoveTropicsRegistrate;
 
 import static net.minecraft.world.level.storage.loot.LootTable.lootTable;
 

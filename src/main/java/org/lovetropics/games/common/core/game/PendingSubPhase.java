@@ -1,8 +1,8 @@
 package org.lovetropics.games.common.core.game;
 
+import net.minecraft.server.level.ServerPlayer;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.player.PlayerIterable;
-import net.minecraft.server.level.ServerPlayer;
 
 import java.util.function.Consumer;
 

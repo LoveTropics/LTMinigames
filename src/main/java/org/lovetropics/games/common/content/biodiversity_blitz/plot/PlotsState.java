@@ -1,10 +1,5 @@
 package org.lovetropics.games.common.content.biodiversity_blitz.plot;
 
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.state.GameStateKey;
-import org.lovetropics.games.common.core.game.state.IGameState;
-import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
-import org.lovetropics.games.common.core.game.state.team.TeamState;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
@@ -13,6 +8,11 @@ import net.minecraft.util.Util;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.state.GameStateKey;
+import org.lovetropics.games.common.core.game.state.IGameState;
+import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
+import org.lovetropics.games.common.core.game.state.team.TeamState;
 
 import java.util.ArrayList;
 import java.util.Iterator;

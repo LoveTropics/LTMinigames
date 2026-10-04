@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.content.survive_the_tide.biome;
 
-import org.lovetropics.games.LoveTropics;
 import com.tterrag.registrate.providers.DataProviderInitializer;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
@@ -12,6 +11,7 @@ import net.minecraft.world.level.biome.BiomeGenerationSettings;
 import net.minecraft.world.level.biome.BiomeSpecialEffects;
 import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.neoforged.fml.common.EventBusSubscriber;
+import org.lovetropics.games.LoveTropics;
 
 @EventBusSubscriber(modid = LoveTropics.ID)
 public final class SurviveTheTideBiomes {

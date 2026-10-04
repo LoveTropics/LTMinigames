@@ -1,16 +1,16 @@
 package org.lovetropics.games.common.core.game.client_state.instance;
 
 import com.lovetropics.lib.codec.MoreCodecs;
-import org.lovetropics.games.common.core.game.client_state.GameClientState;
-import org.lovetropics.games.common.core.game.client_state.GameClientStateType;
-import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.StringRepresentable;
-
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.core.game.client_state.GameClientState;
+import org.lovetropics.games.common.core.game.client_state.GameClientStateType;
+import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
+
 import java.util.Map;
 
 public record ReplaceTexturesClientState(Map<TextureType, Identifier> textures) implements GameClientState {

@@ -1,13 +1,6 @@
 package org.lovetropics.games.common.content.escape_race.vending_machine;
 
 import com.google.common.collect.Lists;
-import org.lovetropics.games.SoundRegistry;
-import org.lovetropics.games.common.content.escape_race.EscapeRace;
-import org.lovetropics.games.common.core.game.IGameLookup;
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.network.vending.ClientboundVendingMachineDropPacket;
-import org.lovetropics.games.common.core.network.vending.SelectVendingMachineItemMessage;
-import org.lovetropics.games.common.core.network.vending.ServerboundVendingMachinePurchasePacket;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
@@ -42,6 +35,13 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.SoundRegistry;
+import org.lovetropics.games.common.content.escape_race.EscapeRace;
+import org.lovetropics.games.common.core.game.IGameLookup;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.network.vending.ClientboundVendingMachineDropPacket;
+import org.lovetropics.games.common.core.network.vending.SelectVendingMachineItemMessage;
+import org.lovetropics.games.common.core.network.vending.ServerboundVendingMachinePurchasePacket;
 
 import java.util.List;
 

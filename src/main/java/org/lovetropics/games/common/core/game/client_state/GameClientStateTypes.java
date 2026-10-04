@@ -1,5 +1,13 @@
 package org.lovetropics.games.common.core.game.client_state;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import net.minecraft.core.Registry;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceKey;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.registries.DeferredRegister;
 import org.lovetropics.games.LoveTropics;
 import org.lovetropics.games.common.core.game.client_state.instance.BeSpeedyState;
 import org.lovetropics.games.common.core.game.client_state.instance.BeaconClientState;
@@ -8,16 +16,15 @@ import org.lovetropics.games.common.core.game.client_state.instance.BreakDelaySt
 import org.lovetropics.games.common.core.game.client_state.instance.CollidersClientState;
 import org.lovetropics.games.common.core.game.client_state.instance.CraftingBeeCraftsClientState;
 import org.lovetropics.games.common.core.game.client_state.instance.DisableBobbingState;
-import org.lovetropics.games.common.core.game.client_state.instance.controls.DisableMouseMovementClientState;
 import org.lovetropics.games.common.core.game.client_state.instance.DisablePlayerCollision;
 import org.lovetropics.games.common.core.game.client_state.instance.DisablePlayerMovementState;
+import org.lovetropics.games.common.core.game.client_state.instance.DisableRecipeBookClientState;
 import org.lovetropics.games.common.core.game.client_state.instance.FogClientState;
 import org.lovetropics.games.common.core.game.client_state.instance.ForcePerspectiveClientState;
 import org.lovetropics.games.common.core.game.client_state.instance.GlowTeamMembersState;
 import org.lovetropics.games.common.core.game.client_state.instance.HealthTagClientState;
 import org.lovetropics.games.common.core.game.client_state.instance.HideNameTagsState;
 import org.lovetropics.games.common.core.game.client_state.instance.HidePlayersState;
-import org.lovetropics.games.common.core.game.client_state.instance.DisableRecipeBookClientState;
 import org.lovetropics.games.common.core.game.client_state.instance.HideRecipeBookClientState;
 import org.lovetropics.games.common.core.game.client_state.instance.HighlightBlocksState;
 import org.lovetropics.games.common.core.game.client_state.instance.InvertControlsClientState;
@@ -28,20 +35,13 @@ import org.lovetropics.games.common.core.game.client_state.instance.SidebarClien
 import org.lovetropics.games.common.core.game.client_state.instance.SoundVolumeModifier;
 import org.lovetropics.games.common.core.game.client_state.instance.SpectatingClientState;
 import org.lovetropics.games.common.core.game.client_state.instance.StatisticOverlayState;
-import org.lovetropics.games.common.core.game.client_state.instance.controls.RemapMovementClientState;
 import org.lovetropics.games.common.core.game.client_state.instance.TeamMembersClientState;
+import org.lovetropics.games.common.core.game.client_state.instance.controls.DisableMouseMovementClientState;
 import org.lovetropics.games.common.core.game.client_state.instance.controls.InvertScrollWheelClientState;
 import org.lovetropics.games.common.core.game.client_state.instance.controls.RemapHotbarKeysClientState;
+import org.lovetropics.games.common.core.game.client_state.instance.controls.RemapMovementClientState;
 import org.lovetropics.games.common.util.registry.GameClientTweakEntry;
 import org.lovetropics.games.common.util.registry.LoveTropicsRegistrate;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import net.minecraft.core.Registry;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceKey;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.registries.DeferredRegister;
 
 public final class GameClientStateTypes {
 	public static final ResourceKey<Registry<GameClientStateType<?>>> REGISTRY_KEY = ResourceKey.createRegistryKey(LoveTropics.id("game_client_state"));

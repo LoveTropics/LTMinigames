@@ -1,14 +1,14 @@
 package org.lovetropics.games.common.util.registry;
 
-import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
-import org.lovetropics.games.common.core.game.client_state.GameClientState;
-import org.lovetropics.games.common.core.game.persistent.PersistentGameBehavior;
 import com.mojang.serialization.MapCodec;
 import com.tterrag.registrate.AbstractRegistrate;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.neoforged.fml.ModLoadingContext;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.client_state.GameClientState;
+import org.lovetropics.games.common.core.game.persistent.PersistentGameBehavior;
 
 import java.util.function.Function;
 import java.util.function.Supplier;

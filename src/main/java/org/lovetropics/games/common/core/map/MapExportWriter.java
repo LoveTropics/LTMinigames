@@ -1,9 +1,9 @@
 package org.lovetropics.games.common.core.map;
 
-import net.minecraft.util.Util;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.Util;
 
 import java.io.BufferedOutputStream;
 import java.io.Closeable;

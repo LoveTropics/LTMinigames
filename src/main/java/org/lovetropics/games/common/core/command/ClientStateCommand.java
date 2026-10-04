@@ -1,9 +1,5 @@
 package org.lovetropics.games.common.core.command;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.core.game.client_state.GameClientState;
-import org.lovetropics.games.common.core.game.client_state.GameClientStateType;
-import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -19,6 +15,10 @@ import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.core.game.client_state.GameClientState;
+import org.lovetropics.games.common.core.game.client_state.GameClientStateType;
+import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
 
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;

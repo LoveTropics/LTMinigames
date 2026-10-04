@@ -2,20 +2,20 @@ package org.lovetropics.games.common.core.game.behavior.action;
 
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.advancements.predicates.entity.EntityPredicate;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.Util;
 import net.minecraft.core.UUIDUtil;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.StringRepresentable;
+import net.minecraft.util.Util;
 import net.minecraft.world.entity.Entity;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
 
 import java.util.ArrayList;
 import java.util.List;

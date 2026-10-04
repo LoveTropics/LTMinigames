@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.content.escape_race.vending_machine;
 
-import org.lovetropics.games.common.content.escape_race.EscapeRace;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
@@ -9,6 +8,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
+import org.lovetropics.games.common.content.escape_race.EscapeRace;
 
 import java.util.ArrayList;
 import java.util.List;

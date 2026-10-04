@@ -1,7 +1,7 @@
 package org.lovetropics.games.common.content.biodiversity_blitz.entity.ai;
 
-import org.lovetropics.games.common.content.biodiversity_blitz.entity.PlotWalls;
 import net.minecraft.core.BlockPos;
+import org.lovetropics.games.common.content.biodiversity_blitz.entity.PlotWalls;
 
 import java.util.ArrayList;
 import java.util.List;

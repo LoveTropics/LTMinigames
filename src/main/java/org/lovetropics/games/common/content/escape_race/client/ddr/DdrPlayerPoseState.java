@@ -1,8 +1,8 @@
 package org.lovetropics.games.common.content.escape_race.client.ddr;
 
-import org.lovetropics.games.common.content.escape_race.ddr_machine.DdrInput;
 import net.minecraft.util.BinaryAnimator;
 import net.minecraft.util.Ease;
+import org.lovetropics.games.common.content.escape_race.ddr_machine.DdrInput;
 
 public class DdrPlayerPoseState {
 	private static final int ANIMATION_LENGTH = 3;

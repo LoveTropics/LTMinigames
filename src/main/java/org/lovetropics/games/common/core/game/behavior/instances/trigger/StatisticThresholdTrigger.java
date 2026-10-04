@@ -1,5 +1,10 @@
 package org.lovetropics.games.common.core.game.behavior.instances.trigger;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.context.ContextMap;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.action.ActionSubjects;
@@ -10,11 +15,6 @@ import org.lovetropics.games.common.core.game.state.statistics.GameStatistics;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
 import org.lovetropics.games.common.core.game.state.team.TeamState;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.context.ContextMap;
 
 import java.util.HashSet;
 import java.util.Set;

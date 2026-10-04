@@ -1,13 +1,13 @@
 package org.lovetropics.games.common.core.integration.game_actions;
 
 import com.google.common.base.Strings;
-import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.UUIDUtil;
-
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
+
 import java.util.Optional;
 import java.util.UUID;
 

@@ -1,5 +1,13 @@
 package org.lovetropics.games.common.content.river_race.microgames;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.ExtraCodecs;
+import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.content.river_race.RiverRaceTexts;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.GameWinner;
@@ -12,15 +20,7 @@ import org.lovetropics.games.common.core.game.state.statistics.Placement;
 import org.lovetropics.games.common.core.game.state.statistics.PlacementOrder;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import net.minecraft.resources.Identifier;
-import net.minecraft.util.ExtraCodecs;
 
-import org.jspecify.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 

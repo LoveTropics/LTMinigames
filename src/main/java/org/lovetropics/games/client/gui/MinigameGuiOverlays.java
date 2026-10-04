@@ -1,7 +1,5 @@
 package org.lovetropics.games.client.gui;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.content.escape_race.EscapeRace;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -14,6 +12,8 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.content.escape_race.EscapeRace;
 
 @EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
 public class MinigameGuiOverlays {

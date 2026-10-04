@@ -1,10 +1,10 @@
 package org.lovetropics.games.common.core.game.client_state.instance;
 
+import com.mojang.serialization.MapCodec;
+import net.minecraft.core.UUIDUtil;
 import org.lovetropics.games.common.core.game.client_state.GameClientState;
 import org.lovetropics.games.common.core.game.client_state.GameClientStateType;
 import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
-import com.mojang.serialization.MapCodec;
-import net.minecraft.core.UUIDUtil;
 
 import java.util.List;
 import java.util.UUID;

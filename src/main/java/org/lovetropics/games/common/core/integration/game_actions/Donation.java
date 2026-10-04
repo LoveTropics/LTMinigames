@@ -3,10 +3,10 @@ package org.lovetropics.games.common.core.integration.game_actions;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.util.Util;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.RandomSource;
+import net.minecraft.util.Util;
 
 import java.util.List;
 import java.util.UUID;

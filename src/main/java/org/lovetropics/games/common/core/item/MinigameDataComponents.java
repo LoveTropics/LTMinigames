@@ -1,12 +1,12 @@
 package org.lovetropics.games.common.core.item;
 
-import org.lovetropics.games.LoveTropics;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import org.lovetropics.games.LoveTropics;
 
 public class MinigameDataComponents {
 	public static final DeferredRegister.DataComponents REGISTER = DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, LoveTropics.ID);

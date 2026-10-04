@@ -2,7 +2,6 @@ package org.lovetropics.games.mixin.dimension;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import org.lovetropics.games.common.core.dimension.RuntimeDimensions;
 import com.mojang.datafixers.kinds.App;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
@@ -15,6 +14,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
+import org.lovetropics.games.common.core.dimension.RuntimeDimensions;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;

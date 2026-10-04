@@ -1,15 +1,14 @@
 package org.lovetropics.games.common.core.network.workspace;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.client.map.ClientMapWorkspace;
-import org.lovetropics.games.common.core.map.workspace.ClientWorkspaceRegions;
-import org.lovetropics.games.common.core.map.workspace.WorkspaceRegions;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
-
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.client.map.ClientMapWorkspace;
+import org.lovetropics.games.common.core.map.workspace.ClientWorkspaceRegions;
+import org.lovetropics.games.common.core.map.workspace.WorkspaceRegions;
 
 public class SetWorkspaceMessage implements CustomPacketPayload {
 	public static final Type<SetWorkspaceMessage> TYPE = new Type<>(LoveTropics.id("set_workspace"));

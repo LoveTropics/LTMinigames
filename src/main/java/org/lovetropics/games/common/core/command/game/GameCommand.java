@@ -1,10 +1,10 @@
 package org.lovetropics.games.common.core.command.game;
 
-import org.lovetropics.games.common.core.game.GameResult;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
+import org.lovetropics.games.common.core.game.GameResult;
 
 /// Helper class for minigame commands.
 public class GameCommand {

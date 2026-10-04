@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.content.escape_race.client.ddr.render;
 
-import org.lovetropics.games.LoveTropics;
 import net.minecraft.client.animation.KeyframeAnimation;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
@@ -11,6 +10,7 @@ import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
+import org.lovetropics.games.LoveTropics;
 
 public class DDRMachineEntityModel extends EntityModel<DDRMachineRenderState> {
 

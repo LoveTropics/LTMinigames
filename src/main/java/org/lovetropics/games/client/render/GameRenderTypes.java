@@ -1,6 +1,5 @@
 package org.lovetropics.games.client.render;
 
-import org.lovetropics.games.LoveTropics;
 import com.mojang.blaze3d.pipeline.BlendFunction;
 import com.mojang.blaze3d.pipeline.ColorTargetState;
 import com.mojang.blaze3d.pipeline.DepthStencilState;
@@ -13,6 +12,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RegisterRenderPipelinesEvent;
+import org.lovetropics.games.LoveTropics;
 
 // LTMinigames Render Types
 @EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)

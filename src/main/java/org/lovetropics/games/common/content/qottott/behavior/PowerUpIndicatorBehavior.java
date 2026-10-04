@@ -1,13 +1,5 @@
 package org.lovetropics.games.common.content.qottott.behavior;
 
-import org.lovetropics.games.common.content.qottott.Qottott;
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
-import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
-import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
-import org.lovetropics.games.common.core.game.behavior.instances.ConfiguredSound;
-import org.lovetropics.games.common.core.game.util.TemplatedText;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.SharedConstants;
@@ -17,6 +9,14 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
+import org.lovetropics.games.common.content.qottott.Qottott;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
+import org.lovetropics.games.common.core.game.behavior.instances.ConfiguredSound;
+import org.lovetropics.games.common.core.game.util.TemplatedText;
 import org.lovetropics.games.common.util.Util;
 
 import java.util.Map;

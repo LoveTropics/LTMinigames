@@ -1,14 +1,14 @@
 package org.lovetropics.games.common.core.network.trivia;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.client.game.trivia.ClientTriviaHandler;
-import org.lovetropics.games.common.content.river_race.behaviour.TriviaBehaviour;
-import org.lovetropics.games.common.content.river_race.block.TriviaBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.client.game.trivia.ClientTriviaHandler;
+import org.lovetropics.games.common.content.river_race.behaviour.TriviaBehaviour;
+import org.lovetropics.games.common.content.river_race.block.TriviaBlockEntity;
 
 public record ShowTriviaMessage(BlockPos triviaBlock, TriviaBehaviour.TriviaQuestion question, TriviaBlockEntity.TriviaBlockState triviaBlockState) implements CustomPacketPayload {
 

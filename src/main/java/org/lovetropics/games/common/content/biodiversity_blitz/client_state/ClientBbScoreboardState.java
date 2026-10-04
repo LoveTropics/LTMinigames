@@ -1,14 +1,14 @@
 package org.lovetropics.games.common.content.biodiversity_blitz.client_state;
 
-import org.lovetropics.games.common.content.biodiversity_blitz.BiodiversityBlitz;
-import org.lovetropics.games.common.core.game.client_state.GameClientState;
-import org.lovetropics.games.common.core.game.client_state.GameClientStateType;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.world.phys.Vec3;
+import org.lovetropics.games.common.content.biodiversity_blitz.BiodiversityBlitz;
+import org.lovetropics.games.common.core.game.client_state.GameClientState;
+import org.lovetropics.games.common.core.game.client_state.GameClientStateType;
 
 import java.util.List;
 

@@ -2,14 +2,14 @@ package org.lovetropics.games.common.core.game.state.statistics;
 
 import com.google.gson.JsonElement;
 import com.lovetropics.lib.codec.CodecRegistry;
-import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
-
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
+
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;

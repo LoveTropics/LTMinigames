@@ -1,11 +1,11 @@
 package org.lovetropics.games.common.content.biodiversity_blitz.entity.ai;
 
-import org.lovetropics.games.common.content.biodiversity_blitz.entity.impl.BbCreeperEntity;
-import org.lovetropics.games.common.content.biodiversity_blitz.plot.plant.Plant;
-import org.lovetropics.games.common.content.biodiversity_blitz.plot.plant.state.PlantNotPathfindable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.block.state.BlockState;
+import org.lovetropics.games.common.content.biodiversity_blitz.entity.impl.BbCreeperEntity;
+import org.lovetropics.games.common.content.biodiversity_blitz.plot.plant.Plant;
+import org.lovetropics.games.common.content.biodiversity_blitz.plot.plant.state.PlantNotPathfindable;
 
 public class KaboomCropGoal extends DestroyCropGoal {
 	private final BbCreeperEntity mob;

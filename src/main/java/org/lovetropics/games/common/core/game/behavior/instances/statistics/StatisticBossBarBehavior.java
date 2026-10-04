@@ -1,5 +1,14 @@
 package org.lovetropics.games.common.core.game.behavior.instances.statistics;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
+import net.minecraft.util.Mth;
+import net.minecraft.world.BossEvent;
+import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
@@ -11,16 +20,7 @@ import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
 import org.lovetropics.games.common.core.game.util.GameBossBar;
 import org.lovetropics.games.common.core.game.util.GameWidgets;
 import org.lovetropics.games.common.core.game.util.TemplatedText;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.network.chat.CommonComponents;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.Style;
-import net.minecraft.util.Mth;
-import net.minecraft.world.BossEvent;
 
-import org.jspecify.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;

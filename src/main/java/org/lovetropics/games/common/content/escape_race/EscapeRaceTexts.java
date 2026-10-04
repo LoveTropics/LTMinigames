@@ -1,13 +1,13 @@
 package org.lovetropics.games.common.content.escape_race;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.core.game.util.TranslationCollector;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FontDescription;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.CommonColors;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.core.game.util.TranslationCollector;
 
 import java.util.List;
 import java.util.function.BiConsumer;

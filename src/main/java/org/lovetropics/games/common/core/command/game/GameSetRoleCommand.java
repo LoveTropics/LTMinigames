@@ -1,11 +1,5 @@
 package org.lovetropics.games.common.core.command.game;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.core.command.argument.PlayerRoleArgument;
-import org.lovetropics.games.common.core.game.IGameLookup;
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.player.PlayerRole;
-import org.lovetropics.games.common.core.game.util.GameTexts;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
@@ -17,6 +11,12 @@ import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.core.command.argument.PlayerRoleArgument;
+import org.lovetropics.games.common.core.game.IGameLookup;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.player.PlayerRole;
+import org.lovetropics.games.common.core.game.util.GameTexts;
 
 import java.util.Collection;
 

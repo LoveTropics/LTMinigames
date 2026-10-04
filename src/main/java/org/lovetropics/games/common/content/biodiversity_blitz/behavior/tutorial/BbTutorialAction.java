@@ -1,16 +1,5 @@
 package org.lovetropics.games.common.content.biodiversity_blitz.behavior.tutorial;
 
-import org.lovetropics.games.common.content.biodiversity_blitz.behavior.event.BbEvents;
-import org.lovetropics.games.common.content.biodiversity_blitz.behavior.event.PlacePlantResult;
-import org.lovetropics.games.common.content.biodiversity_blitz.entity.impl.BbTutorialHuskEntity;
-import org.lovetropics.games.common.content.biodiversity_blitz.plot.Plot;
-import org.lovetropics.games.common.content.biodiversity_blitz.plot.plant.Plant;
-import org.lovetropics.games.common.content.biodiversity_blitz.plot.plant.PlantType;
-import org.lovetropics.games.common.core.game.GameException;
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
-import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import com.mojang.authlib.GameProfile;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -35,6 +24,17 @@ import net.minecraft.world.level.block.FarmlandBlock;
 import net.minecraft.world.level.block.LevelEvent;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.common.util.FakePlayerFactory;
+import org.lovetropics.games.common.content.biodiversity_blitz.behavior.event.BbEvents;
+import org.lovetropics.games.common.content.biodiversity_blitz.behavior.event.PlacePlantResult;
+import org.lovetropics.games.common.content.biodiversity_blitz.entity.impl.BbTutorialHuskEntity;
+import org.lovetropics.games.common.content.biodiversity_blitz.plot.Plot;
+import org.lovetropics.games.common.content.biodiversity_blitz.plot.plant.Plant;
+import org.lovetropics.games.common.content.biodiversity_blitz.plot.plant.PlantType;
+import org.lovetropics.games.common.core.game.GameException;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 
 import java.util.HashSet;
 import java.util.Set;

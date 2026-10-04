@@ -1,8 +1,8 @@
 package org.lovetropics.games.common.core.game.state.progress;
 
-import org.lovetropics.games.common.util.LinearSpline;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import org.lovetropics.games.common.util.LinearSpline;
 
 import java.util.List;
 import java.util.function.DoubleSupplier;

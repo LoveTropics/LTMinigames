@@ -1,13 +1,5 @@
 package org.lovetropics.games.common.core.game.behavior.instances.donation;
 
-import org.lovetropics.games.client.toast.NotificationIcon;
-import org.lovetropics.games.client.toast.NotificationStyle;
-import org.lovetropics.games.client.toast.ShowNotificationToastMessage;
-import org.lovetropics.games.common.content.MinigameTexts;
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.state.team.GameTeam;
-import org.lovetropics.games.common.core.game.state.team.TeamState;
-import org.lovetropics.games.common.core.game.util.TemplatedText;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.ChatFormatting;
@@ -22,6 +14,14 @@ import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.client.toast.NotificationIcon;
+import org.lovetropics.games.client.toast.NotificationStyle;
+import org.lovetropics.games.client.toast.ShowNotificationToastMessage;
+import org.lovetropics.games.common.content.MinigameTexts;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.state.team.GameTeam;
+import org.lovetropics.games.common.core.game.state.team.TeamState;
+import org.lovetropics.games.common.core.game.util.TemplatedText;
 
 import java.util.Map;
 

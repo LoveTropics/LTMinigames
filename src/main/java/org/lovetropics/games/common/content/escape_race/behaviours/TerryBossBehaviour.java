@@ -1,5 +1,13 @@
 package org.lovetropics.games.common.content.escape_race.behaviours;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import it.unimi.dsi.fastutil.objects.Object2FloatArrayMap;
+import it.unimi.dsi.fastutil.objects.Object2FloatMap;
+import net.minecraft.advancements.predicates.NbtPredicate;
+import net.minecraft.util.Mth;
+import net.minecraft.util.TriState;
 import org.lovetropics.games.common.content.escape_race.EscapeRace;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
@@ -10,14 +18,6 @@ import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
 import org.lovetropics.games.common.core.game.state.team.TeamState;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import it.unimi.dsi.fastutil.objects.Object2FloatArrayMap;
-import it.unimi.dsi.fastutil.objects.Object2FloatMap;
-import net.minecraft.advancements.predicates.NbtPredicate;
-import net.minecraft.util.Mth;
-import net.minecraft.util.TriState;
 
 import java.util.function.Supplier;
 

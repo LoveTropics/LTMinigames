@@ -1,6 +1,16 @@
 package org.lovetropics.games.common.core.game.behavior.instances.tweak;
 
 import com.lovetropics.lib.codec.MoreCodecs;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
+import it.unimi.dsi.fastutil.objects.Object2DoubleOpenHashMap;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.LoveTropics;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
@@ -12,17 +22,7 @@ import org.lovetropics.games.common.core.game.behavior.event.GameTeamEvents;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
 import org.lovetropics.games.common.core.game.state.team.TeamState;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
-import it.unimi.dsi.fastutil.objects.Object2DoubleOpenHashMap;
-import net.minecraft.resources.Identifier;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 
-import org.jspecify.annotations.Nullable;
 import java.util.function.Supplier;
 
 public record SetMaxHealthBehavior(double maxHealth, Object2DoubleMap<GameTeamKey> maxHealthByTeam) implements IGameBehavior {

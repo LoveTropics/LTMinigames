@@ -1,8 +1,8 @@
 package org.lovetropics.games.common.content.drr_showdown;
 
+import net.minecraft.network.chat.MutableComponent;
 import org.lovetropics.games.LoveTropics;
 import org.lovetropics.games.common.core.game.util.TranslationCollector;
-import net.minecraft.network.chat.MutableComponent;
 
 public class DDRShowdownTexts {
 

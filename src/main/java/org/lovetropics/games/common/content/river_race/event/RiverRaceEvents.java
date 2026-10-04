@@ -1,12 +1,12 @@
 package org.lovetropics.games.common.content.river_race.event;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import org.lovetropics.games.common.content.river_race.block.TriviaType;
 import org.lovetropics.games.common.core.game.behavior.event.GameEventType;
 import org.lovetropics.games.common.core.game.state.team.GameTeam;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
-import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 
 public class RiverRaceEvents {
 

@@ -1,6 +1,13 @@
 package org.lovetropics.games.common.content.biodiversity_blitz.behavior.plant;
 
 import com.lovetropics.lib.BlockBox;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;
+import net.minecraft.util.TriState;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
 import org.lovetropics.games.common.content.biodiversity_blitz.BiodiversityBlitz;
 import org.lovetropics.games.common.content.biodiversity_blitz.plot.Plot;
 import org.lovetropics.games.common.content.biodiversity_blitz.plot.PlotsState;
@@ -11,13 +18,6 @@ import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GameLivingEntityEvents;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.core.BlockPos;
-import net.minecraft.util.RandomSource;
-import net.minecraft.util.TriState;
-import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.item.ItemStack;
 
 public class MushroomPlantBehavior implements IGameBehavior {
 	public static final MapCodec<MushroomPlantBehavior> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(

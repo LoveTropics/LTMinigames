@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.content.survive_the_tide.entity;
 
-import org.lovetropics.games.LoveTropics;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -25,6 +24,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.EntityMountEvent;
 import org.jetbrains.annotations.Nullable;
+import org.lovetropics.games.LoveTropics;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,9 +1,9 @@
 package org.lovetropics.games.mixin.event;
 
-import org.lovetropics.games.common.core.game.impl.GameEventDispatcher;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
+import org.lovetropics.games.common.core.game.impl.GameEventDispatcher;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;

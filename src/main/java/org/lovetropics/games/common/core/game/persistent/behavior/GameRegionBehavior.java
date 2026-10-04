@@ -1,6 +1,10 @@
 package org.lovetropics.games.common.core.game.persistent.behavior;
 
 import com.lovetropics.lib.BlockBox;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.server.level.ServerPlayer;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
@@ -9,10 +13,6 @@ import org.lovetropics.games.common.core.game.persistent.PersistentGameBehavior;
 import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviorType;
 import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviors;
 import org.lovetropics.games.common.core.map.SavedRegions;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.server.level.ServerPlayer;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,14 +1,14 @@
 package org.lovetropics.games.common.core.game.behavior.instances.tweak;
 
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
-import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.level.gamerules.GameRuleMap;
 import net.minecraft.world.level.gamerules.GameRules;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 
 public record SetGameRulesBehavior(boolean applyDefaults, GameRuleMap rules) implements IGameBehavior {
 	public static final MapCodec<SetGameRulesBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(

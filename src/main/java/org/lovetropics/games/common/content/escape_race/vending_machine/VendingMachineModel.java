@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.content.escape_race.vending_machine;
 
-import org.lovetropics.games.LoveTropics;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -25,6 +24,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
+import org.lovetropics.games.LoveTropics;
 
 import java.util.Set;
 

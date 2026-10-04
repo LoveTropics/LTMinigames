@@ -1,9 +1,6 @@
 package org.lovetropics.games.common.core.command.game;
 
 import com.lovetropics.lib.BlockBox;
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.core.game.IGameLookup;
-import org.lovetropics.games.common.core.game.IGamePhase;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.tree.LiteralCommandNode;
@@ -11,6 +8,9 @@ import net.minecraft.commands.CommandSourceStack;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.core.game.IGameLookup;
+import org.lovetropics.games.common.core.game.IGamePhase;
 
 import java.util.ArrayList;
 import java.util.Collection;

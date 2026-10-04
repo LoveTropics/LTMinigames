@@ -1,14 +1,14 @@
 package org.lovetropics.games.lobbies;
 
-import org.lovetropics.games.common.core.game.IGameDefinition;
-import org.lovetropics.games.common.core.game.player.PlayerRole;
-import org.lovetropics.games.common.core.game.util.GameTexts;
-import org.lovetropics.games.common.core.game.util.TranslationCollector;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.core.game.IGameDefinition;
+import org.lovetropics.games.common.core.game.player.PlayerRole;
+import org.lovetropics.games.common.core.game.util.GameTexts;
+import org.lovetropics.games.common.core.game.util.TranslationCollector;
 
 import java.util.Collection;
 import java.util.function.BiConsumer;

@@ -1,6 +1,5 @@
 package org.lovetropics.games.client.game.handler.spectate;
 
-import org.lovetropics.games.common.core.network.SpectatePlayerAndTeleportMessage;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.Camera;
 import net.minecraft.client.CameraType;
@@ -11,6 +10,7 @@ import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.client.event.CalculateDetachedCameraDistanceEvent;
 import net.neoforged.neoforge.client.event.ViewportEvent;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import org.lovetropics.games.common.core.network.SpectatePlayerAndTeleportMessage;
 
 import java.util.UUID;
 import java.util.function.BooleanSupplier;

@@ -1,11 +1,5 @@
 package org.lovetropics.games.common.core.network.trivia;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.content.river_race.TriviaEvents;
-import org.lovetropics.games.common.content.river_race.behaviour.TriviaBehaviour;
-import org.lovetropics.games.common.content.river_race.block.HasTrivia;
-import org.lovetropics.games.common.core.game.IGameLookup;
-import org.lovetropics.games.common.core.game.IGamePhase;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -14,6 +8,12 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.content.river_race.TriviaEvents;
+import org.lovetropics.games.common.content.river_race.behaviour.TriviaBehaviour;
+import org.lovetropics.games.common.content.river_race.block.HasTrivia;
+import org.lovetropics.games.common.core.game.IGameLookup;
+import org.lovetropics.games.common.core.game.IGamePhase;
 
 public record SelectTriviaAnswerMessage(BlockPos triviaBlock, int selectedAnswer) implements CustomPacketPayload {
 	public static final Type<SelectTriviaAnswerMessage> TYPE = new Type<>(LoveTropics.id("select_trivia_answer"));

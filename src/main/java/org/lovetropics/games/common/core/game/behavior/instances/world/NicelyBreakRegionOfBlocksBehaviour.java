@@ -1,12 +1,6 @@
 package org.lovetropics.games.common.core.game.behavior.instances.world;
 
 import com.lovetropics.lib.BlockBox;
-import org.lovetropics.games.common.core.game.GameException;
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
-import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import org.lovetropics.games.common.core.game.behavior.event.GameActionEvents;
-import org.lovetropics.games.common.core.game.util.GameScheduler;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -16,6 +10,12 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
+import org.lovetropics.games.common.core.game.GameException;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.core.game.behavior.event.GameActionEvents;
+import org.lovetropics.games.common.core.game.util.GameScheduler;
 
 import java.util.Collection;
 

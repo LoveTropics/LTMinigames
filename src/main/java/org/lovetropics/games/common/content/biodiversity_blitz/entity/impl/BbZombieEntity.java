@@ -1,12 +1,5 @@
 package org.lovetropics.games.common.content.biodiversity_blitz.entity.impl;
 
-import org.lovetropics.games.common.content.biodiversity_blitz.entity.BbMobEntity;
-import org.lovetropics.games.common.content.biodiversity_blitz.entity.ai.BbGroundNavigator;
-import org.lovetropics.games.common.content.biodiversity_blitz.entity.ai.BbMobBrain;
-import org.lovetropics.games.common.content.biodiversity_blitz.entity.ai.BbTargetPlayerGoal;
-import org.lovetropics.games.common.content.biodiversity_blitz.entity.ai.DestroyCropGoal;
-import org.lovetropics.games.common.content.biodiversity_blitz.plot.Plot;
-import org.lovetropics.games.common.util.duck.ClearableFluidInteraction;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.DifficultyInstance;
@@ -25,6 +18,13 @@ import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.NeoForgeMod;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.content.biodiversity_blitz.entity.BbMobEntity;
+import org.lovetropics.games.common.content.biodiversity_blitz.entity.ai.BbGroundNavigator;
+import org.lovetropics.games.common.content.biodiversity_blitz.entity.ai.BbMobBrain;
+import org.lovetropics.games.common.content.biodiversity_blitz.entity.ai.BbTargetPlayerGoal;
+import org.lovetropics.games.common.content.biodiversity_blitz.entity.ai.DestroyCropGoal;
+import org.lovetropics.games.common.content.biodiversity_blitz.plot.Plot;
+import org.lovetropics.games.common.util.duck.ClearableFluidInteraction;
 
 public class BbZombieEntity extends Zombie implements BbMobEntity {
 	private final BbMobBrain mobBrain;

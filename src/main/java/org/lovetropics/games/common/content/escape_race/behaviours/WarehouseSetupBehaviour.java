@@ -1,5 +1,11 @@
 package org.lovetropics.games.common.content.escape_race.behaviours;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
+import net.minecraft.resources.Identifier;
 import org.lovetropics.games.common.content.escape_race.EscapeRace;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
@@ -12,12 +18,6 @@ import org.lovetropics.games.common.core.game.player.PlayerSet;
 import org.lovetropics.games.common.core.game.state.GameStateKey;
 import org.lovetropics.games.common.core.game.state.team.TeamState;
 import org.lovetropics.games.common.core.game.util.GameWidgets;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.ComponentSerialization;
-import net.minecraft.resources.Identifier;
 
 import java.util.List;
 import java.util.Map;

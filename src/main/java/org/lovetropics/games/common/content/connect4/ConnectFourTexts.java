@@ -1,9 +1,9 @@
 package org.lovetropics.games.common.content.connect4;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.core.game.util.TranslationCollector;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.core.game.util.TranslationCollector;
 
 public class ConnectFourTexts {
 	public static final TranslationCollector KEYS = new TranslationCollector(LoveTropics.ID + ".minigame.connect_four.");

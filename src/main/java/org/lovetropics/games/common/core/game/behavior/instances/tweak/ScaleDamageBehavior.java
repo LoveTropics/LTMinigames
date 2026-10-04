@@ -1,14 +1,14 @@
 package org.lovetropics.games.common.core.game.behavior.instances.tweak;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.advancements.predicates.DamageSourcePredicate;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.advancements.predicates.DamageSourcePredicate;
 
 public record ScaleDamageBehavior(float factor, DamageSourcePredicate source) implements IGameBehavior {
 	public static final MapCodec<ScaleDamageBehavior> CODEC = RecordCodecBuilder.mapCodec(in -> in.group(

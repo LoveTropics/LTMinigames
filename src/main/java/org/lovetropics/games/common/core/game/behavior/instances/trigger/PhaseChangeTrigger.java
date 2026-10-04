@@ -1,5 +1,9 @@
 package org.lovetropics.games.common.core.game.behavior.instances.trigger;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.util.context.ContextMap;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.action.GameActionList;
@@ -8,10 +12,6 @@ import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.state.progress.ProgressChannel;
 import org.lovetropics.games.common.core.game.state.progress.ProgressHolder;
 import org.lovetropics.games.common.core.game.state.progress.ProgressionPoint;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.util.context.ContextMap;
 
 import java.util.ArrayList;
 import java.util.Iterator;

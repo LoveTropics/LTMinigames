@@ -1,5 +1,11 @@
 package org.lovetropics.games.common.core.game.behavior.instances.trigger;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.TriState;
+import net.minecraft.util.context.ContextMap;
+import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
@@ -12,13 +18,7 @@ import org.lovetropics.games.common.core.game.behavior.event.GameLogicEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.TriState;
-import net.minecraft.util.context.ContextMap;
 
-import org.jspecify.annotations.Nullable;
 import java.util.Map;
 import java.util.function.Supplier;
 

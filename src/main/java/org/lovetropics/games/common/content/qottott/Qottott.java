@@ -1,16 +1,5 @@
 package org.lovetropics.games.common.content.qottott;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.content.qottott.behavior.CoinDropAttributeBehavior;
-import org.lovetropics.games.common.content.qottott.behavior.GivePointsAction;
-import org.lovetropics.games.common.content.qottott.behavior.ItemDropperBehavior;
-import org.lovetropics.games.common.content.qottott.behavior.ItemPickupPriorityBehavior;
-import org.lovetropics.games.common.content.qottott.behavior.KitSelectionBehavior;
-import org.lovetropics.games.common.content.qottott.behavior.LeakyPocketsBehavior;
-import org.lovetropics.games.common.content.qottott.behavior.LobbyWithPortalBehavior;
-import org.lovetropics.games.common.content.qottott.behavior.PowerUpIndicatorBehavior;
-import org.lovetropics.games.common.util.registry.GameBehaviorEntry;
-import org.lovetropics.games.common.util.registry.LoveTropicsRegistrate;
 import net.minecraft.core.Holder;
 import net.minecraft.util.CommonColors;
 import net.minecraft.world.effect.MobEffect;
@@ -23,6 +12,17 @@ import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.EntityAttributeModificationEvent;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.content.qottott.behavior.CoinDropAttributeBehavior;
+import org.lovetropics.games.common.content.qottott.behavior.GivePointsAction;
+import org.lovetropics.games.common.content.qottott.behavior.ItemDropperBehavior;
+import org.lovetropics.games.common.content.qottott.behavior.ItemPickupPriorityBehavior;
+import org.lovetropics.games.common.content.qottott.behavior.KitSelectionBehavior;
+import org.lovetropics.games.common.content.qottott.behavior.LeakyPocketsBehavior;
+import org.lovetropics.games.common.content.qottott.behavior.LobbyWithPortalBehavior;
+import org.lovetropics.games.common.content.qottott.behavior.PowerUpIndicatorBehavior;
+import org.lovetropics.games.common.util.registry.GameBehaviorEntry;
+import org.lovetropics.games.common.util.registry.LoveTropicsRegistrate;
 
 @EventBusSubscriber(modid = LoveTropics.ID)
 public class Qottott {

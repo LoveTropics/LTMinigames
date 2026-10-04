@@ -1,8 +1,5 @@
 package org.lovetropics.games.common.content.escape_race.client.ddr.render;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.content.escape_race.client.ddr.DdrPlayerPoseState;
-import org.lovetropics.games.common.content.escape_race.ddr_machine.DDRMachineEntity;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -13,6 +10,9 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.context.ContextKey;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.content.escape_race.client.ddr.DdrPlayerPoseState;
+import org.lovetropics.games.common.content.escape_race.ddr_machine.DDRMachineEntity;
 
 public class DDRMachinePlayerHelper {
 

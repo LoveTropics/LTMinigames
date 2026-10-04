@@ -1,12 +1,5 @@
 package org.lovetropics.games.common.content.biodiversity_blitz.behavior.plant.placement;
 
-import org.lovetropics.games.common.content.biodiversity_blitz.behavior.event.BbPlantEvents;
-import org.lovetropics.games.common.content.biodiversity_blitz.plot.plant.PlantCoverage;
-import org.lovetropics.games.common.content.biodiversity_blitz.plot.plant.PlantPlacement;
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
-import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import org.lovetropics.games.common.util.world.DelegatingWorldGenLevel;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
@@ -27,6 +20,13 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.content.biodiversity_blitz.behavior.event.BbPlantEvents;
+import org.lovetropics.games.common.content.biodiversity_blitz.plot.plant.PlantCoverage;
+import org.lovetropics.games.common.content.biodiversity_blitz.plot.plant.PlantPlacement;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.util.world.DelegatingWorldGenLevel;
 
 import java.util.function.Predicate;
 

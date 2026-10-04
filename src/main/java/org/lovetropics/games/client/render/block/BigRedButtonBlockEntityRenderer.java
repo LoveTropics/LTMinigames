@@ -1,7 +1,5 @@
 package org.lovetropics.games.client.render.block;
 
-import org.lovetropics.games.client.render.block.state.BigRedButtonBlockEntityRenderState;
-import org.lovetropics.games.common.content.survive_the_tide.block.BigRedButtonBlockEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.client.gui.Font;
@@ -20,6 +18,8 @@ import net.minecraft.world.level.block.ButtonBlock;
 import net.minecraft.world.level.block.state.properties.AttachFace;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.client.render.block.state.BigRedButtonBlockEntityRenderState;
+import org.lovetropics.games.common.content.survive_the_tide.block.BigRedButtonBlockEntity;
 
 public class BigRedButtonBlockEntityRenderer implements BlockEntityRenderer<BigRedButtonBlockEntity, BigRedButtonBlockEntityRenderState> {
 	private static final int TEXT_PADDING = 4;

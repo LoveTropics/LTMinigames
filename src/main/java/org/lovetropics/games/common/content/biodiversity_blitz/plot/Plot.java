@@ -1,12 +1,6 @@
 package org.lovetropics.games.common.content.biodiversity_blitz.plot;
 
 import com.lovetropics.lib.BlockBox;
-import org.lovetropics.games.common.content.biodiversity_blitz.entity.PlotWalls;
-import org.lovetropics.games.common.content.biodiversity_blitz.entity.PlotWaveState;
-import org.lovetropics.games.common.content.biodiversity_blitz.plot.plant.PlantMap;
-import org.lovetropics.games.common.core.game.map.RegionPattern;
-import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
-import org.lovetropics.games.common.core.map.MapRegions;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
@@ -14,6 +8,12 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.AABB;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.content.biodiversity_blitz.entity.PlotWalls;
+import org.lovetropics.games.common.content.biodiversity_blitz.entity.PlotWaveState;
+import org.lovetropics.games.common.content.biodiversity_blitz.plot.plant.PlantMap;
+import org.lovetropics.games.common.core.game.map.RegionPattern;
+import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
+import org.lovetropics.games.common.core.map.MapRegions;
 
 import java.util.List;
 

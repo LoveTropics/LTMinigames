@@ -1,5 +1,10 @@
 package org.lovetropics.games.common.core.game.behavior.instances.action;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
@@ -9,11 +14,6 @@ import org.lovetropics.games.common.core.game.state.statistics.Placement;
 import org.lovetropics.games.common.core.game.state.statistics.PlacementOrder;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
 import org.lovetropics.games.common.core.game.state.team.TeamState;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.ComponentSerialization;
 
 public record DisplayLeaderboardAction<T extends Comparable<T>>(StatisticKey<T> statistic, PlacementOrder order, int length, Component header) implements IGameBehavior {
 	public static final MapCodec<DisplayLeaderboardAction<?>> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(

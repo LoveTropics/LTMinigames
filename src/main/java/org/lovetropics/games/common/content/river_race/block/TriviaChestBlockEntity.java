@@ -1,8 +1,5 @@
 package org.lovetropics.games.common.content.river_race.block;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.content.river_race.RiverRace;
-import org.lovetropics.games.common.content.river_race.behaviour.TriviaBehaviour;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.Block;
@@ -11,8 +8,10 @@ import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.content.river_race.RiverRace;
+import org.lovetropics.games.common.content.river_race.behaviour.TriviaBehaviour;
 
 public class TriviaChestBlockEntity extends ChestBlockEntity implements HasTrivia {
 	private TriviaBehaviour.@Nullable TriviaQuestion question;

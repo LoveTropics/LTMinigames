@@ -1,8 +1,8 @@
 package org.lovetropics.games.common.content.build_battle;
 
+import net.minecraft.network.chat.Component;
 import org.lovetropics.games.LoveTropics;
 import org.lovetropics.games.common.core.game.util.TranslationCollector;
-import net.minecraft.network.chat.Component;
 
 public class BuildBattleTexts {
 	public static final TranslationCollector KEYS = new TranslationCollector(LoveTropics.ID + ".minigame.build_battle.");

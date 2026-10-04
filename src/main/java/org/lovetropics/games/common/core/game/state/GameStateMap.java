@@ -1,9 +1,9 @@
 package org.lovetropics.games.common.core.game.state;
 
-import org.lovetropics.games.common.core.game.GameException;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
+import org.lovetropics.games.common.core.game.GameException;
 
 import java.util.Map;
 import java.util.Objects;

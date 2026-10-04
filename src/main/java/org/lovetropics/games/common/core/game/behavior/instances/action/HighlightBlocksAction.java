@@ -1,6 +1,10 @@
 package org.lovetropics.games.common.core.game.behavior.instances.action;
 
 import com.lovetropics.lib.BlockBox;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.BlockPos;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
@@ -11,10 +15,6 @@ import org.lovetropics.games.common.core.game.client_state.instance.HighlightBlo
 import org.lovetropics.games.common.core.game.player.PlayerSet;
 import org.lovetropics.games.common.core.game.state.GameStateKey;
 import org.lovetropics.games.common.core.game.state.IGameState;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.core.BlockPos;
 
 import java.util.ArrayList;
 import java.util.List;

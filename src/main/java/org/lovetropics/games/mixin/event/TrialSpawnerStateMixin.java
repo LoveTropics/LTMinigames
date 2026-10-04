@@ -1,13 +1,13 @@
 package org.lovetropics.games.mixin.event;
 
-import org.lovetropics.games.common.core.game.IGameLookup;
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.event.GameWorldEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.entity.trialspawner.TrialSpawner;
 import net.minecraft.world.level.block.entity.trialspawner.TrialSpawnerState;
 import net.minecraft.world.level.block.entity.trialspawner.TrialSpawnerStateData;
+import org.lovetropics.games.common.core.game.IGameLookup;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.event.GameWorldEvents;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;

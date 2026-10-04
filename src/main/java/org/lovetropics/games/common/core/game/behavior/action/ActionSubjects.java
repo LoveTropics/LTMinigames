@@ -1,12 +1,12 @@
 package org.lovetropics.games.common.core.game.behavior.action;
 
 import com.google.common.collect.Lists;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 import org.lovetropics.games.common.content.biodiversity_blitz.plot.Plot;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.player.PlayerIterable;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.Entity;
 
 import java.util.Collection;
 import java.util.List;

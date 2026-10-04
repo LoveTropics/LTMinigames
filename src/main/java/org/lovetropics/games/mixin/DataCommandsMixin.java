@@ -1,8 +1,8 @@
 package org.lovetropics.games.mixin;
 
-import org.lovetropics.games.common.util.world.gamedata.GameDataAccessor;
-import net.minecraft.util.Util;
 import net.minecraft.server.commands.data.DataCommands;
+import net.minecraft.util.Util;
+import org.lovetropics.games.common.util.world.gamedata.GameDataAccessor;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;

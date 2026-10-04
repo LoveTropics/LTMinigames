@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.core.game.rewards;
 
-import org.lovetropics.games.common.content.MinigameTexts;
 import com.mojang.serialization.DynamicOps;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
@@ -16,6 +15,7 @@ import net.minecraft.resources.RegistryOps;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackLinkedSet;
+import org.lovetropics.games.common.content.MinigameTexts;
 
 import java.util.ArrayList;
 import java.util.HashSet;

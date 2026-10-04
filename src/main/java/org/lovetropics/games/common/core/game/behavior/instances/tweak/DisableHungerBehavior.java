@@ -1,13 +1,13 @@
 package org.lovetropics.games.common.core.game.behavior.instances.tweak;
 
+import com.mojang.serialization.MapCodec;
+import net.minecraft.SharedConstants;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
 import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
-import com.mojang.serialization.MapCodec;
-import net.minecraft.SharedConstants;
 
 import java.util.function.Supplier;
 

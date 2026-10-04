@@ -1,10 +1,10 @@
 package org.lovetropics.games.lobbies;
 
+import net.minecraft.server.level.ServerPlayer;
+import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.core.game.player.MutablePlayerSet;
 import org.lovetropics.games.common.core.game.player.PlayerSet;
-import net.minecraft.server.level.ServerPlayer;
 
-import org.jspecify.annotations.Nullable;
 import java.util.Iterator;
 import java.util.UUID;
 

@@ -1,6 +1,12 @@
 package org.lovetropics.games.common.core.game.behavior.instances.action;
 
 import com.google.common.collect.Iterables;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.StringRepresentable;
+import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.core.game.GameWinner;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
@@ -11,13 +17,7 @@ import org.lovetropics.games.common.core.game.behavior.event.GameLogicEvents;
 import org.lovetropics.games.common.core.game.state.team.GameTeam;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
 import org.lovetropics.games.common.core.game.state.team.TeamState;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.StringRepresentable;
 
-import org.jspecify.annotations.Nullable;
 import java.util.Optional;
 
 public record EndGameAction(

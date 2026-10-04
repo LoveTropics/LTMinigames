@@ -1,10 +1,10 @@
 package org.lovetropics.games.common.content.escape_race.client.ddr.render;
 
+import net.minecraft.client.renderer.entity.state.EntityRenderState;
+import net.minecraft.world.entity.AnimationState;
 import org.lovetropics.games.common.content.escape_race.ddr_machine.DDRMachineEntity;
 import org.lovetropics.games.common.content.escape_race.ddr_machine.DdrInput;
 import org.lovetropics.games.common.content.escape_race.ddr_machine.levels.TimedDdrInput;
-import net.minecraft.client.renderer.entity.state.EntityRenderState;
-import net.minecraft.world.entity.AnimationState;
 
 import java.util.ArrayList;
 import java.util.List;

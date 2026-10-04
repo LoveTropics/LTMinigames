@@ -1,13 +1,13 @@
 package org.lovetropics.games.common.core.game.behavior.instances.tweak;
 
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
-import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.util.TriState;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.TntBlock;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 
 public class TntAutoFuseBehavior implements IGameBehavior {
 	public static final MapCodec<TntAutoFuseBehavior> CODEC = MapCodec.unit(TntAutoFuseBehavior::new);

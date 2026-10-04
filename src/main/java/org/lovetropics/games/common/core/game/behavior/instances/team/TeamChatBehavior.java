@@ -1,5 +1,15 @@
 package org.lovetropics.games.common.core.game.behavior.instances.team;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.ChatType;
+import net.minecraft.network.chat.OutgoingChatMessage;
+import net.minecraft.network.chat.PlayerChatMessage;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerPlayer;
+import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.lovetropics.games.common.core.chat.ChatChannel;
 import org.lovetropics.games.common.core.chat.ChatChannelStore;
 import org.lovetropics.games.common.core.game.IGamePhase;
@@ -11,16 +21,6 @@ import org.lovetropics.games.common.core.game.state.team.GameTeam;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
 import org.lovetropics.games.common.core.game.state.team.TeamState;
 import org.lovetropics.games.common.core.game.util.GameTexts;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.network.chat.ChatType;
-import net.minecraft.network.chat.OutgoingChatMessage;
-import net.minecraft.network.chat.PlayerChatMessage;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.level.ServerPlayer;
-import org.apache.commons.lang3.mutable.MutableBoolean;
 
 public record TeamChatBehavior(ResourceKey<ChatType> chatType, boolean includeSpectators) implements IGameBehavior {
 	public static final MapCodec<TeamChatBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(

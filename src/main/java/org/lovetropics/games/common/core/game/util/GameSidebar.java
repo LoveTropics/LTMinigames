@@ -1,11 +1,11 @@
 package org.lovetropics.games.common.core.game.util;
 
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import org.lovetropics.games.common.core.game.client_state.GameClientState;
 import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
 import org.lovetropics.games.common.core.game.client_state.instance.SidebarClientState;
 import org.lovetropics.games.common.core.game.player.MutablePlayerSet;
-import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
 
 import java.util.Arrays;
 

@@ -1,5 +1,9 @@
 package org.lovetropics.games.common.core.game.behavior.instances.action;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
@@ -7,11 +11,6 @@ import org.lovetropics.games.common.core.game.behavior.event.GameActionEvents;
 import org.lovetropics.games.common.core.game.state.weather.GameWeatherState;
 import org.lovetropics.games.common.core.game.weather.WeatherEvent;
 import org.lovetropics.games.common.core.game.weather.WeatherEventType;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-
-import org.jspecify.annotations.Nullable;
 
 public final class WeatherEventAction implements IGameBehavior {
 	public static final MapCodec<WeatherEventAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(

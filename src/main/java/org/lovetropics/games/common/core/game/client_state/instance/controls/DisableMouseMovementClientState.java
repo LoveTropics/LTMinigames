@@ -1,14 +1,14 @@
 package org.lovetropics.games.common.core.game.client_state.instance.controls;
 
-import org.lovetropics.games.common.core.game.client_state.GameClientState;
-import org.lovetropics.games.common.core.game.client_state.GameClientStateType;
-import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import org.lovetropics.games.common.core.game.client_state.GameClientState;
+import org.lovetropics.games.common.core.game.client_state.GameClientStateType;
+import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
 
 public record DisableMouseMovementClientState(boolean up, boolean down, boolean left, boolean right) implements GameClientState {
 

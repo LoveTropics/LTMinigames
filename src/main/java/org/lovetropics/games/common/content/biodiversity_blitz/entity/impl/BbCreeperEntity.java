@@ -1,12 +1,5 @@
 package org.lovetropics.games.common.content.biodiversity_blitz.entity.impl;
 
-import org.lovetropics.games.common.content.biodiversity_blitz.entity.BbMobEntity;
-import org.lovetropics.games.common.content.biodiversity_blitz.entity.ai.BbGroundNavigator;
-import org.lovetropics.games.common.content.biodiversity_blitz.entity.ai.BbMobBrain;
-import org.lovetropics.games.common.content.biodiversity_blitz.entity.ai.KaboomCropGoal;
-import org.lovetropics.games.common.content.biodiversity_blitz.explosion.PlantAffectingExplosion;
-import org.lovetropics.games.common.content.biodiversity_blitz.plot.Plot;
-import org.lovetropics.games.common.util.duck.ClearableFluidInteraction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.protocol.game.ClientboundExplodePacket;
 import net.minecraft.server.level.ServerLevel;
@@ -27,6 +20,13 @@ import net.minecraft.world.level.ServerExplosion;
 import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.NeoForgeMod;
+import org.lovetropics.games.common.content.biodiversity_blitz.entity.BbMobEntity;
+import org.lovetropics.games.common.content.biodiversity_blitz.entity.ai.BbGroundNavigator;
+import org.lovetropics.games.common.content.biodiversity_blitz.entity.ai.BbMobBrain;
+import org.lovetropics.games.common.content.biodiversity_blitz.entity.ai.KaboomCropGoal;
+import org.lovetropics.games.common.content.biodiversity_blitz.explosion.PlantAffectingExplosion;
+import org.lovetropics.games.common.content.biodiversity_blitz.plot.Plot;
+import org.lovetropics.games.common.util.duck.ClearableFluidInteraction;
 
 import java.util.Optional;
 

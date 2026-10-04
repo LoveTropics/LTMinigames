@@ -1,12 +1,12 @@
 package org.lovetropics.games.common.content.survive_the_tide.item;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.content.survive_the_tide.SurviveTheTide;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.content.survive_the_tide.SurviveTheTide;
 
 @EventBusSubscriber(modid = LoveTropics.ID)
 public class AcidRepellentUmbrellaItem extends Item {

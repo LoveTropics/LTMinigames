@@ -1,8 +1,6 @@
 package org.lovetropics.games.common.content.escape_race.ddr_machine.levels;
 
 import com.lovetropics.lib.codec.MoreCodecs;
-import org.lovetropics.games.common.content.escape_race.EscapeRace;
-import org.lovetropics.games.common.content.escape_race.ddr_machine.DdrInput;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
@@ -13,10 +11,12 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.RegistryFileCodec;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.RegistryFileCodec;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.JukeboxSong;
+import org.lovetropics.games.common.content.escape_race.EscapeRace;
+import org.lovetropics.games.common.content.escape_race.ddr_machine.DdrInput;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;

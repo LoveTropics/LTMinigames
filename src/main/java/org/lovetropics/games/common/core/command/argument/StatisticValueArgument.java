@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.core.command.argument;
 
-import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
@@ -12,6 +11,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.network.chat.Component;
+import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
 
 public final class StatisticValueArgument {
 	private static final DynamicCommandExceptionType FORMAT_ERROR = new DynamicCommandExceptionType(error ->

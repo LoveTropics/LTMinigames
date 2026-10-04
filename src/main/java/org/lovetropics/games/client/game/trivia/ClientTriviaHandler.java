@@ -1,9 +1,9 @@
 package org.lovetropics.games.client.game.trivia;
 
-import org.lovetropics.games.common.core.network.trivia.ShowTriviaMessage;
-import org.lovetropics.games.common.core.network.trivia.TriviaAnswerResponseMessage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
+import org.lovetropics.games.common.core.network.trivia.ShowTriviaMessage;
+import org.lovetropics.games.common.core.network.trivia.TriviaAnswerResponseMessage;
 
 public class ClientTriviaHandler {
 

@@ -1,13 +1,6 @@
 package org.lovetropics.games.common.content.biodiversity_blitz.behavior;
 
 import com.lovetropics.lib.codec.MoreCodecs;
-import org.lovetropics.games.common.content.biodiversity_blitz.plot.Plot;
-import org.lovetropics.games.common.content.biodiversity_blitz.plot.PlotsState;
-import org.lovetropics.games.common.core.game.GameException;
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
-import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
@@ -19,6 +12,13 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import org.lovetropics.games.common.content.biodiversity_blitz.plot.Plot;
+import org.lovetropics.games.common.content.biodiversity_blitz.plot.PlotsState;
+import org.lovetropics.games.common.core.game.GameException;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 
 // Removes pianguas from mud blocks
 public final class RemoveFromBlockBehavior implements IGameBehavior {

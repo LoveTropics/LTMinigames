@@ -1,6 +1,5 @@
 package org.lovetropics.games.lobbies.client.manage.state.update;
 
-import org.lovetropics.games.common.util.PartialUpdate;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
@@ -9,8 +8,8 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.codec.StreamDecoder;
-
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.util.PartialUpdate;
 import org.lovetropics.games.lobbies.GameLobby;
 import org.lovetropics.games.lobbies.LobbyControls;
 import org.lovetropics.games.lobbies.LobbyGameQueue;

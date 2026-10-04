@@ -1,5 +1,7 @@
 package org.lovetropics.games.common.core.game.behavior.instances.action;
 
+import com.mojang.serialization.MapCodec;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
@@ -7,8 +9,6 @@ import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.network.ClientboundPlayerFaceDVDPackets;
-import com.mojang.serialization.MapCodec;
-import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.function.Supplier;
 

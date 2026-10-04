@@ -1,8 +1,8 @@
 package org.lovetropics.games.common.content.escape_race.vending_machine;
 
 import com.google.common.collect.ImmutableList;
-import net.minecraft.util.Util;
 import net.minecraft.client.Camera;
+import net.minecraft.util.Util;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3fc;

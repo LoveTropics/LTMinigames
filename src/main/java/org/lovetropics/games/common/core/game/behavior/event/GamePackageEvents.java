@@ -2,9 +2,9 @@ package org.lovetropics.games.common.core.game.behavior.event;
 
 import com.google.gson.JsonObject;
 import com.lovetropics.lib.techstack.Crud;
+import net.minecraft.util.TriState;
 import org.lovetropics.games.common.core.integration.game_actions.Donation;
 import org.lovetropics.games.common.core.integration.game_actions.GamePackage;
-import net.minecraft.util.TriState;
 
 public final class GamePackageEvents {
 	public static final GameEventType<ReceivePackage> RECEIVE_PACKAGE = GameEventType.create(ReceivePackage.class, listeners -> (gamePackage) -> {

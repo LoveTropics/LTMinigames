@@ -1,17 +1,17 @@
 package org.lovetropics.games.lobbies;
 
 import com.google.common.collect.Lists;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
+import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.core.game.player.PlayerIterable;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
 import org.lovetropics.games.common.core.game.player.PlayerSet;
 import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
 import org.lovetropics.games.common.core.game.util.TeamAllocator;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerPlayer;
 
-import org.jspecify.annotations.Nullable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;

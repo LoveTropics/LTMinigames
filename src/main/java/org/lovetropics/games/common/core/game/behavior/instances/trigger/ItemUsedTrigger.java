@@ -1,5 +1,12 @@
 package org.lovetropics.games.common.core.game.behavior.instances.trigger;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.advancements.predicates.ItemPredicate;
+import net.minecraft.util.context.ContextMap;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.ItemStack;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
@@ -9,13 +16,6 @@ import org.lovetropics.games.common.core.game.behavior.action.ActionSubjects;
 import org.lovetropics.games.common.core.game.behavior.action.GameActionList;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.advancements.predicates.ItemPredicate;
-import net.minecraft.util.context.ContextMap;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.item.ItemStack;
 
 import java.util.function.Supplier;
 

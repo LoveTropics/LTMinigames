@@ -1,17 +1,17 @@
 package org.lovetropics.games.common.content.river_race.behaviour;
 
 import com.lovetropics.lib.BlockBox;
-import org.lovetropics.games.common.content.river_race.RiverRaceState;
-import org.lovetropics.games.common.core.game.GameException;
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
-import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.world.item.DyeColor;
+import org.lovetropics.games.common.content.river_race.RiverRaceState;
+import org.lovetropics.games.common.core.game.GameException;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 
 public record RiverRaceZoneBehavior(
 		String id,

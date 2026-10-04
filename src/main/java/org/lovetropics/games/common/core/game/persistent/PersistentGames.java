@@ -1,8 +1,5 @@
 package org.lovetropics.games.common.core.game.persistent;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.core.game.GameStopReason;
-import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -14,6 +11,9 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.core.game.GameStopReason;
+import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;

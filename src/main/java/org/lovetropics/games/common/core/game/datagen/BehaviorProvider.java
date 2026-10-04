@@ -1,10 +1,10 @@
 package org.lovetropics.games.common.core.game.datagen;
 
-import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 
 import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;

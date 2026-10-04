@@ -1,10 +1,5 @@
 package org.lovetropics.games.common.content.escape_race.ddr_machine;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.content.escape_race.ddr_machine.levels.DdrLevel;
-import org.lovetropics.games.common.content.escape_race.event.EscapeRaceEvents;
-import org.lovetropics.games.common.core.game.IGameLookup;
-import org.lovetropics.games.common.core.game.IGamePhase;
 import net.minecraft.core.Holder;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerScoreboard;
@@ -13,6 +8,11 @@ import net.minecraft.world.item.JukeboxSong;
 import net.minecraft.world.scores.Objective;
 import net.minecraft.world.scores.ScoreAccess;
 import net.minecraft.world.scores.criteria.ObjectiveCriteria;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.content.escape_race.ddr_machine.levels.DdrLevel;
+import org.lovetropics.games.common.content.escape_race.event.EscapeRaceEvents;
+import org.lovetropics.games.common.core.game.IGameLookup;
+import org.lovetropics.games.common.core.game.IGamePhase;
 
 public class DDRScoreHelper {
 

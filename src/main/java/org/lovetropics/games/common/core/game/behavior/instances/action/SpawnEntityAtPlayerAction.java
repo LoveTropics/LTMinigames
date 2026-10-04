@@ -1,11 +1,5 @@
 package org.lovetropics.games.common.core.game.behavior.instances.action;
 
-import org.lovetropics.games.common.core.game.GameException;
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
-import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import org.lovetropics.games.common.util.EntityTemplate;
-import org.lovetropics.games.common.util.Util;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -14,8 +8,13 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
-
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.core.game.GameException;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.util.EntityTemplate;
+import org.lovetropics.games.common.util.Util;
 
 public record SpawnEntityAtPlayerAction(EntityTemplate entity, int damagePlayerAmount, double distance) implements IGameBehavior {
 	public static final MapCodec<SpawnEntityAtPlayerAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(

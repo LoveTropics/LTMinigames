@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.content.survive_the_tide.entity;
 
-import org.lovetropics.games.LoveTropics;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
@@ -10,8 +9,9 @@ import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
-
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.LoveTropics;
+
 import java.util.function.Supplier;
 
 @EventBusSubscriber(modid = LoveTropics.ID)

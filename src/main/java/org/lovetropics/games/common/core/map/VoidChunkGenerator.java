@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.core.map;
 
-import org.lovetropics.games.LoveTropics;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
@@ -31,6 +30,7 @@ import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.blending.Blender;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import org.lovetropics.games.LoveTropics;
 
 import java.util.Arrays;
 import java.util.List;

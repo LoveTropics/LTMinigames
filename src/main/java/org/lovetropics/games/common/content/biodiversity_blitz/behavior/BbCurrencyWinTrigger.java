@@ -1,5 +1,9 @@
 package org.lovetropics.games.common.content.biodiversity_blitz.behavior;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.content.biodiversity_blitz.behavior.event.BbEvents;
 import org.lovetropics.games.common.content.biodiversity_blitz.client_state.CurrencyTargetState;
 import org.lovetropics.games.common.content.biodiversity_blitz.plot.CurrencyManager;
@@ -15,11 +19,7 @@ import org.lovetropics.games.common.core.game.client_state.GameClientState;
 import org.lovetropics.games.common.core.game.state.team.GameTeam;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
 import org.lovetropics.games.common.core.game.state.team.TeamState;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 
-import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;

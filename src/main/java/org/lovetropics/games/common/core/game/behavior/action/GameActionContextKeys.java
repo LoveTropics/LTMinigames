@@ -1,13 +1,13 @@
 package org.lovetropics.games.common.core.game.behavior.action;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.core.game.state.team.GameTeam;
-import org.lovetropics.games.common.core.integration.game_actions.GamePackage;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.context.ContextKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.core.game.state.team.GameTeam;
+import org.lovetropics.games.common.core.integration.game_actions.GamePackage;
 
 public class GameActionContextKeys<T> {
 	public static final ContextKey<GamePackage> PACKAGE = create("package");

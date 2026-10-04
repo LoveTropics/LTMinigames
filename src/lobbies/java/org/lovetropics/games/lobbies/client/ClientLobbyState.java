@@ -1,9 +1,8 @@
 package org.lovetropics.games.lobbies.client;
 
-import org.lovetropics.games.lobbies.LobbyStatus;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.lobbies.LobbyStatus;
 import org.lovetropics.games.lobbies.client.state.ClientCurrentGame;
 
 import java.util.Collection;

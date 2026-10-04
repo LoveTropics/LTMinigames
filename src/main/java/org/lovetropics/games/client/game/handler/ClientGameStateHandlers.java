@@ -1,13 +1,13 @@
 package org.lovetropics.games.client.game.handler;
 
-import org.lovetropics.games.client.game.handler.spectate.ClientSpectatingManager;
-import org.lovetropics.games.common.core.game.client_state.GameClientState;
-import org.lovetropics.games.common.core.game.client_state.GameClientStateType;
-import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.client.game.handler.spectate.ClientSpectatingManager;
+import org.lovetropics.games.common.core.game.client_state.GameClientState;
+import org.lovetropics.games.common.core.game.client_state.GameClientStateType;
+import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
 
 import java.util.Map;
 

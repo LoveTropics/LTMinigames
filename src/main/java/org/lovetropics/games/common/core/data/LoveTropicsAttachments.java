@@ -1,12 +1,12 @@
 package org.lovetropics.games.common.core.data;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.core.integration.game_actions.Donation;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.core.integration.game_actions.Donation;
 
 public class LoveTropicsAttachments {
 	public static final DeferredRegister<AttachmentType<?>> ATTACHMENT_TYPES = DeferredRegister.create(NeoForgeRegistries.ATTACHMENT_TYPES, LoveTropics.ID);

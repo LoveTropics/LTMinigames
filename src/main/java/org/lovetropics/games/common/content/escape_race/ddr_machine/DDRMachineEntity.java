@@ -1,17 +1,5 @@
 package org.lovetropics.games.common.content.escape_race.ddr_machine;
 
-import org.lovetropics.games.common.content.escape_race.EscapeRace;
-import org.lovetropics.games.common.content.escape_race.client.ddr.ClientDdrMachine;
-import org.lovetropics.games.common.content.escape_race.client.ddr.DdrPlayerPoseState;
-import org.lovetropics.games.common.content.escape_race.client.ddr.DdrScreen;
-import org.lovetropics.games.common.content.escape_race.client.ddr.render.DDRMachineEntityRenderer;
-import org.lovetropics.games.common.content.escape_race.ddr_machine.levels.DdrLevel;
-import org.lovetropics.games.common.content.escape_race.ddr_machine.levels.DdrLevelInputQueue;
-import org.lovetropics.games.common.content.escape_race.ddr_machine.levels.DdrRecordingSession;
-import org.lovetropics.games.common.content.escape_race.ddr_machine.levels.DdrServerSession;
-import org.lovetropics.games.common.content.escape_race.ddr_machine.levels.TimedDdrInput;
-import org.lovetropics.games.common.core.network.ddr.ClientboundDdrInputHitPacket;
-import org.lovetropics.games.common.core.network.ddr.ServerboundSelectDdrLevelPacket;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.Minecraft;
@@ -46,8 +34,20 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.network.PacketDistributor;
-
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.content.escape_race.EscapeRace;
+import org.lovetropics.games.common.content.escape_race.client.ddr.ClientDdrMachine;
+import org.lovetropics.games.common.content.escape_race.client.ddr.DdrPlayerPoseState;
+import org.lovetropics.games.common.content.escape_race.client.ddr.DdrScreen;
+import org.lovetropics.games.common.content.escape_race.client.ddr.render.DDRMachineEntityRenderer;
+import org.lovetropics.games.common.content.escape_race.ddr_machine.levels.DdrLevel;
+import org.lovetropics.games.common.content.escape_race.ddr_machine.levels.DdrLevelInputQueue;
+import org.lovetropics.games.common.content.escape_race.ddr_machine.levels.DdrRecordingSession;
+import org.lovetropics.games.common.content.escape_race.ddr_machine.levels.DdrServerSession;
+import org.lovetropics.games.common.content.escape_race.ddr_machine.levels.TimedDdrInput;
+import org.lovetropics.games.common.core.network.ddr.ClientboundDdrInputHitPacket;
+import org.lovetropics.games.common.core.network.ddr.ServerboundSelectDdrLevelPacket;
+
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;

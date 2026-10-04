@@ -1,12 +1,5 @@
 package org.lovetropics.games.common.core.game.behavior.instances.trigger;
 
-import org.lovetropics.games.common.core.game.GameException;
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
-import org.lovetropics.games.common.core.game.behavior.action.ActionSubjects;
-import org.lovetropics.games.common.core.game.behavior.action.GameActionList;
-import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.commands.CommandSourceStack;
@@ -14,6 +7,13 @@ import net.minecraft.commands.Commands;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.entity.Entity;
+import org.lovetropics.games.common.core.game.GameException;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.action.ActionSubjects;
+import org.lovetropics.games.common.core.game.behavior.action.GameActionList;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 
 import java.util.Map;
 import java.util.function.Predicate;

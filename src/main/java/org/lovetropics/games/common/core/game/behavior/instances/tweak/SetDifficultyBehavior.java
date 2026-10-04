@@ -1,13 +1,13 @@
 package org.lovetropics.games.common.core.game.behavior.instances.tweak;
 
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.world.Difficulty;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.map.MapWorldInfo;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.world.Difficulty;
 
 public record SetDifficultyBehavior(Difficulty difficulty) implements IGameBehavior {
 	public static final MapCodec<SetDifficultyBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(

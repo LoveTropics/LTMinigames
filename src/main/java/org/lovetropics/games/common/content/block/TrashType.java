@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.content.block;
 
-import org.lovetropics.games.common.content.block.TrashBlock.Attachment;
 import com.tterrag.registrate.util.nullness.NonNullSupplier;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
@@ -8,6 +7,7 @@ import net.minecraft.core.Direction.AxisDirection;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.lovetropics.games.common.content.block.TrashBlock.Attachment;
 
 import java.util.Locale;
 

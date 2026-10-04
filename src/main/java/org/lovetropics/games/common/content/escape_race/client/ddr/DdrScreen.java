@@ -1,7 +1,5 @@
 package org.lovetropics.games.common.content.escape_race.client.ddr;
 
-import org.lovetropics.games.common.content.escape_race.client.ddr.render.DDRMachineEntityModel;
-import org.lovetropics.games.common.content.escape_race.client.ddr.render.DDRMachineEntityRenderer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Camera;
 import net.minecraft.client.model.geom.ModelPart;
@@ -12,8 +10,9 @@ import org.joml.Matrix4fc;
 import org.joml.Vector2f;
 import org.joml.Vector2fc;
 import org.joml.Vector3f;
-
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.content.escape_race.client.ddr.render.DDRMachineEntityModel;
+import org.lovetropics.games.common.content.escape_race.client.ddr.render.DDRMachineEntityRenderer;
 
 public class DdrScreen {
 	private static final int MODEL_WIDTH = 42;

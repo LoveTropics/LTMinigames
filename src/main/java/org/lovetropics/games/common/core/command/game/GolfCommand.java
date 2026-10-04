@@ -1,7 +1,5 @@
 package org.lovetropics.games.common.core.command.game;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.core.game.persistent.behavior.crab.CrabGolfWinBehavior;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -10,6 +8,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.core.game.persistent.behavior.crab.CrabGolfWinBehavior;
 
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;

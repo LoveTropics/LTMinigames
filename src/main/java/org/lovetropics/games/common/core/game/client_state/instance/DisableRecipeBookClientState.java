@@ -1,11 +1,11 @@
 package org.lovetropics.games.common.core.game.client_state.instance;
 
-import org.lovetropics.games.common.core.game.client_state.GameClientState;
-import org.lovetropics.games.common.core.game.client_state.GameClientStateType;
-import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
+import org.lovetropics.games.common.core.game.client_state.GameClientState;
+import org.lovetropics.games.common.core.game.client_state.GameClientStateType;
+import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
 
 public record DisableRecipeBookClientState(Component message) implements GameClientState {
 	public static final MapCodec<DisableRecipeBookClientState> CODEC = ComponentSerialization.CODEC

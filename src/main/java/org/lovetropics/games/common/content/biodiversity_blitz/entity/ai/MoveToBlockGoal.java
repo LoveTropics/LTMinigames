@@ -1,13 +1,13 @@
 package org.lovetropics.games.common.content.biodiversity_blitz.entity.ai;
 
-import org.lovetropics.games.common.content.biodiversity_blitz.entity.BbMobEntity;
-import org.lovetropics.games.common.content.biodiversity_blitz.plot.plant.Plant;
-import org.lovetropics.games.common.content.biodiversity_blitz.plot.plant.PlantMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.Goal;
-
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.content.biodiversity_blitz.entity.BbMobEntity;
+import org.lovetropics.games.common.content.biodiversity_blitz.plot.plant.Plant;
+import org.lovetropics.games.common.content.biodiversity_blitz.plot.plant.PlantMap;
+
 import java.util.EnumSet;
 
 public abstract class MoveToBlockGoal extends Goal {

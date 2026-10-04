@@ -1,17 +1,5 @@
 package org.lovetropics.games.common.core.command.game;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.core.command.argument.StatisticKeyArgument;
-import org.lovetropics.games.common.core.command.argument.StatisticValueArgument;
-import org.lovetropics.games.common.core.game.IGameLookup;
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.state.statistics.GameStatistics;
-import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
-import org.lovetropics.games.common.core.game.state.statistics.StatisticsMap;
-import org.lovetropics.games.common.core.game.state.team.GameTeam;
-import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
-import org.lovetropics.games.common.core.game.state.team.TeamState;
-import org.lovetropics.games.common.core.game.util.GameTexts;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -34,6 +22,18 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.core.command.argument.StatisticKeyArgument;
+import org.lovetropics.games.common.core.command.argument.StatisticValueArgument;
+import org.lovetropics.games.common.core.game.IGameLookup;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.state.statistics.GameStatistics;
+import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
+import org.lovetropics.games.common.core.game.state.statistics.StatisticsMap;
+import org.lovetropics.games.common.core.game.state.team.GameTeam;
+import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
+import org.lovetropics.games.common.core.game.state.team.TeamState;
+import org.lovetropics.games.common.core.game.util.GameTexts;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;

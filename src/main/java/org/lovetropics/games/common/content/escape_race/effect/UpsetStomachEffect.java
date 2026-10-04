@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.content.escape_race.effect;
 
-import org.lovetropics.games.SoundRegistry;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
@@ -8,6 +7,7 @@ import net.minecraft.util.CommonColors;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.LivingEntity;
+import org.lovetropics.games.SoundRegistry;
 
 public class UpsetStomachEffect extends MobEffect {
 	public UpsetStomachEffect(MobEffectCategory category) {

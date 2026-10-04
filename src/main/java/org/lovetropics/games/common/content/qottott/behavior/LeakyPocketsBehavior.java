@@ -1,5 +1,11 @@
 package org.lovetropics.games.common.content.qottott.behavior;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.ItemStackTemplate;
 import org.lovetropics.games.common.content.qottott.Qottott;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
@@ -8,12 +14,6 @@ import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticsMap;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.util.Mth;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.item.ItemStackTemplate;
 
 import java.util.function.Supplier;
 

@@ -1,8 +1,5 @@
 package org.lovetropics.games.common.core.command;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.core.dimension.RuntimeDimensionHandle;
-import org.lovetropics.games.common.core.dimension.RuntimeDimensions;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -18,6 +15,9 @@ import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.core.dimension.RuntimeDimensionHandle;
+import org.lovetropics.games.common.core.dimension.RuntimeDimensions;
 
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;

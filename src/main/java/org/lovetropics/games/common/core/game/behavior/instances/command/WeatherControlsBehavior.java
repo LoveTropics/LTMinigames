@@ -1,5 +1,6 @@
 package org.lovetropics.games.common.core.game.behavior.instances.command;
 
+import com.mojang.serialization.MapCodec;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
 import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
@@ -9,7 +10,6 @@ import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.weather.PrecipitationType;
 import org.lovetropics.games.common.core.game.weather.WeatherController;
 import org.lovetropics.games.common.core.game.weather.WeatherControllerManager;
-import com.mojang.serialization.MapCodec;
 
 import java.util.function.Supplier;
 

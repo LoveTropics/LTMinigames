@@ -1,7 +1,7 @@
 package org.lovetropics.games.common.core.game.state.progress;
 
-import org.lovetropics.games.common.core.game.IGamePhase;
 import com.mojang.serialization.Codec;
+import org.lovetropics.games.common.core.game.IGamePhase;
 
 public record ProgressChannel(String id) {
 	public static final ProgressChannel MAIN = new ProgressChannel("main");

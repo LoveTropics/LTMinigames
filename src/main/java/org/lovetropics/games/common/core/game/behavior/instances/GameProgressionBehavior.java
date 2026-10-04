@@ -1,5 +1,14 @@
 package org.lovetropics.games.common.core.game.behavior.instances;
 
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import it.unimi.dsi.fastutil.floats.Float2FloatFunction;
+import net.minecraft.SharedConstants;
+import net.minecraft.commands.Commands;
+import net.minecraft.util.ExtraCodecs;
+import net.minecraft.util.Mth;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
@@ -10,15 +19,6 @@ import org.lovetropics.games.common.core.game.state.progress.ProgressHolder;
 import org.lovetropics.games.common.core.game.state.progress.ProgressionPeriod;
 import org.lovetropics.games.common.core.game.state.progress.ProgressionPoint;
 import org.lovetropics.games.common.util.LinearSpline;
-import com.mojang.brigadier.arguments.IntegerArgumentType;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import it.unimi.dsi.fastutil.floats.Float2FloatFunction;
-import net.minecraft.SharedConstants;
-import net.minecraft.commands.Commands;
-import net.minecraft.util.ExtraCodecs;
-import net.minecraft.util.Mth;
 
 import java.util.List;
 import java.util.Map;

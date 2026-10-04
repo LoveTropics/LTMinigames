@@ -1,5 +1,11 @@
 package org.lovetropics.games.common.content.survive_the_tide.behavior;
 
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.ChatFormatting;
+import net.minecraft.SharedConstants;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
 import org.lovetropics.games.common.content.MinigameTexts;
 import org.lovetropics.games.common.content.survive_the_tide.SurviveTheTideTexts;
 import org.lovetropics.games.common.core.game.GameException;
@@ -15,12 +21,6 @@ import org.lovetropics.games.common.core.game.state.weather.GameWeatherState;
 import org.lovetropics.games.common.core.game.util.GameSidebar;
 import org.lovetropics.games.common.core.game.util.GameWidgets;
 import org.lovetropics.games.common.core.game.weather.WeatherEventType;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.ChatFormatting;
-import net.minecraft.SharedConstants;
-import net.minecraft.network.chat.CommonComponents;
-import net.minecraft.network.chat.Component;
 
 // TODO: make it generic and data-driven
 public class SttSidebarBehavior implements IGameBehavior {

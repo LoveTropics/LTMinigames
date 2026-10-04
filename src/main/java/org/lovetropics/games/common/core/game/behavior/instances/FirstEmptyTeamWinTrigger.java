@@ -1,5 +1,7 @@
 package org.lovetropics.games.common.core.game.behavior.instances;
 
+import com.mojang.serialization.MapCodec;
+import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.GameWinner;
 import org.lovetropics.games.common.core.game.IGamePhase;
@@ -10,8 +12,6 @@ import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
 import org.lovetropics.games.common.core.game.state.team.TeamState;
-import com.mojang.serialization.MapCodec;
-import org.apache.commons.lang3.mutable.MutableBoolean;
 
 public record FirstEmptyTeamWinTrigger() implements IGameBehavior {
 	public static final MapCodec<FirstEmptyTeamWinTrigger> CODEC = MapCodec.unit(FirstEmptyTeamWinTrigger::new);

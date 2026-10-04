@@ -1,6 +1,5 @@
 package org.lovetropics.games.client.gui;
 
-import org.lovetropics.games.LoveTropics;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.DeltaTracker;
@@ -14,6 +13,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
+import org.lovetropics.games.LoveTropics;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;

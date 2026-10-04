@@ -1,10 +1,5 @@
 package org.lovetropics.games.client.game.handler;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.client.game.ClientGameStateManager;
-import org.lovetropics.games.common.content.crafting_bee.CraftingBeeTexts;
-import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
-import org.lovetropics.games.common.core.game.client_state.instance.CraftingBeeCraftsClientState;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.ChatFormatting;
@@ -19,8 +14,8 @@ import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.Mth;
 import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
@@ -37,6 +32,11 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
 import org.jetbrains.annotations.Nullable;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.client.game.ClientGameStateManager;
+import org.lovetropics.games.common.content.crafting_bee.CraftingBeeTexts;
+import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
+import org.lovetropics.games.common.core.game.client_state.instance.CraftingBeeCraftsClientState;
 
 import java.util.ArrayList;
 import java.util.BitSet;

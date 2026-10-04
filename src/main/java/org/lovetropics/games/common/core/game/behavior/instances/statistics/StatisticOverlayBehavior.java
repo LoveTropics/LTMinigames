@@ -1,5 +1,9 @@
 package org.lovetropics.games.common.core.game.behavior.instances.statistics;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.world.item.ItemStackTemplate;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
 import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
@@ -12,10 +16,6 @@ import org.lovetropics.games.common.core.game.client_state.instance.StatisticOve
 import org.lovetropics.games.common.core.game.player.PlayerRole;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticsMap;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.world.item.ItemStackTemplate;
 
 import java.util.Optional;
 import java.util.function.Supplier;

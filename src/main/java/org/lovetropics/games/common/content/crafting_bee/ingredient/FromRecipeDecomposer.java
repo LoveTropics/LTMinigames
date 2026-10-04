@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.content.crafting_bee.ingredient;
 
-import org.lovetropics.games.common.content.crafting_bee.CraftingBee;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.Registries;
@@ -13,6 +12,7 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.item.crafting.ShapelessRecipe;
 import org.jetbrains.annotations.Nullable;
+import org.lovetropics.games.common.content.crafting_bee.CraftingBee;
 
 import java.util.IdentityHashMap;
 import java.util.List;

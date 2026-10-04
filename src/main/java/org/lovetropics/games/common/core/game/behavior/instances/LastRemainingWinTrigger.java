@@ -1,5 +1,10 @@
 package org.lovetropics.games.common.core.game.behavior.instances;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.server.level.ServerPlayer;
+import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.GameWinner;
 import org.lovetropics.games.common.core.game.IGamePhase;
@@ -12,12 +17,6 @@ import org.lovetropics.games.common.core.game.player.PlayerRole;
 import org.lovetropics.games.common.core.game.player.PlayerSet;
 import org.lovetropics.games.common.core.game.state.team.GameTeam;
 import org.lovetropics.games.common.core.game.state.team.TeamState;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.server.level.ServerPlayer;
-
-import org.jspecify.annotations.Nullable;
 
 public class LastRemainingWinTrigger implements IGameBehavior {
 	public static final MapCodec<LastRemainingWinTrigger> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(

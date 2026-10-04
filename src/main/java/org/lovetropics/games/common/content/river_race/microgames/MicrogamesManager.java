@@ -1,5 +1,8 @@
 package org.lovetropics.games.common.content.river_race.microgames;
 
+import net.minecraft.commands.Commands;
+import net.minecraft.network.chat.Component;
+import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.core.command.argument.GameConfigArgument;
 import org.lovetropics.games.common.core.game.GameStopReason;
 import org.lovetropics.games.common.core.game.IGameDefinition;
@@ -12,10 +15,7 @@ import org.lovetropics.games.common.core.game.command.GameCommandRegistrar;
 import org.lovetropics.games.common.core.game.config.GameConfig;
 import org.lovetropics.games.common.core.game.state.GameStateKey;
 import org.lovetropics.games.common.core.game.state.IGameState;
-import net.minecraft.commands.Commands;
-import net.minecraft.network.chat.Component;
 
-import org.jspecify.annotations.Nullable;
 import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Queue;

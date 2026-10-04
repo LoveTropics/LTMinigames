@@ -1,12 +1,12 @@
 package org.lovetropics.games.common.core.game.behavior.instances.tweak;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 public record DamageInWaterBehavior(int interval, float amount) implements IGameBehavior {
 	public static final MapCodec<DamageInWaterBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(

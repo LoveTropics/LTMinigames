@@ -1,8 +1,8 @@
 package org.lovetropics.games.lobbies;
 
+import net.minecraft.server.MinecraftServer;
 import org.lovetropics.games.common.core.game.config.GameConfig;
 import org.lovetropics.games.common.core.game.state.GameStateMap;
-import net.minecraft.server.MinecraftServer;
 
 /// A unique instance of a specific minigame, stored in a GameLobby
 public final class GameInstance {

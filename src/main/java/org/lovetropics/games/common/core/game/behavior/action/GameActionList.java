@@ -1,10 +1,5 @@
 package org.lovetropics.games.common.core.game.behavior.action;
 
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
-import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import org.lovetropics.games.common.core.game.behavior.event.GameActionEvents;
-import org.lovetropics.games.common.core.game.behavior.event.GameEventListeners;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
@@ -14,6 +9,11 @@ import com.mojang.serialization.MapLike;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.context.ContextMap;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.core.game.behavior.event.GameActionEvents;
+import org.lovetropics.games.common.core.game.behavior.event.GameEventListeners;
 
 import java.util.Optional;
 

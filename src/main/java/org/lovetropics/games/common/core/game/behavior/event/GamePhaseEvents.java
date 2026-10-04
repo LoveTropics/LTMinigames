@@ -1,11 +1,10 @@
 package org.lovetropics.games.common.core.game.behavior.event;
 
+import net.minecraft.commands.CommandBuildContext;
+import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.core.game.GameStopReason;
 import org.lovetropics.games.common.core.game.command.GameCommandRegistrar;
 import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
-import net.minecraft.commands.CommandBuildContext;
-
-import org.jspecify.annotations.Nullable;
 
 public final class GamePhaseEvents {
 	public static final GameEventType<Create> CREATE = GameEventType.create(Create.class, listeners -> () -> {

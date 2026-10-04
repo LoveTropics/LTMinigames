@@ -1,6 +1,13 @@
 package org.lovetropics.games.common.core.game.behavior.instances;
 
 import com.google.common.primitives.Booleans;
+import com.mojang.serialization.MapCodec;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Util;
+import net.minecraft.world.item.ItemStackTemplate;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.scores.Team;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.lovetropics.games.client.toast.NotificationIcon;
 import org.lovetropics.games.client.toast.NotificationStyle;
 import org.lovetropics.games.client.toast.ShowNotificationToastMessage;
@@ -16,13 +23,6 @@ import org.lovetropics.games.common.core.game.client_state.instance.SpectatingCl
 import org.lovetropics.games.common.core.game.player.PlayerRole;
 import org.lovetropics.games.common.core.game.player.PlayerSet;
 import org.lovetropics.games.common.role.StreamHosts;
-import com.mojang.serialization.MapCodec;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.Util;
-import net.minecraft.world.item.ItemStackTemplate;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.scores.Team;
-import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.Comparator;
 import java.util.List;

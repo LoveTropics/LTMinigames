@@ -1,11 +1,11 @@
 package org.lovetropics.games.common.core.game.behavior.instances.tweak;
 
+import com.mojang.serialization.MapCodec;
+import net.minecraft.util.TriState;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
-import com.mojang.serialization.MapCodec;
-import net.minecraft.util.TriState;
 
 public record DisableThrowingItemsBehavior() implements IGameBehavior {
 	public static final MapCodec<DisableThrowingItemsBehavior> CODEC = MapCodec.unit(DisableThrowingItemsBehavior::new);

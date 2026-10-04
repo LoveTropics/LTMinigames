@@ -2,10 +2,6 @@ package org.lovetropics.games.common.core.game.behavior.instances.action;
 
 import com.lovetropics.lib.BlockBox;
 import com.lovetropics.lib.codec.MoreCodecs;
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
-import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import org.lovetropics.games.common.core.game.behavior.event.GameActionEvents;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -25,6 +21,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 import net.minecraft.world.level.storage.TagValueInput;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.core.game.behavior.event.GameActionEvents;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;

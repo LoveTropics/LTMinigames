@@ -1,14 +1,14 @@
 package org.lovetropics.games.common.core.game.behavior.instances.world;
 
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.advancements.predicates.BlockPredicate;
+import net.minecraft.util.TriState;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GameWorldEvents;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.advancements.predicates.BlockPredicate;
-import net.minecraft.util.TriState;
 
 import java.util.Optional;
 

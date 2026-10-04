@@ -1,16 +1,6 @@
 package org.lovetropics.games.client.render;
 
 import com.lovetropics.lib.BlockBox;
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.client.game.ClientGameStateManager;
-import org.lovetropics.games.common.content.biodiversity_blitz.BiodiversityBlitz;
-import org.lovetropics.games.common.content.biodiversity_blitz.client_state.ClientBbMobSpawnState;
-import org.lovetropics.games.common.content.biodiversity_blitz.client_state.ClientBbScoreboardState;
-import org.lovetropics.games.common.core.data.LoveTropicsAttachments;
-import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
-import org.lovetropics.games.common.core.game.client_state.instance.HidePlayersState;
-import org.lovetropics.games.common.core.game.client_state.instance.PointTagClientState;
-import org.lovetropics.games.common.core.game.client_state.instance.StatisticOverlayState;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -49,8 +39,18 @@ import net.neoforged.neoforge.client.event.SubmitCustomGeometryEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import net.neoforged.neoforge.client.renderstate.AvatarRenderStateModifier;
 import net.neoforged.neoforge.client.renderstate.RegisterRenderStateModifiersEvent;
-
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.client.game.ClientGameStateManager;
+import org.lovetropics.games.common.content.biodiversity_blitz.BiodiversityBlitz;
+import org.lovetropics.games.common.content.biodiversity_blitz.client_state.ClientBbMobSpawnState;
+import org.lovetropics.games.common.content.biodiversity_blitz.client_state.ClientBbScoreboardState;
+import org.lovetropics.games.common.core.data.LoveTropicsAttachments;
+import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
+import org.lovetropics.games.common.core.game.client_state.instance.HidePlayersState;
+import org.lovetropics.games.common.core.game.client_state.instance.PointTagClientState;
+import org.lovetropics.games.common.core.game.client_state.instance.StatisticOverlayState;
+
 import java.util.List;
 
 @EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)

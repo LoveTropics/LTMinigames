@@ -1,8 +1,5 @@
 package org.lovetropics.games.common.core.game.util;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.core.game.IGameDefinition;
-import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
@@ -11,6 +8,9 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.server.level.ServerPlayer;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.core.game.IGameDefinition;
+import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
 
 import java.util.function.BiConsumer;
 

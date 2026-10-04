@@ -1,10 +1,10 @@
 package org.lovetropics.games.common.core.game.state;
 
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import net.minecraft.core.BlockPos;
 import org.lovetropics.games.common.core.game.client_state.GameClientState;
 import org.lovetropics.games.common.core.game.client_state.instance.BeaconClientState;
 import org.lovetropics.games.common.core.game.player.PlayerSet;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import net.minecraft.core.BlockPos;
 
 import java.util.List;
 import java.util.Set;

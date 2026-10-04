@@ -2,7 +2,6 @@ package org.lovetropics.games.mixin.clock;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import org.lovetropics.games.common.core.map.MapClocks;
 import net.minecraft.core.Holder;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.server.MinecraftServer;
@@ -12,6 +11,7 @@ import net.minecraft.world.clock.ServerClockManager;
 import net.minecraft.world.clock.WorldClock;
 import net.minecraft.world.level.gamerules.GameRules;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.core.map.MapClocks;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;

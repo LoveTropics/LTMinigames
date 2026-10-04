@@ -1,12 +1,12 @@
 package org.lovetropics.games.lobbies.network;
 
-import org.lovetropics.games.common.core.game.GameResult;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.permissions.Permissions;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
+import org.lovetropics.games.common.core.game.GameResult;
 import org.lovetropics.games.lobbies.GameLobby;
 import org.lovetropics.games.lobbies.GameLobbyManager;
 import org.lovetropics.games.lobbies.GameLobbyTexts;

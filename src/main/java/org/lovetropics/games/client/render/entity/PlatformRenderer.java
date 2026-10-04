@@ -1,7 +1,5 @@
 package org.lovetropics.games.client.render.entity;
 
-import org.lovetropics.games.client.render.entity.state.PlatformRenderState;
-import org.lovetropics.games.common.content.survive_the_tide.entity.PlatformEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -14,6 +12,8 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.CommonColors;
+import org.lovetropics.games.client.render.entity.state.PlatformRenderState;
+import org.lovetropics.games.common.content.survive_the_tide.entity.PlatformEntity;
 
 public final class PlatformRenderer extends EntityRenderer<PlatformEntity, PlatformRenderState> {
 

@@ -1,7 +1,5 @@
 package org.lovetropics.games.common.core.game.behavior.instances.world;
 
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.util.EntityTemplate;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -13,6 +11,8 @@ import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.Heightmap;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.util.EntityTemplate;
 
 public final class GenerateEntitiesBehavior extends ChunkGeneratingBehavior {
 	public static final MapCodec<GenerateEntitiesBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(

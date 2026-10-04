@@ -1,5 +1,12 @@
 package org.lovetropics.games.common.core.game.behavior.instances.tweak;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
+import net.minecraft.server.level.ServerPlayer;
+import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
@@ -9,14 +16,7 @@ import org.lovetropics.games.common.core.game.client_state.GameClientState;
 import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
 import org.lovetropics.games.common.core.game.client_state.instance.HidePlayersState;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
-import it.unimi.dsi.fastutil.ints.IntSet;
-import net.minecraft.server.level.ServerPlayer;
 
-import org.jspecify.annotations.Nullable;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;

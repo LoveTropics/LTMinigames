@@ -1,5 +1,14 @@
 package org.lovetropics.games.common.content.mcsr.behavior;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.TriState;
+import net.minecraft.world.entity.EntityTypes;
+import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.content.MinigameTexts;
 import org.lovetropics.games.common.content.bingo.Bingo;
 import org.lovetropics.games.common.content.mcsr.McsrTexts;
@@ -16,15 +25,6 @@ import org.lovetropics.games.common.core.game.state.statistics.GameStatistics;
 import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
 import org.lovetropics.games.common.core.game.util.TranslationCollector;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.TriState;
-import net.minecraft.world.entity.EntityTypes;
-import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Comparator;

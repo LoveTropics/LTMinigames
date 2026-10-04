@@ -1,8 +1,8 @@
 package org.lovetropics.games.common.content.biodiversity_blitz.plot.plant;
 
-import org.lovetropics.games.common.content.biodiversity_blitz.BiodiversityBlitz;
 import com.mojang.serialization.Codec;
 import net.minecraft.world.item.ItemStack;
+import org.lovetropics.games.common.content.biodiversity_blitz.BiodiversityBlitz;
 
 import java.util.Objects;
 

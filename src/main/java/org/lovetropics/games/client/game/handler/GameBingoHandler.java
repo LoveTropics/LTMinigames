@@ -1,9 +1,5 @@
 package org.lovetropics.games.client.game.handler;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.client.LTKeybinds;
-import org.lovetropics.games.client.game.bingo.BingoBoardScreen;
-import org.lovetropics.games.common.core.game.client_state.instance.BingoBoardClientState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -15,6 +11,10 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix3x2fStack;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.client.LTKeybinds;
+import org.lovetropics.games.client.game.bingo.BingoBoardScreen;
+import org.lovetropics.games.common.core.game.client_state.instance.BingoBoardClientState;
 
 import java.util.List;
 import java.util.Optional;

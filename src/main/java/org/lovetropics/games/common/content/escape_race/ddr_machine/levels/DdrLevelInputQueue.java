@@ -1,9 +1,9 @@
 package org.lovetropics.games.common.content.escape_race.ddr_machine.levels;
 
-import org.lovetropics.games.common.content.escape_race.ddr_machine.DdrInput;
 import net.minecraft.core.Holder;
-
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.content.escape_race.ddr_machine.DdrInput;
+
 import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Collections;

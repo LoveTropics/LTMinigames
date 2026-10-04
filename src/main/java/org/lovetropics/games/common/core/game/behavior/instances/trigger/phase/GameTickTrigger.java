@@ -1,13 +1,13 @@
 package org.lovetropics.games.common.core.game.behavior.instances.trigger.phase;
 
+import com.mojang.serialization.MapCodec;
+import net.minecraft.util.context.ContextMap;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.action.GameActionList;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
-import com.mojang.serialization.MapCodec;
-import net.minecraft.util.context.ContextMap;
 
 public record GameTickTrigger(GameActionList actions) implements IGameBehavior {
 	public static final MapCodec<GameTickTrigger> CODEC = GameActionList.MAP_CODEC

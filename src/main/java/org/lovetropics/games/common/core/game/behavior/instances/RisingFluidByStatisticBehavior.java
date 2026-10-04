@@ -1,6 +1,10 @@
 package org.lovetropics.games.common.core.game.behavior.instances;
 
 import com.lovetropics.lib.codec.MoreCodecs;
+import com.mojang.datafixers.util.Either;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
@@ -10,10 +14,6 @@ import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
 import org.lovetropics.games.common.core.game.util.FluidFiller;
-import com.mojang.datafixers.util.Either;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import java.util.Comparator;
 import java.util.List;

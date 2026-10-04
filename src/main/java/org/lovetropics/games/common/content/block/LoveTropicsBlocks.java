@@ -1,8 +1,5 @@
 package org.lovetropics.games.common.content.block;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.content.block.TrashBlock.Attachment;
-import org.lovetropics.games.common.util.registry.LoveTropicsRegistrate;
 import com.tterrag.registrate.providers.DataGenContext;
 import com.tterrag.registrate.providers.generators.RegistrateBlockModelGenerator;
 import com.tterrag.registrate.util.entry.BlockEntry;
@@ -16,6 +13,9 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.content.block.TrashBlock.Attachment;
+import org.lovetropics.games.common.util.registry.LoveTropicsRegistrate;
 
 import java.util.Arrays;
 import java.util.Map;

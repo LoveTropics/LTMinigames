@@ -1,5 +1,12 @@
 package org.lovetropics.games.common.core.game.behavior.instances.action;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
+import net.minecraft.world.item.ItemStackTemplate;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
@@ -8,13 +15,6 @@ import org.lovetropics.games.common.core.game.rewards.GameRewardsMap;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
 import org.lovetropics.games.common.core.game.state.team.TeamState;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.resources.Identifier;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.Mth;
-import net.minecraft.world.item.ItemStackTemplate;
 
 import java.util.List;
 import java.util.Optional;

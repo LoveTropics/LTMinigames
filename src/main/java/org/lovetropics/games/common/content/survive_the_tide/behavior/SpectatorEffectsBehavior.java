@@ -1,10 +1,5 @@
 package org.lovetropics.games.common.content.survive_the_tide.behavior;
 
-import org.lovetropics.games.common.core.game.GameException;
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
-import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongArraySet;
@@ -12,6 +7,11 @@ import it.unimi.dsi.fastutil.longs.LongSet;
 import net.minecraft.core.SectionPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
+import org.lovetropics.games.common.core.game.GameException;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 
 import java.util.ArrayList;
 import java.util.List;

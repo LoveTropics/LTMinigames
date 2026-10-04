@@ -1,10 +1,10 @@
 package org.lovetropics.games.common.content.biodiversity_blitz.entity.impl;
 
-import org.lovetropics.games.common.content.biodiversity_blitz.entity.ai.DestroyCropGoal;
-import org.lovetropics.games.common.content.biodiversity_blitz.plot.Plot;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.monster.zombie.Husk;
 import net.minecraft.world.level.Level;
+import org.lovetropics.games.common.content.biodiversity_blitz.entity.ai.DestroyCropGoal;
+import org.lovetropics.games.common.content.biodiversity_blitz.plot.Plot;
 
 // Husk that cannot ever attack the player
 public class BbTutorialHuskEntity extends BbHuskEntity {

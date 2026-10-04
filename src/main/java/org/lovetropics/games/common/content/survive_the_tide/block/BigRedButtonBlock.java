@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.content.survive_the_tide.block;
 
-import org.lovetropics.games.common.content.survive_the_tide.SurviveTheTide;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundEvents;
@@ -21,6 +20,7 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.content.survive_the_tide.SurviveTheTide;
 
 public class BigRedButtonBlock extends BaseBigRedButtonBlock implements EntityBlock {
 	public static final BooleanProperty TRIGGERED = BooleanProperty.create("triggered");

@@ -1,14 +1,14 @@
 package org.lovetropics.games.common.core.game.state.statistics;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.server.players.NameAndId;
+import net.minecraft.world.entity.player.Player;
 import org.lovetropics.games.common.core.game.state.GameStateKey;
 import org.lovetropics.games.common.core.game.state.IGameState;
 import org.lovetropics.games.common.core.game.state.team.GameTeam;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import net.minecraft.world.entity.player.Player;
 
 import java.util.Collection;
 import java.util.Map;

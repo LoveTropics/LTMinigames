@@ -1,9 +1,9 @@
 package org.lovetropics.games.common.core.game.weather;
 
 import com.lovetropics.lib.codec.MoreCodecs;
-import org.lovetropics.games.common.content.MinigameTexts;
 import com.mojang.serialization.Codec;
 import net.minecraft.network.chat.Component;
+import org.lovetropics.games.common.content.MinigameTexts;
 
 public enum WeatherEventType {
 	HEAVY_RAIN("heavy_rain", MinigameTexts.HEAVY_RAIN),

@@ -1,12 +1,6 @@
 package org.lovetropics.games.common.content.river_race;
 
 import com.lovetropics.lib.BlockBox;
-import org.lovetropics.games.common.content.river_race.block.HasTrivia;
-import org.lovetropics.games.common.content.river_race.block.TriviaType;
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.state.GameStateKey;
-import org.lovetropics.games.common.core.game.state.IGameState;
-import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
 import it.unimi.dsi.fastutil.longs.LongIterator;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -17,6 +11,12 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.chunk.LevelChunk;
 import org.jetbrains.annotations.Nullable;
+import org.lovetropics.games.common.content.river_race.block.HasTrivia;
+import org.lovetropics.games.common.content.river_race.block.TriviaType;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.state.GameStateKey;
+import org.lovetropics.games.common.core.game.state.IGameState;
+import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
 
 import java.util.ArrayList;
 import java.util.HashMap;

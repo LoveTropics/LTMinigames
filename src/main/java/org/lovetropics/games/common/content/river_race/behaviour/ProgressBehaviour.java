@@ -1,6 +1,18 @@
 package org.lovetropics.games.common.content.river_race.behaviour;
 
 import com.lovetropics.lib.BlockBox;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
+import net.minecraft.SharedConstants;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
+import net.minecraft.world.item.DyeColor;
+import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.content.river_race.RiverRace;
 import org.lovetropics.games.common.content.river_race.client_state.RiverRaceClientBarState;
 import org.lovetropics.games.common.content.river_race.event.RiverRaceEvents;
@@ -14,19 +26,7 @@ import org.lovetropics.games.common.core.game.client_state.GameClientState;
 import org.lovetropics.games.common.core.game.state.team.GameTeam;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
 import org.lovetropics.games.common.core.game.state.team.TeamState;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.ints.IntList;
-import net.minecraft.SharedConstants;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.Mth;
-import net.minecraft.world.item.DyeColor;
 
-import org.jspecify.annotations.Nullable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

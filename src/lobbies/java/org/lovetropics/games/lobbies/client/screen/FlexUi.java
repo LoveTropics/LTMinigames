@@ -1,12 +1,12 @@
 package org.lovetropics.games.lobbies.client.screen;
 
-import org.lovetropics.games.lobbies.client.screen.flex.Box;
-import org.lovetropics.games.lobbies.client.screen.flex.Layout;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
+import org.lovetropics.games.lobbies.client.screen.flex.Box;
+import org.lovetropics.games.lobbies.client.screen.flex.Layout;
 
 public final class FlexUi {
 	public static void fill(Layout layout, GuiGraphicsExtractor graphics, int color) {

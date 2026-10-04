@@ -1,12 +1,6 @@
 package org.lovetropics.games.mixin.client;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import org.lovetropics.games.client.game.ClientGameStateManager;
-import org.lovetropics.games.common.core.data.LoveTropicsAttachments;
-import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
-import org.lovetropics.games.common.core.game.client_state.instance.CollidersClientState;
-import org.lovetropics.games.common.core.game.client_state.instance.TeamMembersClientState;
-import org.lovetropics.games.common.core.game.client_state.instance.controls.RemapHotbarKeysClientState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
@@ -17,6 +11,12 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.client.game.ClientGameStateManager;
+import org.lovetropics.games.common.core.data.LoveTropicsAttachments;
+import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
+import org.lovetropics.games.common.core.game.client_state.instance.CollidersClientState;
+import org.lovetropics.games.common.core.game.client_state.instance.TeamMembersClientState;
+import org.lovetropics.games.common.core.game.client_state.instance.controls.RemapHotbarKeysClientState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;

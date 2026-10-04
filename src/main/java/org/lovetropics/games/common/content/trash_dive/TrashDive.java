@@ -1,13 +1,13 @@
 package org.lovetropics.games.common.content.trash_dive;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.util.registry.GameBehaviorEntry;
-import org.lovetropics.games.common.util.registry.LoveTropicsRegistrate;
 import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.commands.CommandSourceStack;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.util.registry.GameBehaviorEntry;
+import org.lovetropics.games.common.util.registry.LoveTropicsRegistrate;
 
 @EventBusSubscriber(modid = LoveTropics.ID)
 public final class TrashDive {

@@ -1,11 +1,10 @@
 package org.lovetropics.games.lobbies.client.manage.state;
 
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.player.PlayerRole;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.player.PlayerRole;
 import org.lovetropics.games.lobbies.GameLobby;
 
 import java.util.UUID;

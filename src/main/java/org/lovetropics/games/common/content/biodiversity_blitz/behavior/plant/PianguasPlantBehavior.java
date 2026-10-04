@@ -1,14 +1,6 @@
 package org.lovetropics.games.common.content.biodiversity_blitz.behavior.plant;
 
 import com.lovetropics.lib.codec.MoreCodecs;
-import org.lovetropics.games.common.content.biodiversity_blitz.behavior.event.BbPlantEvents;
-import org.lovetropics.games.common.content.biodiversity_blitz.plot.Plot;
-import org.lovetropics.games.common.content.biodiversity_blitz.plot.plant.Plant;
-import org.lovetropics.games.common.core.game.GameException;
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
-import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import org.lovetropics.games.common.core.game.player.PlayerSet;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -20,6 +12,14 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import org.lovetropics.games.common.content.biodiversity_blitz.behavior.event.BbPlantEvents;
+import org.lovetropics.games.common.content.biodiversity_blitz.plot.Plot;
+import org.lovetropics.games.common.content.biodiversity_blitz.plot.plant.Plant;
+import org.lovetropics.games.common.core.game.GameException;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.core.game.player.PlayerSet;
 
 import java.util.List;
 

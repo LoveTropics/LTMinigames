@@ -1,5 +1,8 @@
 package org.lovetropics.games.common.core.game.behavior.instances.team;
 
+import com.mojang.serialization.MapCodec;
+import net.minecraft.server.level.ServerPlayer;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
@@ -14,9 +17,6 @@ import org.lovetropics.games.common.core.game.player.PlayerSet;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
 import org.lovetropics.games.common.core.game.state.team.TeamState;
 import org.lovetropics.games.common.core.network.SetGameClientStateMessage;
-import com.mojang.serialization.MapCodec;
-import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.neoforge.network.PacketDistributor;
 
 public class SyncTeamsBehavior implements IGameBehavior {
 	public static final MapCodec<SyncTeamsBehavior> CODEC = MapCodec.unit(SyncTeamsBehavior::new);

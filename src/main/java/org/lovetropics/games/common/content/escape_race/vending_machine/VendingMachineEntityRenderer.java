@@ -1,10 +1,5 @@
 package org.lovetropics.games.common.content.escape_race.vending_machine;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.client.game.ClientGameStateManager;
-import org.lovetropics.games.common.content.escape_race.EscapeRace;
-import org.lovetropics.games.common.content.escape_race.EscapeRaceTexts;
-import org.lovetropics.games.common.content.escape_race.client.EscapeRaceClientBucksState;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.ChatFormatting;
@@ -37,6 +32,11 @@ import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import net.neoforged.neoforge.client.submit.RenderPhaseKeys;
 import org.joml.Matrix4f;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.client.game.ClientGameStateManager;
+import org.lovetropics.games.common.content.escape_race.EscapeRace;
+import org.lovetropics.games.common.content.escape_race.EscapeRaceTexts;
+import org.lovetropics.games.common.content.escape_race.client.EscapeRaceClientBucksState;
 
 import java.util.ArrayList;
 import java.util.List;

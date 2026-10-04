@@ -1,9 +1,9 @@
 package org.lovetropics.games.mixin;
 
-import org.lovetropics.games.common.core.dimension.RuntimeDimensions;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.selector.EntitySelector;
 import net.minecraft.world.entity.Entity;
+import org.lovetropics.games.common.core.dimension.RuntimeDimensions;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;

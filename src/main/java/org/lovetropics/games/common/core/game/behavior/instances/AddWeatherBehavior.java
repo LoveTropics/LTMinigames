@@ -1,17 +1,6 @@
 package org.lovetropics.games.common.core.game.behavior.instances;
 
 import com.lovetropics.lib.codec.MoreCodecs;
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
-import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
-import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
-import org.lovetropics.games.common.core.game.behavior.event.GameWorldEvents;
-import org.lovetropics.games.common.core.game.state.GameStateMap;
-import org.lovetropics.games.common.core.game.state.weather.GameWeatherState;
-import org.lovetropics.games.common.core.game.weather.WeatherController;
-import org.lovetropics.games.common.core.game.weather.WeatherControllerManager;
-import org.lovetropics.games.common.core.game.weather.WeatherEventType;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -23,8 +12,19 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.levelgen.Heightmap;
-
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
+import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
+import org.lovetropics.games.common.core.game.behavior.event.GameWorldEvents;
+import org.lovetropics.games.common.core.game.state.GameStateMap;
+import org.lovetropics.games.common.core.game.state.weather.GameWeatherState;
+import org.lovetropics.games.common.core.game.weather.WeatherController;
+import org.lovetropics.games.common.core.game.weather.WeatherControllerManager;
+import org.lovetropics.games.common.core.game.weather.WeatherEventType;
+
 import java.util.Map;
 import java.util.Optional;
 

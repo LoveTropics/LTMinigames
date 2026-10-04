@@ -1,10 +1,10 @@
 package org.lovetropics.games.mixin.client;
 
+import net.minecraft.client.gui.Hud;
+import net.minecraft.resources.Identifier;
 import org.lovetropics.games.client.game.ClientGameStateManager;
 import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
 import org.lovetropics.games.common.core.game.client_state.instance.ReplaceTexturesClientState;
-import net.minecraft.client.gui.Hud;
-import net.minecraft.resources.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;

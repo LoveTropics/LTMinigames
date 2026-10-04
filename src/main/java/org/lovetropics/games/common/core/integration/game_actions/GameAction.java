@@ -1,7 +1,7 @@
 package org.lovetropics.games.common.core.integration.game_actions;
 
-import org.lovetropics.games.common.core.game.IGamePhase;
 import net.minecraft.server.MinecraftServer;
+import org.lovetropics.games.common.core.game.IGamePhase;
 
 public interface GameAction {
 	/// Resolves the requested action.

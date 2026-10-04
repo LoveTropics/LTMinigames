@@ -1,7 +1,5 @@
 package org.lovetropics.games.common.core.map.workspace;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.core.network.workspace.SetWorkspaceMessage;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -11,6 +9,8 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.core.network.workspace.SetWorkspaceMessage;
 
 @EventBusSubscriber(modid = LoveTropics.ID)
 public final class MapWorkspaceTracker {

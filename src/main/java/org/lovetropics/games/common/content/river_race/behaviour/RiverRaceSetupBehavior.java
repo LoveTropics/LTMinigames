@@ -1,5 +1,9 @@
 package org.lovetropics.games.common.content.river_race.behaviour;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.Direction;
 import org.lovetropics.games.common.content.river_race.RiverRaceState;
 import org.lovetropics.games.common.content.river_race.event.RiverRaceEvents;
 import org.lovetropics.games.common.core.game.GameException;
@@ -7,10 +11,6 @@ import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.core.Direction;
 
 import java.util.Map;
 

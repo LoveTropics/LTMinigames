@@ -1,16 +1,5 @@
 package org.lovetropics.games.common.core.game.behavior.instances;
 
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
-import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
-import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
-import org.lovetropics.games.common.core.game.player.PlayerSet;
-import org.lovetropics.games.common.core.game.state.progress.ProgressChannel;
-import org.lovetropics.games.common.core.game.state.progress.ProgressHolder;
-import org.lovetropics.games.common.core.game.state.progress.ProgressionPoint;
-import org.lovetropics.games.common.util.LinearSpline;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -22,6 +11,17 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
+import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
+import org.lovetropics.games.common.core.game.player.PlayerSet;
+import org.lovetropics.games.common.core.game.state.progress.ProgressChannel;
+import org.lovetropics.games.common.core.game.state.progress.ProgressHolder;
+import org.lovetropics.games.common.core.game.state.progress.ProgressionPoint;
+import org.lovetropics.games.common.util.LinearSpline;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;

@@ -1,17 +1,6 @@
 package org.lovetropics.games.common.content.biodiversity_blitz.behavior;
 
 import com.lovetropics.lib.BlockBox;
-import org.lovetropics.games.common.content.biodiversity_blitz.BiodiversityBlitzTexts;
-import org.lovetropics.games.common.content.biodiversity_blitz.behavior.event.BbEvents;
-import org.lovetropics.games.common.content.biodiversity_blitz.merchant.BbMerchant;
-import org.lovetropics.games.common.content.biodiversity_blitz.plot.Plot;
-import org.lovetropics.games.common.content.biodiversity_blitz.plot.plant.PlantItemType;
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
-import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
-import org.lovetropics.games.common.util.EntityTemplate;
-import org.lovetropics.games.common.util.Util;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -36,6 +25,17 @@ import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.item.trading.MerchantOffers;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.content.biodiversity_blitz.BiodiversityBlitzTexts;
+import org.lovetropics.games.common.content.biodiversity_blitz.behavior.event.BbEvents;
+import org.lovetropics.games.common.content.biodiversity_blitz.merchant.BbMerchant;
+import org.lovetropics.games.common.content.biodiversity_blitz.plot.Plot;
+import org.lovetropics.games.common.content.biodiversity_blitz.plot.plant.PlantItemType;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
+import org.lovetropics.games.common.util.EntityTemplate;
+import org.lovetropics.games.common.util.Util;
 
 import java.util.List;
 import java.util.Set;

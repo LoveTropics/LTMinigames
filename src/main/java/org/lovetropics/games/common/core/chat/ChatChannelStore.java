@@ -1,10 +1,10 @@
 package org.lovetropics.games.common.core.chat;
 
-import org.lovetropics.games.LoveTropics;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
+import org.lovetropics.games.LoveTropics;
 
 import java.util.function.Supplier;
 

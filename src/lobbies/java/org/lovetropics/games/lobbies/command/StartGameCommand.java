@@ -1,8 +1,5 @@
 package org.lovetropics.games.lobbies.command;
 
-import org.lovetropics.games.common.core.command.argument.GameConfigArgument;
-import org.lovetropics.games.common.core.game.IGameDefinition;
-import org.lovetropics.games.common.core.game.config.GameConfig;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -13,6 +10,9 @@ import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import org.lovetropics.games.common.core.command.argument.GameConfigArgument;
+import org.lovetropics.games.common.core.game.IGameDefinition;
+import org.lovetropics.games.common.core.game.config.GameConfig;
 import org.lovetropics.games.lobbies.GameLobby;
 import org.lovetropics.games.lobbies.GameLobbyManager;
 import org.lovetropics.games.lobbies.GameLobbyTexts;

@@ -1,5 +1,8 @@
 package org.lovetropics.games.common.core.game.behavior.instances.trigger.phase;
 
+import com.mojang.serialization.MapCodec;
+import net.minecraft.util.context.ContextKeySet;
+import net.minecraft.util.context.ContextMap;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
@@ -7,9 +10,6 @@ import org.lovetropics.games.common.core.game.behavior.action.GameActionContextK
 import org.lovetropics.games.common.core.game.behavior.action.GameActionList;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GameLogicEvents;
-import com.mojang.serialization.MapCodec;
-import net.minecraft.util.context.ContextKeySet;
-import net.minecraft.util.context.ContextMap;
 
 public record GameOverTrigger(
 		GameActionList actions

@@ -2,7 +2,6 @@ package org.lovetropics.games.mixin;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import org.lovetropics.games.common.content.turtle_race.RiderBehavior;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import net.minecraft.commands.CommandSourceStack;
@@ -10,6 +9,7 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.server.commands.RideCommand;
 import net.minecraft.world.entity.Entity;
+import org.lovetropics.games.common.content.turtle_race.RiderBehavior;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;

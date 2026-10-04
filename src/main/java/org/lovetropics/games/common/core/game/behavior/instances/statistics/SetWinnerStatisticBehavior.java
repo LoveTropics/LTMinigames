@@ -1,5 +1,8 @@
 package org.lovetropics.games.common.core.game.behavior.instances.statistics;
 
+import com.mojang.serialization.MapCodec;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import org.lovetropics.games.common.core.game.GameWinner;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
@@ -10,9 +13,6 @@ import org.lovetropics.games.common.core.game.behavior.event.GameLogicEvents;
 import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
 import org.lovetropics.games.common.core.game.state.team.GameTeam;
-import com.mojang.serialization.MapCodec;
-import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
 
 import java.util.function.Supplier;
 

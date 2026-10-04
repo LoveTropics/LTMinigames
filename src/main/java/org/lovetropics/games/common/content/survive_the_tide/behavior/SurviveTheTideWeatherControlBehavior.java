@@ -1,5 +1,9 @@
 package org.lovetropics.games.common.content.survive_the_tide.behavior;
 
+import com.mojang.serialization.MapCodec;
+import net.minecraft.SharedConstants;
+import net.minecraft.util.RandomSource;
+import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.content.survive_the_tide.SurviveTheTideWeatherConfig;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
@@ -9,10 +13,6 @@ import org.lovetropics.games.common.core.game.state.progress.ProgressChannel;
 import org.lovetropics.games.common.core.game.state.progress.ProgressHolder;
 import org.lovetropics.games.common.core.game.state.weather.GameWeatherState;
 import org.lovetropics.games.common.core.game.weather.WeatherEvent;
-import com.mojang.serialization.MapCodec;
-import net.minecraft.SharedConstants;
-import net.minecraft.util.RandomSource;
-import org.jspecify.annotations.Nullable;
 
 public class SurviveTheTideWeatherControlBehavior implements IGameBehavior {
 	public static final MapCodec<SurviveTheTideWeatherControlBehavior> CODEC = SurviveTheTideWeatherConfig.CODEC.xmap(SurviveTheTideWeatherControlBehavior::new, b -> b.config);

@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.content.escape_race.misc;
 
-import org.lovetropics.games.common.util.PredictedToggle;
 import net.minecraft.SharedConstants;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -21,6 +20,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import org.lovetropics.games.common.util.PredictedToggle;
 
 import java.util.List;
 

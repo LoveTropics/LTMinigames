@@ -1,14 +1,14 @@
 package org.lovetropics.games.common.core.network.ddr;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.content.escape_race.ddr_machine.DDRMachineEntity;
-import org.lovetropics.games.common.content.escape_race.ddr_machine.DdrInput;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.content.escape_race.ddr_machine.DDRMachineEntity;
+import org.lovetropics.games.common.content.escape_race.ddr_machine.DdrInput;
 
 public record ServerboundDdrInputPacket(DdrInput input, long inputTick) implements CustomPacketPayload {
 	public static final Type<ServerboundDdrInputPacket> TYPE = new Type<>(LoveTropics.id("ddr_input"));

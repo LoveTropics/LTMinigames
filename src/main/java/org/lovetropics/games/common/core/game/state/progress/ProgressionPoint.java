@@ -1,10 +1,10 @@
 package org.lovetropics.games.common.core.game.state.progress;
 
-import org.lovetropics.games.common.core.game.IGamePhase;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import net.minecraft.SharedConstants;
+import org.lovetropics.games.common.core.game.IGamePhase;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.Function;

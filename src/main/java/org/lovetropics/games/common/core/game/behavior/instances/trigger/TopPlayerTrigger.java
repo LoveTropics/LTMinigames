@@ -1,5 +1,9 @@
 package org.lovetropics.games.common.core.game.behavior.instances.trigger;
 
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.context.ContextMap;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
@@ -9,10 +13,6 @@ import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.state.statistics.GameStatistics;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.context.ContextMap;
 
 import java.util.List;
 import java.util.Objects;

@@ -1,9 +1,9 @@
 package org.lovetropics.games.common.content.biodiversity_blitz.entity.ai;
 
-import org.lovetropics.games.common.content.biodiversity_blitz.entity.BbMobEntity;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.player.Player;
+import org.lovetropics.games.common.content.biodiversity_blitz.entity.BbMobEntity;
 
 public final class BbTargetPlayerGoal extends NearestAttackableTargetGoal<Player> {
 	private static final double TARGET_RANGE = 7.0;

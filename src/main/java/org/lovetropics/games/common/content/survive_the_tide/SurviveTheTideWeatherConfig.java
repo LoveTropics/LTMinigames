@@ -1,12 +1,12 @@
 package org.lovetropics.games.common.content.survive_the_tide;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import org.lovetropics.games.common.core.game.state.progress.DiscreteProgressionMap;
 import org.lovetropics.games.common.core.game.state.progress.ProgressHolder;
 import org.lovetropics.games.common.core.game.state.progress.ProgressionPeriod;
 import org.lovetropics.games.common.core.game.weather.WeatherEventType;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import java.util.Map;
 

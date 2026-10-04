@@ -1,17 +1,17 @@
 package org.lovetropics.games.common.core.game.behavior.instances.statistics;
 
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
-import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
-import org.lovetropics.games.common.core.game.state.statistics.GameStatistics;
-import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.server.ServerScoreboard;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.scores.Objective;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
+import org.lovetropics.games.common.core.game.state.statistics.GameStatistics;
+import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
 
 import java.util.Map;
 

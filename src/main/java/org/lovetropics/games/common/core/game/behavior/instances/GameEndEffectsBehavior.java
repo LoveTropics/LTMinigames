@@ -1,14 +1,6 @@
 package org.lovetropics.games.common.core.game.behavior.instances;
 
 import com.lovetropics.lib.codec.MoreCodecs;
-import org.lovetropics.games.common.core.game.GameException;
-import org.lovetropics.games.common.core.game.GameStopReason;
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
-import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import org.lovetropics.games.common.core.game.behavior.event.GameLogicEvents;
-import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
-import org.lovetropics.games.common.core.game.util.TemplatedText;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -18,8 +10,16 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.Style;
-
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.core.game.GameException;
+import org.lovetropics.games.common.core.game.GameStopReason;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.core.game.behavior.event.GameLogicEvents;
+import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
+import org.lovetropics.games.common.core.game.util.TemplatedText;
+
 import java.util.Map;
 
 public final class GameEndEffectsBehavior implements IGameBehavior {

@@ -3,16 +3,9 @@ package org.lovetropics.games.common.core.game.weather.tornado;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.resources.Identifier;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.EntityType;
 import net.neoforged.fml.InterModComms;
-import net.neoforged.neoforge.registries.DeferredHolder;
-import org.lovetropics.games.common.util.EntityTemplate;
 import org.slf4j.Logger;
 
 import java.util.Optional;

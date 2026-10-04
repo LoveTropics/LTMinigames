@@ -1,5 +1,8 @@
 package org.lovetropics.games.lobbies;
 
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Unit;
+import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.LoveTropics;
 import org.lovetropics.games.common.core.game.GameResult;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
@@ -7,9 +10,6 @@ import org.lovetropics.games.common.core.game.player.PlayerSet;
 import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
 import org.lovetropics.games.common.core.game.util.TeamAllocator;
 import org.lovetropics.games.common.role.StreamHosts;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.Unit;
-import org.jspecify.annotations.Nullable;
 
 import java.util.Iterator;
 import java.util.UUID;

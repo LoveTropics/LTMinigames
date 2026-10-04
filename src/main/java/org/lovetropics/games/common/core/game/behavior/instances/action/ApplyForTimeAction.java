@@ -1,5 +1,15 @@
 package org.lovetropics.games.common.core.game.behavior.instances.action;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.SharedConstants;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
+import net.minecraft.util.context.ContextMap;
+import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
 import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
@@ -15,17 +25,7 @@ import org.lovetropics.games.common.core.game.behavior.event.MutableInvoker;
 import org.lovetropics.games.common.core.game.state.ActionMutex;
 import org.lovetropics.games.common.core.game.state.ActionMutexState;
 import org.lovetropics.games.common.core.game.util.TemplatedText;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.SharedConstants;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.Mth;
-import net.minecraft.util.context.ContextMap;
 
-import org.jspecify.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;

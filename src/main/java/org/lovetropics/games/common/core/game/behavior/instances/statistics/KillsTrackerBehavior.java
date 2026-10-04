@@ -1,5 +1,8 @@
 package org.lovetropics.games.common.core.game.behavior.instances.statistics;
 
+import com.mojang.serialization.MapCodec;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.TriState;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
@@ -11,9 +14,6 @@ import org.lovetropics.games.common.core.game.state.statistics.StatisticsMap;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
 import org.lovetropics.games.common.core.game.state.team.TeamState;
 import org.lovetropics.games.common.util.Util;
-import com.mojang.serialization.MapCodec;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.TriState;
 
 public final class KillsTrackerBehavior implements IGameBehavior {
 	public static final MapCodec<KillsTrackerBehavior> CODEC = MapCodec.unit(KillsTrackerBehavior::new);

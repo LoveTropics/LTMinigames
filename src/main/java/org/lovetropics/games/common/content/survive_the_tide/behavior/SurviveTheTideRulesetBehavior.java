@@ -1,13 +1,20 @@
 package org.lovetropics.games.common.content.survive_the_tide.behavior;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.component.DataComponentType;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.util.TriState;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SpawnEggItem;
+import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.phys.BlockHitResult;
 import org.lovetropics.games.common.content.survive_the_tide.SurviveTheTideTexts;
 import org.lovetropics.games.common.core.game.GameException;
@@ -20,15 +27,6 @@ import org.lovetropics.games.common.core.game.behavior.instances.ImmediateRespaw
 import org.lovetropics.games.common.core.game.state.progress.ProgressChannel;
 import org.lovetropics.games.common.core.game.state.progress.ProgressHolder;
 import org.lovetropics.games.common.core.game.state.progress.ProgressionPeriod;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.tags.DamageTypeTags;
-import net.minecraft.util.TriState;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.gamerules.GameRules;
 
 public class SurviveTheTideRulesetBehavior implements IGameBehavior {
 	public static final MapCodec<SurviveTheTideRulesetBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(

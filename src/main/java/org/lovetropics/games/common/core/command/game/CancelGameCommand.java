@@ -1,11 +1,5 @@
 package org.lovetropics.games.common.core.command.game;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.core.game.GameResult;
-import org.lovetropics.games.common.core.game.GameStopReason;
-import org.lovetropics.games.common.core.game.IGameLookup;
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.util.GameTexts;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.CommandSourceStack;
@@ -16,6 +10,12 @@ import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.core.game.GameResult;
+import org.lovetropics.games.common.core.game.GameStopReason;
+import org.lovetropics.games.common.core.game.IGameLookup;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.util.GameTexts;
 
 import static net.minecraft.commands.Commands.literal;
 

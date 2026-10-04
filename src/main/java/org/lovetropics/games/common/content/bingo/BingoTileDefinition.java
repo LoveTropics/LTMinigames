@@ -1,13 +1,13 @@
 package org.lovetropics.games.common.content.bingo;
 
-import org.lovetropics.games.common.core.game.behavior.action.GameActionList;
-import org.lovetropics.games.common.util.Codecs;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.world.item.ItemStackTemplate;
+import org.lovetropics.games.common.core.game.behavior.action.GameActionList;
+import org.lovetropics.games.common.util.Codecs;
 
 import java.util.Optional;
 import java.util.function.Supplier;

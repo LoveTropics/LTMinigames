@@ -1,5 +1,12 @@
 package org.lovetropics.games.common.content.biodiversity_blitz.behavior;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.level.Level;
 import org.lovetropics.games.common.content.biodiversity_blitz.entity.BbMobSpawner;
 import org.lovetropics.games.common.content.biodiversity_blitz.entity.impl.BbCreeperEntity;
 import org.lovetropics.games.common.content.biodiversity_blitz.plot.Plot;
@@ -9,13 +16,6 @@ import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GameActionEvents;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.entity.EntityTypes;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.level.Level;
 
 public class SpawnSurpriseWaveBehavior implements IGameBehavior {
 	public static final MapCodec<SpawnSurpriseWaveBehavior> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(

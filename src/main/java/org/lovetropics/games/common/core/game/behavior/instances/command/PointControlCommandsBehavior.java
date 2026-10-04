@@ -1,5 +1,16 @@
 package org.lovetropics.games.common.core.game.behavior.instances.command;
 
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.Permissions;
+import net.minecraft.util.ExtraCodecs;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
@@ -12,17 +23,6 @@ import org.lovetropics.games.common.core.game.state.statistics.Placement;
 import org.lovetropics.games.common.core.game.state.statistics.PlacementOrder;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticsMap;
-import com.mojang.brigadier.arguments.IntegerArgumentType;
-import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.Commands;
-import net.minecraft.commands.arguments.EntityArgument;
-import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.permissions.Permissions;
-import net.minecraft.util.ExtraCodecs;
 
 import java.util.List;
 

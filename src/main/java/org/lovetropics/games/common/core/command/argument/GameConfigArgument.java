@@ -1,8 +1,5 @@
 package org.lovetropics.games.common.core.command.argument;
 
-import org.lovetropics.games.common.core.game.IGameDefinition;
-import org.lovetropics.games.common.core.game.config.GameConfig;
-import org.lovetropics.games.common.core.game.config.GameConfigs;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -13,6 +10,9 @@ import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.IdentifierArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import org.lovetropics.games.common.core.game.IGameDefinition;
+import org.lovetropics.games.common.core.game.config.GameConfig;
+import org.lovetropics.games.common.core.game.config.GameConfigs;
 
 public final class GameConfigArgument {
 	public static final DynamicCommandExceptionType GAME_CONFIG_NOT_FOUND = new DynamicCommandExceptionType(arg ->

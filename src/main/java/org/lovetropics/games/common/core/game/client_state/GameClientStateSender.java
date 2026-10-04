@@ -1,7 +1,5 @@
 package org.lovetropics.games.common.core.game.client_state;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.core.network.SetGameClientStateMessage;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.server.level.ServerPlayer;
@@ -12,6 +10,8 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.core.network.SetGameClientStateMessage;
 
 import java.util.Map;
 import java.util.Set;

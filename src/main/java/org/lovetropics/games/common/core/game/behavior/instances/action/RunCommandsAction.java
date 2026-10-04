@@ -1,13 +1,5 @@
 package org.lovetropics.games.common.core.game.behavior.instances.action;
 
-import org.lovetropics.games.common.core.game.GameException;
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
-import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
-import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import org.lovetropics.games.common.core.game.behavior.event.GameActionEvents;
-import org.lovetropics.games.common.core.game.state.DebugModeState;
 import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Codec;
@@ -21,6 +13,14 @@ import net.minecraft.server.permissions.LevelBasedPermissionSet;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
+import org.lovetropics.games.common.core.game.GameException;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
+import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.core.game.behavior.event.GameActionEvents;
+import org.lovetropics.games.common.core.game.state.DebugModeState;
 
 import java.util.List;
 import java.util.function.Function;

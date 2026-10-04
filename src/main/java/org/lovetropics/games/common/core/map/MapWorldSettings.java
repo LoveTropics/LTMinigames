@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.core.map;
 
-import org.lovetropics.games.common.util.Codecs;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.server.MinecraftServer;
@@ -8,6 +7,7 @@ import net.minecraft.world.Difficulty;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.saveddata.WeatherData;
+import org.lovetropics.games.common.util.Codecs;
 
 public final class MapWorldSettings {
 

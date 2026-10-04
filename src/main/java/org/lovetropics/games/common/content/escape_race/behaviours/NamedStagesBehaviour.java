@@ -1,17 +1,6 @@
 package org.lovetropics.games.common.content.escape_race.behaviours;
 
 import com.lovetropics.lib.codec.MoreCodecs;
-import org.lovetropics.games.common.core.game.GameException;
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
-import org.lovetropics.games.common.core.game.behavior.action.GameActionList;
-import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
-import org.lovetropics.games.common.core.game.behavior.event.SubGameEvents;
-import org.lovetropics.games.common.core.game.command.GameCommandRegistrar;
-import org.lovetropics.games.common.core.game.state.GameStateKey;
-import org.lovetropics.games.common.core.game.state.GameStateMap;
-import org.lovetropics.games.common.core.game.state.IGameState;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
@@ -25,6 +14,17 @@ import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.context.ContextMap;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.core.game.GameException;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.action.GameActionList;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
+import org.lovetropics.games.common.core.game.behavior.event.SubGameEvents;
+import org.lovetropics.games.common.core.game.command.GameCommandRegistrar;
+import org.lovetropics.games.common.core.game.state.GameStateKey;
+import org.lovetropics.games.common.core.game.state.GameStateMap;
+import org.lovetropics.games.common.core.game.state.IGameState;
 import org.slf4j.Logger;
 
 import java.util.Map;

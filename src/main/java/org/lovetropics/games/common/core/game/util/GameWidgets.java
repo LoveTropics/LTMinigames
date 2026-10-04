@@ -1,5 +1,7 @@
 package org.lovetropics.games.common.core.game.util;
 
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.BossEvent;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
@@ -7,8 +9,6 @@ import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.behavior.event.SubGameEvents;
 import org.lovetropics.games.common.core.game.state.GameStateKey;
 import org.lovetropics.games.common.core.game.state.IGameState;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.BossEvent;
 
 import java.util.ArrayList;
 import java.util.List;

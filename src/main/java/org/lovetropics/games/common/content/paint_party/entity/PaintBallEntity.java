@@ -1,9 +1,5 @@
 package org.lovetropics.games.common.content.paint_party.entity;
 
-import org.lovetropics.games.common.content.paint_party.PaintParty;
-import org.lovetropics.games.common.content.paint_party.PaintPartyEvents;
-import org.lovetropics.games.common.core.game.IGameLookup;
-import org.lovetropics.games.common.core.game.IGamePhase;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -18,6 +14,10 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.BlockHitResult;
+import org.lovetropics.games.common.content.paint_party.PaintParty;
+import org.lovetropics.games.common.content.paint_party.PaintPartyEvents;
+import org.lovetropics.games.common.core.game.IGameLookup;
+import org.lovetropics.games.common.core.game.IGamePhase;
 
 public class PaintBallEntity extends ThrowableProjectile implements ItemSupplier {
 	private static final ItemStack DEFAULT_VISUAL_ITEM = new ItemStack(Items.CONCRETE.white());

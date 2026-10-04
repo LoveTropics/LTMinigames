@@ -1,9 +1,5 @@
 package org.lovetropics.games.common.content.escape_race.misc;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.client.game.ClientGameStateManager;
-import org.lovetropics.games.common.content.escape_race.EscapeRace;
-import org.lovetropics.games.common.content.escape_race.client.EscapeRaceClientBucksState;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -25,6 +21,10 @@ import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemDisplayContext;
 import org.joml.Quaternionf;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.client.game.ClientGameStateManager;
+import org.lovetropics.games.common.content.escape_race.EscapeRace;
+import org.lovetropics.games.common.content.escape_race.client.EscapeRaceClientBucksState;
 
 public class RoomEntrancePadEntityRenderer extends EntityRenderer<RoomEntrancePadEntity, RoomEntrancePadRenderState> {
 	private static final Identifier TEXTURE = LoveTropics.id("textures/entity/room_entrance_pad.png");

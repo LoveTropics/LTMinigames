@@ -1,14 +1,14 @@
 package org.lovetropics.games.common.content.biodiversity_blitz.entity.ai;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import org.lovetropics.games.common.content.biodiversity_blitz.entity.BbMobEntity;
 import org.lovetropics.games.common.content.biodiversity_blitz.plot.plant.Plant;
 import org.lovetropics.games.common.content.biodiversity_blitz.plot.plant.state.PlantHealth;
 import org.lovetropics.games.common.content.biodiversity_blitz.plot.plant.state.PlantNotPathfindable;
 import org.lovetropics.games.common.util.Util;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
 
 public class DestroyCropGoal extends MoveToBlockGoal {
 	private static final int DAMAGE_INTERVAL = 20;

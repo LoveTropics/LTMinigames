@@ -1,12 +1,12 @@
 package org.lovetropics.games.common.core.game.behavior.instances;
 
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.client_state.GameClientState;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 public record SetGameClientStateBehavior(GameClientState state) implements IGameBehavior {
 	public static final MapCodec<SetGameClientStateBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(

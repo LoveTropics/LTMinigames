@@ -1,7 +1,5 @@
 package org.lovetropics.games.common.content.escape_race.effect;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.content.escape_race.EscapeRace;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.CommonColors;
@@ -15,6 +13,8 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.content.escape_race.EscapeRace;
 import org.lovetropics.peekaboo.api.Disguise;
 import org.lovetropics.peekaboo.api.EntityDisguiseHolder;
 

@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.util.world.gamedata;
 
-import org.lovetropics.games.LoveTropics;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
@@ -10,6 +9,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
+import org.lovetropics.games.LoveTropics;
 
 import java.util.HashMap;
 import java.util.Map;

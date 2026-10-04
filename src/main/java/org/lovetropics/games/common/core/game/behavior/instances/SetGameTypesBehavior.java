@@ -1,16 +1,16 @@
 package org.lovetropics.games.common.core.game.behavior.instances;
 
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.GameType;
+import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.GameType;
 
-import org.jspecify.annotations.Nullable;
 import java.util.Optional;
 
 public record SetGameTypesBehavior(Optional<GameType> participantGameType, Optional<GameType> spectatorGameType, GameType allGameType) implements IGameBehavior {

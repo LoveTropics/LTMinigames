@@ -1,11 +1,11 @@
 package org.lovetropics.games.common.core.game.client_state.instance;
 
-import org.lovetropics.games.common.core.game.client_state.GameClientState;
-import org.lovetropics.games.common.core.game.client_state.GameClientStateType;
-import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import org.lovetropics.games.common.core.game.client_state.GameClientState;
+import org.lovetropics.games.common.core.game.client_state.GameClientStateType;
+import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
 
 public record InvertControlsClientState(boolean xAxis, boolean yAxis) implements GameClientState {
 	public static final MapCodec<InvertControlsClientState> CODEC = RecordCodecBuilder.mapCodec(in -> in.group(

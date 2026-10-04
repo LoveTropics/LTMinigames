@@ -1,8 +1,8 @@
 package org.lovetropics.games.common.content.paint_party;
 
+import net.minecraft.network.chat.MutableComponent;
 import org.lovetropics.games.LoveTropics;
 import org.lovetropics.games.common.core.game.util.TranslationCollector;
-import net.minecraft.network.chat.MutableComponent;
 
 public class PaintPartyTexts {
 	public static final TranslationCollector KEYS = new TranslationCollector(LoveTropics.ID + ".minigame.paint_party.");

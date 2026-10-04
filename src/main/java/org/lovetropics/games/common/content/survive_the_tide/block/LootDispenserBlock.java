@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.content.survive_the_tide.block;
 
-import org.lovetropics.games.common.content.survive_the_tide.SurviveTheTide;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -21,6 +20,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.redstone.Orientation;
 import org.jetbrains.annotations.Nullable;
+import org.lovetropics.games.common.content.survive_the_tide.SurviveTheTide;
 
 public class LootDispenserBlock extends BaseEntityBlock {
 	public static final MapCodec<LootDispenserBlock> CODEC = simpleCodec(LootDispenserBlock::new);

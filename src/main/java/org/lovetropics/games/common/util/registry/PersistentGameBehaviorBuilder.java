@@ -1,13 +1,13 @@
 package org.lovetropics.games.common.util.registry;
 
-import org.lovetropics.games.common.core.game.persistent.PersistentGameBehavior;
-import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviorEntry;
-import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviorType;
-import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviors;
 import com.mojang.serialization.MapCodec;
 import com.tterrag.registrate.builders.AbstractBuilder;
 import com.tterrag.registrate.builders.BuilderCallback;
 import net.neoforged.neoforge.registries.DeferredHolder;
+import org.lovetropics.games.common.core.game.persistent.PersistentGameBehavior;
+import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviorEntry;
+import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviorType;
+import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviors;
 
 public final class PersistentGameBehaviorBuilder<T extends PersistentGameBehavior, P> extends AbstractBuilder<PersistentGameBehaviorType<?>, PersistentGameBehaviorType<T>, P, PersistentGameBehaviorBuilder<T, P>> {
 	private final MapCodec<T> codec;

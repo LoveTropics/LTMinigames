@@ -1,8 +1,5 @@
 package org.lovetropics.games.common.content.biodiversity_blitz.explosion;
 
-import org.lovetropics.games.common.content.biodiversity_blitz.plot.Plot;
-import org.lovetropics.games.common.content.biodiversity_blitz.plot.plant.Plant;
-import org.lovetropics.games.common.content.biodiversity_blitz.plot.plant.state.PlantHealth;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
@@ -10,6 +7,9 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ExplosionDamageCalculator;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import org.lovetropics.games.common.content.biodiversity_blitz.plot.Plot;
+import org.lovetropics.games.common.content.biodiversity_blitz.plot.plant.Plant;
+import org.lovetropics.games.common.content.biodiversity_blitz.plot.plant.state.PlantHealth;
 
 import java.util.List;
 import java.util.Random;

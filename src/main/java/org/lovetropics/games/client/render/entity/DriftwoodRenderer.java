@@ -1,8 +1,5 @@
 package org.lovetropics.games.client.render.entity;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.client.render.entity.state.DriftwoodRenderState;
-import org.lovetropics.games.common.content.survive_the_tide.entity.DriftwoodEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.client.model.EntityModel;
@@ -24,6 +21,9 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.client.render.entity.state.DriftwoodRenderState;
+import org.lovetropics.games.common.content.survive_the_tide.entity.DriftwoodEntity;
 
 public final class DriftwoodRenderer extends EntityRenderer<DriftwoodEntity, DriftwoodRenderState> {
 	private static final Identifier TEXTURE = LoveTropics.id("textures/entity/driftwood.png");

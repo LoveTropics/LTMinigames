@@ -1,7 +1,7 @@
 package org.lovetropics.games.common.core.game.behavior.event;
 
-import org.lovetropics.games.common.core.game.behavior.action.ActionSubjects;
 import net.minecraft.util.context.ContextMap;
+import org.lovetropics.games.common.core.game.behavior.action.ActionSubjects;
 
 public final class GameActionEvents {
 	public static final GameEventType<Apply> APPLY = GameEventType.create(Apply.class, listeners -> (context, targets) -> {

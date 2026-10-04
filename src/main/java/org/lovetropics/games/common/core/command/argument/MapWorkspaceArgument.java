@@ -1,7 +1,5 @@
 package org.lovetropics.games.common.core.command.argument;
 
-import org.lovetropics.games.common.core.map.workspace.MapWorkspace;
-import org.lovetropics.games.common.core.map.workspace.MapWorkspaceManager;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -11,6 +9,8 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.network.chat.Component;
+import org.lovetropics.games.common.core.map.workspace.MapWorkspace;
+import org.lovetropics.games.common.core.map.workspace.MapWorkspaceManager;
 
 public final class MapWorkspaceArgument {
 	private static final DynamicCommandExceptionType WORKSPACE_DOES_NOT_EXIST = new DynamicCommandExceptionType(id -> {

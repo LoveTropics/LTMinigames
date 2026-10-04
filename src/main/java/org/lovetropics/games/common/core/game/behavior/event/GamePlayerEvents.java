@@ -1,9 +1,5 @@
 package org.lovetropics.games.common.core.game.behavior.event;
 
-import org.lovetropics.games.common.core.game.SpawnBuilder;
-import org.lovetropics.games.common.core.game.player.PlayerRole;
-import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
-import org.lovetropics.games.common.core.game.util.TeamAllocator;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.PlayerChatMessage;
@@ -22,8 +18,12 @@ import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.core.game.SpawnBuilder;
+import org.lovetropics.games.common.core.game.player.PlayerRole;
+import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
+import org.lovetropics.games.common.core.game.util.TeamAllocator;
+
 import java.util.Set;
 import java.util.UUID;
 

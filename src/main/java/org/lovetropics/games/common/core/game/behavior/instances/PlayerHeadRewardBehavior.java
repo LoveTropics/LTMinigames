@@ -1,13 +1,5 @@
 package org.lovetropics.games.common.core.game.behavior.instances;
 
-import org.lovetropics.games.common.core.game.GameException;
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
-import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
-import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
-import org.lovetropics.games.common.core.game.rewards.GameRewardsMap;
-import org.lovetropics.games.common.util.Util;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerPlayer;
@@ -16,6 +8,14 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.ResolvableProfile;
 import org.apache.commons.lang3.mutable.MutableObject;
+import org.lovetropics.games.common.core.game.GameException;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
+import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
+import org.lovetropics.games.common.core.game.rewards.GameRewardsMap;
+import org.lovetropics.games.common.util.Util;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;

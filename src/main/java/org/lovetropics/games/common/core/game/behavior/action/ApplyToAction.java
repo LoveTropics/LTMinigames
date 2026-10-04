@@ -1,5 +1,6 @@
 package org.lovetropics.games.common.core.game.behavior.action;
 
+import com.mojang.serialization.MapCodec;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
@@ -7,7 +8,6 @@ import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GameActionEvents;
-import com.mojang.serialization.MapCodec;
 
 import java.util.function.Supplier;
 

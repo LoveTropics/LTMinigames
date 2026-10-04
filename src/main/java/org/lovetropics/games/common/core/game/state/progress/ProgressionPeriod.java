@@ -1,9 +1,9 @@
 package org.lovetropics.games.common.core.game.state.progress;
 
-import org.lovetropics.games.common.core.game.IGamePhase;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import org.lovetropics.games.common.core.game.IGamePhase;
 
 import java.util.List;
 import java.util.function.BooleanSupplier;

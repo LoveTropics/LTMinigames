@@ -1,9 +1,9 @@
 package org.lovetropics.games.common.content.escape_race.ddr_machine.levels;
 
-import org.lovetropics.games.common.content.escape_race.ddr_machine.DdrInput;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import org.lovetropics.games.common.content.escape_race.ddr_machine.DdrInput;
 
 public record TimedDdrInput(long tick, DdrInput input) {
 	public static final StreamCodec<ByteBuf, TimedDdrInput> STREAM_CODEC = StreamCodec.composite(

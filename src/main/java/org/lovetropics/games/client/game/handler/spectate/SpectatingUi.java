@@ -1,8 +1,5 @@
 package org.lovetropics.games.client.game.handler.spectate;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.client.screen.ClientPlayerInfo;
-import org.lovetropics.games.common.core.game.util.GameTexts;
 import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.platform.InputConstants;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
@@ -30,6 +27,9 @@ import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.client.screen.ClientPlayerInfo;
+import org.lovetropics.games.common.core.game.util.GameTexts;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;

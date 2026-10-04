@@ -1,9 +1,5 @@
 package org.lovetropics.games.client.game.bingo;
 
-import org.lovetropics.games.client.LTKeybinds;
-import org.lovetropics.games.client.game.handler.GameBingoHandler;
-import org.lovetropics.games.common.content.bingo.Bingo;
-import org.lovetropics.games.common.core.game.client_state.instance.BingoBoardClientState;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
@@ -12,8 +8,12 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.FormattedCharSequence;
-import org.jspecify.annotations.Nullable;
 import org.joml.Matrix3x2fStack;
+import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.client.LTKeybinds;
+import org.lovetropics.games.client.game.handler.GameBingoHandler;
+import org.lovetropics.games.common.content.bingo.Bingo;
+import org.lovetropics.games.common.core.game.client_state.instance.BingoBoardClientState;
 
 import java.util.ArrayList;
 import java.util.Comparator;

@@ -1,8 +1,8 @@
 package org.lovetropics.games.lobbies;
 
-import org.lovetropics.games.common.core.game.config.GameConfig;
 import net.minecraft.util.Mth;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.core.game.config.GameConfig;
 import org.lovetropics.games.lobbies.dev.DevQuickPlay;
 
 import java.util.ArrayList;

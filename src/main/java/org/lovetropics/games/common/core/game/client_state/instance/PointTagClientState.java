@@ -1,9 +1,6 @@
 package org.lovetropics.games.common.core.game.client_state.instance;
 
 import com.lovetropics.lib.codec.MoreCodecs;
-import org.lovetropics.games.common.core.game.client_state.GameClientState;
-import org.lovetropics.games.common.core.game.client_state.GameClientStateType;
-import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -11,6 +8,9 @@ import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStackTemplate;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.core.game.client_state.GameClientState;
+import org.lovetropics.games.common.core.game.client_state.GameClientStateType;
+import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
 
 import java.util.Map;
 import java.util.Optional;

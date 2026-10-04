@@ -1,6 +1,11 @@
 package org.lovetropics.games.common.core.game.behavior.instances.donation;
 
 import com.google.common.base.Strings;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.util.context.ContextKeySet;
+import net.minecraft.util.context.ContextMap;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.action.GameActionContextKeys;
@@ -8,11 +13,6 @@ import org.lovetropics.games.common.core.game.behavior.action.GameActionList;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePackageEvents;
 import org.lovetropics.games.common.core.integration.game_actions.Donation;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.util.context.ContextKeySet;
-import net.minecraft.util.context.ContextMap;
 
 public record DonationThresholdBehavior(double threshold, GameActionList actions) implements IGameBehavior {
 	public static final MapCodec<DonationThresholdBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(

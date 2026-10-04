@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.core.command.argument;
 
-import org.lovetropics.games.common.core.game.player.PlayerRole;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -10,6 +9,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.network.chat.Component;
+import org.lovetropics.games.common.core.game.player.PlayerRole;
 
 public final class PlayerRoleArgument {
 	private static final DynamicCommandExceptionType ROLE_NOT_VALID = new DynamicCommandExceptionType(key -> {

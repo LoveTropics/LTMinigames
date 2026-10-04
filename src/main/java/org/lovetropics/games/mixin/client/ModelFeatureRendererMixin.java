@@ -1,11 +1,11 @@
 package org.lovetropics.games.mixin.client;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import org.lovetropics.games.common.content.escape_race.client.ddr.render.DDRMachinePlayerHelper;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
+import org.lovetropics.games.common.content.escape_race.client.ddr.render.DDRMachinePlayerHelper;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

@@ -1,5 +1,10 @@
 package org.lovetropics.games.common.core.game.behavior.instances;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
@@ -9,12 +14,7 @@ import org.lovetropics.games.common.core.game.player.PlayerStorage;
 import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
 import org.lovetropics.games.common.core.game.state.team.TeamState;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 
-import org.jspecify.annotations.Nullable;
 import java.util.Map;
 
 public record JoinLateWithRoleBehavior(PlayerRole role, boolean allowRejoin) implements IGameBehavior {

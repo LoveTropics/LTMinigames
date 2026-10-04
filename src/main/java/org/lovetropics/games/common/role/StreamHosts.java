@@ -3,9 +3,9 @@ package org.lovetropics.games.common.role;
 import com.lovetropics.lib.permission.PermissionsApi;
 import com.lovetropics.lib.permission.role.RoleOverrideType;
 import com.lovetropics.lib.permission.role.RoleReader;
-import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
 import com.mojang.serialization.Codec;
 import net.minecraft.world.entity.player.Player;
+import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
 
 public class StreamHosts {
 	public static final RoleOverrideType<Boolean> ROLE_OVERRIDE = RoleOverrideType.register("host", Codec.BOOL);

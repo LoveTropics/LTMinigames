@@ -1,6 +1,13 @@
 package org.lovetropics.games.common.core.game.behavior.instances.action;
 
 import com.lovetropics.lib.BlockBox;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.ExtraCodecs;
+import net.minecraft.util.context.ContextMap;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
@@ -12,13 +19,6 @@ import org.lovetropics.games.common.core.game.behavior.instances.PositionPlayers
 import org.lovetropics.games.common.core.game.state.statistics.GameStatistics;
 import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.ExtraCodecs;
-import net.minecraft.util.context.ContextMap;
 
 import java.util.List;
 import java.util.Set;

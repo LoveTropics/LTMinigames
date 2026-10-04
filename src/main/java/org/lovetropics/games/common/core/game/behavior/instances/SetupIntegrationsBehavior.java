@@ -1,5 +1,9 @@
 package org.lovetropics.games.common.core.game.behavior.instances;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.resources.Identifier;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.GameStopReason;
 import org.lovetropics.games.common.core.game.IGamePhase;
@@ -11,11 +15,6 @@ import org.lovetropics.games.common.core.game.state.GameStateMap;
 import org.lovetropics.games.common.core.game.util.GameTexts;
 import org.lovetropics.games.common.core.integration.BackendIntegrations;
 import org.lovetropics.games.common.core.integration.GameInstanceIntegrations;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.resources.Identifier;
 
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;

@@ -1,7 +1,7 @@
 package org.lovetropics.games.mixin.gametest;
 
-import org.lovetropics.games.common.util.LTGameTestFakePlayer;
 import net.minecraft.server.level.ServerPlayer;
+import org.lovetropics.games.common.util.LTGameTestFakePlayer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

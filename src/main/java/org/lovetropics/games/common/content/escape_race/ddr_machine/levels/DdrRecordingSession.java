@@ -1,8 +1,6 @@
 package org.lovetropics.games.common.content.escape_race.ddr_machine.levels;
 
 import com.google.gson.JsonElement;
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.content.escape_race.ddr_machine.DdrInput;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.JsonOps;
 import net.minecraft.core.Holder;
@@ -17,6 +15,8 @@ import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.JukeboxSong;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.content.escape_race.ddr_machine.DdrInput;
 import org.slf4j.Logger;
 
 import java.io.IOException;

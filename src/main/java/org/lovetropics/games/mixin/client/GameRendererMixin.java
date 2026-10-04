@@ -1,10 +1,10 @@
 package org.lovetropics.games.mixin.client;
 
-import org.lovetropics.games.client.game.ClientGameStateManager;
-import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
+import org.lovetropics.games.client.game.ClientGameStateManager;
+import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

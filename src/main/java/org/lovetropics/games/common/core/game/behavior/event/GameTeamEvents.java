@@ -1,9 +1,9 @@
 package org.lovetropics.games.common.core.game.behavior.event;
 
+import net.minecraft.server.level.ServerPlayer;
 import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
 import org.lovetropics.games.common.core.game.state.team.TeamState;
-import net.minecraft.server.level.ServerPlayer;
 
 import java.util.Map;
 

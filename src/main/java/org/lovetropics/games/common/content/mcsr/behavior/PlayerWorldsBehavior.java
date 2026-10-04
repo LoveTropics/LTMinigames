@@ -1,5 +1,12 @@
 package org.lovetropics.games.common.content.mcsr.behavior;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerPlayer;
+import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.content.mcsr.McsrTexts;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.GameStopReason;
@@ -15,13 +22,6 @@ import org.lovetropics.games.common.core.game.config.GameConfigs;
 import org.lovetropics.games.common.core.game.config.GamePhaseConfig;
 import org.lovetropics.games.common.core.game.map.GeneratorMapProvider;
 import org.lovetropics.games.common.core.game.util.GameWidgets;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
-import net.minecraft.server.level.ServerPlayer;
-import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;

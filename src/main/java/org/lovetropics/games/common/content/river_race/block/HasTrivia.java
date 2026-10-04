@@ -1,8 +1,7 @@
 package org.lovetropics.games.common.content.river_race.block;
 
-import org.lovetropics.games.common.content.river_race.behaviour.TriviaBehaviour;
-
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.content.river_race.behaviour.TriviaBehaviour;
 
 public interface HasTrivia {
 

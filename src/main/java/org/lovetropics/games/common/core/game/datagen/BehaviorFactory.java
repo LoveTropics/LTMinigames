@@ -1,11 +1,11 @@
 package org.lovetropics.games.common.core.game.datagen;
 
+import net.minecraft.resources.Identifier;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.action.ActionTarget;
 import org.lovetropics.games.common.core.game.behavior.action.ApplyToAction;
 import org.lovetropics.games.common.core.game.behavior.action.GameActionList;
 import org.lovetropics.games.common.core.game.behavior.instances.CompositeBehavior;
-import net.minecraft.resources.Identifier;
 
 import java.util.HashMap;
 import java.util.List;

@@ -1,12 +1,5 @@
 package org.lovetropics.games.lobbies;
 
-import org.lovetropics.games.common.core.game.GameException;
-import org.lovetropics.games.common.core.game.IGameLookup;
-import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
-import org.lovetropics.games.common.core.game.config.GameConfig;
-import org.lovetropics.games.common.core.game.config.GamePhaseConfig;
-import org.lovetropics.games.common.core.game.map.GameMap;
-import org.lovetropics.games.common.core.game.map.IGameMapProvider;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -20,6 +13,13 @@ import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.core.game.GameException;
+import org.lovetropics.games.common.core.game.IGameLookup;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.config.GameConfig;
+import org.lovetropics.games.common.core.game.config.GamePhaseConfig;
+import org.lovetropics.games.common.core.game.map.GameMap;
+import org.lovetropics.games.common.core.game.map.IGameMapProvider;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;

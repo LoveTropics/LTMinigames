@@ -1,15 +1,5 @@
 package org.lovetropics.games.common.content.biodiversity_blitz.entity.impl;
 
-import org.lovetropics.games.common.content.biodiversity_blitz.entity.BbMobEntity;
-import org.lovetropics.games.common.content.biodiversity_blitz.entity.ai.BbGroundNavigator;
-import org.lovetropics.games.common.content.biodiversity_blitz.entity.ai.BbMobBrain;
-import org.lovetropics.games.common.content.biodiversity_blitz.entity.ai.BbTargetPlayerGoal;
-import org.lovetropics.games.common.content.biodiversity_blitz.entity.ai.DestroyCropGoal;
-import org.lovetropics.games.common.content.biodiversity_blitz.plot.Plot;
-import org.lovetropics.games.common.content.biodiversity_blitz.plot.plant.Plant;
-import org.lovetropics.games.common.content.biodiversity_blitz.plot.plant.state.PlantHealth;
-import org.lovetropics.games.common.util.Util;
-import org.lovetropics.games.common.util.duck.ClearableFluidInteraction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageSource;
@@ -24,6 +14,16 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.NeoForgeMod;
+import org.lovetropics.games.common.content.biodiversity_blitz.entity.BbMobEntity;
+import org.lovetropics.games.common.content.biodiversity_blitz.entity.ai.BbGroundNavigator;
+import org.lovetropics.games.common.content.biodiversity_blitz.entity.ai.BbMobBrain;
+import org.lovetropics.games.common.content.biodiversity_blitz.entity.ai.BbTargetPlayerGoal;
+import org.lovetropics.games.common.content.biodiversity_blitz.entity.ai.DestroyCropGoal;
+import org.lovetropics.games.common.content.biodiversity_blitz.plot.Plot;
+import org.lovetropics.games.common.content.biodiversity_blitz.plot.plant.Plant;
+import org.lovetropics.games.common.content.biodiversity_blitz.plot.plant.state.PlantHealth;
+import org.lovetropics.games.common.util.Util;
+import org.lovetropics.games.common.util.duck.ClearableFluidInteraction;
 
 public class BbZoglinEntity extends Zoglin implements BbMobEntity {
 	private final BbMobBrain mobBrain;

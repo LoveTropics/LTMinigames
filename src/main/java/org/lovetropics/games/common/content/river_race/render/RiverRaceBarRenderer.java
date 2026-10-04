@@ -1,9 +1,5 @@
 package org.lovetropics.games.common.content.river_race.render;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.client.game.ClientGameStateManager;
-import org.lovetropics.games.common.content.river_race.RiverRace;
-import org.lovetropics.games.common.content.river_race.client_state.RiverRaceClientBarState;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -16,6 +12,10 @@ import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import org.joml.Matrix3x2fStack;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.client.game.ClientGameStateManager;
+import org.lovetropics.games.common.content.river_race.RiverRace;
+import org.lovetropics.games.common.content.river_race.client_state.RiverRaceClientBarState;
 
 @EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
 public final class RiverRaceBarRenderer {

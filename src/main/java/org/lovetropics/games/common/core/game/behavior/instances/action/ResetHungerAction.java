@@ -1,11 +1,11 @@
 package org.lovetropics.games.common.core.game.behavior.instances.action;
 
+import com.mojang.serialization.MapCodec;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.instances.tweak.HungerResetter;
-import com.mojang.serialization.MapCodec;
 
 public record ResetHungerAction() implements IGameBehavior {
 	public static final MapCodec<ResetHungerAction> CODEC = MapCodec.unit(ResetHungerAction::new);

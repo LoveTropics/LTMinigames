@@ -1,7 +1,5 @@
 package org.lovetropics.games.client.gui;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.core.network.ClientboundFadeToBlackPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.LevelLoadingScreen;
@@ -19,6 +17,8 @@ import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.Nullable;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.core.network.ClientboundFadeToBlackPacket;
 
 @EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
 public class ClientFadeToBlack {

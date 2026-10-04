@@ -1,18 +1,5 @@
 package org.lovetropics.games.common.content.biodiversity_blitz.behavior.plant;
 
-import org.lovetropics.games.common.content.biodiversity_blitz.behavior.event.BbPlantEvents;
-import org.lovetropics.games.common.content.biodiversity_blitz.entity.BbMobEntity;
-import org.lovetropics.games.common.content.biodiversity_blitz.plot.Plot;
-import org.lovetropics.games.common.content.biodiversity_blitz.plot.PlotsState;
-import org.lovetropics.games.common.content.biodiversity_blitz.plot.plant.Plant;
-import org.lovetropics.games.common.content.biodiversity_blitz.plot.plant.PlantCoverage;
-import org.lovetropics.games.common.content.biodiversity_blitz.plot.plant.PlantPlacement;
-import org.lovetropics.games.common.content.biodiversity_blitz.plot.plant.state.PlantState;
-import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
-import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
-import org.lovetropics.games.common.core.game.player.PlayerSet;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -36,6 +23,19 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import org.lovetropics.games.common.content.biodiversity_blitz.behavior.event.BbPlantEvents;
+import org.lovetropics.games.common.content.biodiversity_blitz.entity.BbMobEntity;
+import org.lovetropics.games.common.content.biodiversity_blitz.plot.Plot;
+import org.lovetropics.games.common.content.biodiversity_blitz.plot.PlotsState;
+import org.lovetropics.games.common.content.biodiversity_blitz.plot.plant.Plant;
+import org.lovetropics.games.common.content.biodiversity_blitz.plot.plant.PlantCoverage;
+import org.lovetropics.games.common.content.biodiversity_blitz.plot.plant.PlantPlacement;
+import org.lovetropics.games.common.content.biodiversity_blitz.plot.plant.state.PlantState;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
+import org.lovetropics.games.common.core.game.player.PlayerSet;
 
 import java.util.List;
 import java.util.function.Predicate;

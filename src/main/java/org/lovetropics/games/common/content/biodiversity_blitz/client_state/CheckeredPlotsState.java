@@ -1,15 +1,15 @@
 package org.lovetropics.games.common.content.biodiversity_blitz.client_state;
 
 import com.lovetropics.lib.BlockBox;
-import org.lovetropics.games.common.content.biodiversity_blitz.BiodiversityBlitz;
-import org.lovetropics.games.common.core.game.client_state.GameClientState;
-import org.lovetropics.games.common.core.game.client_state.GameClientStateType;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import org.lovetropics.games.common.content.biodiversity_blitz.BiodiversityBlitz;
+import org.lovetropics.games.common.core.game.client_state.GameClientState;
+import org.lovetropics.games.common.core.game.client_state.GameClientStateType;
 
 import java.util.List;
 

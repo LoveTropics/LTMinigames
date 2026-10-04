@@ -1,8 +1,8 @@
 package org.lovetropics.games.mixin;
 
-import org.lovetropics.games.common.util.duck.ClearableFluidInteraction;
 import net.minecraft.world.entity.EntityFluidInteraction;
 import net.neoforged.neoforge.fluids.FluidType;
+import org.lovetropics.games.common.util.duck.ClearableFluidInteraction;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 

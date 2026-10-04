@@ -1,5 +1,11 @@
 package org.lovetropics.games.common.core.game.behavior;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.registries.DeferredRegister;
 import org.lovetropics.games.LoveTropics;
 import org.lovetropics.games.common.content.box_hunt.DisguiseAsPlayerBoxBehaviour;
 import org.lovetropics.games.common.content.box_hunt.HitBlockCausesDamageBehaviour;
@@ -206,12 +212,6 @@ import org.lovetropics.games.common.core.game.behavior.instances.world.PreventTr
 import org.lovetropics.games.common.core.game.behavior.instances.world.PreventTrapdoorTriggersBehaviour;
 import org.lovetropics.games.common.util.registry.GameBehaviorEntry;
 import org.lovetropics.games.common.util.registry.LoveTropicsRegistrate;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceKey;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.registries.DeferredRegister;
 
 public class GameBehaviorTypes {
 	public static final ResourceKey<Registry<GameBehaviorType<?>>> REGISTRY_KEY = ResourceKey.createRegistryKey(LoveTropics.id("minigame_behaviours"));

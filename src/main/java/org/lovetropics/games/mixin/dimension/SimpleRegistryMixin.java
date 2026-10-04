@@ -1,13 +1,13 @@
 package org.lovetropics.games.mixin.dimension;
 
-import org.lovetropics.games.common.core.dimension.RegistryEntryRemover;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.Reference2IntMap;
 import net.minecraft.core.Holder;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.RegistrationInfo;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import org.lovetropics.games.common.core.dimension.RegistryEntryRemover;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;

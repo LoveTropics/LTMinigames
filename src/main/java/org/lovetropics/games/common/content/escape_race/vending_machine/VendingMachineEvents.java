@@ -1,9 +1,9 @@
 package org.lovetropics.games.common.content.escape_race.vending_machine;
 
-import org.lovetropics.games.common.core.game.behavior.event.GameEventType;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.TriState;
 import net.minecraft.world.item.ItemStack;
+import org.lovetropics.games.common.core.game.behavior.event.GameEventType;
 
 public class VendingMachineEvents {
 

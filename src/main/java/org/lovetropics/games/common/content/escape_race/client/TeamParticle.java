@@ -1,7 +1,5 @@
 package org.lovetropics.games.common.content.escape_race.client;
 
-import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.content.escape_race.EscapeRaceParticles;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.HeartParticle;
 import net.minecraft.client.particle.Particle;
@@ -14,6 +12,8 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.content.escape_race.EscapeRaceParticles;
 
 @EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
 public class TeamParticle extends HeartParticle {

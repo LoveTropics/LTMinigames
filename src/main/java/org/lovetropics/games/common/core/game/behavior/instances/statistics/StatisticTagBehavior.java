@@ -1,6 +1,12 @@
 package org.lovetropics.games.common.core.game.behavior.instances.statistics;
 
 import com.lovetropics.lib.codec.MoreCodecs;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStackTemplate;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
 import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
@@ -12,12 +18,6 @@ import org.lovetropics.games.common.core.game.client_state.GameClientState;
 import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
 import org.lovetropics.games.common.core.game.client_state.instance.PointTagClientState;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.item.ItemStackTemplate;
 
 import java.util.Optional;
 import java.util.UUID;
