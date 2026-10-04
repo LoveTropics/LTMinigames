@@ -28,7 +28,7 @@ public class EntitySelectorMixin {
 	@Inject(method = "findEntities", at = @At("HEAD"))
 	private void findEntities(CommandSourceStack source, CallbackInfoReturnable<List<? extends Entity>> cir) {
 		RuntimeDimensions runtimeDimensions = RuntimeDimensions.get(source.getServer());
-		if (includesEntities && runtimeDimensions.isTemporaryDimension(source.getLevel().dimension())) {
+		if (includesEntities && runtimeDimensions.isTemporaryDimension(source.getLevel())) {
 			worldLimited = true;
 		}
 	}

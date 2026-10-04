@@ -64,24 +64,23 @@ public final class WorkspacePositionTracker {
 
 		MinecraftServer server = player.level().getServer();
 
-		ResourceKey<Level> from = player.level().dimension();
+		ServerLevel fromLevel = player.level();
 
 		MapWorkspaceManager workspaceManager = MapWorkspaceManager.get(server);
-		MapWorkspace fromWorkspace = workspaceManager.getWorkspace(from);
+		MapWorkspace fromWorkspace = workspaceManager.getWorkspace(fromLevel.dimension());
 
 		WorkspacePositionTracker.Position position = WorkspacePositionTracker.Position.copyFrom(player);
 		if (fromWorkspace != null) {
 			WorkspacePositionTracker.setPositionFor(player, fromWorkspace, position);
 		} else {
-			if (isValidReturnDimension(server, from)) {
+			if (isValidReturnDimension(server, fromLevel)) {
 				WorkspacePositionTracker.setReturnPositionFor(player, position);
 			}
 		}
 	}
 
-	private static boolean isValidReturnDimension(MinecraftServer server, ResourceKey<Level> dimension) {
-		RuntimeDimensions dimensions = RuntimeDimensions.get(server);
-		return !dimensions.isTemporaryDimension(dimension);
+	private static boolean isValidReturnDimension(MinecraftServer server, ServerLevel level) {
+		return !RuntimeDimensions.get(server).isTemporaryDimension(level);
 	}
 
 	@SubscribeEvent

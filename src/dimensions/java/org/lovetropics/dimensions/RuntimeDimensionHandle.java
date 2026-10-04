@@ -5,15 +5,11 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
 public final class RuntimeDimensionHandle {
-	final RuntimeDimensions dimensions;
-	final ServerLevel level;
-	final AtomicBoolean deleted = new AtomicBoolean();
+	private final RuntimeServerLevel level;
+	private boolean valid = true;
 
-	RuntimeDimensionHandle(RuntimeDimensions dimensions, ServerLevel level) {
-		this.dimensions = dimensions;
+	RuntimeDimensionHandle(RuntimeServerLevel level) {
 		this.level = level;
 	}
 
@@ -22,13 +18,19 @@ public final class RuntimeDimensionHandle {
 	}
 
 	public ServerLevel asLevel() {
-		Preconditions.checkState(!deleted.get(), "dimension is queued for deletion!");
+		Preconditions.checkState(isValid(), "Handle is no longer valid");
 		return level;
 	}
 
-	public void delete() {
-		if (deleted.compareAndSet(false, true)) {
-			dimensions.enqueueDeletion(level);
-		}
+	public void markForDeletion() {
+		valid = false;
+	}
+
+	public boolean isValid() {
+		return valid;
+	}
+
+	/* package-private */ void revive() {
+		valid = true;
 	}
 }

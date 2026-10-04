@@ -79,7 +79,7 @@ public record GeneratorMapProvider(
 				.thenCompose(dimensions -> createMap(server, dimensions)
 						.whenComplete((map, throwable) -> {
 							if (throwable != null) {
-								dimensions.values().forEach(RuntimeDimensionHandle::delete);
+								dimensions.values().forEach(RuntimeDimensionHandle::markForDeletion);
 							}
 						})
 				);
@@ -118,7 +118,7 @@ public record GeneratorMapProvider(
 			}
 
 			GameMap map = new GameMap(name.orElse(null), overwold.asKey(), regions)
-					.onClose(game -> dimensions.values().forEach(RuntimeDimensionHandle::delete));
+					.onClose(game -> dimensions.values().forEach(RuntimeDimensionHandle::markForDeletion));
 			if (!linked) {
 				return map;
 			}

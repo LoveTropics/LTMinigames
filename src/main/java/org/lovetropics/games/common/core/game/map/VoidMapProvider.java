@@ -40,7 +40,7 @@ public record VoidMapProvider(Optional<String> name, Optional<Holder<DimensionTy
 		return CompletableFuture.supplyAsync(() -> {
 			RuntimeDimensionHandle dimensionHandle = RuntimeDimensions.get(server).openTemporary(config);
 			return new GameMap(name.orElse(null), dimensionHandle.asKey(), new MapRegions())
-					.onClose(game -> dimensionHandle.delete());
+					.onClose(game -> dimensionHandle.markForDeletion());
 		}, server);
 	}
 }

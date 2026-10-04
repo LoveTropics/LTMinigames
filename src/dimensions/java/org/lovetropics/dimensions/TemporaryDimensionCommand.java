@@ -1,4 +1,4 @@
-package org.lovetropics.games.common.core.command;
+package org.lovetropics.dimensions;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.context.CommandContext;
@@ -8,21 +8,19 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.DimensionArgument;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
-import org.lovetropics.dimensions.RuntimeDimensionHandle;
-import org.lovetropics.dimensions.RuntimeDimensions;
-import org.lovetropics.games.LoveTropics;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
 
-@EventBusSubscriber(modid = LoveTropics.ID)
+@EventBusSubscriber(modid = LTDimensionsMod.ID)
 public class TemporaryDimensionCommand {
 	private static final DynamicCommandExceptionType NOT_TEMPORARY_DIMENSION = new DynamicCommandExceptionType(o ->
 			Component.literal("Not a temporary dimension: '" + o + "'"));
@@ -51,16 +49,20 @@ public class TemporaryDimensionCommand {
 		MinecraftServer server = ctx.getSource().getServer();
 		RuntimeDimensions runtimeDimensions = RuntimeDimensions.get(server);
 
-		if (runtimeDimensions.getTemporaryDimensions().isEmpty()) {
-			ctx.getSource().sendSuccess(() -> Component.literal("No temporary dimensions open!"), false);
+		List<ServerLevel> temporaryLevels = new ArrayList<>();
+		for (ServerLevel level : server.getAllLevels()) {
+			if (runtimeDimensions.isTemporaryDimension(level)) {
+				temporaryLevels.add(level);
+			}
 		}
 
-		for (ResourceKey<Level> dimension : runtimeDimensions.getTemporaryDimensions()) {
-			ServerLevel level = server.getLevel(dimension);
-			if (level == null) {
-				continue;
-			}
-			ctx.getSource().sendSuccess(() -> Component.literal(dimension.identifier() + ": " + level.players().size() + " players"), false);
+		if (temporaryLevels.isEmpty()) {
+			ctx.getSource().sendSuccess(() -> Component.literal("No temporary dimensions open!"), false);
+			return Command.SINGLE_SUCCESS;
+		}
+
+		for (ServerLevel level : temporaryLevels) {
+			ctx.getSource().sendSuccess(() -> Component.literal(level.dimension().identifier() + ": " + level.players().size() + " players"), false);
 		}
 
 		return Command.SINGLE_SUCCESS;
@@ -72,7 +74,8 @@ public class TemporaryDimensionCommand {
 
 		ServerLevel level = DimensionArgument.getDimension(ctx, "dimension");
 
-		if (!runtimeDimensions.isTemporaryDimension(level.dimension())) {
+		RuntimeDimensionHandle handle = runtimeDimensions.asHandle(level);
+		if (handle == null || !runtimeDimensions.isTemporaryDimension(level)) {
 			throw NOT_TEMPORARY_DIMENSION.create(level.dimension().identifier());
 		}
 
@@ -80,8 +83,7 @@ public class TemporaryDimensionCommand {
 			throw DIMENSION_HAS_PLAYERS.create(level.dimension().identifier());
 		}
 
-		RuntimeDimensionHandle handle = runtimeDimensions.handleForTemporaryDimension(level.dimension());
-		handle.delete();
+		handle.markForDeletion();
 
 		ctx.getSource().sendSuccess(() -> Component.literal("Closed '" + level.dimension().identifier() + "'"), false);
 

@@ -3,7 +3,6 @@ package org.lovetropics.dimensions;
 import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
-import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.RegistrationInfo;
@@ -13,11 +12,9 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.ProgressListener;
 import net.minecraft.util.Util;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.dimension.end.EnderDragonFight;
 import net.minecraft.world.level.storage.LevelStorageSource;
@@ -38,12 +35,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
@@ -55,8 +50,6 @@ public final class RuntimeDimensions {
 
 	private final MinecraftServer server;
 
-	private final Set<ServerLevel> deletionQueue = new ReferenceOpenHashSet<>();
-	private final Set<ResourceKey<Level>> temporaryDimensions = new ReferenceOpenHashSet<>();
 	private final Map<ResourceKey<Level>, LinkedDimensions> links = new ConcurrentHashMap<>();
 
 	private RuntimeDimensions(MinecraftServer server) {
@@ -107,10 +100,10 @@ public final class RuntimeDimensions {
 
 	public RuntimeDimensionHandle getOrOpenPersistent(Identifier key, Supplier<RuntimeDimensionConfig> config) {
 		ResourceKey<Level> dimension = ResourceKey.create(Registries.DIMENSION, key);
-		ServerLevel level = server.getLevel(dimension);
-		if (level != null) {
-			deletionQueue.remove(level);
-			return new RuntimeDimensionHandle(this, level);
+		if (server.getLevel(dimension) instanceof RuntimeServerLevel existingLevel) {
+			// If the dimension wasn't ready to delete yet anyway, just revive it
+			existingLevel.handle().revive();
+			return existingLevel.handle();
 		}
 
 		return openLevel(key, config.get(), false);
@@ -126,89 +119,61 @@ public final class RuntimeDimensions {
 
 		MappedRegistry<LevelStem> dimensionsRegistry = getLevelStemRegistry(server);
 		dimensionsRegistry.unfreeze(false);
-		dimensionsRegistry.register(ResourceKey.create(Registries.LEVEL_STEM, key), config.dimension(), RegistrationInfo.BUILT_IN);
+		dimensionsRegistry.register(ResourceKey.create(Registries.LEVEL_STEM, key), config.levelStem(), RegistrationInfo.BUILT_IN);
 		dimensionsRegistry.freeze();
 
-		ServerLevel level = new ServerLevel(
-				server,
-				Util.backgroundExecutor(),
-				server.storageSource,
-				config.worldInfo(),
-				levelKey,
-				config.dimension(),
-				false,
-				BiomeManager.obfuscateSeed(config.seed()),
-				List.of(),
-				false) {
-			@Override
-			public void save(@Nullable ProgressListener progress, boolean flush, boolean skipSave) {
-				if (temporary) {
-					try {
-						if (!flush && temporaryDimensions.contains(dimension())) {
-							super.save(progress, false, skipSave);
-						}
-					} catch (Exception e) {
-						LOGGER.error("Failed to save temporary dimension", e);
-					}
-				} else {
-					super.save(progress, flush, skipSave);
-				}
-			}
-		};
+		RuntimeServerLevel level = new RuntimeServerLevel(server, levelKey, config, temporary);
 
 		server.levels.put(levelKey, level);
 		server.markWorldsDirty();
-
-		if (temporary) {
-			temporaryDimensions.add(levelKey);
-		}
 
 		NeoForge.EVENT_BUS.post(new LevelEvent.Load(level));
 
 		level.tick(() -> true);
 
-		return new RuntimeDimensionHandle(this, level);
+		return level.handle();
 	}
 
 	void tick() {
-		if (!deletionQueue.isEmpty()) {
-			deletionQueue.removeIf(this::tickDimensionDeletion);
+		List<RuntimeServerLevel> levelsToDelete = null;
+		for (ServerLevel level : server.getAllLevels()) {
+			if (level instanceof RuntimeServerLevel runtimeLevel && !runtimeLevel.handle().isValid()) {
+				if (prepareForDeletion(runtimeLevel)) {
+					if (levelsToDelete == null) {
+						levelsToDelete = new ArrayList<>();
+					}
+					levelsToDelete.add(runtimeLevel);
+				}
+			}
 		}
-	}
-
-	boolean tickDimensionDeletion(ServerLevel level) {
-		prepareForDeletion(level);
-		if (isLevelUnloaded(level) || isTemporaryDimension(level.dimension())) {
-			deleteDimension(level);
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	private void stop() {
-		ArrayList<ResourceKey<Level>> temporaryDimensions = new ArrayList<>(this.temporaryDimensions);
-		for (ResourceKey<Level> dimension : temporaryDimensions) {
-			ServerLevel level = server.getLevel(dimension);
-			if (level != null) {
-				prepareForDeletion(level);
+		if (levelsToDelete != null) {
+			for (RuntimeServerLevel level : levelsToDelete) {
 				deleteDimension(level);
 			}
 		}
 	}
 
-	void enqueueDeletion(ServerLevel level) {
-		CompletableFuture.runAsync(() -> {
-			deletionQueue.add(level);
-		}, server);
+	private void stop() {
+		List<RuntimeServerLevel> levelsToDelete = new ArrayList<>();
+		for (ServerLevel level : server.getAllLevels()) {
+			if (level instanceof RuntimeServerLevel runtimeLevel && runtimeLevel.isTemporary()) {
+				levelsToDelete.add(runtimeLevel);
+				// Ignore whether we consider this level ready for graceful deletion - the server is closing anyway
+				prepareForDeletion(runtimeLevel);
+			}
+		}
+		for (RuntimeServerLevel level : levelsToDelete) {
+			deleteDimension(level);
+		}
 	}
 
-	private void prepareForDeletion(ServerLevel level) {
+	private boolean prepareForDeletion(RuntimeServerLevel level) {
 		LongSet forceLoadedChunks = new LongOpenHashSet(level.getChunkSource().getForceLoadedChunks());
 		forceLoadedChunks.forEach(chunkKey ->
 				level.getChunkSource().updateChunkForced(ChunkPos.unpack(chunkKey), false)
 		);
 		kickPlayersFrom(level);
+		return isLevelUnloaded(level) || level.isTemporary();
 	}
 
 	private void kickPlayersFrom(ServerLevel level) {
@@ -231,13 +196,15 @@ public final class RuntimeDimensions {
 		return level.players().isEmpty() && level.getChunkSource().getLoadedChunksCount() <= 0;
 	}
 
-	private void deleteDimension(ServerLevel level) {
+	private void deleteDimension(RuntimeServerLevel level) {
 		ResourceKey<Level> dimensionKey = level.dimension();
 
 		if (server.levels.remove(dimensionKey, level)) {
 			server.markWorldsDirty();
 
-			temporaryDimensions.remove(dimensionKey);
+			// If this is normal server stop, make sure the handle is reported as invalid
+			level.handle().markForDeletion();
+
 			links.remove(dimensionKey);
 
 			// The dragon fight only drops players from its boss bar while its level ticks, so do it before it's gone for good
@@ -290,19 +257,17 @@ public final class RuntimeDimensions {
 		return LTDimensionsMod.id("tmp_" + random);
 	}
 
+	public boolean isTemporaryDimension(ServerLevel level) {
+		return level instanceof RuntimeServerLevel runtimeLevel && runtimeLevel.isTemporary();
+	}
+
 	public boolean isTemporaryDimension(ResourceKey<Level> dimension) {
-		return temporaryDimensions.contains(dimension);
+		ServerLevel level = server.getLevel(dimension);
+		return level != null && isTemporaryDimension(level);
 	}
 
-	public RuntimeDimensionHandle handleForTemporaryDimension(ResourceKey<Level> dimension) {
-		if (!isTemporaryDimension(dimension)) {
-			throw new IllegalArgumentException("must be a temporary dimension");
-		}
-		return new RuntimeDimensionHandle(this, server.getLevel(dimension));
-	}
-
-	public Collection<ResourceKey<Level>> getTemporaryDimensions() {
-		return temporaryDimensions;
+	/* package-private */ @Nullable RuntimeDimensionHandle asHandle(ServerLevel level) {
+		return level instanceof RuntimeServerLevel runtimeLevel ? runtimeLevel.handle() : null;
 	}
 
 	/// Makes the given dimensions stand in for the vanilla Overworld, Nether and End for each other, until they are deleted
@@ -314,10 +279,5 @@ public final class RuntimeDimensions {
 
 	public @Nullable LinkedDimensions getLinks(ResourceKey<Level> dimension) {
 		return links.get(dimension);
-	}
-
-	public static boolean isTemporaryDimension(ServerLevel level) {
-		RuntimeDimensions instance = getOrNull(level.getServer());
-		return instance != null && instance.isTemporaryDimension(level.dimension());
 	}
 }

@@ -64,7 +64,7 @@ public record LoadMapProvider(
 					// The level is already running, so its clocks must be updated from the server thread
 					worldInfo.importFrom(metadata.settings());
 					return new GameMap(name.orElse(null), dimensionHandle.asKey(), metadata.regions())
-							.onClose(game -> dimensionHandle.delete());
+							.onClose(game -> dimensionHandle.markForDeletion());
 				}, server);
 	}
 

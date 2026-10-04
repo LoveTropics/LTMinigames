@@ -68,7 +68,7 @@ public final class MapWorkspaceManager extends SavedData {
 	public boolean deleteWorkspace(String id) {
 		MapWorkspace workspace = workspaces.remove(id);
 		if (workspace != null) {
-			workspace.dimensionHandle().delete();
+			workspace.dimensionHandle().markForDeletion();
 			return true;
 		}
 		return false;
