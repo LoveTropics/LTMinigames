@@ -8,6 +8,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.players.ProfileResolver;
+import net.minecraft.util.Util;
 import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.component.ResolvableProfile;
@@ -16,7 +18,6 @@ import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.action.GameActionContextKeys;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import org.lovetropics.games.common.util.Util;
 import org.lovetropics.peekaboo.api.Disguise;
 import org.lovetropics.peekaboo.api.EntityDisguiseHolder;
 import org.slf4j.Logger;
@@ -69,15 +70,18 @@ public record SetDisguiseAction(Disguise disguise, boolean applyDonorName, boole
 		return CompletableFuture.completedFuture(disguise);
 	}
 
-	private CompletableFuture<TypedEntityData<EntityType<?>>> resolveDummyDisguise(IGamePhase game, TypedEntityData<EntityType<?>> entity, String packageSender) {
-		CompletableFuture<TypedEntityData<EntityType<?>>> future = new CompletableFuture<>();
-		Util.getProfile(game.server(), packageSender).thenAcceptAsync(result -> result.ifPresent(profile -> {
-			LOGGER.debug("Got profile ID for package sender {}: {}", packageSender, profile.id());
-			CompoundTag tag = entity.getUnsafe().copy();
-			tag.put("profile", ResolvableProfile.CODEC.encodeStart(NbtOps.INSTANCE, ResolvableProfile.createResolved(profile)).getOrThrow());
-			future.complete(TypedEntityData.of(entity.type(), tag));
-		}), game.server());
-		return future;
+	// We could just put a dynamic profile in there and have clients resolve it, but this puts a bit less spam on the lookup service
+	private static CompletableFuture<TypedEntityData<EntityType<?>>> resolveDummyDisguise(IGamePhase game, TypedEntityData<EntityType<?>> entity, String playerName) {
+		ProfileResolver resolver = game.server().services().profileResolver();
+		return CompletableFuture.supplyAsync(() -> resolver.fetchByName(playerName), Util.nonCriticalIoPool())
+				.thenApplyAsync(maybeProfile -> {
+					CompoundTag tag = entity.getUnsafe().copy();
+					maybeProfile.ifPresent(profile -> {
+						LOGGER.debug("Got profile ID for package sender {}: {}", playerName, profile.id());
+						tag.put("profile", ResolvableProfile.CODEC.encodeStart(NbtOps.INSTANCE, ResolvableProfile.createResolved(profile)).getOrThrow());
+					});
+					return TypedEntityData.of(entity.type(), tag);
+				}, game.server());
 	}
 
 	private void applyResolvedDisguise(ServerPlayer player, Disguise resolvedDisguise) {

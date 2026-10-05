@@ -1,17 +1,14 @@
 package org.lovetropics.games.common.util;
 
 import com.lovetropics.lib.BlockBox;
-import com.mojang.authlib.GameProfile;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.players.ProfileResolver;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -24,10 +21,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
-
-import java.util.Optional;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 
 public class Util {
 	public static boolean addItemStackToInventory(ServerPlayer player, ItemStack itemstack) {
@@ -147,20 +140,6 @@ public class Util {
 			return killerPlayer;
 		}
 		return null;
-	}
-
-	public static CompletableFuture<Optional<GameProfile>> getProfile(MinecraftServer server, UUID uuid) {
-		CompletableFuture<Optional<GameProfile>> future = new CompletableFuture<>();
-		ProfileResolver resolver = server.services().profileResolver();
-		net.minecraft.util.Util.nonCriticalIoPool().execute(() -> future.complete(resolver.fetchById(uuid)));
-		return future;
-	}
-
-	public static CompletableFuture<Optional<GameProfile>> getProfile(MinecraftServer server, String name) {
-		CompletableFuture<Optional<GameProfile>> future = new CompletableFuture<>();
-		ProfileResolver resolver = server.services().profileResolver();
-		net.minecraft.util.Util.nonCriticalIoPool().execute(() -> future.complete(resolver.fetchByName(name)));
-		return future;
 	}
 
 	public static void sendNotifySound(ServerPlayer serverPlayer, SoundEvent soundEvent, SoundSource soundSource, float f, float g) {
