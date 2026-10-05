@@ -284,7 +284,7 @@ public final class GameInstanceIntegrations implements IGameState {
 				NameAndId.CODEC.optionalFieldOf("initiator").forGetter(StartGame::initiator),
 				PlayersAndTeams.MAP_CODEC.forGetter(StartGame::playersAndTeams),
 				PACKAGES_CODEC.fieldOf("packages").forGetter(StartGame::packages),
-				GameDonationType.CODEC.optionalFieldOf("donation_type", GameDonationType.PACKAGES).forGetter(StartGame::donationType)
+				GameDonationType.CODEC.fieldOf("donation_type").forGetter(StartGame::donationType)
 		).apply(i, StartGame::new));
 	}
 
