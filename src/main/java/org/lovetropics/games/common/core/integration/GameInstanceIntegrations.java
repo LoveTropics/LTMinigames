@@ -97,10 +97,10 @@ public final class GameInstanceIntegrations implements IGameState {
 			allGames.add(subGame);
 			subEvents.listen(GamePhaseEvents.DESTROY, () -> {
 				allGames.remove(subGame);
-				sendPackagesUpdate();
+				post(EVENT_UPDATE_PACKAGES, new UpdatePackages(collectPackages()));
 				post(EVENT_UPDATE_PLAYERS, packPlayersAndTeams());
 			});
-			sendPackagesUpdate();
+			post(EVENT_UPDATE_PACKAGES, new UpdatePackages(collectPackages()));
 			post(EVENT_UPDATE_PLAYERS, packPlayersAndTeams());
 			addSubGameListeners(subEvents);
 		});
@@ -116,14 +116,15 @@ public final class GameInstanceIntegrations implements IGameState {
 				definition.name(),
 				Optional.ofNullable(definition.subtitle()),
 				Optional.ofNullable(initiator).map(PlayerKey::nameAndId),
-				packPlayersAndTeams()
+				packPlayersAndTeams(),
+				collectPackages()
 		));
 		post(EVENT_REQUEST_PENDING_ACTIONS, Unit.INSTANCE);
 
 		addListeners(events);
 	}
 
-	private void sendPackagesUpdate() {
+	private List<DonationPackageData> collectPackages() {
 		Set<DonationPackageData> allPackages = new ObjectOpenHashSet<>();
 		for (IGamePhase game : allGames) {
 			GamePackageState packageState = game.state().getOrNull(GamePackageState.KEY);
@@ -132,11 +133,9 @@ public final class GameInstanceIntegrations implements IGameState {
 			}
 		}
 
-		List<DonationPackageData> sortedPackages = allPackages.stream()
+		return allPackages.stream()
 				.sorted(Comparator.comparing(DonationPackageData::id))
 				.toList();
-
-		post(EVENT_UPDATE_PACKAGES, new UpdatePackages(sortedPackages));
 	}
 
 	public void finish(IGamePhase phase) {
@@ -273,13 +272,15 @@ public final class GameInstanceIntegrations implements IGameState {
 			Component name,
 			Optional<Component> subtitle,
 			Optional<NameAndId> initiator,
-			PlayersAndTeams playersAndTeams
+			PlayersAndTeams playersAndTeams,
+			List<DonationPackageData> packages
 	) {
 		public static final MapCodec<StartGame> MAP_CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 				ComponentSerialization.CODEC.fieldOf("name").forGetter(StartGame::name),
 				ComponentSerialization.CODEC.optionalFieldOf("subtitle").forGetter(StartGame::subtitle),
 				NameAndId.CODEC.optionalFieldOf("initiator").forGetter(StartGame::initiator),
-				PlayersAndTeams.MAP_CODEC.forGetter(StartGame::playersAndTeams)
+				PlayersAndTeams.MAP_CODEC.forGetter(StartGame::playersAndTeams),
+				PACKAGES_CODEC.fieldOf("packages").forGetter(StartGame::packages)
 		).apply(i, StartGame::new));
 	}
 
