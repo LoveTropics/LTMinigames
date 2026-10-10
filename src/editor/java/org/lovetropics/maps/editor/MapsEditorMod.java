@@ -2,6 +2,7 @@ package org.lovetropics.maps.editor;
 
 import com.tterrag.registrate.Registrate;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.CreativeModeTabs;
 import net.neoforged.fml.common.Mod;
 import org.lovetropics.games.common.core.game.persistent.PersistentGameInstance;
 import org.lovetropics.maps.editor.item.EditRegionItem;
@@ -13,7 +14,9 @@ public class MapsEditorMod {
 
 	public MapsEditorMod() {
 		Registrate registrate = Registrate.create(ID);
-		registrate.item("edit_region", EditRegionItem::new).register();
+		registrate.item("edit_region", EditRegionItem::new)
+				.tab(CreativeModeTabs.OP_BLOCKS)
+				.register();
 
 		PersistentGameInstance.setRegionsGetter(level -> SavedRegions.get(level).regions().compile());
 	}
