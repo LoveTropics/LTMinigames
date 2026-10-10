@@ -13,10 +13,8 @@ public class MapsEditorMod {
 	public static final String ID = "ltmaps_editor";
 
 	public MapsEditorMod() {
-		Registrate registrate = Registrate.create(ID);
-		registrate.item("edit_region", EditRegionItem::new)
-				.tab(CreativeModeTabs.OP_BLOCKS)
-				.register();
+		Registrate registrate = Registrate.create(ID).defaultCreativeTab(CreativeModeTabs.OP_BLOCKS);
+		registrate.item("edit_region", EditRegionItem::new).register();
 
 		PersistentGameInstance.setRegionsGetter(level -> SavedRegions.get(level).regions().compile());
 	}
