@@ -1,5 +1,6 @@
 package org.lovetropics.games.common.core.game;
 
+import com.lovetropics.minigames.common.core.game.GameDonationType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.Nullable;
@@ -30,5 +31,9 @@ public interface IGameDefinition {
 	/// minigame.
 	default int maximumParticipants() {
 		return Integer.MAX_VALUE;
+	}
+
+	default GameDonationType donationType() {
+		return GameDonationType.PACKAGES;
 	}
 }
