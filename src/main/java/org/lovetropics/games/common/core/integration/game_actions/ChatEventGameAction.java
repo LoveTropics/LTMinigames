@@ -12,17 +12,17 @@ import org.slf4j.Logger;
 
 import java.util.Optional;
 
-public record ChatEventGameAction(String trigger) implements GameAction {
+public record ChatEventGameAction(String packageType) implements GameAction {
 	private static final Logger LOGGER = LogUtils.getLogger();
 
 	public static final MapCodec<ChatEventGameAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			Codec.STRING.fieldOf("trigger").forGetter(ChatEventGameAction::trigger)
+			Codec.STRING.fieldOf("package_type").forGetter(ChatEventGameAction::packageType)
 	).apply(i, ChatEventGameAction::new));
 
 	// TODO: Make GamePackage system less specific to packages
 	@Override
 	public boolean resolve(IGamePhase game, MinecraftServer server) {
-		GamePackage triggeredPackage = new GamePackage(trigger, "", Optional.empty(), Optional.empty());
+		GamePackage triggeredPackage = new GamePackage(packageType, "", Optional.empty(), Optional.empty());
 
 		TriState result = game.invoker(GamePackageEvents.RECEIVE_PACKAGE).onReceivePackage(triggeredPackage);
 		switch (result) {
