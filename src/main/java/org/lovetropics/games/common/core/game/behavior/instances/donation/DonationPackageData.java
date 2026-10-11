@@ -35,6 +35,9 @@ public record DonationPackageData(
 		if (packageType.requiresDescription() && description.isEmpty()) {
 			return DataResult.error(() -> "Package " + id + " with type " + packageType + " requires a description");
 		}
+		if (packageType == PackageType.AUTO && targetSelectionMode == TargetSelectionMode.SPECIFIC) {
+			return DataResult.error(() -> "Auto package " + id + " with type " + packageType + " cannot use specific player_select");
+		}
 		return DataResult.success(this);
 	}
 
@@ -62,6 +65,7 @@ public record DonationPackageData(
 		CARE_PACKAGE("care_package", "Care Package"),
 		SABOTAGE_PACKAGE("sabotage_package", "Sabotage Package"),
 		CHAT_EVENT("chat_event", "Chat Event"),
+		AUTO("auto", "Auto"),
 		;
 
 		public static final Codec<PackageType> CODEC = StringRepresentable.fromEnum(PackageType::values);
