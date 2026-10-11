@@ -11,6 +11,7 @@ import org.lovetropics.games.client.toast.ShowNotificationToastMessage;
 import org.lovetropics.games.common.core.network.ddr.ClientboundDdrInputHitPacket;
 import org.lovetropics.games.common.core.network.ddr.ServerboundDdrInputPacket;
 import org.lovetropics.games.common.core.network.ddr.ServerboundSelectDdrLevelPacket;
+import org.lovetropics.games.common.core.network.shop.ServerboundShopPurchasePacket;
 import org.lovetropics.games.common.core.network.trivia.RequestTriviaStateUpdateMessage;
 import org.lovetropics.games.common.core.network.trivia.SelectTriviaAnswerMessage;
 import org.lovetropics.games.common.core.network.trivia.ShowTriviaMessage;
@@ -45,6 +46,8 @@ public final class LoveTropicsNetwork {
 		registrar.playToServer(SelectVendingMachineItemMessage.TYPE, SelectVendingMachineItemMessage.STREAM_CODEC, SelectVendingMachineItemMessage::handle);
 		registrar.playToServer(ServerboundVendingMachinePurchasePacket.TYPE, ServerboundVendingMachinePurchasePacket.STREAM_CODEC, ServerboundVendingMachinePurchasePacket::handle);
 		registrar.playToClient(ClientboundVendingMachineDropPacket.TYPE, ClientboundVendingMachineDropPacket.STREAM_CODEC);
+
+		registrar.playToServer(ServerboundShopPurchasePacket.TYPE, ServerboundShopPurchasePacket.STREAM_CODEC, ServerboundShopPurchasePacket::handle);
 
 		registrar.playToServer(ServerboundDdrInputPacket.TYPE, ServerboundDdrInputPacket.STREAM_CODEC, ServerboundDdrInputPacket::handle);
 		registrar.playToServer(ServerboundSelectDdrLevelPacket.TYPE, ServerboundSelectDdrLevelPacket.STREAM_CODEC, ServerboundSelectDdrLevelPacket::handle);

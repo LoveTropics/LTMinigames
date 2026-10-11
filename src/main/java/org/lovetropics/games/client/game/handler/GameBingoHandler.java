@@ -22,6 +22,7 @@ import java.util.Optional;
 /// Shows a compact bingo board in the corner of the screen, which can be opened in full with [BingoBoardScreen]
 @EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
 public class GameBingoHandler {
+	private static final int BOARD_X = 20, BOARD_Y = 20;
 	private static final int GAP = 4;
 	private static final int TILE_SIZE = 16 + 2 * 2; // 2px padding
 
@@ -51,6 +52,15 @@ public class GameBingoHandler {
 		return board;
 	}
 
+	/// @return the y position just below the compact board, or `-1` if it isn't shown
+	public static int getOverlayBottom() {
+		BingoBoardClientState board = GameBingoHandler.board;
+		if (board == null || board.rows() <= 0 || board.columns() <= 0) {
+			return -1;
+		}
+		return BOARD_Y + board.rows() * TILE_SIZE + (board.rows() - 1) * GAP + 3;
+	}
+
 	@SubscribeEvent
 	static void onClientTick(ClientTickEvent.Post event) {
 		Minecraft minecraft = Minecraft.getInstance();
@@ -74,7 +84,7 @@ public class GameBingoHandler {
 
 			Font font = Minecraft.getInstance().font;
 
-			int boardX = 20, boardY = 20;
+			int boardX = BOARD_X, boardY = BOARD_Y;
 			int boardW = columns * TILE_SIZE + (columns - 1) * GAP;
 			int boardH = rows * TILE_SIZE + (rows - 1) * GAP;
 

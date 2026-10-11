@@ -19,6 +19,7 @@ public final class ClientGameStateHandlers {
 		register(GameClientStateTypes.RESOURCE_PACK, GameResourcePackHandler.INSTANCE);
 		register(GameClientStateTypes.CRAFTING_BEE_CRAFTS, GameCraftingBeeHandler.HANDLER);
 		register(GameClientStateTypes.BINGO_BOARD, GameBingoHandler.HANDLER);
+		register(GameClientStateTypes.SHOP, GameShopHandler.HANDLER);
 	}
 
 	public static <T extends GameClientState> void register(DeferredHolder<GameClientStateType<?>, GameClientStateType<T>> type, ClientGameStateHandler<T> handler) {

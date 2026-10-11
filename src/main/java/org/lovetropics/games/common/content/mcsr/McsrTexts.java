@@ -19,6 +19,15 @@ public final class McsrTexts {
 	public static final TranslationCollector.Fun3 RESULT = KEYS.add3("result", "%s. %s - %s points");
 	public static final TranslationCollector.Fun3 RESULT_FINISHED = KEYS.add3("result_finished", "%s. %s - finished with %s points");
 
+	// Shop
+	public static final Component SHOP = KEYS.add("shop", "Shop");
+	public static final TranslationCollector.Fun1 TROPICOINS = KEYS.add1("shop.tropicoins", "%s tropicoins");
+	public static final TranslationCollector.Fun1 OPEN_SHOP_HINT = KEYS.add1("shop.open_hint", "[%s] Shop");
+	public static final Component NOT_ENOUGH_TROPICOINS = KEYS.add("shop.not_enough_tropicoins", "Not enough tropicoins");
+	public static final TranslationCollector.Fun2 PURCHASED = KEYS.add2("shop.purchased", "You bought %s for %s tropicoins!");
+	public static final TranslationCollector.Fun1 CANNOT_AFFORD = KEYS.add1("shop.cannot_afford", "You can't afford %s yet!");
+	public static final TranslationCollector.Fun1 PURCHASE_FAILED = KEYS.add1("shop.purchase_failed", "%s can't be bought right now");
+
 	public static void collectTranslations(BiConsumer<String, String> consumer) {
 		KEYS.forEach(consumer);
 		consumer.accept(LoveTropics.ID + ".minigame.mcsr", "Speedrun");
