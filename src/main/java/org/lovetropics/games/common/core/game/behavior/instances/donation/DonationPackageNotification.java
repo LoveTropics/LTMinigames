@@ -19,6 +19,7 @@ import org.lovetropics.games.client.toast.NotificationStyle;
 import org.lovetropics.games.client.toast.ShowNotificationToastMessage;
 import org.lovetropics.games.common.content.MinigameTexts;
 import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.player.PlayerIterable;
 import org.lovetropics.games.common.core.game.state.team.GameTeam;
 import org.lovetropics.games.common.core.game.state.team.TeamState;
 import org.lovetropics.games.common.core.game.util.TemplatedText;
@@ -38,23 +39,25 @@ public record DonationPackageNotification(
 			SoundEvent.CODEC.optionalFieldOf("sound", Holder.direct(SoundEvents.TOTEM_USE)).forGetter(c -> c.sound)
 	).apply(i, DonationPackageNotification::new));
 
-	public void onPlayerReceive(IGamePhase game, @Nullable ServerPlayer receiver, @Nullable String sender, Component packageName) {
+	/// @param audience the players to notify
+	public void onPlayerReceive(PlayerIterable audience, @Nullable ServerPlayer receiver, @Nullable String sender, Component packageName) {
 		Component targetedMessage = createTargetedMessage(sender, getReceiverName(receiver));
 		Component globalMessage = createGlobalMessage(packageName, getReceiverName(receiver));
 
-		for (ServerPlayer player : game.allPlayers()) {
+		for (ServerPlayer player : audience) {
 			boolean targeted = player == receiver || receiver == null;
 			sendNotificationTo(player, targeted, targeted ? targetedMessage : globalMessage);
 		}
 	}
 
-	public void onTeamReceive(IGamePhase game, @Nullable GameTeam receiver, @Nullable String sender, Component packageName) {
+	/// @param audience the players to notify
+	public void onTeamReceive(IGamePhase game, PlayerIterable audience, @Nullable GameTeam receiver, @Nullable String sender, Component packageName) {
 		TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
 
 		Component targetedMessage = createTargetedMessage(sender, getReceiverName(receiver));
 		Component globalMessage = createGlobalMessage(packageName, getReceiverName(receiver));
 
-		for (ServerPlayer player : game.allPlayers()) {
+		for (ServerPlayer player : audience) {
 			boolean targeted = receiver == null || teams != null && teams.isOnTeam(player, receiver.key());
 			sendNotificationTo(player, targeted, targeted ? targetedMessage : globalMessage);
 		}

@@ -5,6 +5,7 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.logging.LogUtils;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.commands.CommandSourceStack;
@@ -26,6 +27,8 @@ import org.lovetropics.games.common.core.game.behavior.action.GameActionList;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePackageEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
+import org.lovetropics.games.common.core.game.player.PlayerRole;
+import org.lovetropics.games.common.core.game.player.PlayerSet;
 import org.lovetropics.games.common.core.game.state.GamePackageState;
 import org.lovetropics.games.common.core.game.state.team.GameTeam;
 import org.lovetropics.games.common.core.game.state.team.TeamState;
@@ -41,17 +44,22 @@ public final class DonationPackageBehavior implements IGameBehavior {
 	public static final MapCodec<DonationPackageBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			DonationPackageData.CODEC.forGetter(c -> c.data),
 			DonationPackageNotification.CODEC.optionalFieldOf("notification").forGetter(c -> c.notification),
-			GameActionList.CODEC.optionalFieldOf("receive_actions", GameActionList.EMPTY).forGetter(c -> c.receiveActions)
+			GameActionList.CODEC.optionalFieldOf("receive_actions", GameActionList.EMPTY).forGetter(c -> c.receiveActions),
+			Codec.BOOL.optionalFieldOf("include_sub_phases", false).forGetter(c -> c.includeSubPhases)
 	).apply(i, DonationPackageBehavior::new));
 
 	private final DonationPackageData data;
 	private final Optional<DonationPackageNotification> notification;
 	private final GameActionList receiveActions;
+	private final boolean includeSubPhases;
 
-	public DonationPackageBehavior(DonationPackageData data, Optional<DonationPackageNotification> notification, GameActionList receiveActions) {
+	/// @param includeSubPhases whether the package can also go to participants who are in sub-phases of this phase, e.g.
+	///                         each playing in their own world
+	public DonationPackageBehavior(DonationPackageData data, Optional<DonationPackageNotification> notification, GameActionList receiveActions, boolean includeSubPhases) {
 		this.data = data;
 		this.notification = notification;
 		this.receiveActions = receiveActions;
+		this.includeSubPhases = includeSubPhases;
 	}
 
 	@Override
@@ -113,7 +121,7 @@ public final class DonationPackageBehavior implements IGameBehavior {
 			return TriState.FALSE;
 		}
 
-		ServerPlayer receivingPlayer = game.participants().getPlayerBy(gamePackage.receivingPlayer().get());
+		ServerPlayer receivingPlayer = getParticipants(game).getPlayerBy(gamePackage.receivingPlayer().get());
 		if (receivingPlayer == null) {
 			// Player not on the server or in the game for some reason
 			return TriState.FALSE;
@@ -139,7 +147,7 @@ public final class DonationPackageBehavior implements IGameBehavior {
 			GameTeam randomTeam = Util.getRandom(allTeams, game.random());
 			return applyToTeams(game, gamePackage, List.of(randomTeam));
 		} else {
-			ServerPlayer randomPlayer = Util.getRandom(Lists.newArrayList(game.participants()), game.random());
+			ServerPlayer randomPlayer = Util.getRandom(Lists.newArrayList(getParticipants(game)), game.random());
 			return applyToPlayers(game, gamePackage, List.of(randomPlayer));
 		}
 	}
@@ -150,8 +158,16 @@ public final class DonationPackageBehavior implements IGameBehavior {
 			List<GameTeam> allTeams = teams != null ? Lists.newArrayList(teams) : List.of();
 			return applyToTeams(game, gamePackage, allTeams);
 		} else {
-			return applyToPlayers(game, gamePackage, Lists.newArrayList(game.participants()));
+			return applyToPlayers(game, gamePackage, Lists.newArrayList(getParticipants(game)));
 		}
+	}
+
+	private PlayerSet getParticipants(IGamePhase game) {
+		if (!includeSubPhases) {
+			return game.participants();
+		}
+		// Players in sub-phases are no longer in this phase, but keep their role here
+		return game.allPlayers(true).filter(player -> game.getRoleFor(player) == PlayerRole.PARTICIPANT);
 	}
 
 	private TriState applyToPlayers(IGamePhase game, GamePackage gamePackage, List<ServerPlayer> players) {
@@ -162,7 +178,7 @@ public final class DonationPackageBehavior implements IGameBehavior {
 		ContextMap context = actionContext(gamePackage);
 		if (receiveActions.apply(game, context, ActionSubjects.ofPlayers(players))) {
 			ServerPlayer singleReceiver = players.size() == 1 ? players.getFirst() : null;
-			notification.ifPresent(notification -> notification.onPlayerReceive(game, singleReceiver, gamePackage.sendingPlayerName(), data.name()));
+			notification.ifPresent(notification -> notification.onPlayerReceive(game.allPlayers(includeSubPhases), singleReceiver, gamePackage.sendingPlayerName(), data.name()));
 			return TriState.TRUE;
 		}
 		return TriState.FALSE;
@@ -176,7 +192,7 @@ public final class DonationPackageBehavior implements IGameBehavior {
 		ContextMap context = actionContext(gamePackage);
 		if (receiveActions.apply(game, context, ActionSubjects.ofTeams(Lists.transform(teams, GameTeam::key)))) {
 			GameTeam singleReceiver = teams.size() == 1 ? teams.getFirst() : null;
-			notification.ifPresent(notification -> notification.onTeamReceive(game, singleReceiver, gamePackage.sendingPlayerName(), data.name()));
+			notification.ifPresent(notification -> notification.onTeamReceive(game, game.allPlayers(includeSubPhases), singleReceiver, gamePackage.sendingPlayerName(), data.name()));
 			return TriState.TRUE;
 		}
 		return TriState.FALSE;
