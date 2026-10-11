@@ -1,4 +1,4 @@
-package com.lovetropics.minigames.common.core.game.behavior.instances.action;
+package org.lovetropics.games.common.core.game.behavior.instances.action;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;

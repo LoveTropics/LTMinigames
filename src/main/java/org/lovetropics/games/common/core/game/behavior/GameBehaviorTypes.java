@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.core.game.behavior;
 
-import com.lovetropics.minigames.common.core.game.behavior.instances.action.GiveItemQuantityBasedOnDonationAmountAction;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.Registry;
@@ -76,6 +75,7 @@ import org.lovetropics.games.common.core.game.behavior.instances.action.DisplayL
 import org.lovetropics.games.common.core.game.behavior.instances.action.EndGameAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.ExtinguishPlayerFireAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.GiveEffectAction;
+import org.lovetropics.games.common.core.game.behavior.instances.action.GiveItemQuantityBasedOnDonationAmountAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.GiveLootAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.GiveRewardAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.HighlightBlocksAction;

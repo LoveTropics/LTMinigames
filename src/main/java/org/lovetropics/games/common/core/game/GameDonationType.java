@@ -1,4 +1,4 @@
-package com.lovetropics.minigames.common.core.game;
+package org.lovetropics.games.common.core.game;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.util.StringRepresentable;

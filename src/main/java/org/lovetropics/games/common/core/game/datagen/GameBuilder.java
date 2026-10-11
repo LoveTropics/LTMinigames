@@ -1,10 +1,10 @@
 package org.lovetropics.games.common.core.game.datagen;
 
 import com.google.common.base.Suppliers;
-import com.lovetropics.minigames.common.core.game.GameDonationType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.core.game.GameDonationType;
 import org.lovetropics.games.common.core.game.behavior.BehaviorTemplate;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.CompositeBehavior;

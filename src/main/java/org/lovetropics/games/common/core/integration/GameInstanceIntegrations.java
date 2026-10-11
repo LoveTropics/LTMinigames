@@ -2,7 +2,6 @@ package org.lovetropics.games.common.core.integration;
 
 import com.google.gson.JsonObject;
 import com.lovetropics.lib.techstack.Crud;
-import com.lovetropics.minigames.common.core.game.GameDonationType;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.datafixers.util.Unit;
@@ -19,6 +18,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.NameAndId;
 import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.config.ConfigLT;
+import org.lovetropics.games.common.core.game.GameDonationType;
 import org.lovetropics.games.common.core.game.IGameDefinition;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
