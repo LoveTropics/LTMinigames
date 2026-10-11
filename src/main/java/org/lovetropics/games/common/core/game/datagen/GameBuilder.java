@@ -28,7 +28,7 @@ public class GameBuilder {
 	private @Nullable GamePhaseConfig waiting;
 	private @Nullable GamePhaseConfig playing;
 	private boolean hideFromList;
-	private @Nullable GameDonationType donationType;
+	private GameDonationType donationType = GameDonationType.PACKAGES;
 
 	public GameBuilder(Identifier id) {
 		this.id = id;
@@ -72,6 +72,11 @@ public class GameBuilder {
 
 	public GameBuilder setHideFromList(boolean hideFromList) {
 		this.hideFromList = hideFromList;
+		return this;
+	}
+
+	public GameBuilder setDonationType(GameDonationType donationType) {
+		this.donationType = donationType;
 		return this;
 	}
 
