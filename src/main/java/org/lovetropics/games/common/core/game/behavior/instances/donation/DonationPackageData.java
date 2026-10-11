@@ -1,6 +1,7 @@
 package org.lovetropics.games.common.core.game.behavior.instances.donation;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.chat.Component;
@@ -16,26 +17,33 @@ public record DonationPackageData(
 		TargetSelectionMode targetSelectionMode,
 		boolean applyToTeam,
 		Component name,
-		Component description,
+		Optional<Component> description,
 		Optional<Double> donationAmount
 ) {
-	public static final MapCodec<DonationPackageData> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+	public static final MapCodec<DonationPackageData> CODEC = RecordCodecBuilder.<DonationPackageData>mapCodec(i -> i.group(
 			Codec.STRING.fieldOf("id").forGetter(DonationPackageData::id),
 			PackageType.CODEC.fieldOf("package_type").forGetter(DonationPackageData::packageType),
 			Category.CODEC.fieldOf("category").orElse(Category.OTHER).forGetter(DonationPackageData::category),
 			TargetSelectionMode.CODEC.fieldOf("player_select").orElse(TargetSelectionMode.RANDOM).forGetter(DonationPackageData::targetSelectionMode),
 			Codec.BOOL.optionalFieldOf("apply_to_team", false).forGetter(DonationPackageData::applyToTeam),
 			ComponentSerialization.CODEC.fieldOf("name").forGetter(DonationPackageData::name),
-			ComponentSerialization.CODEC.fieldOf("description").forGetter(DonationPackageData::description),
+			ComponentSerialization.CODEC.optionalFieldOf("description").forGetter(DonationPackageData::description),
 			Codec.DOUBLE.optionalFieldOf("donation_amount").forGetter(DonationPackageData::donationAmount)
-	).apply(i, DonationPackageData::new));
+	).apply(i, DonationPackageData::new)).validate(DonationPackageData::validate);
+
+	private DataResult<DonationPackageData> validate() {
+		if (packageType.requiresDescription() && description.isEmpty()) {
+			return DataResult.error(() -> "Package " + id + " with type " + packageType + " requires a description");
+		}
+		return DataResult.success(this);
+	}
 
 	public DonationPackageData apply(PackageCostModifierBehavior.State costModifier) {
 		return new DonationPackageData(id, packageType, category, targetSelectionMode, applyToTeam, name, description, donationAmount.map(costModifier::apply));
 	}
 
 	public Payload asPayload() {
-		return new Payload(this, name.getString(), description.getString());
+		return new Payload(this, name.getString(), description.map(Component::getString).orElse(""));
 	}
 
 	public record Payload(
@@ -73,6 +81,10 @@ public record DonationPackageData(
 
 		public String getName() {
 			return name;
+		}
+
+		public boolean requiresDescription() {
+			return this == CARE_PACKAGE || this == SABOTAGE_PACKAGE;
 		}
 	}
 

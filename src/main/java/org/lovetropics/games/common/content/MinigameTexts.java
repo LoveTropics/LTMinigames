@@ -362,6 +362,7 @@ public final class MinigameTexts {
 		KEYS.add("game_over.subtitle", "%winner% won!");
 		KEYS.add("win", "⭐ %winner% won the game!");
 
+		// Why do we have these? As far as I can tell we don't use them anywhere
 		for (DonationPackageData.PackageType type : DonationPackageData.PackageType.values()) {
 			KEYS.add("donation." + type.getSerializedName(), type.getName());
 		}
