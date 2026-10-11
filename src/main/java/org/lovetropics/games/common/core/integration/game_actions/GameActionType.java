@@ -11,7 +11,7 @@ import java.util.function.Supplier;
 public enum GameActionType implements StringRepresentable {
 	DONATION("donation", "payment_time", DonationGameAction.CODEC, ConfigLT.GENERAL.donationDelay, false),
 	DONATION_PACKAGE("donation_package", "trigger_time", DonationPackageGameAction.CODEC, ConfigLT.GENERAL.donationPackageDelay, true),
-	CHAT_EVENT("chat_event", "trigger_time", ChatEventGameAction.CODEC, ConfigLT.GENERAL.chatEventDelay, true),
+	CHAT_EVENT("chat_event", "trigger_time", DonationPackageGameAction.CODEC, ConfigLT.GENERAL.chatEventDelay, true),
 	;
 
 	public static final Codec<GameActionType> CODEC = StringRepresentable.fromEnum(GameActionType::values);
