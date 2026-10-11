@@ -239,7 +239,7 @@ public final class MinigameTexts {
 		KEYS.add("donation.player_donation.description", "Support a competitor. The amount you donate corresponds to how much they get in-game.");
 		KEYS.add("donation.player_donation.toast", "%sender% donated to help you!");
 		KEYS.add("donation.player_donation.title", "You've got support!");
-		KEYS.add("donation.player_tornado_baby", "Tiny Player Tornado Package");
+		KEYS.add("donation.player_tornado_baby", "Tiny Player Tornado");
 		KEYS.add("donation.player_tornado_baby.description", "Turn a player into a small Tornado. Lasts 33% longer than the big Tornado package.");
 		KEYS.add("donation.player_tornado_baby.toast", "%sender% turned you into a BABY TORNADO!");
 		KEYS.add("donation.player_tornado_baby.title", "You are a BABY TORNADO!");
