@@ -2,6 +2,7 @@ package org.lovetropics.games.common.core.game.behavior.instances.donation;
 
 import com.google.common.collect.Lists;
 import com.mojang.brigadier.Command;
+import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.logging.LogUtils;
@@ -67,10 +68,17 @@ public final class DonationPackageBehavior implements IGameBehavior {
 		events.listen(GamePhaseEvents.REGISTER_COMMANDS, (commands, _) -> {
 			LiteralArgumentBuilder<CommandSourceStack> subcommand = Commands.literal(data.id())
 					.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS));
+			// The amount is optional, to simulate a donation of a given amount
 			switch (data.targetSelectionMode()) {
 				case SPECIFIC -> subcommand.then(Commands.argument("target", EntityArgument.player())
-						.executes(ctx -> spawnPackageFromCommand(game, ctx, EntityArgument.getPlayer(ctx, "target"))));
-				case RANDOM, ALL -> subcommand.executes(ctx -> spawnPackageFromCommand(game, ctx, null));
+						.executes(ctx -> spawnPackageFromCommand(game, ctx, EntityArgument.getPlayer(ctx, "target"), Optional.empty()))
+						.then(Commands.argument("amount", DoubleArgumentType.doubleArg(0.0))
+								.executes(ctx -> spawnPackageFromCommand(game, ctx, EntityArgument.getPlayer(ctx, "target"), Optional.of(DoubleArgumentType.getDouble(ctx, "amount"))))
+						));
+				case RANDOM, ALL -> subcommand.executes(ctx -> spawnPackageFromCommand(game, ctx, null, Optional.empty()))
+						.then(Commands.argument("amount", DoubleArgumentType.doubleArg(0.0))
+								.executes(ctx -> spawnPackageFromCommand(game, ctx, null, Optional.of(DoubleArgumentType.getDouble(ctx, "amount"))))
+						);
 			}
 			commands.register(Commands.literal("package").then(subcommand));
 		});
@@ -83,8 +91,8 @@ public final class DonationPackageBehavior implements IGameBehavior {
 		game.state().get(GamePackageState.KEY).addPackageType(data.apply(costModifier));
 	}
 
-	private int spawnPackageFromCommand(IGamePhase game, CommandContext<CommandSourceStack> ctx, @Nullable ServerPlayer target) {
-		GamePackage gamePackage = new GamePackage(data.id(), "LoveTropics", Optional.ofNullable(target).map(Entity::getUUID), Optional.empty(), Optional.empty());
+	private int spawnPackageFromCommand(IGamePhase game, CommandContext<CommandSourceStack> ctx, @Nullable ServerPlayer target, Optional<Double> amount) {
+		GamePackage gamePackage = new GamePackage(data.id(), "LoveTropics", Optional.ofNullable(target).map(Entity::getUUID), Optional.empty(), amount);
 		switch (onGamePackageReceived(game, gamePackage)) {
 			case TRUE -> ctx.getSource().sendSuccess(() -> Component.translatable("Successfully sent '%s'", data.id()), true);
 			case DEFAULT -> ctx.getSource().sendFailure(Component.translatable("'%s' was not processed", data.id()));
