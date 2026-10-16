@@ -1,15 +1,10 @@
 package org.lovetropics.games;
 
 import com.google.common.base.Suppliers;
-import com.lovetropics.lib.permission.PermissionsApi;
-import com.lovetropics.lib.permission.role.Role;
-import com.lovetropics.lib.permission.role.RoleReader;
 import com.mojang.logging.LogUtils;
 import com.tterrag.registrate.providers.DataProviderInitializer;
 import com.tterrag.registrate.providers.ProviderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
-import net.minecraft.commands.SharedSuggestionProvider;
-import net.minecraft.commands.arguments.selector.options.EntitySelectorOptions;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -45,7 +40,6 @@ import org.lovetropics.games.common.content.block_party.BlockParty;
 import org.lovetropics.games.common.content.block_party.BlockPartyTexts;
 import org.lovetropics.games.common.content.build_battle.BuildBattle;
 import org.lovetropics.games.common.content.build_battle.BuildBattleTexts;
-import org.lovetropics.games.common.content.build_competition.BuildCompetition;
 import org.lovetropics.games.common.content.columns_of_chaos.ColumnsOfChaos;
 import org.lovetropics.games.common.content.columns_of_chaos.ColumnsOfChaosTexts;
 import org.lovetropics.games.common.content.connect4.ConnectFour;
@@ -79,7 +73,6 @@ import org.lovetropics.games.common.content.treasure_dig.TreasureDig;
 import org.lovetropics.games.common.content.turtle_race.RiderBehavior;
 import org.lovetropics.games.common.content.turtle_race.TurtleRace;
 import org.lovetropics.games.common.content.turtle_race.TurtleRaceTexts;
-import org.lovetropics.games.common.util.world.VoidChunkGenerator;
 import org.lovetropics.games.common.core.chat.ChatChannelStore;
 import org.lovetropics.games.common.core.command.LoveTropicsEntityOptions;
 import org.lovetropics.games.common.core.data.LoveTropicsAttachments;
@@ -98,12 +91,12 @@ import org.lovetropics.games.common.dev.DevPackSource;
 import org.lovetropics.games.common.role.StreamHosts;
 import org.lovetropics.games.common.util.PredictedToggle;
 import org.lovetropics.games.common.util.registry.LoveTropicsRegistrate;
+import org.lovetropics.games.common.util.world.VoidChunkGenerator;
 import org.lovetropics.games.common.util.world.gamedata.GameDataAccessor;
 import org.slf4j.Logger;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
@@ -169,7 +162,6 @@ public class LoveTropics {
 		GameClientStateTypes.init(modBus);
 		StreamHosts.init();
 
-		BuildCompetition.init();
 		SurviveTheTide.init();
 		TrashDive.init();
 		BlockParty.init();

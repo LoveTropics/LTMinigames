@@ -1,7 +1,5 @@
 package org.lovetropics.games.common.core.integration;
 
-import com.google.gson.JsonObject;
-import com.lovetropics.lib.techstack.Crud;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.datafixers.util.Unit;
@@ -22,7 +20,6 @@ import org.lovetropics.games.common.core.game.GameDonationType;
 import org.lovetropics.games.common.core.game.IGameDefinition;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import org.lovetropics.games.common.core.game.behavior.event.GamePackageEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GameTeamEvents;
@@ -165,18 +162,6 @@ public final class GameInstanceIntegrations implements IGameState {
 		));
 	}
 
-	public void createPoll(String title, String duration, String... options) {
-		if (options.length < 2) {
-			throw new IllegalArgumentException("Poll must have more than 1 choice");
-		}
-		integrations.post(ConfigLT.INTEGRATIONS.pollsServiceUrl.get() + "/add", CreatePoll.MAP_CODEC.codec(), new CreatePoll(
-				title,
-				Instant.now(),
-				duration,
-				List.of(options)
-		));
-	}
-
 	private PlayersAndTeams packPlayersAndTeams() {
 		TeamState teams = topLevelGame.instanceState().getOrNull(TeamState.KEY);
 
@@ -233,14 +218,6 @@ public final class GameInstanceIntegrations implements IGameState {
 	void handleActionRequest(GameActionRequest actionRequest) {
 		if (!closed) {
 			actions.enqueue(actionRequest);
-		}
-	}
-
-	void handlePoll(JsonObject object, Crud crud) {
-		if (!closed) {
-			for (IGamePhase game : allGames) {
-				game.invoker(GamePackageEvents.RECEIVE_POLL_EVENT).onReceivePollEvent(object, crud);
-			}
 		}
 	}
 
@@ -316,20 +293,6 @@ public final class GameInstanceIntegrations implements IGameState {
 				GameActionType.CODEC.fieldOf("request").forGetter(ActionAcknowledgement::request),
 				UUIDUtil.STRING_CODEC.fieldOf("uuid").forGetter(ActionAcknowledgement::uuid)
 		).apply(i, ActionAcknowledgement::new));
-	}
-
-	private record CreatePoll(
-			String title,
-			Instant start,
-			String duration,
-			List<String> options
-	) {
-		public static final MapCodec<CreatePoll> MAP_CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-				Codec.STRING.fieldOf("title").forGetter(CreatePoll::title),
-				Codecs.EPOCH_SECOND.fieldOf("start").forGetter(CreatePoll::start),
-				Codec.STRING.fieldOf("duration").forGetter(CreatePoll::duration),
-				Codec.STRING.listOf().fieldOf("options").forGetter(CreatePoll::options)
-		).apply(i, CreatePoll::new));
 	}
 
 	private record PlayersAndTeams(

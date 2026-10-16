@@ -8,7 +8,6 @@ import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.Unit;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -95,15 +94,6 @@ public final class BackendIntegrations {
 			subscriber.subscribe(Crud.CREATE, type.getId(), type.codec(), action -> {
 				if (liveInstance != null) {
 					liveInstance.handleActionRequest(action);
-				}
-			});
-		}
-
-		// TODO: Do something better than this
-		for (Crud crud : Crud.values()) {
-			subscriber.subscribe(crud, "poll", ExtraCodecs.JSON, payload -> {
-				if (liveInstance != null) {
-					liveInstance.handlePoll(payload.getAsJsonObject(), crud);
 				}
 			});
 		}

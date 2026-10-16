@@ -1,7 +1,5 @@
 package org.lovetropics.games.common.core.game.behavior.event;
 
-import com.google.gson.JsonObject;
-import com.lovetropics.lib.techstack.Crud;
 import net.minecraft.util.TriState;
 import org.lovetropics.games.common.core.integration.game_actions.Donation;
 import org.lovetropics.games.common.core.integration.game_actions.GamePackage;
@@ -17,12 +15,6 @@ public final class GamePackageEvents {
 		return TriState.FALSE;
 	});
 
-	public static final GameEventType<ReceivePollEvent> RECEIVE_POLL_EVENT = GameEventType.create(ReceivePollEvent.class, listeners -> (object, crud) -> {
-		for (ReceivePollEvent listener : listeners) {
-			listener.onReceivePollEvent(object, crud);
-		}
-	});
-
 	public static final GameEventType<ReceiveDonation> RECEIVE_DONATION = GameEventType.create(ReceiveDonation.class, listeners -> donation -> {
 		for (ReceiveDonation listener : listeners) {
 			listener.onReceiveDonation(donation);
@@ -34,10 +26,6 @@ public final class GamePackageEvents {
 
 	public interface ReceivePackage {
 		TriState onReceivePackage(GamePackage gamePackage);
-	}
-
-	public interface ReceivePollEvent {
-		void onReceivePollEvent(JsonObject object, Crud crud);
 	}
 
 	public interface ReceiveDonation {

@@ -23,7 +23,6 @@ public final class MinigameTexts {
 	public static final Component TREASURE_HUNT = KEYS.add("treasure_hunt", "Treasure Hunt");
 	public static final Component SPLEEF = KEYS.add("spleef", "Spleef");
 	public static final Component VOLCANO_SPLEEF = KEYS.add("volcano_spleef", "Volcano Spleef");
-	public static final Component BUILD_COMPETITION = KEYS.add("build_competition", "Build Competition");
 	public static final Component TURTLE_RACE = KEYS.add("turtle_race", "Turtle Race");
 	public static final Component ARCADE_TURTLE_RACE = KEYS.add("arcade_turtle_race", "Arcade Turtle Race");
 	public static final Component FLYING_TURTLE_RACE = KEYS.add("flying_turtle_race", "Flying Turtle Race");
