@@ -18,6 +18,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.NameAndId;
 import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.config.ConfigLT;
+import org.lovetropics.games.common.core.game.GameDonationType;
 import org.lovetropics.games.common.core.game.IGameDefinition;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
@@ -117,7 +118,8 @@ public final class GameInstanceIntegrations implements IGameState {
 				Optional.ofNullable(definition.subtitle()),
 				Optional.ofNullable(initiator).map(PlayerKey::nameAndId),
 				packPlayersAndTeams(),
-				collectPackages()
+				collectPackages(),
+				definition.donationType()
 		));
 		post(EVENT_REQUEST_PENDING_ACTIONS, Unit.INSTANCE);
 
@@ -273,14 +275,16 @@ public final class GameInstanceIntegrations implements IGameState {
 			Optional<Component> subtitle,
 			Optional<NameAndId> initiator,
 			PlayersAndTeams playersAndTeams,
-			List<DonationPackageData> packages
+			List<DonationPackageData> packages,
+			GameDonationType donationType
 	) {
 		public static final MapCodec<StartGame> MAP_CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 				ComponentSerialization.CODEC.fieldOf("name").forGetter(StartGame::name),
 				ComponentSerialization.CODEC.optionalFieldOf("subtitle").forGetter(StartGame::subtitle),
 				NameAndId.CODEC.optionalFieldOf("initiator").forGetter(StartGame::initiator),
 				PlayersAndTeams.MAP_CODEC.forGetter(StartGame::playersAndTeams),
-				PACKAGES_CODEC.fieldOf("packages").forGetter(StartGame::packages)
+				PACKAGES_CODEC.fieldOf("packages").forGetter(StartGame::packages),
+				GameDonationType.CODEC.fieldOf("donation_type").forGetter(StartGame::donationType)
 		).apply(i, StartGame::new));
 	}
 

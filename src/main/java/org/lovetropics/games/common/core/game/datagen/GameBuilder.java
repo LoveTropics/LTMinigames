@@ -4,6 +4,7 @@ import com.google.common.base.Suppliers;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.core.game.GameDonationType;
 import org.lovetropics.games.common.core.game.behavior.BehaviorTemplate;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.CompositeBehavior;
@@ -27,6 +28,7 @@ public class GameBuilder {
 	private @Nullable GamePhaseConfig waiting;
 	private @Nullable GamePhaseConfig playing;
 	private boolean hideFromList;
+	private GameDonationType donationType = GameDonationType.PACKAGES;
 
 	public GameBuilder(Identifier id) {
 		this.id = id;
@@ -73,9 +75,14 @@ public class GameBuilder {
 		return this;
 	}
 
+	public GameBuilder setDonationType(GameDonationType donationType) {
+		this.donationType = donationType;
+		return this;
+	}
+
 	public GameConfig build() {
 		Objects.requireNonNull(playing, "Playing phase must be initialized");
-		return new GameConfig(id, name, subtitle, icon, maximumParticipants, introSlideshow, waiting, playing, hideFromList);
+		return new GameConfig(id, name, subtitle, icon, maximumParticipants, introSlideshow, waiting, playing, hideFromList, donationType);
 	}
 
 	public static final class PhaseBuilder {

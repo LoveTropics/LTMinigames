@@ -31,4 +31,8 @@ public interface IGameDefinition {
 	default int maximumParticipants() {
 		return Integer.MAX_VALUE;
 	}
+
+	default GameDonationType donationType() {
+		return GameDonationType.PACKAGES;
+	}
 }

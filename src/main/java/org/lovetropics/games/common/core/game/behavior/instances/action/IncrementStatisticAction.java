@@ -3,13 +3,16 @@ package org.lovetropics.games.common.core.game.behavior.instances.action;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.util.context.ContextMap;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
 import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.action.GameActionContextKeys;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GameActionEvents;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
+import org.lovetropics.games.common.core.integration.game_actions.GamePackage;
 
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -20,6 +23,8 @@ public record IncrementStatisticAction(
 		// TODO: These are weird - we should generalise that
 		Optional<StatisticKey<Integer>> fromStatistic,
 		boolean fromParticipantCount,
+		// Packages without an amount, such as those sent without one by command, use the amount instead
+		Optional<Double> perDonatedAmount,
 		SetStatisticAction.Scope scope
 ) implements IGameBehavior {
 	public static final MapCodec<IncrementStatisticAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
@@ -27,6 +32,7 @@ public record IncrementStatisticAction(
 			Codec.INT.optionalFieldOf("amount", 1).forGetter(IncrementStatisticAction::amount),
 			StatisticKey.INT_CODEC.optionalFieldOf("from_statistic").forGetter(IncrementStatisticAction::fromStatistic),
 			Codec.BOOL.optionalFieldOf("from_participant_count", false).forGetter(IncrementStatisticAction::fromParticipantCount),
+			Codec.DOUBLE.optionalFieldOf("per_donated_amount").forGetter(IncrementStatisticAction::perDonatedAmount),
 			SetStatisticAction.Scope.CODEC.fieldOf("scope").forGetter(IncrementStatisticAction::scope)
 	).apply(i, IncrementStatisticAction::new));
 
@@ -39,12 +45,18 @@ public record IncrementStatisticAction(
 						amount = statistics.getInt(fromStatistic.get());
 					} else if (fromParticipantCount) {
 						amount = game.participants().size();
+					} else if (perDonatedAmount.isPresent() && getDonatedAmount(context).isPresent()) {
+						amount = (int) Math.floor(getDonatedAmount(context).get() * perDonatedAmount.get());
 					} else {
 						amount = this.amount;
 					}
 					statistics.incrementInt(statistic, amount);
 				})
 		);
+	}
+
+	private static Optional<Double> getDonatedAmount(ContextMap context) {
+		return Optional.ofNullable(context.getOptional(GameActionContextKeys.PACKAGE)).flatMap(GamePackage::amount);
 	}
 
 	@Override

@@ -6,6 +6,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.core.game.GameDonationType;
 import org.lovetropics.games.common.core.game.IGameDefinition;
 
 import java.util.Optional;
@@ -20,7 +21,8 @@ public record GameConfig(
 		@Nullable Identifier introSlideshow,
 		@Nullable GamePhaseConfig waiting,
 		GamePhaseConfig playing,
-		boolean hideFromList
+		boolean hideFromList,
+		GameDonationType donationType
 ) implements IGameDefinition {
 	public static Codec<GameConfig> codec(Identifier id) {
 		return RecordCodecBuilder.create(i -> i.group(
@@ -31,17 +33,18 @@ public record GameConfig(
 				Identifier.CODEC.optionalFieldOf("intro_slideshow").forGetter(c -> Optional.ofNullable(c.introSlideshow)),
 				GamePhaseConfig.CODEC.optionalFieldOf("waiting").forGetter(c -> Optional.ofNullable(c.waiting)),
 				GamePhaseConfig.MAP_CODEC.forGetter(c -> c.playing),
-				Codec.BOOL.optionalFieldOf("hide_from_list", false).forGetter(c -> c.hideFromList)
-		).apply(i, (name, subtitleOpt, iconOpt, maximumParticipants, introSlideshowOpt, waitingOpt, active, hideFromList) -> {
+				Codec.BOOL.optionalFieldOf("hide_from_list", false).forGetter(c -> c.hideFromList),
+				GameDonationType.CODEC.optionalFieldOf("donation_type", GameDonationType.PACKAGES).forGetter(c -> c.donationType)
+		).apply(i, (name, subtitleOpt, iconOpt, maximumParticipants, introSlideshowOpt, waitingOpt, active, hideFromList, donationType) -> {
 			Component subtitle = subtitleOpt.orElse(null);
 			Identifier icon = iconOpt.orElse(null);
 			Identifier introSlideshow = introSlideshowOpt.orElse(null);
 			GamePhaseConfig waiting = waitingOpt.orElse(null);
-			return new GameConfig(id, name, subtitle, icon, maximumParticipants, introSlideshow, waiting, active, hideFromList);
+			return new GameConfig(id, name, subtitle, icon, maximumParticipants, introSlideshow, waiting, active, hideFromList, donationType);
 		}));
 	}
 
 	public GameConfig withPlayingPhase(GamePhaseConfig playing) {
-		return new GameConfig(id, name, subtitle, icon, maximumParticipants, introSlideshow, waiting, playing, hideFromList);
+		return new GameConfig(id, name, subtitle, icon, maximumParticipants, introSlideshow, waiting, playing, hideFromList, donationType);
 	}
 }
