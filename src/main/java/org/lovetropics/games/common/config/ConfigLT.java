@@ -64,7 +64,7 @@ public class ConfigLT {
 		public final BooleanValue alwaysPublishGames;
 
 		private CategoryIntegrations() {
-			COMMON_BUILDER.comment("Used for the LoveTropics charity drive.").push("techStack");
+			COMMON_BUILDER.comment("Used for the Love Tropics charity drive.").push("techStack");
 
 			enabled = COMMON_BUILDER
 					.comment("If the TechStack connection should be enabled")
