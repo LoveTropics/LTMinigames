@@ -12,6 +12,6 @@ public final class KeybindsTexts {
 		KEYS.add("expand_bingo_board", "Open Bingo Board");
 		KEYS.add("open_shop", "Open Shop");
 		KEYS.forEach(consumer);
-		consumer.accept("key.category." + LoveTropics.ID + ".lovetropics", "LoveTropics");
+		consumer.accept("key.category." + LoveTropics.ID + ".lovetropics", "Love Tropics");
 	}
 }
