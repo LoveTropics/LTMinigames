@@ -34,6 +34,7 @@ import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Supplier;
 
@@ -275,9 +276,10 @@ public final class SpectatingUi {
 				return profile != null ? Component.literal(profile.name()) : CommonComponents.ELLIPSIS;
 			};
 
-			PlayerTeam team = getTeamFor(player);
+			Optional<TeamColor> teamColor = Optional.ofNullable(getTeamFor(player))
+					.flatMap(PlayerTeam::getColor);
 
-			entries.add(new Entry(player, name, team.getColor().map(TeamColor::textColor).orElse(null), new SpectatingState.SelectedPlayer(player)));
+			entries.add(new Entry(player, name, teamColor.map(TeamColor::textColor).orElse(null), new SpectatingState.SelectedPlayer(player)));
 		}
 
 		return entries;
@@ -296,7 +298,7 @@ public final class SpectatingUi {
 		return null;
 	}
 
-	record Entry(UUID playerIcon, Supplier<Component> nameSupplier, @org.jspecify.annotations.Nullable TextColor tagColor, SpectatingState selectionState) {
+	record Entry(UUID playerIcon, Supplier<Component> nameSupplier, @Nullable TextColor tagColor, SpectatingState selectionState) {
 		private static final int SELECTED_OUTLINE_COLOR = CommonColors.WHITE;
 		private static final int HIGHLIGHTED_OUTLINE_COLOR = 0xa0000000;
 		private static final int TAB_COLOR = 0xff404040;
