@@ -17,7 +17,7 @@ public final class ShopBehavior implements IGameBehavior {
 	public static final MapCodec<ShopBehavior> CODEC = ShopOffer.CODEC.listOf().fieldOf("offers")
 			.xmap(ShopBehavior::new, b -> b.offers);
 
-	private static final int BALANCE_UPDATE_INTERVAL = 10;
+	private static final int UPDATE_INTERVAL = 10;
 
 	private final List<ShopOffer> offers;
 
@@ -47,10 +47,10 @@ public final class ShopBehavior implements IGameBehavior {
 			subEvents.listen(GamePlayerEvents.REMOVE, shop::removeFromPlayer);
 		});
 
-		// Tropicoins can come from anywhere, e.g. a donation
+		// Tropicoins can come from anywhere (e.g. a donation), and other players' points change as they play
 		events.listen(GamePhaseEvents.TICK, () -> {
-			if (game.ticks() % BALANCE_UPDATE_INTERVAL == 0) {
-				shop.updateBalances();
+			if (game.ticks() % UPDATE_INTERVAL == 0) {
+				shop.updateChangedPlayers();
 			}
 		});
 	}
