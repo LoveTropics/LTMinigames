@@ -41,7 +41,7 @@ import java.util.Set;
 public final class FinishBehavior implements IGameBehavior {
 	public static final MapCodec<FinishBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			Codec.BOOL.optionalFieldOf("dragon_kill", true).forGetter(b -> b.dragonKill),
-			Codec.BOOL.optionalFieldOf("full_bnigo_card", true).forGetter(b -> b.fullBingoCard)
+			Codec.BOOL.optionalFieldOf("full_bingo_card", true).forGetter(b -> b.fullBingoCard)
 	).apply(i, FinishBehavior::new));
 
 	private final boolean dragonKill;
