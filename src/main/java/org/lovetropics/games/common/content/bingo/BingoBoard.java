@@ -25,10 +25,12 @@ import org.lovetropics.games.common.core.game.client_state.instance.BingoBoardCl
 import org.lovetropics.games.common.core.game.player.PlayerRole;
 import org.lovetropics.games.common.core.game.state.GameStateKey;
 import org.lovetropics.games.common.core.game.state.IGameState;
+import org.lovetropics.games.common.core.game.state.statistics.GameStatistics;
+import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -256,7 +258,36 @@ public final class BingoBoard implements IGameState {
 				.toList();
 		int points = game.statistics().forPlayer(player).getOr(StatisticKey.POINTS, 0);
 		Optional<Component> unlockHint = !lockedSlots.isEmpty() && unlockOnClear > 0 ? Optional.of(Bingo.LOCKED_HINT_CLEAR.apply(unlockOnClear)) : Optional.empty();
-		GameClientState.sendToPlayer(new BingoBoardClientState(rows, columns, clientTiles, clientLockedSlots, points, unlockHint), player);
+		GameClientState.sendToPlayer(new BingoBoardClientState(rows, columns, clientTiles, clientLockedSlots, points, unlockHint, getPlayerProgress()), player);
+	}
+
+	/// The progress of everyone playing, and of the players who left but still have points
+	private List<BingoBoardClientState.PlayerProgress> getPlayerProgress() {
+		GameStatistics statistics = game.statistics();
+		Set<PlayerKey> players = new LinkedHashSet<>();
+		for (PlayerKey player : statistics.getPlayers()) {
+			if (statistics.forPlayer(player).get(StatisticKey.POINTS) != null) {
+				players.add(player);
+			}
+		}
+		for (ServerPlayer player : game.allPlayers(true)) {
+			if (game.getRoleFor(player) == PlayerRole.PARTICIPANT) {
+				players.add(PlayerKey.from(player));
+			}
+		}
+
+		List<BingoBoardClientState.PlayerProgress> progress = new ArrayList<>(players.size());
+		for (PlayerKey player : players) {
+			List<Integer> completedTiles = new ArrayList<>();
+			for (int index = 0; index < tiles.size(); index++) {
+				if (tiles.get(index).map(t -> t.completedBy.contains(player.id())).orElse(false)) {
+					completedTiles.add(index);
+				}
+			}
+			int points = statistics.forPlayer(player).getOr(StatisticKey.POINTS, 0);
+			progress.add(new BingoBoardClientState.PlayerProgress(player.id(), player.name(), points, completedTiles));
+		}
+		return progress;
 	}
 
 	public void removeFromPlayer(ServerPlayer player) {
@@ -271,7 +302,8 @@ public final class BingoBoard implements IGameState {
 		private final Component title;
 		private final int reward;
 		private final Supplier<GameActionList> trigger;
-		private final Set<UUID> completedBy = new HashSet<>();
+		/// In the order the players completed the tile
+		private final Set<UUID> completedBy = new LinkedHashSet<>();
 
 		private BingoTile(ItemStack icon, Component title, int reward, Supplier<GameActionList> trigger) {
 			this.icon = icon;

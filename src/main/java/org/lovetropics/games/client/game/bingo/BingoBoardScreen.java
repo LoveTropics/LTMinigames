@@ -2,16 +2,19 @@ package org.lovetropics.games.client.game.bingo;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.PlayerFaceExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.util.Mth;
 import org.joml.Matrix3x2fStack;
 import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.client.LTKeybinds;
 import org.lovetropics.games.client.game.handler.GameBingoHandler;
+import org.lovetropics.games.client.screen.ClientPlayerInfo;
 import org.lovetropics.games.common.content.bingo.Bingo;
 import org.lovetropics.games.common.core.game.client_state.instance.BingoBoardClientState;
 
@@ -31,14 +34,23 @@ public final class BingoBoardScreen extends Screen {
 	private static final int BOTTOM_PADDING = 3;
 	private static final int SCREEN_MARGIN = 10;
 	private static final int TOOLTIP_WIDTH = 200;
+	private static final float CARD_SCALE = 0.5f;
+	private static final int CARD_HEADER_H = GameBingoHandler.FACE_SIZE + 3;
+	private static final int CARD_GAP = 6;
+	private static final int PANEL_GAP = 12;
+
+	/// The other players, whose boards are shown next to ours
+	private final BingoStandings standings = new BingoStandings(false);
 
 	public BingoBoardScreen() {
 		super(Bingo.BOARD_TITLE);
+		standings.tick(GameBingoHandler.board());
 	}
 
 	@Override
 	public void tick() {
 		super.tick();
+		standings.tick(GameBingoHandler.board());
 		// The game is over, or we left it
 		if (GameBingoHandler.board() == null) {
 			onClose();
@@ -84,10 +96,21 @@ public final class BingoBoardScreen extends Screen {
 		int boardW = columns * TILE_W + (columns - 1) * GAP;
 		int boardH = rows * tileH + (rows - 1) * GAP;
 
+		// The other players' boards go in a panel next to ours
+		List<BingoBoardClientState.PlayerProgress> others = standings.players();
+		int cardW = Math.round((GameBingoHandler.getCompactBoardWidth(board) + 6) * CARD_SCALE);
+		int cardH = Math.round((GameBingoHandler.getCompactBoardHeight(board) + 6) * CARD_SCALE);
+		int cellH = CARD_HEADER_H + cardH;
+		int panelColumns = others.size() > 3 ? 2 : 1;
+		int panelRows = Mth.positiveCeilDiv(others.size(), panelColumns);
+		int panelW = others.isEmpty() ? 0 : PANEL_GAP + panelColumns * cardW + (panelColumns - 1) * CARD_GAP;
+		int panelH = others.isEmpty() ? 0 : panelRows * cellH + (panelRows - 1) * CARD_GAP;
+
 		Component header = createHeader(board);
 		int headerH = lineHeight * 2 + GAP * 2;
-		int contentW = Math.max(boardW, font.width(header));
-		int contentH = headerH + boardH;
+		int mainW = boardW + panelW;
+		int contentW = Math.max(mainW, font.width(header));
+		int contentH = headerH + Math.max(boardH, panelH);
 
 		// Shrink the board on small screens rather than cutting it off
 		float scale = Math.min(1.0f, Math.min((float) (width - SCREEN_MARGIN * 2) / contentW, (float) (height - SCREEN_MARGIN * 2) / contentH));
@@ -104,11 +127,27 @@ public final class BingoBoardScreen extends Screen {
 		graphics.centeredText(font, title, contentW / 2, 0, 0xFFFFFFFF);
 		graphics.centeredText(font, header, contentW / 2, lineHeight + GAP, 0xFFFFFFFF);
 
-		int boardX = (contentW - boardW) / 2;
+		int boardX = (contentW - mainW) / 2;
 		int boardY = headerH;
 		graphics.fill(boardX - 3, boardY - 3, boardX + boardW + 3, boardY + boardH + 3, 0x66000000);
 
 		@Nullable List<FormattedCharSequence> tooltip = null;
+
+		int panelX = boardX + boardW + PANEL_GAP;
+		for (BingoBoardClientState.PlayerProgress player : others) {
+			// Players overtaking each other slide between their places
+			float position = standings.position(player.id(), a);
+			int from = Mth.floor(position);
+			int to = Math.min(from + 1, others.size() - 1);
+			float progress = position - from;
+			float cardX = panelX + Mth.lerp(progress, (from % panelColumns) * (cardW + CARD_GAP), (to % panelColumns) * (cardW + CARD_GAP));
+			float cardY = boardY + Mth.lerp(progress, (from / panelColumns) * (cellH + CARD_GAP), (to / panelColumns) * (cellH + CARD_GAP));
+
+			drawPlayerCard(graphics, board, player, cardX, cardY, cardW);
+			if (localMouseX >= cardX && localMouseX < cardX + cardW && localMouseY >= cardY && localMouseY < cardY + cellH) {
+				tooltip = createPlayerTooltip(board, player);
+			}
+		}
 
 		for (int r = 0; r < rows; r++) {
 			for (int c = 0; c < columns; c++) {
@@ -172,6 +211,28 @@ public final class BingoBoardScreen extends Screen {
 		}
 	}
 
+	/// Draws another player's head, name and points above a compact version of their board
+	private void drawPlayerCard(GuiGraphicsExtractor graphics, BingoBoardClientState board, BingoBoardClientState.PlayerProgress player, float x, float y, int cardW) {
+		Matrix3x2fStack pose = graphics.pose();
+		pose.pushMatrix();
+		pose.translate(x, y);
+
+		PlayerFaceExtractor.extractRenderState(graphics, ClientPlayerInfo.getSkin(player.id()), 0, 0, GameBingoHandler.FACE_SIZE);
+		String points = String.valueOf(player.points());
+		int pointsW = font.width(points);
+		int nameX = GameBingoHandler.FACE_SIZE + 2;
+		String name = font.plainSubstrByWidth(player.name(), cardW - nameX - pointsW - 2);
+		graphics.text(font, name, nameX, 0, 0xFFFFFFFF, true);
+		graphics.text(font, points, cardW - pointsW, 0, GameBingoHandler.POINTS_COLOR, true);
+
+		pose.translate(0, CARD_HEADER_H);
+		pose.scale(CARD_SCALE, CARD_SCALE);
+		// The compact board draws its background around it
+		GameBingoHandler.drawCompactBoard(graphics, font, board, player::hasCompleted, false, 3, 3);
+
+		pose.popMatrix();
+	}
+
 	private void drawLockedTile(GuiGraphicsExtractor graphics, int x, int y, int tileH, int maxLines) {
 		GameBingoHandler.drawLockedBackground(graphics, x, y, TILE_W, tileH);
 		// Keep the question mark where the icon of other tiles is
@@ -206,8 +267,15 @@ public final class BingoBoardScreen extends Screen {
 		return lines;
 	}
 
+	private List<FormattedCharSequence> createPlayerTooltip(BingoBoardClientState board, BingoBoardClientState.PlayerProgress player) {
+		return List.of(
+				Component.literal(player.name()).withStyle(ChatFormatting.AQUA).getVisualOrderText(),
+				Bingo.BOARD_HEADER.apply(player.points(), player.completedTiles().size(), board.unlockedTileCount()).withStyle(ChatFormatting.GOLD).getVisualOrderText()
+		);
+	}
+
 	private static Component createHeader(BingoBoardClientState board) {
-		int unlocked = (int) board.tiles().stream().filter(Optional::isPresent).count();
+		int unlocked = board.unlockedTileCount();
 		int completed = (int) board.tiles().stream().flatMap(Optional::stream).filter(BingoBoardClientState.Tile::completed).count();
 		MutableComponent header = Bingo.BOARD_HEADER.apply(board.points(), completed, unlocked).withStyle(ChatFormatting.GOLD);
 		if (!board.lockedSlots().isEmpty()) {
