@@ -118,7 +118,8 @@ public record ApplyForTimeAction(
 				return true;
 			}
 
-			ServerPlayer player = game.allPlayers().getPlayerBy(playerId);
+			// The player may have been sent into a sub-phase, e.g. when this was applied from a shared shop
+			ServerPlayer player = game.allPlayers(true).getPlayerBy(playerId);
 			if (player != null) {
 				tick.apply(game, ContextMap.EMPTY, ActionSubjects.ofPlayer(player));
 			}
