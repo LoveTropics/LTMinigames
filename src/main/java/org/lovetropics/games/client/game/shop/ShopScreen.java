@@ -2,6 +2,7 @@ package org.lovetropics.games.client.game.shop;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.PlayerFaceExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -14,6 +15,7 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.joml.Matrix3x2fStack;
 import org.lovetropics.games.client.LTKeybinds;
 import org.lovetropics.games.client.game.handler.GameShopHandler;
+import org.lovetropics.games.client.screen.ClientPlayerInfo;
 import org.lovetropics.games.common.content.mcsr.McsrTexts;
 import org.lovetropics.games.common.content.mcsr.shop.ShopTarget;
 import org.lovetropics.games.common.core.game.client_state.instance.ShopClientState;
@@ -38,12 +40,15 @@ public final class ShopScreen extends Screen {
 	private static final int SCREEN_MARGIN = 10;
 	private static final int TOOLTIP_WIDTH = 200;
 	private static final int ROW_W = 160;
+	private static final int FACE_SIZE = 10;
 
 	private static final int CARD_COLOR = 0xAA222222;
 	private static final int CARD_HOVERED_COLOR = 0xAA444444;
 	private static final int CARD_UNAFFORDABLE_COLOR = 0x66000000;
 	private static final int BORDER_COLOR = 0xFF555555;
 	private static final int BORDER_HOVERED_COLOR = 0xFFFFFFFF;
+	private static final int BENEFIT_BORDER_COLOR = 0xFF33AA33;
+	private static final int BENEFIT_BORDER_HOVERED_COLOR = 0xFF55FF55;
 	private static final int SABOTAGE_BORDER_COLOR = 0xFFAA3333;
 	private static final int SABOTAGE_BORDER_HOVERED_COLOR = 0xFFFF5555;
 
@@ -222,9 +227,10 @@ public final class ShopScreen extends Screen {
 	private void drawCard(GuiGraphicsExtractor graphics, ShopClientState.Offer offer, int x, int y, int maxLines, boolean hovered, boolean affordable) {
 		int background = !affordable ? CARD_UNAFFORDABLE_COLOR : hovered ? CARD_HOVERED_COLOR : CARD_COLOR;
 		boolean highlighted = hovered && affordable;
+		// Sabotages stand out in red from what players buy for themselves
 		int border = offer.target().isOtherPlayer()
 				? highlighted ? SABOTAGE_BORDER_HOVERED_COLOR : SABOTAGE_BORDER_COLOR
-				: highlighted ? BORDER_HOVERED_COLOR : BORDER_COLOR;
+				: highlighted ? BENEFIT_BORDER_HOVERED_COLOR : BENEFIT_BORDER_COLOR;
 		drawFrame(graphics, x, y, CARD_W, cardH, background, border);
 
 		int iconX = x + (CARD_W - ICON_SIZE) / 2;
@@ -258,7 +264,7 @@ public final class ShopScreen extends Screen {
 	private void drawTargetPicker(GuiGraphicsExtractor graphics, ShopClientState shop, ShopClientState.Offer offer, int mouseX, int mouseY) {
 		List<ShopClientState.Target> targets = shop.targets();
 		int lineHeight = font.lineHeight;
-		rowH = lineHeight + PADDING * 2;
+		rowH = Math.max(lineHeight, FACE_SIZE) + PADDING * 2;
 		int rowCount = targets.size() + 2;
 		int headerH = lineHeight + GAP * 2;
 		int contentH = headerH + rowCount * rowH + (rowCount - 1) * GAP;
@@ -278,13 +284,15 @@ public final class ShopScreen extends Screen {
 					: hovered ? BORDER_HOVERED_COLOR : BORDER_COLOR;
 			drawFrame(graphics, rowsX, y, ROW_W, rowH, hovered ? CARD_HOVERED_COLOR : CARD_COLOR, border);
 
-			int textY = y + PADDING + 1;
+			int textY = y + (rowH - lineHeight) / 2 + 1;
 			if (playerRow) {
 				ShopClientState.Target target = targets.get(row);
 				Component name = Component.literal("#" + (row + 1) + " ").withStyle(ChatFormatting.GRAY)
 						.append(Component.literal(target.name()).withStyle(ChatFormatting.WHITE));
 				Component points = McsrTexts.POINTS.apply(target.points()).withStyle(ChatFormatting.GOLD);
-				graphics.text(font, name, rowsX + PADDING + 2, textY, 0xFFFFFFFF, false);
+				int faceX = rowsX + PADDING + 2;
+				PlayerFaceExtractor.extractRenderState(graphics, ClientPlayerInfo.getSkin(target.id()), faceX, y + (rowH - FACE_SIZE) / 2, FACE_SIZE);
+				graphics.text(font, name, faceX + FACE_SIZE + 4, textY, 0xFFFFFFFF, false);
 				graphics.text(font, points, rowsX + ROW_W - PADDING - 2 - font.width(points), textY, 0xFFFFFFFF, false);
 			} else {
 				Component label = row == targets.size()
