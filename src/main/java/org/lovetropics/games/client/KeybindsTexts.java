@@ -11,6 +11,7 @@ public final class KeybindsTexts {
 	public static void collectTranslations(BiConsumer<String, String> consumer) {
 		KEYS.add("expand_bingo_board", "Open Bingo Board");
 		KEYS.add("open_shop", "Open Shop");
+		KEYS.add("open_rules", "Open Rules");
 		KEYS.forEach(consumer);
 		consumer.accept("key.category." + LoveTropics.ID + ".lovetropics", "Love Tropics");
 	}

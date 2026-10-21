@@ -41,6 +41,18 @@ public final class McsrTexts {
 	public static final Component PICK_CANCEL = KEYS.add("shop.pick_cancel", "Cancel");
 	public static final TranslationCollector.Fun1 POINTS = KEYS.add1("shop.points", "%s points");
 
+	// Modifiers
+	public static final Component RULES = KEYS.add("rules", "Rules");
+	public static final TranslationCollector.Fun1 OPEN_RULES_HINT = KEYS.add1("rules.open_hint", "[%s] Rules");
+	public static final Component RULES_EMPTY = KEYS.add("rules.empty", "No special rules in this game");
+	public static final Component RULE_UNKNOWN = KEYS.add("rules.unknown", "???");
+	public static final TranslationCollector.Fun2 RULE_LEVEL = KEYS.add2("rules.level", "Level %s/%s");
+	public static final TranslationCollector.Fun3 MODIFIER_STRONGER = KEYS.add3("modifier.stronger", "%s grew stronger! (level %s/%s)");
+	public static final TranslationCollector.Fun3 MODIFIER_WEAKER = KEYS.add3("modifier.weaker", "%s grew weaker (level %s/%s)");
+	public static final Component MYSTERY_STRONGER = KEYS.add("modifier.mystery_stronger", "A mysterious rule grew stronger...");
+	public static final Component MYSTERY_WEAKER = KEYS.add("modifier.mystery_weaker", "A mysterious rule grew weaker...");
+	public static final TranslationCollector.Fun2 MODIFIER_REVEALED = KEYS.add2("modifier.revealed", "You figured out a rule: %s - %s");
+
 	public static void collectTranslations(BiConsumer<String, String> consumer) {
 		KEYS.forEach(consumer);
 		consumer.accept(LoveTropics.ID + ".minigame.mcsr", "Speedrun");
