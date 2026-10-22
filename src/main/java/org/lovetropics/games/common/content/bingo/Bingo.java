@@ -18,6 +18,7 @@ public class Bingo {
 
 	// Board display
 	public static final Component BOARD_TITLE = KEYS.add("board.title", "Bingo");
+	public static final TranslationCollector.Fun1 OPEN_BOARD_HINT = KEYS.add1("board.open_hint", "[%s] Bingo");
 	public static final TranslationCollector.Fun3 BOARD_HEADER = KEYS.add3("board.header", "%s points - %s/%s tiles");
 	public static final TranslationCollector.Fun1 BOARD_LOCKED_COUNT = KEYS.add1("board.locked_count", "%s locked");
 	public static final Component TILE_LOCKED = KEYS.add("tile.locked", "Locked");

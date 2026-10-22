@@ -76,16 +76,32 @@ public final class GameModifiers implements IGameState {
 		return levels.getInt(id);
 	}
 
+	public Set<String> ids() {
+		return definitions.keySet();
+	}
+
+	public int maxLevel(String id) {
+		ModifierDefinition definition = definitions.get(id);
+		return definition != null ? definition.maxLevel() : 0;
+	}
+
 	/// Changes the level of a modifier for everyone, within the bounds of the modifier
 	///
 	/// @return whether the level changed
 	public boolean change(String id, int amount) {
+		return setLevel(id, levels.getInt(id) + amount);
+	}
+
+	/// Sets the level of a modifier for everyone, within the bounds of the modifier
+	///
+	/// @return whether the level changed
+	public boolean setLevel(String id, int level) {
 		ModifierDefinition definition = definitions.get(id);
 		if (definition == null) {
 			return false;
 		}
 		int oldLevel = levels.getInt(id);
-		int newLevel = definition.clamp(oldLevel + amount);
+		int newLevel = definition.clamp(level);
 		if (newLevel == oldLevel) {
 			return false;
 		}
@@ -122,6 +138,18 @@ public final class GameModifiers implements IGameState {
 		Component name = definition.name().copy().withStyle(ChatFormatting.AQUA);
 		player.sendSystemMessage(McsrTexts.MODIFIER_REVEALED.apply(name, definition.description()).withStyle(ChatFormatting.LIGHT_PURPLE));
 		PlayerSet.of(player).playSound(SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 0.5f, 1.5f);
+		updatePlayer(player);
+		return true;
+	}
+
+	/// Makes a player forget what a modifier is, so that they get its riddle again
+	///
+	/// @return whether the player knew what the modifier was
+	public boolean hide(ServerPlayer player, String id) {
+		Set<String> playerRevealed = revealed.get(player.getUUID());
+		if (playerRevealed == null || !playerRevealed.remove(id)) {
+			return false;
+		}
 		updatePlayer(player);
 		return true;
 	}

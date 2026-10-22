@@ -52,6 +52,10 @@ public final class McsrTexts {
 	public static final Component MYSTERY_STRONGER = KEYS.add("modifier.mystery_stronger", "A mysterious rule grew stronger...");
 	public static final Component MYSTERY_WEAKER = KEYS.add("modifier.mystery_weaker", "A mysterious rule grew weaker...");
 	public static final TranslationCollector.Fun2 MODIFIER_REVEALED = KEYS.add2("modifier.revealed", "You figured out a rule: %s - %s");
+	public static final TranslationCollector.Fun1 UNKNOWN_MODIFIER = KEYS.add1("modifier.unknown", "No modifier with id: %s");
+	public static final TranslationCollector.Fun3 MODIFIER_LEVEL = KEYS.add3("modifier.level", "%s: level %s/%s");
+	public static final TranslationCollector.Fun1 MODIFIER_REVEALED_TO = KEYS.add1("modifier.revealed_to", "Revealed a rule to %s players");
+	public static final TranslationCollector.Fun1 MODIFIER_HIDDEN_FROM = KEYS.add1("modifier.hidden_from", "Hid a rule from %s players");
 
 	public static void collectTranslations(BiConsumer<String, String> consumer) {
 		KEYS.forEach(consumer);
