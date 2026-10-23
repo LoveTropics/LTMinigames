@@ -38,7 +38,7 @@ public final class DebugScreenScrambler {
 	private static final String[] TOWARDS = {"negative Z", "positive Z", "negative X", "positive X"};
 	private static final String[] BIOMES = {
 			"plains", "desert", "forest", "taiga", "swamp", "badlands", "jungle", "savanna", "snowy_plains", "mushroom_fields",
-			"deep_ocean", "nether_wastes", "soul_sand_valley", "warped_forest", "basalt_deltas", "the_end", "deep_dark", "cherry_grove"
+			"deep_ocean", "nether_wastes", "soul_sand_valley", "warped_forest", "basalt_deltas", "the_end", "deep_dark", "cherry_grove", "the_sift"
 	};
 
 	private static final RandomSource RANDOM = RandomSource.create();
@@ -74,7 +74,11 @@ public final class DebugScreenScrambler {
 		splitIntoBlocks(right, true, blocks);
 		for (int i = 0; i < state.fakeLines(); i++) {
 			RandomSource random = RandomSource.create(HashCommon.mix(seed + i * FAKE_SALT));
-			blocks.add(new Block(List.of(createFakeLine(random)), random.nextBoolean(), blocks.size(), random.nextLong()));
+			blocks.add(new Block(List.of(createFakeLine(random)), random.nextBoolean(), blocks.size(), random.nextLong(), true));
+		}
+		for (String line : state.extraLines()) {
+			long key = getKey(line).hashCode();
+			blocks.add(new Block(List.of(line), (HashCommon.mix(seed ^ key ^ SIDE_SALT) & 1) == 1, blocks.size(), key, false));
 		}
 
 		// Every block is placed by its key rather than by where it is, so that blocks coming and going don't move the others
@@ -91,7 +95,7 @@ public final class DebugScreenScrambler {
 			boolean onRight = state.swapSides() ? (HashCommon.mix(seed ^ block.key ^ SIDE_SALT) & 1) == 1 : block.right;
 			List<String> side = onRight ? right : left;
 			for (String line : block.lines) {
-				side.add(state.garbleChance() > 0.0f ? garble(line, state.garbleChance()) : line);
+				side.add(block.garble && state.garbleChance() > 0.0f ? garble(line, state.garbleChance()) : line);
 			}
 			side.add("");
 		}
@@ -112,7 +116,7 @@ public final class DebugScreenScrambler {
 
 	private static void addBlock(List<String> lines, boolean right, List<Block> blocks) {
 		if (!lines.isEmpty()) {
-			blocks.add(new Block(lines, right, blocks.size(), getKey(lines.getFirst()).hashCode()));
+			blocks.add(new Block(lines, right, blocks.size(), getKey(lines.getFirst()).hashCode(), true));
 		}
 	}
 
@@ -170,9 +174,10 @@ public final class DebugScreenScrambler {
 
 	/// Lines that belong together on the debug screen
 	///
-	/// @param right whether the block was on the right side of the screen
-	/// @param index where the block was among all blocks
-	/// @param key   what the block is about, which decides where it ends up
-	private record Block(List<String> lines, boolean right, int index, long key) {
+	/// @param right  whether the block was on the right side of the screen
+	/// @param index  where the block was among all blocks
+	/// @param key    what the block is about, which decides where it ends up
+	/// @param garble whether its numbers may be garbled, which extra lines aren't so that they can be read as written
+	private record Block(List<String> lines, boolean right, int index, long key, boolean garble) {
 	}
 }
