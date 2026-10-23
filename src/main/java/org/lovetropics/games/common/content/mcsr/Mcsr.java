@@ -8,6 +8,7 @@ import org.lovetropics.games.common.content.mcsr.modifier.ChangeModifierAction;
 import org.lovetropics.games.common.content.mcsr.modifier.EnderPearlDeviationBehavior;
 import org.lovetropics.games.common.content.mcsr.modifier.ModifiersBehavior;
 import org.lovetropics.games.common.content.mcsr.modifier.RevealModifierAction;
+import org.lovetropics.games.common.content.mcsr.modifier.ScrambleDebugScreenBehavior;
 import org.lovetropics.games.common.content.mcsr.shop.ShopBehavior;
 import org.lovetropics.games.common.util.registry.GameBehaviorEntry;
 import org.lovetropics.games.common.util.registry.LoveTropicsRegistrate;
@@ -25,6 +26,7 @@ public class Mcsr {
 	public static final GameBehaviorEntry<RevealModifierAction> REVEAL_MODIFIER = REGISTRATE.object("mcsr/reveal_modifier").behavior(RevealModifierAction.CODEC).register();
 	public static final GameBehaviorEntry<EnderPearlDeviationBehavior> ENDER_PEARL_DEVIATION = REGISTRATE.object("mcsr/ender_pearl_deviation").behavior(EnderPearlDeviationBehavior.CODEC).register();
 	public static final GameBehaviorEntry<AttributePerLevelBehavior> ATTRIBUTE_PER_LEVEL = REGISTRATE.object("mcsr/attribute_per_level").behavior(AttributePerLevelBehavior.CODEC).register();
+	public static final GameBehaviorEntry<ScrambleDebugScreenBehavior> SCRAMBLE_DEBUG_SCREEN = REGISTRATE.object("mcsr/scramble_debug_screen").behavior(ScrambleDebugScreenBehavior.CODEC).register();
 
 	public static void init() {
 	}

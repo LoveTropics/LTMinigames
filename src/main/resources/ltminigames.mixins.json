@@ -41,6 +41,7 @@
     "client.BiomeColorsMixin",
     "client.CapeLayerMixin",
     "client.ClientPacketListenerMixin",
+    "client.DebugScreenOverlayMixin",
     "client.GameRendererMixin",
     "client.HudMixin",
     "client.KeyboardInputMixin",

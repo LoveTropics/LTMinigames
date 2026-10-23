@@ -32,6 +32,7 @@ import org.lovetropics.games.common.core.game.client_state.instance.ModifiersCli
 import org.lovetropics.games.common.core.game.client_state.instance.PointTagClientState;
 import org.lovetropics.games.common.core.game.client_state.instance.ReplaceTexturesClientState;
 import org.lovetropics.games.common.core.game.client_state.instance.ResourcePackClientState;
+import org.lovetropics.games.common.core.game.client_state.instance.ScrambleDebugScreenClientState;
 import org.lovetropics.games.common.core.game.client_state.instance.ShopClientState;
 import org.lovetropics.games.common.core.game.client_state.instance.SidebarClientState;
 import org.lovetropics.games.common.core.game.client_state.instance.SoundVolumeModifier;
@@ -72,6 +73,7 @@ public final class GameClientStateTypes {
 	public static final GameClientTweakEntry<BingoBoardClientState> BINGO_BOARD = register("bingo_board", BingoBoardClientState.CODEC);
 	public static final GameClientTweakEntry<ShopClientState> SHOP = register("shop", ShopClientState.CODEC);
 	public static final GameClientTweakEntry<ModifiersClientState> MODIFIERS = register("modifiers", ModifiersClientState.CODEC);
+	public static final GameClientTweakEntry<ScrambleDebugScreenClientState> SCRAMBLE_DEBUG_SCREEN = register("scramble_debug_screen", ScrambleDebugScreenClientState.CODEC);
 	public static final GameClientTweakEntry<InvertControlsClientState> INVERT_CONTROLS = register("invert_controls", InvertControlsClientState.CODEC);
 	public static final GameClientTweakEntry<RemapMovementClientState> REMAP_MOVEMENT = register("remap_movement", RemapMovementClientState.CODEC, RemapMovementClientState.STREAM_CODEC);
 	public static final GameClientTweakEntry<CollidersClientState> COLLIDERS = register("colliders", CollidersClientState.CODEC, CollidersClientState.STREAM_CODEC);
