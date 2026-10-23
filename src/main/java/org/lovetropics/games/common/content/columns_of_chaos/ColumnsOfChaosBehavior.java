@@ -57,8 +57,8 @@ public final class ColumnsOfChaosBehavior implements IGameBehavior {
 			Codec.INT.fieldOf("pillar_height").forGetter(b -> b.pillarHeight),
 			Codec.INT.optionalFieldOf("item_interval", 40).forGetter(b -> b.itemInterval),
 			Codec.INT.optionalFieldOf("decrease_over_rounds", 20).forGetter(b -> b.decreaseOverRounds),
-			Codec.INT.optionalFieldOf("max_countdown_ticks", (10 * 20)).forGetter(b -> b.decreaseOverRounds),
-			Codec.INT.optionalFieldOf("min_countdown_ticks", (2 * 20)).forGetter(b -> b.decreaseOverRounds),
+			Codec.INT.optionalFieldOf("max_countdown_ticks", (10 * 20)).forGetter(b -> b.maxCountdownTicks),
+			Codec.INT.optionalFieldOf("min_countdown_ticks", (2 * 20)).forGetter(b -> b.minCountdownTicks),
 			RegistryCodecs.homogeneousList(Registries.ITEM).optionalFieldOf("excluded_items").forGetter(b -> b.excludedItems),
 			Codec.STRING.fieldOf("floor_region").forGetter(b -> b.floorRegionName)
 	).apply(i, ColumnsOfChaosBehavior::new));
@@ -220,7 +220,7 @@ public final class ColumnsOfChaosBehavior implements IGameBehavior {
 
 	CountingDown startCountingDown(IGamePhase game, int round) {
 		float lerp = (float) round / decreaseOverRounds;
-		long duration = Mth.floor(Mth.clampedLerp(maxCountdownTicks, minCountdownTicks, lerp));
+		long duration = Mth.floor(Mth.clampedLerp(lerp, maxCountdownTicks, minCountdownTicks));
 		return new CountingDown(round + 1, game.ticks() + duration);
 	}
 
@@ -280,7 +280,7 @@ public final class ColumnsOfChaosBehavior implements IGameBehavior {
 		public State tick(IGamePhase game) {
 			long time = game.ticks();
 			if (time > nextAt) {
-				return startCountingDown(game, round + 1);
+				return startCountingDown(game, round);
 			}
 			return this;
 		}

@@ -33,7 +33,8 @@ ext {
     //A map of game id's to display names to add quick run tasks for.
     quickLoadMods = [
         "lt:survive_the_tide/1/normal": "Survive the Tide 1 - Normal",
-        "lt:block_party/normal": "Block Party - Normal"
+        "lt:block_party/normal": "Block Party - Normal",
+        "lt:columns_of_chaos/normal": "Columns of Chaos - Normal",
     ]
 }
 
