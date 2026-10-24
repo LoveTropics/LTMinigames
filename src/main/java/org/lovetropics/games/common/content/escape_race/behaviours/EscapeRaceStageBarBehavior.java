@@ -140,7 +140,7 @@ public record EscapeRaceStageBarBehavior(
 				}
 				inner.setProgress(progress);
 				long secondsLeft = Math.max(state.endTime() - gameTime, 0) / SharedConstants.TICKS_PER_SECOND;
-				Component timeText = Component.literal(Util.formatMinutesSeconds(secondsLeft)).withStyle(ChatFormatting.AQUA);
+				Component timeText = Component.literal(Util.formatTimer(secondsLeft)).withStyle(ChatFormatting.AQUA);
 				inner.setTitle(config.title.apply(Map.of("time", timeText)));
 			} else {
 				inner.setProgress(1.0f);

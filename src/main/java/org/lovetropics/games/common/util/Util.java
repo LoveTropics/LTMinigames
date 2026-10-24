@@ -127,9 +127,14 @@ public class Util {
 		}
 	}
 
-	public static String formatMinutesSeconds(long totalSeconds) {
-		long minutesPart = totalSeconds / 60;
+	public static String formatTimer(long totalSeconds) {
+		long totalMinutes = totalSeconds / 60;
 		long secondsPart = totalSeconds % 60;
+		long hoursPart = totalMinutes / 60;
+		long minutesPart = totalMinutes % 60;
+		if (hoursPart > 0) {
+			return String.format("%02d:%02d:%02d", hoursPart, minutesPart, secondsPart);
+		}
 		return String.format("%02d:%02d", minutesPart, secondsPart);
 	}
 

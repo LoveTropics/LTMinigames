@@ -398,7 +398,7 @@ public class CraftingBeeBehavior implements IGameBehavior {
 	private Component getTimeRemainingText(IGamePhase game, long ticksRemaining) {
 		long secondsRemaining = ticksRemaining / (long) game.server().tickRateManager().tickrate();
 
-		Component timeText = Component.literal(Util.formatMinutesSeconds(secondsRemaining)).withStyle(ChatFormatting.AQUA);
+		Component timeText = Component.literal(Util.formatTimer(secondsRemaining)).withStyle(ChatFormatting.AQUA);
 		Component gameNameText = game.definition().name().copy().withStyle(ChatFormatting.AQUA);
 
 		return timerBarText.apply(Map.of("time", timeText, "game", gameNameText));

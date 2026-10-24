@@ -115,7 +115,7 @@ public final class MinigameTexts {
 	private static final TranslationCollector.Fun2 PROGRESS_BAR_TIME = KEYS.add2("progress_bar.time", "%s (%s left)");
 
 	public static Component progressBarTime(Component text, long secondsLeft) {
-		return PROGRESS_BAR_TIME.apply(text, Util.formatMinutesSeconds(secondsLeft));
+		return PROGRESS_BAR_TIME.apply(text, Util.formatTimer(secondsLeft));
 	}
 
 	public static final Component UNKNOWN_DONOR = KEYS.add("donation.unknown_donor", "an unknown donor").withStyle(ChatFormatting.BLUE);

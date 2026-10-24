@@ -155,7 +155,7 @@ public class ProgressBarBehavior implements IGameBehavior {
 
 		@Override
 		public Component resolve(IGamePhase game, int seconds) {
-			Component timeText = Component.literal(Util.formatMinutesSeconds(seconds)).withStyle(ChatFormatting.AQUA);
+			Component timeText = Component.literal(Util.formatTimer(seconds)).withStyle(ChatFormatting.AQUA);
 			Component gameNameText = game.definition().name().copy().withStyle(ChatFormatting.AQUA);
 			return template.apply(Map.of("time", timeText, "game", gameNameText));
 		}

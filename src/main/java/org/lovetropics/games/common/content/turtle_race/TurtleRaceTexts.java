@@ -28,7 +28,7 @@ public class TurtleRaceTexts {
 	}
 
 	private static MutableComponent formatTime(long totalSeconds) {
-		return Component.literal(Util.formatMinutesSeconds(totalSeconds)).withStyle(ChatFormatting.GOLD);
+		return Component.literal(Util.formatTimer(totalSeconds)).withStyle(ChatFormatting.GOLD);
 	}
 
 	public static Component progress(float progress) {

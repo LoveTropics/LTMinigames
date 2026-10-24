@@ -344,7 +344,7 @@ public class RaceTrackBehavior implements IGameBehavior {
 
 		for (FinishEntry entry : finishedPlayers) {
 			long seconds = entry.time() / SharedConstants.TICKS_PER_SECOND;
-			leaderboard.add(entry.name(), Component.literal(Util.formatMinutesSeconds(seconds)).append(" ").append(TurtleRaceTexts.CHECKMARK).withStyle(ChatFormatting.GREEN), entry.player().matches(player));
+			leaderboard.add(entry.name(), Component.literal(Util.formatTimer(seconds)).append(" ").append(TurtleRaceTexts.CHECKMARK).withStyle(ChatFormatting.GREEN), entry.player().matches(player));
 		}
 
 		states.entrySet().stream()
