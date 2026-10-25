@@ -99,6 +99,7 @@ import org.lovetropics.games.common.core.game.behavior.instances.action.SetEntit
 import org.lovetropics.games.common.core.game.behavior.instances.action.SetExtendingBlocksAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.SetGlowingAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.SetPlayerRoleAction;
+import org.lovetropics.games.common.core.game.behavior.instances.action.SetRandomDisguiseAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.SetStatisticAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.SetTabListOrderAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.SetTotalTimeAction;
@@ -334,6 +335,7 @@ public class GameBehaviorTypes {
 	public static final GameBehaviorEntry<ShootProjectilesAroundPlayerAction> SHOOT_PROJECTILES_AT_PLAYER = register("shoot_projectiles_at_player", ShootProjectilesAroundPlayerAction.CODEC);
 	public static final GameBehaviorEntry<ApplyForTimeAction> APPLY_FOR_TIME = register("apply_for_time", ApplyForTimeAction.CODEC);
 	public static final GameBehaviorEntry<SetDisguiseAction> SET_DISGUISE = register("set_disguise", SetDisguiseAction.CODEC);
+	public static final GameBehaviorEntry<SetRandomDisguiseAction> SET_RANDOM_DISGUISE = register("set_random_disguise", SetRandomDisguiseAction.CODEC);
 	public static final GameBehaviorEntry<ClearDisguiseAction> CLEAR_DISGUISE = register("clear_disguise", ClearDisguiseAction.CODEC);
 	public static final GameBehaviorEntry<AddAttributeModifierAction> ADD_ATTRIBUTE_MODIFIER = register("add_attribute_modifier", AddAttributeModifierAction.CODEC);
 	public static final GameBehaviorEntry<ClearAttributeModifierAction> CLEAR_ATTRIBUTE_MODIFIER = register("clear_attribute_modifier", ClearAttributeModifierAction.CODEC);
