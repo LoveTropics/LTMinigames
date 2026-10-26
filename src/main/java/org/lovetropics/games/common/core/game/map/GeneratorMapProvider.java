@@ -116,7 +116,7 @@ public record GeneratorMapProvider(
 				regions.add(spawnRegion.get(), BlockBox.of(pos.get()));
 			}
 
-			GameMap map = new GameMap(name.orElse(null), overwold.asKey(), regions)
+			GameMap map = new GameMap(overwold.asKey(), regions)
 					.onClose(game -> dimensions.values().forEach(RuntimeDimensionHandle::markForDeletion));
 			if (!linked) {
 				return map;

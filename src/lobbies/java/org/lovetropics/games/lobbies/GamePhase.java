@@ -37,7 +37,6 @@ import org.lovetropics.games.common.core.game.player.PlayerRole;
 import org.lovetropics.games.common.core.game.player.PlayerSet;
 import org.lovetropics.games.common.core.game.state.GameStateMap;
 import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
-import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
 import org.lovetropics.games.common.core.game.util.GameScheduler;
 import org.lovetropics.games.common.core.game.util.TeamAllocator;
 import org.slf4j.Logger;
@@ -115,11 +114,6 @@ public class GamePhase implements IGamePhase {
 
 		for (PlayerRole role : PlayerRole.ROLES) {
 			playersByRole.put(role, allPlayers.filter(player -> roles.get(player.getUUID()) == role));
-		}
-
-		String mapName = map.name();
-		if (mapName != null) {
-			statistics().global().set(StatisticKey.MAP, mapName);
 		}
 
 		behavior.registerState(this, phaseState, instanceState());
