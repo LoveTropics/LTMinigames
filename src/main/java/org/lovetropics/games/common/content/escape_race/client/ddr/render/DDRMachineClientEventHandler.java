@@ -1,11 +1,15 @@
 package org.lovetropics.games.common.content.escape_race.client.ddr.render;
 
+import com.google.common.reflect.TypeToken;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.ClientAvatarEntity;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
+import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import net.minecraft.world.entity.Avatar;
+import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -17,6 +21,9 @@ import net.neoforged.neoforge.client.renderstate.RegisterRenderStateModifiersEve
 import org.lovetropics.games.LoveTropics;
 import org.lovetropics.games.common.content.escape_race.ddr_machine.DDRMachineEntity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
 public class DDRMachineClientEventHandler {
 
@@ -27,12 +34,8 @@ public class DDRMachineClientEventHandler {
 
 	@SubscribeEvent
 	public static void onRegisterRenderStateModifiers(RegisterRenderStateModifiersEvent event) {
-		event.registerAvatarEntityModifier(new AvatarRenderStateModifier() {
-			@Override
-			public <T extends Avatar & ClientAvatarEntity> void accept(T avatar, AvatarRenderState renderState) {
-				DDRMachinePlayerHelper.updateLivingEntityRenderState(avatar, renderState);
-			}
-		});
+		TypeToken<LivingEntityRenderer<LivingEntity, LivingEntityRenderState, ?>> token = new TypeToken<>() {};
+		event.registerEntityModifier(token, DDRMachinePlayerHelper::updateLivingEntityRenderState);
 	}
 
 	@SubscribeEvent
