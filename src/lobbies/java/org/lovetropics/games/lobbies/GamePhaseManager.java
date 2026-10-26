@@ -1,6 +1,5 @@
 package org.lovetropics.games.lobbies;
 
-import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
@@ -25,10 +24,11 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 @EventBusSubscriber(modid = LobbiesMod.ID)
 public class GamePhaseManager implements IGameLookup {
@@ -36,7 +36,8 @@ public class GamePhaseManager implements IGameLookup {
 
 	private final Queue<GamePhase> queuedGames = new ArrayDeque<>();
 
-	private final Map<ResourceKey<Level>, List<GamePhase>> gamesByDimension = new Reference2ObjectOpenHashMap<>();
+	// Updated only from main thread, but visible to other threads
+	private final ConcurrentMap<ResourceKey<Level>, List<GamePhase>> gamesByDimension = new ConcurrentHashMap<>();
 
 	public static GamePhaseManager get() {
 		return INSTANCE;

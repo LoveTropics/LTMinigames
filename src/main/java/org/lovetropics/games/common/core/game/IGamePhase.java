@@ -16,6 +16,7 @@ import org.lovetropics.games.common.core.game.player.PlayerRole;
 import org.lovetropics.games.common.core.game.player.PlayerSet;
 import org.lovetropics.games.common.core.game.state.GameStateMap;
 import org.lovetropics.games.common.core.game.state.statistics.GameStatistics;
+import org.lovetropics.games.common.core.game.util.GamePermissionNodes;
 import org.lovetropics.games.common.core.game.util.GameScheduler;
 import org.lovetropics.games.common.core.integration.GameInstanceIntegrations;
 
@@ -111,6 +112,10 @@ public interface IGamePhase {
 
 	default GameStatistics statistics() {
 		return state().get(GameStatistics.KEY);
+	}
+
+	default GamePermissionNodes permissionNodes() {
+		return state().get(GamePermissionNodes.KEY);
 	}
 
 	default GameInstanceIntegrations getIntegrationsOrThrow() {

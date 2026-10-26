@@ -1,5 +1,6 @@
 package org.lovetropics.games.common.core.game.impl;
 
+import com.lovetropics.lib.permission.PermissionNodeHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
@@ -53,6 +54,10 @@ import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 import net.neoforged.neoforge.event.level.block.CropGrowEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.server.permission.events.PermissionGatherEvent;
+import net.neoforged.neoforge.server.permission.nodes.PermissionDynamicContext;
+import net.neoforged.neoforge.server.permission.nodes.PermissionNode;
+import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.LoveTropics;
 import org.lovetropics.games.common.core.game.IGameLookup;
 import org.lovetropics.games.common.core.game.IGamePhase;
@@ -65,6 +70,7 @@ import org.lovetropics.games.mixin.EntityAccessor;
 
 import java.util.Objects;
 import java.util.Queue;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public final class GameEventDispatcher {
@@ -669,6 +675,25 @@ public final class GameEventDispatcher {
 				case FALSE -> event.setResult(MobSpawnEvent.SpawnPlacementCheck.Result.FAIL);
 			}
 		}
+	}
+
+	@SubscribeEvent
+	public void onGatherPermissionHandlers(PermissionGatherEvent.Handler event) {
+		PermissionNodeHandler.register(event, -1, new PermissionNodeHandler() {
+			@Override
+			public @Nullable <T> T getPermission(ServerPlayer player, PermissionNode<T> node, PermissionDynamicContext<?>... context) {
+				IGamePhase game = gameLookup.getGamePhaseFor(player);
+				if (game != null) {
+					return game.permissionNodes().check(player, node, context);
+				}
+				return null;
+			}
+
+			@Override
+			public @Nullable <T> T getOfflinePermission(UUID player, PermissionNode<T> node, PermissionDynamicContext<?>... context) {
+				return null;
+			}
+		});
 	}
 
 	private record LoadedChunk(

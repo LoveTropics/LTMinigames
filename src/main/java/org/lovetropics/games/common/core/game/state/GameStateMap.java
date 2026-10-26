@@ -1,16 +1,16 @@
 package org.lovetropics.games.common.core.game.state;
 
-import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 import org.lovetropics.games.common.core.game.GameException;
 
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 public final class GameStateMap {
-	private final Map<GameStateKey<?>, IGameState> state = new Reference2ObjectOpenHashMap<>();
+	private final ConcurrentMap<GameStateKey<?>, IGameState> state = new ConcurrentHashMap<>();
 
 	@SuppressWarnings("unchecked")
 	public <T extends IGameState> T getOrRegister(GameStateKey<T> key, T state) {
