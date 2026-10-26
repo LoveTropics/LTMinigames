@@ -28,7 +28,8 @@ ext {
             "dimensions": "ltdimensions",
             "maps": null,
             "editor": "ltmaps_editor",
-            "lobbies": "ltgames_lobbies"
+            "lobbies": "ltgames_lobbies",
+            "voice": "ltgames_voice",
     ]
     //A map of game id's to display names to add quick run tasks for.
     quickLoadMods = [
@@ -176,6 +177,12 @@ repositories {
             includeGroup('curse.maven')
         }
     }
+    maven {
+        url = 'https://maven.maxhenkel.de/repository/public'
+        content {
+            includeGroupAndSubgroups 'de.maxhenkel'
+        }
+    }
 }
 
 dependencies {
@@ -210,10 +217,15 @@ dependencies {
     editorImplementation sourceSets.dimensions.output
     mapsImplementation sourceSets.dimensions.output
 
+    voiceImplementation sourceSets.main.output
+    voiceImplementation "de.maxhenkel.voicechat:voicechat-api:$voicechat_api_version"
+
     implementation sourceSets.dimensions.output
     implementation sourceSets.maps.output
     runtimeOnly sourceSets.lobbies.output
     runtimeOnly sourceSets.editor.output
+    runtimeOnly sourceSets.voice.output
+    runtimeOnly "curse.maven:simple-voice-chat-416089:9307199"
 
     for (String module : splitModules.keySet()) {
         testImplementation sourceSets.named(module).get().output
@@ -253,6 +265,7 @@ var generateModMetadata = tasks.register('generateModMetadata', ProcessResources
             neo_version_range      : neo_version_range,
             loader_version_range   : loader_version_range,
             mod_version            : mod_version,
+            voicechat_api_version  : voicechat_api_version,
     ]
     inputs.properties replaceProperties
     expand replaceProperties

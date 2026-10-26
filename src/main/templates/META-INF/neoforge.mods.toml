@@ -107,3 +107,34 @@ type = "required"
 versionRange = "${minecraft_version_range}"
 ordering = "NONE"
 side = "BOTH"
+
+[[mods]]
+modId = "ltgames_voice"
+version = "${mod_version}"
+displayName = "LTGames Voice"
+displayURL = "https://lovetropics.org"
+authors = "The Love Tropics team"
+description = '''
+SimpleVoiceChat integration for Love Tropics minigames.
+'''
+
+[[dependencies.ltgames_voice]]
+modId = "neoforge"
+type = "required"
+versionRange = "${neo_version_range}"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.ltgames_voice]]
+modId = "minecraft"
+type = "required"
+versionRange = "${minecraft_version_range}"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.ltgames_voice]]
+modId = "voicechat_api"
+mandatory = false
+versionRange = "[${voicechat_api_version},)"
+ordering = "AFTER"
+side = "SERVER"

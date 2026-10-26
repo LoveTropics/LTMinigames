@@ -19,8 +19,10 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 public interface IGameBehavior {
-	Codec<GameBehaviorType<?>> TYPE_CODEC = Codec.either(GameBehaviorTypes.TYPE_CODEC, GameConfigs.CUSTOM_BEHAVIORS)
-			.xmap(e -> e.map(Function.identity(), Function.identity()), Either::left);
+	Codec<GameBehaviorType<?>> TYPE_CODEC = Codec.lazyInitialized(() ->
+			Codec.either(GameBehaviorTypes.TYPE_CODEC, GameConfigs.CUSTOM_BEHAVIORS)
+					.xmap(e -> e.map(Function.identity(), Function.identity()), Either::left)
+	);
 
 	Codec<IGameBehavior> SIMPLE_CODEC = Codecs.dispatchWithInlineKey(
 			"type",
