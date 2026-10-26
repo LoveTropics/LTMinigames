@@ -2,6 +2,7 @@ package org.lovetropics.games.common.core.game.behavior.action;
 
 import com.google.common.collect.Lists;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Util;
 import net.minecraft.world.entity.Entity;
 import org.lovetropics.games.common.content.biodiversity_blitz.plot.Plot;
 import org.lovetropics.games.common.core.game.IGamePhase;
@@ -10,6 +11,7 @@ import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Predicate;
 
 public record ActionSubjects<T>(ActionSubjectType<T> type, List<T> instances) {
 	public static final ActionSubjects<Void> EMPTY = new ActionSubjects<>(ActionSubjectType.VOID, List.of());
@@ -46,6 +48,15 @@ public record ActionSubjects<T>(ActionSubjectType<T> type, List<T> instances) {
 		return new ActionSubjects<>(ActionSubjectType.PLOT, List.of(plot));
 	}
 
+	public <U> ActionSubjects<U> takeOneRandom(IGamePhase game, ActionSubjectType<U> type) {
+		ActionSubjects<U> coerced = coerceInto(game, type);
+		if (coerced.instances.size() <= 1) {
+			return coerced;
+		}
+		U instance = Util.getRandom(coerced.instances, game.random());
+		return new ActionSubjects<>(type, List.of(instance));
+	}
+
 	public List<ServerPlayer> asPlayers(IGamePhase game) {
 		return type.asPlayers(game, instances);
 	}
@@ -60,6 +71,15 @@ public record ActionSubjects<T>(ActionSubjectType<T> type, List<T> instances) {
 
 	public List<Entity> asEntities(IGamePhase game) {
 		return asType(game, ActionSubjectType.ENTITY);
+	}
+
+	public ActionSubjects<?> filterPlayers(IGamePhase game, Predicate<ServerPlayer> predicate) {
+		List<ServerPlayer> players = asPlayers(game);
+		List<ServerPlayer> filteredPlayers = players.stream().filter(predicate).toList();
+		if (filteredPlayers.equals(players)) {
+			return this;
+		}
+		return ofPlayers(filteredPlayers);
 	}
 
 	@SuppressWarnings("unchecked")

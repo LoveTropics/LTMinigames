@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.core.game.behavior.instances.donation;
 
-import com.google.common.collect.Lists;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -15,13 +14,12 @@ import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.TriState;
-import net.minecraft.util.Util;
 import net.minecraft.util.context.ContextKeySet;
 import net.minecraft.util.context.ContextMap;
-import net.minecraft.world.entity.Entity;
 import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.action.ActionSubjectType;
 import org.lovetropics.games.common.core.game.behavior.action.ActionSubjects;
 import org.lovetropics.games.common.core.game.behavior.action.GameActionContextKeys;
 import org.lovetropics.games.common.core.game.behavior.action.GameActionList;
@@ -29,17 +27,25 @@ import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePackageEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
-import org.lovetropics.games.common.core.game.player.PlayerSet;
 import org.lovetropics.games.common.core.game.state.GamePackageState;
-import org.lovetropics.games.common.core.game.state.team.GameTeam;
 import org.lovetropics.games.common.core.game.state.team.TeamState;
 import org.lovetropics.games.common.core.integration.game_actions.GamePackage;
 import org.slf4j.Logger;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-public final class DonationPackageBehavior implements IGameBehavior {
+/// @param includeSubPhases whether the package can also go to participants who are in sub-phases of this phase, e.g.
+///                         each playing in their own world
+public record DonationPackageBehavior(
+		DonationPackageData data,
+		Optional<DonationPackageNotification> notification,
+		GameActionList receiveActions,
+		// TODO: We shouldn't really rely on triggering the package in the top-level game, behaviors (correctly) make the assumption that the target of an action exists within that game instance
+		//  MCSR should probably be creating levels at runtime rather than sub-games
+		boolean includeSubPhases
+) implements IGameBehavior {
 	private static final Logger LOGGER = LogUtils.getLogger();
 
 	public static final MapCodec<DonationPackageBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
@@ -49,20 +55,6 @@ public final class DonationPackageBehavior implements IGameBehavior {
 			Codec.BOOL.optionalFieldOf("include_sub_phases", false).forGetter(c -> c.includeSubPhases)
 	).apply(i, DonationPackageBehavior::new));
 
-	private final DonationPackageData data;
-	private final Optional<DonationPackageNotification> notification;
-	private final GameActionList receiveActions;
-	private final boolean includeSubPhases;
-
-	/// @param includeSubPhases whether the package can also go to participants who are in sub-phases of this phase, e.g.
-	///                         each playing in their own world
-	public DonationPackageBehavior(DonationPackageData data, Optional<DonationPackageNotification> notification, GameActionList receiveActions, boolean includeSubPhases) {
-		this.data = data;
-		this.notification = notification;
-		this.receiveActions = receiveActions;
-		this.includeSubPhases = includeSubPhases;
-	}
-
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
 		events.listen(GamePhaseEvents.REGISTER_COMMANDS, (commands, _) -> {
@@ -70,10 +62,10 @@ public final class DonationPackageBehavior implements IGameBehavior {
 					.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS));
 			// The amount is optional, to simulate a donation of a given amount
 			switch (data.targetSelectionMode()) {
-				case SPECIFIC -> subcommand.then(Commands.argument("target", EntityArgument.player())
-						.executes(ctx -> spawnPackageFromCommand(game, ctx, EntityArgument.getPlayer(ctx, "target"), Optional.empty()))
+				case SPECIFIC -> subcommand.then(Commands.argument("target", EntityArgument.players())
+						.executes(ctx -> spawnPackageFromCommand(game, ctx, EntityArgument.getPlayers(ctx, "target"), Optional.empty()))
 						.then(Commands.argument("amount", DoubleArgumentType.doubleArg(0.0))
-								.executes(ctx -> spawnPackageFromCommand(game, ctx, EntityArgument.getPlayer(ctx, "target"), Optional.of(DoubleArgumentType.getDouble(ctx, "amount"))))
+								.executes(ctx -> spawnPackageFromCommand(game, ctx, EntityArgument.getPlayers(ctx, "target"), Optional.of(DoubleArgumentType.getDouble(ctx, "amount"))))
 						));
 				case RANDOM, ALL -> subcommand.executes(ctx -> spawnPackageFromCommand(game, ctx, null, Optional.empty()))
 						.then(Commands.argument("amount", DoubleArgumentType.doubleArg(0.0))
@@ -91,8 +83,13 @@ public final class DonationPackageBehavior implements IGameBehavior {
 		game.state().get(GamePackageState.KEY).addPackageType(data.apply(costModifier));
 	}
 
-	private int spawnPackageFromCommand(IGamePhase game, CommandContext<CommandSourceStack> ctx, @Nullable ServerPlayer target, Optional<Double> amount) {
-		GamePackage gamePackage = new GamePackage(data.id(), "LoveTropics", Optional.ofNullable(target).map(Entity::getUUID), Optional.empty(), amount);
+	private int spawnPackageFromCommand(IGamePhase game, CommandContext<CommandSourceStack> ctx, @Nullable Collection<ServerPlayer> targetPlayers, Optional<Double> amount) {
+		GamePackage gamePackage = new GamePackage(
+				data.id(),
+				"LoveTropics",
+				targetPlayers != null ? ActionSubjects.ofPlayers(List.copyOf(targetPlayers)) : null,
+				amount
+		);
 		switch (onGamePackageReceived(game, gamePackage)) {
 			case TRUE -> ctx.getSource().sendSuccess(() -> Component.translatable("Successfully sent '%s'", data.id()), true);
 			case DEFAULT -> ctx.getSource().sendFailure(Component.translatable("'%s' was not processed", data.id()));
@@ -106,104 +103,59 @@ public final class DonationPackageBehavior implements IGameBehavior {
 			return TriState.DEFAULT;
 		}
 
+		ActionSubjects<?> targets = resolveTargets(game, gamePackage);
+		if (targets == null) {
+			LOGGER.warn("Expected donation package to have a receiver, but did not resolve any for {}", gamePackage);
+			return TriState.FALSE;
+		}
+
+		ContextMap context = actionContext(gamePackage);
+		if (receiveActions.apply(game, context, targets)) {
+			notification.ifPresent(notification ->
+					notification.broadcast(game, targets, gamePackage.sendingPlayerName(), data.name())
+			);
+			return TriState.TRUE;
+		}
+		return TriState.FALSE;
+	}
+
+	private ActionSubjects<?> narrowTargetsForGame(IGamePhase game, ActionSubjects<?> globalTargets) {
+		if (includeSubPhases) {
+			return globalTargets;
+		}
+		return globalTargets.filterPlayers(game, player -> game.allPlayers().contains(player));
+	}
+
+	private @Nullable ActionSubjects<?> resolveTargets(IGamePhase game, GamePackage gamePackage) {
+		// If we got a request for specific targets, just do that regardless of our configuration - always trust in the tech stack :)
+		ActionSubjects<?> specificTargets = gamePackage.specificTargets();
+		if (specificTargets != null) {
+			return narrowTargetsForGame(game, specificTargets);
+		}
+		ActionSubjects<?> allTargets = resolveAllTargets(game);
 		return switch (data.targetSelectionMode()) {
-			case SPECIFIC -> receiveSpecific(game, gamePackage);
-			case RANDOM -> receiveRandom(game, gamePackage);
-			case ALL -> receiveAll(game, gamePackage);
+			case SPECIFIC -> null;
+			case RANDOM -> {
+				if (data.applyToTeam()) {
+					yield allTargets.takeOneRandom(game, ActionSubjectType.TEAM);
+				} else {
+					yield allTargets.takeOneRandom(game, ActionSubjectType.PLAYER);
+				}
+			}
+			case ALL -> allTargets;
 		};
 	}
 
-	private TriState receiveSpecific(IGamePhase game, GamePackage gamePackage) {
-		if (data.applyToTeam()) {
-			TeamState teams = game.instanceState().getOrDefault(TeamState.KEY, TeamState.EMPTY);
-			GameTeam receivingTeam = getReceivingTeam(teams, gamePackage);
-			if (receivingTeam == null) {
-				LOGGER.warn("Could not find a team receiver for package: {}", gamePackage);
-				return TriState.FALSE;
-			}
-			return applyToTeams(game, gamePackage, List.of(receivingTeam));
-		}
-
-		if (gamePackage.receivingPlayer().isEmpty()) {
-			LOGGER.warn("Expected donation package to have a receiver, but did not receive from backend!");
-			return TriState.FALSE;
-		}
-
-		ServerPlayer receivingPlayer = getParticipants(game).getPlayerBy(gamePackage.receivingPlayer().get());
-		if (receivingPlayer == null) {
-			// Player not on the server or in the game for some reason
-			return TriState.FALSE;
-		}
-		return applyToPlayers(game, gamePackage, List.of(receivingPlayer));
-	}
-
-	private @Nullable GameTeam getReceivingTeam(TeamState teams, GamePackage gamePackage) {
-		return gamePackage.receivingTeam()
-				// Shouldn't happen, but be a bit lenient
-				.or(() -> gamePackage.receivingPlayer().map(teams::getTeamForPlayer))
-				.map(teams::getTeamByKey)
-				.orElse(null);
-	}
-
-	private TriState receiveRandom(IGamePhase game, GamePackage gamePackage) {
-		if (data.applyToTeam()) {
-			TeamState teams = game.instanceState().getOrDefault(TeamState.KEY, TeamState.EMPTY);
-			List<GameTeam> allTeams = Lists.newArrayList(teams);
-			if (allTeams.isEmpty()) {
-				return applyToTeams(game, gamePackage, List.of());
-			}
-			GameTeam randomTeam = Util.getRandom(allTeams, game.random());
-			return applyToTeams(game, gamePackage, List.of(randomTeam));
-		} else {
-			ServerPlayer randomPlayer = Util.getRandom(Lists.newArrayList(getParticipants(game)), game.random());
-			return applyToPlayers(game, gamePackage, List.of(randomPlayer));
-		}
-	}
-
-	private TriState receiveAll(IGamePhase game, GamePackage gamePackage) {
+	private ActionSubjects<?> resolveAllTargets(IGamePhase game) {
 		if (data.applyToTeam()) {
 			TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
-			List<GameTeam> allTeams = teams != null ? Lists.newArrayList(teams) : List.of();
-			return applyToTeams(game, gamePackage, allTeams);
+			return ActionSubjects.ofTeams(teams != null ? List.copyOf(teams.getTeamKeys()) : List.of());
 		} else {
-			return applyToPlayers(game, gamePackage, Lists.newArrayList(getParticipants(game)));
+			// Players in sub-phases are no longer in this phase, but keep their role here
+			return ActionSubjects.ofPlayers(
+					game.allPlayers(includeSubPhases).filter(player -> game.getRoleFor(player) == PlayerRole.PARTICIPANT)
+			);
 		}
-	}
-
-	private PlayerSet getParticipants(IGamePhase game) {
-		if (!includeSubPhases) {
-			return game.participants();
-		}
-		// Players in sub-phases are no longer in this phase, but keep their role here
-		return game.allPlayers(true).filter(player -> game.getRoleFor(player) == PlayerRole.PARTICIPANT);
-	}
-
-	private TriState applyToPlayers(IGamePhase game, GamePackage gamePackage, List<ServerPlayer> players) {
-		if (players.isEmpty()) {
-			LOGGER.warn("No players to apply package {}, rejecting", gamePackage);
-			return TriState.FALSE;
-		}
-		ContextMap context = actionContext(gamePackage);
-		if (receiveActions.apply(game, context, ActionSubjects.ofPlayers(players))) {
-			ServerPlayer singleReceiver = players.size() == 1 ? players.getFirst() : null;
-			notification.ifPresent(notification -> notification.onPlayerReceive(game.allPlayers(includeSubPhases), singleReceiver, gamePackage.sendingPlayerName(), data.name()));
-			return TriState.TRUE;
-		}
-		return TriState.FALSE;
-	}
-
-	private TriState applyToTeams(IGamePhase game, GamePackage gamePackage, List<GameTeam> teams) {
-		if (teams.isEmpty()) {
-			LOGGER.warn("No teams to apply package {}, rejecting", gamePackage);
-			return TriState.FALSE;
-		}
-		ContextMap context = actionContext(gamePackage);
-		if (receiveActions.apply(game, context, ActionSubjects.ofTeams(Lists.transform(teams, GameTeam::key)))) {
-			GameTeam singleReceiver = teams.size() == 1 ? teams.getFirst() : null;
-			notification.ifPresent(notification -> notification.onTeamReceive(game, game.allPlayers(includeSubPhases), singleReceiver, gamePackage.sendingPlayerName(), data.name()));
-			return TriState.TRUE;
-		}
-		return TriState.FALSE;
 	}
 
 	private static ContextMap actionContext(GamePackage gamePackage) {

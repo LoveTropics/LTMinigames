@@ -1,27 +1,15 @@
 package org.lovetropics.games.common.core.integration.game_actions;
 
-import com.google.common.base.Strings;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.core.UUIDUtil;
 import org.jspecify.annotations.Nullable;
-import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
+import org.lovetropics.games.common.core.game.behavior.action.ActionSubjects;
 
 import java.util.Optional;
-import java.util.UUID;
 
-public record GamePackage(String packageType, String sendingPlayerName, Optional<UUID> receivingPlayer, Optional<GameTeamKey> receivingTeam, Optional<Double> amount) {
-	public static final MapCodec<GamePackage> MAP_CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			Codec.STRING.fieldOf("package_type").forGetter(c -> c.packageType),
-			Codec.STRING.optionalFieldOf("sending_player_name", "").forGetter(c -> c.sendingPlayerName),
-			UUIDUtil.STRING_CODEC.optionalFieldOf("receiving_player").forGetter(c -> c.receivingPlayer),
-			GameTeamKey.CODEC.optionalFieldOf("receiving_team").forGetter(c -> c.receivingTeam),
-			Codec.DOUBLE.optionalFieldOf("amount").forGetter(c -> c.amount)
-	).apply(i, GamePackage::new));
-
-	@Override
-	public @Nullable String sendingPlayerName() {
-		return !Strings.isNullOrEmpty(sendingPlayerName) ? sendingPlayerName : null;
-	}
+/// @param specificTargets Requested targets from the donor - may include players within a sub-game, must be filtered before passing down.
+public record GamePackage(
+		String packageType,
+		@Nullable String sendingPlayerName,
+		@Nullable ActionSubjects<?> specificTargets,
+		Optional<Double> amount
+) {
 }

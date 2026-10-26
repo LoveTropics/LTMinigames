@@ -77,7 +77,7 @@ public final class GameActionHandler {
 					try {
 						boolean applied = false;
 						for (IGamePhase game : games) {
-							applied |= request.action().resolve(game, game.server());
+							applied |= request.action().apply(game);
 						}
 						if (applied) {
 							return request;

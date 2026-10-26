@@ -1,10 +1,14 @@
 package org.lovetropics.games.common.core.game.behavior.instances.donation;
 
+import com.google.common.collect.Sets;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import it.unimi.dsi.fastutil.objects.ReferenceArraySet;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -19,12 +23,15 @@ import org.lovetropics.games.client.toast.NotificationStyle;
 import org.lovetropics.games.client.toast.ShowNotificationToastMessage;
 import org.lovetropics.games.common.content.MinigameTexts;
 import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.player.PlayerIterable;
+import org.lovetropics.games.common.core.game.behavior.action.ActionSubjects;
 import org.lovetropics.games.common.core.game.state.team.GameTeam;
+import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
 import org.lovetropics.games.common.core.game.state.team.TeamState;
 import org.lovetropics.games.common.core.game.util.TemplatedText;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public record DonationPackageNotification(
 		TemplatedText message,
@@ -32,33 +39,22 @@ public record DonationPackageNotification(
 		NotificationStyle.Sentiment sentiment,
 		Holder<SoundEvent> sound
 ) {
-	public static final Codec<DonationPackageNotification> CODEC = RecordCodecBuilder.create(i -> i.group(
+	public static final MapCodec<DonationPackageNotification> MAP_CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			TemplatedText.CODEC.fieldOf("message").forGetter(c -> c.message),
 			NotificationIcon.CODEC.optionalFieldOf("icon", NotificationIcon.item(new ItemStackTemplate(Items.GRASS_BLOCK))).forGetter(c -> c.icon),
 			NotificationStyle.Sentiment.CODEC.optionalFieldOf("sentiment", NotificationStyle.Sentiment.NEUTRAL).forGetter(c -> c.sentiment),
 			SoundEvent.CODEC.optionalFieldOf("sound", Holder.direct(SoundEvents.TOTEM_USE)).forGetter(c -> c.sound)
 	).apply(i, DonationPackageNotification::new));
+	public static final Codec<DonationPackageNotification> CODEC = MAP_CODEC.codec();
 
-	/// @param audience the players to notify
-	public void onPlayerReceive(PlayerIterable audience, @Nullable ServerPlayer receiver, @Nullable String sender, Component packageName) {
-		Component targetedMessage = createTargetedMessage(sender, getReceiverName(receiver));
-		Component globalMessage = createGlobalMessage(packageName, getReceiverName(receiver));
+	public void broadcast(IGamePhase game, ActionSubjects<?> targets, @Nullable String sender, Component packageName) {
+		Component receiverName = describeTargets(game, targets);
+		Component targetedMessage = createTargetedMessage(sender, receiverName);
+		Component globalMessage = createGlobalMessage(packageName, receiverName);
 
-		for (ServerPlayer player : audience) {
-			boolean targeted = player == receiver || receiver == null;
-			sendNotificationTo(player, targeted, targeted ? targetedMessage : globalMessage);
-		}
-	}
-
-	/// @param audience the players to notify
-	public void onTeamReceive(IGamePhase game, PlayerIterable audience, @Nullable GameTeam receiver, @Nullable String sender, Component packageName) {
-		TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
-
-		Component targetedMessage = createTargetedMessage(sender, getReceiverName(receiver));
-		Component globalMessage = createGlobalMessage(packageName, getReceiverName(receiver));
-
-		for (ServerPlayer player : audience) {
-			boolean targeted = receiver == null || teams != null && teams.isOnTeam(player, receiver.key());
+		List<ServerPlayer> targetPlayers = targets.asPlayers(game);
+		for (ServerPlayer player : game.allPlayers()) {
+			boolean targeted = targetPlayers.contains(player);
 			sendNotificationTo(player, targeted, targeted ? targetedMessage : globalMessage);
 		}
 	}
@@ -91,18 +87,41 @@ public record DonationPackageNotification(
 		return new NotificationStyle(icon, sentiment, color, visibleTime);
 	}
 
-	private Component getReceiverName(@Nullable ServerPlayer receiver) {
-		if (receiver != null) {
-			return receiver.getDisplayName().copy().withStyle(ChatFormatting.BLUE);
+	private Component describeTargets(IGamePhase game, ActionSubjects<?> targets) {
+		List<ServerPlayer> targetPlayers = targets.asPlayers(game);
+		if (Set.copyOf(targetPlayers).containsAll(Sets.newHashSet(game.participants()))) {
+			return MinigameTexts.EVERYONE_RECEIVER;
 		}
-		return MinigameTexts.EVERYONE_RECEIVER;
+
+		// Try to figure out the intended target of the package, if we can find teams that fully match this target list, that is likely most relevant
+		// Intentionally not using a strong dependency on the package configuration to keep this flexible
+		Set<GameTeam> targetTeams = teamsExactlyMatching(game, targetPlayers);
+		if (targetTeams != null) {
+			return ComponentUtils.formatList(targetTeams, GameTeam::styledName);
+		}
+
+		return ComponentUtils.formatList(targetPlayers, p -> p.getDisplayName().copy().withStyle(ChatFormatting.BLUE));
 	}
 
-	private Component getReceiverName(@Nullable GameTeam receiver) {
-		if (receiver != null) {
-			return receiver.styledName();
+	private static @Nullable Set<GameTeam> teamsExactlyMatching(IGamePhase game, List<ServerPlayer> players) {
+		TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
+		if (teams == null) {
+			return null;
 		}
-		return MinigameTexts.EVERYONE_RECEIVER;
+		Set<GameTeam> exactTeams = new ReferenceArraySet<>();
+		for (ServerPlayer player : players) {
+			GameTeamKey key = teams.getTeamForPlayer(player);
+			GameTeam team = key != null ? teams.getTeamByKey(key) : null;
+			if (team == null) {
+				return null;
+			}
+			if (teams.getParticipantsForTeam(game, key).stream().anyMatch(otherPlayer -> !players.contains(otherPlayer))) {
+				// There are other players in this team, but not all of them are included
+				return null;
+			}
+			exactTeams.add(team);
+		}
+		return exactTeams;
 	}
 
 	private Component getSenderName(@Nullable String sender) {
