@@ -1,5 +1,6 @@
 package org.lovetropics.games.lobbies;
 
+import com.lovetropics.lib.PlayerIsolatedReloadEvent;
 import com.lovetropics.lib.slideshow.SlideshowApi;
 import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
@@ -26,6 +27,8 @@ import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.attachment.AttachmentSync;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.EventHooks;
 import org.lovetropics.games.LoveTropics;
 import org.lovetropics.games.common.util.LTGameTestFakePlayer;
@@ -44,8 +47,6 @@ public final class PlayerIsolation {
 	private static final Logger LOGGER = LogUtils.getLogger();
 
 	private static final String ISOLATED_TAG = LoveTropics.ID + ".isolated";
-	// Checked by JEDI to avoid incorrect join/leave messages
-	private static final String RELOADING_TAG = LoveTropics.ID + ".reloading";
 
 	private final Set<UUID> reloadingPlayers = new ObjectOpenHashSet<>();
 
@@ -118,12 +119,9 @@ public final class PlayerIsolation {
 		PlayerList playerList = server.getPlayerList();
 
 		reloadingPlayers.add(oldPlayer.getUUID());
-		oldPlayer.addTag(RELOADING_TAG);
 
 		ServerPlayer newPlayer = recreatePlayer(oldPlayer, newLevel);
 		SlideshowApi.replacePlayer(oldPlayer, newPlayer);
-
-		EventHooks.firePlayerLoggedOut(oldPlayer);
 
 		// Only called once - when player enters the first game phase they enter
 		// this way, we only save to disk once
@@ -141,7 +139,6 @@ public final class PlayerIsolation {
 		((PlayerListAccess) playerList).ltminigames$firePlayerLoading(newPlayer);
 
 		initializer.accept(newPlayer);
-		newPlayer.addTag(RELOADING_TAG);
 		newPlayer.onUpdateAbilities();
 
 		LevelData levelData = newLevel.getLevelData();
@@ -171,6 +168,9 @@ public final class PlayerIsolation {
 		((PlayerListAccess) playerList).ltminigames$add(newPlayer);
 
 		playerList.broadcastAll(new ClientboundPlayerInfoUpdatePacket(ClientboundPlayerInfoUpdatePacket.Action.UPDATE_GAME_MODE, newPlayer));
+		AttachmentSync.syncInitialPlayerAttachments(newPlayer);
+
+		NeoForge.EVENT_BUS.post(new PlayerIsolatedReloadEvent(newPlayer));
 
 		EventHooks.firePlayerLoggedIn(newPlayer);
 		ResourceKey<Level> oldDimension = oldPlayer.level().dimension();
@@ -179,7 +179,6 @@ public final class PlayerIsolation {
 			EventHooks.firePlayerChangedDimensionEvent(newPlayer, oldDimension, newDimension);
 		}
 
-		newPlayer.removeTag(RELOADING_TAG);
 		reloadingPlayers.remove(oldPlayer.getUUID());
 
 		return newPlayer;
