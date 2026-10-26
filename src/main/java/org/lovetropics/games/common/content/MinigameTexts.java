@@ -320,6 +320,8 @@ public final class MinigameTexts {
 		KEYS.add("donation.feed_the_hungry", "Feed the Hungry");
 		KEYS.add("donation.feed_the_hungry.description", "Gives Saturation to the team of your choice!");
 		KEYS.add("donation.feed_the_hungry.toast", "%sender% has given you SATURATION for 1 minute!");
+		KEYS.add("donation.mozart_mode", "Mozart Mode");
+		KEYS.add("donation.mozart_mode.toast", "Everyone is.. Mozart??");
 
 		KEYS.add("donation.pvp_crabs", "Crab Hockey: PvP");
 		KEYS.add("donation.pvp_crabs.description", "Turn every player into a Crab, and allow PvP - players can score with each other!");

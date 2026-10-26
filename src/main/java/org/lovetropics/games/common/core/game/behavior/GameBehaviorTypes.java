@@ -92,6 +92,7 @@ import org.lovetropics.games.common.core.game.behavior.instances.action.ResetHun
 import org.lovetropics.games.common.core.game.behavior.instances.action.ResizeAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.RunCommandsAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.SendMessageAction;
+import org.lovetropics.games.common.core.game.behavior.instances.action.SequenceAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.SetBlockAtEntityAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.SetBlocksAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.SetDisguiseAction;
@@ -128,6 +129,7 @@ import org.lovetropics.games.common.core.game.behavior.instances.donation.BlockP
 import org.lovetropics.games.common.core.game.behavior.instances.donation.DonationPackageBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.donation.DonationThresholdBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.donation.GivePlayerHeadPackageBehavior;
+import org.lovetropics.games.common.core.game.behavior.instances.donation.NotifyPackageAction;
 import org.lovetropics.games.common.core.game.behavior.instances.donation.PackageCostModifierBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.donation.TriggerEveryPackageBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.statistics.BindObjectiveToStatisticBehavior;
@@ -319,6 +321,7 @@ public class GameBehaviorTypes {
 	public static final GameBehaviorEntry<DisplayLeaderboardAction<?>> DISPLAY_LEADERBOARD = register("display_leaderboard", DisplayLeaderboardAction.CODEC);
 
 	public static final GameBehaviorEntry<DonationPackageBehavior> DONATION_PACKAGE = register("donation_package", DonationPackageBehavior.CODEC);
+	public static final GameBehaviorEntry<NotifyPackageAction> NOTIFY_PACKAGE = register("notify_package", NotifyPackageAction.CODEC);
 	public static final GameBehaviorEntry<DonationThresholdBehavior> DONATION_THRESHOLD = register("donation_threshold", DonationThresholdBehavior.CODEC);
 	public static final GameBehaviorEntry<GiveLootAction> GIVE_LOOT = register("give_loot", GiveLootAction.CODEC);
 	public static final GameBehaviorEntry<GiveEffectAction> GIVE_EFFECT = register("give_effect", GiveEffectAction.CODEC);
@@ -424,6 +427,7 @@ public class GameBehaviorTypes {
 	public static final GameBehaviorEntry<MinecraftBehavior> MINECRAFT = register("minecraft", MinecraftBehavior.CODEC);
 	public static final GameBehaviorEntry<GiveRespawnAction> GIVE_RESPAWN = register("give_respawn", GiveRespawnAction.CODEC);
 	public static final GameBehaviorEntry<RandomizeAction> RANDOMIZE = register("randomize", RandomizeAction.CODEC);
+	public static final GameBehaviorEntry<SequenceAction> SEQUENCE = register("sequence", SequenceAction.CODEC);
 	public static final GameBehaviorEntry<ResizeAction> RESIZE = register("resize", ResizeAction.CODEC);
 	public static final GameBehaviorEntry<AddPlayerDVDFaceAction> ADD_DVD_FACE = register("add_dvd_face", AddPlayerDVDFaceAction.CODEC);
 	public static final GameBehaviorEntry<ClearPlayerDVDFaceAction> CLEAR_DVD_FACE = register("clear_dvd_faces", ClearPlayerDVDFaceAction.CODEC);

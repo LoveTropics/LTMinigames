@@ -322,6 +322,8 @@
   "ltminigames.minigame.donation.money_grows_on_trees": "Money Does Grow on Trees",
   "ltminigames.minigame.donation.money_grows_on_trees.description": "For all players on the team of your choice, Leaves will drop TropiCoins for 45 seconds!",
   "ltminigames.minigame.donation.money_grows_on_trees.toast": "Thanks %sender%! LEAVES DROP TROPICOINS for 45 seconds!",
+  "ltminigames.minigame.donation.mozart_mode": "Mozart Mode",
+  "ltminigames.minigame.donation.mozart_mode.toast": "Everyone is.. Mozart??",
   "ltminigames.minigame.donation.mute_team_vc": "Mute Team Voice Channel",
   "ltminigames.minigame.donation.mute_team_vc.description": "How will your favorite team succeed at trivia if they cannot speak through voice for 1 minute? Let's find out!",
   "ltminigames.minigame.donation.mute_team_vc.toast": "%sender% has MUTED YOUR TEAM VOICE CHANNEL for 1 minute!",
