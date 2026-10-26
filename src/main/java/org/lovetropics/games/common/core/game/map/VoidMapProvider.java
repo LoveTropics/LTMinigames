@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.core.game.map;
 
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Holder;
@@ -17,9 +16,8 @@ import org.lovetropics.maps.MapRegions;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-public record VoidMapProvider(Optional<String> name, Optional<Holder<DimensionType>> dimensionType) implements IGameMapProvider {
+public record VoidMapProvider(Optional<Holder<DimensionType>> dimensionType) implements IGameMapProvider {
 	public static final MapCodec<VoidMapProvider> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			Codec.STRING.optionalFieldOf("name").forGetter(c -> c.name),
 			DimensionType.CODEC.optionalFieldOf("dimension").forGetter(c -> c.dimensionType)
 	).apply(i, VoidMapProvider::new));
 
@@ -38,7 +36,7 @@ public record VoidMapProvider(Optional<String> name, Optional<Holder<DimensionTy
 
 		return CompletableFuture.supplyAsync(() -> {
 			RuntimeDimensionHandle dimensionHandle = RuntimeDimensions.get(server).openTemporary(config);
-			return new GameMap(name.orElse(null), dimensionHandle.asKey(), new MapRegions())
+			return new GameMap(dimensionHandle.asKey(), new MapRegions())
 					.onClose(game -> dimensionHandle.markForDeletion());
 		}, server);
 	}

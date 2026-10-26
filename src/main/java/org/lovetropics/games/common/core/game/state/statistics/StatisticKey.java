@@ -67,8 +67,6 @@ public final class StatisticKey<T> {
 	public static final StatisticKey<PlayerKey> WINNING_PLAYER = ofPlayer("winning_player").displays(playerName());
 	public static final StatisticKey<GameTeamKey> WINNING_TEAM = ofTeam("winning_team");
 
-	public static final StatisticKey<String> MAP = ofString("map");
-
 	public static final StatisticKey<Integer> CRABS = ofInt("crabs").defaultValue(1);
 
 	// Turtle Race

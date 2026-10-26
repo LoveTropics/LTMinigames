@@ -34,7 +34,7 @@ public record InlineMapProvider(ResourceKey<Level> dimension) implements IGameMa
 			return CompletableFuture.failedFuture(new GameException(Component.literal("Missing dimension " + dimension)));
 		}
 
-		GameMap map = new GameMap(null, dimension);
+		GameMap map = new GameMap(dimension);
 		return CompletableFuture.completedFuture(map);
 	}
 }

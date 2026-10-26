@@ -1,7 +1,6 @@
 package org.lovetropics.games.common.core.game.map;
 
 import com.mojang.datafixers.util.Pair;
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Holder;
@@ -28,12 +27,10 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 public record LoadMapProvider(
-		Optional<String> name,
 		Identifier loadFrom,
 		Optional<Holder<DimensionType>> dimensionType
 ) implements IGameMapProvider {
 	public static final MapCodec<LoadMapProvider> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			Codec.STRING.optionalFieldOf("name").forGetter(c -> c.name),
 			Identifier.CODEC.fieldOf("load_from").forGetter(c -> c.loadFrom),
 			DimensionType.CODEC.optionalFieldOf("dimension_type").forGetter(c -> c.dimensionType)
 	).apply(i, LoadMapProvider::new));
@@ -62,7 +59,7 @@ public record LoadMapProvider(
 					MapMetadata metadata = pair.getSecond();
 					// The level is already running, so its clocks must be updated from the server thread
 					metadata.settings().setupInto(server, sharedState);
-					return new GameMap(name.orElse(null), dimensionHandle.asKey(), metadata.regions())
+					return new GameMap(dimensionHandle.asKey(), metadata.regions())
 							.onClose(game -> dimensionHandle.markForDeletion());
 				}, server);
 	}
