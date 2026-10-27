@@ -29,6 +29,7 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
@@ -694,6 +695,26 @@ public final class GameEventDispatcher {
 				return null;
 			}
 		});
+	}
+
+	@SubscribeEvent(priority = EventPriority.LOW)
+	public void onPlayerChangedDimension(PlayerEvent.PlayerChangedDimensionEvent event) {
+		if (!(event.getEntity() instanceof ServerPlayer player)) {
+			return;
+		}
+
+		IGamePhase game = gameLookup.getGamePhaseFor(player);
+		if (game == null) {
+			return;
+		}
+
+		ServerLevel fromLevel = player.level().getServer().getLevel(event.getFrom());
+		if (fromLevel != null && game.allLevels().contains(fromLevel)) {
+			game.invoker(GamePlayerEvents.REMOVE_FROM_LEVEL).onRemoveFromLevel(player, fromLevel);
+		}
+		if (game.allLevels().contains(player.level())) {
+			game.invoker(GamePlayerEvents.ADD_TO_LEVEL).onAddToLevel(player, player.level());
+		}
 	}
 
 	private record LoadedChunk(

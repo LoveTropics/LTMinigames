@@ -499,6 +499,7 @@ public class GamePhase implements IGamePhase {
 		}
 
 		try {
+			invoker(GamePlayerEvents.REMOVE_FROM_LEVEL).onRemoveFromLevel(player, player.level());
 			invoker(GamePlayerEvents.REMOVE).onRemove(player);
 		} catch (Exception e) {
 			LOGGER.error("Failed to dispatch player leave event", e);
@@ -522,6 +523,7 @@ public class GamePhase implements IGamePhase {
 
 		try {
 			for (ServerPlayer player : players) {
+				invoker(GamePlayerEvents.REMOVE_FROM_LEVEL).onRemoveFromLevel(player, player.level());
 				invoker(GamePlayerEvents.REMOVE).onRemove(player);
 			}
 		} catch (Exception e) {

@@ -34,9 +34,21 @@ public final class GamePlayerEvents {
 		}
 	});
 
+	public static final GameEventType<AddToLevel> ADD_TO_LEVEL = GameEventType.create(AddToLevel.class, listeners -> (player, newLevel) -> {
+		for (AddToLevel listener : listeners) {
+			listener.onAddToLevel(player, newLevel);
+		}
+	});
+
 	public static final GameEventType<Remove> REMOVE = GameEventType.create(Remove.class, listeners -> (player) -> {
 		for (Remove listener : listeners) {
 			listener.onRemove(player);
+		}
+	});
+
+	public static final GameEventType<RemoveFromLevel> REMOVE_FROM_LEVEL = GameEventType.create(RemoveFromLevel.class, listeners -> (player, oldLevel) -> {
+		for (RemoveFromLevel listener : listeners) {
+			listener.onRemoveFromLevel(player, oldLevel);
 		}
 	});
 
@@ -276,8 +288,16 @@ public final class GamePlayerEvents {
 		void onAdd(ServerPlayer player);
 	}
 
+	public interface AddToLevel {
+		void onAddToLevel(ServerPlayer player, ServerLevel newLevel);
+	}
+
 	public interface Remove {
 		void onRemove(ServerPlayer player);
+	}
+
+	public interface RemoveFromLevel {
+		void onRemoveFromLevel(ServerPlayer player, ServerLevel oldLevel);
 	}
 
 	public interface SetRole {
