@@ -5,16 +5,18 @@ import com.google.common.collect.ImmutableBiMap;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.Util;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.RecipeManager;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 
@@ -25,7 +27,7 @@ public interface RecipeSelector {
 	BiMap<String, MapCodec<? extends RecipeSelector>> TYPES = ImmutableBiMap.of("from_list", FromList.CODEC, "one_of", OneOf.CODEC, "from_item_tag", FromItemTag.CODEC);
 	Codec<RecipeSelector> CODEC = Codec.STRING.dispatch(s -> TYPES.inverse().get(s.getType()), TYPES::get);
 
-	RecipeHolder<?> select(ServerLevel level);
+	RecipeHolder<?> select(RecipeManager recipes, RegistryAccess registryAccess, RandomSource random);
 
 	MapCodec<? extends RecipeSelector> getType();
 
@@ -36,11 +38,11 @@ public interface RecipeSelector {
 		private static final Logger LOGGER = LogUtils.getLogger();
 
 		@Override
-		public RecipeHolder<?> select(ServerLevel level) {
+		public RecipeHolder<?> select(RecipeManager recipes, RegistryAccess registryAccess, RandomSource random) {
 			Optional<RecipeHolder<?>> recipe = Optional.empty();
 			while (recipe.isEmpty()) {
-				ResourceKey<Recipe<?>> key = Util.getRandom(recipes, level.getRandom());
-				recipe = level.recipeAccess().byKey(key);
+				ResourceKey<Recipe<?>> key = Util.getRandom(this.recipes, random);
+				recipe = recipes.byKey(key);
 				if (recipe.isEmpty()) {
 					LOGGER.error("Recipe '{}' doesn't exist", key);
 				}
@@ -59,8 +61,8 @@ public interface RecipeSelector {
 				.xmap(OneOf::new, OneOf::selectors).codec()));
 
 		@Override
-		public RecipeHolder<?> select(ServerLevel level) {
-			return Util.getRandom(selectors, level.getRandom()).select(level);
+		public RecipeHolder<?> select(RecipeManager recipes, RegistryAccess registryAccess, RandomSource random) {
+			return Util.getRandom(selectors, random).select(recipes, registryAccess, random);
 		}
 
 		@Override
@@ -82,16 +84,16 @@ public interface RecipeSelector {
 		}
 
 		@Override
-		public RecipeHolder<?> select(ServerLevel level) {
+		public RecipeHolder<?> select(RecipeManager recipes, RegistryAccess registryAccess, RandomSource random) {
 			if (cache == null) {
-				cache = level.recipeAccess().getRecipes().stream()
+				cache = recipes.getRecipes().stream()
 						.filter(h -> {
-							ItemStack result = CraftingBee.getCraftingRecipeResult(h.value(), level.registryAccess());
+							ItemStack result = CraftingBee.getCraftingRecipeResult(h.value(), registryAccess);
 							return result.is(tag) && isVanilla(h);
 						})
 						.toList();
 			}
-			return Util.getRandom(cache, level.getRandom());
+			return Util.getRandom(cache, random);
 		}
 
 		@Override

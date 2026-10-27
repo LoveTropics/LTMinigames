@@ -2,13 +2,14 @@ package org.lovetropics.games.common.content.crafting_bee.ingredient;
 
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.HolderSet;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.item.crafting.ShapelessRecipe;
 import org.jetbrains.annotations.Nullable;
@@ -40,12 +41,12 @@ public class FromRecipeDecomposer implements IngredientDecomposer {
 	}
 
 	@Override
-	public void prepareCache(ServerLevel level) {
+	public void prepareCache(RecipeManager recipeManager, RegistryAccess registries) {
 		cache.clear();
 
 		for (ResourceKey<Recipe<?>> recipeId : recipes) {
-			level.getServer().getRecipeManager().byKey(recipeId).ifPresent(holder -> {
-				ItemStack result = CraftingBee.getCraftingRecipeResult(holder.value(), level.registryAccess());
+			recipeManager.byKey(recipeId).ifPresent(holder -> {
+				ItemStack result = CraftingBee.getCraftingRecipeResult(holder.value(), registries);
 				if (result.isEmpty()) {
 					return;
 				}

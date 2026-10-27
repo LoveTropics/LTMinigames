@@ -36,6 +36,7 @@ import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
@@ -126,7 +127,7 @@ public class CraftingBeeBehavior implements IGameBehavior {
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		tasks = Multimaps.newListMultimap(new HashMap<>(), ArrayList::new);
 
-		decomposers.forEach(dec -> dec.prepareCache(game.level()));
+		decomposers.forEach(dec -> dec.prepareCache(game.server().getRecipeManager(), game.registryAccess()));
 
 		this.game = game;
 		teams = game.instanceState().getOrThrow(TeamState.KEY);
@@ -159,7 +160,8 @@ public class CraftingBeeBehavior implements IGameBehavior {
 
 	private void start(GameWidgets widgets) {
 		for (GameTeam team : teams) {
-			List<CraftingTask> recipes = selectors.stream().map(selector -> selector.select(game.level()))
+			RecipeManager recipeManager = game.server().getRecipeManager();
+			List<CraftingTask> recipes = selectors.stream().map(selector -> selector.select(recipeManager, game.registryAccess(), game.random()))
 					.map(recipe -> new CraftingTask(
 							CraftingBee.getCraftingRecipeResult(recipe.value(), game.registryAccess()),
 							recipe

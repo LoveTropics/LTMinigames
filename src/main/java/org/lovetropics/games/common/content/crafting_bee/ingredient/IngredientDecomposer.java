@@ -4,8 +4,9 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.ImmutableBiMap;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.RecipeManager;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -18,7 +19,7 @@ public interface IngredientDecomposer {
 
 	@Nullable List<Ingredient> decompose(Ingredient ingredient);
 
-	default void prepareCache(ServerLevel level) {
+	default void prepareCache(RecipeManager recipeManager, RegistryAccess registries) {
 	}
 
 	MapCodec<? extends IngredientDecomposer> codec();
