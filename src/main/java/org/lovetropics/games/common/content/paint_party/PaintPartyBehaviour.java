@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.content.paint_party;
 
-import com.lovetropics.lib.BlockBox;
 import com.lovetropics.lib.codec.MoreCodecs;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -45,6 +44,7 @@ import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GameWorldEvents;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
+import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
 import org.lovetropics.games.common.core.game.state.team.TeamState;
@@ -54,7 +54,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 public record PaintPartyBehaviour(Map<GameTeamKey, TeamConfig> teamConfigs, BlockState neutralBlock, int startAmmo, int ammoRechargeTicks) implements IGameBehavior {
 	public static final MapCodec<PaintPartyBehaviour> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
@@ -74,8 +73,6 @@ public record PaintPartyBehaviour(Map<GameTeamKey, TeamConfig> teamConfigs, Bloc
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
-		Map<GameTeamKey, BlockBox> spawnRegions = teamConfigs.entrySet().stream()
-				.collect(Collectors.toMap(Map.Entry::getKey, teamEntry -> game.mapRegions().getOrThrow(teamEntry.getValue().spawnRegion())));
 
 		events.listen(GamePlayerEvents.SPAWN, (playerId, spawn, role) -> {
 			if (role == PlayerRole.PARTICIPANT) {
@@ -116,7 +113,7 @@ public record PaintPartyBehaviour(Map<GameTeamKey, TeamConfig> teamConfigs, Bloc
 				return;
 			}
 			BlockPos playerPos = player.getOnPos();
-			if (isInOpponentSpawnRegion(spawnRegions, teamKey, playerPos)) {
+			if (isInOpponentSpawnRegion(game, teamConfigs, teamKey, player.level(), playerPos)) {
 				return;
 			}
 			TeamConfig teamConfig = getTeamConfig(teamKey);
@@ -220,9 +217,9 @@ public record PaintPartyBehaviour(Map<GameTeamKey, TeamConfig> teamConfigs, Bloc
 		return 0;
 	}
 
-	private static boolean isInOpponentSpawnRegion(Map<GameTeamKey, BlockBox> spawnRegions, GameTeamKey teamKey, BlockPos playerPos) {
-		for (Map.Entry<GameTeamKey, BlockBox> entry : spawnRegions.entrySet()) {
-			if (!entry.getKey().equals(teamKey) && entry.getValue().contains(playerPos)) {
+	private static boolean isInOpponentSpawnRegion(IGamePhase game, Map<GameTeamKey, TeamConfig> teamConfigs, GameTeamKey teamKey, ServerLevel level, BlockPos playerPos) {
+		for (Map.Entry<GameTeamKey, TeamConfig> entry : teamConfigs.entrySet()) {
+			if (!entry.getKey().equals(teamKey) && entry.getValue().spawnRegion.contains(game, level, playerPos)) {
 				return true;
 			}
 		}
@@ -310,14 +307,14 @@ public record PaintPartyBehaviour(Map<GameTeamKey, TeamConfig> teamConfigs, Bloc
 	}
 
 	public record TeamConfig(
-			String spawnRegion,
+			RegionQuery spawnRegion,
 			BlockState blockType,
 			ItemStackTemplate ammoItem,
 			TagKey<Block> blockTag,
 			TagKey<Item> itemTag
 	) {
 		public static final Codec<TeamConfig> CODEC = RecordCodecBuilder.create(i -> i.group(
-				Codec.STRING.fieldOf("spawn_region").forGetter(TeamConfig::spawnRegion),
+				RegionQuery.CODEC.fieldOf("spawn_region").forGetter(TeamConfig::spawnRegion),
 				MoreCodecs.BLOCK_STATE.fieldOf("block").forGetter(TeamConfig::blockType),
 				ItemStackTemplate.CODEC.fieldOf("ammo_item").forGetter(TeamConfig::ammoItem),
 				TagKey.hashedCodec(Registries.BLOCK).fieldOf("block_tag").forGetter(TeamConfig::blockTag),

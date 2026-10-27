@@ -39,6 +39,7 @@ import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
 import org.lovetropics.games.common.core.game.player.PlayerSet;
+import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticsMap;
 
@@ -48,7 +49,7 @@ import java.util.List;
 
 public final class BlockPartyBehavior implements IGameBehavior {
 	public static final MapCodec<BlockPartyBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			Codec.STRING.fieldOf("floor").forGetter(c -> c.floorRegionKey),
+			RegionQuery.CODEC.fieldOf("floor").forGetter(c -> c.floorRegionKey),
 			MoreCodecs.arrayOrUnit(MoreCodecs.BLOCK_STATE, BlockState[]::new).fieldOf("blocks").forGetter(c -> c.blocks),
 			Codec.INT.optionalFieldOf("quad_size", 3).forGetter(c -> c.quadSize),
 			Codec.INT.optionalFieldOf("max_time", SharedConstants.TICKS_PER_SECOND * 5).forGetter(c -> c.maxTime),
@@ -59,7 +60,7 @@ public final class BlockPartyBehavior implements IGameBehavior {
 			Codec.INT.optionalFieldOf("max_lives", 1).forGetter(c -> c.maxLives)
 	).apply(i, BlockPartyBehavior::new));
 
-	private final String floorRegionKey;
+	private final RegionQuery floorRegionKey;
 	private final BlockState[] blocks;
 	private final int quadSize;
 
@@ -75,7 +76,7 @@ public final class BlockPartyBehavior implements IGameBehavior {
 
 	private @Nullable State state;
 
-	public BlockPartyBehavior(String floorRegionKey, BlockState[] blocks, int quadSize, int maxTime, int minTime, int timeDecayRounds, int interval, int knockbackAfterAround, int maxLives) {
+	public BlockPartyBehavior(RegionQuery floorRegionKey, BlockState[] blocks, int quadSize, int maxTime, int minTime, int timeDecayRounds, int interval, int knockbackAfterAround, int maxLives) {
 		this.floorRegionKey = floorRegionKey;
 		this.blocks = blocks;
 		this.quadSize = quadSize;
@@ -95,7 +96,7 @@ public final class BlockPartyBehavior implements IGameBehavior {
 			throw new GameException(Component.literal("No blocks defined!"));
 		}
 
-		floorRegion = new FloorRegion(game.level(), game.mapRegions().getOrThrow(floorRegionKey), quadSize);
+		floorRegion = new FloorRegion(game.level(), floorRegionKey.one(game), quadSize);
 
 		events.listen(GamePhaseEvents.START, initiator -> {
 			state = startCountingDown(0);

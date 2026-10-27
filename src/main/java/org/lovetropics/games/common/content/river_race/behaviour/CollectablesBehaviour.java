@@ -13,7 +13,6 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.TriState;
 import net.minecraft.util.Unit;
 import net.minecraft.util.context.ContextKeySet;
@@ -40,13 +39,13 @@ import org.lovetropics.games.common.core.game.behavior.action.GameActionList;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
+import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.state.team.GameTeam;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
 import org.lovetropics.games.common.core.game.state.team.TeamState;
 import org.lovetropics.games.common.util.Util;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -77,11 +76,9 @@ public final class CollectablesBehaviour implements IGameBehavior {
 		collectablesByZone.forEach((zoneId, collectable) -> {
 			RiverRaceState.Zone zone = riverRace.getZoneById(zoneId);
 			collectable.onCompleteAction.register(game, events);
-			for (String region : collectable.monumentSlotRegions) {
-				for (BlockPos pos : game.mapRegions().getOrThrow(region)) {
-					monumentSlots.put(pos.immutable(), zone);
-				}
-			}
+			collectable.monumentSlotRegions.forEachBlock(game, pos ->
+					monumentSlots.put(pos.immutable(), zone)
+			);
 			zone.setCollectable(createItem(zone, collectable));
 		});
 
@@ -170,12 +167,12 @@ public final class CollectablesBehaviour implements IGameBehavior {
 
 	public record CollectableConfig(
 			ItemStackTemplate baseItem,
-			List<String> monumentSlotRegions,
+			RegionQuery monumentSlotRegions,
 			GameActionList onCompleteAction
 	) {
 		public static final Codec<CollectableConfig> CODEC = RecordCodecBuilder.create(i -> i.group(
 				ItemStackTemplate.CODEC.fieldOf("item").forGetter(CollectableConfig::baseItem),
-				ExtraCodecs.nonEmptyList(Codec.STRING.listOf()).fieldOf("monument_slot_region").forGetter(CollectableConfig::monumentSlotRegions),
+				RegionQuery.CODEC.fieldOf("monument_slot_region").forGetter(CollectableConfig::monumentSlotRegions),
 				GameActionList.CODEC.fieldOf("on_complete").forGetter(CollectableConfig::onCompleteAction)
 		).apply(i, CollectableConfig::new));
 	}

@@ -2,7 +2,8 @@ package org.lovetropics.games.common.core.game.util;
 
 import com.lovetropics.lib.BlockBox;
 import org.jspecify.annotations.Nullable;
-import org.lovetropics.games.common.core.game.GameRegions;
+import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.region.RegionQuery;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,8 +21,8 @@ public class CycledSpawner {
 		Collections.shuffle(this.regions);
 	}
 
-	public CycledSpawner(GameRegions regions, String... keys) {
-		this(regions.getAll(keys));
+	public CycledSpawner(IGamePhase game, RegionQuery region) {
+		this(region.all(game));
 	}
 
 	public List<BlockBox> regions() {

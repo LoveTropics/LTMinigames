@@ -37,6 +37,7 @@ import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GameTeamEvents;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
 import org.lovetropics.games.common.core.game.player.PlayerSet;
+import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.state.team.GameTeam;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
 import org.lovetropics.games.common.core.game.state.team.TeamState;
@@ -60,7 +61,7 @@ public final class ColumnsOfChaosBehavior implements IGameBehavior {
 			Codec.INT.optionalFieldOf("max_countdown_ticks", (10 * 20)).forGetter(b -> b.maxCountdownTicks),
 			Codec.INT.optionalFieldOf("min_countdown_ticks", (2 * 20)).forGetter(b -> b.minCountdownTicks),
 			RegistryCodecs.homogeneousList(Registries.ITEM).optionalFieldOf("excluded_items").forGetter(b -> b.excludedItems),
-			Codec.STRING.fieldOf("floor_region").forGetter(b -> b.floorRegionName)
+			RegionQuery.CODEC.fieldOf("floor_region").forGetter(b -> b.floorRegionName)
 	).apply(i, ColumnsOfChaosBehavior::new));
 
 	private final int pillarHeight;
@@ -68,13 +69,13 @@ public final class ColumnsOfChaosBehavior implements IGameBehavior {
 	private final int decreaseOverRounds;
 	private final int maxCountdownTicks;
 	private final int minCountdownTicks;
-	private final String floorRegionName;
+	private final RegionQuery floorRegionName;
 	private final Optional<HolderSet<Item>> excludedItems;
 	private List<ItemStack> filteredItems;
 	private BlockBox floorRegion;
 	private @Nullable State state;
 
-	public ColumnsOfChaosBehavior(int pillarHeight, int itemInterval, int decreaseOverRounds, int maxCountdownTicks, int minCountdownTicks, Optional<HolderSet<Item>> excludedItems, String floorRegionName) {
+	public ColumnsOfChaosBehavior(int pillarHeight, int itemInterval, int decreaseOverRounds, int maxCountdownTicks, int minCountdownTicks, Optional<HolderSet<Item>> excludedItems, RegionQuery floorRegionName) {
 		this.pillarHeight = pillarHeight;
 		this.itemInterval = itemInterval;
 		this.decreaseOverRounds = decreaseOverRounds;
@@ -87,7 +88,7 @@ public final class ColumnsOfChaosBehavior implements IGameBehavior {
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		ServerLevel level = game.level();
-		floorRegion = game.mapRegions().getOrThrow(floorRegionName);
+		floorRegion = floorRegionName.one(game);
 		TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
 		if (teams != null) {
 			Map<GameTeamKey, CycledSpawner> teamSpawners = new HashMap<>();
@@ -98,8 +99,8 @@ public final class ColumnsOfChaosBehavior implements IGameBehavior {
 							.count();
 					List<BlockBox> spawnRegions = new ArrayList<>();
 					for (int i = 1; i <= teamSize; i++) {
-						String regionKey = team.key().id() + "_" + i;
-						BlockBox pillarBox = game.mapRegions().getOrThrow(regionKey);
+						RegionQuery pillarQuery = RegionQuery.of(team.key().id() + "_" + i);
+						BlockBox pillarBox = pillarQuery.one(game);
 						level.setBlock(pillarBox.centerBlock(), Blocks.BEDROCK.defaultBlockState(), Block.UPDATE_CLIENTS);
 						for (int x = 1; x <= pillarHeight; x++) {
 							level.setBlock(pillarBox.centerBlock().offset(0, x, 0), Blocks.BEDROCK.defaultBlockState(), Block.UPDATE_CLIENTS);
@@ -118,7 +119,7 @@ public final class ColumnsOfChaosBehavior implements IGameBehavior {
 						LOGGER.warn("Didn't find spawn for {} as {}", playerId, role);
 					}
 				} else {
-					spawn.teleportTo(game.level(), game.mapRegions().getOrThrow("spectator_spawn").centerBlock());
+					spawn.teleportTo(game.level(), RegionQuery.of("spectator_spawn").one(game).centerBlock());
 				}
 			});
 		} else {
@@ -128,8 +129,7 @@ public final class ColumnsOfChaosBehavior implements IGameBehavior {
 				int participantCount = participants.size();
 				List<BlockBox> spawnRegions = new ArrayList<>();
 				for (int i = 1; i <= participantCount; i++) {
-					String regionKey = "red_" + i;
-					BlockBox pillarBox = game.mapRegions().getOrThrow(regionKey);
+					BlockBox pillarBox = RegionQuery.of("red_" + i).one(game);
 					level.setBlock(pillarBox.centerBlock(), Blocks.BEDROCK.defaultBlockState(), Block.UPDATE_CLIENTS);
 					for (int x = 1; x <= pillarHeight; x++) {
 						level.setBlock(pillarBox.centerBlock().offset(0, x, 0), Blocks.BEDROCK.defaultBlockState(), Block.UPDATE_CLIENTS);
@@ -148,7 +148,7 @@ public final class ColumnsOfChaosBehavior implements IGameBehavior {
 						LOGGER.warn("Didn't find spawn for {} as {}", playerId, role);
 					}
 				}
-				spawn.teleportTo(game.level(), game.mapRegions().getOrThrow("spectator_spawn").centerBlock());
+				spawn.teleportTo(game.level(), RegionQuery.of("spectator_spawn").one(game).centerBlock());
 			});
 		}
 		events.listen(GamePhaseEvents.START, initiator -> {

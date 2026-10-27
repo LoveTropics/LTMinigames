@@ -14,6 +14,7 @@ import org.lovetropics.games.common.core.game.command.GameCommandSet;
 import org.lovetropics.games.common.core.game.player.PlayerIterable;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
 import org.lovetropics.games.common.core.game.player.PlayerSet;
+import org.lovetropics.games.common.core.game.region.GameRegionHolder;
 import org.lovetropics.games.common.core.game.state.GameStateMap;
 import org.lovetropics.games.common.core.game.state.statistics.GameStatistics;
 import org.lovetropics.games.common.core.game.util.GamePermissionNodes;
@@ -22,11 +23,9 @@ import org.lovetropics.games.common.core.integration.GameInstanceIntegrations;
 
 import java.util.List;
 
-public interface IGamePhase {
+public interface IGamePhase extends GameRegionHolder {
 	/// @return the world that this game takes place within
 	ServerLevel level();
-
-	GameRegions mapRegions();
 
 	/// @return the dimension that this game takes places within
 	default ResourceKey<Level> dimension() {

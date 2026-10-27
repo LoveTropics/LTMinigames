@@ -12,6 +12,7 @@ import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
+import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
 import org.lovetropics.games.common.core.game.util.FluidFiller;
 
@@ -25,20 +26,20 @@ public class RisingFluidByStatisticBehavior implements IGameBehavior {
 	public static final MapCodec<RisingFluidByStatisticBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			StatisticKey.INT_CODEC.fieldOf("statistic").forGetter(b -> b.statistic),
 			FluidFiller.Type.CODEC.optionalFieldOf("fill_type", FluidFiller.Type.WATER).forGetter(b -> b.fillType),
-			Codec.unboundedMap(MoreCodecs.numberAsString(Integer::parseInt), Codec.either(Codec.STRING, Codec.INT)).fieldOf("statistic_to_level").forGetter(b -> b.statisticToLevel),
+			Codec.unboundedMap(MoreCodecs.numberAsString(Integer::parseInt), Codec.either(RegionQuery.CODEC, Codec.INT)).fieldOf("statistic_to_level").forGetter(b -> b.statisticToLevel),
 			Codec.INT.optionalFieldOf("step_interval", 10).forGetter(b -> b.stepInterval)
 	).apply(i, RisingFluidByStatisticBehavior::new));
 
 	private final StatisticKey<Integer> statistic;
 	private final FluidFiller.Type fillType;
-	private final Map<Integer, Either<String, Integer>> statisticToLevel;
+	private final Map<Integer, Either<RegionQuery, Integer>> statisticToLevel;
 	private final int stepInterval;
 
 	private int fluidLevel;
 	private int stepTimeout;
 	private FluidFiller filler;
 
-	public RisingFluidByStatisticBehavior(StatisticKey<Integer> statistic, FluidFiller.Type fillType, Map<Integer, Either<String, Integer>> statisticToLevel, int stepInterval) {
+	public RisingFluidByStatisticBehavior(StatisticKey<Integer> statistic, FluidFiller.Type fillType, Map<Integer, Either<RegionQuery, Integer>> statisticToLevel, int stepInterval) {
 		this.statistic = statistic;
 		this.fillType = fillType;
 		this.statisticToLevel = statisticToLevel;
@@ -53,7 +54,7 @@ public class RisingFluidByStatisticBehavior implements IGameBehavior {
 
 		List<StatisticThreshold> thresholds = statisticToLevel.entrySet().stream()
 				.map(entry -> new StatisticThreshold(entry.getKey(), entry.getValue().map(
-						key -> game.mapRegions().getOrThrow(key).min().getY(),
+						region -> region.one(game).min().getY(),
 						Function.identity()
 				)))
 				.sorted(Comparator.comparingInt(StatisticThreshold::value))
@@ -61,7 +62,7 @@ public class RisingFluidByStatisticBehavior implements IGameBehavior {
 
 		int baseLevel = thresholds.getFirst().level();
 		fluidLevel = baseLevel;
-		filler = new FluidFiller(game.mapRegions().getOrThrow("flood_area"), FluidFiller.Type.WATER, baseLevel);
+		filler = new FluidFiller(RegionQuery.of("flood_area").one(game), FluidFiller.Type.WATER, baseLevel);
 
 		events.listen(GamePhaseEvents.TICK, () -> {
 			int statisticValue = game.statistics().global().getInt(statistic);

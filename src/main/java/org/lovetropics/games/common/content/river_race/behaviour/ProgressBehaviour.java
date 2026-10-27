@@ -23,6 +23,7 @@ import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.client_state.GameClientState;
+import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.state.team.GameTeam;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
 import org.lovetropics.games.common.core.game.state.team.TeamState;
@@ -36,19 +37,19 @@ import java.util.function.Supplier;
 public record ProgressBehaviour(
 		GameTeamKey topTeam,
 		GameTeamKey bottomTeam,
-		String mapFittingRegion,
+		RegionQuery mapFittingRegion,
 		List<LockedZone> lockedZones
 ) implements IGameBehavior {
 	public static final MapCodec<ProgressBehaviour> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			GameTeamKey.CODEC.fieldOf("top_team").forGetter(ProgressBehaviour::topTeam),
 			GameTeamKey.CODEC.fieldOf("bottom_team").forGetter(ProgressBehaviour::bottomTeam),
-			Codec.STRING.fieldOf("map_fitting_region").forGetter(ProgressBehaviour::mapFittingRegion),
+			RegionQuery.CODEC.fieldOf("map_fitting_region").forGetter(ProgressBehaviour::mapFittingRegion),
 			LockedZone.CODEC.listOf().optionalFieldOf("locked_zones", List.of()).forGetter(ProgressBehaviour::lockedZones)
 	).apply(i, ProgressBehaviour::new));
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		MapSpace mapSpace = MapSpace.from(game.mapRegions().getOrThrow(mapFittingRegion));
+		MapSpace mapSpace = MapSpace.from(mapFittingRegion.one(game));
 		TeamState teams = game.instanceState().getOrThrow(TeamState.KEY);
 
 		Progress progress = new Progress(
@@ -57,7 +58,7 @@ public record ProgressBehaviour(
 		);
 
 		for (LockedZone lockedZone : lockedZones) {
-			BlockBox region = game.mapRegions().getOrThrow(lockedZone.id);
+			BlockBox region = RegionQuery.of(lockedZone.id).one(game);
 			int start = mapSpace.getPos(region.min());
 			int end = mapSpace.getPos(region.max());
 			progress.lockedZones.put(lockedZone.id, new RiverRaceClientBarState.Zone(start, end - start, lockedZone.color));

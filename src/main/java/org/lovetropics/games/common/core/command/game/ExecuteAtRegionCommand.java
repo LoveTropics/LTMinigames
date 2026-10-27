@@ -11,9 +11,9 @@ import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import org.lovetropics.games.LoveTropics;
 import org.lovetropics.games.common.core.game.IGameLookup;
 import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.region.RegionQuery;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import static com.mojang.brigadier.arguments.StringArgumentType.string;
@@ -35,7 +35,7 @@ public class ExecuteAtRegionCommand {
 									if (game == null) {
 										return List.of();
 									}
-									Collection<BlockBox> regions = game.mapRegions().get(regionKey);
+									List<BlockBox> regions = RegionQuery.of(regionKey).all(game);
 									List<CommandSourceStack> sources = new ArrayList<>(regions.size());
 									for (BlockBox box : regions) {
 										sources.add(context.getSource().withPosition(box.center()));

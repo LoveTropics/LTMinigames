@@ -18,6 +18,7 @@ import org.lovetropics.games.common.core.game.persistent.PersistentGame;
 import org.lovetropics.games.common.core.game.persistent.PersistentGameBehavior;
 import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviorType;
 import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviors;
+import org.lovetropics.games.common.core.game.region.RegionQuery;
 
 import java.util.HashMap;
 import java.util.List;
@@ -26,28 +27,21 @@ import java.util.function.Supplier;
 
 public class ParkourBehavior implements PersistentGameBehavior {
 	public static final MapCodec<ParkourBehavior> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-	        Codec.STRING.fieldOf("default_checkpoint").forGetter(b -> b.defaultCheckpoint),
-	        Codec.STRING.listOf().fieldOf("checkpoints").forGetter(b -> b.checkpoints)
+	        RegionQuery.CODEC.fieldOf("default_checkpoint").forGetter(b -> b.defaultCheckpoint),
+	        RegionQuery.CODEC.listOf().fieldOf("checkpoints").forGetter(b -> b.checkpoints)
 	).apply(instance, ParkourBehavior::new));
 
-	private final String defaultCheckpoint;
-	private final List<String> checkpoints;
-	private final Map<ServerPlayer, String> lastCheckpoint = new HashMap<>();
-	private final Map<String, BlockBox> regions = new HashMap<>();
+	private final RegionQuery defaultCheckpoint;
+	private final List<RegionQuery> checkpoints;
+	private final Map<ServerPlayer, RegionQuery> lastCheckpoint = new HashMap<>();
 
-	public ParkourBehavior(String defaultCheckpoint, List<String> checkpoints) {
+	public ParkourBehavior(RegionQuery defaultCheckpoint, List<RegionQuery> checkpoints) {
 		this.defaultCheckpoint = defaultCheckpoint;
 		this.checkpoints = checkpoints;
 	}
 
 	@Override
 	public void register(PersistentGame game, EventRegistrar events) {
-		events.listen(GamePhaseEvents.START, initiator -> {
-			for (String s : checkpoints) {
-				this.regions.put(s, game.regions().getAny(s));
-			}
-		});
-
 		events.listen(GamePlayerEvents.ADD, player -> {
 			lastCheckpoint.put(player, defaultCheckpoint);
 			player.getInventory().add(new ItemStack(Parkour.PARKOUR_TELEPORTER.asItem()));
@@ -73,13 +67,13 @@ public class ParkourBehavior implements PersistentGameBehavior {
 		});
 
 		events.listen(GamePlayerEvents.USE_ITEM, (player, hand) ->  {
-			String checkpoint = lastCheckpoint.get(player);
+			RegionQuery checkpoint = lastCheckpoint.get(player);
 			if (checkpoint == null) {
 				return InteractionResult.PASS;
 			}
 			ItemStack stack = player.getItemInHand(hand);
 			if (stack.is(Parkour.PARKOUR_TELEPORTER)) {
-				BlockBox region = regions.get(checkpoint);
+				BlockBox region = checkpoint.nullableOne(game);
 				if (region != null) {
 					Vec3 center = region.center();
 					center = center.add(0, -region.size().getY() / 2.0, 0);
@@ -92,16 +86,12 @@ public class ParkourBehavior implements PersistentGameBehavior {
 		});
 
 		events.listen(GamePhaseEvents.TICK, () -> {
-			for (Map.Entry<ServerPlayer, String> e : lastCheckpoint.entrySet()) {
+			for (Map.Entry<ServerPlayer, RegionQuery> e : lastCheckpoint.entrySet()) {
 				ServerPlayer player = e.getKey();
-				for (Map.Entry<String, BlockBox> ex : regions.entrySet()) {
-					if (ex.getValue() == null) {
-						continue;
-					}
-
-					if (ex.getValue().asAabb().intersects(player.getBoundingBox()) && !e.getValue().equals(ex.getKey())) {
+				for (RegionQuery checkpoint : checkpoints) {
+					if (checkpoint.intersects(game, player.level(), player.getBoundingBox()) && !e.getValue().equals(checkpoint)) {
 						player.sendSystemMessage(Component.literal("Reached checkpoint!"), true);
-						e.setValue(ex.getKey());
+						e.setValue(checkpoint);
 						game.level().playSound(null, player.blockPosition(), SoundEvents.ARROW_HIT_PLAYER, SoundSource.BLOCKS, 0.4F, 1.0F);
 					}
 				}

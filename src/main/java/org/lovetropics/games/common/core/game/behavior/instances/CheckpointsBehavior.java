@@ -22,6 +22,7 @@ import org.lovetropics.games.common.core.game.behavior.action.GameActionList;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.player.PlayerSet;
+import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
 import org.lovetropics.games.common.core.game.state.team.TeamState;
 
@@ -126,22 +127,22 @@ public record CheckpointsBehavior(
 	}
 
 	private record CheckpointConfig(
-			String region,
-			Optional<String> spawnRegion,
-			Optional<String> faceRegion,
+			RegionQuery region,
+			Optional<RegionQuery> spawnRegion,
+			Optional<RegionQuery> faceRegion,
 			GameActionList reachedActions
 	) {
 		public static final Codec<CheckpointConfig> CODEC = RecordCodecBuilder.create(i -> i.group(
-				Codec.STRING.fieldOf("region").forGetter(CheckpointConfig::region),
-				Codec.STRING.optionalFieldOf("spawn_region").forGetter(CheckpointConfig::spawnRegion),
-				Codec.STRING.optionalFieldOf("face_region").forGetter(CheckpointConfig::faceRegion),
+				RegionQuery.CODEC.fieldOf("region").forGetter(CheckpointConfig::region),
+				RegionQuery.CODEC.optionalFieldOf("spawn_region").forGetter(CheckpointConfig::spawnRegion),
+				RegionQuery.CODEC.optionalFieldOf("face_region").forGetter(CheckpointConfig::faceRegion),
 				GameActionList.CODEC.optionalFieldOf("reached_actions", GameActionList.EMPTY).forGetter(CheckpointConfig::reachedActions)
 		).apply(i, CheckpointConfig::new));
 
 		public List<Checkpoint> resolve(IGamePhase game, int order) {
-			List<BlockBox> checkpointRegions = game.mapRegions().getAllOrThrow(region);
-			List<BlockBox> spawns = spawnRegion.map(game.mapRegions()::getAllOrThrow).orElse(null);
-			BlockBox faceRegion = this.faceRegion.map(game.mapRegions()::getOrThrow).orElse(null);
+			List<BlockBox> checkpointRegions = region.all(game);
+			List<BlockBox> spawns = spawnRegion.map(r -> r.all(game)).orElse(null);
+			BlockBox faceRegion = this.faceRegion.map(r -> r.one(game)).orElse(null);
 			CheckpointGroup group = new CheckpointGroup(order, spawns, faceRegion, reachedActions);
 			return checkpointRegions.stream()
 					.map(box -> new Checkpoint(group, box))

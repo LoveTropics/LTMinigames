@@ -1,10 +1,8 @@
 package org.lovetropics.games.common.core.game.behavior.instances.trigger;
 
-import com.lovetropics.lib.BlockBox;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.util.context.ContextKeySet;
 import net.minecraft.util.context.ContextMap;
@@ -16,15 +14,16 @@ import org.lovetropics.games.common.core.game.behavior.action.GameActionContextK
 import org.lovetropics.games.common.core.game.behavior.action.GameActionList;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
+import org.lovetropics.games.common.core.game.region.RegionQuery;
 
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-public record WhileInRegionTrigger(Map<String, GameActionList> regionActions, int interval, RunType runType) implements IGameBehavior {
+public record WhileInRegionTrigger(Map<RegionQuery, GameActionList> regionActions, int interval, RunType runType) implements IGameBehavior {
 	public static final MapCodec<WhileInRegionTrigger> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			Codec.unboundedMap(Codec.STRING, GameActionList.CODEC).fieldOf("regions").forGetter(WhileInRegionTrigger::regionActions),
+			Codec.unboundedMap(RegionQuery.CODEC, GameActionList.CODEC).fieldOf("regions").forGetter(WhileInRegionTrigger::regionActions),
 			Codec.INT.optionalFieldOf("interval", 20).forGetter(WhileInRegionTrigger::interval),
 			RunType.CODEC.optionalFieldOf("run_once", RunType.ALWAYS).forGetter(WhileInRegionTrigger::runType)
 	).apply(i, WhileInRegionTrigger::new));
@@ -44,8 +43,8 @@ public record WhileInRegionTrigger(Map<String, GameActionList> regionActions, in
 				return;
 			}
 
-			for (Map.Entry<String, GameActionList> entry : regionActions.entrySet()) {
-				if (isPlayerInRegion(game, player, entry.getKey())) {
+			for (Map.Entry<RegionQuery, GameActionList> entry : regionActions.entrySet()) {
+				if (entry.getKey().contains(game, player)) {
 					GameActionList actions = entry.getValue();
 					ContextMap context = new ContextMap.Builder()
 							.withParameter(GameActionContextKeys.NAME, player.getDisplayName())
@@ -56,15 +55,6 @@ public record WhileInRegionTrigger(Map<String, GameActionList> regionActions, in
 				}
 			}
 		});
-	}
-
-	private boolean isPlayerInRegion(IGamePhase game, ServerPlayer player, String key) {
-		for (BlockBox region : game.mapRegions().get(key)) {
-			if (region.contains(player.getX(), player.getY(), player.getZ())) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 	private static class State {

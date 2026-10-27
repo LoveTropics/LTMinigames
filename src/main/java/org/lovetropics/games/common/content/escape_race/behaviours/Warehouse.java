@@ -44,6 +44,7 @@ import org.lovetropics.games.common.core.game.command.GameCommandRegistrar;
 import org.lovetropics.games.common.core.game.config.GameConfig;
 import org.lovetropics.games.common.core.game.config.GameConfigs;
 import org.lovetropics.games.common.core.game.player.PlayerSet;
+import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.state.IGameState;
 import org.lovetropics.games.common.core.game.state.statistics.GameStatistics;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
@@ -84,8 +85,8 @@ public class Warehouse implements IGameState {
 			if (subGameConfig == null) {
 				throw new GameException(Component.literal("No game config with id: " + room.gameId()));
 			}
-			Optional<String> entrance = room.entranceRegion();
-			BlockBox box = entrance.map(e -> topGame.mapRegions().getOrThrow(e)).orElse(null);
+			Optional<RegionQuery> entrance = room.entranceRegion();
+			BlockBox box = entrance.map(e -> e.one(topGame)).orElse(null);
 
 			rooms.put(entry.getKey(), new RoomInstance(room, subGameConfig, box));
 		}

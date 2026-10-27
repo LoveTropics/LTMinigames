@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.core.game.behavior.instances;
 
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.component.DataComponents;
@@ -21,6 +20,7 @@ import org.lovetropics.games.common.core.game.behavior.SpawnDonorUtils;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GameLivingEntityEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePackageEvents;
+import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.integration.GameInstanceIntegrations;
 import org.lovetropics.games.common.core.integration.game_actions.Donation;
 import org.lovetropics.games.common.core.integration.state.DonationScale;
@@ -29,14 +29,14 @@ import java.util.List;
 import java.util.Optional;
 
 public record SpawnDonorsInRegionBehavior(
-	List<String> regions,
+	RegionQuery regions,
 	Optional<List<DonationScale>> scales,
 	// Todo clean this up I needed something quick :cry:
 	Optional<List<ItemStackTemplate>> donorBootItems
 ) implements IGameBehavior {
 
 	public static final MapCodec<SpawnDonorsInRegionBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			Codec.STRING.listOf().fieldOf("regions").forGetter(SpawnDonorsInRegionBehavior::regions),
+			RegionQuery.CODEC.fieldOf("regions").forGetter(SpawnDonorsInRegionBehavior::regions),
 			DonationScale.LIST_CODEC.optionalFieldOf("scales").forGetter(SpawnDonorsInRegionBehavior::scales),
 			ItemStackTemplate.CODEC.listOf().optionalFieldOf("donor_boot_items").forGetter(SpawnDonorsInRegionBehavior::donorBootItems)
 	).apply(i, SpawnDonorsInRegionBehavior::new));

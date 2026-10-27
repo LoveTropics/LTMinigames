@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.core.game.persistent.behavior.dropper;
 
-import com.lovetropics.lib.BlockBox;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -24,7 +23,6 @@ import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.ScoreAccess;
 import net.minecraft.world.scores.ScoreHolder;
 import net.minecraft.world.scores.criteria.ObjectiveCriteria;
-import org.lovetropics.games.common.core.game.GameRegions;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
@@ -32,10 +30,9 @@ import org.lovetropics.games.common.core.game.persistent.PersistentGame;
 import org.lovetropics.games.common.core.game.persistent.PersistentGameBehavior;
 import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviorType;
 import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviors;
+import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.rewards.GameRewards;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -57,9 +54,6 @@ public class DropperBehavior implements PersistentGameBehavior {
 	private final Reward firstWinReward;
 	private final Reward winReward;
 
-	private final List<Vec3> failLocations = new ArrayList<>();
-	private final List<Vec3> successLocations = new ArrayList<>();
-	private BlockBox dropperRegionBox;
 	private Objectives objectives;
 	private PlayerTeam team;
 
@@ -72,17 +66,13 @@ public class DropperBehavior implements PersistentGameBehavior {
 
 	@Override
 	public void register(PersistentGame game, EventRegistrar events) {
+		RegionQuery failRegion = RegionQuery.of(this.id + "_fail");
+		RegionQuery successRegion = RegionQuery.of(this.id + "_success");
+		RegionQuery dropperRegion = RegionQuery.of(this.id + "_dropper");
+
 		events.listen(GamePhaseEvents.START, _ -> {
 			objectives = Objectives.createObjectives(game.level(), id);
 			team = getOrCreateTeam(game.level(), "world_game.dropper." + id);
-
-			String failRegion = this.id + "_fail";
-			String successRegion = this.id + "_success";
-			String dropperRegion = this.id + "_dropper";
-			GameRegions regions = game.regions();
-			regions.getAll(failRegion).forEach(blockBox -> failLocations.add(blockBox.center()));
-			regions.getAll(successRegion).forEach(blockBox -> successLocations.add(blockBox.center()));
-			dropperRegionBox = regions.getAny(dropperRegion);
 		});
 
 		events.listen(GamePlayerEvents.ADD, player -> {
@@ -96,8 +86,8 @@ public class DropperBehavior implements PersistentGameBehavior {
 
 		events.listen(GamePhaseEvents.STOP, _ -> {
 			for (ServerPlayer player : game.players()) {
-				if (dropperRegionBox.contains(player.blockPosition())) {
-					Vec3 randomLocation = getRandomLocation(player, failLocations);
+				if (dropperRegion.contains(game, player)) {
+					Vec3 randomLocation = Vec3.atCenterOf(failRegion.pickRandomPos(game, game.level().getRandom()));
 					player.teleportTo(randomLocation.x(), randomLocation.y(), randomLocation.z());
 				}
 			}
@@ -105,16 +95,16 @@ public class DropperBehavior implements PersistentGameBehavior {
 
 		events.listen(GamePhaseEvents.TICK, () -> {
 			for (ServerPlayer player : game.players()) {
-				if (dropperRegionBox.contains(player.blockPosition())) {
+				if (dropperRegion.contains(game, player)) {
 					BlockState blockStateOn = player.getBlockStateOn();
 					if (blockStateOn.isAir()) {
 						continue;
 					}
 					this.onPlay(player);
 					if (winBlocks.contains(blockStateOn.typeHolder())) {
-						this.onWin(player);
+						this.onWin(game, player, successRegion);
 					} else {
-						this.onFail(player);
+						this.onFail(game, player, failRegion);
 					}
 				}
 			}
@@ -126,7 +116,7 @@ public class DropperBehavior implements PersistentGameBehavior {
 		getScoreAccess(objectives.stats(), PLAY_STAT_NAME).add(1);
 	}
 
-	private void onWin(ServerPlayer player) {
+	private void onWin(PersistentGame game, ServerPlayer player, RegionQuery successRegion) {
 		int newValue = getScoreAccess(objectives.win(), player).add(1);
 		if (newValue == 1) {
 			firstWinReward.giveToPlayer(player);
@@ -135,15 +125,15 @@ public class DropperBehavior implements PersistentGameBehavior {
 			winReward.giveToPlayer(player);
 		}
 		getScoreAccess(objectives.stats(), WIN_STAT_NAME).add(1);
-		Vec3 randomLocation = getRandomLocation(player, successLocations);
+		Vec3 randomLocation = Vec3.atCenterOf(successRegion.pickRandomPos(game, game.level().getRandom()));
 		player.level().playSeededSound(null, randomLocation.x(), randomLocation.y(), randomLocation.z, SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.VOICE, 5f, 1.0F, player.getRandom().nextLong());
 		player.teleportTo(randomLocation.x(), randomLocation.y(), randomLocation.z());
 	}
 
-	private void onFail(ServerPlayer player) {
+	private void onFail(PersistentGame game, ServerPlayer player, RegionQuery failRegion) {
 		getScoreAccess(objectives.fail(), player).add(1);
 		getScoreAccess(objectives.stats(), FAIL_STAT_NAME).add(1);
-		Vec3 randomLocation = getRandomLocation(player, failLocations);
+		Vec3 randomLocation = Vec3.atCenterOf(failRegion.pickRandomPos(game, game.level().getRandom()));
 		player.teleportTo(randomLocation.x(), randomLocation.y(), randomLocation.z());
 		player.level().playSeededSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.NOTE_BLOCK_BANJO, SoundSource.VOICE, 1f, 0.01f, player.getRandom().nextLong());
 	}
@@ -154,11 +144,6 @@ public class DropperBehavior implements PersistentGameBehavior {
 
 	public ScoreAccess getScoreAccess(Objective objective, String name) {
 		return objective.getScoreboard().getOrCreatePlayerScore(ScoreHolder.forNameOnly(name), objective);
-	}
-
-	private Vec3 getRandomLocation(ServerPlayer serverPlayer, List<Vec3> locations) {
-		int randomIndex = serverPlayer.getRandom().nextInt(locations.size());
-		return locations.get(randomIndex);
 	}
 
 	private PlayerTeam getOrCreateTeam(ServerLevel level, String teamName) {

@@ -16,7 +16,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityEvent;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.content.MinigameTexts;
@@ -31,6 +30,7 @@ import org.lovetropics.games.common.core.game.behavior.event.GameLivingEntityEve
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
+import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.state.progress.ProgressChannel;
 import org.lovetropics.games.common.core.game.state.progress.ProgressionPeriod;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
@@ -50,10 +50,10 @@ import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 public record ScoreMobInGoalBehavior(
-		String spawnRegion,
+		RegionQuery spawnRegion,
 		EntityTemplate scoringEntity,
 		Optional<StatisticKey<Integer>> targetCountStatistic,
-		Map<GameTeamKey, String> teamGoalRegions,
+		Map<GameTeamKey, RegionQuery> teamGoalRegions,
 		StatisticKey<Integer> statistic,
 		int spawnDelay,
 		// TODO: Split the scoring, and just detect entities dying?
@@ -61,10 +61,10 @@ public record ScoreMobInGoalBehavior(
 		Optional<ProgressionPeriod> scorePeriod
 ) implements IGameBehavior {
 	public static final MapCodec<ScoreMobInGoalBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			Codec.STRING.fieldOf("spawn_region").forGetter(ScoreMobInGoalBehavior::spawnRegion),
+			RegionQuery.CODEC.fieldOf("spawn_region").forGetter(ScoreMobInGoalBehavior::spawnRegion),
 			EntityTemplate.CODEC.fieldOf("scoring_entity").forGetter(ScoreMobInGoalBehavior::scoringEntity),
 			StatisticKey.INT_CODEC.optionalFieldOf("target_count_statistic").forGetter(ScoreMobInGoalBehavior::targetCountStatistic),
-			Codec.unboundedMap(GameTeamKey.CODEC, Codec.STRING).fieldOf("team_goal_regions").forGetter(ScoreMobInGoalBehavior::teamGoalRegions),
+			Codec.unboundedMap(GameTeamKey.CODEC, RegionQuery.CODEC).fieldOf("team_goal_regions").forGetter(ScoreMobInGoalBehavior::teamGoalRegions),
 			StatisticKey.typedCodec(Integer.class).fieldOf("statistic").forGetter(ScoreMobInGoalBehavior::statistic),
 			Codec.INT.optionalFieldOf("spawn_delay", SharedConstants.TICKS_PER_SECOND * 2).forGetter(ScoreMobInGoalBehavior::spawnDelay),
 			ProgressChannel.CODEC.optionalFieldOf("channel", ProgressChannel.MAIN).forGetter(ScoreMobInGoalBehavior::channel),
@@ -81,7 +81,7 @@ public record ScoreMobInGoalBehavior(
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
-		BlockBox spawnBox = game.mapRegions().getOrThrow(spawnRegion);
+		BlockBox spawnBox = this.spawnRegion.one(game);
 
 		TeamState teams = game.instanceState().getOrThrow(TeamState.KEY);
 		if (teams.getTeamKeys().size() != 2) {
@@ -89,11 +89,10 @@ public record ScoreMobInGoalBehavior(
 		}
 
 		List<Goal> goals = new ArrayList<>();
-		for (Map.Entry<GameTeamKey, String> entry : teamGoalRegions.entrySet()) {
-			BlockBox box = game.mapRegions().getOrThrow(entry.getValue());
+		for (Map.Entry<GameTeamKey, RegionQuery> entry : teamGoalRegions.entrySet()) {
 			GameTeamKey defensiveTeam = entry.getKey();
 			GameTeamKey offensiveTeam = teams.getTeamKeys().stream().filter(k -> !k.equals(defensiveTeam)).findFirst().orElseThrow();
-			goals.add(new Goal(box, defensiveTeam, offensiveTeam));
+			goals.add(new Goal(entry.getValue(), defensiveTeam, offensiveTeam));
 		}
 
 		MutableInt activeCount = new MutableInt();
@@ -122,7 +121,7 @@ public record ScoreMobInGoalBehavior(
 			if (!canScoreWith(entity) || !canScore.getAsBoolean()) {
 				return;
 			}
-			Goal goal = getGoalAt(goals, entity.position());
+			Goal goal = getGoalContaining(game, goals, entity);
 			if (goal != null) {
 				if (!scoreGoal(game, teams, goal, entity)) {
 					return;
@@ -223,15 +222,15 @@ public record ScoreMobInGoalBehavior(
 		game.allPlayers().playSound(SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 1.0f, 1.0f);
 	}
 
-	private @Nullable Goal getGoalAt(List<Goal> goals, Vec3 position) {
+	private @Nullable Goal getGoalContaining(IGamePhase game, List<Goal> goals, Entity entity) {
 		for (Goal goal : goals) {
-			if (goal.box.contains(position)) {
+			if (goal.region.contains(game, entity)) {
 				return goal;
 			}
 		}
 		return null;
 	}
 
-	private record Goal(BlockBox box, GameTeamKey defensiveTeam, GameTeamKey offensiveTeam) {
+	private record Goal(RegionQuery region, GameTeamKey defensiveTeam, GameTeamKey offensiveTeam) {
 	}
 }

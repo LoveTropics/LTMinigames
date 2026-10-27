@@ -34,6 +34,7 @@ import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.behavior.instances.ConfiguredSound;
 import org.lovetropics.games.common.core.game.client_state.GameClientState;
 import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
+import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.state.BeaconState;
 
 import java.util.Collection;
@@ -41,10 +42,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-public record ItemDropperBehavior(Either<List<ItemStackTemplate>, ResourceKey<LootTable>> loot, String regionKey, boolean combined, boolean beacon, IntProvider intervalTicks, Optional<GameActionList> announcement, Optional<ConfiguredSound> sound) implements IGameBehavior {
+public record ItemDropperBehavior(Either<List<ItemStackTemplate>, ResourceKey<LootTable>> loot, RegionQuery region, boolean combined, boolean beacon, IntProvider intervalTicks, Optional<GameActionList> announcement, Optional<ConfiguredSound> sound) implements IGameBehavior {
 	public static final MapCodec<ItemDropperBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			Codec.either(ExtraCodecs.compactListCodec(ItemStackTemplate.CODEC), ResourceKey.codec(Registries.LOOT_TABLE)).fieldOf("loot").forGetter(ItemDropperBehavior::loot),
-			Codec.STRING.fieldOf("region").forGetter(ItemDropperBehavior::regionKey),
+			RegionQuery.CODEC.fieldOf("region").forGetter(ItemDropperBehavior::region),
 			Codec.BOOL.optionalFieldOf("combined", false).forGetter(ItemDropperBehavior::combined),
 			Codec.BOOL.optionalFieldOf("beacon", false).forGetter(ItemDropperBehavior::beacon),
 			IntProviders.POSITIVE_CODEC.fieldOf("interval_ticks").forGetter(ItemDropperBehavior::intervalTicks),
@@ -54,7 +55,7 @@ public record ItemDropperBehavior(Either<List<ItemStackTemplate>, ResourceKey<Lo
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
-		Collection<BlockBox> regions = game.mapRegions().get(regionKey);
+		Collection<BlockBox> regions = region.all(game);
 		if (regions.isEmpty()) {
 			return;
 		}

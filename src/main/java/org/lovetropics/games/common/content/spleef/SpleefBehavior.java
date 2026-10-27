@@ -32,6 +32,7 @@ import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.player.PlayerIterable;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
 import org.lovetropics.games.common.core.game.player.PlayerSet;
+import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.util.GameBossBar;
 import org.lovetropics.games.common.core.game.util.GameWidgets;
 import org.lovetropics.games.common.util.Util;
@@ -69,7 +70,7 @@ public class SpleefBehavior implements IGameBehavior {
 	private final BlockBox[] floorRegions;
 
 	// Eliminate players if they enter this area.
-	private BlockBox deathRegion;
+	private final RegionQuery deathRegion = RegionQuery.of("death");
 
 	private final Block floorMaterial;
 	private final Block floorBreakingMaterial;
@@ -109,13 +110,11 @@ public class SpleefBehavior implements IGameBehavior {
 
 		for (int floor = 0; floor < floors; floor++) {
 			// real f-it hours
-			floorRegions[floor] = game.mapRegions().getAny("floor_" + (floor + 1));
-			if (floorRegions[floor] == null) {
-				floorRegions[floor] = game.mapRegions().getOrThrow("floor" + (floor + 1));
-			}
+			floorRegions[floor] = RegionQuery.of(
+					"floor_" + (floor + 1),
+					"floor" + (floor + 1)
+			).one(game);
 		}
-
-		deathRegion = game.mapRegions().getOrThrow("death");
 
 		Style style = Style.EMPTY.withColor(TextColor.fromRgb(0xACC12F)).withBold(true);
 		bossBar = widgets.openGlobalBossBar(MinigameTexts.SPLEEF_TITLE_PREPARE.copy().withStyle(style), BossEvent.BossBarColor.PURPLE, BossEvent.BossBarOverlay.PROGRESS);
@@ -231,7 +230,7 @@ public class SpleefBehavior implements IGameBehavior {
 	private void checkPlayerDeath() {
 		List<ServerPlayer> playersToKill = new ArrayList<>();
 		for (ServerPlayer player : game.participants()) {
-			if (deathRegion.intersects(player.getBoundingBox())) {
+			if (deathRegion.intersects(game, player.level(), player.getBoundingBox())) {
 				playersToKill.add(player);
 			}
 		}

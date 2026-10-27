@@ -15,6 +15,7 @@ import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.player.PlayerSet;
+import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.state.GameStateKey;
 import org.lovetropics.games.common.core.game.state.team.TeamState;
 import org.lovetropics.games.common.core.game.util.GameWidgets;
@@ -64,7 +65,7 @@ public record WarehouseSetupBehaviour(
 	}
 
 	public record RoomConfig(
-			Optional<String> entranceRegion,
+			Optional<RegionQuery> entranceRegion,
 			float facing,
 			int baseCost,
 			Component displayName,
@@ -73,7 +74,7 @@ public record WarehouseSetupBehaviour(
 			boolean copyInventory
 	) {
 		public static final Codec<RoomConfig> CODEC = RecordCodecBuilder.create(i -> i.group(
-				Codec.STRING.optionalFieldOf("entrance_region").forGetter(RoomConfig::entranceRegion),
+				RegionQuery.CODEC.optionalFieldOf("entrance_region").forGetter(RoomConfig::entranceRegion),
 				Codec.FLOAT.optionalFieldOf("facing", 0.0f).forGetter(RoomConfig::facing),
 				Codec.INT.fieldOf("cost").forGetter(RoomConfig::baseCost),
 				ComponentSerialization.CODEC.fieldOf("display_name").forGetter(RoomConfig::displayName),

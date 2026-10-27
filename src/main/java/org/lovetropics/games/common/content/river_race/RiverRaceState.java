@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.longs.LongIterator;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
@@ -14,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
 import org.lovetropics.games.common.content.river_race.block.HasTrivia;
 import org.lovetropics.games.common.content.river_race.block.TriviaType;
 import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.state.GameStateKey;
 import org.lovetropics.games.common.core.game.state.IGameState;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
@@ -27,13 +29,13 @@ import java.util.Objects;
 public class RiverRaceState implements IGameState {
 	public static final GameStateKey.Defaulted<RiverRaceState> KEY = GameStateKey.create("River Race", RiverRaceState::new);
 
-	private final Map<GameTeamKey, BlockBox> teamRegions = new HashMap<>();
+	private final Map<GameTeamKey, RegionQuery> teamRegions = new HashMap<>();
 	private final List<Zone> zones = new ArrayList<>();
 	private Direction forwardDirection = Direction.NORTH;
 
 	private @Nullable Zone currentZone;
 
-	public void setTeamRegion(GameTeamKey team, BlockBox region) {
+	public void setTeamRegion(GameTeamKey team, RegionQuery region) {
 		teamRegions.put(team, region);
 	}
 
@@ -124,9 +126,9 @@ public class RiverRaceState implements IGameState {
 		return null;
 	}
 
-	public @Nullable GameTeamKey getTeamAt(BlockPos pos) {
-		for (Map.Entry<GameTeamKey, BlockBox> entry : teamRegions.entrySet()) {
-			if (entry.getValue().contains(pos)) {
+	public @Nullable GameTeamKey getTeamAt(IGamePhase game, ServerLevel level, BlockPos pos) {
+		for (Map.Entry<GameTeamKey, RegionQuery> entry : teamRegions.entrySet()) {
+			if (entry.getValue().contains(game, level, pos)) {
 				return entry.getKey();
 			}
 		}

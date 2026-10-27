@@ -1,7 +1,6 @@
 package org.lovetropics.games.common.core.game.behavior.instances.action;
 
 import com.lovetropics.lib.BlockBox;
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
@@ -16,6 +15,7 @@ import org.lovetropics.games.common.core.game.behavior.action.GameActionList;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GameActionEvents;
 import org.lovetropics.games.common.core.game.behavior.instances.PositionPlayersBehavior;
+import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.state.statistics.GameStatistics;
 import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
@@ -24,15 +24,15 @@ import java.util.List;
 import java.util.Set;
 
 public record SetupPodiumAction(
-		List<String> winnerRegions,
+		List<RegionQuery> winnerRegions,
 		List<GameActionList> winnerActions,
-		String loserRegion,
+		RegionQuery loserRegion,
 		GameActionList loserActions
 ) implements IGameBehavior {
 	public static final MapCodec<SetupPodiumAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			ExtraCodecs.nonEmptyList(Codec.STRING.listOf()).fieldOf("winner_regions").forGetter(SetupPodiumAction::winnerRegions),
+			ExtraCodecs.nonEmptyList(RegionQuery.CODEC.listOf()).fieldOf("winner_regions").forGetter(SetupPodiumAction::winnerRegions),
 			GameActionList.CODEC.listOf().optionalFieldOf("winner_actions", List.of()).forGetter(SetupPodiumAction::winnerActions),
-			Codec.STRING.fieldOf("loser_region").forGetter(SetupPodiumAction::loserRegion),
+			RegionQuery.CODEC.fieldOf("loser_region").forGetter(SetupPodiumAction::loserRegion),
 			GameActionList.CODEC.optionalFieldOf("loser_actions", GameActionList.EMPTY).forGetter(SetupPodiumAction::loserActions)
 	).apply(i, SetupPodiumAction::new));
 
@@ -43,8 +43,8 @@ public record SetupPodiumAction(
 		}
 		loserActions.register(game, events);
 
-		List<BlockBox> winnerBoxes = winnerRegions.stream().map(game.mapRegions()::getOrThrow).toList();
-		BlockBox loserBox = game.mapRegions().getOrThrow(loserRegion);
+		List<BlockBox> winnerBoxes = winnerRegions.stream().map(r -> r.one(game)).toList();
+		BlockBox loserBox = loserRegion.one(game);
 
 		events.listen(GameActionEvents.APPLY, (context, targets) -> {
 			setupPodium(game, winnerBoxes, loserBox);

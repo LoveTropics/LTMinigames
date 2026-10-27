@@ -1,7 +1,6 @@
 package org.lovetropics.games.common.core.game.behavior.instances;
 
 import com.lovetropics.lib.BlockBox;
-import com.lovetropics.lib.codec.MoreCodecs;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -11,7 +10,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import org.jspecify.annotations.Nullable;
-import org.lovetropics.games.common.core.game.GameRegions;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.SpawnBuilder;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
@@ -19,6 +17,7 @@ import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GameTeamEvents;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
+import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
 import org.lovetropics.games.common.core.game.state.team.GameTeam;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
@@ -36,22 +35,22 @@ public class PositionPlayersBehavior implements IGameBehavior {
 	private static final Logger LOGGER = LogUtils.getLogger();
 
 	public static final MapCodec<PositionPlayersBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			MoreCodecs.arrayOrUnit(Codec.STRING, String[]::new).optionalFieldOf("participants", new String[0]).forGetter(c -> c.participantSpawnKeys),
-			MoreCodecs.arrayOrUnit(Codec.STRING, String[]::new).optionalFieldOf("spectators", new String[0]).forGetter(c -> c.spectatorSpawnKeys),
-			MoreCodecs.arrayOrUnit(Codec.STRING, String[]::new).optionalFieldOf("all", new String[0]).forGetter(c -> c.allSpawnKeys),
-			Codec.unboundedMap(GameTeamKey.CODEC, MoreCodecs.arrayOrUnit(Codec.STRING, String[]::new)).optionalFieldOf("teams", Map.of()).forGetter(c -> c.teamSpawnKeys),
+			RegionQuery.CODEC.optionalFieldOf("participants", RegionQuery.EMPTY).forGetter(c -> c.participantSpawns),
+			RegionQuery.CODEC.optionalFieldOf("spectators", RegionQuery.EMPTY).forGetter(c -> c.spectatorSpawns),
+			RegionQuery.CODEC.optionalFieldOf("all", RegionQuery.EMPTY).forGetter(c -> c.allSpawns),
+			Codec.unboundedMap(GameTeamKey.CODEC, RegionQuery.CODEC).optionalFieldOf("teams", Map.of()).forGetter(c -> c.teamSpawns),
 			Codec.BOOL.optionalFieldOf("split_by_team", true).forGetter(c -> c.splitByTeam),
 			Codec.FLOAT.optionalFieldOf("angle", 0.0f).forGetter(c -> c.angle),
-			Codec.STRING.optionalFieldOf("face_region").forGetter(c -> c.faceRegion)
+			RegionQuery.CODEC.optionalFieldOf("face_region").forGetter(c -> c.faceRegion)
 	).apply(i, PositionPlayersBehavior::new));
 
-	private final String[] participantSpawnKeys;
-	private final String[] spectatorSpawnKeys;
-	private final String[] allSpawnKeys;
-	private final Map<GameTeamKey, String[]> teamSpawnKeys;
+	private final RegionQuery participantSpawns;
+	private final RegionQuery spectatorSpawns;
+	private final RegionQuery allSpawns;
+	private final Map<GameTeamKey, RegionQuery> teamSpawns;
 	private final boolean splitByTeam;
 	private final float angle;
-	private final Optional<String> faceRegion;
+	private final Optional<RegionQuery> faceRegion;
 
 	private CycledSpawner participantSpawner = CycledSpawner.EMPTY;
 	private CycledSpawner spectatorSpawner = CycledSpawner.EMPTY;
@@ -60,11 +59,11 @@ public class PositionPlayersBehavior implements IGameBehavior {
 
 	private @Nullable BlockBox faceBox;
 
-	public PositionPlayersBehavior(String[] participantSpawnKeys, String[] spectatorSpawnKeys, String[] allSpawnKeys, Map<GameTeamKey, String[]> teamSpawnKeys, boolean splitByTeam, float angle, Optional<String> faceRegion) {
-		this.participantSpawnKeys = participantSpawnKeys;
-		this.spectatorSpawnKeys = spectatorSpawnKeys;
-		this.allSpawnKeys = allSpawnKeys;
-		this.teamSpawnKeys = teamSpawnKeys;
+	public PositionPlayersBehavior(RegionQuery participantSpawns, RegionQuery spectatorSpawns, RegionQuery allSpawns, Map<GameTeamKey, RegionQuery> teamSpawns, boolean splitByTeam, float angle, Optional<RegionQuery> faceRegion) {
+		this.participantSpawns = participantSpawns;
+		this.spectatorSpawns = spectatorSpawns;
+		this.allSpawns = allSpawns;
+		this.teamSpawns = teamSpawns;
 		this.splitByTeam = splitByTeam;
 		this.angle = angle;
 		this.faceRegion = faceRegion;
@@ -72,22 +71,20 @@ public class PositionPlayersBehavior implements IGameBehavior {
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
-		GameRegions regions = game.mapRegions();
+		faceRegion.ifPresent(query -> faceBox = query.one(game));
 
-		faceRegion.ifPresent(key -> faceBox = regions.getOrThrow(key));
-
-		participantSpawner = new CycledSpawner(regions, participantSpawnKeys);
-		spectatorSpawner = new CycledSpawner(regions, spectatorSpawnKeys);
-		fallbackSpawner = new CycledSpawner(regions, allSpawnKeys);
+		participantSpawner = new CycledSpawner(game, participantSpawns);
+		spectatorSpawner = new CycledSpawner(game, spectatorSpawns);
+		fallbackSpawner = new CycledSpawner(game, allSpawns);
 		LOGGER.debug("FOUND {} PARTICIPANT SPAWN REGIONS", participantSpawner.regions().size());
 
 		TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
 		if (splitByTeam && teams != null) {
-			if (!teamSpawnKeys.isEmpty()) {
+			if (!teamSpawns.isEmpty()) {
 				events.listen(GamePlayerEvents.BEFORE_ADD_PLAYERS, (participants, spectators) -> {
-					teamSpawners = teamSpawnKeys.entrySet().stream().collect(Collectors.toMap(
+					teamSpawners = teamSpawns.entrySet().stream().collect(Collectors.toMap(
 							Map.Entry::getKey,
-							entry -> new CycledSpawner(regions, entry.getValue())
+							entry -> new CycledSpawner(game, entry.getValue())
 					));
 				});
 			} else if (!participantSpawner.regions().isEmpty()) {

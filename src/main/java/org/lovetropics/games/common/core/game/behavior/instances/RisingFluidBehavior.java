@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.core.game.behavior.instances;
 
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
@@ -21,6 +20,7 @@ import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GameLivingEntityEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
+import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.state.progress.ProgressChannel;
 import org.lovetropics.games.common.core.game.state.progress.ProgressHolder;
 import org.lovetropics.games.common.core.game.state.progress.ProgressionSpline;
@@ -30,12 +30,12 @@ import java.util.function.DoubleSupplier;
 
 public class RisingFluidBehavior implements IGameBehavior {
     public static final MapCodec<RisingFluidBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-            Codec.STRING.fieldOf("region").forGetter(c -> c.regionKey),
+            RegionQuery.CODEC.fieldOf("region").forGetter(c -> c.region),
             ProgressionSpline.CODEC.fieldOf("fluid_levels").forGetter(c -> c.fluidLevels),
             FluidFiller.Type.CODEC.fieldOf("fill_type").forGetter(b -> b.fillType)
     ).apply(i, RisingFluidBehavior::new));
 
-    private final String regionKey;
+    private final RegionQuery region;
     private final ProgressionSpline fluidLevels;
     private final FluidFiller.Type fillType;
 
@@ -44,8 +44,8 @@ public class RisingFluidBehavior implements IGameBehavior {
     private int fluidLevel;
     private @Nullable FluidFiller filler;
 
-    public RisingFluidBehavior(String regionKey, ProgressionSpline fluidLevels, FluidFiller.Type fillType) {
-        this.regionKey = regionKey;
+    public RisingFluidBehavior(RegionQuery region, ProgressionSpline fluidLevels, FluidFiller.Type fillType) {
+        this.region = region;
         this.fluidLevels = fluidLevels;
         this.fillType = fillType;
     }
@@ -55,10 +55,10 @@ public class RisingFluidBehavior implements IGameBehavior {
         ProgressHolder progression = ProgressChannel.MAIN.getOrThrow(game);
         targetFluidLevel = fluidLevels.resolve(progression);
 
-        events.listen(GamePhaseEvents.START, initiator -> {
+        events.listen(GamePhaseEvents.START, _ -> {
             int initialFluidLevel = Mth.floor(targetFluidLevel.getAsDouble());
             fluidLevel = initialFluidLevel;
-            filler = new FluidFiller(game.mapRegions().getOrThrow(regionKey), fillType, initialFluidLevel);
+			filler = new FluidFiller(region.one(game), fillType, initialFluidLevel);
         });
 
         if (fillType == FluidFiller.Type.WATER) {

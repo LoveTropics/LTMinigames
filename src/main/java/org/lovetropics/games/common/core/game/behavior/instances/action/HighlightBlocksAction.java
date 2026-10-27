@@ -13,6 +13,7 @@ import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.client_state.GameClientState;
 import org.lovetropics.games.common.core.game.client_state.instance.HighlightBlocksState;
 import org.lovetropics.games.common.core.game.player.PlayerSet;
+import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.state.GameStateKey;
 import org.lovetropics.games.common.core.game.state.IGameState;
 
@@ -20,17 +21,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public record HighlightBlocksAction(
-		List<String> regionKeys,
+		RegionQuery region,
 		boolean highlight
 ) implements IGameBehavior {
 	public static final MapCodec<HighlightBlocksAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			Codec.STRING.listOf().fieldOf("regions").forGetter(HighlightBlocksAction::regionKeys),
+			RegionQuery.CODEC.fieldOf("regions").forGetter(HighlightBlocksAction::region),
 			Codec.BOOL.fieldOf("highlight").forGetter(HighlightBlocksAction::highlight)
 	).apply(i, HighlightBlocksAction::new));
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
-		List<BlockBox> boxes = game.mapRegions().getAll(regionKeys);
+		List<BlockBox> boxes = region.all(game);
 		SharedState sharedState = SharedState.get(game);
 
 		events.listen(GamePlayerEvents.ADD, player ->

@@ -35,6 +35,7 @@ import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
+import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.state.progress.ProgressChannel;
 import org.lovetropics.games.common.core.game.state.progress.ProgressionPoint;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
@@ -54,27 +55,27 @@ import java.util.function.Supplier;
 public final class TerryTrashBehavior implements IGameBehavior {
 
 	public static final MapCodec<TerryTrashBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			Codec.STRING.fieldOf("item_spawn_region").forGetter(c -> c.itemSpawnRegion),
+			RegionQuery.CODEC.fieldOf("item_spawn_region").forGetter(c -> c.itemSpawnRegion),
 			Codec.unboundedMap(ProgressionPoint.CODEC, SpawnTimeData.CODEC).fieldOf("spawn_times").forGetter(c -> c.spawnTimes),
 			RecylingLocations.CODEC.listOf().fieldOf("recycling_locations").forGetter(c -> c.recyclingLocations),
-			Codec.STRING.fieldOf("bad_trash_location").forGetter(c -> c.badTrashLocation),
-			Codec.STRING.fieldOf("check_lever").forGetter(c -> c.checkLever),
+			RegionQuery.CODEC.fieldOf("bad_trash_location").forGetter(c -> c.badTrashLocation),
+			RegionQuery.CODEC.fieldOf("check_lever").forGetter(c -> c.checkLever),
 			CodeCheck.CODEC.listOf().fieldOf("code_checks").forGetter(c -> c.codeChecks)
 	).apply(i, TerryTrashBehavior::new));
 
-	private final String itemSpawnRegion;
+	private final RegionQuery itemSpawnRegion;
 	private final Map<ProgressionPoint, SpawnTimeData> spawnTimes;
 	private final List<RecylingLocations> recyclingLocations;
-	private final String badTrashLocation;
-	private final String checkLever;
+	private final RegionQuery badTrashLocation;
+	private final RegionQuery checkLever;
 	private final List<CodeCheck> codeChecks;
 
 	public TerryTrashBehavior(
-			String itemSpawnRegion,
+			RegionQuery itemSpawnRegion,
 			Map<ProgressionPoint, SpawnTimeData> spawnTimes,
 			List<RecylingLocations> recyclingLocations,
-			String badTrashLocation,
-			String checkLever,
+			RegionQuery badTrashLocation,
+			RegionQuery checkLever,
 			List<CodeCheck> codeChecks
 	) {
 		this.itemSpawnRegion = itemSpawnRegion;
@@ -93,10 +94,10 @@ public final class TerryTrashBehavior implements IGameBehavior {
 		).apply(i, SpawnTimeData::new));
 	}
 
-	public record CodeCheck(String blockRegion, String lightRegion, BlockPredicate blockPredicate, BlockStateProvider goodCode, BlockStateProvider badCode, BlockStateProvider clearState) {
+	public record CodeCheck(RegionQuery blockRegion, RegionQuery lightRegion, BlockPredicate blockPredicate, BlockStateProvider goodCode, BlockStateProvider badCode, BlockStateProvider clearState) {
 		public static final Codec<CodeCheck> CODEC = RecordCodecBuilder.create(i -> i.group(
-				Codec.STRING.fieldOf("block_region").forGetter(CodeCheck::blockRegion),
-				Codec.STRING.fieldOf("light_region").forGetter(CodeCheck::lightRegion),
+				RegionQuery.CODEC.fieldOf("block_region").forGetter(CodeCheck::blockRegion),
+				RegionQuery.CODEC.fieldOf("light_region").forGetter(CodeCheck::lightRegion),
 				BlockPredicate.CODEC.fieldOf("block_predicate").forGetter(CodeCheck::blockPredicate),
 				MoreCodecs.BLOCK_STATE_PROVIDER.fieldOf("good_code").forGetter(CodeCheck::goodCode),
 				MoreCodecs.BLOCK_STATE_PROVIDER.fieldOf("bad_code").forGetter(CodeCheck::badCode),
@@ -104,10 +105,10 @@ public final class TerryTrashBehavior implements IGameBehavior {
 		).apply(i, CodeCheck::new));
 	}
 
-	public record RecylingLocations(String processRegion, ItemPredicate itemPredicate) {
+	public record RecylingLocations(RegionQuery processRegion, ItemPredicate itemPredicate) {
 
 		static final Codec<RecylingLocations> CODEC = RecordCodecBuilder.create(i -> i.group(
-				Codec.STRING.fieldOf("process_region").forGetter(RecylingLocations::processRegion),
+				RegionQuery.CODEC.fieldOf("process_region").forGetter(RecylingLocations::processRegion),
 				ItemPredicate.CODEC.fieldOf("item_predicate").forGetter(RecylingLocations::itemPredicate)
 		).apply(i, RecylingLocations::new));
 	}
@@ -116,38 +117,39 @@ public final class TerryTrashBehavior implements IGameBehavior {
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		BlockBox itemSpawnBox = game.mapRegions().getOrThrow(itemSpawnRegion);
-		BlockBox badTrashBox = game.mapRegions().getOrThrow(badTrashLocation);
+		BlockBox itemSpawnBox = itemSpawnRegion.one(game);
 		for (RecylingLocations recyclingLocation : recyclingLocations) {
-			game.mapRegions().getOrThrow(recyclingLocation.processRegion);
+			recyclingLocation.processRegion.one(game);
 		}
 
 		GameSidebar sidebar = GameWidgets.getOrRegister(game, events).openGlobalSidebar(EscapeRaceTexts.TERRY_TRASH);
 
-		events.listen(GamePhaseEvents.TICK, () -> onGameTick(game, sidebar, itemSpawnBox, badTrashBox));
+		events.listen(GamePhaseEvents.TICK, () -> onGameTick(game, sidebar, itemSpawnBox, badTrashLocation));
 
 
 		TeamState teams = game.instanceState().getOrThrow(TeamState.KEY);
 
 		events.listen(GamePlayerEvents.USE_BLOCK, ((player, level, pos, hand, traceResult) -> {
 			ItemStack heldItem = player.getItemInHand(hand);
-			if (game.mapRegions().getOrThrow(checkLever).contains(pos)) {
+			if (checkLever.contains(game, level, pos)) {
 				if (codeGood) {
 					return InteractionResult.FAIL;
 				}
 				boolean allMatch = true;
 				for (CodeCheck codeCheck : codeChecks) {
-					BlockPos blockBox = game.mapRegions().getOrThrow(codeCheck.blockRegion).min();
-					BlockPos lightBox = game.mapRegions().getOrThrow(codeCheck.lightRegion).min();
-					if (codeCheck.blockPredicate.matches(level, blockBox)) {
-						BlockState goodBlock = codeCheck.goodCode.getState(level, game.random(), blockBox);
-						level.setBlockAndUpdate(lightBox, goodBlock);
+					BlockBox blockBox = codeCheck.blockRegion.one(game);
+					BlockBox lightBox = codeCheck.lightRegion.one(game);
+					BlockPos blockPos = blockBox.min();
+					BlockPos lightPos = lightBox.min();
+					if (codeCheck.blockPredicate.matches(level, blockPos)) {
+						BlockState goodBlock = codeCheck.goodCode.getState(level, game.random(), blockPos);
+						level.setBlockAndUpdate(lightPos, goodBlock);
 					} else {
-						BlockState badBlock = codeCheck.badCode.getState(level, game.random(), blockBox);
-						level.setBlockAndUpdate(lightBox, badBlock);
+						BlockState badBlock = codeCheck.badCode.getState(level, game.random(), blockPos);
+						level.setBlockAndUpdate(lightPos, badBlock);
 						allMatch = false;
 					}
-					level.setBlockAndUpdate(blockBox, codeCheck.clearState.getState(level, game.random(), blockBox));
+					level.setBlockAndUpdate(blockPos, codeCheck.clearState.getState(level, game.random(), blockPos));
 				}
 				if (allMatch) {
 					codeGood = allMatch;
@@ -166,8 +168,7 @@ public final class TerryTrashBehavior implements IGameBehavior {
 				return InteractionResult.PASS;
 			}
 			for (RecylingLocations recyclingLocation : recyclingLocations) {
-				BlockBox box = game.mapRegions().getOrThrow(recyclingLocation.processRegion);
-				if (box.contains(pos)) {
+				if (recyclingLocation.processRegion.contains(game, level, pos)) {
 					if (recyclingLocation.itemPredicate().test(heldItem)) {
 						heldItem.shrink(1);
 						game.statistics().global().incrementInt(StatisticKey.RECYCLED_TRASH, 1);
@@ -187,7 +188,7 @@ public final class TerryTrashBehavior implements IGameBehavior {
 		}));
 	}
 
-	private void onGameTick(IGamePhase game, GameSidebar sidebar, BlockBox itemSpawnBox, BlockBox badTrashBox) {
+	private void onGameTick(IGamePhase game, GameSidebar sidebar, BlockBox itemSpawnBox, RegionQuery badTrashRegion) {
 		Map<BooleanSupplier, SpawnTimeData> spawnTimeDats = new HashMap<>();
 		spawnTimes.forEach((progressionPoint, spawnTimeData) ->
 				spawnTimeDats.put(progressionPoint.createPredicate(game, ProgressChannel.MAIN), spawnTimeData));
@@ -208,7 +209,7 @@ public final class TerryTrashBehavior implements IGameBehavior {
 			}
 		}
 
-		for (ItemEntity entitiesOfClass : game.level().getEntitiesOfClass(ItemEntity.class, badTrashBox.asAabb())) {
+		for (ItemEntity entitiesOfClass : badTrashRegion.getEntitiesOfClass(game, ItemEntity.class)) {
 			game.statistics().global().incrementInt(StatisticKey.MISSED_TRASH, 1);
 			entitiesOfClass.discard();
 			sidebar.set(buildSidebar(game));

@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.content.river_race.behaviour;
 
-import com.lovetropics.lib.BlockBox;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -12,17 +11,18 @@ import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.core.game.region.RegionQuery;
 
 public record RiverRaceZoneBehavior(
 		String id,
-		String regionKey,
+		RegionQuery region,
 		Component ordinalName,
 		Component displayName,
 		DyeColor color
 ) implements IGameBehavior {
 	public static final MapCodec<RiverRaceZoneBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			Codec.STRING.fieldOf("id").forGetter(RiverRaceZoneBehavior::id),
-			Codec.STRING.fieldOf("region").forGetter(RiverRaceZoneBehavior::regionKey),
+			RegionQuery.CODEC.fieldOf("region").forGetter(RiverRaceZoneBehavior::region),
 			ComponentSerialization.CODEC.fieldOf("ordinal_name").forGetter(RiverRaceZoneBehavior::ordinalName),
 			ComponentSerialization.CODEC.fieldOf("display_name").forGetter(RiverRaceZoneBehavior::displayName),
 			DyeColor.CODEC.fieldOf("color").forGetter(RiverRaceZoneBehavior::color)
@@ -31,7 +31,6 @@ public record RiverRaceZoneBehavior(
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		RiverRaceState riverRace = game.state().get(RiverRaceState.KEY);
-		BlockBox box = game.mapRegions().getOrThrow(regionKey);
-		riverRace.addZone(game, id, box, ordinalName, displayName, color);
+		riverRace.addZone(game, id, region.one(game), ordinalName, displayName, color);
 	}
 }

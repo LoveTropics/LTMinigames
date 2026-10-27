@@ -29,6 +29,7 @@ import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GameWorldEvents;
+import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.util.Codecs;
 import org.lovetropics.games.mixin.TrialSpawnerAccess;
 
@@ -36,13 +37,13 @@ import java.util.List;
 import java.util.Map;
 
 public record OrderedTrialSpawnerBehavior(
-		Map<String, Holder<TrialSpawnerConfig>> spawnerRegions,
+		Map<RegionQuery, Holder<TrialSpawnerConfig>> spawnerRegions,
 		List<Holder<LootTable>> lootTables,
 		int targetCooldownLength,
 		int requiredPlayerRange
 ) implements IGameBehavior {
 	public static final MapCodec<OrderedTrialSpawnerBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			Codec.unboundedMap(Codec.STRING, TrialSpawnerConfig.CODEC).fieldOf("spawner_regions").forGetter(OrderedTrialSpawnerBehavior::spawnerRegions),
+			Codec.unboundedMap(RegionQuery.CODEC, TrialSpawnerConfig.CODEC).fieldOf("spawner_regions").forGetter(OrderedTrialSpawnerBehavior::spawnerRegions),
 			Codecs.LOOT_TABLE.listOf().fieldOf("loot_tables").forGetter(OrderedTrialSpawnerBehavior::lootTables),
 			ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("target_cooldown_length", 36000).forGetter(OrderedTrialSpawnerBehavior::targetCooldownLength),
 			Codec.intRange(1, 128).optionalFieldOf("required_player_range", 14).forGetter(OrderedTrialSpawnerBehavior::requiredPlayerRange)
@@ -52,7 +53,7 @@ public record OrderedTrialSpawnerBehavior(
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		List<Spawner> spawners = spawnerRegions.entrySet().stream()
 				.map(entry -> {
-					BlockBox box = game.mapRegions().getOrThrow(entry.getKey());
+					BlockBox box = entry.getKey().one(game);
 					return new Spawner(box.centerBlock(), entry.getValue());
 				})
 				.collect(Util.toMutableList());

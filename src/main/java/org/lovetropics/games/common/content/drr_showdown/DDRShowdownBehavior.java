@@ -2,7 +2,6 @@ package org.lovetropics.games.common.content.drr_showdown;
 
 import com.lovetropics.lib.BlockBox;
 import com.mojang.logging.LogUtils;
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.SharedConstants;
@@ -23,7 +22,6 @@ import org.lovetropics.games.common.content.escape_race.ddr_machine.levels.DdrLe
 import org.lovetropics.games.common.content.escape_race.event.EscapeRaceEvents;
 import org.lovetropics.games.common.content.turtle_race.RiderBehavior;
 import org.lovetropics.games.common.core.game.GameException;
-import org.lovetropics.games.common.core.game.GameRegions;
 import org.lovetropics.games.common.core.game.GameWinner;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
@@ -33,6 +31,7 @@ import org.lovetropics.games.common.core.game.behavior.event.GameLogicEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
+import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.state.statistics.GameStatistics;
 import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
@@ -53,15 +52,15 @@ public class DDRShowdownBehavior implements IGameBehavior {
 
 	public static final MapCodec<DDRShowdownBehavior> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 			RegistryCodecs.homogeneousList(EscapeRace.DDR_LEVEL).fieldOf("levels").forGetter(ddrShowdownBehavior -> ddrShowdownBehavior.allowedLevels),
-			Codec.STRING.optionalFieldOf("ddr_spawn_region", "ddr_spawn").forGetter(ddrShowdownBehavior -> ddrShowdownBehavior.ddrSpawnRegion),
-			Codec.STRING.optionalFieldOf("spectator_spawn_region", "spectators").forGetter(ddrShowdownBehavior -> ddrShowdownBehavior.spectatorSpawnRegion)
+			RegionQuery.CODEC.optionalFieldOf("ddr_spawn_region", RegionQuery.of("ddr_spawn")).forGetter(ddrShowdownBehavior -> ddrShowdownBehavior.ddrSpawnRegion),
+			RegionQuery.CODEC.optionalFieldOf("spectator_spawn_region", RegionQuery.of("spectators")).forGetter(ddrShowdownBehavior -> ddrShowdownBehavior.spectatorSpawnRegion)
 	).apply(instance, DDRShowdownBehavior::new));
 
-	private final String spectatorSpawnRegion;
-	private final String ddrSpawnRegion;
+	private final RegionQuery spectatorSpawnRegion;
+	private final RegionQuery ddrSpawnRegion;
 	private final HolderSet<DdrLevel> allowedLevels;
 
-	public DDRShowdownBehavior(HolderSet<DdrLevel> allowedLevels, String ddrSpawnRegion, String spectatorSpawnRegion) {
+	public DDRShowdownBehavior(HolderSet<DdrLevel> allowedLevels, RegionQuery ddrSpawnRegion, RegionQuery spectatorSpawnRegion) {
 		this.allowedLevels = allowedLevels;
 		this.ddrSpawnRegion = ddrSpawnRegion;
 		this.spectatorSpawnRegion = spectatorSpawnRegion;
@@ -86,8 +85,7 @@ public class DDRShowdownBehavior implements IGameBehavior {
 		bossBar = widgets.openGlobalBossBar(ddrLevel.displayName(), BossEvent.BossBarColor.BLUE, BossEvent.BossBarOverlay.PROGRESS);
 		bossBar.setProgress(0f);
 
-		GameRegions regions = game.mapRegions();
-		List<BlockBox> ddrSpawn = regions.get(ddrSpawnRegion).stream().toList();
+		List<BlockBox> ddrSpawn = ddrSpawnRegion.all(game);
 		Queue<DDRMachineEntity> spawnedMachines = new ArrayDeque<>();
 
 		events.listen(GamePlayerEvents.BEFORE_ADD_PLAYERS, (participants, spectators) -> {
@@ -105,12 +103,13 @@ public class DDRShowdownBehavior implements IGameBehavior {
 			}
 		});
 
+		BlockBox spectatorSpawnRegion = this.spectatorSpawnRegion.one(game);
 		events.listen(GamePlayerEvents.SPAWN, (playerId, spawn, role) -> {
 			if (role == PlayerRole.PARTICIPANT) {
 				DDRMachineEntity poll = spawnedMachines.poll();
 				if (poll == null) {
 					LOGGER.warn("Could not DDR Machine for {}", playerId);
-					spawn.teleportTo(game.level(), game.mapRegions().getOrThrow(spectatorSpawnRegion).centerBlock());
+					spawn.teleportTo(game.level(), spectatorSpawnRegion.centerBlock());
 					return;
 				}
 				spawn.run(player -> {
@@ -120,7 +119,7 @@ public class DDRShowdownBehavior implements IGameBehavior {
 				activeMachines.add(poll);
 				return;
 			}
-			spawn.teleportTo(game.level(), game.mapRegions().getOrThrow(spectatorSpawnRegion).centerBlock());
+			spawn.teleportTo(game.level(), spectatorSpawnRegion.centerBlock());
 		});
 
 		// Todo clean this part up

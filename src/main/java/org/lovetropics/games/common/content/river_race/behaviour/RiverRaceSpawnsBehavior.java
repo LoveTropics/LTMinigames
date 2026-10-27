@@ -19,6 +19,7 @@ import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
+import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
 import org.lovetropics.games.common.core.game.state.team.TeamState;
 
@@ -72,7 +73,7 @@ public record RiverRaceSpawnsBehavior(
 	private static Map<GameTeamKey, Spawn> resolveSpawns(IGamePhase game, ZoneSpawns spawns) {
 		return spawns.regionByTeam().entrySet().stream()
 				.collect(Collectors.toMap(Map.Entry::getKey, regionEntry -> {
-					BlockBox box = game.mapRegions().getOrThrow(regionEntry.getValue());
+					BlockBox box = regionEntry.getValue().one(game);
 					return new Spawn(box, spawns.angle);
 				}));
 	}
@@ -80,9 +81,9 @@ public record RiverRaceSpawnsBehavior(
 	private record Spawn(BlockBox box, float angle) {
 	}
 
-	public record ZoneSpawns(Map<GameTeamKey, String> regionByTeam, float angle) {
+	public record ZoneSpawns(Map<GameTeamKey, RegionQuery> regionByTeam, float angle) {
 		public static final Codec<ZoneSpawns> CODEC = RecordCodecBuilder.create(i -> i.group(
-				Codec.unboundedMap(GameTeamKey.CODEC, Codec.STRING).fieldOf("region_by_team").forGetter(ZoneSpawns::regionByTeam),
+				Codec.unboundedMap(GameTeamKey.CODEC, RegionQuery.CODEC).fieldOf("region_by_team").forGetter(ZoneSpawns::regionByTeam),
 				Codec.FLOAT.optionalFieldOf("angle", 0.0f).forGetter(ZoneSpawns::angle)
 		).apply(i, ZoneSpawns::new));
 	}

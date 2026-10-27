@@ -32,6 +32,7 @@ import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
+import org.lovetropics.games.common.core.game.region.RegionQuery;
 
 import java.util.List;
 import java.util.Set;
@@ -45,13 +46,13 @@ public class RiverRaceMerchantBehavior implements IGameBehavior {
 	).apply(i, (input, output) -> new MerchantOffer(input, output.create(), Integer.MAX_VALUE, 0, 0)));
 
 	public static final MapCodec<RiverRaceMerchantBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			Codec.STRING.fieldOf("zone").forGetter(c -> c.region),
+			RegionQuery.CODEC.fieldOf("zone").forGetter(c -> c.region),
 			BuiltInRegistries.ENTITY_TYPE.byNameCodec().fieldOf("entity").forGetter(c -> c.entity),
 			ComponentSerialization.CODEC.optionalFieldOf("name", CommonComponents.EMPTY).forGetter(c -> c.name),
 			OFFER_CODEC.listOf().fieldOf("offers").forGetter(c -> c.offers)
 	).apply(i, RiverRaceMerchantBehavior::new));
 
-	private final String region;
+	private final RegionQuery region;
 	private final EntityType<?> entity;
 	private final Component name;
 	private final List<MerchantOffer> offers;
@@ -60,7 +61,7 @@ public class RiverRaceMerchantBehavior implements IGameBehavior {
 
 	private IGamePhase game;
 
-	public RiverRaceMerchantBehavior(String region, EntityType<?> entity, Component name, List<MerchantOffer> offers) {
+	public RiverRaceMerchantBehavior(RegionQuery region, EntityType<?> entity, Component name, List<MerchantOffer> offers) {
 		this.region = region;
 		this.entity = entity;
 		this.name = name;
@@ -78,8 +79,7 @@ public class RiverRaceMerchantBehavior implements IGameBehavior {
 	/// When the game loads, load this merchant into its proper section
 	private void onGameStarted() {
 		ServerLevel level = game.level();
-		List<BlockBox> regions = game.mapRegions().getAll(region);
-		for (BlockBox region : regions) {
+		for (BlockBox region : region.all(game)) {
 			Vec3 center = region.center();
 
 			Entity merchant = createMerchant(level);

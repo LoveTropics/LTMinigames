@@ -1,7 +1,6 @@
 package org.lovetropics.games.common.core.game.behavior.instances.world;
 
 import com.lovetropics.lib.BlockBox;
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.longs.LongIterator;
@@ -13,19 +12,18 @@ import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
-
-import java.util.Collection;
+import org.lovetropics.games.common.core.game.region.RegionQuery;
 
 public final class ForceLoadRegionBehavior implements IGameBehavior {
 	public static final MapCodec<ForceLoadRegionBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			Codec.STRING.fieldOf("region").forGetter(c -> c.regionKey)
+			RegionQuery.CODEC.fieldOf("region").forGetter(c -> c.region)
 	).apply(i, ForceLoadRegionBehavior::new));
 
-	private final String regionKey;
+	private final RegionQuery region;
 	private LongSet acquiredChunks;
 
-	public ForceLoadRegionBehavior(String regionKey) {
-		this.regionKey = regionKey;
+	public ForceLoadRegionBehavior(RegionQuery region) {
+		this.region = region;
 	}
 
 	@Override
@@ -67,8 +65,7 @@ public final class ForceLoadRegionBehavior implements IGameBehavior {
 	private LongSet collectChunks(IGamePhase game) {
 		LongSet chunks = new LongOpenHashSet();
 
-		Collection<BlockBox> regions = game.mapRegions().get(regionKey);
-		for (BlockBox region : regions) {
+		for (BlockBox region : region.all(game)) {
 			chunks.addAll(region.asChunks());
 		}
 

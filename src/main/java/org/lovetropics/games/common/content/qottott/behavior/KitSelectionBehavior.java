@@ -24,6 +24,7 @@ import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
+import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.slf4j.Logger;
 
 import java.util.Collection;
@@ -49,7 +50,7 @@ public record KitSelectionBehavior(List<Kit> kits) implements IGameBehavior {
 
 		events.listen(GamePhaseEvents.START, initiator -> {
 			for (Kit kit : kits) {
-				Collection<BlockBox> regions = game.mapRegions().get(kit.region());
+				Collection<BlockBox> regions = kit.region.all(game);
 				if (regions.isEmpty()) {
 					LOGGER.error("Missing region for kit: {}", kit);
 					continue;
@@ -92,9 +93,9 @@ public record KitSelectionBehavior(List<Kit> kits) implements IGameBehavior {
 		return false;
 	}
 
-	private record Kit(String region, float angle, TypedEntityData<EntityType<?>> entity, GameActionList apply) {
+	private record Kit(RegionQuery region, float angle, TypedEntityData<EntityType<?>> entity, GameActionList apply) {
 		public static final Codec<Kit> CODEC = RecordCodecBuilder.create(i -> i.group(
-				Codec.STRING.fieldOf("region").forGetter(Kit::region),
+				RegionQuery.CODEC.fieldOf("region").forGetter(Kit::region),
 				Codec.FLOAT.optionalFieldOf("angle", 0.0f).forGetter(Kit::angle),
 				TypedEntityData.codec(EntityType.CODEC).fieldOf("entity").forGetter(Kit::entity),
 				GameActionList.CODEC.fieldOf("apply").forGetter(Kit::apply)

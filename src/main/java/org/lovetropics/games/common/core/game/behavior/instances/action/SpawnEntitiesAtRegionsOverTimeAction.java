@@ -1,7 +1,5 @@
 package org.lovetropics.games.common.core.game.behavior.instances.action;
 
-import com.google.common.collect.Lists;
-import com.lovetropics.lib.BlockBox;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -9,27 +7,25 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.level.levelgen.Heightmap;
-import org.lovetropics.games.common.core.game.GameRegions;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GameActionEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
+import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.util.EntityTemplate;
-
-import java.util.List;
 
 /// Spawns an amount of entities over a set amount of ticks, spread randomly across all the given regions
 public class SpawnEntitiesAtRegionsOverTimeAction implements IGameBehavior {
 	public static final MapCodec<SpawnEntitiesAtRegionsOverTimeAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			Codec.STRING.listOf().fieldOf("regions_to_spawn_at").forGetter(c -> c.regionsToSpawnAtKeys),
+			RegionQuery.CODEC.fieldOf("regions_to_spawn_at").forGetter(c -> c.regionsToSpawnAt),
 			EntityTemplate.CODEC.fieldOf("entity").forGetter(c -> c.entity),
 			Codec.INT.optionalFieldOf("entity_count", 1).forGetter(c -> c.entityCount),
 			Codec.INT.optionalFieldOf("ticks_to_spawn_for", 1).forGetter(c -> c.ticksToSpawnFor),
 			Codec.BOOL.optionalFieldOf("at_heightmap", true).forGetter(c -> c.atHeightmap)
 	).apply(i, SpawnEntitiesAtRegionsOverTimeAction::new));
 
-	private final List<String> regionsToSpawnAtKeys;
+	private final RegionQuery regionsToSpawnAt;
 	private final EntityTemplate entity;
 	private final int entityCount;
 	private final int ticksToSpawnFor;
@@ -39,10 +35,8 @@ public class SpawnEntitiesAtRegionsOverTimeAction implements IGameBehavior {
 	private int ticksRemaining;
 	private int entityCountRemaining;
 
-	private final List<BlockBox> regionsToSpawnAt = Lists.newArrayList();
-
-	public SpawnEntitiesAtRegionsOverTimeAction(List<String> regionsToSpawnAtKeys, EntityTemplate entity, int entityCount, int ticksToSpawnFor, boolean atHeightmap) {
-		this.regionsToSpawnAtKeys = regionsToSpawnAtKeys;
+	public SpawnEntitiesAtRegionsOverTimeAction(RegionQuery regionsToSpawnAt, EntityTemplate entity, int entityCount, int ticksToSpawnFor, boolean atHeightmap) {
+		this.regionsToSpawnAt = regionsToSpawnAt;
 		this.entity = entity;
 		this.entityCount = entityCount;
 		this.ticksToSpawnFor = ticksToSpawnFor;
@@ -51,13 +45,6 @@ public class SpawnEntitiesAtRegionsOverTimeAction implements IGameBehavior {
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
-		GameRegions regions = game.mapRegions();
-
-		regionsToSpawnAt.clear();
-		for (String key : regionsToSpawnAtKeys) {
-			regionsToSpawnAt.addAll(regions.get(key));
-		}
-
 		events.listen(GameActionEvents.APPLY, (context, targets) -> applyPackage(context));
 		events.listen(GamePhaseEvents.TICK, () -> tick(game));
 	}
@@ -79,8 +66,10 @@ public class SpawnEntitiesAtRegionsOverTimeAction implements IGameBehavior {
 
 			ServerLevel level = game.level();
 			for (int i = 0; i < spawnsPerTick; i++) {
-				BlockBox region = regionsToSpawnAt.get(game.random().nextInt(regionsToSpawnAt.size()));
-				BlockPos pos = region.sample(game.random());
+				BlockPos pos = regionsToSpawnAt.pickRandomPos(game, game.random());
+				if (pos == null) {
+					continue;
+				}
 				if (atHeightmap) {
 					pos = level.getHeightmapPos(Heightmap.Types.WORLD_SURFACE, pos);
 				}

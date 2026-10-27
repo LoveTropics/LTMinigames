@@ -4,6 +4,7 @@ import com.lovetropics.lib.BlockBox;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
@@ -22,7 +23,6 @@ import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
-import org.lovetropics.games.common.core.game.GameRegions;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
@@ -30,8 +30,8 @@ import org.lovetropics.games.common.core.game.persistent.PersistentGame;
 import org.lovetropics.games.common.core.game.persistent.PersistentGameBehavior;
 import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviorType;
 import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviors;
+import org.lovetropics.games.common.core.game.region.RegionQuery;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -46,11 +46,11 @@ public class CrabGolfHoleBehavior implements PersistentGameBehavior {
 
 	public static final MapCodec<CrabGolfHoleBehavior> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 			Codec.INT.fieldOf("hole").forGetter(b -> b.hole),
-			Codec.STRING.fieldOf("main_region").forGetter(b -> b.mainRegionName),
-			Codec.STRING.fieldOf("start_region").forGetter(b -> b.startRegionName),
-			Codec.STRING.fieldOf("hole_region").forGetter(b -> b.holeRegionName),
-			Codec.STRING.fieldOf("button_region").forGetter(b -> b.buttonRegionName),
-			Codec.STRING.fieldOf("winner_region").forGetter(b -> b.winnerRegionName),
+			RegionQuery.CODEC.fieldOf("main_region").forGetter(b -> b.mainRegion),
+			RegionQuery.CODEC.fieldOf("start_region").forGetter(b -> b.startRegion),
+			RegionQuery.CODEC.fieldOf("hole_region").forGetter(b -> b.holeRegion),
+			RegionQuery.CODEC.fieldOf("button_region").forGetter(b -> b.buttonRegion),
+			RegionQuery.CODEC.fieldOf("winner_region").forGetter(b -> b.winnerRegion),
 			Codec.FLOAT.fieldOf("winner_rotation").forGetter(b -> b.winnerRotation),
 			TeleportTarget.CODEC.listOf().optionalFieldOf("teleporters").forGetter(b -> Optional.of(b.teleporters))
 	).apply(instance, CrabGolfHoleBehavior::new));
@@ -59,53 +59,32 @@ public class CrabGolfHoleBehavior implements PersistentGameBehavior {
 
 
 	private final int hole;
-	private final String mainRegionName;
-	private final String startRegionName;
-	private final String holeRegionName;
-	private final String buttonRegionName;
-	private final String winnerRegionName;
+	private final RegionQuery mainRegion;
+	private final RegionQuery startRegion;
+	private final RegionQuery holeRegion;
+	private final RegionQuery buttonRegion;
+	private final RegionQuery winnerRegion;
 	private final float winnerRotation;
 	private final List<TeleportTarget> teleporters;
-
-	private final List<BlockBox> mainRegions = new ArrayList<>();
-	private BlockBox startRegion = null;
-	private BlockBox holeRegion = null;
-	private BlockBox buttonRegion = null;
-	private BlockBox winnerRegion = null;
 
 	private final Map<ServerPlayer, LivingEntity> currentlyPlaying = new HashMap<>();
 	private final Map<ServerPlayer, Integer> ticksLeft = new HashMap<>();
 	private final Map<ServerPlayer, Integer> hits = new HashMap<>();
 
-	public CrabGolfHoleBehavior(int hole, String mainRegionName, String startRegionName, String holeRegionName, String buttonRegionName, String winnerRegionName, float winnerRotation, Optional<List<TeleportTarget>> teleporters) {
+	public CrabGolfHoleBehavior(int hole, RegionQuery mainRegion, RegionQuery startRegion, RegionQuery holeRegion, RegionQuery buttonRegion, RegionQuery winnerRegion, float winnerRotation, Optional<List<TeleportTarget>> teleporters) {
 		this.hole = hole;
-		this.mainRegionName = mainRegionName;
-		this.startRegionName = startRegionName;
-		this.holeRegionName = holeRegionName;
-		this.buttonRegionName = buttonRegionName;
-		this.winnerRegionName = winnerRegionName;
+		this.mainRegion = mainRegion;
+		this.startRegion = startRegion;
+		this.holeRegion = holeRegion;
+		this.buttonRegion = buttonRegion;
+		this.winnerRegion = winnerRegion;
 		this.winnerRotation = winnerRotation;
 		this.teleporters = teleporters.orElse(List.of());
-	}
-
-	public boolean isOk() {
-		return startRegion != null && holeRegion != null && buttonRegion != null;
 	}
 
 	@Override
 	public void register(PersistentGame game, EventRegistrar events) {
 		events.listen(GamePhaseEvents.START, initiator -> {
-			GameRegions regions = game.regions();
-			mainRegions.addAll(regions.get(mainRegionName));
-			startRegion = regions.getAny(startRegionName);
-			holeRegion = regions.getAny(holeRegionName);
-			buttonRegion = regions.getAny(buttonRegionName);
-			winnerRegion = regions.getAny(winnerRegionName);
-
-			for (TeleportTarget teleporter : teleporters) {
-				teleporter.initialize(regions);
-			}
-
 			CrabGolfWinBehavior.GolfData data = CrabGolfWinBehavior.GolfData.get(game.level());
 			int highScore = data.getHighScore(hole);
 			UUID uuid = data.getHighScoreUUIDFor(hole);
@@ -122,20 +101,14 @@ public class CrabGolfHoleBehavior implements PersistentGameBehavior {
 		events.listen(GamePhaseEvents.STOP, initiator -> {
 			// TODO: copy out data
 			currentlyPlaying.values().forEach(Entity::discard);
-
-			if (winnerRegion == null) {
-				return;
-			}
-
-			ServerLevel level = game.level();
-			List<Entity> old = level.getEntities((Entity) null, winnerRegion.asAabb(), e -> e instanceof ArmorStand);
-			old.forEach(Entity::discard);
+			winnerRegion.getEntitiesOfClass(game, ArmorStand.class)
+					.forEach(Entity::discard);
 		});
 
 		events.listen(CrabGolfEvents.QUERY_PLAYING, currentlyPlaying::containsKey);
 
 		events.listen(GamePlayerEvents.USE_BLOCK, (player, level, pos, hand, hit) -> {
-			if (isOk() && level.getBlockState(pos).is(BlockTags.BUTTONS) && buttonRegion.contains(pos)) {
+			if (level.getBlockState(pos).is(BlockTags.BUTTONS) && buttonRegion.contains(game, level, pos)) {
 				// Already playing?
 				if (!game.invoker(CrabGolfEvents.QUERY_PLAYING).isPlaying(player) && currentlyPlaying.isEmpty()) {
 					game.invoker(CrabGolfEvents.START_GAME).onStart(hole, player);
@@ -154,11 +127,13 @@ public class CrabGolfHoleBehavior implements PersistentGameBehavior {
 		});
 
 		events.listen(CrabGolfEvents.START_GAME, (hole, player) -> {
-			if (isOk() && hole == this.hole) {
-				// spawn crab
-				Vec3 rcenter = startRegion.center();
-				// move to floor
-				Vec3 center = new Vec3(rcenter.x, rcenter.y - 0.5, rcenter.z);
+			if (hole == this.hole) {
+				BlockPos startPos = startRegion.pickRandomPos(game, player.getRandom());
+				if (startPos == null) {
+					return;
+				}
+
+				Vec3 center = Vec3.atBottomCenterOf(startPos);
 
 				LivingEntity entity = game.invoker(CrabGolfEvents.SUMMON_CRAB).summon(player.level(), player, center);
 				if (entity == null) {
@@ -173,9 +148,6 @@ public class CrabGolfHoleBehavior implements PersistentGameBehavior {
 		});
 
 		events.listen(GamePhaseEvents.TICK, () -> {
-			if (!isOk()) {
-				return;
-			}
 			if (currentlyPlaying.isEmpty()) {
 				return;
 			}
@@ -193,7 +165,7 @@ public class CrabGolfHoleBehavior implements PersistentGameBehavior {
 
 				Vec3 velocity = entity.getDeltaMovement();
 				if (Math.abs(velocity.x) < 0.01 && Math.abs(velocity.z) < 0.01) {
-					if (holeRegion.asAabb().contract(0.2, 0, 0.2).intersects(entity.getBoundingBox())) {
+					if (holeRegion.intersects(game, entity.level(), entity.getBoundingBox().contract(0.2, 0, 0.2))) {
 						// win!!
 
 						int score = hits.get(player);
@@ -209,19 +181,8 @@ public class CrabGolfHoleBehavior implements PersistentGameBehavior {
 					}
 				}
 
-				boolean inRegion = false;
-				for (BlockBox r : mainRegions) {
-					if (r.asAabb().intersects(entity.getBoundingBox())) {
-						inRegion = true;
-						break;
-					}
-				}
-
-				if (!inRegion) {
-					Vec3 rcenter = startRegion.center();
-					// move to floor
-					Vec3 center = new Vec3(rcenter.x, rcenter.y - 0.5, rcenter.z);
-					entity.snapTo(center);
+				if (!mainRegion.intersects(game, entity.level(), entity.getBoundingBox())) {
+					entity.snapTo(Vec3.atBottomCenterOf(startRegion.pickRandomPos(game, entity.getRandom())));
 					entity.setDeltaMovement(0, 0, 0);
 				}
 
@@ -241,20 +202,21 @@ public class CrabGolfHoleBehavior implements PersistentGameBehavior {
 				}
 
 				for (TeleportTarget teleporter : teleporters) {
-					teleporter.tryTeleport(entity);
+					teleporter.tryTeleport(game, entity);
 				}
 			}
 		});
 	}
 
 	private void updateWinnerRegion(PersistentGame game, int score, @Nullable UUID player) {
-		if (winnerRegion == null) {
+		BlockBox winnerBox = winnerRegion.nullableOne(game);
+		if (winnerBox == null) {
 			return;
 		}
 
 		ServerLevel level = game.level();
-		List<Entity> old = level.getEntities((Entity) null, winnerRegion.asAabb(), e -> e instanceof ArmorStand);
-		old.forEach(Entity::discard);
+		winnerRegion.getEntitiesOfClass(game, ArmorStand.class)
+				.forEach(Entity::discard);
 
 		CompoundTag nbt = new CompoundTag();
 		nbt.putString("id", "dummyplayers:dummy_player");
@@ -276,7 +238,7 @@ public class CrabGolfHoleBehavior implements PersistentGameBehavior {
 			nbt.put("name_suffix", suffix);
 		}
 
-		Vec3 rcenter = winnerRegion.center();
+		Vec3 rcenter = winnerBox.center();
 		// move to floor
 		Vec3 pos = new Vec3(rcenter.x, rcenter.y - 0.5, rcenter.z);
 
@@ -295,44 +257,28 @@ public class CrabGolfHoleBehavior implements PersistentGameBehavior {
 
 	public static class TeleportTarget {
 		public static final Codec<TeleportTarget> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-				Codec.STRING.fieldOf("in").forGetter(b -> b.in),
-				Codec.STRING.fieldOf("out").forGetter(b -> b.out),
+				RegionQuery.CODEC.fieldOf("in").forGetter(b -> b.in),
+				RegionQuery.CODEC.fieldOf("out").forGetter(b -> b.out),
 				Codec.BOOL.fieldOf("needs_stop").forGetter(b -> b.needsStop)
 		).apply(instance, TeleportTarget::new));
-		private final String in;
-		private final String out;
+		private final RegionQuery in;
+		private final RegionQuery out;
 		private final boolean needsStop;
 
-		private BlockBox inRegion;
-		private BlockBox outRegion;
-
-		public TeleportTarget(String in, String out, boolean needsStop) {
+		public TeleportTarget(RegionQuery in, RegionQuery out, boolean needsStop) {
 			this.in = in;
 			this.out = out;
 			this.needsStop = needsStop;
 		}
 
-		public void initialize(GameRegions regions) {
-			inRegion = regions.getAny(in);
-			outRegion = regions.getAny(out);
-		}
-
-		public void tryTeleport(LivingEntity entity) {
-			if (inRegion == null || outRegion == null) {
-				return;
-			}
-
+		public void tryTeleport(PersistentGame game, LivingEntity entity) {
 			Vec3 velocity = entity.getDeltaMovement();
 			if (needsStop && !(Math.abs(velocity.x) < 0.01 && Math.abs(velocity.z) < 0.01)) {
 				return;
 			}
 
-			if (inRegion.asAabb().intersects(entity.getBoundingBox())) {
-				Vec3 rcenter = outRegion.center();
-				// move to floor
-				Vec3 center = new Vec3(rcenter.x, rcenter.y - 0.5, rcenter.z);
-
-				entity.snapTo(center);
+			if (in.intersects(game, entity.level(), entity.getBoundingBox())) {
+				entity.snapTo(Vec3.atBottomCenterOf(out.pickRandomPos(game, entity.getRandom())));
 			}
 		}
 	}

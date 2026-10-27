@@ -15,7 +15,6 @@ import net.minecraft.util.Unit;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
-import org.lovetropics.games.common.core.game.GameRegions;
 import org.lovetropics.games.common.core.game.GameResult;
 import org.lovetropics.games.common.core.game.GameStopReason;
 import org.lovetropics.games.common.core.game.IGameDefinition;
@@ -35,6 +34,7 @@ import org.lovetropics.games.common.core.game.player.MutablePlayerSet;
 import org.lovetropics.games.common.core.game.player.PlayerIterable;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
 import org.lovetropics.games.common.core.game.player.PlayerSet;
+import org.lovetropics.games.common.core.game.region.GameRegions;
 import org.lovetropics.games.common.core.game.state.GameStateMap;
 import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
 import org.lovetropics.games.common.core.game.util.GameScheduler;
@@ -66,11 +66,6 @@ public class GamePhase implements IGamePhase {
 	private final ServerLevel level;
 	private final GameMap map;
 	private final GameRegions gameRegions = new GameRegions() {
-		@Override
-		public Set<String> keySet() {
-			return map.mapRegions().keySet();
-		}
-
 		@Override
 		public Collection<BlockBox> get(String key) {
 			return map.mapRegions().get(key);
@@ -623,7 +618,7 @@ public class GamePhase implements IGamePhase {
 	}
 
 	@Override
-	public GameRegions mapRegions() {
+	public GameRegions gameRegions() {
 		return gameRegions;
 	}
 

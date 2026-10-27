@@ -1,7 +1,6 @@
 package org.lovetropics.games.common.core.game.behavior.instances.world;
 
 import com.lovetropics.lib.BlockBox;
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
@@ -15,21 +14,22 @@ import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GameActionEvents;
+import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.util.GameScheduler;
 
 import java.util.Collection;
 
 public record NicelyBreakRegionOfBlocksBehaviour(
-		String region
+		RegionQuery region
 ) implements IGameBehavior {
 
 	public static final MapCodec<NicelyBreakRegionOfBlocksBehaviour> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			Codec.STRING.fieldOf("region").forGetter(NicelyBreakRegionOfBlocksBehaviour::region)
+			RegionQuery.CODEC.fieldOf("region").forGetter(NicelyBreakRegionOfBlocksBehaviour::region)
 	).apply(i, NicelyBreakRegionOfBlocksBehaviour::new));
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		Collection<BlockBox> regionToBreak = game.mapRegions().getAll(region);
+		Collection<BlockBox> regionToBreak = region.all(game);
 		events.listen(GameActionEvents.APPLY, (context, targets) -> {
 			regionToBreak.forEach(blockBox -> {
 				findNeighboursOfTypeAndDestroyWithinRegion(game.scheduler(), game.level(), blockBox.centerBlock(), null, blockBox);

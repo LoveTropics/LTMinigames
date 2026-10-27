@@ -12,38 +12,36 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.levelgen.Heightmap;
 import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.core.game.GameException;
-import org.lovetropics.games.common.core.game.GameRegions;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.action.ActionSubjects;
 import org.lovetropics.games.common.core.game.behavior.action.GameActionList;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GameActionEvents;
+import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.util.EntityTemplate;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 public class SpawnEntityAtRegionsAction implements IGameBehavior {
 	public static final MapCodec<SpawnEntityAtRegionsAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			Codec.STRING.listOf().fieldOf("regions_to_spawn_at").forGetter(c -> c.regionsToSpawnAtKeys),
+			RegionQuery.CODEC.fieldOf("regions_to_spawn_at").forGetter(c -> c.regionsToSpawnAtKeys),
 			EntityTemplate.CODEC.fieldOf("entity").forGetter(c -> c.entity),
 			Codec.INT.optionalFieldOf("entity_count_per_region", 1).forGetter(c -> c.entityCountPerRegion),
 			Codec.BOOL.optionalFieldOf("at_heightmap", true).forGetter(c -> c.atHeightmap),
-			Codec.STRING.optionalFieldOf("face_region").forGetter(c -> c.faceRegion),
+			RegionQuery.CODEC.optionalFieldOf("face_region").forGetter(c -> c.faceRegion),
 			GameActionList.CODEC.optionalFieldOf("entity_spawn_actions").forGetter(c -> c.entitySpawnActions)
 	).apply(i, SpawnEntityAtRegionsAction::new));
 
-	private final List<String> regionsToSpawnAtKeys;
+	private final RegionQuery regionsToSpawnAtKeys;
 	private final EntityTemplate entity;
 	private final int entityCountPerRegion;
 	private final boolean atHeightmap;
-	private final Optional<String> faceRegion;
+	private final Optional<RegionQuery> faceRegion;
 	private final Optional<GameActionList> entitySpawnActions;
 	private @Nullable BlockBox faceBox;
 
-	public SpawnEntityAtRegionsAction(List<String> regionsToSpawnAtKeys, EntityTemplate entity, int entityCountPerRegion, boolean atHeightmap, Optional<String> faceRegion, Optional<GameActionList> entitySpawnActions) {
+	public SpawnEntityAtRegionsAction(RegionQuery regionsToSpawnAtKeys, EntityTemplate entity, int entityCountPerRegion, boolean atHeightmap, Optional<RegionQuery> faceRegion, Optional<GameActionList> entitySpawnActions) {
 		this.regionsToSpawnAtKeys = regionsToSpawnAtKeys;
 		this.entity = entity;
 		this.entityCountPerRegion = entityCountPerRegion;
@@ -54,23 +52,12 @@ public class SpawnEntityAtRegionsAction implements IGameBehavior {
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		GameRegions regions = game.mapRegions();
-
-		faceRegion.ifPresent(key -> faceBox = regions.getOrThrow(key));
+		faceRegion.ifPresent(key -> faceBox = key.one(game));
 		entitySpawnActions.ifPresent(actions -> actions.register(game, events));
 
-		List<BlockBox> regionsToSpawnAt = new ArrayList<>();
-		for (String key : regionsToSpawnAtKeys) {
-			regionsToSpawnAt.addAll(regions.get(key));
-		}
-
 		events.listen(GameActionEvents.APPLY, (context, targets) -> {
-			if (regionsToSpawnAt.isEmpty()) {
-				return false;
-			}
-
 			ServerLevel level = game.level();
-			for (BlockBox region : regionsToSpawnAt) {
+			for (BlockBox region : regionsToSpawnAtKeys.all(game)) {
 				for (int i = 0; i < entityCountPerRegion; i++) {
 					BlockPos pos = region.sample(game.random());
 					if (atHeightmap) {

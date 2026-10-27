@@ -56,6 +56,7 @@ import org.lovetropics.games.common.core.game.client_state.GameClientState;
 import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
 import org.lovetropics.games.common.core.game.client_state.instance.CraftingBeeCraftsClientState;
 import org.lovetropics.games.common.core.game.player.PlayerSet;
+import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.state.TimedGameState;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
 import org.lovetropics.games.common.core.game.state.team.GameTeam;
@@ -87,7 +88,7 @@ public class CraftingBeeBehavior implements IGameBehavior {
 			TemplatedText.CODEC.fieldOf("timer_bar").forGetter(c -> c.timerBarText),
 			Codec.INT.fieldOf("time_per_team").forGetter(t -> t.timePerTeam),
 			Codec.INT.fieldOf("recycling_penalty").forGetter(t -> t.recyclingPenalty),
-			Codec.STRING.fieldOf("recycling_region").forGetter(c -> c.recyclingRegionKey),
+			RegionQuery.CODEC.fieldOf("recycling_region").forGetter(c -> c.recyclingRegion),
 			Codec.unboundedMap(GameTeamKey.CODEC, TeamRegions.CODEC).fieldOf("team_regions").forGetter(b -> b.teamRegions)
 	).apply(in, CraftingBeeBehavior::new));
 
@@ -97,12 +98,11 @@ public class CraftingBeeBehavior implements IGameBehavior {
 
 	private final TemplatedText timerBarText;
 	private final int timePerTeam, recyclingPenalty;
-	private final String recyclingRegionKey;
+	private final RegionQuery recyclingRegion;
 	private final Map<GameTeamKey, TeamRegions> teamRegions;
 
 	private TeamState teams;
 	private IGamePhase game;
-	private List<BlockBox> recyclingRegions;
 
 	private ListMultimap<GameTeamKey, CraftingTask> tasks;
 	private volatile boolean done;
@@ -110,7 +110,7 @@ public class CraftingBeeBehavior implements IGameBehavior {
 	private Map<GameTeamKey, CraftingTeamState> teamStates;
 	private Set<GameTeamKey> teamsWithoutTime;
 
-	public CraftingBeeBehavior(List<RecipeSelector> selectors, List<IngredientDecomposer> decomposers, int allowedHints, TemplatedText timerBarText, int timePerTeam, int recyclingPenalty, String recyclingRegionKey, Map<GameTeamKey, TeamRegions> teamRegions) {
+	public CraftingBeeBehavior(List<RecipeSelector> selectors, List<IngredientDecomposer> decomposers, int allowedHints, TemplatedText timerBarText, int timePerTeam, int recyclingPenalty, RegionQuery recyclingRegion, Map<GameTeamKey, TeamRegions> teamRegions) {
 		this.selectors = selectors;
 		this.decomposers = decomposers;
 		this.allowedHints = allowedHints;
@@ -118,7 +118,7 @@ public class CraftingBeeBehavior implements IGameBehavior {
 		this.timerBarText = timerBarText;
 		this.timePerTeam = timePerTeam;
 		this.recyclingPenalty = recyclingPenalty;
-		this.recyclingRegionKey = recyclingRegionKey;
+		this.recyclingRegion = recyclingRegion;
 		this.teamRegions = teamRegions;
 	}
 
@@ -130,8 +130,6 @@ public class CraftingBeeBehavior implements IGameBehavior {
 
 		this.game = game;
 		teams = game.instanceState().getOrThrow(TeamState.KEY);
-
-		recyclingRegions = game.mapRegions().getAll(recyclingRegionKey);
 
 		teamStates = new HashMap<>();
 		teamsWithoutTime = new HashSet<>();
@@ -194,8 +192,8 @@ public class CraftingBeeBehavior implements IGameBehavior {
 	}
 
 	private List<TaskDisplay> setupTaskDisplays(TeamRegions teamRegions, List<CraftingTask> recipes) {
-		BlockBox beaconRow = game.mapRegions().getOrThrow(teamRegions.beaconRow);
-		BlockBox itemRow = game.mapRegions().getOrThrow(teamRegions.itemRow);
+		BlockBox beaconRow = teamRegions.beaconRow.one(game);
+		BlockBox itemRow = teamRegions.itemRow.one(game);
 
 		List<BlockPos> beaconGlassPositions = BlockPos.betweenClosedStream(beaconRow.min(), beaconRow.max())
 				.filter(pos -> game.level().getBlockState(pos).is(Tags.Blocks.GLASS_BLOCKS))
@@ -410,10 +408,8 @@ public class CraftingBeeBehavior implements IGameBehavior {
 			return InteractionResult.FAIL;
 		}
 		ItemStack itemInHand = player.getItemInHand(hand);
-		for (BlockBox recycler : recyclingRegions) {
-			if (recycler.contains(pos) && !itemInHand.isEmpty()) {
-				return useRecycler(player, itemInHand);
-			}
+		if (!itemInHand.isEmpty() && recyclingRegion.contains(game, level, pos)) {
+			return useRecycler(player, itemInHand);
 		}
 		return InteractionResult.PASS;
 	}
@@ -479,12 +475,12 @@ public class CraftingBeeBehavior implements IGameBehavior {
 	}
 
 	private record TeamRegions(
-			String beaconRow,
-			String itemRow
+			RegionQuery beaconRow,
+			RegionQuery itemRow
 	) {
 		public static final Codec<TeamRegions> CODEC = RecordCodecBuilder.create(i -> i.group(
-				Codec.STRING.fieldOf("beacon_row").forGetter(TeamRegions::beaconRow),
-				Codec.STRING.fieldOf("item_row").forGetter(TeamRegions::itemRow)
+				RegionQuery.CODEC.fieldOf("beacon_row").forGetter(TeamRegions::beaconRow),
+				RegionQuery.CODEC.fieldOf("item_row").forGetter(TeamRegions::itemRow)
 		).apply(i, TeamRegions::new));
 	}
 

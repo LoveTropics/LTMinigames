@@ -29,6 +29,7 @@ import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
+import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.state.Overlords;
 import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
@@ -47,12 +48,12 @@ import java.util.Set;
 import java.util.UUID;
 
 public final class BuildBattleBehavior implements IGameBehavior {
-	private final String plotRegionsName;
+	private final RegionQuery plotRegionsName;
 	private final long buildTime;
 	private final long reviewTime;
 
 	public static final MapCodec<BuildBattleBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			Codec.STRING.fieldOf("plots_name").forGetter(c -> c.plotRegionsName),
+			RegionQuery.CODEC.fieldOf("plots_name").forGetter(c -> c.plotRegionsName),
 			Codec.LONG.fieldOf("build_time").orElse((long) (5 * 60 * SharedConstants.TICKS_PER_SECOND)).forGetter(c -> c.buildTime)
 	).apply(i, BuildBattleBehavior::new));
 
@@ -69,7 +70,7 @@ public final class BuildBattleBehavior implements IGameBehavior {
 	private GameBossBar bar;
 	private boolean building = true;
 
-	public BuildBattleBehavior(String plotRegionsName, long buildTime) {
+	public BuildBattleBehavior(RegionQuery plotRegionsName, long buildTime) {
 		this.plotRegionsName = plotRegionsName;
 		this.buildTime = buildTime;
 		reviewTime = buildTime + 10 * SharedConstants.TICKS_PER_SECOND;
@@ -136,7 +137,7 @@ public final class BuildBattleBehavior implements IGameBehavior {
 			});
 		});
 
-		events.listen(GamePlayerEvents.BEFORE_ADD_PLAYERS, (participants, spectators) -> assignPlots(participants, game.mapRegions().get(plotRegionsName)));
+		events.listen(GamePlayerEvents.BEFORE_ADD_PLAYERS, (participants, spectators) -> assignPlots(participants, plotRegionsName.all(game)));
 		events.listen(GamePlayerEvents.SPAWN, (playerId, spawn, role) -> spawnPlayer(game.level(), playerId, spawn));
 
 		// players cannot interact with blocks outside their plot

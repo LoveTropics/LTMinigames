@@ -27,6 +27,7 @@ import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GameLogicEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
+import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
 import org.lovetropics.games.common.core.game.state.team.TeamState;
@@ -37,16 +38,16 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 public record DeACoudreBehavior(
-		String waterRegionKey,
-		String holeRegion,
+		RegionQuery waterRegion,
+		RegionQuery holeRegion,
 		BlockPalette defaultPalette,
 		Map<GameTeamKey, BlockPalette> teamPalettes,
 		int pointsPerBlock,
 		int pointsPerBonus
 ) implements IGameBehavior {
 	public static final MapCodec<DeACoudreBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			Codec.STRING.fieldOf("water_region").forGetter(b -> b.waterRegionKey),
-			Codec.STRING.fieldOf("hole_region").forGetter(b -> b.holeRegion),
+			RegionQuery.CODEC.fieldOf("water_region").forGetter(b -> b.waterRegion),
+			RegionQuery.CODEC.fieldOf("hole_region").forGetter(b -> b.holeRegion),
 			BlockPalette.CODEC.optionalFieldOf("palette", BlockPalette.DEFAULT).forGetter(b -> b.defaultPalette),
 			Codec.unboundedMap(GameTeamKey.CODEC, BlockPalette.CODEC).optionalFieldOf("team_palettes", Map.of()).forGetter(b -> b.teamPalettes),
 			Codec.INT.optionalFieldOf("points_per_block", 1).forGetter(b -> b.pointsPerBlock),
@@ -58,8 +59,8 @@ public record DeACoudreBehavior(
 		ServerLevel level = game.level();
 		TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
 
-		BlockBox water = game.mapRegions().getOrThrow(waterRegionKey);
-		BlockBox hole = game.mapRegions().getOrThrow(holeRegion);
+		BlockBox water = waterRegion.one(game);
+		BlockBox hole = holeRegion.one(game);
 		int holeY = hole.min().getY();
 
 		Board board = Board.build(level, water);

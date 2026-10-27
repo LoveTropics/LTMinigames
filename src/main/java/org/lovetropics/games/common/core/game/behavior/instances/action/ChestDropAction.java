@@ -14,7 +14,6 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
-import net.minecraft.util.Util;
 import net.minecraft.util.random.WeightedList;
 import net.minecraft.util.valueproviders.IntProvider;
 import net.minecraft.util.valueproviders.IntProviders;
@@ -35,14 +34,15 @@ import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.client_state.GameClientState;
 import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
+import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.state.BeaconState;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public record ChestDropAction(String region, WeightedList<ResourceKey<LootTable>> lootTables, int delay, IntProvider count, float glowRadius) implements IGameBehavior {
+public record ChestDropAction(RegionQuery region, WeightedList<ResourceKey<LootTable>> lootTables, int delay, IntProvider count, float glowRadius) implements IGameBehavior {
 	public static final MapCodec<ChestDropAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			Codec.STRING.fieldOf("region").forGetter(ChestDropAction::region),
+			RegionQuery.CODEC.fieldOf("region").forGetter(ChestDropAction::region),
 			WeightedList.codec(ResourceKey.codec(Registries.LOOT_TABLE)).fieldOf("loot_tables").forGetter(c -> c.lootTables),
 			Codec.INT.fieldOf("delay").forGetter(ChestDropAction::delay),
 			IntProviders.POSITIVE_CODEC.fieldOf("count").forGetter(ChestDropAction::count),
@@ -53,7 +53,7 @@ public record ChestDropAction(String region, WeightedList<ResourceKey<LootTable>
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
-		List<BlockBox> regions = List.copyOf(game.mapRegions().get(region));
+		List<BlockBox> regions = List.copyOf(region.all(game));
 		if (regions.isEmpty()) {
 			throw new GameException(Component.literal("No regions with key '" + region + "' to spawn chest drops"));
 		}
@@ -67,12 +67,14 @@ public record ChestDropAction(String region, WeightedList<ResourceKey<LootTable>
 		events.listen(GameActionEvents.APPLY, (context, targets) -> {
 			int count = this.count.sample(random);
 			for (int i = 0; i < count; i++) {
-				BlockBox region = Util.getRandom(regions, random);
-				BlockPos pos = level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, region.sample(random));
+				BlockPos randomPos = region.pickRandomPos(game, game.random());
+				if (randomPos == null) {
+					continue;
+				}
+				BlockPos surfacePos = level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, randomPos);
 
-				beacons.add(pos);
-				beacons.sendTo(game.allPlayers());
-				delayedDrops.add(new DelayedDrop(pos, game.ticks() + delay));
+				beacons.add(surfacePos);
+				delayedDrops.add(new DelayedDrop(surfacePos, game.ticks() + delay));
 			}
 
 			return true;

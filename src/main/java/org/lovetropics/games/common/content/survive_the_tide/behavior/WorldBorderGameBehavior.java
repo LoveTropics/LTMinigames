@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.content.survive_the_tide.behavior;
 
-import com.lovetropics.lib.BlockBox;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -8,6 +7,7 @@ import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.ExtraCodecs;
@@ -22,17 +22,17 @@ import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.client_state.GameClientState;
 import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
+import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.state.BeaconState;
 import org.lovetropics.games.common.core.game.state.progress.ProgressChannel;
 import org.lovetropics.games.common.core.game.state.progress.ProgressHolder;
 import org.lovetropics.games.common.core.game.state.progress.ProgressionPeriod;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class WorldBorderGameBehavior implements IGameBehavior {
 	public static final MapCodec<WorldBorderGameBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			Codec.STRING.fieldOf("world_border_center").forGetter(c -> c.worldBorderCenterKey),
+			RegionQuery.CODEC.fieldOf("world_border_center").forGetter(c -> c.worldBorderCenterRegion),
 			ProgressChannel.CODEC.optionalFieldOf("channel", ProgressChannel.MAIN).forGetter(c -> c.channel),
 			ProgressionPeriod.CODEC.fieldOf("period").forGetter(c -> c.period),
 			Codec.INT.fieldOf("particle_height").forGetter(c -> c.particleHeight),
@@ -41,7 +41,7 @@ public class WorldBorderGameBehavior implements IGameBehavior {
 			ExtraCodecs.compactListCodec(ParticleType.CODEC).fieldOf("border_particles").forGetter(c -> c.borderParticles)
 	).apply(i, WorldBorderGameBehavior::new));
 
-	private final String worldBorderCenterKey;
+	private final RegionQuery worldBorderCenterRegion;
 	private final ProgressChannel channel;
 	private final ProgressionPeriod period;
 	private final int particleHeight;
@@ -55,9 +55,9 @@ public class WorldBorderGameBehavior implements IGameBehavior {
 
 	private boolean addedBeacon;
 
-	public WorldBorderGameBehavior(String worldBorderCenterKey, ProgressChannel channel, ProgressionPeriod period,
-	                               int particleHeight, int damageRateDelay, int damageAmount, List<ParticleType> borderParticles) {
-		this.worldBorderCenterKey = worldBorderCenterKey;
+	public WorldBorderGameBehavior(RegionQuery worldBorderCenterRegion, ProgressChannel channel, ProgressionPeriod period,
+								   int particleHeight, int damageRateDelay, int damageAmount, List<ParticleType> borderParticles) {
+		this.worldBorderCenterRegion = worldBorderCenterRegion;
 		this.channel = channel;
 		this.period = period;
 		this.particleHeight = particleHeight;
@@ -70,13 +70,9 @@ public class WorldBorderGameBehavior implements IGameBehavior {
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		phases = channel.getOrThrow(game);
 
-		List<BlockBox> regions = new ArrayList<>(game.mapRegions().get(worldBorderCenterKey));
-
-		if (!regions.isEmpty()) {
-			BlockBox centerRegion = regions.get(game.random().nextInt(regions.size()));
-			worldBorderCenter = centerRegion.centerBlock();
-		} else {
-			worldBorderCenter = BlockPos.ZERO;
+		worldBorderCenter = worldBorderCenterRegion.pickRandomPos(game, game.random());
+		if (worldBorderCenter == null) {
+			throw new GameException(Component.literal("No world border center"));
 		}
 
 		events.listen(GamePhaseEvents.TICK, () -> tickWorldBorder(game));

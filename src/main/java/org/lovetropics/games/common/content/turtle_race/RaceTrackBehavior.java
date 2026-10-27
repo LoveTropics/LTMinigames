@@ -22,7 +22,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.core.game.GameException;
-import org.lovetropics.games.common.core.game.GameRegions;
 import org.lovetropics.games.common.core.game.GameWinner;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
@@ -33,6 +32,7 @@ import org.lovetropics.games.common.core.game.behavior.event.GameLogicEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
+import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
 import org.lovetropics.games.common.core.game.util.GameBossBar;
@@ -42,7 +42,6 @@ import org.lovetropics.games.common.role.StreamHosts;
 import org.lovetropics.games.common.util.Util;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -52,8 +51,8 @@ import java.util.UUID;
 public class RaceTrackBehavior implements IGameBehavior {
 	public static final MapCodec<RaceTrackBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			PathData.CODEC.fieldOf("path").forGetter(b -> b.pathData),
-			Codec.STRING.optionalFieldOf("finish_region", "finish").forGetter(b -> b.finishRegion),
-			Codec.unboundedMap(Codec.STRING, GameActionList.CODEC).optionalFieldOf("checkpoint_regions", Map.of()).forGetter(b -> b.checkpointRegions),
+			RegionQuery.CODEC.optionalFieldOf("finish_region", RegionQuery.of("finish")).forGetter(b -> b.finishRegion),
+			Codec.unboundedMap(RegionQuery.CODEC, GameActionList.CODEC).optionalFieldOf("checkpoint_regions", Map.of()).forGetter(b -> b.checkpointRegions),
 			Codec.INT.optionalFieldOf("lap_count", 1).forGetter(b -> b.lapCount),
 			Codec.INT.optionalFieldOf("winner_count", 3).forGetter(b -> b.winnerCount),
 			Codec.LONG.optionalFieldOf("start_time", 0L).forGetter(b -> b.startTime),
@@ -71,8 +70,8 @@ public class RaceTrackBehavior implements IGameBehavior {
 	private static final int GAME_FINISH_SECONDS = 30;
 
 	private final PathData pathData;
-	private final String finishRegion;
-	private final Map<String, GameActionList> checkpointRegions;
+	private final RegionQuery finishRegion;
+	private final Map<RegionQuery, GameActionList> checkpointRegions;
 	private final int lapCount;
 	private final int winnerCount;
 	// TODO: Should be a phase / other kind of trigger
@@ -92,7 +91,7 @@ public class RaceTrackBehavior implements IGameBehavior {
 
 	private final List<Checkpoint> checkpoints = new ArrayList<>();
 
-	private RaceTrackBehavior(PathData pathData, String finishRegion, Map<String, GameActionList> checkpointRegions, int lapCount, int winnerCount, long startTime, GameActionList finishAction) {
+	private RaceTrackBehavior(PathData pathData, RegionQuery finishRegion, Map<RegionQuery, GameActionList> checkpointRegions, int lapCount, int winnerCount, long startTime, GameActionList finishAction) {
 		this.pathData = pathData;
 		this.finishRegion = finishRegion;
 		this.checkpointRegions = checkpointRegions;
@@ -108,7 +107,7 @@ public class RaceTrackBehavior implements IGameBehavior {
 
 		this.game = game;
 		widgets = GameWidgets.getOrRegister(game, events);
-		path = pathData.compile(game.mapRegions(), lapCount > 1);
+		path = pathData.compile(game, lapCount > 1);
 
 		registerCheckpoints(game, events);
 
@@ -169,12 +168,12 @@ public class RaceTrackBehavior implements IGameBehavior {
 	}
 
 	private void registerCheckpoints(IGamePhase game, EventRegistrar events) {
-		BlockBox finishBox = game.mapRegions().getOrThrow(finishRegion);
+		BlockBox finishBox = this.finishRegion.one(game);
 		// TODO: Hacky
 		registerCheckpoint(finishBox, 0.9f * path.length(), path.length(), this::onPlayerFinishLap);
 
-		for (Map.Entry<String, GameActionList> entry : checkpointRegions.entrySet()) {
-			Collection<BlockBox> regions = game.mapRegions().get(entry.getKey());
+		for (Map.Entry<RegionQuery, GameActionList> entry : checkpointRegions.entrySet()) {
+			List<BlockBox> regions = entry.getKey().all(game);
 			if (regions.isEmpty()) {
 				continue;
 			}
@@ -466,10 +465,10 @@ public class RaceTrackBehavior implements IGameBehavior {
 				Codec.STRING.fieldOf("prefix").forGetter(PathData::prefix)
 		).apply(i, PathData::new));
 
-		public RaceTrackPath compile(GameRegions regions, boolean loop) {
+		public RaceTrackPath compile(IGamePhase game, boolean loop) {
 			RaceTrackPath.Builder path = RaceTrackPath.builder();
 
-			List<BlockPos> positions = collectPositions(regions);
+			List<BlockPos> positions = collectPositions(game);
 			for (BlockPos point : positions) {
 				path.addPoint(point.getX(), point.getZ());
 			}
@@ -481,12 +480,12 @@ public class RaceTrackBehavior implements IGameBehavior {
 			return path.build();
 		}
 
-		private List<BlockPos> collectPositions(GameRegions regions) {
+		private List<BlockPos> collectPositions(IGamePhase game) {
 			List<BlockPos> positions = new ArrayList<>();
 			for (int index = start; index <= end; index++) {
-				BlockBox box = regions.getAny(prefix + index);
-				if (box != null) {
-					positions.add(box.centerBlock());
+				BlockBox region = RegionQuery.of(prefix + index).nullableOne(game);
+				if (region != null) {
+					positions.add(region.centerBlock());
 				}
 			}
 			return positions;

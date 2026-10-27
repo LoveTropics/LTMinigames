@@ -9,16 +9,17 @@ import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
 import org.lovetropics.games.common.core.game.client_state.instance.CollidersClientState;
 import org.lovetropics.games.common.core.game.util.ColliderSet;
 
-import java.util.HashMap;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 public class ColliderState implements IGameState {
 	public static final GameStateKey<ColliderState> KEY = GameStateKey.create("Colliders");
 
 	private final IGamePhase game;
 
-	private final Map<String, BlockBox> colliders = new HashMap<>();
+	private final Set<BlockBox> colliders = new HashSet<>();
 	private ColliderSet bakedColliders = ColliderSet.EMPTY;
 
 	private ColliderState(IGamePhase game) {
@@ -37,19 +38,24 @@ public class ColliderState implements IGameState {
 		return newState;
 	}
 
-	public void addCollider(String id, BlockBox box) {
-		colliders.put(id, box);
-		rebakeAndSynchronize();
+	public void addColliders(Collection<BlockBox> boxes) {
+		if (colliders.addAll(boxes)) {
+			rebakeAndSynchronize();
+		}
 	}
 
-	public void removeCollider(String id) {
-		if (colliders.remove(id) != null) {
+	public void removeColliders(Collection<BlockBox> boxes) {
+		boolean changed = false;
+		for (BlockBox box : boxes) {
+			changed |= colliders.remove(box);
+		}
+		if (changed) {
 			rebakeAndSynchronize();
 		}
 	}
 
 	private void rebakeAndSynchronize() {
-		bakedColliders = new ColliderSet(List.copyOf(colliders.values()));
+		bakedColliders = new ColliderSet(List.copyOf(colliders));
 		GameClientState.sendToPlayers(createClientState(), game.allPlayers());
 	}
 

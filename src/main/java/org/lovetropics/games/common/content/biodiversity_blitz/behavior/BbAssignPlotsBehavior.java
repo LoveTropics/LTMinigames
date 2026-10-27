@@ -12,7 +12,6 @@ import org.lovetropics.games.common.content.biodiversity_blitz.client_state.Chec
 import org.lovetropics.games.common.content.biodiversity_blitz.plot.Plot;
 import org.lovetropics.games.common.content.biodiversity_blitz.plot.PlotsState;
 import org.lovetropics.games.common.core.game.GameException;
-import org.lovetropics.games.common.core.game.GameRegions;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
@@ -56,14 +55,12 @@ public final class BbAssignPlotsBehavior implements IGameBehavior {
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
-		GameRegions regions = game.mapRegions();
-
 		events.listen(GamePhaseEvents.CREATE, () -> {
 			teamPlots.forEach((teamKey, config) -> {
 				if (teams.getTeamByKey(teamKey) == null) {
 					throw new GameException(Component.literal("Game team does not exist: " + teamKey));
 				}
-				Plot plot = Plot.create(game.level(), teamKey, config, regionKeys, regions);
+				Plot plot = Plot.create(game.level(), game, teamKey, config, regionKeys);
 				plots.addTeamPlot(teamKey, plot);
 				game.invoker(BbEvents.CREATE_PLOT).onCreatePlot(plot);
 			});

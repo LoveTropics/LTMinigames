@@ -22,6 +22,7 @@ import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GameActionEvents;
+import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.state.DebugModeState;
 
 import java.util.List;
@@ -30,7 +31,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 public record RunCommandsAction(
-		Map<String, List<String>> regionCommands,
+		Map<RegionQuery, List<String>> regionCommands,
 		List<String> entityCommands
 ) implements IGameBehavior {
 	public static final Codec<String> COMMAND_CODEC = Codec.STRING.xmap(
@@ -44,7 +45,7 @@ public record RunCommandsAction(
 	);
 
 	public static final MapCodec<RunCommandsAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			Codec.unboundedMap(Codec.STRING, ExtraCodecs.compactListCodec(COMMAND_CODEC)).optionalFieldOf("regions", Map.of()).forGetter(RunCommandsAction::regionCommands),
+			Codec.unboundedMap(RegionQuery.CODEC, ExtraCodecs.compactListCodec(COMMAND_CODEC)).optionalFieldOf("regions", Map.of()).forGetter(RunCommandsAction::regionCommands),
 			ExtraCodecs.compactListCodec(COMMAND_CODEC).optionalFieldOf("entity", List.of()).forGetter(RunCommandsAction::entityCommands)
 	).apply(i, RunCommandsAction::new));
 
@@ -52,8 +53,8 @@ public record RunCommandsAction(
 	public void register(IGamePhase game, EventRegistrar events) {
 		Commands commands = game.server().getCommands();
 
-		for (Map.Entry<String, List<String>> entry : regionCommands.entrySet()) {
-			BlockBox box = game.mapRegions().getOrThrow(entry.getKey());
+		for (Map.Entry<RegionQuery, List<String>> entry : regionCommands.entrySet()) {
+			BlockBox box = entry.getKey().one(game);
 			CommandSourceStack source = createCommandSourceAtRegion(game, box);
 
 			List<ParseResults<CommandSourceStack>> regionCommands = entry.getValue().stream()

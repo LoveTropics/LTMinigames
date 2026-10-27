@@ -1,32 +1,32 @@
 package org.lovetropics.games.common.core.game.behavior.instances.action;
 
-import com.lovetropics.lib.BlockBox;
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
-import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.core.game.region.RegionQuery;
+
+import java.util.Set;
 
 public record TeleportToRegionAction(
-		String region
+		RegionQuery region
 ) implements IGameBehavior {
-
 	public static final MapCodec<TeleportToRegionAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			Codec.STRING.fieldOf("region").forGetter(TeleportToRegionAction::region)
+			RegionQuery.CODEC.fieldOf("region").forGetter(TeleportToRegionAction::region)
 	).apply(i, TeleportToRegionAction::new));
 
 	@Override
-	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		BlockBox teleportToRegion = game.mapRegions().getAny(region);
-		if(teleportToRegion == null){
-			return;
-		}
-		Vec3 center = teleportToRegion.center();
-		events.applyToEntities(game, (context, level, target) -> {
-			target.teleportTo(center.x, center.y, center.z);
+	public void register(IGamePhase game, EventRegistrar events) {
+		events.applyToEntities(game, (_, _, target) -> {
+			BlockPos pos = this.region.pickRandomPos(game, game.random());
+			if (pos == null) {
+				return false;
+			}
+			Vec3 center = Vec3.atCenterOf(pos);
+			target.teleportTo(game.level(), center.x, center.y, center.z, Set.of(), target.getYRot(), target.getXRot(), false);
 			return true;
 		});
 	}

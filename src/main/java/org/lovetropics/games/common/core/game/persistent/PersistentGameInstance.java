@@ -1,16 +1,13 @@
 package org.lovetropics.games.common.core.game.persistent;
 
-import com.lovetropics.lib.BlockBox;
 import net.minecraft.server.level.ServerLevel;
 import org.jspecify.annotations.Nullable;
-import org.lovetropics.games.common.core.game.GameRegions;
 import org.lovetropics.games.common.core.game.behavior.event.GameEventListeners;
 import org.lovetropics.games.common.core.game.behavior.event.GameEventType;
 import org.lovetropics.games.common.core.game.player.MutablePlayerSet;
+import org.lovetropics.games.common.core.game.region.GameRegions;
 import org.lovetropics.maps.MapRegions;
 
-import java.util.Collection;
-import java.util.Set;
 import java.util.function.Function;
 
 public class PersistentGameInstance implements PersistentGame {
@@ -26,17 +23,7 @@ public class PersistentGameInstance implements PersistentGame {
 		this.level = level;
 		MapRegions mapRegions = regionsGetter != null ? regionsGetter.apply(level) : null;
 		if (mapRegions != null) {
-			regions = new GameRegions() {
-				@Override
-				public Set<String> keySet() {
-					return mapRegions.keySet();
-				}
-
-				@Override
-				public Collection<BlockBox> get(String key) {
-					return mapRegions.get(key);
-				}
-			};
+			regions = mapRegions::get;
 		} else {
 			regions = GameRegions.EMPTY;
 		}
@@ -67,7 +54,7 @@ public class PersistentGameInstance implements PersistentGame {
 	}
 
 	@Override
-	public GameRegions regions() {
+	public GameRegions gameRegions() {
 		return regions;
 	}
 }

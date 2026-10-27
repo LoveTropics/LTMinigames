@@ -15,15 +15,16 @@ import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
+import org.lovetropics.games.common.core.game.region.RegionQuery;
 
 public record RisingPlatformBehavior(
-		String platformKey,
+		RegionQuery platformRegion,
 		int time,
 		float height,
 		BlockState blockState
 ) implements IGameBehavior {
 	public static final MapCodec<RisingPlatformBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			Codec.STRING.fieldOf("platform").forGetter(RisingPlatformBehavior::platformKey),
+			RegionQuery.CODEC.fieldOf("platform").forGetter(RisingPlatformBehavior::platformRegion),
 			Codec.INT.fieldOf("time").forGetter(RisingPlatformBehavior::time),
 			Codec.FLOAT.fieldOf("height").forGetter(RisingPlatformBehavior::height),
 			MoreCodecs.BLOCK_STATE.fieldOf("block_state").forGetter(RisingPlatformBehavior::blockState)
@@ -31,11 +32,11 @@ public record RisingPlatformBehavior(
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		BlockBox platformRegion = game.mapRegions().getOrThrow(platformKey);
+		BlockBox platformRegion = this.platformRegion.one(game);
 		Vec3 center = platformRegion.center();
 		double startY = platformRegion.min().getY();
 
-		events.listen(GamePhaseEvents.START, initiator -> {
+		events.listen(GamePhaseEvents.START, _ -> {
 			PlatformEntity platform = new PlatformEntity(SurviveTheTide.PLATFORM.get(), game.level());
 			platform.absSnapTo(center.x(), startY, center.z());
 			platform.setWidth(platformRegion.size().getX());

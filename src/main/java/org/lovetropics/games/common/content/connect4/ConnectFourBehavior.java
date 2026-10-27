@@ -29,6 +29,7 @@ import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GameWorldEvents;
 import org.lovetropics.games.common.core.game.player.PlayerSet;
+import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.state.progress.ProgressChannel;
 import org.lovetropics.games.common.core.game.state.progress.ProgressHolder;
 import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
@@ -48,7 +49,7 @@ public class ConnectFourBehavior implements IGameBehavior {
 	public static final MapCodec<ConnectFourBehavior> CODEC = RecordCodecBuilder.mapCodec(in -> in.group(
 			Codec.unboundedMap(GameTeamKey.CODEC, GameBlock.CODEC.codec()).fieldOf("team_blocks").forGetter(c -> c.teamBlocks),
 			Codec.unboundedMap(GameTeamKey.CODEC, ProgressChannel.CODEC).fieldOf("team_timers").forGetter(c -> c.teamTimers),
-			Codec.STRING.fieldOf("placing_region").forGetter(c -> c.placingRegionKey),
+			RegionQuery.CODEC.fieldOf("placing_region").forGetter(c -> c.placingRegionKey),
 			MoreCodecs.BLOCK_STATE.fieldOf("separator").forGetter(c -> c.separator),
 			MoreCodecs.BLOCK_STATE.fieldOf("blocker").forGetter(c -> c.blocker),
 			Codec.INT.fieldOf("grid_width").forGetter(c -> c.width),
@@ -58,13 +59,13 @@ public class ConnectFourBehavior implements IGameBehavior {
 
 	private final Map<GameTeamKey, GameBlock> teamBlocks;
 	private final Map<GameTeamKey, ProgressChannel> teamTimers;
-	private final String placingRegionKey;
+	private final RegionQuery placingRegionKey;
 	private final BlockState separator;
 	private final BlockState blocker;
 
 	private final int width, height, connectAmount;
 
-	public ConnectFourBehavior(Map<GameTeamKey, GameBlock> teamBlocks, Map<GameTeamKey, ProgressChannel> teamTimers, String placingRegionKey, BlockState separator, BlockState blocker, int width, int height, int connectAmount) {
+	public ConnectFourBehavior(Map<GameTeamKey, GameBlock> teamBlocks, Map<GameTeamKey, ProgressChannel> teamTimers, RegionQuery placingRegionKey, BlockState separator, BlockState blocker, int width, int height, int connectAmount) {
 		this.teamBlocks = teamBlocks;
 		this.teamTimers = teamTimers;
 		this.placingRegionKey = placingRegionKey;
@@ -92,7 +93,7 @@ public class ConnectFourBehavior implements IGameBehavior {
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		this.game = game;
-		placingRegion = game.mapRegions().getOrThrow(placingRegionKey);
+		placingRegion = placingRegionKey.one(game);
 		teams = game.instanceState().getOrThrow(TeamState.KEY);
 
 		pieces = new PlacedPiece[width][height];

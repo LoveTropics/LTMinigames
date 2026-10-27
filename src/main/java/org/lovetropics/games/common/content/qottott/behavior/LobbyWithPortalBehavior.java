@@ -1,7 +1,6 @@
 package org.lovetropics.games.common.content.qottott.behavior;
 
 import com.lovetropics.lib.BlockBox;
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
@@ -31,6 +30,7 @@ import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
+import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.state.progress.ProgressChannel;
 import org.lovetropics.games.common.core.game.state.progress.ProgressionPeriod;
 
@@ -39,11 +39,11 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.BooleanSupplier;
 
-public record LobbyWithPortalBehavior(String portalRegion, String targetRegion, String pointTowardsRegion, ProgressChannel channel, ProgressionPeriod openAt, GameActionList teleportAction) implements IGameBehavior {
+public record LobbyWithPortalBehavior(RegionQuery portalRegion, RegionQuery targetRegion, RegionQuery pointTowardsRegion, ProgressChannel channel, ProgressionPeriod openAt, GameActionList teleportAction) implements IGameBehavior {
 	public static final MapCodec<LobbyWithPortalBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			Codec.STRING.fieldOf("portal_region").forGetter(LobbyWithPortalBehavior::portalRegion),
-			Codec.STRING.fieldOf("target_region").forGetter(LobbyWithPortalBehavior::targetRegion),
-			Codec.STRING.fieldOf("point_towards_region").forGetter(LobbyWithPortalBehavior::pointTowardsRegion),
+			RegionQuery.CODEC.fieldOf("portal_region").forGetter(LobbyWithPortalBehavior::portalRegion),
+			RegionQuery.CODEC.fieldOf("target_region").forGetter(LobbyWithPortalBehavior::targetRegion),
+			RegionQuery.CODEC.fieldOf("point_towards_region").forGetter(LobbyWithPortalBehavior::pointTowardsRegion),
 			ProgressChannel.CODEC.optionalFieldOf("channel", ProgressChannel.MAIN).forGetter(LobbyWithPortalBehavior::channel),
 			ProgressionPeriod.CODEC.fieldOf("open_at").forGetter(LobbyWithPortalBehavior::openAt),
 			GameActionList.CODEC.optionalFieldOf("on_teleport", GameActionList.EMPTY).forGetter(LobbyWithPortalBehavior::teleportAction)
@@ -53,13 +53,13 @@ public record LobbyWithPortalBehavior(String portalRegion, String targetRegion, 
 	public void register(IGamePhase game, EventRegistrar events) {
 		teleportAction.register(game, events);
 
-		BlockBox portal = game.mapRegions().getOrThrow(portalRegion);
-		List<BlockBox> targets = game.mapRegions().getAll(targetRegion);
+		BlockBox portal = portalRegion.one(game);
+		List<BlockBox> targets = targetRegion.all(game);
 		if (targets.isEmpty()) {
 			throw new GameException(Component.literal("No targets for portal"));
 		}
 
-		Vec3 pointTowards = game.mapRegions().getOrThrow(pointTowardsRegion).center();
+		Vec3 pointTowards = pointTowardsRegion.one(game).center();
 
 		BooleanSupplier predicate = openAt.createPredicate(game, channel);
 		MutableBoolean portalOpen = new MutableBoolean();

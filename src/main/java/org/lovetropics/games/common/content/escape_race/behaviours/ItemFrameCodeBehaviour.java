@@ -1,11 +1,10 @@
 package org.lovetropics.games.common.content.escape_race.behaviours;
 
-import com.lovetropics.lib.BlockBox;
+import com.google.common.collect.Iterables;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.advancements.predicates.ItemPredicate;
-import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.context.ContextMap;
@@ -26,8 +25,10 @@ import org.lovetropics.games.common.core.game.behavior.action.GameActionList;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
+import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.mixin.ItemFrameMixin;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +36,7 @@ import java.util.Optional;
 
 public record ItemFrameCodeBehaviour(
 		List<CodeItemFrame> itemFrames,
-		String buttonRegion,
+		RegionQuery buttonRegion,
 		GameActionList correctCode,
 		int lockoutTicks,
 		GameActionList incorrectCode,
@@ -44,7 +45,7 @@ public record ItemFrameCodeBehaviour(
 
 	public static final MapCodec<ItemFrameCodeBehaviour> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			CodeItemFrame.CODEC.listOf().fieldOf("item_frames").forGetter(ItemFrameCodeBehaviour::itemFrames),
-			Codec.STRING.fieldOf("button_region").forGetter(ItemFrameCodeBehaviour::buttonRegion),
+			RegionQuery.CODEC.fieldOf("button_region").forGetter(ItemFrameCodeBehaviour::buttonRegion),
 			GameActionList.CODEC.fieldOf("correct_code").forGetter(ItemFrameCodeBehaviour::correctCode),
 			Codec.INT.fieldOf("lockout_ticks").forGetter(ItemFrameCodeBehaviour::lockoutTicks),
 			GameActionList.CODEC.fieldOf("incorrect_code").forGetter(ItemFrameCodeBehaviour::incorrectCode),
@@ -57,13 +58,12 @@ public record ItemFrameCodeBehaviour(
 		correctCode.register(game, events);
 		incorrectCode.register(game, events);
 		lockoutCleared.ifPresent(gameActionList -> gameActionList.register(game, events));
-		Map<BlockBox, CodeItemFrame> regionToItemFrame = new HashMap<>();
+		Map<RegionQuery, CodeItemFrame> regionToItemFrame = new HashMap<>();
 		for (CodeItemFrame itemFrame : itemFrames) {
-			regionToItemFrame.put(game.mapRegions().getOrThrow(itemFrame.itemFrameRegion()), itemFrame);
+			regionToItemFrame.put(itemFrame.itemFrameRegion(), itemFrame);
 		}
-		BlockBox submitButton = game.mapRegions().getOrThrow(buttonRegion);
 		events.listen(GamePlayerEvents.USE_BLOCK, (player, level, pos, hand, traceResult) -> {
-			if(submitButton.contains(pos)){
+			if(buttonRegion.contains(game, level, pos)){
 				BlockState blockState = level.getBlockState(pos);
 				if(blockState.is(SurviveTheTide.BIG_RED_BUTTON) && !blockState.getValue(BigRedButtonBlock.TRIGGERED)){
 					BlockEntity blockEntity = level.getBlockEntity(pos);
@@ -81,26 +81,27 @@ public record ItemFrameCodeBehaviour(
 		events.listen(GamePhaseEvents.TICK, () -> {
 			if(state.lockoutStartTicks > -1 && (game.ticks() >= state.lockoutStartTicks + lockoutTicks)) {
 				state.lockoutStartTicks = -1;
-				BlockPos pos = submitButton.centerBlock();
 				ServerLevel level = game.level();
-				BlockEntity blockEntity = level.getBlockEntity(pos);
-				if(blockEntity instanceof BigRedButtonBlockEntity bigRedButtonBlockEntity){
-					bigRedButtonBlockEntity.reset();
-				}
-				level.setBlock(pos, level.getBlockState(pos).setValue(BigRedButtonBlock.TRIGGERED, false)
-						.setValue(BigRedButtonBlock.POWERED, false), BigRedButtonBlock.UPDATE_CLIENTS);
+				buttonRegion.forEachBlock(game, blockPos -> {
+					BlockEntity blockEntity = level.getBlockEntity(blockPos);
+					if(blockEntity instanceof BigRedButtonBlockEntity bigRedButtonBlockEntity){
+						bigRedButtonBlockEntity.reset();
+					}
+					level.setBlock(blockPos, level.getBlockState(blockPos).setValue(BigRedButtonBlock.TRIGGERED, false)
+							.setValue(BigRedButtonBlock.POWERED, false), BigRedButtonBlock.UPDATE_CLIENTS);
+				});
 				lockoutCleared.ifPresent(gameActionList -> gameActionList.apply(game, ContextMap.EMPTY));
 			}
 		});
 	}
 
-	private boolean isWrongCode(IGamePhase game, Map<BlockBox, CodeItemFrame> itemFrameMap, ServerLevel level, ServerPlayer player){
+	private boolean isWrongCode(IGamePhase game, Map<RegionQuery, CodeItemFrame> itemFrameMap, ServerLevel level, ServerPlayer player){
 		boolean isWrong = false;
-		for (BlockBox blockPos : itemFrameMap.keySet()) {
+		for (RegionQuery blockPos : itemFrameMap.keySet()) {
 			CodeItemFrame itemFrame = itemFrameMap.get(blockPos);
-			List<ItemFrame> itemFramesInRegion = level.getEntitiesOfClass(ItemFrame.class, blockPos.asAabb());
-			if(!itemFramesInRegion.isEmpty()){
-				ItemFrame first = itemFramesInRegion.getFirst();
+			Collection<ItemFrame> itemFramesInRegion = blockPos.getEntitiesOfClass(game, ItemFrame.class);
+			ItemFrame first = Iterables.getFirst(itemFramesInRegion, null);
+			if(first != null){
 				if(!first.getItem().isEmpty()){
 					if(!itemFrame.itemPredicate.test(first.getItem())){
 						isWrong = true;
@@ -109,9 +110,9 @@ public record ItemFrameCodeBehaviour(
 					} else {
 						((ItemFrameMixin) first).setFixed(true);
 						if(itemFrame.lightRegion().isPresent()){
-							BlockBox itemFrameLight = game.mapRegions().getOrThrow(itemFrame.lightRegion().get());
-							BlockPos lightPos = itemFrameLight.centerBlock();
-							level.setBlock(lightPos, level.getBlockState(lightPos).setValue(CopperBulbBlock.LIT, true), BigRedButtonBlock.UPDATE_CLIENTS);
+							itemFrame.lightRegion().get().forEachBlock(game, lightPos ->
+									level.setBlock(lightPos, level.getBlockState(lightPos).setValue(CopperBulbBlock.LIT, true), BigRedButtonBlock.UPDATE_CLIENTS)
+							);
 						}
 					}
 				} else {
@@ -129,10 +130,10 @@ public record ItemFrameCodeBehaviour(
 		return isWrong;
 	}
 
-	public record CodeItemFrame(String itemFrameRegion, Optional<String> lightRegion, ItemPredicate itemPredicate) {
+	public record CodeItemFrame(RegionQuery itemFrameRegion, Optional<RegionQuery> lightRegion, ItemPredicate itemPredicate) {
 		public static final Codec<CodeItemFrame> CODEC = RecordCodecBuilder.create(i -> i.group(
-				Codec.STRING.fieldOf("item_frame_region").forGetter(CodeItemFrame::itemFrameRegion),
-				Codec.STRING.optionalFieldOf("light_region").forGetter(CodeItemFrame::lightRegion),
+				RegionQuery.CODEC.fieldOf("item_frame_region").forGetter(CodeItemFrame::itemFrameRegion),
+				RegionQuery.CODEC.optionalFieldOf("light_region").forGetter(CodeItemFrame::lightRegion),
 				ItemPredicate.CODEC.fieldOf("item_predicate").forGetter(CodeItemFrame::itemPredicate)
 		).apply(i, CodeItemFrame::new));
 	}

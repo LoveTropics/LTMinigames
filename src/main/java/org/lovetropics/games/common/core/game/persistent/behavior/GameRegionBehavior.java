@@ -1,7 +1,5 @@
 package org.lovetropics.games.common.core.game.persistent.behavior;
 
-import com.lovetropics.lib.BlockBox;
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.server.level.ServerPlayer;
@@ -12,30 +10,20 @@ import org.lovetropics.games.common.core.game.persistent.PersistentGame;
 import org.lovetropics.games.common.core.game.persistent.PersistentGameBehavior;
 import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviorType;
 import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviors;
+import org.lovetropics.games.common.core.game.region.RegionQuery;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class GameRegionBehavior implements PersistentGameBehavior {
+public record GameRegionBehavior(
+		RegionQuery region
+) implements PersistentGameBehavior {
 	public static final MapCodec<GameRegionBehavior> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-	        Codec.STRING.fieldOf("region").forGetter(b -> b.region)
+	        RegionQuery.CODEC.fieldOf("region").forGetter(b -> b.region)
 	).apply(instance, GameRegionBehavior::new));
-
-	private final String region;
-
-	private final List<BlockBox> regions = new ArrayList<>();
-
-	public GameRegionBehavior(String region) {
-		this.region = region;
-	}
 
 	@Override
 	public void register(PersistentGame game, EventRegistrar events) {
-		events.listen(GamePhaseEvents.START, initiator -> {
-			regions.addAll(game.regions().get(region));
-		});
-
 		events.listen(GamePhaseEvents.TICK, () -> {
 			// Add any players to the game
 			List<ServerPlayer> players = game.level().players();
@@ -45,30 +33,15 @@ public class GameRegionBehavior implements PersistentGameBehavior {
 					continue;
 				}
 
-				for (BlockBox box : regions) {
-					if (box.contains(player.position())) {
-						game.players().add(player);
-						game.invoker(GamePlayerEvents.ADD).onAdd(player);
-						break;
-					}
+				if (region.contains(game, player)) {
+					game.players().add(player);
+					game.invoker(GamePlayerEvents.ADD).onAdd(player);
 				}
 			}
 
 			for (ServerPlayer player : game.players()) {
-				boolean keep = false;
-
 				// Left world/game? always remove
-				if (players.contains(player)) {
-					for (BlockBox box : regions) {
-						// Found the player in a region in the world
-						if (box.contains(player.position())) {
-							keep = true;
-							break;
-						}
-					}
-				}
-
-				if (!keep) {
+				if (!region.contains(game, player)) {
 					game.players().remove(player);
 					game.invoker(GamePlayerEvents.REMOVE).onRemove(player);
 				}

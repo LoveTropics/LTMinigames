@@ -1,7 +1,6 @@
 package org.lovetropics.games.common.core.game.behavior.instances.world;
 
 import com.lovetropics.lib.BlockBox;
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
@@ -23,19 +22,20 @@ import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GameWorldEvents;
+import org.lovetropics.games.common.core.game.region.RegionQuery;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 public record DistributeLootBehavior(
-		String region,
+		RegionQuery region,
 		BlockEntityType<?> blockEntityType,
 		ItemStackTemplate item,
 		int count
 ) implements IGameBehavior {
 	public static final MapCodec<DistributeLootBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			Codec.STRING.fieldOf("region").forGetter(DistributeLootBehavior::region),
+			RegionQuery.CODEC.fieldOf("region").forGetter(DistributeLootBehavior::region),
 			BuiltInRegistries.BLOCK_ENTITY_TYPE.byNameCodec().fieldOf("block_entity_type").forGetter(DistributeLootBehavior::blockEntityType),
 			ItemStackTemplate.CODEC.fieldOf("item").forGetter(DistributeLootBehavior::item),
 			ExtraCodecs.POSITIVE_INT.fieldOf("count").forGetter(DistributeLootBehavior::count)
@@ -43,7 +43,7 @@ public record DistributeLootBehavior(
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		Collection<BlockBox> region = game.mapRegions().getAll(this.region);
+		List<BlockBox> region = this.region.all(game);
 
 		LongSet pendingChunks = new LongOpenHashSet();
 		region.forEach(box -> {
