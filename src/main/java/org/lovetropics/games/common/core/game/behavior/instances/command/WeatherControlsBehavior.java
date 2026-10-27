@@ -1,6 +1,9 @@
 package org.lovetropics.games.common.core.game.behavior.instances.command;
 
 import com.mojang.serialization.MapCodec;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
 import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
@@ -11,6 +14,7 @@ import org.lovetropics.games.common.core.game.weather.PrecipitationType;
 import org.lovetropics.games.common.core.game.weather.WeatherController;
 import org.lovetropics.games.common.core.game.weather.WeatherControllerManager;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 public class WeatherControlsBehavior implements IGameBehavior {
@@ -20,7 +24,11 @@ public class WeatherControlsBehavior implements IGameBehavior {
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
-		controller = WeatherControllerManager.forWorld(game.level());
+		List<ServerLevel> levels = game.allLevels();
+		if (levels.size() != 1) {
+			throw new GameException(Component.literal("Weather only supports 1 dimension"));
+		}
+		controller = WeatherControllerManager.forWorld(levels.getFirst());
 
 		events.listen(GamePhaseEvents.REGISTER_COMMANDS, (commands, buildContext) -> {
 			commands.registerAdmin("start_heatwave", source -> controller.setHeatwave(true));

@@ -8,7 +8,7 @@ import org.lovetropics.dimensions.SharedDimensionState;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
+import org.lovetropics.games.common.core.game.behavior.event.GameWorldEvents;
 
 public record SetDifficultyBehavior(Difficulty difficulty) implements IGameBehavior {
 	public static final MapCodec<SetDifficultyBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
@@ -17,8 +17,8 @@ public record SetDifficultyBehavior(Difficulty difficulty) implements IGameBehav
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
-		events.listen(GamePhaseEvents.START, _ -> {
-			SharedDimensionState sharedState = RuntimeDimensions.get(game.server()).getSharedStateFor(game.level());
+		events.listen(GameWorldEvents.CREATE_LEVEL, level -> {
+			SharedDimensionState sharedState = RuntimeDimensions.get(level.getServer()).getSharedStateFor(level);
 			if (sharedState != null) {
 				sharedState.setDifficulty(difficulty);
 			}

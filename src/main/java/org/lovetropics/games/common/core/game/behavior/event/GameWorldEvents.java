@@ -26,6 +26,12 @@ import org.lovetropics.games.common.core.game.weather.WeatherEvent;
 import java.util.List;
 
 public final class GameWorldEvents {
+	public static final GameEventType<CreateLevel> CREATE_LEVEL = GameEventType.create(CreateLevel.class, listeners -> level -> {
+		for (CreateLevel listener : listeners) {
+			listener.onCreateLevel(level);
+		}
+	});
+
 	public static final GameEventType<ChunkLoad> CHUNK_LOAD = GameEventType.create(ChunkLoad.class, listeners -> (level, chunk) -> {
 		for (ChunkLoad listener : listeners) {
 			listener.onChunkLoad(level, chunk);
@@ -140,6 +146,10 @@ public final class GameWorldEvents {
 	});
 
 	private GameWorldEvents() {
+	}
+
+	public interface CreateLevel {
+		void onCreateLevel(ServerLevel level);
 	}
 
 	public interface ChunkLoad {

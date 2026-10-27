@@ -5,6 +5,8 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -13,6 +15,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.levelgen.Heightmap;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
@@ -25,6 +28,7 @@ import org.lovetropics.games.common.core.game.weather.WeatherController;
 import org.lovetropics.games.common.core.game.weather.WeatherControllerManager;
 import org.lovetropics.games.common.core.game.weather.WeatherEventType;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -43,7 +47,11 @@ public final class AddWeatherBehavior implements IGameBehavior {
 
 	@Override
 	public void registerState(IGamePhase game, GameStateMap phaseState, GameStateMap instanceState) {
-		WeatherController controller = WeatherControllerManager.forWorld(game.level());
+		List<ServerLevel> levels = game.allLevels();
+		if (levels.size() != 1) {
+			throw new GameException(Component.literal("Weather only supports 1 dimension"));
+		}
+		WeatherController controller = WeatherControllerManager.forWorld(levels.getFirst());
 		GameWorldEvents.SetWeather weatherListener = (lastEvent, event) -> game.invoker(GameWorldEvents.SET_WEATHER).onSetWeather(lastEvent, event);
 		weather = phaseState.register(GameWeatherState.KEY, new GameWeatherState(controller, weatherListener));
 	}

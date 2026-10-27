@@ -2,6 +2,7 @@ package org.lovetropics.games.common.core.game.behavior.instances;
 
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.portal.TeleportTransition;
 import org.lovetropics.games.common.core.game.IGamePhase;
@@ -21,9 +22,11 @@ public record MinecraftBehavior(
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
+		ServerLevel mainLevel = game.allLevels().getFirst();
+
 		Set<UUID> playersToSpawnProperly = new HashSet<>();
 		events.listen(GamePlayerEvents.SPAWN, (playerId, spawn, role) -> {
-			spawn.teleportTo(game.level(), game.level().getRespawnData().pos());
+			spawn.teleportTo(mainLevel, mainLevel.getRespawnData().pos());
 			if (role == PlayerRole.PARTICIPANT) {
 				playersToSpawnProperly.add(playerId);
 			}
@@ -32,16 +35,16 @@ public record MinecraftBehavior(
 		// This is a bit of hack because we need the player instance to respawn - until future versions!
 		events.listen(GamePlayerEvents.TICK, player -> {
 			if (playersToSpawnProperly.remove(player.getUUID())) {
-				spawnPlayer(game, player);
+				spawnPlayer(game, player, mainLevel);
 			}
 		});
 	}
 
-	private void spawnPlayer(IGamePhase game, ServerPlayer player) {
+	private void spawnPlayer(IGamePhase game, ServerPlayer player, ServerLevel mainLevel) {
 		TeleportTransition respawn = player.findRespawnPositionAndUseSpawnBlock(false, TeleportTransition.DO_NOTHING);
 		if (respawn.missingRespawnBlock() || respawn.newLevel() == game.server().overworld()) {
-			BlockPos pos = player.adjustSpawnLocation(game.level(), game.level().getRespawnData().pos());
-			player.teleportTo(game.level(), pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, Set.of(), 0.0f, 0.0f, true);
+			BlockPos pos = player.adjustSpawnLocation(mainLevel, mainLevel.getRespawnData().pos());
+			player.teleportTo(mainLevel, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, Set.of(), 0.0f, 0.0f, true);
 		} else {
 			player.teleport(respawn);
 		}

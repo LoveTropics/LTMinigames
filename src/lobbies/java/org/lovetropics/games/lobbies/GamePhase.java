@@ -26,6 +26,7 @@ import org.lovetropics.games.common.core.game.behavior.event.GameEventListeners;
 import org.lovetropics.games.common.core.game.behavior.event.GameEventType;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
+import org.lovetropics.games.common.core.game.behavior.event.GameWorldEvents;
 import org.lovetropics.games.common.core.game.behavior.event.SubGameEvents;
 import org.lovetropics.games.common.core.game.command.GameCommandSet;
 import org.lovetropics.games.common.core.game.config.GameConfig;
@@ -64,6 +65,7 @@ public class GamePhase implements IGamePhase {
 	private final @Nullable GamePhase parentPhase;
 
 	private final ServerLevel level;
+	private final List<ServerLevel> allLevels;
 	private final GameMap map;
 	private final GameRegions gameRegions = new GameRegions() {
 		@Override
@@ -107,6 +109,10 @@ public class GamePhase implements IGamePhase {
 		level = Objects.requireNonNull(server.getLevel(map.dimension()), "Game dimension not loaded");
 		this.map = map;
 
+		allLevels = map.allDimensions().stream()
+				.map(dimension -> Objects.requireNonNull(server.getLevel(dimension), "Game dimension not loaded"))
+				.toList();
+
 		for (PlayerRole role : PlayerRole.ROLES) {
 			playersByRole.put(role, allPlayers.filter(player -> roles.get(player.getUUID()) == role));
 		}
@@ -114,6 +120,10 @@ public class GamePhase implements IGamePhase {
 		behavior.registerState(this, phaseState, instanceState());
 		behavior.register(this, events);
 		invoker(GamePhaseEvents.CREATE).create();
+
+		for (ServerLevel level : allLevels) {
+			invoker(GameWorldEvents.CREATE_LEVEL).onCreateLevel(level);
+		}
 
 		Identifier introSlideshow = config.introSlideshow();
 		if (introSlideshow != null) {
@@ -635,6 +645,11 @@ public class GamePhase implements IGamePhase {
 	@Override
 	public ServerLevel level() {
 		return level;
+	}
+
+	@Override
+	public List<ServerLevel> allLevels() {
+		return allLevels;
 	}
 
 	@Override

@@ -27,6 +27,8 @@ public interface IGamePhase extends GameRegionHolder {
 	/// @return the world that this game takes place within
 	ServerLevel level();
 
+	List<ServerLevel> allLevels();
+
 	/// @return the dimension that this game takes places within
 	default ResourceKey<Level> dimension() {
 		return level().dimension();

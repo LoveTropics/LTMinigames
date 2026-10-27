@@ -38,9 +38,6 @@ public record UpdateWordBoxesInWorldBehaviour(
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		TeamState teams = game.instanceState().getOrThrow(TeamState.KEY);
 		events.listen(GameWorldEvents.CHUNK_LOAD, (level, chunk) -> {
-			if (level != game.level()) {
-				return;
-			}
 			GameTeam teamByKey = teams.getTeamByKey(teamKey);
 			if(teamByKey == null) {
 				throw new GameException(Component.literal("Bad team key!"));

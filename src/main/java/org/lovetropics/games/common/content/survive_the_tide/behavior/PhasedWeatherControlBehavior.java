@@ -4,7 +4,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.SharedConstants;
-import net.minecraft.server.level.ServerLevel;
 import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
@@ -35,8 +34,7 @@ public record PhasedWeatherControlBehavior(
 		ProgressHolder progression = channel.getOrThrow(game);
 
 		events.listen(GamePhaseEvents.TICK, () -> {
-			ServerLevel level = game.level();
-			if (level.getGameTime() % SharedConstants.TICKS_PER_SECOND == 0) {
+			if (game.ticks() % SharedConstants.TICKS_PER_SECOND == 0) {
 				tick(weather, progression);
 			}
 		});

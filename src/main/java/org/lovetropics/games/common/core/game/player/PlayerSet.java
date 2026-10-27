@@ -2,10 +2,13 @@ package org.lovetropics.games.common.core.game.player;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterators;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.PlayerList;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
 import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
 
@@ -181,6 +184,14 @@ public interface PlayerSet extends PlayerIterable {
 				return Iterators.filter(PlayerSet.this.iterator(), predicate);
 			}
 		};
+	}
+
+	default PlayerSet inDimension(ResourceKey<Level> dimension) {
+		return filter(player -> player.level().dimension() == dimension);
+	}
+
+	default PlayerSet inLevel(ServerLevel level) {
+		return filter(player -> player.level() == level);
 	}
 
 	default boolean contains(Entity entity) {
