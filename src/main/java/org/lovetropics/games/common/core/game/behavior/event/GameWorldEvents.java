@@ -17,7 +17,7 @@ import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.trialspawner.TrialSpawner;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.phys.HitResult;
 import org.jspecify.annotations.Nullable;
@@ -143,7 +143,7 @@ public final class GameWorldEvents {
 	}
 
 	public interface ChunkLoad {
-		void onChunkLoad(ServerLevel level, ChunkAccess chunk);
+		void onChunkLoad(ServerLevel level, LevelChunk chunk);
 	}
 
 	public interface ExplosionSound {
