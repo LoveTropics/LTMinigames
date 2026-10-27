@@ -1,5 +1,6 @@
 package org.lovetropics.games.common.core.game.behavior.instances.action;
 
+import com.lovetropics.lib.BlockBox;
 import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Codec;
@@ -9,10 +10,11 @@ import net.minecraft.commands.CommandSource;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.permissions.LevelBasedPermissionSet;
 import net.minecraft.util.ExtraCodecs;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec2;
-import net.minecraft.world.phys.Vec3;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
@@ -23,10 +25,14 @@ import org.lovetropics.games.common.core.game.behavior.event.GameActionEvents;
 import org.lovetropics.games.common.core.game.state.DebugModeState;
 
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public record RunCommandsAction(List<String> globalCommands, List<String> entityCommands) implements IGameBehavior {
+public record RunCommandsAction(
+		Map<String, List<String>> regionCommands,
+		List<String> entityCommands
+) implements IGameBehavior {
 	public static final Codec<String> COMMAND_CODEC = Codec.STRING.xmap(
 			command -> {
 				if (command.startsWith("/")) {
@@ -38,21 +44,23 @@ public record RunCommandsAction(List<String> globalCommands, List<String> entity
 	);
 
 	public static final MapCodec<RunCommandsAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			ExtraCodecs.compactListCodec(COMMAND_CODEC).optionalFieldOf("global", List.of()).forGetter(RunCommandsAction::globalCommands),
-			ExtraCodecs.compactListCodec(COMMAND_CODEC).optionalFieldOf("player", List.of()).forGetter(RunCommandsAction::entityCommands) //TODO: rename field (affects any entity)
+			Codec.unboundedMap(Codec.STRING, ExtraCodecs.compactListCodec(COMMAND_CODEC)).optionalFieldOf("regions", Map.of()).forGetter(RunCommandsAction::regionCommands),
+			ExtraCodecs.compactListCodec(COMMAND_CODEC).optionalFieldOf("entity", List.of()).forGetter(RunCommandsAction::entityCommands)
 	).apply(i, RunCommandsAction::new));
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
 		Commands commands = game.server().getCommands();
-		CommandSourceStack source = createCommandSource(game);
 
-		if (!globalCommands.isEmpty()) {
-			List<ParseResults<CommandSourceStack>> globalCommands = this.globalCommands.stream()
+		for (Map.Entry<String, List<String>> entry : regionCommands.entrySet()) {
+			BlockBox box = game.mapRegions().getOrThrow(entry.getKey());
+			CommandSourceStack source = createCommandSourceAtRegion(game, box);
+
+			List<ParseResults<CommandSourceStack>> regionCommands = entry.getValue().stream()
 					.map(command -> commands.getDispatcher().parse(command, source))
 					.toList();
 
-			for (ParseResults<CommandSourceStack> parse : globalCommands) {
+			for (ParseResults<CommandSourceStack> parse : regionCommands) {
 				if (!parse.getExceptions().isEmpty()) {
 					CommandSyntaxException exception = parse.getExceptions().values().iterator().next();
 					if (exception.getRawMessage() instanceof Component component) {
@@ -63,7 +71,7 @@ public record RunCommandsAction(List<String> globalCommands, List<String> entity
 			}
 
 			events.listen(GameActionEvents.APPLY, (context, targets) -> {
-				for (ParseResults<CommandSourceStack> command : globalCommands) {
+				for (ParseResults<CommandSourceStack> command : regionCommands) {
 					commands.performCommand(command, command.getReader().getString());
 				}
 				return true;
@@ -71,8 +79,8 @@ public record RunCommandsAction(List<String> globalCommands, List<String> entity
 		}
 
 		if (!entityCommands.isEmpty()) {
-			events.applyToEntities(game, (context, level, entity) -> {
-				CommandSourceStack targetSource = source.withLevel(level).withEntity(entity).withPosition(entity.position());
+			events.applyToEntities(game, (_, level, entity) -> {
+				CommandSourceStack targetSource = createCommandSourceForEntity(game, entity);
 				for (String command : entityCommands) {
 					commands.performPrefixedCommand(targetSource, command);
 				}
@@ -81,12 +89,38 @@ public record RunCommandsAction(List<String> globalCommands, List<String> entity
 		}
 	}
 
-	private static CommandSourceStack createCommandSource(IGamePhase game) {
-		boolean debugMode = game.state().getOrNull(DebugModeState.KEY) != null;
-		CommandSource source = debugMode ? game.server() : CommandSource.NULL;
-
+	private static CommandSourceStack createCommandSourceAtRegion(IGamePhase game, BlockBox region) {
 		Component name = game.definition().name();
-		return new CommandSourceStack(source, Vec3.ZERO, Vec2.ZERO, game.level(), LevelBasedPermissionSet.OWNER, name.getString(), name, game.server(), null);
+		return new CommandSourceStack(
+				commandSource(game),
+				region.center(),
+				Vec2.ZERO,
+				game.level(),
+				LevelBasedPermissionSet.OWNER,
+				name.getString(),
+				name,
+				game.server(),
+				null
+		);
+	}
+
+	private static CommandSourceStack createCommandSourceForEntity(IGamePhase game, Entity entity) {
+		return new CommandSourceStack(
+				commandSource(game),
+				entity.position(),
+				entity.getRotationVector(),
+				(ServerLevel) entity.level(),
+				LevelBasedPermissionSet.OWNER,
+				entity.getPlainTextName(),
+				entity.getDisplayName(),
+				game.server(),
+				entity
+		);
+	}
+
+	private static CommandSource commandSource(IGamePhase game) {
+		boolean debugMode = game.state().getOrNull(DebugModeState.KEY) != null;
+		return debugMode ? game.server() : CommandSource.NULL;
 	}
 
 	@Override

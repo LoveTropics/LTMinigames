@@ -54,7 +54,7 @@ public class ActionTriggerTests implements MinigameTest {
 		generator.builder(gameId("stop"))
 				.withPlayingPhase(new InlineMapProvider(Level.OVERWORLD), phaseBuilder -> phaseBuilder
 						.withBehavior(new StopGameTrigger(behaviors.applyToAllPlayers(
-								new RunCommandsAction(List.of(), List.of("give @s minecraft:oak_planks 13"))
+								new RunCommandsAction(Map.of(), List.of("give @s minecraft:oak_planks 13"))
 						), Optional.empty(), Optional.empty())));
 
 		generator.builder(gameId("events"))
