@@ -73,15 +73,14 @@ public record GeneratorMapProvider(
 		long seed = this.seed.orElseGet(() -> server.overworld().getRandom().nextLong());
 		// Shared between all the dimensions, so that settings like difficulty apply to all of them
 		SharedDimensionState dimensionState = SharedDimensionState.createFresh(server);
+		Map<ResourceKey<Level>, RuntimeDimensionHandle> dimensions = openDimensions(server, seed, dimensionState);
 
-		return CompletableFuture.supplyAsync(() -> openDimensions(server, seed, dimensionState), server)
-				.thenCompose(dimensions -> createMap(server, dimensions)
-						.whenComplete((map, throwable) -> {
-							if (throwable != null) {
-								dimensions.values().forEach(RuntimeDimensionHandle::markForDeletion);
-							}
-						})
-				);
+		CompletableFuture<GameMap> future = createMap(server, dimensions);
+		future.exceptionally(_ -> {
+			dimensions.values().forEach(RuntimeDimensionHandle::markForDeletion);
+			return null;
+		});
+		return future;
 	}
 
 	/// @return the opened dimensions keyed by the vanilla dimension that each stands in for
@@ -89,8 +88,6 @@ public record GeneratorMapProvider(
 		RuntimeDimensions dimensions = RuntimeDimensions.get(server);
 		Map<ResourceKey<Level>, RuntimeDimensionHandle> handles = new LinkedHashMap<>();
 		RuntimeDimensionHandle overworld = openDimension(dimensions, generator, dimensionType, seed, sharedDimensionState);
-		// The shared world info runs its clocks for the first level that asks for them - make sure that it is the overworld
-		overworld.asLevel().clockManager();
 		handles.put(Level.OVERWORLD, overworld);
 		nether.ifPresent(config -> handles.put(Level.NETHER, openDimension(dimensions, config.generator(), config.dimensionType(), seed, sharedDimensionState)));
 		end.ifPresent(config -> handles.put(Level.END, openDimension(dimensions, config.generator(), config.dimensionType(), seed, sharedDimensionState)));
@@ -125,7 +122,7 @@ public record GeneratorMapProvider(
 			Map<ResourceKey<Level>, ResourceKey<Level>> byVanillaKey = dimensions.entrySet().stream()
 					.collect(Collectors.toUnmodifiableMap(Map.Entry::getKey, entry -> entry.getValue().asKey()));
 			LevelData.RespawnData respawnData = LevelData.RespawnData.of(overwold.asKey(), pos.orElseThrow(), 0.0f, 0.0f);
-			RuntimeDimensions.get(server).	link(new LinkedDimensions(byVanillaKey, respawnData));
+			RuntimeDimensions.get(server).link(new LinkedDimensions(byVanillaKey, respawnData));
 
 			// we can just put every dimension we have for consistency
 			return map.withLinkedDimensions(dimensions.entrySet().stream()

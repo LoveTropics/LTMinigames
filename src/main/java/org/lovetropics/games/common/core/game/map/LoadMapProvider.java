@@ -52,8 +52,9 @@ public record LoadMapProvider(
 		SharedDimensionState sharedState = SharedDimensionState.createFresh(server);
 		RuntimeDimensionConfig config = new RuntimeDimensionConfig(dimension, sharedState);
 
-		return CompletableFuture.supplyAsync(() -> openDimension(server, config), server)
-				.thenApplyAsync(handle -> loadMapInto(server, handle), Util.backgroundExecutor())
+		RuntimeDimensionHandle handle = RuntimeDimensions.get(server).openTemporary(config);
+
+		return CompletableFuture.supplyAsync(() -> loadMapInto(server, handle), Util.backgroundExecutor())
 				.thenApplyAsync(pair -> {
 					RuntimeDimensionHandle dimensionHandle = pair.getFirst();
 					MapMetadata metadata = pair.getSecond();
@@ -62,10 +63,6 @@ public record LoadMapProvider(
 					return new GameMap(dimensionHandle.asKey(), metadata.regions())
 							.onClose(game -> dimensionHandle.markForDeletion());
 				}, server);
-	}
-
-	private RuntimeDimensionHandle openDimension(MinecraftServer server, RuntimeDimensionConfig config) {
-		return RuntimeDimensions.get(server).openTemporary(config);
 	}
 
 	private Pair<RuntimeDimensionHandle, MapMetadata> loadMapInto(MinecraftServer server, RuntimeDimensionHandle handle) {

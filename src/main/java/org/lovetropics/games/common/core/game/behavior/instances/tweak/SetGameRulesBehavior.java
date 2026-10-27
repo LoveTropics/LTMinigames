@@ -9,6 +9,7 @@ import net.minecraft.world.level.gamerules.GameRules;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.core.game.behavior.event.GameWorldEvents;
 
 public record SetGameRulesBehavior(boolean applyDefaults, GameRuleMap rules) implements IGameBehavior {
 	public static final MapCodec<SetGameRulesBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
@@ -18,13 +19,15 @@ public record SetGameRulesBehavior(boolean applyDefaults, GameRuleMap rules) imp
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
-		GameRules gameRules = game.level().getGameRules();
+		events.listen(GameWorldEvents.CREATE_LEVEL, (level, _) -> {
+			GameRules gameRules = level.getGameRules();
 
-		if (applyDefaults) {
-			GameRules defaultRules = new GameRules(FeatureFlags.VANILLA_SET);
-			gameRules.setAll(defaultRules, null);
-		}
+			if (applyDefaults) {
+				GameRules defaultRules = new GameRules(FeatureFlags.VANILLA_SET);
+				gameRules.setAll(defaultRules, null);
+			}
 
-		gameRules.setAll(rules, null);
+			gameRules.setAll(rules, null);
+		});
 	}
 }

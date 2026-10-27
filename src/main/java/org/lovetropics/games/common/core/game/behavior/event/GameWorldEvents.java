@@ -21,11 +21,19 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.phys.HitResult;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.core.game.GameRegions;
 import org.lovetropics.games.common.core.game.weather.WeatherEvent;
 
 import java.util.List;
 
 public final class GameWorldEvents {
+	// TODO invoke
+	public static final GameEventType<CreateLevel> CREATE_LEVEL = GameEventType.create(CreateLevel.class, listeners -> (level, levelRegions) -> {
+		for (CreateLevel listener : listeners) {
+			listener.onCreateLevel(level, levelRegions);
+		}
+	});
+
 	public static final GameEventType<ChunkLoad> CHUNK_LOAD = GameEventType.create(ChunkLoad.class, listeners -> (level, chunk) -> {
 		for (ChunkLoad listener : listeners) {
 			listener.onChunkLoad(level, chunk);
@@ -140,6 +148,10 @@ public final class GameWorldEvents {
 	});
 
 	private GameWorldEvents() {
+	}
+
+	public interface CreateLevel {
+		void onCreateLevel(ServerLevel level, GameRegions levelRegions);
 	}
 
 	public interface ChunkLoad {

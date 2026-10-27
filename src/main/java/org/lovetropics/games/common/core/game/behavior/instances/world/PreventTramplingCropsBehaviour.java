@@ -26,11 +26,9 @@ public record PreventTramplingCropsBehaviour (
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
+		// TODO need to figure a way to make this api work nicely
 		List<BlockBox> blockBoxes = game.mapRegions().getAll(regions);
 		events.listen(GameLivingEntityEvents.FARMLAND_TRAMPLE, (level, entity, blockPos, blockState) -> {
-			if (level != game.level()) {
-				return TriState.DEFAULT;
-			}
 			return onTrampleFarmland(blockBoxes, entity, blockPos, blockState);
 		});
 	}
@@ -39,6 +37,9 @@ public record PreventTramplingCropsBehaviour (
 		if(blockBoxes.isEmpty()){
 			return TriState.FALSE;
 		} else {
+			if (level != game.level()) {
+				return TriState.DEFAULT;
+			}
 			if(blockBoxes.stream().anyMatch(bb -> bb.contains(blockPos))){
 				return TriState.FALSE;
 			}

@@ -61,6 +61,9 @@ public record ItemDropperBehavior(Either<List<ItemStackTemplate>, ResourceKey<Lo
 
 		announcement.ifPresent(action -> action.register(game, events));
 
+		// TODO: There's actually two assumptions we're changing/breaking - multiple levels, but also a level that might arrive *later*.
+		//   is it reasonable even to consider other levels having regions??
+
 		Supplier<ItemStack> lootProvider = createLootProvider(game);
 		List<Dropper> droppers;
 		if (combined) {

@@ -1,7 +1,6 @@
 package org.lovetropics.games.common.core.game.behavior.action;
 
 import com.google.common.collect.Collections2;
-import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -65,7 +64,13 @@ public interface ActionTarget {
 		SPECTATORS("spectators", (game, targets, sources) -> ActionSubjects.ofPlayers(game.spectators())),
 		WIDEN_TO_TEAM("widen_to_team", (game, targets, sources) -> targets.coerceInto(game, ActionSubjectType.TEAM)),
 		WIDEN_TO_PLOT("widen_to_plot", (game, targets, sources) -> targets.coerceInto(game, ActionSubjectType.PLOT)),
-		ALL_ENTITIES("all_entities", (game, targets, sources) -> ActionSubjects.ofEntities(Lists.newArrayList(game.level().getAllEntities()))),
+		ALL_ENTITIES("all_entities", (game, targets, sources) -> {
+			List<Entity> entities = new ArrayList<>();
+			for (ServerLevel level : game.allLevels()) {
+				level.getAllEntities().forEach(entities::add);
+			}
+			return ActionSubjects.ofEntities(entities);
+		}),
 		ALL_PLAYERS_AND_SUBPHASES("all_players_and_subphases", (game, targets, sources) -> ActionSubjects.ofPlayers(game.allPlayers(true))),
 		;
 
