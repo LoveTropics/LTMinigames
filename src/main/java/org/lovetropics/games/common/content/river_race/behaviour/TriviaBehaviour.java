@@ -23,7 +23,6 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -42,7 +41,6 @@ import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.state.team.TeamState;
 import org.lovetropics.games.common.core.game.util.GameScheduler;
@@ -54,7 +52,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 public final class TriviaBehaviour implements IGameBehavior {
@@ -65,7 +62,6 @@ public final class TriviaBehaviour implements IGameBehavior {
 
 	private final Map<String, QuestionPool> questionsByZone;
 	private final int questionLockout;
-	private final Map<Long, BlockPos> lockedOutTriviaBlocks = new ConcurrentHashMap<>();
 
 	private final Set<TriviaQuestion> usedQuestions = new ObjectOpenHashSet<>();
 	private final Map<RiverRaceState.ZoneLocalPos, TriviaQuestion> questionsByZoneLocalPos = new HashMap<>();
@@ -77,19 +73,6 @@ public final class TriviaBehaviour implements IGameBehavior {
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		events.listen(GamePhaseEvents.TICK, () -> {
-			Set<Long> longs = lockedOutTriviaBlocks.keySet();
-			for (Long l : longs) {
-				if (game.level().getGameTime() >= l) {
-					BlockPos blockPos = lockedOutTriviaBlocks.get(l);
-					BlockEntity blockEntity = game.level().getBlockEntity(blockPos);
-					if (blockEntity instanceof HasTrivia triviaBlockEntity) {
-						triviaBlockEntity.unlock();
-						lockedOutTriviaBlocks.remove(l);
-					}
-				}
-			}
-		});
 		events.listen(GamePlayerEvents.USE_BLOCK, (player, level, pos, hand, traceResult) -> {
 			if (hand == InteractionHand.OFF_HAND) {
 				return InteractionResult.PASS;
@@ -113,7 +96,7 @@ public final class TriviaBehaviour implements IGameBehavior {
 			} else {
 				player.sendSystemMessage(RiverRaceTexts.INCORRECT_ANSWER.apply(questionLockout));
 				org.lovetropics.games.common.util.Util.sendNotifySound(player, SoundRegistry.INCORRECT.value(), SoundSource.BLOCKS, 1.0f, 1.0f);
-				lockedOutTriviaBlocks.put(triviaBlockEntity.lockout(questionLockout), pos);
+				triviaBlockEntity.lockout(questionLockout);
 				PacketDistributor.sendToPlayer(player, new TriviaAnswerResponseMessage(pos, triviaBlockEntity.getState()));
 			}
 			return answer.correct();

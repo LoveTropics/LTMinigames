@@ -1,5 +1,6 @@
 package org.lovetropics.games.common.content.river_race.block;
 
+import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.Block;
@@ -73,16 +74,20 @@ public class TriviaChestBlockEntity extends ChestBlockEntity implements HasTrivi
 	}
 
 	@Override
-	public long lockout(int lockoutSeconds) {
-		unlocksAt = level.getGameTime() + (lockoutSeconds * 20L);
+	public void lockout(int lockoutSeconds) {
+		int lockoutTicks = lockoutSeconds * SharedConstants.TICKS_PER_SECOND;
+		unlocksAt = level.getGameTime() + lockoutTicks;
 		markUpdated();
-		return unlocksAt;
+		handleOrScheduleUnlockTick();
 	}
 
-	@Override
-	public void unlock() {
-		unlocksAt = 0;
-		markUpdated();
+	public void handleOrScheduleUnlockTick() {
+		if (unlocksAt > level.getGameTime()) {
+			level.scheduleTick(getBlockPos(), getBlockState().getBlock(), Math.toIntExact(unlocksAt - level.getGameTime()));
+		} else {
+			unlocksAt = 0;
+			markUpdated();
+		}
 	}
 
 	@Override

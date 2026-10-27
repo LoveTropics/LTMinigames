@@ -11,9 +11,7 @@ public interface HasTrivia {
 
 	TriviaType getTriviaType();
 
-	long lockout(int lockoutSeconds);
-
-	void unlock();
+	void lockout(int lockoutSeconds);
 
 	boolean markAsCorrect();
 

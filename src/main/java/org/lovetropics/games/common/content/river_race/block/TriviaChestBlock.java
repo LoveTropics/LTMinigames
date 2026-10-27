@@ -151,8 +151,9 @@ public class TriviaChestBlock extends AbstractChestBlock<ChestBlockEntity> {
 
 	@Override
 	protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
-		if (level.getBlockEntity(pos) instanceof ChestBlockEntity chest) {
+		if (level.getBlockEntity(pos) instanceof TriviaChestBlockEntity chest) {
 			chest.recheckOpen();
+			chest.handleOrScheduleUnlockTick();
 		}
 	}
 }
