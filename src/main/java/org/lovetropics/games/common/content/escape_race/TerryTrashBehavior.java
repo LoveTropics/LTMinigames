@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.content.escape_race;
 
-import com.lovetropics.lib.BlockBox;
 import com.lovetropics.lib.codec.MoreCodecs;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -35,6 +34,7 @@ import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
+import org.lovetropics.games.common.core.game.region.Region;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.state.progress.ProgressChannel;
 import org.lovetropics.games.common.core.game.state.progress.ProgressionPoint;
@@ -117,7 +117,7 @@ public final class TerryTrashBehavior implements IGameBehavior {
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		BlockBox itemSpawnBox = itemSpawnRegion.one(game);
+		Region itemSpawnBox = itemSpawnRegion.one(game);
 		for (RecylingLocations recyclingLocation : recyclingLocations) {
 			recyclingLocation.processRegion.one(game);
 		}
@@ -137,19 +137,19 @@ public final class TerryTrashBehavior implements IGameBehavior {
 				}
 				boolean allMatch = true;
 				for (CodeCheck codeCheck : codeChecks) {
-					BlockBox blockBox = codeCheck.blockRegion.one(game);
-					BlockBox lightBox = codeCheck.lightRegion.one(game);
-					BlockPos blockPos = blockBox.min();
-					BlockPos lightPos = lightBox.min();
-					if (codeCheck.blockPredicate.matches(level, blockPos)) {
-						BlockState goodBlock = codeCheck.goodCode.getState(level, game.random(), blockPos);
-						level.setBlockAndUpdate(lightPos, goodBlock);
+					Region blockRegion = codeCheck.blockRegion.one(game);
+					Region lightRegion = codeCheck.lightRegion.one(game);
+					BlockPos blockPos = blockRegion.min();
+					BlockPos lightPos = lightRegion.min();
+					if (codeCheck.blockPredicate.matches(blockRegion.level(), blockPos)) {
+						BlockState goodBlock = codeCheck.goodCode.getState(blockRegion.level(), game.random(), blockPos);
+						lightRegion.level().setBlockAndUpdate(lightPos, goodBlock);
 					} else {
-						BlockState badBlock = codeCheck.badCode.getState(level, game.random(), blockPos);
-						level.setBlockAndUpdate(lightPos, badBlock);
+						BlockState badBlock = codeCheck.badCode.getState(blockRegion.level(), game.random(), blockPos);
+						lightRegion.level().setBlockAndUpdate(lightPos, badBlock);
 						allMatch = false;
 					}
-					level.setBlockAndUpdate(blockPos, codeCheck.clearState.getState(level, game.random(), blockPos));
+					blockRegion.level().setBlockAndUpdate(blockPos, codeCheck.clearState.getState(blockRegion.level(), game.random(), blockPos));
 				}
 				if (allMatch) {
 					codeGood = allMatch;
@@ -188,7 +188,7 @@ public final class TerryTrashBehavior implements IGameBehavior {
 		}));
 	}
 
-	private void onGameTick(IGamePhase game, GameSidebar sidebar, BlockBox itemSpawnBox, RegionQuery badTrashRegion) {
+	private void onGameTick(IGamePhase game, GameSidebar sidebar, Region itemSpawnRegion, RegionQuery badTrashRegion) {
 		Map<BooleanSupplier, SpawnTimeData> spawnTimeDats = new HashMap<>();
 		spawnTimes.forEach((progressionPoint, spawnTimeData) ->
 				spawnTimeDats.put(progressionPoint.createPredicate(game, ProgressChannel.MAIN), spawnTimeData));
@@ -199,11 +199,11 @@ public final class TerryTrashBehavior implements IGameBehavior {
 				if (entry.getValue().nextChannel.createPredicate(game, ProgressChannel.MAIN).getAsBoolean()) {
 					continue;
 				}
-				Vec3 center = itemSpawnBox.center();
-				BlockPos centerBlock = itemSpawnBox.centerBlock();
+				Vec3 center = itemSpawnRegion.center();
+				BlockPos centerBlock = itemSpawnRegion.centerBlock();
 				LootTable lootTable = getLootTable(game.server(), spawnTimeData.table());
-				for (ItemStack randomItem : lootTable.getRandomItems(buildLootParams(game.level(), center))) {
-					Block.popResource(game.level(), centerBlock, randomItem);
+				for (ItemStack randomItem : lootTable.getRandomItems(buildLootParams(itemSpawnRegion.level(), center))) {
+					Block.popResource(itemSpawnRegion.level(), centerBlock, randomItem);
 				}
 				return;
 			}

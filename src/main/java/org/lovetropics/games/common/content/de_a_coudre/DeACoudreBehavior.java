@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.content.de_a_coudre;
 
-import com.lovetropics.lib.BlockBox;
 import com.lovetropics.lib.codec.MoreCodecs;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -9,7 +8,6 @@ import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -27,6 +25,7 @@ import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GameLogicEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
+import org.lovetropics.games.common.core.game.region.Region;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
@@ -56,21 +55,20 @@ public record DeACoudreBehavior(
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
-		ServerLevel level = game.level();
 		TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
 
-		BlockBox water = waterRegion.one(game);
-		BlockBox hole = holeRegion.one(game);
+		Region water = waterRegion.one(game);
+		Region hole = holeRegion.one(game);
 		int holeY = hole.min().getY();
 
-		Board board = Board.build(level, water);
+		Board board = Board.build(water);
 
 		MutableBoolean gameOver = new MutableBoolean();
 		events.listen(GamePlayerEvents.TICK, player -> {
 			if (gameOver.isTrue()) {
 				return;
 			}
-			if (!player.onGround() || player.getY() >= holeY) {
+			if (!player.onGround() || player.getY() >= holeY || player.level() != water.level()) {
 				return;
 			}
 
@@ -133,10 +131,10 @@ public record DeACoudreBehavior(
 	private static class Board {
 		private final LongSet remainingWater = new LongOpenHashSet();
 
-		public static Board build(ServerLevel level, BlockBox water) {
+		public static Board build(Region water) {
 			Board board = new Board();
 			for (BlockPos pos : water) {
-				BlockState blockState = level.getBlockState(pos);
+				BlockState blockState = water.level().getBlockState(pos);
 				if (blockState.is(Blocks.WATER)) {
 					board.remainingWater.add(pos.asLong());
 				}

@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.core.game.behavior.instances;
 
-import com.lovetropics.lib.BlockBox;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -8,6 +7,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.TriState;
 import net.minecraft.util.Util;
@@ -29,6 +29,7 @@ import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GameWorldEvents;
+import org.lovetropics.games.common.core.game.region.Region;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.util.Codecs;
 import org.lovetropics.games.mixin.TrialSpawnerAccess;
@@ -53,17 +54,14 @@ public record OrderedTrialSpawnerBehavior(
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		List<Spawner> spawners = spawnerRegions.entrySet().stream()
 				.map(entry -> {
-					BlockBox box = entry.getKey().one(game);
-					return new Spawner(box.centerBlock(), entry.getValue());
+					Region region = entry.getKey().one(game);
+					return new Spawner(region.level(), region.centerBlock(), entry.getValue());
 				})
 				.collect(Util.toMutableList());
 
 		events.listen(GameWorldEvents.CHUNK_LOAD, (level, chunk) -> {
-			if (level != game.level()) {
-				return;
-			}
 			for (Spawner spawner : spawners) {
-				if (!spawner.isInChunk(chunk.getPos())) {
+				if (!spawner.isInChunk(level, chunk.getPos())) {
 					continue;
 				}
 				chunk.setBlockState(spawner.pos(), Blocks.TRIAL_SPAWNER.defaultBlockState());
@@ -82,10 +80,7 @@ public record OrderedTrialSpawnerBehavior(
 		MutableInt nextLootTableIndex = new MutableInt(0);
 
 		events.listen(GameWorldEvents.TRIAL_SPAWNER_EJECT_LOOT, (level, pos, trialSpawner) -> {
-			if (level != game.level()) {
-				return false;
-			}
-			if (spawners.stream().noneMatch(spawner -> spawner.pos.equals(pos))) {
+			if (spawners.stream().noneMatch(spawner -> spawner.level == level && spawner.pos.equals(pos))) {
 				return false;
 			}
 			int index = nextLootTableIndex.getAndIncrement();
@@ -110,9 +105,9 @@ public record OrderedTrialSpawnerBehavior(
 		});
 	}
 
-	private record Spawner(BlockPos pos, Holder<TrialSpawnerConfig> config) {
-		public boolean isInChunk(ChunkPos chunkPos) {
-			return chunkPos.equals(ChunkPos.containing(pos));
+	private record Spawner(ServerLevel level, BlockPos pos, Holder<TrialSpawnerConfig> config) {
+		public boolean isInChunk(ServerLevel level, ChunkPos chunkPos) {
+			return level == this.level && chunkPos.equals(ChunkPos.containing(pos));
 		}
 	}
 }

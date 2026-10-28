@@ -1,8 +1,8 @@
 package org.lovetropics.games.common.core.game.util;
 
-import com.lovetropics.lib.BlockBox;
 import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.region.Region;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
 
 import java.util.ArrayList;
@@ -13,23 +13,23 @@ public class CycledSpawner {
 
 	public static final CycledSpawner EMPTY = new CycledSpawner(List.of());
 
-	private final List<BlockBox> regions;
+	private final List<Region> regions;
 	private int index;
 
-	public CycledSpawner(List<BlockBox> regions) {
+	public CycledSpawner(List<Region> regions) {
 		this.regions = new ArrayList<>(regions);
 		Collections.shuffle(this.regions);
 	}
 
-	public CycledSpawner(IGamePhase game, RegionQuery region) {
-		this(region.all(game));
+	public CycledSpawner(IGamePhase game, RegionQuery query) {
+		this(query.all(game));
 	}
 
-	public List<BlockBox> regions() {
+	public List<Region> regions() {
 		return regions;
 	}
 
-	public @Nullable BlockBox next() {
+	public @Nullable Region next() {
 		if (regions.isEmpty()) {
 			return null;
 		}
@@ -37,9 +37,9 @@ public class CycledSpawner {
 	}
 
 	public CycledSpawner take(int count) {
-		List<BlockBox> result = new ArrayList<>(count);
+		List<Region> result = new ArrayList<>(count);
 		for (int i = 0; i < count; i++) {
-			BlockBox region = next();
+			Region region = next();
 			if (region == null) {
 				break;
 			}

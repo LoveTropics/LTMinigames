@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.content.survive_the_tide.behavior;
 
-import com.lovetropics.lib.BlockBox;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -12,6 +11,7 @@ import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
+import org.lovetropics.games.common.core.game.region.Region;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.state.progress.ProgressChannel;
 import org.lovetropics.games.common.core.game.state.progress.ProgressHolder;
@@ -36,18 +36,20 @@ public record FormIcebergsGameBehavior(
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		List<IcebergLine> icebergLines = new ArrayList<>();
-		for (BlockBox icebergLine : linesRegion.all(game)) {
+		for (Region icebergLine : linesRegion.all(game)) {
 			int startX = icebergLine.min().getX();
 			int startZ = icebergLine.min().getZ();
 			int endX = icebergLine.max().getX();
 			int endZ = icebergLine.max().getZ();
 
 			icebergLines.add(new IcebergLine(
+					icebergLine.level(),
 					new BlockPos(startX, height, startZ),
 					new BlockPos(endX, height, endZ),
 					10
 			));
 			icebergLines.add(new IcebergLine(
+					icebergLine.level(),
 					new BlockPos(endX, height, startZ),
 					new BlockPos(startX, height, endZ),
 					10
@@ -64,9 +66,7 @@ public record FormIcebergsGameBehavior(
 			}
 			int targetSteps = Math.round(progress * maxGrowthSteps);
 			if (icebergGrowthSteps.intValue() < targetSteps) {
-				for (IcebergLine line : icebergLines) {
-					line.grow(game.level());
-				}
+				icebergLines.forEach(IcebergLine::grow);
 				icebergGrowthSteps.increment();
 			}
 		});

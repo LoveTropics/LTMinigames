@@ -18,6 +18,7 @@ import org.lovetropics.games.common.core.game.behavior.action.ActionSubjects;
 import org.lovetropics.games.common.core.game.behavior.action.GameActionList;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GameActionEvents;
+import org.lovetropics.games.common.core.game.region.Region;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.util.EntityTemplate;
 
@@ -52,12 +53,12 @@ public class SpawnEntityAtRegionsAction implements IGameBehavior {
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		faceRegion.ifPresent(key -> faceBox = key.one(game));
+		faceRegion.ifPresent(key -> faceBox = key.one(game).box());
 		entitySpawnActions.ifPresent(actions -> actions.register(game, events));
 
 		events.listen(GameActionEvents.APPLY, (context, targets) -> {
-			ServerLevel level = game.level();
-			for (BlockBox region : regionsToSpawnAtKeys.all(game)) {
+			for (Region region : regionsToSpawnAtKeys.all(game)) {
+				ServerLevel level = region.level();
 				for (int i = 0; i < entityCountPerRegion; i++) {
 					BlockPos pos = region.sample(game.random());
 					if (atHeightmap) {

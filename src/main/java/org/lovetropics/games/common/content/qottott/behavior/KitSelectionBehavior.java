@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.content.qottott.behavior;
 
-import com.lovetropics.lib.BlockBox;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -21,13 +20,13 @@ import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.action.ActionSubjects;
 import org.lovetropics.games.common.core.game.behavior.action.GameActionList;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
+import org.lovetropics.games.common.core.game.behavior.event.GameWorldEvents;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
+import org.lovetropics.games.common.core.game.region.Region;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.slf4j.Logger;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -48,22 +47,22 @@ public record KitSelectionBehavior(List<Kit> kits) implements IGameBehavior {
 		Map<UUID, Kit> kitEntities = new Object2ObjectOpenHashMap<>();
 		Kit defaultKit = kits.getFirst();
 
-		events.listen(GamePhaseEvents.START, initiator -> {
+		events.listen(GameWorldEvents.CREATE_LEVEL, level -> {
 			for (Kit kit : kits) {
-				Collection<BlockBox> regions = kit.region.all(game);
+				List<Region> regions = kit.region.allIn(game, level);
 				if (regions.isEmpty()) {
 					LOGGER.error("Missing region for kit: {}", kit);
 					continue;
 				}
-				for (BlockBox region : regions) {
-					Entity entity = kit.entity().type().create(game.level(), EntitySpawnReason.COMMAND);
+				for (Region region : regions) {
+					Entity entity = kit.entity().type().create(level, EntitySpawnReason.COMMAND);
 					if (entity == null) {
 						LOGGER.error("Unable to create entity for kit: {}", kit);
 						continue;
 					}
 					Vec3 center = region.center();
 					entity.snapTo(center.x, region.min().getY(), center.z, kit.angle, 0.0f);
-					game.level().addFreshEntity(entity);
+					level.addFreshEntity(entity);
 					kitEntities.put(entity.getUUID(), kit);
 				}
 			}

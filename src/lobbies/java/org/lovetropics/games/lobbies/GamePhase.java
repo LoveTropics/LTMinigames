@@ -1,7 +1,7 @@
 package org.lovetropics.games.lobbies;
 
+import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
-import com.lovetropics.lib.BlockBox;
 import com.lovetropics.lib.slideshow.SlideshowApi;
 import com.mojang.logging.LogUtils;
 import net.minecraft.nbt.CompoundTag;
@@ -11,6 +11,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.Unit;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -36,6 +37,7 @@ import org.lovetropics.games.common.core.game.player.PlayerIterable;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
 import org.lovetropics.games.common.core.game.player.PlayerSet;
 import org.lovetropics.games.common.core.game.region.GameRegions;
+import org.lovetropics.games.common.core.game.region.Region;
 import org.lovetropics.games.common.core.game.state.GameStateMap;
 import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
 import org.lovetropics.games.common.core.game.util.GameScheduler;
@@ -69,8 +71,8 @@ public class GamePhase implements IGamePhase {
 	private final GameMap map;
 	private final GameRegions gameRegions = new GameRegions() {
 		@Override
-		public Collection<BlockBox> get(String key) {
-			return map.mapRegions().get(key);
+		public Collection<Region> get(String key) {
+			return Collections2.transform(map.mapRegions().get(key), box -> new Region(level, box));
 		}
 	};
 
@@ -223,7 +225,7 @@ public class GamePhase implements IGamePhase {
 	private SpawnBuilder determinePlayerSpawn(ServerPlayer player, @Nullable PlayerRole role) {
 		SpawnBuilder spawn = new SpawnBuilder(player);
 		// Just have some kind of default, even if unreasonable
-		spawn.teleportTo(level(), new Vec3(0.0, 64.0, 0.0), 0.0f, 0.0f);
+		spawn.teleportTo(level, new Vec3(0.0, 64.0, 0.0), 0.0f, 0.0f);
 		try {
 			invoker(GamePlayerEvents.SPAWN).onSpawn(player.getUUID(), spawn, role);
 		} catch (Exception e) {
@@ -635,23 +637,26 @@ public class GamePhase implements IGamePhase {
 	}
 
 	@Override
-	public ResourceKey<Level> dimension() {
-		return map.dimension();
-	}
-
-	@Override
-	public List<ResourceKey<Level>> dimensions() {
-		return map.allDimensions();
-	}
-
-	@Override
-	public ServerLevel level() {
-		return level;
+	public MinecraftServer server() {
+		return level.getServer();
 	}
 
 	@Override
 	public List<ServerLevel> allLevels() {
 		return allLevels;
+	}
+
+	@Override
+	public RandomSource random() {
+		return level.getRandom();
+	}
+
+	public ResourceKey<Level> dimension() {
+		return map.dimension();
+	}
+
+	public List<ResourceKey<Level>> dimensions() {
+		return map.allDimensions();
 	}
 
 	@Override

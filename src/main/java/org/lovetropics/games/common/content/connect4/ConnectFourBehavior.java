@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.content.connect4;
 
-import com.lovetropics.lib.BlockBox;
 import com.lovetropics.lib.codec.MoreCodecs;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -29,6 +28,7 @@ import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GameWorldEvents;
 import org.lovetropics.games.common.core.game.player.PlayerSet;
+import org.lovetropics.games.common.core.game.region.Region;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.state.progress.ProgressChannel;
 import org.lovetropics.games.common.core.game.state.progress.ProgressHolder;
@@ -83,7 +83,7 @@ public class ConnectFourBehavior implements IGameBehavior {
 	private SequentialList<PlayingTeam> playingTeams;
 
 	private TeamState teams;
-	private BlockBox placingRegion;
+	private Region placingRegion;
 
 	private PlacedPiece[][] pieces;
 	private int placedPieces;
@@ -130,7 +130,7 @@ public class ConnectFourBehavior implements IGameBehavior {
 			return TriState.DEFAULT;
 		}
 
-		if (gameOver || !Objects.equals(playingTeams.current().players.current(), PlayerKey.from(player)) || !placingRegion.contains(pos)) {
+		if (gameOver || !Objects.equals(playingTeams.current().players.current(), PlayerKey.from(player)) || !placingRegion.contains(player.level(), pos)) {
 			return TriState.FALSE;
 		}
 
@@ -179,7 +179,7 @@ public class ConnectFourBehavior implements IGameBehavior {
 
 		level.setBlock(pos.above(), separator, Block.UPDATE_ALL);
 		// Separator above, and gate above that
-		if (placingRegion.contains(pos.getX(), pos.getY() + 3, pos.getZ())) {
+		if (placingRegion.contains(level, pos.getX(), pos.getY() + 3, pos.getZ())) {
 			level.setBlock(pos.above(3), blocker, Block.UPDATE_ALL);
 		}
 

@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.content.river_race.behaviour;
 
-import com.lovetropics.lib.BlockBox;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
@@ -14,6 +13,7 @@ import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
+import org.lovetropics.games.common.core.game.region.Region;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
 
 import java.util.function.Supplier;
@@ -30,17 +30,17 @@ public record KillInVoidBehavior(RegionQuery voidBelowRegion) implements IGameBe
 				return;
 			}
 			BlockPos playerPos = player.blockPosition();
-			BlockBox closestRegion = findRegion(game, player, playerPos);
+			Region closestRegion = findRegion(game, player, playerPos);
 			if (closestRegion != null && player.getY() < closestRegion.min().getY()) {
 				player.kill(player.level());
 			}
 		});
 	}
 
-	private @Nullable BlockBox findRegion(IGamePhase game, ServerPlayer player, BlockPos playerPos) {
+	private @Nullable Region findRegion(IGamePhase game, ServerPlayer player, BlockPos playerPos) {
 		int closestDistance = Integer.MAX_VALUE;
-		BlockBox closestRegion = null;
-		for (BlockBox region : voidBelowRegion.all(game)) {
+		Region closestRegion = null;
+		for (Region region : voidBelowRegion.allIn(game, player.level())) {
 			int distance = getDistanceToEdge(region, playerPos.getX(), playerPos.getZ());
 			if (distance < closestDistance) {
 				closestRegion = region;
@@ -57,7 +57,7 @@ public record KillInVoidBehavior(RegionQuery voidBelowRegion) implements IGameBe
 		return player.isSpectator() || player.isCreative();
 	}
 
-	private int getDistanceToEdge(BlockBox region, int playerX, int playerZ) {
+	private int getDistanceToEdge(Region region, int playerX, int playerZ) {
 		int nearestX = Mth.clamp(playerX, region.min().getX(), region.max().getX());
 		int nearestZ = Mth.clamp(playerZ, region.min().getZ(), region.max().getZ());
 		return Math.abs(nearestX - playerX) + Math.abs(nearestZ - playerZ);

@@ -50,11 +50,11 @@ public final class BlockInRegionTrigger implements IGameBehavior {
 
 		events.listen(GamePhaseEvents.TICK, () -> {
 			MutableBoolean shouldRun = new MutableBoolean();
-			region.forEachBlock(game, pos -> {
+			region.forEachBlock(game, (level, pos) -> {
 				if (shouldRun.isTrue()) {
 					return;
 				}
-				boolean matches = predicate.matches(game.level(), pos);
+				boolean matches = predicate.matches(level, pos);
 				if (allMatch && !matches) {
 					shouldRun.setTrue();
 				} else if (!allMatch && matches) {

@@ -13,6 +13,7 @@ import org.lovetropics.games.common.content.biodiversity_blitz.entity.PlotWaveSt
 import org.lovetropics.games.common.content.biodiversity_blitz.plot.plant.PlantMap;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.map.RegionPattern;
+import org.lovetropics.games.common.core.game.region.Region;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
 
 import java.util.List;
@@ -64,8 +65,10 @@ public final class Plot {
 		this.walls = new PlotWalls(walls);
 	}
 
-	public static Plot create(ServerLevel level, IGamePhase game, GameTeamKey team, Config config, RegionKeys regionKeys) {
-		BlockBox plantBounds = regionKeys.plot.resolve(config.key).one(game);
+	public static Plot create(IGamePhase game, GameTeamKey team, Config config, RegionKeys regionKeys) {
+		Region plantRegion = regionKeys.plot.resolve(config.key).one(game);
+		ServerLevel level = plantRegion.level();
+		BlockBox plantBounds = plantRegion.box();
 		BlockBox bounds = BlockBox.of(
 				new BlockPos(plantBounds.min().getX(), level.getMinY(), plantBounds.min().getZ()),
 				new BlockPos(plantBounds.max().getX(), level.getMaxY(), plantBounds.max().getZ())
@@ -74,11 +77,11 @@ public final class Plot {
 				new BlockPos(plantBounds.min().getX(), plantBounds.min().getY() - 1, plantBounds.min().getZ()),
 				new BlockPos(plantBounds.max().getX(), plantBounds.min().getY() - 1, plantBounds.max().getZ())
 		);
-		BlockBox spawn = regionKeys.spawn.resolve(config.key).one(game);
-		BlockBox shop = regionKeys.shop.resolve(config.key).one(game);
-		BlockBox plantShop = regionKeys.plantShop.resolve(config.key).one(game);
-		BlockBox mobShop = regionKeys.mobShop.resolve(config.key).one(game);
-		List<BlockBox> mobSpawn = regionKeys.mobSpawns.stream().map(pattern -> pattern.resolve(config.key).one(game)).toList();
+		BlockBox spawn = regionKeys.spawn.resolve(config.key).oneIn(game, level).box();
+		BlockBox shop = regionKeys.shop.resolve(config.key).oneIn(game, level).box();
+		BlockBox plantShop = regionKeys.plantShop.resolve(config.key).oneIn(game, level).box();
+		BlockBox mobShop = regionKeys.mobShop.resolve(config.key).oneIn(game, level).box();
+		List<BlockBox> mobSpawn = regionKeys.mobSpawns.stream().map(pattern -> pattern.resolve(config.key).oneIn(game, level).box()).toList();
 
 		return new Plot(
 				team,

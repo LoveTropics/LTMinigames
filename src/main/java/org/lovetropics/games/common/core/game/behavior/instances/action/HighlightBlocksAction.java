@@ -1,24 +1,30 @@
 package org.lovetropics.games.common.core.game.behavior.instances.action;
 
-import com.lovetropics.lib.BlockBox;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.Level;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GameActionEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.client_state.GameClientState;
+import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
 import org.lovetropics.games.common.core.game.client_state.instance.HighlightBlocksState;
 import org.lovetropics.games.common.core.game.player.PlayerSet;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.state.GameStateKey;
 import org.lovetropics.games.common.core.game.state.IGameState;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public record HighlightBlocksAction(
 		RegionQuery region,
@@ -31,27 +37,12 @@ public record HighlightBlocksAction(
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
-		List<BlockBox> boxes = region.all(game);
-		SharedState sharedState = SharedState.get(game);
-
-		events.listen(GamePlayerEvents.ADD, player ->
-				// Multiple actions will do this - but we deduplicate them. That sucks, but ok
-				sharedState.sendTo(PlayerSet.of(player))
-		);
-
-		events.listen(GameActionEvents.APPLY, (context, targets) -> {
+		SharedState sharedState = SharedState.getOrAdd(game, events);
+		events.listen(GameActionEvents.APPLY, (_, _) -> {
 			if (highlight) {
-				for (BlockBox box : boxes) {
-					for (BlockPos pos : box) {
-						sharedState.add(pos);
-					}
-				}
+				region.forEachBlock(game, (level, pos) -> sharedState.add(level.dimension(), pos));
 			} else {
-				for (BlockBox box : boxes) {
-					for (BlockPos pos : box) {
-						sharedState.remove(pos);
-					}
-				}
+				region.forEachBlock(game, (level, pos) -> sharedState.remove(level.dimension(), pos));
 			}
 			sharedState.sendTo(game.allPlayers());
 			return true;
@@ -59,26 +50,48 @@ public record HighlightBlocksAction(
 	}
 
 	private static class SharedState implements IGameState {
-		public static final GameStateKey.Defaulted<SharedState> KEY = GameStateKey.create("Highlight blocks", SharedState::new);
+		public static final GameStateKey<SharedState> KEY = GameStateKey.create("Highlight blocks");
 
-		private final List<BlockPos> positions = new ArrayList<>();
+		private final Map<ResourceKey<Level>, Set<BlockPos>> positionsByDimension = new Reference2ObjectOpenHashMap<>();
 
-		public static SharedState get(IGamePhase game) {
-			return game.state().get(KEY);
+		public static SharedState getOrAdd(IGamePhase game, EventRegistrar events) {
+			SharedState state = game.state().getOrNull(KEY);
+			if (state != null) {
+				return state;
+			}
+			SharedState newState = new SharedState();
+			events.listen(GamePlayerEvents.ADD_TO_LEVEL, (player, level) ->
+					GameClientState.sendToPlayer(newState.createClientState(level.dimension()), player)
+			);
+			events.listen(GamePlayerEvents.REMOVE, player ->
+					GameClientState.removeFromPlayer(GameClientStateTypes.HIGHLIGHT_BLOCKS.get(), player)
+			);
+			game.state().register(KEY, newState);
+			return newState;
 		}
 
-		public void add(BlockPos pos) {
-			if (!positions.contains(pos)) {
-				positions.add(pos);
+		public void add(ResourceKey<Level> dimension, BlockPos pos) {
+			positionsByDimension.computeIfAbsent(dimension, _ -> new HashSet<>())
+					.add(pos);
+		}
+
+		public void remove(ResourceKey<Level> dimension, BlockPos pos) {
+			Set<BlockPos> positions = positionsByDimension.get(dimension);
+			if (positions != null) {
+				positions.remove(pos);
 			}
 		}
 
-		public void remove(BlockPos pos) {
-			positions.remove(pos);
+		public void sendTo(PlayerSet players) {
+			for (ServerPlayer player : players) {
+				HighlightBlocksState state = createClientState(player.level().dimension());
+				GameClientState.sendToPlayer(state, player);
+			}
 		}
 
-		public void sendTo(PlayerSet players) {
-			GameClientState.sendToPlayers(new HighlightBlocksState(List.copyOf(positions)), players);
+		private HighlightBlocksState createClientState(ResourceKey<Level> dimension) {
+			Set<BlockPos> positions = positionsByDimension.get(dimension);
+			return new HighlightBlocksState(positions != null ? List.copyOf(positions) : List.of());
 		}
 	}
 }

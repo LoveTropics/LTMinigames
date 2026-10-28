@@ -115,7 +115,7 @@ public class LimitedSpawnerAttachment {
 	private int getMaxCount(ServerLevel level, BlockPos pos) {
 		IGamePhase game = IGameLookup.get().getGamePhaseAt(level, pos);
 		if (game != null) {
-			return game.invoker(RiverRaceEvents.MODIFY_MAX_SPAWN_COUNT).modifyMaxSpawnCount(pos, maxCount);
+			return game.invoker(RiverRaceEvents.MODIFY_MAX_SPAWN_COUNT).modifyMaxSpawnCount(level, pos, maxCount);
 		}
 		return maxCount;
 	}

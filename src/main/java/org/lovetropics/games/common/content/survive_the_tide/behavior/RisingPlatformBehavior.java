@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.content.survive_the_tide.behavior;
 
-import com.lovetropics.lib.BlockBox;
 import com.lovetropics.lib.codec.MoreCodecs;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -15,6 +14,7 @@ import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
+import org.lovetropics.games.common.core.game.region.Region;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
 
 public record RisingPlatformBehavior(
@@ -32,17 +32,17 @@ public record RisingPlatformBehavior(
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		BlockBox platformRegion = this.platformRegion.one(game);
+		Region platformRegion = this.platformRegion.one(game);
 		Vec3 center = platformRegion.center();
 		double startY = platformRegion.min().getY();
 
 		events.listen(GamePhaseEvents.START, _ -> {
-			PlatformEntity platform = new PlatformEntity(SurviveTheTide.PLATFORM.get(), game.level());
+			PlatformEntity platform = new PlatformEntity(SurviveTheTide.PLATFORM.get(), platformRegion.level());
 			platform.absSnapTo(center.x(), startY, center.z());
 			platform.setWidth(platformRegion.size().getX());
 			platform.setBlockState(blockState);
 
-			game.level().addFreshEntity(platform);
+			platformRegion.level().addFreshEntity(platform);
 
 			for (ServerPlayer participant : game.participants()) {
 				participant.startRiding(platform, true, false);

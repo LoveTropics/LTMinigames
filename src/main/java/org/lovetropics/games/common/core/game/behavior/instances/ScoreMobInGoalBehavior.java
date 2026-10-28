@@ -1,12 +1,12 @@
 package org.lovetropics.games.common.core.game.behavior.instances;
 
-import com.lovetropics.lib.BlockBox;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.ChatFormatting;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -30,6 +30,7 @@ import org.lovetropics.games.common.core.game.behavior.event.GameLivingEntityEve
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
+import org.lovetropics.games.common.core.game.region.Region;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.state.progress.ProgressChannel;
 import org.lovetropics.games.common.core.game.state.progress.ProgressionPeriod;
@@ -81,7 +82,7 @@ public record ScoreMobInGoalBehavior(
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
-		BlockBox spawnBox = this.spawnRegion.one(game);
+		Region spawnRegion = this.spawnRegion.one(game);
 
 		TeamState teams = game.instanceState().getOrThrow(TeamState.KEY);
 		if (teams.getTeamKeys().size() != 2) {
@@ -109,7 +110,7 @@ public record ScoreMobInGoalBehavior(
 					game.allPlayers().playSound(SoundEvents.UI_BUTTON_CLICK.value(), SoundSource.PLAYERS, 0.25f, 1.0f);
 				}
 			} else {
-				spawnScoringEntity(game, spawnBox);
+				spawnScoringEntity(spawnRegion);
 				activeCount.increment();
 				spawnDelay.setValue(this.spawnDelay);
 			}
@@ -161,24 +162,24 @@ public record ScoreMobInGoalBehavior(
 		return targetCountStatistic.map(key -> game.statistics().global().getInt(key)).orElse(1);
 	}
 
-	private void spawnScoringEntity(IGamePhase game, BlockBox spawnBox) {
-		BlockPos spawnPos = findSuitableSpawn(game, spawnBox);
-		Entity entity = scoringEntity.spawn(game.level(), spawnPos.getX() + 0.5, spawnPos.getY() + 1.5, spawnPos.getZ() + 0.5);
-		game.level().broadcastEntityEvent(entity, EntityEvent.POOF);
+	private void spawnScoringEntity(Region region) {
+		BlockPos spawnPos = findSuitableSpawn(region);
+		Entity entity = scoringEntity.spawn(region.level(), spawnPos.getX() + 0.5, spawnPos.getY() + 1.5, spawnPos.getZ() + 0.5);
+		region.level().broadcastEntityEvent(entity, EntityEvent.POOF);
 	}
 
-	private BlockPos findSuitableSpawn(IGamePhase game, BlockBox box) {
-		BlockPos size = box.size();
+	private BlockPos findSuitableSpawn(Region region) {
+		Vec3i size = region.size();
 		int halfSizeX = Mth.positiveCeilDiv(size.getX(), 2);
 		int halfSizeY = Mth.positiveCeilDiv(size.getY(), 2);
 		int halfSizeZ = Mth.positiveCeilDiv(size.getZ(), 2);
-		BlockPos bestPos = box.centerBlock();
+		BlockPos bestPos = region.centerBlock();
 		int bestEntityCount = Integer.MAX_VALUE;
-		for (BlockPos pos : BlockPos.withinManhattan(box.centerBlock(), halfSizeX, halfSizeY, halfSizeZ)) {
-			if (!box.contains(pos)) {
+		for (BlockPos pos : BlockPos.withinManhattan(region.centerBlock(), halfSizeX, halfSizeY, halfSizeZ)) {
+			if (!region.contains(region.level(), pos)) {
 				continue;
 			}
-			int entityCount = game.level().getEntities(scoringEntity.type(), new AABB(pos), e -> true).size();
+			int entityCount = region.level().getEntities(scoringEntity.type(), new AABB(pos), e -> true).size();
 			if (entityCount == 0) {
 				return pos;
 			} else if (entityCount < bestEntityCount) {

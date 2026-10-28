@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.core.game.behavior.instances.action;
 
-import com.lovetropics.lib.BlockBox;
 import com.lovetropics.lib.codec.MoreCodecs;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
@@ -23,6 +22,7 @@ import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GameActionEvents;
+import org.lovetropics.games.common.core.game.region.Region;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.slf4j.Logger;
 
@@ -72,12 +72,11 @@ public final class SetBlocksAction implements IGameBehavior {
 		BlockStateProvider set = this.set;
 		RandomSource random = game.random();
 
-		loadRegionChunks(game, game.level());
+		loadRegionChunks(game);
 
 		int flags = notifyNeighbors ? Block.UPDATE_ALL : Block.UPDATE_ALL | Block.UPDATE_KNOWN_SHAPE;
 
-		ServerLevel level = game.level();
-		regions.forEachBlock(game, pos -> {
+		regions.forEachBlock(game, (level, pos) -> {
 			if (replace == null || replace.matches(level, pos)) {
 				BlockState state = set.getState(level, random, pos);
 				level.setBlock(pos, state, flags);
@@ -92,9 +91,10 @@ public final class SetBlocksAction implements IGameBehavior {
 		});
 	}
 
-	private void loadRegionChunks(IGamePhase game, ServerLevel level) {
-		for (BlockBox region : regions.all(game)) {
-			LongIterator chunkIterator = region.asChunks().iterator();
+	private void loadRegionChunks(IGamePhase game) {
+		for (Region region : regions.all(game)) {
+			ServerLevel level = region.level();
+			LongIterator chunkIterator = region.chunks().iterator();
 			while (chunkIterator.hasNext()) {
 				long chunkPos = chunkIterator.nextLong();
 				level.getChunk(ChunkPos.getX(chunkPos), ChunkPos.getZ(chunkPos));

@@ -43,6 +43,7 @@ import org.lovetropics.games.common.core.game.behavior.event.GameLogicEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GameTeamEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GameWorldEvents;
+import org.lovetropics.games.common.core.game.region.Region;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
@@ -81,8 +82,6 @@ public record SpeedCarbGolfBehaviour(
 		ServerFunctionManager serverFunctionManager = game.server().getFunctions();
 		CommandFunction<CommandSourceStack> changeHoleNumber = serverFunctionManager.get(changeHoleNumberFunction).orElseThrow();
 		CommandFunction<CommandSourceStack> startHole = serverFunctionManager.get(startHoleFunction).orElseThrow();
-		CommandSourceStack commandSourceStack = game.server().createCommandSourceStack().withLevel(game.level())
-				.withSuppressedOutput().withPermission(LevelBasedPermissionSet.ADMIN).withSource(game.server());
 		TeamState teams = game.instanceState().getOrThrow(TeamState.KEY);
 		Identifier blankHoleId = Identifier.fromNamespaceAndPath("lt", "golf/blank");
 		List<Identifier> holesToPickFrom = new ArrayList<>(potentialHoles.keySet());
@@ -251,9 +250,11 @@ public record SpeedCarbGolfBehaviour(
 					String holeNumber = "1" + x + "0" + i;
 					Identifier pickedHole = pickedHoles.get(i);
 					RegionQuery regionKey = holeRegions.get(team.key()).get(i);
-					BlockBox region = regionKey.one(game);
+					Region region = regionKey.one(game);
 					holeConfigs.put(regionKey, new HoleConfig(potentialHoles.get(pickedHole), holeNumber));
-					loadGolfHole(game, team, game.level(), pickedHole, structureplacesettings, region, regionKey, holeNumber,
+					CommandSourceStack commandSourceStack = game.server().createCommandSourceStack().withLevel(region.level())
+							.withSuppressedOutput().withPermission(LevelBasedPermissionSet.ADMIN).withSource(game.server());
+					loadGolfHole(game, team, pickedHole, structureplacesettings, region, regionKey, holeNumber,
 							changeHoleNumber, commandSourceStack, true);
 					if (!players.hasNext()) {
 						players = playersForTeam.iterator();
@@ -324,10 +325,11 @@ public record SpeedCarbGolfBehaviour(
 		}
 	}
 
-	private void loadGolfHole(IGamePhase game, GameTeam team, ServerLevel level, Identifier pickedHole,
-							  StructurePlaceSettings structureplacesettings, BlockBox region, RegionQuery regionKey,
+	private void loadGolfHole(IGamePhase game, GameTeam team, Identifier pickedHole,
+							  StructurePlaceSettings structureplacesettings, Region region, RegionQuery regionKey,
 							  String holeNumber, CommandFunction<CommandSourceStack> changeHoleNumber,
 							  CommandSourceStack commandSourceStack, boolean renameHole) {
+		ServerLevel level = region.level();
 		Optional<StructureTemplate> structureTemplate = level.getStructureManager().get(pickedHole);
 		if (structureTemplate.isPresent()) {
 			StructurePlaceSettings teamSettings = structureplacesettings.copy();

@@ -38,7 +38,6 @@ import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import org.jspecify.annotations.Nullable;
-import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.network.FillFluidPacket;
 
 public class FluidFiller {
@@ -47,6 +46,7 @@ public class FluidFiller {
 
 	public static final int HIGH_PRIORITY_DISTANCE_SQ = 64 * 64;
 
+	private final ServerLevel level;
 	private final BlockBox region;
 	private final ChunkPos minChunk;
 	private final ChunkPos maxChunk;
@@ -58,7 +58,8 @@ public class FluidFiller {
 	private final LongSet lowPriorityUpdates = new LongLinkedOpenHashSet();
 	private final Long2IntMap fluidLevelByChunk = new Long2IntOpenHashMap();
 
-	public FluidFiller(BlockBox region, Type fillType, int baseFluidLevel) {
+	public FluidFiller(ServerLevel level, BlockBox region, Type fillType, int baseFluidLevel) {
+		this.level = level;
 		this.region = region;
 		minChunk = ChunkPos.containing(region.min());
 		maxChunk = ChunkPos.containing(region.max());
@@ -67,15 +68,15 @@ public class FluidFiller {
 		fluidLevelByChunk.defaultReturnValue(baseFluidLevel);
 	}
 
-	public void tick(IGamePhase game, int targetFluidLevel) {
+	public void tick(int targetFluidLevel) {
 		if (fluidLevel != targetFluidLevel) {
 			fluidLevel = targetFluidLevel;
 
 			boolean close = true;
-			for (long chunkPos : collectSortedChunks(game)) {
+			for (long chunkPos : collectSortedChunks()) {
 				if (close) {
 					highPriorityUpdates.add(chunkPos);
-					int distanceSq = getChunkDistanceSq(game, ChunkPos.getX(chunkPos), ChunkPos.getZ(chunkPos));
+					int distanceSq = getChunkDistanceSq(ChunkPos.getX(chunkPos), ChunkPos.getZ(chunkPos));
 					if (distanceSq >= HIGH_PRIORITY_DISTANCE_SQ) {
 						close = false;
 					}
@@ -85,26 +86,25 @@ public class FluidFiller {
 			}
 		}
 
-		processUpdates(game);
+		processUpdates();
 	}
 
 	public int fluidLevel() {
 		return fluidLevel;
 	}
 
-	private void processUpdates(IGamePhase game) {
+	private void processUpdates() {
 		if (highPriorityUpdates.isEmpty() && lowPriorityUpdates.isEmpty()) {
 			return;
 		}
 
-		int count = processUpdateQueue(game, highPriorityUpdates.iterator(), HIGH_PRIORITY_BUDGET_PER_TICK);
+		int count = processUpdateQueue(highPriorityUpdates.iterator(), HIGH_PRIORITY_BUDGET_PER_TICK);
 		if (count <= 0) {
-			processUpdateQueue(game, lowPriorityUpdates.iterator(), LOW_PRIORITY_BUDGET_PER_TICK);
+			processUpdateQueue(lowPriorityUpdates.iterator(), LOW_PRIORITY_BUDGET_PER_TICK);
 		}
 	}
 
-	private int processUpdateQueue(IGamePhase game, LongIterator iterator, int maxToProcess) {
-		ServerLevel level = game.level();
+	private int processUpdateQueue(LongIterator iterator, int maxToProcess) {
 		ServerChunkCache chunkProvider = level.getChunkSource();
 
 		int count = 0;
@@ -128,10 +128,10 @@ public class FluidFiller {
 		return count;
 	}
 
-	private long[] collectSortedChunks(IGamePhase game) {
+	private long[] collectSortedChunks() {
 		LongComparator distanceComparator = (pos1, pos2) -> Integer.compare(
-				getChunkDistanceSq(game, ChunkPos.getX(pos1), ChunkPos.getZ(pos1)),
-				getChunkDistanceSq(game, ChunkPos.getX(pos2), ChunkPos.getZ(pos2))
+				getChunkDistanceSq(ChunkPos.getX(pos1), ChunkPos.getZ(pos1)),
+				getChunkDistanceSq(ChunkPos.getX(pos2), ChunkPos.getZ(pos2))
 		);
 
 		int sizeX = maxChunk.x() - minChunk.x() + 1;
@@ -151,11 +151,11 @@ public class FluidFiller {
 		return chunks;
 	}
 
-	private int getChunkDistanceSq(IGamePhase game, int x, int z) {
+	private int getChunkDistanceSq(int x, int z) {
 		int minDistanceSq = Integer.MAX_VALUE;
 		int centerX = SectionPos.sectionToBlockCoord(x) + SectionPos.SECTION_HALF_SIZE;
 		int centerZ = SectionPos.sectionToBlockCoord(z) + SectionPos.SECTION_HALF_SIZE;
-		for (ServerPlayer player : game.allPlayers()) {
+		for (ServerPlayer player : level.players()) {
 			int dx = player.getBlockX() - centerX;
 			int dz = player.getBlockZ() - centerZ;
 			int distanceSq = dx * dx + dz * dz;
@@ -292,6 +292,10 @@ public class FluidFiller {
 			return;
 		}
 		level.setSectionDirtyWithNeighbors(sectionX, sectionY, sectionZ);
+	}
+
+	public ServerLevel level() {
+		return level;
 	}
 
 	public interface Rule {

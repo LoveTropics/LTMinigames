@@ -29,6 +29,7 @@ import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
+import org.lovetropics.games.common.core.game.region.Region;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.state.Overlords;
 import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
@@ -59,7 +60,7 @@ public final class BuildBattleBehavior implements IGameBehavior {
 
 	private static final Logger LOGGER = LogUtils.getLogger();
 
-	private final HashMap<UUID, BlockBox> playerPlots = new HashMap<>();
+	private final HashMap<UUID, Region> playerPlots = new HashMap<>();
 	private final HashMap<UUID, Integer> playerPoints = new HashMap<>();
 	private final List<UUID> reviewedPlayers = new java.util.ArrayList<>();
 	private final HashMap<UUID, Integer> overlordPoints = new HashMap<>();
@@ -120,7 +121,7 @@ public final class BuildBattleBehavior implements IGameBehavior {
 					return;
 				}
 				SpawnBuilder spawn = new SpawnBuilder(player);
-				BlockBox plot;
+				Region plot;
 				if (revieweeIndex > -1) {
 					plot = playerPlots.getOrDefault(reviewedPlayers.get(revieweeIndex), null);
 				} else {
@@ -130,7 +131,7 @@ public final class BuildBattleBehavior implements IGameBehavior {
 					LOGGER.error("Player {} has no plot assigned!", reviewedPlayers.get(revieweeIndex));
 					return;
 				}
-				if (!plot.contains(player.blockPosition())) {
+				if (!plot.contains(player)) {
 					game.invoker(GamePlayerEvents.SPAWN).onSpawn(player.getUUID(), spawn, null);
 					spawn.teleportAndApply(player);
 				}
@@ -138,23 +139,23 @@ public final class BuildBattleBehavior implements IGameBehavior {
 		});
 
 		events.listen(GamePlayerEvents.BEFORE_ADD_PLAYERS, (participants, spectators) -> assignPlots(participants, plotRegionsName.all(game)));
-		events.listen(GamePlayerEvents.SPAWN, (playerId, spawn, role) -> spawnPlayer(game.level(), playerId, spawn));
+		events.listen(GamePlayerEvents.SPAWN, (playerId, spawn, role) -> spawnPlayer(playerId, spawn));
 
 		// players cannot interact with blocks outside their plot
-		events.listen(GamePlayerEvents.BREAK_BLOCK, (player, pos, state, hand) -> canInteract(player.getUUID(), pos) ? TriState.DEFAULT : TriState.FALSE);
-		events.listen(GamePlayerEvents.PLACE_BLOCK, (player, pos, placed, placedOn, placedItemStack) -> canInteract(player.getUUID(), pos) ? TriState.DEFAULT : TriState.FALSE);
-		events.listen(GamePlayerEvents.USE_BLOCK, (player, level, pos, hand, result) -> canInteract(player.getUUID(), pos) ? InteractionResult.PASS : InteractionResult.FAIL);
+		events.listen(GamePlayerEvents.BREAK_BLOCK, (player, pos, state, hand) -> canInteract(player.getUUID(), player.level(), pos) ? TriState.DEFAULT : TriState.FALSE);
+		events.listen(GamePlayerEvents.PLACE_BLOCK, (player, pos, placed, placedOn, placedItemStack) -> canInteract(player.getUUID(), player.level(), pos) ? TriState.DEFAULT : TriState.FALSE);
+		events.listen(GamePlayerEvents.USE_BLOCK, (player, level, pos, hand, result) -> canInteract(player.getUUID(), level, pos) ? InteractionResult.PASS : InteractionResult.FAIL);
 		events.listen(GamePlayerEvents.USE_ITEM, (player, hand) -> onUseItem(game, player, hand, widgets));
 
 		selectorItems.applyTo(events);
 	}
 
-	public void assignPlots(Set<PlayerKey> players, Collection<BlockBox> plots) {
+	public void assignPlots(Set<PlayerKey> players, Collection<Region> plots) {
 		if (plots.size() < players.size()) {
 			throw new GameException(Component.literal("Not enough plots for all players in Build Battle game (" + plots.size() + " plots named \"" + plotRegionsName + "\" for " + players.size() + " players)"));
 		}
 		Iterator<PlayerKey> iterator = players.iterator();
-		for (BlockBox plot : plots) {
+		for (Region plot : plots) {
 			if (!iterator.hasNext()) {
 				break;
 			}
@@ -164,23 +165,25 @@ public final class BuildBattleBehavior implements IGameBehavior {
 		}
 	}
 
-	public boolean canInteract(UUID playerId, BlockPos pos) {
-		return building && playerPlots.containsKey(playerId) && playerPlots.get(playerId).contains(pos);
+	public boolean canInteract(UUID playerId, ServerLevel level, BlockPos pos) {
+		return building && playerPlots.containsKey(playerId) && playerPlots.get(playerId).contains(level, pos);
 	}
 
-	private void spawnPlayer(ServerLevel level, UUID playerId, SpawnBuilder builder) {
+	private void spawnPlayer(UUID playerId, SpawnBuilder builder) {
 		if (revieweeIndex > -1) {
-			BlockBox plot = playerPlots.getOrDefault(reviewedPlayers.get(revieweeIndex), null);
+			Region plot = playerPlots.get(reviewedPlayers.get(revieweeIndex));
 			if (plot == null) {
 				LOGGER.error("Player {} has no plot assigned!", reviewedPlayers.get(revieweeIndex));
 				return;
 			}
-			builder.teleportTo(level, tryFindEmptyPos(level, level.getRandom(), plot));
+			ServerLevel level = plot.level();
+			builder.teleportTo(level, tryFindEmptyPos(level, level.getRandom(), plot.box()));
 			return;
 		}
-		BlockBox plot = playerPlots.getOrDefault(playerId, null);
+		Region plot = playerPlots.get(playerId);
 		if (plot != null) {
-			builder.teleportTo(level, tryFindEmptyPos(level, level.getRandom(), plot));
+			ServerLevel level = plot.level();
+			builder.teleportTo(level, tryFindEmptyPos(level, level.getRandom(), plot.box()));
 		}
 	}
 

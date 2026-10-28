@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.content.spleef;
 
-import com.lovetropics.lib.BlockBox;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -32,6 +31,7 @@ import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.player.PlayerIterable;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
 import org.lovetropics.games.common.core.game.player.PlayerSet;
+import org.lovetropics.games.common.core.game.region.Region;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.util.GameBossBar;
 import org.lovetropics.games.common.core.game.util.GameWidgets;
@@ -67,7 +67,7 @@ public class SpleefBehavior implements IGameBehavior {
 
 	private GameBossBar bossBar;
 
-	private final BlockBox[] floorRegions;
+	private final Region[] floorRegions;
 
 	// Eliminate players if they enter this area.
 	private final RegionQuery deathRegion = RegionQuery.of("death");
@@ -93,7 +93,7 @@ public class SpleefBehavior implements IGameBehavior {
 	public SpleefBehavior(int forcedProgressionSeconds, int floors, int breakInterval, int breakCount, Block floorMaterial, Block floorBreakingMaterial, String flavourText, boolean breakEffects) {
 		this.forcedProgressionSeconds = forcedProgressionSeconds;
 		this.floors = floors;
-		floorRegions = new BlockBox[floors];
+		floorRegions = new Region[floors];
 		this.breakInterval = breakInterval;
 		this.breakCount = breakCount;
 		this.floorMaterial = floorMaterial;
@@ -119,8 +119,8 @@ public class SpleefBehavior implements IGameBehavior {
 		Style style = Style.EMPTY.withColor(TextColor.fromRgb(0xACC12F)).withBold(true);
 		bossBar = widgets.openGlobalBossBar(MinigameTexts.SPLEEF_TITLE_PREPARE.copy().withStyle(style), BossEvent.BossBarColor.PURPLE, BossEvent.BossBarOverlay.PROGRESS);
 
-		for (BlockBox floor : floorRegions) {
-			BlockPlacer.replace(game.level(), floor, floorMaterial, BlockPlacer.Mode.REPLACE, Blocks.STAINED_GLASS.white());
+		for (Region floor : floorRegions) {
+			BlockPlacer.replace(floor.level(), floor.box(), floorMaterial, BlockPlacer.Mode.REPLACE, Blocks.STAINED_GLASS.white());
 		}
 
 		events.listen(GamePhaseEvents.START, initiator -> {
@@ -286,14 +286,15 @@ public class SpleefBehavior implements IGameBehavior {
 		if (progressionTimer <= 0) {
 			progressionTimer = forcedProgressionSeconds;
 			spleefMessage(Component.translatable(getFlavourTextKey("forced_progression"), Component.translatable("ltminigames.minigame.position." + (currentFloor + 1))).withStyle(ChatFormatting.YELLOW));
-			BlockPlacer.replace(game.level(), floorRegions[currentFloor], floorBreakingMaterial, BlockPlacer.Mode.REPLACE, floorMaterial, game.scheduler(),
+			Region floor = floorRegions[currentFloor];
+			BlockPlacer.replace(floor.level(), floor.box(), floorBreakingMaterial, BlockPlacer.Mode.REPLACE, floorMaterial, game.scheduler(),
 					(pos) -> (game.random().nextInt(breakCount) * breakInterval),
 					(pos) -> {
 						game.scheduler().runAfterTicks(15 + game.random().nextInt(10), () -> {
 							if (breakEffects) {
-								game.level().destroyBlock(pos, false);
+								floor.level().destroyBlock(pos, false);
 							} else {
-								game.level().removeBlock(pos, false);
+								floor.level().removeBlock(pos, false);
 							}
 						});
 					});

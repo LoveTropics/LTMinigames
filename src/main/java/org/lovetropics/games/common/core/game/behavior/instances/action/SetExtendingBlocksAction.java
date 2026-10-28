@@ -20,6 +20,7 @@ import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GameActionEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
+import org.lovetropics.games.common.core.game.region.Region;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.util.FluidFiller;
 
@@ -79,18 +80,18 @@ public final class SetExtendingBlocksAction implements IGameBehavior {
 
 				float progress = Mth.clamp((float) time / timeLength, 0.0F, 1.0F);
 
-				for (BlockBox region : regions.all(game)) {
+				for (Region region : regions.all(game)) {
 					tickExtendingInBox(game, region, progress);
 				}
 			}
 		});
 	}
 
-	private void tickExtendingInBox(IGamePhase game, BlockBox box, float progress) {
+	private void tickExtendingInBox(IGamePhase game, Region region, float progress) {
 		// TODO: we should be not rewriting blocks that we already placed
-		BlockBox extendingBox = getExtendingBox(box, progress);
+		BlockBox extendingBox = getExtendingBox(region.box(), progress);
 
-		ServerLevel level = game.level();
+		ServerLevel level = region.level();
 		BlockPredicate replace = this.replace;
 		BlockStateProvider set = this.set;
 

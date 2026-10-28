@@ -17,6 +17,7 @@ import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GameTeamEvents;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
+import org.lovetropics.games.common.core.game.region.Region;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
 import org.lovetropics.games.common.core.game.state.team.GameTeam;
@@ -71,7 +72,7 @@ public class PositionPlayersBehavior implements IGameBehavior {
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
-		faceRegion.ifPresent(query -> faceBox = query.one(game));
+		faceRegion.ifPresent(query -> faceBox = query.one(game).box());
 
 		participantSpawner = new CycledSpawner(game, participantSpawns);
 		spectatorSpawner = new CycledSpawner(game, spectatorSpawns);
@@ -114,14 +115,14 @@ public class PositionPlayersBehavior implements IGameBehavior {
 	}
 
 	private void spawnPlayerAsRole(IGamePhase game, UUID playerId, SpawnBuilder spawn, @Nullable PlayerRole role, @Nullable TeamState teams) {
-		BlockBox region = getSpawnRegionFor(playerId, role, teams);
+		Region region = getSpawnRegionFor(playerId, role, teams);
 		if (region != null) {
-			BlockPos pos = tryFindEmptyPos(game, game.random(), region);
+			BlockPos pos = tryFindEmptyPos(game.random(), region);
 			float angle = this.angle;
 			if (faceBox != null) {
 				angle = getAngleTo(pos, faceBox);
 			}
-			spawn.teleportTo(game.level(), pos, angle);
+			spawn.teleportTo(region.level(), pos, angle);
 		}
 	}
 
@@ -134,14 +135,14 @@ public class PositionPlayersBehavior implements IGameBehavior {
 		return (float) (Mth.atan2(deltaZ, deltaX) * Mth.RAD_TO_DEG - 90.0f);
 	}
 
-	private @Nullable BlockBox getSpawnRegionFor(UUID playerId, PlayerRole role, @Nullable TeamState teams) {
+	private @Nullable Region getSpawnRegionFor(UUID playerId, PlayerRole role, @Nullable TeamState teams) {
 		if (role == PlayerRole.PARTICIPANT) {
-			BlockBox region = getParticipantSpawnRegion(playerId, teams);
+			Region region = getParticipantSpawnRegion(playerId, teams);
 			if (region != null) {
 				return region;
 			}
 		} else if (role == PlayerRole.SPECTATOR) {
-			BlockBox region = spectatorSpawner.next();
+			Region region = spectatorSpawner.next();
 			if (region != null) {
 				return region;
 			}
@@ -149,7 +150,7 @@ public class PositionPlayersBehavior implements IGameBehavior {
 		return fallbackSpawner.next();
 	}
 
-	private @Nullable BlockBox getParticipantSpawnRegion(UUID playerId, @Nullable TeamState teams) {
+	private @Nullable Region getParticipantSpawnRegion(UUID playerId, @Nullable TeamState teams) {
 		GameTeamKey team = teams != null ? teams.getTeamForPlayer(playerId) : null;
 		if (team != null) {
 			CycledSpawner teamSpawner = teamSpawners.get(team);
@@ -160,15 +161,15 @@ public class PositionPlayersBehavior implements IGameBehavior {
 		return participantSpawner.next();
 	}
 
-	public static BlockPos tryFindEmptyPos(IGamePhase game, RandomSource random, BlockBox box) {
-		ServerLevel level = game.level();
+	public static BlockPos tryFindEmptyPos(RandomSource random, Region region) {
+		ServerLevel level = region.level();
 		for (int i = 0; i < 20; i++) {
-			BlockPos pos = box.sample(random);
+			BlockPos pos = region.sample(random);
 			if (level.isEmptyBlock(pos)) {
 				return pos;
 			}
 		}
 		LOGGER.debug("USING FALLBACK SPAWN POS");
-		return box.centerBlock();
+		return region.centerBlock();
 	}
 }

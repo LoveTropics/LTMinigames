@@ -5,7 +5,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.advancements.predicates.ItemPredicate;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.InteractionResult;
@@ -70,7 +69,7 @@ public record ItemFrameCodeBehaviour(
 					if(blockEntity instanceof BigRedButtonBlockEntity bigRedButtonBlockEntity){
 						bigRedButtonBlockEntity.trigger();
 					}
-					if(isWrongCode(game, regionToItemFrame, level, player)){
+					if(isWrongCode(game, regionToItemFrame, player)){
 						state.lockoutStartTicks = game.ticks();
 					}
 					return InteractionResult.PASS;
@@ -81,8 +80,7 @@ public record ItemFrameCodeBehaviour(
 		events.listen(GamePhaseEvents.TICK, () -> {
 			if(state.lockoutStartTicks > -1 && (game.ticks() >= state.lockoutStartTicks + lockoutTicks)) {
 				state.lockoutStartTicks = -1;
-				ServerLevel level = game.level();
-				buttonRegion.forEachBlock(game, blockPos -> {
+				buttonRegion.forEachBlock(game, (level, blockPos) -> {
 					BlockEntity blockEntity = level.getBlockEntity(blockPos);
 					if(blockEntity instanceof BigRedButtonBlockEntity bigRedButtonBlockEntity){
 						bigRedButtonBlockEntity.reset();
@@ -95,7 +93,7 @@ public record ItemFrameCodeBehaviour(
 		});
 	}
 
-	private boolean isWrongCode(IGamePhase game, Map<RegionQuery, CodeItemFrame> itemFrameMap, ServerLevel level, ServerPlayer player){
+	private boolean isWrongCode(IGamePhase game, Map<RegionQuery, CodeItemFrame> itemFrameMap, ServerPlayer player){
 		boolean isWrong = false;
 		for (RegionQuery blockPos : itemFrameMap.keySet()) {
 			CodeItemFrame itemFrame = itemFrameMap.get(blockPos);
@@ -110,7 +108,7 @@ public record ItemFrameCodeBehaviour(
 					} else {
 						((ItemFrameMixin) first).setFixed(true);
 						if(itemFrame.lightRegion().isPresent()){
-							itemFrame.lightRegion().get().forEachBlock(game, lightPos ->
+							itemFrame.lightRegion().get().forEachBlock(game, (level, lightPos) ->
 									level.setBlock(lightPos, level.getBlockState(lightPos).setValue(CopperBulbBlock.LIT, true), BigRedButtonBlock.UPDATE_CLIENTS)
 							);
 						}

@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.core.game.behavior;
 
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
@@ -22,6 +21,7 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import org.lovetropics.games.LoveTropics;
 import org.lovetropics.games.common.core.data.LoveTropicsAttachments;
 import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.region.LevelBlockPos;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.integration.game_actions.Donation;
 import org.lovetropics.games.common.core.integration.state.DonationScale;
@@ -39,12 +39,12 @@ public class SpawnDonorUtils {
 		CompoundTag tag = new CompoundTag();
 		tag.putBoolean("NoBasePlate", true);
 
-		BlockPos spawnPos = regions.pickRandomPos(game, game.random());
+		LevelBlockPos spawnPos = regions.pickRandomPos(game, game.random());
 		if (spawnPos == null) {
 			return;
 		}
 
-		ServerLevel level = game.level();
+		ServerLevel level = spawnPos.level();
 		Villager spawnedMob = EntityTypes.VILLAGER.create(level, EntitySpawnReason.MOB_SUMMONED);
 		if (spawnedMob == null) {
 			return;
@@ -78,7 +78,7 @@ public class SpawnDonorUtils {
 		spawnedMob.refreshBrain(level);
 		spawnedMob.setCustomName(donation.getDisplayName(scale.color(), game.random()));
 		spawnedMob.setData(LoveTropicsAttachments.DONATION, donation);
-		spawnedMob.snapTo(spawnPos, 0, 0);
+		spawnedMob.snapTo(spawnPos.pos(), 0, 0);
 		level.addFreshEntity(spawnedMob);
 	}
 

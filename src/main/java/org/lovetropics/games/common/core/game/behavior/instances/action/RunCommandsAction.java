@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.core.game.behavior.instances.action;
 
-import com.lovetropics.lib.BlockBox;
 import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Codec;
@@ -22,6 +21,7 @@ import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GameActionEvents;
+import org.lovetropics.games.common.core.game.region.Region;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.state.DebugModeState;
 
@@ -54,8 +54,8 @@ public record RunCommandsAction(
 		Commands commands = game.server().getCommands();
 
 		for (Map.Entry<RegionQuery, List<String>> entry : regionCommands.entrySet()) {
-			BlockBox box = entry.getKey().one(game);
-			CommandSourceStack source = createCommandSourceAtRegion(game, box);
+			Region region = entry.getKey().one(game);
+			CommandSourceStack source = createCommandSourceAtRegion(game, region);
 
 			List<ParseResults<CommandSourceStack>> regionCommands = entry.getValue().stream()
 					.map(command -> commands.getDispatcher().parse(command, source))
@@ -90,13 +90,13 @@ public record RunCommandsAction(
 		}
 	}
 
-	private static CommandSourceStack createCommandSourceAtRegion(IGamePhase game, BlockBox region) {
+	private static CommandSourceStack createCommandSourceAtRegion(IGamePhase game, Region region) {
 		Component name = game.definition().name();
 		return new CommandSourceStack(
 				commandSource(game),
 				region.center(),
 				Vec2.ZERO,
-				game.level(),
+				region.level(),
 				LevelBasedPermissionSet.OWNER,
 				name.getString(),
 				name,

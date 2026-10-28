@@ -1,10 +1,8 @@
 package org.lovetropics.games.common.core.game.persistent.behavior.crab;
 
-import com.lovetropics.lib.BlockBox;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
@@ -30,6 +28,8 @@ import org.lovetropics.games.common.core.game.persistent.PersistentGame;
 import org.lovetropics.games.common.core.game.persistent.PersistentGameBehavior;
 import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviorType;
 import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviors;
+import org.lovetropics.games.common.core.game.region.LevelBlockPos;
+import org.lovetropics.games.common.core.game.region.Region;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
 
 import java.util.HashMap;
@@ -128,12 +128,12 @@ public class CrabGolfHoleBehavior implements PersistentGameBehavior {
 
 		events.listen(CrabGolfEvents.START_GAME, (hole, player) -> {
 			if (hole == this.hole) {
-				BlockPos startPos = startRegion.pickRandomPos(game, player.getRandom());
+				LevelBlockPos startPos = startRegion.pickRandomPos(game, player.getRandom());
 				if (startPos == null) {
 					return;
 				}
 
-				Vec3 center = Vec3.atBottomCenterOf(startPos);
+				Vec3 center = Vec3.atBottomCenterOf(startPos.pos());
 
 				LivingEntity entity = game.invoker(CrabGolfEvents.SUMMON_CRAB).summon(player.level(), player, center);
 				if (entity == null) {
@@ -182,7 +182,7 @@ public class CrabGolfHoleBehavior implements PersistentGameBehavior {
 				}
 
 				if (!mainRegion.intersects(game, entity.level(), entity.getBoundingBox())) {
-					entity.snapTo(Vec3.atBottomCenterOf(startRegion.pickRandomPos(game, entity.getRandom())));
+					entity.snapTo(Vec3.atBottomCenterOf(startRegion.pickRandomPos(game, entity.getRandom()).pos()));
 					entity.setDeltaMovement(0, 0, 0);
 				}
 
@@ -209,13 +209,13 @@ public class CrabGolfHoleBehavior implements PersistentGameBehavior {
 	}
 
 	private void updateWinnerRegion(PersistentGame game, int score, @Nullable UUID player) {
-		BlockBox winnerBox = winnerRegion.nullableOne(game);
-		if (winnerBox == null) {
+		Region winnerRegion = this.winnerRegion.nullableOne(game);
+		if (winnerRegion == null) {
 			return;
 		}
 
 		ServerLevel level = game.level();
-		winnerRegion.getEntitiesOfClass(game, ArmorStand.class)
+		this.winnerRegion.getEntitiesOfClass(game, ArmorStand.class)
 				.forEach(Entity::discard);
 
 		CompoundTag nbt = new CompoundTag();
@@ -238,7 +238,7 @@ public class CrabGolfHoleBehavior implements PersistentGameBehavior {
 			nbt.put("name_suffix", suffix);
 		}
 
-		Vec3 rcenter = winnerBox.center();
+		Vec3 rcenter = winnerRegion.center();
 		// move to floor
 		Vec3 pos = new Vec3(rcenter.x, rcenter.y - 0.5, rcenter.z);
 
@@ -278,7 +278,7 @@ public class CrabGolfHoleBehavior implements PersistentGameBehavior {
 			}
 
 			if (in.intersects(game, entity.level(), entity.getBoundingBox())) {
-				entity.snapTo(Vec3.atBottomCenterOf(out.pickRandomPos(game, entity.getRandom())));
+				entity.snapTo(Vec3.atBottomCenterOf(out.pickRandomPos(game, entity.getRandom()).pos()));
 			}
 		}
 	}

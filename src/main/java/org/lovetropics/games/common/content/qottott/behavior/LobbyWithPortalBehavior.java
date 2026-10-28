@@ -1,13 +1,11 @@
 package org.lovetropics.games.common.content.qottott.behavior;
 
-import com.lovetropics.lib.BlockBox;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -30,6 +28,7 @@ import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
+import org.lovetropics.games.common.core.game.region.Region;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.state.progress.ProgressChannel;
 import org.lovetropics.games.common.core.game.state.progress.ProgressionPeriod;
@@ -53,8 +52,8 @@ public record LobbyWithPortalBehavior(RegionQuery portalRegion, RegionQuery targ
 	public void register(IGamePhase game, EventRegistrar events) {
 		teleportAction.register(game, events);
 
-		BlockBox portal = portalRegion.one(game);
-		List<BlockBox> targets = targetRegion.all(game);
+		Region portal = portalRegion.one(game);
+		List<Region> targets = targetRegion.all(game);
 		if (targets.isEmpty()) {
 			throw new GameException(Component.literal("No targets for portal"));
 		}
@@ -66,7 +65,7 @@ public record LobbyWithPortalBehavior(RegionQuery portalRegion, RegionQuery targ
 		events.listen(GamePhaseEvents.TICK, () -> {
 			boolean shouldOpen = predicate.getAsBoolean();
 			if (portalOpen.get() != shouldOpen) {
-				setPortal(game.level(), portal, shouldOpen);
+				setPortal(portal, shouldOpen);
 				portalOpen.setValue(shouldOpen);
 			}
 		});
@@ -82,11 +81,11 @@ public record LobbyWithPortalBehavior(RegionQuery portalRegion, RegionQuery targ
 			if (!portalOpen.get()) {
 				return;
 			}
-			if (portal.contains(player.position()) && playersInLobby.remove(player.getUUID())) {
-				BlockBox target = Util.getRandom(targets, game.random());
+			if (portal.contains(player) && playersInLobby.remove(player.getUUID())) {
+				Region target = Util.getRandom(targets, game.random());
 				Vec3 center = target.center();
-				player.teleportTo(player.level(), center.x, center.y, center.z, Set.of(), computeAngle(center, pointTowards), 0.0f, true);
-				player.level().playSound(null, center.x, center.y, center.z, SoundEvents.CHORUS_FRUIT_TELEPORT, SoundSource.PLAYERS, 1.0f, 1.0f);
+				player.teleportTo(target.level(), center.x, center.y, center.z, Set.of(), computeAngle(center, pointTowards), 0.0f, true);
+				target.level().playSound(null, center.x, center.y, center.z, SoundEvents.CHORUS_FRUIT_TELEPORT, SoundSource.PLAYERS, 1.0f, 1.0f);
 				teleportAction.apply(game, ContextMap.EMPTY, ActionSubjects.ofPlayer(player));
 			}
 		});
@@ -101,11 +100,11 @@ public record LobbyWithPortalBehavior(RegionQuery portalRegion, RegionQuery targ
 		return (float) Math.atan2(-deltaX, deltaZ) * Mth.RAD_TO_DEG;
 	}
 
-	private static void setPortal(ServerLevel level, BlockBox portal, boolean open) {
+	private static void setPortal(Region portal, boolean open) {
 		Direction.Axis portalAxis = portal.size().getX() > 1 ? Direction.Axis.X : Direction.Axis.Z;
 		BlockState state = open ? Blocks.NETHER_PORTAL.defaultBlockState().setValue(NetherPortalBlock.AXIS, portalAxis) : Blocks.AIR.defaultBlockState();
 		for (BlockPos pos : portal) {
-			level.setBlock(pos, state, Block.UPDATE_CLIENTS);
+			portal.level().setBlock(pos, state, Block.UPDATE_CLIENTS);
 		}
 	}
 

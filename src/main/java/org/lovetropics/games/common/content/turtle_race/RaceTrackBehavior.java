@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.content.turtle_race;
 
-import com.lovetropics.lib.BlockBox;
 import com.lovetropics.lib.entity.FireworkPalette;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -13,6 +12,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket;
 import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
 import net.minecraft.network.protocol.game.ClientboundSetTitlesAnimationPacket;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -32,6 +32,7 @@ import org.lovetropics.games.common.core.game.behavior.event.GameLogicEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
+import org.lovetropics.games.common.core.game.region.Region;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
@@ -107,7 +108,9 @@ public class RaceTrackBehavior implements IGameBehavior {
 
 		this.game = game;
 		widgets = GameWidgets.getOrRegister(game, events);
-		path = pathData.compile(game, lapCount > 1);
+
+		Region finishRegion = this.finishRegion.one(game);
+		path = pathData.compile(game, finishRegion.level(), lapCount > 1);
 
 		registerCheckpoints(game, events);
 
@@ -168,12 +171,12 @@ public class RaceTrackBehavior implements IGameBehavior {
 	}
 
 	private void registerCheckpoints(IGamePhase game, EventRegistrar events) {
-		BlockBox finishBox = this.finishRegion.one(game);
+		Region finishRegion = this.finishRegion.one(game);
 		// TODO: Hacky
-		registerCheckpoint(finishBox, 0.9f * path.length(), path.length(), this::onPlayerFinishLap);
+		registerCheckpoint(finishRegion, 0.9f * path.length(), path.length(), this::onPlayerFinishLap);
 
 		for (Map.Entry<RegionQuery, GameActionList> entry : checkpointRegions.entrySet()) {
-			List<BlockBox> regions = entry.getKey().all(game);
+			List<Region> regions = entry.getKey().allIn(game, finishRegion.level());
 			if (regions.isEmpty()) {
 				continue;
 			}
@@ -181,7 +184,7 @@ public class RaceTrackBehavior implements IGameBehavior {
 			GameActionList actions = entry.getValue();
 			actions.register(game, events);
 
-			for (BlockBox region : regions) {
+			for (Region region : regions) {
 				registerCheckpoint(region, (player, state) -> {
 					actions.apply(game, ContextMap.EMPTY, ActionSubjects.ofPlayer(player));
 					return false;
@@ -190,18 +193,18 @@ public class RaceTrackBehavior implements IGameBehavior {
 		}
 	}
 
-	private void registerCheckpoint(BlockBox box, Checkpoint.Handler handler) {
-		BlockPos center = box.centerBlock();
+	private void registerCheckpoint(Region region, Checkpoint.Handler handler) {
+		BlockPos center = region.centerBlock();
 		RaceTrackPath.Point point = path.closestPointAt(center.getX(), center.getZ());
-		float size = (float) Math.max(box.size().getX(), Math.max(box.size().getY(), box.size().getZ()));
+		float size = (float) Math.max(region.size().getX(), Math.max(region.size().getY(), region.size().getZ()));
 		float minPosition = point.position() - size * 2.0f;
 		float maxPosition = point.position() + size * 2.0f;
 
-		registerCheckpoint(box, minPosition, maxPosition, handler);
+		registerCheckpoint(region, minPosition, maxPosition, handler);
 	}
 
-	private void registerCheckpoint(BlockBox box, float minPosition, float maxPosition, Checkpoint.Handler handler) {
-		checkpoints.add(new Checkpoint(box.asAabb(), minPosition, maxPosition, handler));
+	private void registerCheckpoint(Region region, float minPosition, float maxPosition, Checkpoint.Handler handler) {
+		checkpoints.add(new Checkpoint(region.aabb(), minPosition, maxPosition, handler));
 	}
 
 	private void showStuckWarning(ServerPlayer player) {
@@ -465,10 +468,10 @@ public class RaceTrackBehavior implements IGameBehavior {
 				Codec.STRING.fieldOf("prefix").forGetter(PathData::prefix)
 		).apply(i, PathData::new));
 
-		public RaceTrackPath compile(IGamePhase game, boolean loop) {
+		public RaceTrackPath compile(IGamePhase game, ServerLevel level, boolean loop) {
 			RaceTrackPath.Builder path = RaceTrackPath.builder();
 
-			List<BlockPos> positions = collectPositions(game);
+			List<BlockPos> positions = collectPositions(game, level);
 			for (BlockPos point : positions) {
 				path.addPoint(point.getX(), point.getZ());
 			}
@@ -480,10 +483,10 @@ public class RaceTrackBehavior implements IGameBehavior {
 			return path.build();
 		}
 
-		private List<BlockPos> collectPositions(IGamePhase game) {
+		private List<BlockPos> collectPositions(IGamePhase game, ServerLevel level) {
 			List<BlockPos> positions = new ArrayList<>();
 			for (int index = start; index <= end; index++) {
-				BlockBox region = RegionQuery.of(prefix + index).nullableOne(game);
+				Region region = RegionQuery.of(prefix + index).nullableOneIn(game, level);
 				if (region != null) {
 					positions.add(region.centerBlock());
 				}

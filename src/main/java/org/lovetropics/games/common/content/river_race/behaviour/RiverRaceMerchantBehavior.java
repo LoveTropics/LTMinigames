@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.content.river_race.behaviour;
 
-import com.lovetropics.lib.BlockBox;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -32,6 +31,7 @@ import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
+import org.lovetropics.games.common.core.game.region.Region;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
 
 import java.util.List;
@@ -78,10 +78,10 @@ public class RiverRaceMerchantBehavior implements IGameBehavior {
 
 	/// When the game loads, load this merchant into its proper section
 	private void onGameStarted() {
-		ServerLevel level = game.level();
-		for (BlockBox region : region.all(game)) {
+		for (Region region : region.all(game)) {
 			Vec3 center = region.center();
 
+			ServerLevel level = region.level();
 			Entity merchant = createMerchant(level);
 			if (merchant == null) {
 				return;

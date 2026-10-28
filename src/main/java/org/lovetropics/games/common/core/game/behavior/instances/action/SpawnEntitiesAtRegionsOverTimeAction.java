@@ -12,6 +12,7 @@ import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GameActionEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
+import org.lovetropics.games.common.core.game.region.LevelBlockPos;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.util.EntityTemplate;
 
@@ -64,12 +65,10 @@ public class SpawnEntitiesAtRegionsOverTimeAction implements IGameBehavior {
 
 			//System.out.println("spawnsPerTick: " + spawnsPerTick + ", ticksRemaining: " + ticksRemaining);
 
-			ServerLevel level = game.level();
 			for (int i = 0; i < spawnsPerTick; i++) {
-				BlockPos pos = regionsToSpawnAt.pickRandomPos(game, game.random());
-				if (pos == null) {
-					continue;
-				}
+				LevelBlockPos levelPos = regionsToSpawnAt.pickRandomPos(game, game.random());
+				ServerLevel level = levelPos.level();
+				BlockPos pos = levelPos.pos();
 				if (atHeightmap) {
 					pos = level.getHeightmapPos(Heightmap.Types.WORLD_SURFACE, pos);
 				}

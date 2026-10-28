@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.core.game.behavior.instances.action;
 
-import com.lovetropics.lib.BlockBox;
 import com.lovetropics.lib.entity.FireworkPalette;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -31,9 +30,8 @@ import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GameActionEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
-import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
-import org.lovetropics.games.common.core.game.client_state.GameClientState;
-import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
+import org.lovetropics.games.common.core.game.region.LevelBlockPos;
+import org.lovetropics.games.common.core.game.region.Region;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.state.BeaconState;
 
@@ -53,28 +51,28 @@ public record ChestDropAction(RegionQuery region, WeightedList<ResourceKey<LootT
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
-		List<BlockBox> regions = List.copyOf(region.all(game));
+		List<Region> regions = List.copyOf(region.all(game));
 		if (regions.isEmpty()) {
 			throw new GameException(Component.literal("No regions with key '" + region + "' to spawn chest drops"));
 		}
 
-		ServerLevel level = game.level();
 		RandomSource random = game.random();
-		BeaconState beacons = game.state().get(BeaconState.KEY);
+		BeaconState beacons = BeaconState.getOrAdd(game, events);
 
 		List<DelayedDrop> delayedDrops = new ArrayList<>();
 
 		events.listen(GameActionEvents.APPLY, (context, targets) -> {
 			int count = this.count.sample(random);
 			for (int i = 0; i < count; i++) {
-				BlockPos randomPos = region.pickRandomPos(game, game.random());
+				LevelBlockPos randomPos = region.pickRandomPos(game, game.random());
 				if (randomPos == null) {
 					continue;
 				}
-				BlockPos surfacePos = level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, randomPos);
+				ServerLevel level = randomPos.level();
+				BlockPos surfacePos = level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, randomPos.pos());
 
-				beacons.add(surfacePos);
-				delayedDrops.add(new DelayedDrop(surfacePos, game.ticks() + delay));
+				beacons.add(level.dimension(), surfacePos);
+				delayedDrops.add(new DelayedDrop(level, surfacePos, game.ticks() + delay));
 			}
 
 			return true;
@@ -85,23 +83,17 @@ public record ChestDropAction(RegionQuery region, WeightedList<ResourceKey<LootT
 				return;
 			}
 
-			boolean removed = delayedDrops.removeIf(drop -> {
+			delayedDrops.removeIf(drop -> {
 				if (game.ticks() >= drop.placeAtTime()) {
-					beacons.remove(drop.pos());
-					placeChest(level, random, drop);
+					beacons.remove(drop.level().dimension(), drop.pos());
+					placeChest(random, drop);
 					return true;
 				} else if (game.ticks() % SharedConstants.TICKS_PER_SECOND == 0) {
 					applyGlowingEffectAround(game, drop);
 				}
 				return false;
 			});
-
-			if (removed) {
-				beacons.sendTo(game.allPlayers());
-			}
 		});
-
-		events.listen(GamePlayerEvents.REMOVE, player -> GameClientState.removeFromPlayer(GameClientStateTypes.BEACON.get(), player));
 	}
 
 	private void applyGlowingEffectAround(IGamePhase game, DelayedDrop drop) {
@@ -112,7 +104,8 @@ public record ChestDropAction(RegionQuery region, WeightedList<ResourceKey<LootT
 		}
 	}
 
-	private void placeChest(ServerLevel level, RandomSource random, DelayedDrop drop) {
+	private void placeChest(RandomSource random, DelayedDrop drop) {
+		ServerLevel level = drop.level;
 		Direction direction = Direction.Plane.HORIZONTAL.getRandomDirection(random);
 		level.setBlock(drop.pos(), Blocks.CHEST.defaultBlockState().setValue(ChestBlock.FACING, direction), Block.UPDATE_ALL);
 
@@ -123,6 +116,6 @@ public record ChestDropAction(RegionQuery region, WeightedList<ResourceKey<LootT
 		FireworkPalette.DYE_COLORS.spawn(drop.pos().above(), level);
 	}
 
-	record DelayedDrop(BlockPos pos, long placeAtTime) {
+	record DelayedDrop(ServerLevel level, BlockPos pos, long placeAtTime) {
 	}
 }

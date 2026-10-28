@@ -20,6 +20,7 @@ import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GameLivingEntityEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
+import org.lovetropics.games.common.core.game.region.Region;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.state.progress.ProgressChannel;
 import org.lovetropics.games.common.core.game.state.progress.ProgressHolder;
@@ -58,7 +59,8 @@ public class RisingFluidBehavior implements IGameBehavior {
         events.listen(GamePhaseEvents.START, _ -> {
             int initialFluidLevel = Mth.floor(targetFluidLevel.getAsDouble());
             fluidLevel = initialFluidLevel;
-			filler = new FluidFiller(region.one(game), fillType, initialFluidLevel);
+			Region region = this.region.one(game);
+			filler = new FluidFiller(region.level(), region.box(), fillType, initialFluidLevel);
         });
 
         if (fillType == FluidFiller.Type.WATER) {
@@ -87,15 +89,14 @@ public class RisingFluidBehavior implements IGameBehavior {
             if (fluidLevel < targetFluidLevel) {
                 fluidLevel++;
             }
-            filler.tick(game, fluidLevel);
+            filler.tick(fluidLevel);
             if (fillType == FluidFiller.Type.WATER) {
-                spawnWarningParticles(game);
+                spawnWarningParticles(game, filler.level());
             }
         }
     }
 
-    private void spawnWarningParticles(IGamePhase game) {
-        ServerLevel level = game.level();
+    private void spawnWarningParticles(IGamePhase game, ServerLevel level) {
         RandomSource random = game.random();
         if (random.nextInt(3) != 0) {
             return;

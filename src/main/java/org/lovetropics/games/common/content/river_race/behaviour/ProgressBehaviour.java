@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.content.river_race.behaviour;
 
-import com.lovetropics.lib.BlockBox;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -9,6 +8,8 @@ import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.DyeColor;
@@ -23,6 +24,7 @@ import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.client_state.GameClientState;
+import org.lovetropics.games.common.core.game.region.Region;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.state.team.GameTeam;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
@@ -58,7 +60,7 @@ public record ProgressBehaviour(
 		);
 
 		for (LockedZone lockedZone : lockedZones) {
-			BlockBox region = RegionQuery.of(lockedZone.id).one(game);
+			Region region = RegionQuery.of(lockedZone.id).oneIn(game, mapSpace.level);
 			int start = mapSpace.getPos(region.min());
 			int end = mapSpace.getPos(region.max());
 			progress.lockedZones.put(lockedZone.id, new RiverRaceClientBarState.Zone(start, end - start, lockedZone.color));
@@ -127,11 +129,11 @@ public record ProgressBehaviour(
 		}
 	}
 
-	private record MapSpace(int min, int max, Direction.Axis axis) {
-		public static MapSpace from(BlockBox box) {
-			BlockPos size = box.size();
+	private record MapSpace(ServerLevel level, int min, int max, Direction.Axis axis) {
+		public static MapSpace from(Region region) {
+			Vec3i size = region.size();
 			Direction.Axis axis = size.getX() > size.getZ() ? Direction.Axis.X : Direction.Axis.Z;
-			return new MapSpace(box.min().get(axis), box.max().get(axis), axis);
+			return new MapSpace(region.level(), region.min().get(axis), region.max().get(axis), axis);
 		}
 
 		public int getPos(BlockPos pos) {

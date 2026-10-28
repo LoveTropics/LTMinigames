@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.core.game.behavior.instances.action;
 
-import com.lovetropics.lib.BlockBox;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
@@ -15,6 +14,7 @@ import org.lovetropics.games.common.core.game.behavior.action.GameActionList;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GameActionEvents;
 import org.lovetropics.games.common.core.game.behavior.instances.PositionPlayersBehavior;
+import org.lovetropics.games.common.core.game.region.Region;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.state.statistics.GameStatistics;
 import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
@@ -43,8 +43,8 @@ public record SetupPodiumAction(
 		}
 		loserActions.register(game, events);
 
-		List<BlockBox> winnerBoxes = winnerRegions.stream().map(r -> r.one(game)).toList();
-		BlockBox loserBox = loserRegion.one(game);
+		List<Region> winnerBoxes = winnerRegions.stream().map(r -> r.one(game)).toList();
+		Region loserBox = loserRegion.one(game);
 
 		events.listen(GameActionEvents.APPLY, (context, targets) -> {
 			setupPodium(game, winnerBoxes, loserBox);
@@ -52,7 +52,7 @@ public record SetupPodiumAction(
 		});
 	}
 
-	private void setupPodium(IGamePhase game, List<BlockBox> winnerBoxes, BlockBox loserBox) {
+	private void setupPodium(IGamePhase game, List<Region> winnerBoxes, Region loserBox) {
 		GameStatistics statistics = game.statistics();
 
 		List<ServerPlayer> remainingPlayers = game.allPlayers().shuffledCopy(game.random());
@@ -65,7 +65,7 @@ public record SetupPodiumAction(
 
 			int placement = statistics.forPlayer(playerKey).getOr(StatisticKey.PLACEMENT, Integer.MAX_VALUE);
 			if (placement >= 1 && placement <= winnerBoxes.size()) {
-				teleportToRegion(game, player, winnerBoxes.get(placement - 1), loserBox);
+				teleportToRegion(player, winnerBoxes.get(placement - 1), loserBox);
 				if (placement <= winnerActions.size()) {
 					winnerActions.get(placement - 1).apply(game, ContextMap.EMPTY, ActionSubjects.ofPlayer(player));
 				}
@@ -74,14 +74,14 @@ public record SetupPodiumAction(
 		}
 
 		for (ServerPlayer player : remainingPlayers) {
-			teleportToRegion(game, player, loserBox, winnerBoxes.getFirst());
+			teleportToRegion(player, loserBox, winnerBoxes.getFirst());
 		}
 		loserActions.apply(game, ContextMap.EMPTY, ActionSubjects.ofPlayers(remainingPlayers));
 	}
 
-	private static void teleportToRegion(IGamePhase game, ServerPlayer player, BlockBox region, BlockBox facingRegion) {
-		BlockPos pos = PositionPlayersBehavior.tryFindEmptyPos(game, player.getRandom(), region);
-		float angle = PositionPlayersBehavior.getAngleTo(pos, facingRegion);
-		player.teleportTo(game.level(), pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, Set.of(), angle, 0.0f, true);
+	private static void teleportToRegion(ServerPlayer player, Region region, Region facingRegion) {
+		BlockPos pos = PositionPlayersBehavior.tryFindEmptyPos(player.getRandom(), region);
+		float angle = PositionPlayersBehavior.getAngleTo(pos, facingRegion.box());
+		player.teleportTo(region.level(), pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, Set.of(), angle, 0.0f, true);
 	}
 }

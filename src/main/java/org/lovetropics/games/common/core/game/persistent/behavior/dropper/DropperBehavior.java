@@ -87,7 +87,7 @@ public class DropperBehavior implements PersistentGameBehavior {
 		events.listen(GamePhaseEvents.STOP, _ -> {
 			for (ServerPlayer player : game.players()) {
 				if (dropperRegion.contains(game, player)) {
-					Vec3 randomLocation = Vec3.atCenterOf(failRegion.pickRandomPos(game, game.level().getRandom()));
+					Vec3 randomLocation = Vec3.atCenterOf(failRegion.pickRandomPos(game, game.level().getRandom()).pos());
 					player.teleportTo(randomLocation.x(), randomLocation.y(), randomLocation.z());
 				}
 			}
@@ -125,7 +125,7 @@ public class DropperBehavior implements PersistentGameBehavior {
 			winReward.giveToPlayer(player);
 		}
 		getScoreAccess(objectives.stats(), WIN_STAT_NAME).add(1);
-		Vec3 randomLocation = Vec3.atCenterOf(successRegion.pickRandomPos(game, game.level().getRandom()));
+		Vec3 randomLocation = Vec3.atCenterOf(successRegion.pickRandomPos(game, game.level().getRandom()).pos());
 		player.level().playSeededSound(null, randomLocation.x(), randomLocation.y(), randomLocation.z, SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.VOICE, 5f, 1.0F, player.getRandom().nextLong());
 		player.teleportTo(randomLocation.x(), randomLocation.y(), randomLocation.z());
 	}
@@ -133,7 +133,7 @@ public class DropperBehavior implements PersistentGameBehavior {
 	private void onFail(PersistentGame game, ServerPlayer player, RegionQuery failRegion) {
 		getScoreAccess(objectives.fail(), player).add(1);
 		getScoreAccess(objectives.stats(), FAIL_STAT_NAME).add(1);
-		Vec3 randomLocation = Vec3.atCenterOf(failRegion.pickRandomPos(game, game.level().getRandom()));
+		Vec3 randomLocation = Vec3.atCenterOf(failRegion.pickRandomPos(game, game.level().getRandom()).pos());
 		player.teleportTo(randomLocation.x(), randomLocation.y(), randomLocation.z());
 		player.level().playSeededSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.NOTE_BLOCK_BANJO, SoundSource.VOICE, 1f, 0.01f, player.getRandom().nextLong());
 	}

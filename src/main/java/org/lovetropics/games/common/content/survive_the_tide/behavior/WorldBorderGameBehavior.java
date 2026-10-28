@@ -22,6 +22,7 @@ import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.client_state.GameClientState;
 import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
+import org.lovetropics.games.common.core.game.region.LevelBlockPos;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.state.BeaconState;
 import org.lovetropics.games.common.core.game.state.progress.ProgressChannel;
@@ -49,10 +50,11 @@ public class WorldBorderGameBehavior implements IGameBehavior {
 	private final int damageAmount;
 	private final List<ParticleType> borderParticles;
 
-	private BlockPos worldBorderCenter = BlockPos.ZERO;
+	private LevelBlockPos worldBorderCenter;
 
 	private ProgressHolder phases;
 
+	private BeaconState beacons;
 	private boolean addedBeacon;
 
 	public WorldBorderGameBehavior(RegionQuery worldBorderCenterRegion, ProgressChannel channel, ProgressionPeriod period,
@@ -69,6 +71,8 @@ public class WorldBorderGameBehavior implements IGameBehavior {
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		phases = channel.getOrThrow(game);
+
+		beacons = BeaconState.getOrAdd(game, events);
 
 		worldBorderCenter = worldBorderCenterRegion.pickRandomPos(game, game.random());
 		if (worldBorderCenter == null) {
@@ -88,9 +92,8 @@ public class WorldBorderGameBehavior implements IGameBehavior {
 		}
 
 		if (!addedBeacon) {
-			BeaconState beacons = game.state().get(BeaconState.KEY);
-			beacons.add(game.level().getHeightmapPos(Heightmap.Types.WORLD_SURFACE, worldBorderCenter));
-			beacons.sendTo(game.allPlayers());
+			BlockPos heightmapPos = worldBorderCenter.level().getHeightmapPos(Heightmap.Types.WORLD_SURFACE, worldBorderCenter.pos());
+			beacons.add(worldBorderCenter.level().dimension(), heightmapPos);
 			addedBeacon = true;
 		}
 
@@ -102,7 +105,7 @@ public class WorldBorderGameBehavior implements IGameBehavior {
 
 		for (ParticleType particle : borderParticles) {
 			if (game.ticks() % particle.rate == 0) {
-				tickParticles(particle, currentRadius, game.level());
+				tickParticles(particle, currentRadius, worldBorderCenter.level());
 			}
 		}
 
@@ -130,7 +133,7 @@ public class WorldBorderGameBehavior implements IGameBehavior {
 					float zVec = (float) Math.cos(Math.toRadians(step)) * currentRadius;
 					//level.addParticle(borderParticle, worldBorderCenter.getX() + xVec, worldBorderCenter.getY() + yStep, worldBorderCenter.getZ() + zVec, 0, 0, 0);
 					//IParticleData data = ForgeRegistries.PARTICLE_TYPES.getValue(new Identifier("heart"));
-					level.sendParticles(particle.particle, worldBorderCenter.getX() + xVec, worldBorderCenter.getY() + yStep, worldBorderCenter
+					level.sendParticles(particle.particle, worldBorderCenter.pos().getX() + xVec, worldBorderCenter.pos().getY() + yStep, worldBorderCenter.pos()
 							.getZ() + zVec, 1, 0, 0, 0, 1D);
 				}
 			}
@@ -142,7 +145,7 @@ public class WorldBorderGameBehavior implements IGameBehavior {
 	private void tickPlayerDamage(IGamePhase game, boolean isCollapsing, float currentRadius) {
 		for (ServerPlayer player : game.participants()) {
 			//ignore Y val, only do X Z dist compare
-			double distanceSq = player.distanceToSqr(worldBorderCenter.getX(), player.getY(), worldBorderCenter.getZ());
+			double distanceSq = player.distanceToSqr(worldBorderCenter.pos().getX(), player.getY(), worldBorderCenter.pos().getZ());
 			if (isCollapsing || !(currentRadius < 0.0 || distanceSq < currentRadius * currentRadius)) {
 				player.hurtServer(player.level(), player.damageSources().explosion(null, null), damageAmount);
 				player.addEffect(new MobEffectInstance(MobEffects.NAUSEA, SharedConstants.TICKS_PER_SECOND * 2, 0));

@@ -38,8 +38,8 @@ public record ModifyMaxSpawnsAction(
 			return true;
 		});
 
-		events.listen(RiverRaceEvents.MODIFY_MAX_SPAWN_COUNT, (pos, count) -> {
-			GameTeamKey team = riverRace.getTeamAt(game, game.level(), pos);
+		events.listen(RiverRaceEvents.MODIFY_MAX_SPAWN_COUNT, (level, pos, count) -> {
+			GameTeamKey team = riverRace.getTeamAt(game, level, pos);
 			if (team == null) {
 				return count;
 			}

@@ -15,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
 import org.lovetropics.games.common.content.river_race.block.HasTrivia;
 import org.lovetropics.games.common.content.river_race.block.TriviaType;
 import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.region.Region;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.state.GameStateKey;
 import org.lovetropics.games.common.core.game.state.IGameState;
@@ -43,16 +44,16 @@ public class RiverRaceState implements IGameState {
 		this.forwardDirection = forwardDirection;
 	}
 
-	private Map<BlockPos, TriviaType> findAllTriviaBlocks(IGamePhase game, BlockBox box) {
+	private Map<BlockPos, TriviaType> findAllTriviaBlocks(Region region) {
 		Map<BlockPos, TriviaType> triviaBlocks = new HashMap<>();
 
-		LongIterator chunkIterator = box.asChunks().longIterator();
+		LongIterator chunkIterator = region.chunks().longIterator();
 		while (chunkIterator.hasNext()) {
 			long chunkPos = chunkIterator.nextLong();
-			LevelChunk chunk = game.level().getChunk(ChunkPos.getX(chunkPos), ChunkPos.getZ(chunkPos));
+			LevelChunk chunk = region.level().getChunk(ChunkPos.getX(chunkPos), ChunkPos.getZ(chunkPos));
 			for (Map.Entry<BlockPos, BlockEntity> entry : chunk.getBlockEntities().entrySet()) {
 				BlockPos pos = entry.getKey();
-				if (box.contains(pos) && entry.getValue() instanceof HasTrivia hasTrivia) {
+				if (region.contains(region.level(), pos) && entry.getValue() instanceof HasTrivia hasTrivia) {
 					triviaBlocks.put(pos, hasTrivia.getTriviaType());
 				}
 			}
@@ -61,9 +62,9 @@ public class RiverRaceState implements IGameState {
 		return triviaBlocks;
 	}
 
-	public void addZone(IGamePhase game, String id, BlockBox box, Component ordinalName, Component displayName, DyeColor color) {
-		Map<BlockPos, TriviaType> triviaBlocks = findAllTriviaBlocks(game, box);
-		Zone zone = new Zone(id, box, ordinalName, displayName, color, triviaBlocks);
+	public void addZone(String id, Component ordinalName, Component displayName, DyeColor color, Region region) {
+		Map<BlockPos, TriviaType> triviaBlocks = findAllTriviaBlocks(region);
+		Zone zone = new Zone(id, region.level(), region.box(), ordinalName, displayName, color, triviaBlocks);
 		zones.add(zone);
 		if (currentZone == null) {
 			currentZone = zone;
@@ -137,6 +138,7 @@ public class RiverRaceState implements IGameState {
 
 	public static final class Zone {
 		private final String id;
+		private final ServerLevel level;
 		private final BlockBox box;
 		private final Component ordinalName;
 		private final Component displayName;
@@ -145,7 +147,8 @@ public class RiverRaceState implements IGameState {
 
 		private @Nullable ItemStack collectable;
 
-		public Zone(String id, BlockBox box, Component ordinalName, Component displayName, DyeColor color, Map<BlockPos, TriviaType> triviaBlocks) {
+		public Zone(String id, ServerLevel level, BlockBox box, Component ordinalName, Component displayName, DyeColor color, Map<BlockPos, TriviaType> triviaBlocks) {
+			this.level = level;
 			this.id = id;
 			this.box = box;
 			this.ordinalName = ordinalName;
@@ -156,6 +159,10 @@ public class RiverRaceState implements IGameState {
 
 		public String id() {
 			return id;
+		}
+
+		public ServerLevel level() {
+			return level;
 		}
 
 		public BlockBox box() {

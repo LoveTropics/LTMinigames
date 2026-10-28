@@ -31,6 +31,6 @@ public record RiverRaceZoneBehavior(
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		RiverRaceState riverRace = game.state().get(RiverRaceState.KEY);
-		riverRace.addZone(game, id, region.one(game), ordinalName, displayName, color);
+		riverRace.addZone(id, ordinalName, displayName, color, region.one(game));
 	}
 }

@@ -3,7 +3,6 @@ package org.lovetropics.games.common.core.game.behavior.instances.world;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.state.BlockState;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
@@ -23,10 +22,9 @@ public record IncreaseRandomTickRateInRegionBehaviour(
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		ServerLevel level = game.level();
 		events.listen(GamePhaseEvents.TICK, ()-> {
 			if (game.ticks() % increasedTickRate == 0) {
-				regions.forEachBlock(game, pos -> {
+				regions.forEachBlock(game, (level, pos) -> {
 					BlockState blockState = level.getBlockState(pos);
 					if (blockState.isRandomlyTicking()) {
 						blockState.randomTick(level, pos, game.random());

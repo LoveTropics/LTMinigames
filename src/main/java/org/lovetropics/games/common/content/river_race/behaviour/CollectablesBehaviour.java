@@ -5,11 +5,10 @@ import com.mojang.math.Transformation;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
-import it.unimi.dsi.fastutil.longs.LongSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -39,6 +38,7 @@ import org.lovetropics.games.common.core.game.behavior.action.GameActionList;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
+import org.lovetropics.games.common.core.game.region.LevelBlockPos;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.state.team.GameTeam;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
@@ -46,8 +46,10 @@ import org.lovetropics.games.common.core.game.state.team.TeamState;
 import org.lovetropics.games.common.util.Util;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 public final class CollectablesBehaviour implements IGameBehavior {
 	public static final MapCodec<CollectablesBehaviour> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
@@ -63,8 +65,8 @@ public final class CollectablesBehaviour implements IGameBehavior {
 		this.itemPatch = itemPatch;
 	}
 
-	private final Map<BlockPos, RiverRaceState.Zone> monumentSlots = new HashMap<>();
-	private final LongSet placedCollectables = new LongOpenHashSet();
+	private final Map<LevelBlockPos, RiverRaceState.Zone> monumentSlots = new HashMap<>();
+	private final Set<LevelBlockPos> placedCollectables = new HashSet<>();
 
 	private final Map<String, GameTeamKey> firstTeamToCollect = new HashMap<>();
 
@@ -76,19 +78,19 @@ public final class CollectablesBehaviour implements IGameBehavior {
 		collectablesByZone.forEach((zoneId, collectable) -> {
 			RiverRaceState.Zone zone = riverRace.getZoneById(zoneId);
 			collectable.onCompleteAction.register(game, events);
-			collectable.monumentSlotRegions.forEachBlock(game, pos ->
-					monumentSlots.put(pos.immutable(), zone)
+			collectable.monumentSlotRegions.forEachBlock(game, (level, pos) ->
+					monumentSlots.put(new LevelBlockPos(level, pos.immutable()), zone)
 			);
 			zone.setCollectable(createItem(zone, collectable));
 		});
 
 		events.listen(GamePhaseEvents.CREATE, () -> monumentSlots.forEach((pos, zone) -> {
 			if (zone.collectable() != null) {
-				spawnCollectableDisplay(game, zone.collectable(), Vec3.atCenterOf(pos));
+				spawnCollectableDisplay(game, zone.collectable(), pos.level(), Vec3.atCenterOf(pos.pos()));
 			}
 		}));
 		events.listen(GamePlayerEvents.PLACE_BLOCK, (player, pos, placed, placedOn, placedItemStack) -> {
-			RiverRaceState.Zone expectedCollectable = monumentSlots.get(pos);
+			RiverRaceState.Zone expectedCollectable = monumentSlots.get(new LevelBlockPos(player.level(), pos));
 			RiverRaceState.Zone placedCollectable = riverRace.getZoneWithCollectable(placedItemStack);
 			if (expectedCollectable != null || placedCollectable != null) {
 				return tryPlaceCollectable(game, teams, player, pos, expectedCollectable, placedCollectable);
@@ -112,12 +114,12 @@ public final class CollectablesBehaviour implements IGameBehavior {
 		});
 	}
 
-	private void spawnCollectableDisplay(IGamePhase game, ItemStack collectable, Vec3 position) {
-		Display.ItemDisplay itemDisplay = EntityTypes.ITEM_DISPLAY.create(game.level(), EntitySpawnReason.COMMAND);
+	private void spawnCollectableDisplay(IGamePhase game, ItemStack collectable, ServerLevel level, Vec3 position) {
+		Display.ItemDisplay itemDisplay = EntityTypes.ITEM_DISPLAY.create(level, EntitySpawnReason.COMMAND);
 		itemDisplay.setPos(position);
 		itemDisplay.setItemStack(collectable.copy());
 		itemDisplay.setTransformation(new Transformation(null, null, new Vector3f(0.2f, 0.2f, 0.2f), null));
-		game.level().addFreshEntity(itemDisplay);
+		level.addFreshEntity(itemDisplay);
 	}
 
 	private TriState tryPlaceCollectable(IGamePhase game, TeamState teams, ServerPlayer player, BlockPos pos, RiverRaceState.@Nullable Zone expectedCollectable, RiverRaceState.@Nullable Zone placedCollectable) {
@@ -134,7 +136,7 @@ public final class CollectablesBehaviour implements IGameBehavior {
 		}
 
 		// If the players somehow broke the old one - don't let them continue to trigger it and gain points
-		if (!placedCollectables.add(pos.asLong())) {
+		if (!placedCollectables.add(new LevelBlockPos(player.level(), pos))) {
 			return TriState.FALSE;
 		}
 

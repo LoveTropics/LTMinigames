@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.content.qottott.behavior;
 
-import com.lovetropics.lib.BlockBox;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -30,14 +29,11 @@ import org.lovetropics.games.common.core.game.behavior.action.GameActionContextK
 import org.lovetropics.games.common.core.game.behavior.action.GameActionList;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
-import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.behavior.instances.ConfiguredSound;
-import org.lovetropics.games.common.core.game.client_state.GameClientState;
-import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
+import org.lovetropics.games.common.core.game.region.Region;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.state.BeaconState;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -55,50 +51,52 @@ public record ItemDropperBehavior(Either<List<ItemStackTemplate>, ResourceKey<Lo
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
-		Collection<BlockBox> regions = region.all(game);
+		announcement.ifPresent(action -> action.register(game, events));
+		for (ServerLevel level : game.allLevels()) {
+			registerForLevel(game, events, level);
+		}
+	}
+
+	private void registerForLevel(IGamePhase game, EventRegistrar events, ServerLevel level) {
+		List<Region> regions = region.allIn(game, level);
 		if (regions.isEmpty()) {
 			return;
 		}
 
-		announcement.ifPresent(action -> action.register(game, events));
-
-		Supplier<ItemStack> lootProvider = createLootProvider(game);
+		Supplier<ItemStack> lootProvider = createLootProvider(game, level);
 		List<Dropper> droppers;
 		if (combined) {
-			droppers = List.of(new Dropper(regions.stream().map(BlockBox::center).toList(), lootProvider));
+			droppers = List.of(new Dropper(level, regions.stream().map(Region::center).toList(), lootProvider));
 		} else {
-			droppers = regions.stream().map(box -> new Dropper(List.of(box.center()), lootProvider)).toList();
+			droppers = regions.stream().map(box -> new Dropper(level, List.of(box.center()), lootProvider)).toList();
 		}
 
 		for (Dropper dropper : droppers) {
 			dropper.resetDelay(game);
 		}
 
-		BeaconState beacons = beacon ? game.state().get(BeaconState.KEY) : null;
+		BeaconState beacons = beacon ? BeaconState.getOrAdd(game, events) : null;
 		events.listen(GamePhaseEvents.TICK, () -> {
 			for (Dropper dropper : droppers) {
 				dropper.tick(game, beacons);
 			}
 		});
-
-		if (beacons != null) {
-			events.listen(GamePlayerEvents.REMOVE, player -> GameClientState.removeFromPlayer(GameClientStateTypes.BEACON.get(), player));
-		}
 	}
 
-	private Supplier<ItemStack> createLootProvider(IGamePhase game) {
+	private Supplier<ItemStack> createLootProvider(IGamePhase game, ServerLevel level) {
 		RandomSource random = game.random();
 		return loot.map(
 				stacks -> () -> Util.getRandomSafe(stacks, random).map(ItemStackTemplate::create).orElse(ItemStack.EMPTY),
 				tableId -> {
 					LootTable lootTable = game.server().reloadableRegistries().getLootTable(tableId);
-					LootParams params = new LootParams.Builder(game.level()).create(LootContextParamSets.EMPTY);
+					LootParams params = new LootParams.Builder(level).create(LootContextParamSets.EMPTY);
 					return () -> Util.getRandomSafe(lootTable.getRandomItems(params), random).orElse(ItemStack.EMPTY);
 				}
 		);
 	}
 
 	private class Dropper {
+		private final ServerLevel level;
 		private final List<Vec3> positions;
 		private final Supplier<ItemStack> lootProvider;
 		private int dropInTicks;
@@ -106,7 +104,8 @@ public record ItemDropperBehavior(Either<List<ItemStackTemplate>, ResourceKey<Lo
 		private @Nullable ItemEntity lastDroppedItem;
 		private @Nullable BlockPos beaconPos;
 
-		private Dropper(List<Vec3> positions, Supplier<ItemStack> lootProvider) {
+		private Dropper(ServerLevel level, List<Vec3> positions, Supplier<ItemStack> lootProvider) {
+			this.level = level;
 			this.positions = positions;
 			this.lootProvider = lootProvider;
 		}
@@ -144,13 +143,11 @@ public record ItemDropperBehavior(Either<List<ItemStackTemplate>, ResourceKey<Lo
 
 		private void addBeacon(IGamePhase game, BeaconState beacons, Vec3 position) {
 			beaconPos = BlockPos.containing(position);
-			beacons.add(beaconPos);
-			beacons.sendTo(game.allPlayers());
+			beacons.add(level.dimension(), beaconPos);
 		}
 
 		private void removeBeacon(IGamePhase game, BeaconState beacons) {
-			beacons.remove(beaconPos);
-			beacons.sendTo(game.allPlayers());
+			beacons.remove(level.dimension(), beaconPos);
 		}
 
 		private void resetDelay(IGamePhase game) {
@@ -158,7 +155,6 @@ public record ItemDropperBehavior(Either<List<ItemStackTemplate>, ResourceKey<Lo
 		}
 
 		private void spawnItem(IGamePhase game, ItemStack item, Vec3 position) {
-			ServerLevel level = game.level();
 			ItemEntity itemEntity = new ItemEntity(level, position.x, position.y, position.z, item, 0.0, 0.1, 0.0);
 			level.addFreshEntity(itemEntity);
 			lastDroppedItem = itemEntity;

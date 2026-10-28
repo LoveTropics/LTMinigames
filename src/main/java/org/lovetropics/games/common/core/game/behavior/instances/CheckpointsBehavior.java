@@ -1,11 +1,11 @@
 package org.lovetropics.games.common.core.game.behavior.instances;
 
-import com.lovetropics.lib.BlockBox;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Util;
@@ -22,6 +22,7 @@ import org.lovetropics.games.common.core.game.behavior.action.GameActionList;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.player.PlayerSet;
+import org.lovetropics.games.common.core.game.region.Region;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
 import org.lovetropics.games.common.core.game.state.team.TeamState;
@@ -62,7 +63,7 @@ public record CheckpointsBehavior(
 				if (team == null) {
 					return;
 				}
-				Checkpoint atCheckpoint = getCheckpointAt(player.getBoundingBox(), checkpoints);
+				Checkpoint atCheckpoint = getCheckpointAt(player.level(), player.getBoundingBox(), checkpoints);
 				if (atCheckpoint == null) {
 					return;
 				}
@@ -87,7 +88,7 @@ public record CheckpointsBehavior(
 			Map<UUID, Checkpoint> lastCheckpointByPlayer = new HashMap<>();
 
 			events.listen(GamePlayerEvents.TICK, player -> {
-				Checkpoint atCheckpoint = getCheckpointAt(player.getBoundingBox(), checkpoints);
+				Checkpoint atCheckpoint = getCheckpointAt(player.level(), player.getBoundingBox(), checkpoints);
 				if (atCheckpoint == null) {
 					return;
 				}
@@ -110,16 +111,16 @@ public record CheckpointsBehavior(
 	}
 
 	private void spawnAt(IGamePhase game, SpawnBuilder spawn, Checkpoint checkpoint) {
-		BlockBox spawnBox = checkpoint.group.spawns != null ? Util.getRandom(checkpoint.group.spawns, game.random()) : checkpoint.box;
-		Vec3 spawnPos = spawnBox.center().with(Direction.Axis.Y, spawnBox.min().getY());
-		BlockBox faceRegion = checkpoint.group.faceRegion;
-		float angle = faceRegion != null ? PositionPlayersBehavior.getAngleTo(BlockPos.containing(spawnPos), faceRegion) : this.angle;
-		spawn.teleportTo(game.level(), spawnPos, angle, 0.0f);
+		Region spawnRegion = checkpoint.group.spawns != null ? Util.getRandom(checkpoint.group.spawns, game.random()) : checkpoint.region;
+		Vec3 spawnPos = spawnRegion.center().with(Direction.Axis.Y, spawnRegion.min().getY());
+		Region faceRegion = checkpoint.group.faceRegion;
+		float angle = faceRegion != null ? PositionPlayersBehavior.getAngleTo(BlockPos.containing(spawnPos), faceRegion.box()) : this.angle;
+		spawn.teleportTo(spawnRegion.level(), spawnPos, angle, 0.0f);
 	}
 
-	private @Nullable Checkpoint getCheckpointAt(AABB aabb, List<Checkpoint> checkpoints) {
+	private @Nullable Checkpoint getCheckpointAt(ServerLevel level, AABB aabb, List<Checkpoint> checkpoints) {
 		for (Checkpoint checkpoint : checkpoints) {
-			if (checkpoint.box.intersects(aabb)) {
+			if (checkpoint.region.intersects(level, aabb)) {
 				return checkpoint;
 			}
 		}
@@ -140,9 +141,9 @@ public record CheckpointsBehavior(
 		).apply(i, CheckpointConfig::new));
 
 		public List<Checkpoint> resolve(IGamePhase game, int order) {
-			List<BlockBox> checkpointRegions = region.all(game);
-			List<BlockBox> spawns = spawnRegion.map(r -> r.all(game)).orElse(null);
-			BlockBox faceRegion = this.faceRegion.map(r -> r.one(game)).orElse(null);
+			List<Region> checkpointRegions = region.all(game);
+			List<Region> spawns = spawnRegion.map(r -> r.all(game)).orElse(null);
+			Region faceRegion = this.faceRegion.map(r -> r.one(game)).orElse(null);
 			CheckpointGroup group = new CheckpointGroup(order, spawns, faceRegion, reachedActions);
 			return checkpointRegions.stream()
 					.map(box -> new Checkpoint(group, box))
@@ -152,12 +153,12 @@ public record CheckpointsBehavior(
 
 	private record CheckpointGroup(
 			int order,
-			@Nullable List<BlockBox> spawns,
-			@Nullable BlockBox faceRegion,
+			@Nullable List<Region> spawns,
+			@Nullable Region faceRegion,
 			GameActionList reachedActions
 	) {
 	}
 
-	private record Checkpoint(CheckpointGroup group, BlockBox box) {
+	private record Checkpoint(CheckpointGroup group, Region region) {
 	}
 }

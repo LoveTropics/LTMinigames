@@ -2,7 +2,6 @@ package org.lovetropics.games.common.content.crafting_bee;
 
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimaps;
-import com.lovetropics.lib.BlockBox;
 import com.mojang.math.Transformation;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -57,6 +56,7 @@ import org.lovetropics.games.common.core.game.client_state.GameClientState;
 import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
 import org.lovetropics.games.common.core.game.client_state.instance.CraftingBeeCraftsClientState;
 import org.lovetropics.games.common.core.game.player.PlayerSet;
+import org.lovetropics.games.common.core.game.region.Region;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.state.TimedGameState;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
@@ -194,11 +194,11 @@ public class CraftingBeeBehavior implements IGameBehavior {
 	}
 
 	private List<TaskDisplay> setupTaskDisplays(TeamRegions teamRegions, List<CraftingTask> recipes) {
-		BlockBox beaconRow = teamRegions.beaconRow.one(game);
-		BlockBox itemRow = teamRegions.itemRow.one(game);
+		Region beaconRow = teamRegions.beaconRow.one(game);
+		Region itemRow = teamRegions.itemRow.one(game);
 
-		List<BlockPos> beaconGlassPositions = BlockPos.betweenClosedStream(beaconRow.min(), beaconRow.max())
-				.filter(pos -> game.level().getBlockState(pos).is(Tags.Blocks.GLASS_BLOCKS))
+		List<BlockPos> beaconGlassPositions = beaconRow.blockStream()
+				.filter(pos -> beaconRow.level().getBlockState(pos).is(Tags.Blocks.GLASS_BLOCKS))
 				.map(BlockPos::immutable)
 				.toList();
 
@@ -212,15 +212,15 @@ public class CraftingBeeBehavior implements IGameBehavior {
 		for (int i = 0; i < recipes.size(); i++) {
 			BlockPos glassPos = beaconGlassPositions.get(i);
 			BlockPos itemPos = itemRow.min().relative(rowAxis, glassPos.get(rowAxis) - beaconRow.min().get(rowAxis));
-			Display.ItemDisplay itemDisplay = spawnItemDisplay(itemPos, recipes.get(i).output);
-			taskDisplays.add(new TaskDisplay(glassPos, itemDisplay));
+			Display.ItemDisplay itemDisplay = spawnItemDisplay(itemRow.level(), itemPos, recipes.get(i).output);
+			taskDisplays.add(new TaskDisplay(beaconRow.level(), glassPos, itemDisplay));
 		}
 
 		return taskDisplays;
 	}
 
-	private Display.ItemDisplay spawnItemDisplay(BlockPos displayPos, ItemStack displayItem) {
-		Display.ItemDisplay itemDisplay = EntityTypes.ITEM_DISPLAY.create(game.level(), EntitySpawnReason.COMMAND);
+	private Display.ItemDisplay spawnItemDisplay(ServerLevel level, BlockPos displayPos, ItemStack displayItem) {
+		Display.ItemDisplay itemDisplay = EntityTypes.ITEM_DISPLAY.create(level, EntitySpawnReason.COMMAND);
 		itemDisplay.setPos(Vec3.atCenterOf(displayPos));
 		itemDisplay.setItemStack(displayItem.copy());
 		itemDisplay.setTransformation(new Transformation(null, null, new Vector3f(0.5f), null));
@@ -228,7 +228,7 @@ public class CraftingBeeBehavior implements IGameBehavior {
 		itemDisplay.setCustomNameVisible(true);
 		itemDisplay.setCustomName(displayItem.getHoverName());
 		itemDisplay.setBrightnessOverride(Brightness.FULL_BRIGHT);
-		game.level().addFreshEntity(itemDisplay);
+		level.addFreshEntity(itemDisplay);
 		return itemDisplay;
 	}
 
@@ -344,7 +344,7 @@ public class CraftingBeeBehavior implements IGameBehavior {
 
 		TaskDisplay taskDisplay = teamState.taskDisplays.get(taskIndex);
 		BlockPos glass = taskDisplay.beaconGlassPos;
-		game.level().setBlockAndUpdate(glass, teamState.beaconGlass);
+		taskDisplay.level.setBlockAndUpdate(glass, teamState.beaconGlass);
 		taskDisplay.itemDisplay.setBrightnessOverride(new Brightness(0, 13));
 	}
 
@@ -495,6 +495,6 @@ public class CraftingBeeBehavior implements IGameBehavior {
 	) {
 	}
 
-	private record TaskDisplay(BlockPos beaconGlassPos, Display.ItemDisplay itemDisplay) {
+	private record TaskDisplay(ServerLevel level, BlockPos beaconGlassPos, Display.ItemDisplay itemDisplay) {
 	}
 }

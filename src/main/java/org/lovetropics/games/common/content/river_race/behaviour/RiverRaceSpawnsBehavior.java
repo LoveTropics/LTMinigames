@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.content.river_race.behaviour;
 
-import com.lovetropics.lib.BlockBox;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -19,6 +18,7 @@ import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
+import org.lovetropics.games.common.core.game.region.Region;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
 import org.lovetropics.games.common.core.game.state.team.TeamState;
@@ -49,8 +49,8 @@ public record RiverRaceSpawnsBehavior(
 			}
 			Spawn teamSpawn = resolvedSpawns.getOrDefault(currentZone.id(), Map.of()).get(team);
 			if (teamSpawn != null) {
-				BlockPos pos = teamSpawn.box.sample(game.random());
-				spawn.teleportTo(game.level(), pos, teamSpawn.angle());
+				BlockPos pos = teamSpawn.region.sample(game.random());
+				spawn.teleportTo(teamSpawn.region.level(), pos, teamSpawn.angle());
 				spawn.run(player -> {
 					player.connection.send(new ClientboundClearTitlesPacket(true));
 					player.connection.send(new ClientboundSetTitlesAnimationPacket(SharedConstants.TICKS_PER_SECOND / 2, 2 * SharedConstants.TICKS_PER_SECOND, SharedConstants.TICKS_PER_SECOND / 2));
@@ -73,12 +73,12 @@ public record RiverRaceSpawnsBehavior(
 	private static Map<GameTeamKey, Spawn> resolveSpawns(IGamePhase game, ZoneSpawns spawns) {
 		return spawns.regionByTeam().entrySet().stream()
 				.collect(Collectors.toMap(Map.Entry::getKey, regionEntry -> {
-					BlockBox box = regionEntry.getValue().one(game);
-					return new Spawn(box, spawns.angle);
+					Region region = regionEntry.getValue().one(game);
+					return new Spawn(region, spawns.angle);
 				}));
 	}
 
-	private record Spawn(BlockBox box, float angle) {
+	private record Spawn(Region region, float angle) {
 	}
 
 	public record ZoneSpawns(Map<GameTeamKey, RegionQuery> regionByTeam, float angle) {

@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.core.command.game;
 
-import com.lovetropics.lib.BlockBox;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.tree.LiteralCommandNode;
@@ -11,6 +10,7 @@ import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import org.lovetropics.games.LoveTropics;
 import org.lovetropics.games.common.core.game.IGameLookup;
 import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.region.Region;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
 
 import java.util.ArrayList;
@@ -35,10 +35,10 @@ public class ExecuteAtRegionCommand {
 									if (game == null) {
 										return List.of();
 									}
-									List<BlockBox> regions = RegionQuery.of(regionKey).all(game);
+									List<Region> regions = RegionQuery.of(regionKey).all(game);
 									List<CommandSourceStack> sources = new ArrayList<>(regions.size());
-									for (BlockBox box : regions) {
-										sources.add(context.getSource().withPosition(box.center()));
+									for (Region region : regions) {
+										sources.add(context.getSource().withLevel(region.level()).withPosition(region.center()));
 									}
 									return sources;
 								})

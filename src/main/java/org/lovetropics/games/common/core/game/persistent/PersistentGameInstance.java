@@ -6,6 +6,7 @@ import org.lovetropics.games.common.core.game.behavior.event.GameEventListeners;
 import org.lovetropics.games.common.core.game.behavior.event.GameEventType;
 import org.lovetropics.games.common.core.game.player.MutablePlayerSet;
 import org.lovetropics.games.common.core.game.region.GameRegions;
+import org.lovetropics.games.common.core.game.region.Region;
 import org.lovetropics.maps.MapRegions;
 
 import java.util.function.Function;
@@ -23,7 +24,9 @@ public class PersistentGameInstance implements PersistentGame {
 		this.level = level;
 		MapRegions mapRegions = regionsGetter != null ? regionsGetter.apply(level) : null;
 		if (mapRegions != null) {
-			regions = mapRegions::get;
+			regions = key -> mapRegions.get(key).stream()
+					.map(box -> new Region(level, box))
+					.toList();
 		} else {
 			regions = GameRegions.EMPTY;
 		}

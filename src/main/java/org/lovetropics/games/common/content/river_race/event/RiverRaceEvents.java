@@ -34,9 +34,9 @@ public class RiverRaceEvents {
 		}
 	});
 
-	public static final GameEventType<ModifyMaxSpawnCount> MODIFY_MAX_SPAWN_COUNT = GameEventType.create(ModifyMaxSpawnCount.class, listeners -> (pos, count) -> {
+	public static final GameEventType<ModifyMaxSpawnCount> MODIFY_MAX_SPAWN_COUNT = GameEventType.create(ModifyMaxSpawnCount.class, listeners -> (level, pos, count) -> {
 		for (ModifyMaxSpawnCount listener : listeners) {
-			count = listener.modifyMaxSpawnCount(pos, count);
+			count = listener.modifyMaxSpawnCount(level, pos, count);
 		}
 		return count;
 	});
@@ -58,6 +58,6 @@ public class RiverRaceEvents {
 	}
 
 	public interface ModifyMaxSpawnCount {
-		int modifyMaxSpawnCount(BlockPos pos, int count);
+		int modifyMaxSpawnCount(ServerLevel level, BlockPos pos, int count);
 	}
 }

@@ -12,10 +12,12 @@ import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
+import org.lovetropics.games.common.core.game.region.Region;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
 import org.lovetropics.games.common.core.game.util.FluidFiller;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +39,6 @@ public class RisingFluidByStatisticBehavior implements IGameBehavior {
 
 	private int fluidLevel;
 	private int stepTimeout;
-	private FluidFiller filler;
 
 	public RisingFluidByStatisticBehavior(StatisticKey<Integer> statistic, FluidFiller.Type fillType, Map<Integer, Either<RegionQuery, Integer>> statisticToLevel, int stepInterval) {
 		this.statistic = statistic;
@@ -62,7 +63,11 @@ public class RisingFluidByStatisticBehavior implements IGameBehavior {
 
 		int baseLevel = thresholds.getFirst().level();
 		fluidLevel = baseLevel;
-		filler = new FluidFiller(RegionQuery.of("flood_area").one(game), FluidFiller.Type.WATER, baseLevel);
+
+		List<FluidFiller> fillers = new ArrayList<>();
+		for (Region region : RegionQuery.of("flood_area").all(game)) {
+			fillers.add(new FluidFiller(region.level(), region.box(), FluidFiller.Type.WATER, baseLevel));
+		}
 
 		events.listen(GamePhaseEvents.TICK, () -> {
 			int statisticValue = game.statistics().global().getInt(statistic);
@@ -80,7 +85,9 @@ public class RisingFluidByStatisticBehavior implements IGameBehavior {
 					fluidLevel++;
 				}
 			}
-			filler.tick(game, fluidLevel);
+			for (FluidFiller filler : fillers) {
+				filler.tick(fluidLevel);
+			}
 		});
 	}
 

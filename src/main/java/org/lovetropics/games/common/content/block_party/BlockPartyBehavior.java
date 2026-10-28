@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.content.block_party;
 
-import com.lovetropics.lib.BlockBox;
 import com.lovetropics.lib.codec.MoreCodecs;
 import com.lovetropics.lib.entity.FireworkPalette;
 import com.mojang.serialization.Codec;
@@ -39,6 +38,7 @@ import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
 import org.lovetropics.games.common.core.game.player.PlayerSet;
+import org.lovetropics.games.common.core.game.region.Region;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticsMap;
@@ -96,7 +96,7 @@ public final class BlockPartyBehavior implements IGameBehavior {
 			throw new GameException(Component.literal("No blocks defined!"));
 		}
 
-		floorRegion = new FloorRegion(game.level(), floorRegionKey.one(game), quadSize);
+		floorRegion = new FloorRegion(floorRegionKey.one(game), quadSize);
 
 		events.listen(GamePhaseEvents.START, initiator -> {
 			state = startCountingDown(0);
@@ -152,8 +152,8 @@ public final class BlockPartyBehavior implements IGameBehavior {
 	}
 
 	private void spawnPlayer(SpawnBuilder spawn) {
-		BlockPos floorPos = floorRegion.box.sample(game.random());
-		spawn.teleportTo(game.level(), floorPos.above());
+		BlockPos floorPos = floorRegion.region.sample(game.random());
+		spawn.teleportTo(floorRegion.region.level(), floorPos.above());
 	}
 
 	private void onStateChange(State oldState, @Nullable State newState) {
@@ -181,8 +181,7 @@ public final class BlockPartyBehavior implements IGameBehavior {
 	}
 
 	CountingDown startCountingDown(int round) {
-		ServerLevel level = game.level();
-		Floor floor = floorRegion.generateAndSet(level, game.random(), blocks);
+		Floor floor = floorRegion.generateAndSet(game.random(), blocks);
 
 		ItemStack targetStack = new ItemStack(floor.target.getBlock());
 
@@ -212,7 +211,7 @@ public final class BlockPartyBehavior implements IGameBehavior {
 	}
 
 	Interval startInterval(int round, Floor floor) {
-		floor.removeNonTargets(game.level(), floorRegion.box);
+		floor.removeNonTargets(floorRegion.region);
 		return new Interval(round, game.ticks() + interval);
 	}
 
@@ -318,36 +317,37 @@ public final class BlockPartyBehavior implements IGameBehavior {
 	}
 
 	private static class FloorRegion {
-		private final BlockBox box;
+		private final Region region;
 		private final int quadSize;
 		private final int quadCountX;
 		private final int quadCountZ;
 		private final BitSet mask;
 
-		private FloorRegion(ServerLevel level, BlockBox box, int quadSize) {
-			this.box = box;
+		private FloorRegion(Region region, int quadSize) {
+			this.region = region;
 			this.quadSize = quadSize;
-			quadCountX = Mth.positiveCeilDiv(box.size().getX(), quadSize);
-			quadCountZ = Mth.positiveCeilDiv(box.size().getZ(), quadSize);
+			quadCountX = Mth.positiveCeilDiv(region.size().getX(), quadSize);
+			quadCountZ = Mth.positiveCeilDiv(region.size().getZ(), quadSize);
 			mask = new BitSet(quadCountX * quadCountZ);
 			mask.set(0, quadCountX * quadCountZ);
-			for (BlockPos pos : box) {
-				if (level.isEmptyBlock(pos)) {
-					int quadX = (pos.getX() - box.min().getX()) / quadSize;
-					int quadZ = (pos.getZ() - box.min().getZ()) / quadSize;
+			for (BlockPos pos : region) {
+				if (region.level().isEmptyBlock(pos)) {
+					int quadX = (pos.getX() - region.min().getX()) / quadSize;
+					int quadZ = (pos.getZ() - region.min().getZ()) / quadSize;
 					mask.clear(quadX + quadZ * quadCountX);
 				}
 			}
 		}
 
-		public Floor generateAndSet(ServerLevel level, RandomSource random, BlockState[] blocks) {
+		public Floor generateAndSet(RandomSource random, BlockState[] blocks) {
+			ServerLevel level = region.level();
 			BlockState[] quads = new BlockState[quadCountX * quadCountZ];
 
 			List<BlockState> candidateTargets = new ArrayList<>();
 
-			for (BlockPos pos : box) {
-				int quadX = (pos.getX() - box.min().getX()) / quadSize;
-				int quadZ = (pos.getZ() - box.min().getZ()) / quadSize;
+			for (BlockPos pos : region) {
+				int quadX = (pos.getX() - region.min().getX()) / quadSize;
+				int quadZ = (pos.getZ() - region.min().getZ()) / quadSize;
 
 				int quadIndex = quadX + quadZ * quadCountX;
 				if (!mask.get(quadIndex)) {
@@ -373,8 +373,9 @@ public final class BlockPartyBehavior implements IGameBehavior {
 	}
 
 	record Floor(BlockState target) {
-		void removeNonTargets(ServerLevel level, BlockBox box) {
-			for (BlockPos pos : box) {
+		void removeNonTargets(Region region) {
+			ServerLevel level = region.level();
+			for (BlockPos pos : region) {
 				BlockState state = level.getBlockState(pos);
 				if (!state.equals(target)) {
 					level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_KNOWN_SHAPE | Block.UPDATE_CLIENTS);

@@ -7,6 +7,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.phys.Vec3;
+import org.lovetropics.games.common.core.game.region.Region;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
@@ -51,6 +52,10 @@ public class SpawnBuilder {
 
 	public void teleportTo(ServerLevel level, BlockPos pos) {
 		teleportTo(level, pos, Direction.SOUTH);
+	}
+
+	public void teleportTo(Region region) {
+		teleportTo(region.level(), region.centerBlock());
 	}
 
 	public void setGameMode(GameType gameType) {

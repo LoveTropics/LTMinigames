@@ -60,7 +60,7 @@ public final class BbAssignPlotsBehavior implements IGameBehavior {
 				if (teams.getTeamByKey(teamKey) == null) {
 					throw new GameException(Component.literal("Game team does not exist: " + teamKey));
 				}
-				Plot plot = Plot.create(game.level(), game, teamKey, config, regionKeys);
+				Plot plot = Plot.create(game, teamKey, config, regionKeys);
 				plots.addTeamPlot(teamKey, plot);
 				game.invoker(BbEvents.CREATE_PLOT).onCreatePlot(plot);
 			});

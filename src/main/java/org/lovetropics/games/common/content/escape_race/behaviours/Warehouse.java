@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.content.escape_race.behaviours;
 
-import com.lovetropics.lib.BlockBox;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -14,7 +13,7 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.IdentifierArgument;
 import net.minecraft.commands.synchronization.SuggestionProviders;
-import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.CommonComponents;
@@ -44,6 +43,7 @@ import org.lovetropics.games.common.core.game.command.GameCommandRegistrar;
 import org.lovetropics.games.common.core.game.config.GameConfig;
 import org.lovetropics.games.common.core.game.config.GameConfigs;
 import org.lovetropics.games.common.core.game.player.PlayerSet;
+import org.lovetropics.games.common.core.game.region.Region;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.state.IGameState;
 import org.lovetropics.games.common.core.game.state.statistics.GameStatistics;
@@ -86,7 +86,7 @@ public class Warehouse implements IGameState {
 				throw new GameException(Component.literal("No game config with id: " + room.gameId()));
 			}
 			Optional<RegionQuery> entrance = room.entranceRegion();
-			BlockBox box = entrance.map(e -> e.one(topGame)).orElse(null);
+			Region box = entrance.map(e -> e.one(topGame)).orElse(null);
 
 			rooms.put(entry.getKey(), new RoomInstance(room, subGameConfig, box));
 		}
@@ -94,7 +94,7 @@ public class Warehouse implements IGameState {
 
 	private UnlockRequest tryRequestUnlock(RoomInstance room, GameTeamKey team) {
 		PlayerSet players = teams.getParticipantsForTeam(topGame, team);
-		PlayerSet playersInRegion = players.filter(player -> room.entranceBox != null && room.entranceBox.contains(player.position()));
+		PlayerSet playersInRegion = players.filter(player -> room.entrance != null && room.entrance.contains(player));
 		PlayerSet playersCrouching = playersInRegion.filter(ServerPlayer::isCrouching);
 		int breakBucks = topGame.statistics().forTeam(team).getInt(StatisticKey.BREAK_BUCKS);
 		return new UnlockRequest(playersInRegion, playersCrouching, players.size(), breakBucks, roomsBlocked);
@@ -221,7 +221,7 @@ public class Warehouse implements IGameState {
 								.executes(context -> {
 									RoomInstance room = getRoomArgument(context);
 									room.state.close();
-									if (room.entranceBox == null) {
+									if (room.entrance == null) {
 										room.state = new EmptyRoomState();
 									} else {
 										room.state = new LockedRoomState(room);
@@ -296,18 +296,18 @@ public class Warehouse implements IGameState {
 	public class RoomInstance {
 		private final WarehouseSetupBehaviour.RoomConfig config;
 		private final GameConfig subGameConfig;
-		private final @Nullable BlockBox entranceBox;
+		private final @Nullable Region entrance;
 
 		private int cost;
 
 		private RoomState state;
 
-		public RoomInstance(WarehouseSetupBehaviour.RoomConfig config, GameConfig subGameConfig, @Nullable BlockBox entranceBox) {
+		public RoomInstance(WarehouseSetupBehaviour.RoomConfig config, GameConfig subGameConfig, @Nullable Region entrance) {
 			this.config = config;
 			this.subGameConfig = subGameConfig;
-			this.entranceBox = entranceBox;
+			this.entrance = entrance;
 			cost = config.baseCost();
-			if (entranceBox != null) {
+			if (entrance != null) {
 				state = new LockedRoomState(this);
 			} else {
 				state = new EmptyRoomState();
@@ -377,25 +377,25 @@ public class Warehouse implements IGameState {
 
 		public LockedRoomState(RoomInstance room) {
 			this.room = room;
-			RoomEntrancePadEntity pad = EscapeRace.ROOM_ENTRANCE_PAD.get().create(topGame.level(), EntitySpawnReason.LOAD);
+			Region entrance = room.entrance;
+			if (entrance == null) {
+				throw new GameException(Component.literal("Regular room must have entrance!"));
+			}
+			RoomEntrancePadEntity pad = EscapeRace.ROOM_ENTRANCE_PAD.get().create(entrance.level(), EntitySpawnReason.LOAD);
 			if (pad == null) {
 				throw new GameException(Component.literal("Could not spawn entrance pad"));
 			}
 			this.pad = pad;
-			BlockBox box = room.entranceBox;
-			if (box == null) {
-				throw new GameException(Component.literal("Regular room must have entrance!"));
-			}
-			Vec3 center = box.center();
-			BlockPos size = box.size();
-			pad.snapTo(center.x(), box.min().getY(), center.z(), room.config.facing(), 0.0f);
+			Vec3 center = entrance.center();
+			Vec3i size = entrance.size();
+			pad.snapTo(center.x(), entrance.min().getY(), center.z(), room.config.facing(), 0.0f);
 			pad.setWidth(size.getX() - 0.01f);
 			pad.setHeight(size.getY());
 			pad.setDepth(size.getZ() - 0.01f);
 			pad.setCost(room.cost);
 			pad.setRoomName(room.config.displayName());
-			topGame.level().getChunkSource().updateChunkForced(pad.chunkPosition(), true);
-			topGame.level().addFreshEntity(pad);
+			entrance.level().getChunkSource().updateChunkForced(pad.chunkPosition(), true);
+			entrance.level().addFreshEntity(pad);
 		}
 
 		@Override

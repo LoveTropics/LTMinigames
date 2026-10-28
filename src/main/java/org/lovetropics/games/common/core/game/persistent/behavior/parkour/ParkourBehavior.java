@@ -1,7 +1,5 @@
 package org.lovetropics.games.common.core.game.persistent.behavior.parkour;
 
-import com.lovetropics.lib.BlockBox;
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.chat.Component;
@@ -18,6 +16,7 @@ import org.lovetropics.games.common.core.game.persistent.PersistentGame;
 import org.lovetropics.games.common.core.game.persistent.PersistentGameBehavior;
 import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviorType;
 import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviors;
+import org.lovetropics.games.common.core.game.region.Region;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
 
 import java.util.HashMap;
@@ -73,7 +72,7 @@ public class ParkourBehavior implements PersistentGameBehavior {
 			}
 			ItemStack stack = player.getItemInHand(hand);
 			if (stack.is(Parkour.PARKOUR_TELEPORTER)) {
-				BlockBox region = checkpoint.nullableOne(game);
+				Region region = checkpoint.nullableOne(game);
 				if (region != null) {
 					Vec3 center = region.center();
 					center = center.add(0, -region.size().getY() / 2.0, 0);

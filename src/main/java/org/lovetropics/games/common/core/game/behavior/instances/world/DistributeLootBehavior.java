@@ -1,12 +1,13 @@
 package org.lovetropics.games.common.core.game.behavior.instances.world;
 
-import com.lovetropics.lib.BlockBox;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
+import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.RandomSource;
@@ -14,6 +15,7 @@ import net.minecraft.util.Util;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -22,11 +24,12 @@ import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GameWorldEvents;
+import org.lovetropics.games.common.core.game.region.Region;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 public record DistributeLootBehavior(
 		RegionQuery region,
@@ -43,35 +46,38 @@ public record DistributeLootBehavior(
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		List<BlockBox> region = this.region.all(game);
+		List<Region> regions = region.all(game);
 
-		LongSet pendingChunks = new LongOpenHashSet();
-		region.forEach(box -> {
-			pendingChunks.addAll(box.asChunks());
-		});
-		pendingChunks.forEach(chunkKey ->
-				game.level().getChunkSource().updateChunkForced(ChunkPos.unpack(chunkKey), true)
+		Map<ResourceKey<Level>, LongSet> pendingChunksByDimension = new Reference2ObjectOpenHashMap<>();
+		regions.forEach(region ->
+				pendingChunksByDimension.computeIfAbsent(region.level().dimension(), _ -> new LongOpenHashSet())
+						.addAll(region.chunks())
 		);
 
+		pendingChunksByDimension.forEach((dimension, pendingChunks) -> {
+			ServerLevel level = game.server().getLevel(dimension);
+			pendingChunks.forEach(chunkKey ->
+					level.getChunkSource().updateChunkForced(ChunkPos.unpack(chunkKey), true)
+			);
+		});
+
 		events.listen(GameWorldEvents.CHUNK_LOAD, (level, chunk) -> {
-			if (level != game.level()) {
-				return;
-			}
-			ChunkPos chunkPos = chunk.getPos();
-			if (pendingChunks.remove(chunkPos.pack()) && pendingChunks.isEmpty()) {
-				onRegionFullyLoaded(game, level, region);
+			LongSet pendingChunks = pendingChunksByDimension.get(level.dimension());
+			if (pendingChunks != null && pendingChunks.remove(chunk.getPos().pack()) && pendingChunks.isEmpty()) {
+				onRegionFullyLoaded(game, regions);
 			}
 		});
 	}
 
-	private void onRegionFullyLoaded(IGamePhase game, ServerLevel level, Collection<BlockBox> boxes) {
+	private void onRegionFullyLoaded(IGamePhase game, List<Region> regions) {
 		List<Container> containers = new ArrayList<>();
-		boxes.forEach(box -> {
-			box.asChunks().forEach(chunkKey -> {
+		regions.forEach(region -> {
+			ServerLevel level = region.level();
+			region.chunks().forEach(chunkKey -> {
 				LevelChunk chunk = level.getChunk(ChunkPos.getX(chunkKey), ChunkPos.getZ(chunkKey));
 				for (BlockEntity blockEntity : chunk.getBlockEntities().values()) {
 					BlockPos pos = blockEntity.getBlockPos();
-					if (!box.contains(pos.getX(), box.min().getY(), pos.getZ())) {
+					if (!region.contains(level, pos.getX(), region.min().getY(), pos.getZ())) {
 						return;
 					}
 					if (blockEntity instanceof Container container && blockEntity.getType().equals(blockEntityType)) {

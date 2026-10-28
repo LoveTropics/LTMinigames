@@ -38,7 +38,7 @@ public class EntityMixin {
 			if (game != null) {
 				ColliderState colliderState = game.state().getOrNull(ColliderState.KEY);
 				if (colliderState != null) {
-					colliderState.colliders().addTo(boundingBox, output);
+					colliderState.getColliders(level.dimension()).addTo(boundingBox, output);
 				}
 			}
 		}

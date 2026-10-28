@@ -14,6 +14,7 @@ import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GameActionEvents;
+import org.lovetropics.games.common.core.game.region.Region;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.util.GameScheduler;
 
@@ -29,10 +30,10 @@ public record NicelyBreakRegionOfBlocksBehaviour(
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		Collection<BlockBox> regionToBreak = region.all(game);
+		Collection<Region> regionToBreak = region.all(game);
 		events.listen(GameActionEvents.APPLY, (context, targets) -> {
-			regionToBreak.forEach(blockBox -> {
-				findNeighboursOfTypeAndDestroyWithinRegion(game.scheduler(), game.level(), blockBox.centerBlock(), null, blockBox);
+			regionToBreak.forEach(region -> {
+				findNeighboursOfTypeAndDestroyWithinRegion(game.scheduler(), region.level(), region.centerBlock(), null, region.box());
 			});
 			return true;
 		});

@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.content.drr_showdown;
 
-import com.lovetropics.lib.BlockBox;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -31,6 +30,7 @@ import org.lovetropics.games.common.core.game.behavior.event.GameLogicEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
+import org.lovetropics.games.common.core.game.region.Region;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.state.statistics.GameStatistics;
 import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
@@ -85,31 +85,31 @@ public class DDRShowdownBehavior implements IGameBehavior {
 		bossBar = widgets.openGlobalBossBar(ddrLevel.displayName(), BossEvent.BossBarColor.BLUE, BossEvent.BossBarOverlay.PROGRESS);
 		bossBar.setProgress(0f);
 
-		List<BlockBox> ddrSpawn = ddrSpawnRegion.all(game);
+		List<Region> ddrSpawn = ddrSpawnRegion.all(game);
 		Queue<DDRMachineEntity> spawnedMachines = new ArrayDeque<>();
 
 		events.listen(GamePlayerEvents.BEFORE_ADD_PLAYERS, (participants, spectators) -> {
 			int participantCount = participants.size();
 			int locationToSpawnAt = Math.min(participantCount, ddrSpawn.size());
 			for (int i = 0; i < locationToSpawnAt; i++) {
-				BlockBox spawnRegion = ddrSpawn.get(i);
-				DDRMachineEntity ddrMachineEntity = EscapeRace.DDR_MACHINE.get().create(game.level(), EntitySpawnReason.COMMAND);
+				Region spawnRegion = ddrSpawn.get(i);
+				DDRMachineEntity ddrMachineEntity = EscapeRace.DDR_MACHINE.get().create(spawnRegion.level(), EntitySpawnReason.COMMAND);
 				if (ddrMachineEntity != null) {
 					ddrMachineEntity.setPos(spawnRegion.centerBlock().getX(), spawnRegion.centerBlock().getY(), spawnRegion.centerBlock().getZ());
 					ddrMachineEntity.setDisplayLevels(false);
-					game.level().addFreshEntity(ddrMachineEntity);
+					spawnRegion.level().addFreshEntity(ddrMachineEntity);
 					spawnedMachines.add(ddrMachineEntity);
 				}
 			}
 		});
 
-		BlockBox spectatorSpawnRegion = this.spectatorSpawnRegion.one(game);
+		Region spectatorSpawnRegion = this.spectatorSpawnRegion.one(game);
 		events.listen(GamePlayerEvents.SPAWN, (playerId, spawn, role) -> {
 			if (role == PlayerRole.PARTICIPANT) {
 				DDRMachineEntity poll = spawnedMachines.poll();
 				if (poll == null) {
 					LOGGER.warn("Could not DDR Machine for {}", playerId);
-					spawn.teleportTo(game.level(), spectatorSpawnRegion.centerBlock());
+					spawn.teleportTo(spectatorSpawnRegion);
 					return;
 				}
 				spawn.run(player -> {
@@ -119,7 +119,7 @@ public class DDRShowdownBehavior implements IGameBehavior {
 				activeMachines.add(poll);
 				return;
 			}
-			spawn.teleportTo(game.level(), spectatorSpawnRegion.centerBlock());
+			spawn.teleportTo(spectatorSpawnRegion);
 		});
 
 		// Todo clean this part up

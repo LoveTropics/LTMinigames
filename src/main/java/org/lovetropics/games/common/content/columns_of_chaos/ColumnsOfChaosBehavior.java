@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.content.columns_of_chaos;
 
-import com.lovetropics.lib.BlockBox;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -37,6 +36,7 @@ import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GameTeamEvents;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
 import org.lovetropics.games.common.core.game.player.PlayerSet;
+import org.lovetropics.games.common.core.game.region.Region;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.state.team.GameTeam;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
@@ -72,7 +72,7 @@ public final class ColumnsOfChaosBehavior implements IGameBehavior {
 	private final RegionQuery floorRegionName;
 	private final Optional<HolderSet<Item>> excludedItems;
 	private List<ItemStack> filteredItems;
-	private BlockBox floorRegion;
+	private Region floorRegion;
 	private @Nullable State state;
 
 	public ColumnsOfChaosBehavior(int pillarHeight, int itemInterval, int decreaseOverRounds, int maxCountdownTicks, int minCountdownTicks, Optional<HolderSet<Item>> excludedItems, RegionQuery floorRegionName) {
@@ -87,7 +87,6 @@ public final class ColumnsOfChaosBehavior implements IGameBehavior {
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		ServerLevel level = game.level();
 		floorRegion = floorRegionName.one(game);
 		TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
 		if (teams != null) {
@@ -97,10 +96,11 @@ public final class ColumnsOfChaosBehavior implements IGameBehavior {
 					int teamSize = (int) participantTeams.values().stream()
 							.filter(team.key()::equals)
 							.count();
-					List<BlockBox> spawnRegions = new ArrayList<>();
+					List<Region> spawnRegions = new ArrayList<>();
 					for (int i = 1; i <= teamSize; i++) {
 						RegionQuery pillarQuery = RegionQuery.of(team.key().id() + "_" + i);
-						BlockBox pillarBox = pillarQuery.one(game);
+						Region pillarBox = pillarQuery.one(game);
+						ServerLevel level = pillarBox.level();
 						level.setBlock(pillarBox.centerBlock(), Blocks.BEDROCK.defaultBlockState(), Block.UPDATE_CLIENTS);
 						for (int x = 1; x <= pillarHeight; x++) {
 							level.setBlock(pillarBox.centerBlock().offset(0, x, 0), Blocks.BEDROCK.defaultBlockState(), Block.UPDATE_CLIENTS);
@@ -112,14 +112,14 @@ public final class ColumnsOfChaosBehavior implements IGameBehavior {
 			});
 			events.listen(GamePlayerEvents.SPAWN, (playerId, spawn, role) -> {
 				if (role == PlayerRole.PARTICIPANT) {
-					BlockBox spawnForPlayer = getSpawnForPlayer(playerId, teams, teamSpawners);
+					Region spawnForPlayer = getSpawnForPlayer(playerId, teams, teamSpawners);
 					if (spawnForPlayer != null) {
-						spawn.teleportTo(game.level(), spawnForPlayer.centerBlock());
+						spawn.teleportTo(spawnForPlayer);
 					} else {
 						LOGGER.warn("Didn't find spawn for {} as {}", playerId, role);
 					}
 				} else {
-					spawn.teleportTo(game.level(), RegionQuery.of("spectator_spawn").one(game).centerBlock());
+					spawn.teleportTo(RegionQuery.of("spectator_spawn").one(game));
 				}
 			});
 		} else {
@@ -127,9 +127,10 @@ public final class ColumnsOfChaosBehavior implements IGameBehavior {
 			MutableObject<CycledSpawner> spawner = new MutableObject<>();
 			events.listen(GamePlayerEvents.BEFORE_ADD_PLAYERS, (participants, spectators) -> {
 				int participantCount = participants.size();
-				List<BlockBox> spawnRegions = new ArrayList<>();
+				List<Region> spawnRegions = new ArrayList<>();
 				for (int i = 1; i <= participantCount; i++) {
-					BlockBox pillarBox = RegionQuery.of("red_" + i).one(game);
+					Region pillarBox = RegionQuery.of("red_" + i).one(game);
+					ServerLevel level = pillarBox.level();
 					level.setBlock(pillarBox.centerBlock(), Blocks.BEDROCK.defaultBlockState(), Block.UPDATE_CLIENTS);
 					for (int x = 1; x <= pillarHeight; x++) {
 						level.setBlock(pillarBox.centerBlock().offset(0, x, 0), Blocks.BEDROCK.defaultBlockState(), Block.UPDATE_CLIENTS);
@@ -140,22 +141,22 @@ public final class ColumnsOfChaosBehavior implements IGameBehavior {
 			});
 			events.listen(GamePlayerEvents.SPAWN, (playerId, spawn, role) -> {
 				if (role == PlayerRole.PARTICIPANT) {
-					BlockBox spawnForPlayer = spawner.get().next();
+					Region spawnForPlayer = spawner.get().next();
 					if (spawnForPlayer != null) {
-						spawn.teleportTo(game.level(), spawnForPlayer.centerBlock());
+						spawn.teleportTo(spawnForPlayer);
 						return;
 					} else {
 						LOGGER.warn("Didn't find spawn for {} as {}", playerId, role);
 					}
 				}
-				spawn.teleportTo(game.level(), RegionQuery.of("spectator_spawn").one(game).centerBlock());
+				spawn.teleportTo(RegionQuery.of("spectator_spawn").one(game));
 			});
 		}
 		events.listen(GamePhaseEvents.START, initiator -> {
 			state = startCountingDown(game, 0);
 		});
 		filteredItems = new ArrayList<>();
-		CreativeModeTab.ItemDisplayParameters parameters = new CreativeModeTab.ItemDisplayParameters(game.level().enabledFeatures(), true, game.level().registryAccess());
+		CreativeModeTab.ItemDisplayParameters parameters = new CreativeModeTab.ItemDisplayParameters(game.server().getWorldData().enabledFeatures(), true, game.registryAccess());
 		BuiltInRegistries.CREATIVE_MODE_TAB.listElements().forEach(holder -> {
 			CreativeModeTab tab = holder.value();
 			if (tab.getType() != CreativeModeTab.Type.SEARCH) {
@@ -207,7 +208,7 @@ public final class ColumnsOfChaosBehavior implements IGameBehavior {
 		return filteredItems.getFirst().copy();
 	}
 
-	private @Nullable BlockBox getSpawnForPlayer(UUID playerId, TeamState teams, Map<GameTeamKey, CycledSpawner> teamSpawners) {
+	private @Nullable Region getSpawnForPlayer(UUID playerId, TeamState teams, Map<GameTeamKey, CycledSpawner> teamSpawners) {
 		GameTeamKey team = teams.getTeamForPlayer(playerId);
 		if (team != null) {
 			CycledSpawner teamSpawner = teamSpawners.get(team);
