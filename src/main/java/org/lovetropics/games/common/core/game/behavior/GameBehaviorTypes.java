@@ -129,7 +129,6 @@ import org.lovetropics.games.common.core.game.behavior.instances.donation.BlockP
 import org.lovetropics.games.common.core.game.behavior.instances.donation.DonationPackageBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.donation.DonationThresholdBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.donation.GivePlayerHeadPackageBehavior;
-import org.lovetropics.games.common.core.game.behavior.instances.donation.NotifyPackageAction;
 import org.lovetropics.games.common.core.game.behavior.instances.donation.PackageCostModifierBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.donation.TriggerEveryPackageBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.statistics.BindObjectiveToStatisticBehavior;
@@ -321,7 +320,6 @@ public class GameBehaviorTypes {
 	public static final GameBehaviorEntry<DisplayLeaderboardAction<?>> DISPLAY_LEADERBOARD = register("display_leaderboard", DisplayLeaderboardAction.CODEC);
 
 	public static final GameBehaviorEntry<DonationPackageBehavior> DONATION_PACKAGE = register("donation_package", DonationPackageBehavior.CODEC);
-	public static final GameBehaviorEntry<NotifyPackageAction> NOTIFY_PACKAGE = register("notify_package", NotifyPackageAction.CODEC);
 	public static final GameBehaviorEntry<DonationThresholdBehavior> DONATION_THRESHOLD = register("donation_threshold", DonationThresholdBehavior.CODEC);
 	public static final GameBehaviorEntry<GiveLootAction> GIVE_LOOT = register("give_loot", GiveLootAction.CODEC);
 	public static final GameBehaviorEntry<GiveEffectAction> GIVE_EFFECT = register("give_effect", GiveEffectAction.CODEC);

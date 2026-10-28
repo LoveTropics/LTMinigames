@@ -27,6 +27,7 @@ import org.lovetropics.games.common.core.game.behavior.action.ActionSubjects;
 import org.lovetropics.games.common.core.game.behavior.action.GameActionContextKeys;
 import org.lovetropics.games.common.core.game.behavior.action.GameActionList;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.core.game.behavior.event.GameActionEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePackageEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
@@ -47,6 +48,7 @@ public record DonationPackageBehavior(
 		Optional<Component> descriptionOverride,
 		TargetSelectionMode targetMode,
 		Optional<Double> donationAmount,
+		Optional<PackageNotification> notification,
 		GameActionList receiveActions,
 		// TODO: We shouldn't really rely on triggering the package in the top-level game, behaviors (correctly) make the assumption that the target of an action exists within that game instance
 		//  MCSR should probably be creating levels at runtime rather than sub-games
@@ -61,6 +63,7 @@ public record DonationPackageBehavior(
 			ComponentSerialization.CODEC.optionalFieldOf("description").forGetter(DonationPackageBehavior::descriptionOverride),
 			TargetSelectionMode.CODEC.fieldOf("target").forGetter(DonationPackageBehavior::targetMode),
 			Codec.DOUBLE.optionalFieldOf("donation_amount").forGetter(DonationPackageBehavior::donationAmount),
+			PackageNotification.CODEC.optionalFieldOf("notification").forGetter(DonationPackageBehavior::notification),
 			GameActionList.CODEC.fieldOf("receive_actions").forGetter(DonationPackageBehavior::receiveActions),
 			Codec.BOOL.optionalFieldOf("include_sub_phases", false).forGetter(DonationPackageBehavior::includeSubPhases)
 	).apply(i, DonationPackageBehavior::new)).validate(DonationPackageBehavior::validate);
@@ -97,9 +100,32 @@ public record DonationPackageBehavior(
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
+		receiveActions.register(game, events);
+
 		PackageCostModifierBehavior.State costModifier = game.state().get(PackageCostModifierBehavior.State.KEY);
 		DonationPackageDesc packageDesc = makePackageDesc(costModifier);
 
+		registerCommands(game, events, packageDesc);
+
+		// TODO: This is a terrible hack - but I don't have a better idea right now. Let's see how our usages evolve
+		if (GameActionList.REGISTERING_ACTION.isBound()) {
+			events.listen(GameActionEvents.APPLY, (context, targets) -> {
+				GamePackage gamePackage = context.getOptional(GameActionContextKeys.PACKAGE);
+				return gamePackage != null && triggerPackage(game, gamePackage, packageDesc, targets);
+			});
+			return;
+		}
+
+		events.listen(GamePackageEvents.RECEIVE_PACKAGE, gamePackage -> {
+			if (!gamePackage.packageType().equals(id)) {
+				return TriState.DEFAULT;
+			}
+			return TriState.from(triggerPackage(game, gamePackage, packageDesc));
+		});
+		game.state().get(GamePackageState.KEY).addPackageType(packageDesc);
+	}
+
+	private void registerCommands(IGamePhase game, EventRegistrar events, DonationPackageDesc packageDesc) {
 		events.listen(GamePhaseEvents.REGISTER_COMMANDS, (commands, _) -> {
 			LiteralArgumentBuilder<CommandSourceStack> subcommand = Commands.literal(id)
 					.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS));
@@ -112,18 +138,12 @@ public record DonationPackageBehavior(
 						));
 				case RANDOM_PLAYER, ALL_PLAYERS ->
 						subcommand.executes(ctx -> spawnPackageFromCommand(game, ctx, null, Optional.empty(), packageDesc))
-						.then(Commands.argument("amount", DoubleArgumentType.doubleArg(0.0))
-								.executes(ctx -> spawnPackageFromCommand(game, ctx, null, Optional.of(DoubleArgumentType.getDouble(ctx, "amount")), packageDesc))
-						);
+								.then(Commands.argument("amount", DoubleArgumentType.doubleArg(0.0))
+										.executes(ctx -> spawnPackageFromCommand(game, ctx, null, Optional.of(DoubleArgumentType.getDouble(ctx, "amount")), packageDesc))
+								);
 			}
 			commands.register(Commands.literal("package").then(subcommand));
 		});
-
-		events.listen(GamePackageEvents.RECEIVE_PACKAGE, gamePackage -> onGamePackageReceived(game, gamePackage, packageDesc));
-
-		receiveActions.register(game, events);
-
-		game.state().get(GamePackageState.KEY).addPackageType(packageDesc);
 	}
 
 	private int spawnPackageFromCommand(IGamePhase game, CommandContext<CommandSourceStack> ctx, @Nullable Collection<ServerPlayer> targetPlayers, Optional<Double> amount, DonationPackageDesc packageDesc) {
@@ -133,30 +153,30 @@ public record DonationPackageBehavior(
 				targetPlayers != null ? ActionSubjects.ofPlayers(List.copyOf(targetPlayers)) : null,
 				amount
 		);
-		switch (onGamePackageReceived(game, gamePackage, packageDesc)) {
-			case TRUE -> ctx.getSource().sendSuccess(() -> Component.translatable("Successfully sent '%s'", id), true);
-			case DEFAULT -> ctx.getSource().sendFailure(Component.translatable("'%s' was not processed", id));
-			case FALSE -> ctx.getSource().sendFailure(Component.translatable("'%s' was rejected", id));
+		if (triggerPackage(game, gamePackage, packageDesc)) {
+			ctx.getSource().sendSuccess(() -> Component.translatable("Successfully sent '%s'", id), true);
+		} else {
+			ctx.getSource().sendFailure(Component.translatable("'%s' was rejected", id));
 		}
 		return Command.SINGLE_SUCCESS;
 	}
 
-	private TriState onGamePackageReceived(IGamePhase game, GamePackage gamePackage, DonationPackageDesc packageDesc) {
-		if (!gamePackage.packageType().equals(id)) {
-			return TriState.DEFAULT;
-		}
-
+	private boolean triggerPackage(IGamePhase game, GamePackage gamePackage, DonationPackageDesc packageDesc) {
 		ActionSubjects<?> targets = resolveTargets(game, gamePackage);
 		if (targets == null) {
 			LOGGER.warn("Expected donation package to have a receiver, but did not resolve any for {}", gamePackage);
-			return TriState.FALSE;
+			return false;
 		}
+		return triggerPackage(game, gamePackage, packageDesc, targets);
+	}
 
+	private boolean triggerPackage(IGamePhase game, GamePackage gamePackage, DonationPackageDesc packageDesc, ActionSubjects<?> targets) {
 		ContextMap context = actionContext(gamePackage, packageDesc);
 		if (receiveActions.apply(game, context, targets)) {
-			return TriState.TRUE;
+			notification.ifPresent(n -> n.broadcast(game, targets, gamePackage, packageDesc));
+			return true;
 		}
-		return TriState.FALSE;
+		return false;
 	}
 
 	private ActionSubjects<?> narrowTargetsForGame(IGamePhase game, ActionSubjects<?> globalTargets) {

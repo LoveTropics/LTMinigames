@@ -1,7 +1,7 @@
 package org.lovetropics.games.common.core.game.behavior.instances.donation;
 
 import com.google.common.collect.Sets;
-import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.ReferenceArraySet;
 import net.minecraft.ChatFormatting;
@@ -22,11 +22,7 @@ import org.lovetropics.games.client.toast.NotificationStyle;
 import org.lovetropics.games.client.toast.ShowNotificationToastMessage;
 import org.lovetropics.games.common.content.MinigameTexts;
 import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.action.ActionSubjects;
-import org.lovetropics.games.common.core.game.behavior.action.GameActionContextKeys;
-import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import org.lovetropics.games.common.core.game.behavior.event.GameActionEvents;
 import org.lovetropics.games.common.core.game.state.team.GameTeam;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
 import org.lovetropics.games.common.core.game.state.team.TeamState;
@@ -38,33 +34,20 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-public record NotifyPackageAction(
+public record PackageNotification(
 		Optional<TemplatedText> message,
 		NotificationIcon icon,
 		Optional<NotificationStyle.Sentiment> sentiment,
 		Optional<Holder<SoundEvent>> sound
-) implements IGameBehavior {
-	public static final MapCodec<NotifyPackageAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+) {
+	public static final Codec<PackageNotification> CODEC = RecordCodecBuilder.create(i -> i.group(
 			TemplatedText.CODEC.optionalFieldOf("message").forGetter(c -> c.message),
 			NotificationIcon.CODEC.optionalFieldOf("icon", NotificationIcon.item(new ItemStackTemplate(Items.GRASS_BLOCK))).forGetter(c -> c.icon),
 			NotificationStyle.Sentiment.CODEC.optionalFieldOf("sentiment").forGetter(c -> c.sentiment),
 			SoundEvent.CODEC.optionalFieldOf("sound").forGetter(c -> c.sound)
-	).apply(i, NotifyPackageAction::new));
+	).apply(i, PackageNotification::new));
 
-	@Override
-	public void register(IGamePhase game, EventRegistrar events) {
-		events.listen(GameActionEvents.APPLY, (context, targets) -> {
-			GamePackage gamePackage = context.getOptional(GameActionContextKeys.PACKAGE);
-			DonationPackageDesc packageDesc = context.getOptional(GameActionContextKeys.PACKAGE_DESC);
-			if (gamePackage == null || packageDesc == null) {
-				return false;
-			}
-			broadcast(game, targets, gamePackage, packageDesc);
-			return true;
-		});
-	}
-
-	private void broadcast(IGamePhase game, ActionSubjects<?> targets, GamePackage gamePackage, DonationPackageDesc packageDesc) {
+	public void broadcast(IGamePhase game, ActionSubjects<?> targets, GamePackage gamePackage, DonationPackageDesc packageDesc) {
 		NotificationStyle.Sentiment sentiment = this.sentiment.orElseGet(() -> packageDesc.type().defaultSentiment());
 		Holder<SoundEvent> sound = this.sound.orElseGet(() -> switch (sentiment) {
 			case POSITIVE -> SoundRegistry.PACKAGE_RECEIVE;

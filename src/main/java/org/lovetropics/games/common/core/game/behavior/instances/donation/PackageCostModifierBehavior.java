@@ -33,7 +33,8 @@ public record PackageCostModifierBehavior(State state) implements IGameBehavior 
 	}
 
 	public record State(double scale, double offset) implements IGameState {
-		public static final GameStateKey.Defaulted<State> KEY = GameStateKey.create("Package cost modifier", () -> new State(1.0, 0.0));
+		public static final State NONE = new State(1.0, 0.0);
+		public static final GameStateKey.Defaulted<State> KEY = GameStateKey.create("Package cost modifier", () -> NONE);
 
 		public static final MapCodec<State> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 				Codec.DOUBLE.optionalFieldOf("scale", 1.0).forGetter(State::scale),

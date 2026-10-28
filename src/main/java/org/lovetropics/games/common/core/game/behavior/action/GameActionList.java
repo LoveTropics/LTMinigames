@@ -8,6 +8,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.MapLike;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.util.ExtraCodecs;
+import net.minecraft.util.Unit;
 import net.minecraft.util.context.ContextMap;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
@@ -54,6 +55,9 @@ public class GameActionList {
 		}
 	};
 
+	@Deprecated
+	public static final ScopedValue<Unit> REGISTERING_ACTION = ScopedValue.newInstance();
+
 	private final IGameBehavior behavior;
 	private final ActionTarget target;
 	private final int maxRuns;
@@ -76,7 +80,9 @@ public class GameActionList {
 		if (registered) {
 			throw new IllegalStateException("GameActionList has already been registered");
 		}
-		behavior.register(game, events.redirect(GameActionEvents::matches, listeners));
+		ScopedValue.where(REGISTERING_ACTION, Unit.INSTANCE).run(() ->
+				behavior.register(game, events.redirect(GameActionEvents::matches, listeners))
+		);
 		registered = true;
 	}
 
