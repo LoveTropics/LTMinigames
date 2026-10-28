@@ -2,6 +2,7 @@ package org.lovetropics.games.common.core.game.behavior.event;
 
 import it.unimi.dsi.fastutil.objects.Reference2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,30 +11,45 @@ import java.util.Set;
 
 public final class GameEventListeners implements EventRegistrar {
 	private final Reference2ObjectMap<GameEventType<?>, List<Object>> listeners = new Reference2ObjectOpenHashMap<>();
-	private final Reference2ObjectMap<GameEventType<?>, Object> invokers = new Reference2ObjectOpenHashMap<>();
+
+	private volatile @Nullable Reference2ObjectMap<GameEventType<?>, Object> invokers;
 
 	@Override
 	public <T> void listen(GameEventType<T> type, T listener) {
-		List<Object> listeners = this.listeners.computeIfAbsent(type, e -> new ArrayList<>());
+		List<Object> listeners = this.listeners.computeIfAbsent(type, _ -> new ArrayList<>());
 		listeners.add(listener);
-		rebuildInvoker(type);
+		invokers = null;
 	}
 
 	@Override
 	public <T> void unlisten(GameEventType<T> type, T listener) {
 		List<Object> listeners = this.listeners.get(type);
 		if (listeners != null && listeners.remove(listener)) {
-			rebuildInvoker(type);
+			invokers = null;
 		}
 	}
 
-	private <T> void rebuildInvoker(GameEventType<T> type) {
-		Object combined = type.combineUnchecked(listeners.get(type));
-		invokers.put(type, combined);
+	private Reference2ObjectMap<GameEventType<?>, Object> buildInvokers() {
+		Reference2ObjectMap<GameEventType<?>, Object> invokers = new Reference2ObjectOpenHashMap<>();
+		for (Map.Entry<GameEventType<?>, List<Object>> entry : listeners.entrySet()) {
+			GameEventType<?> type = entry.getKey();
+			invokers.put(type, type.combineUnchecked(entry.getValue()));
+		}
+		return invokers;
 	}
 
+	// Can be safely called from any thread - safety of the underlying handlers is however not guaranteed
 	@SuppressWarnings("unchecked")
 	public <T> T invoker(GameEventType<T> type) {
+		Reference2ObjectMap<GameEventType<?>, Object> invokers = this.invokers;
+		if (invokers == null) {
+			synchronized (this) {
+				invokers = this.invokers;
+				if (invokers == null) {
+					invokers = buildInvokers();
+				}
+			}
+		}
 		return (T) invokers.getOrDefault(type, type.empty());
 	}
 
@@ -46,7 +62,7 @@ public final class GameEventListeners implements EventRegistrar {
 	}
 
 	public Set<GameEventType<?>> eventTypes() {
-		return invokers.keySet();
+		return listeners.keySet();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -56,10 +72,10 @@ public final class GameEventListeners implements EventRegistrar {
 
 	@Override
 	public void addAll(GameEventListeners listeners) {
-		listeners.listeners.forEach((type, list) -> {
-			this.listeners.computeIfAbsent(type, e -> new ArrayList<>()).addAll(list);
-			rebuildInvoker(type);
-		});
+		listeners.listeners.forEach((type, list) ->
+				this.listeners.computeIfAbsent(type, _ -> new ArrayList<>()).addAll(list)
+		);
+		invokers = null;
 	}
 
 	@Override
@@ -68,9 +84,9 @@ public final class GameEventListeners implements EventRegistrar {
 			List<Object> targetList = this.listeners.get(type);
 			if (targetList != null) {
 				targetList.removeAll(list);
-				rebuildInvoker(type);
 			}
 		});
+		invokers = null;
 	}
 
 	public boolean hasListeners(GameEventType<?> type) {

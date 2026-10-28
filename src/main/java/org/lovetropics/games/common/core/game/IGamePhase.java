@@ -43,6 +43,7 @@ public interface IGamePhase extends GameRegionHolder {
 
 	GameStateMap instanceState();
 
+	/// Can be safely called from any thread - safety of the underlying handlers depends on the type.
 	<T> T invoker(GameEventType<T> type);
 
 	GameResult<Unit> requestStop(GameStopReason reason);
