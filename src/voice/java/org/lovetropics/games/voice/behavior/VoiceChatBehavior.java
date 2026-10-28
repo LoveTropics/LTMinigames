@@ -71,6 +71,18 @@ public record VoiceChatBehavior(
 				}
 			});
 
+			events.listen(GamePlayerEvents.REMOVE, player -> {
+				GameTeamKey team = teams.getTeamForPlayer(player);
+				Group expectedGroup = team != null ? groupsByTeam.get(team) : null;
+				if (expectedGroup == null) {
+					return;
+				}
+				VoicechatConnection connection = voiceApi.getConnectionOf(player.getUUID());
+				if (connection != null && connection.getGroup() == expectedGroup) {
+					connection.setGroup(null);
+				}
+			});
+
 			events.listen(GamePhaseEvents.DESTROY, () -> {
 				for (Group group : groupsByTeam.values()) {
 					voiceApi.removeGroup(group.getId());
