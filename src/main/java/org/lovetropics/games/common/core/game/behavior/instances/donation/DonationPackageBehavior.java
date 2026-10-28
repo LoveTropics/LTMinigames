@@ -40,7 +40,6 @@ import java.util.Optional;
 ///                         each playing in their own world
 public record DonationPackageBehavior(
 		DonationPackageData data,
-		Optional<DonationPackageNotification> notification,
 		GameActionList receiveActions,
 		// TODO: We shouldn't really rely on triggering the package in the top-level game, behaviors (correctly) make the assumption that the target of an action exists within that game instance
 		//  MCSR should probably be creating levels at runtime rather than sub-games
@@ -50,7 +49,6 @@ public record DonationPackageBehavior(
 
 	public static final MapCodec<DonationPackageBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			DonationPackageData.CODEC.forGetter(c -> c.data),
-			DonationPackageNotification.CODEC.optionalFieldOf("notification").forGetter(c -> c.notification),
 			GameActionList.CODEC.optionalFieldOf("receive_actions", GameActionList.EMPTY).forGetter(c -> c.receiveActions),
 			Codec.BOOL.optionalFieldOf("include_sub_phases", false).forGetter(c -> c.includeSubPhases)
 	).apply(i, DonationPackageBehavior::new));
@@ -111,9 +109,6 @@ public record DonationPackageBehavior(
 
 		ContextMap context = actionContext(gamePackage);
 		if (receiveActions.apply(game, context, targets)) {
-			notification.ifPresent(notification ->
-					notification.broadcast(game, targets, gamePackage.sendingPlayerName(), data.name())
-			);
 			return TriState.TRUE;
 		}
 		return TriState.FALSE;
@@ -158,9 +153,10 @@ public record DonationPackageBehavior(
 		}
 	}
 
-	private static ContextMap actionContext(GamePackage gamePackage) {
+	private ContextMap actionContext(GamePackage gamePackage) {
 		ContextMap.Builder context = new ContextMap.Builder();
 		context.withParameter(GameActionContextKeys.PACKAGE, gamePackage);
+		context.withParameter(GameActionContextKeys.PACKAGE_NAME, data.name());
 		if (gamePackage.sendingPlayerName() != null) {
 			context.withParameter(GameActionContextKeys.PACKAGE_SENDER, gamePackage.sendingPlayerName());
 		}

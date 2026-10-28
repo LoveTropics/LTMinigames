@@ -11,6 +11,7 @@ import org.lovetropics.games.common.core.integration.game_actions.GamePackage;
 
 public class GameActionContextKeys<T> {
 	public static final ContextKey<GamePackage> PACKAGE = create("package");
+	public static final ContextKey<Component> PACKAGE_NAME = create("package_name");
 	public static final ContextKey<String> PACKAGE_SENDER = create("package_sender");
 
 	public static final ContextKey<ServerPlayer> KILLER = create("killer");
