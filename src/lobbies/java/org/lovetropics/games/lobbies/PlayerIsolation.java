@@ -172,7 +172,6 @@ public final class PlayerIsolation {
 
 		NeoForge.EVENT_BUS.post(new PlayerIsolatedReloadEvent(newPlayer));
 
-		EventHooks.firePlayerLoggedIn(newPlayer);
 		ResourceKey<Level> oldDimension = oldPlayer.level().dimension();
 		ResourceKey<Level> newDimension = newLevel.dimension();
 		if (oldDimension != newDimension) {
