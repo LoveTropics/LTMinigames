@@ -6,14 +6,17 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import de.maxhenkel.voicechat.api.Group;
 import de.maxhenkel.voicechat.api.VoicechatConnection;
 import de.maxhenkel.voicechat.api.VoicechatServerApi;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.StringRepresentable;
 import net.neoforged.neoforge.server.permission.nodes.PermissionTypes;
+import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GameTeamEvents;
+import org.lovetropics.games.common.core.game.player.PlayerRole;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
 import org.lovetropics.games.common.core.game.state.team.TeamState;
 import org.lovetropics.games.voice.GamesVoicePlugin;
@@ -24,7 +27,8 @@ import java.util.Map;
 public record VoiceChatBehavior(
 		boolean openToEveryone,
 		boolean groupByTeam,
-		GroupProximityMode groupProximityMode
+		GroupProximityMode groupProximityMode,
+		boolean includeSpectatorsInGroup
 ) implements IGameBehavior {
 	private static final String NODE_LISTEN = "voicechat.listen";
 	private static final String NODE_SPEAK = "voicechat.speak";
@@ -32,7 +36,8 @@ public record VoiceChatBehavior(
 	public static final MapCodec<VoiceChatBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			Codec.BOOL.fieldOf("open_to_everyone").forGetter(VoiceChatBehavior::openToEveryone),
 			Codec.BOOL.optionalFieldOf("group_by_team", false).forGetter(VoiceChatBehavior::groupByTeam),
-			GroupProximityMode.CODEC.optionalFieldOf("group_proximity_mode", GroupProximityMode.NORMAL).forGetter(VoiceChatBehavior::groupProximityMode)
+			GroupProximityMode.CODEC.optionalFieldOf("group_proximity_mode", GroupProximityMode.NORMAL).forGetter(VoiceChatBehavior::groupProximityMode),
+			Codec.BOOL.optionalFieldOf("include_spectators_in_group", false).forGetter(VoiceChatBehavior::includeSpectatorsInGroup)
 	).apply(i, VoiceChatBehavior::new));
 
 	@Override
@@ -64,22 +69,25 @@ public record VoiceChatBehavior(
 				}
 			});
 
-			events.listen(GameTeamEvents.SET_GAME_TEAM, (player, _, team) -> {
-				VoicechatConnection connection = voiceApi.getConnectionOf(player.getUUID());
-				if (connection != null) {
-					connection.setGroup(groupsByTeam.get(team));
+			events.listen(GameTeamEvents.SET_GAME_TEAM, (player, _, team) ->
+					addToGroup(player, voiceApi, groupsByTeam.get(team))
+			);
+
+			events.listen(GamePlayerEvents.SET_ROLE, (player, role, _) -> {
+				Group group = getGroup(player, teams, groupsByTeam);
+				if (group != null) {
+					if (includeSpectatorsInGroup || role == PlayerRole.PARTICIPANT) {
+						addToGroup(player, voiceApi, group);
+					} else {
+						removeFromGroup(player, voiceApi, group);
+					}
 				}
 			});
 
 			events.listen(GamePlayerEvents.REMOVE, player -> {
-				GameTeamKey team = teams.getTeamForPlayer(player);
-				Group expectedGroup = team != null ? groupsByTeam.get(team) : null;
-				if (expectedGroup == null) {
-					return;
-				}
-				VoicechatConnection connection = voiceApi.getConnectionOf(player.getUUID());
-				if (connection != null && connection.getGroup() == expectedGroup) {
-					connection.setGroup(null);
+				Group group = getGroup(player, teams, groupsByTeam);
+				if (group != null) {
+					removeFromGroup(player, voiceApi, group);
 				}
 			});
 
@@ -88,6 +96,25 @@ public record VoiceChatBehavior(
 					voiceApi.removeGroup(group.getId());
 				}
 			});
+		}
+	}
+
+	private @Nullable Group getGroup(ServerPlayer player, TeamState teams, Map<GameTeamKey, Group> groupsByTeam) {
+		GameTeamKey team = teams.getTeamForPlayer(player);
+		return team != null ? groupsByTeam.get(team) : null;
+	}
+
+	private void addToGroup(ServerPlayer player, VoicechatServerApi voiceApi, Group group) {
+		VoicechatConnection connection = voiceApi.getConnectionOf(player.getUUID());
+		if (connection != null) {
+			connection.setGroup(group);
+		}
+	}
+
+	private void removeFromGroup(ServerPlayer player, VoicechatServerApi voiceApi, Group group) {
+		VoicechatConnection connection = voiceApi.getConnectionOf(player.getUUID());
+		if (connection != null && connection.getGroup() == group) {
+			connection.setGroup(null);
 		}
 	}
 
