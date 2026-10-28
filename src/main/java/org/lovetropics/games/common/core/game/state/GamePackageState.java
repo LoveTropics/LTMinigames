@@ -3,7 +3,7 @@ package org.lovetropics.games.common.core.game.state;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.network.chat.Component;
 import org.lovetropics.games.common.core.game.GameException;
-import org.lovetropics.games.common.core.game.behavior.instances.donation.DonationPackageData;
+import org.lovetropics.games.common.core.game.behavior.instances.donation.DonationPackageDesc;
 
 import java.util.Collection;
 import java.util.Map;
@@ -12,9 +12,9 @@ import java.util.stream.Stream;
 public final class GamePackageState implements IGameState {
 	public static final GameStateKey.Defaulted<GamePackageState> KEY = GameStateKey.create("Game Packages", GamePackageState::new);
 
-	private final Map<String, DonationPackageData> knownPackages = new Object2ObjectOpenHashMap<>();
+	private final Map<String, DonationPackageDesc> knownPackages = new Object2ObjectOpenHashMap<>();
 
-	public void addPackageType(DonationPackageData data) {
+	public void addPackageType(DonationPackageDesc data) {
 		if (knownPackages.putIfAbsent(data.id(), data) != null) {
 			throw new GameException(Component.literal("Encountered duplicate package with id: " + data.id()));
 		}
@@ -24,7 +24,7 @@ public final class GamePackageState implements IGameState {
 		return knownPackages.keySet().stream();
 	}
 
-	public Collection<DonationPackageData> packages() {
+	public Collection<DonationPackageDesc> packages() {
 		return knownPackages.values();
 	}
 }

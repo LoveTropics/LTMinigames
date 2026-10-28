@@ -28,7 +28,7 @@ public record FillContainerInRegionWithLootTableBehaviour(
 	public static final MapCodec<FillContainerInRegionWithLootTableBehaviour> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			RegionQuery.CODEC.fieldOf("region").forGetter(FillContainerInRegionWithLootTableBehaviour::region),
 			ResourceKey.codec(Registries.LOOT_TABLE).optionalFieldOf("loot_table").forGetter(FillContainerInRegionWithLootTableBehaviour::lootTable),
-			Codec.unboundedMap(BuiltInRegistries.BLOCK.byNameCodec(), ResourceKey.codec(Registries.LOOT_TABLE)).fieldOf("block_loot_tables").forGetter(FillContainerInRegionWithLootTableBehaviour::blockLootTables)
+			Codec.unboundedMap(BuiltInRegistries.BLOCK.byNameCodec(), ResourceKey.codec(Registries.LOOT_TABLE)).optionalFieldOf("block_loot_tables", Map.of()).forGetter(FillContainerInRegionWithLootTableBehaviour::blockLootTables)
 	).apply(i, FillContainerInRegionWithLootTableBehaviour::new));
 
 	@Override

@@ -3,7 +3,7 @@ package org.lovetropics.games.common.content;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.core.game.behavior.instances.donation.DonationPackageData;
+import org.lovetropics.games.common.core.game.behavior.instances.donation.DonationPackageDesc;
 import org.lovetropics.games.common.core.game.util.TranslationCollector;
 import org.lovetropics.games.common.util.Util;
 
@@ -327,24 +327,24 @@ public final class MinigameTexts {
 		KEYS.add("donation.pvp_crabs.description", "Turn every player into a Crab, and allow PvP - players can score with each other!");
 		KEYS.add("donation.pvp_crabs.toast", "%sender% has enabled PVP CRAB HOCKEY for 1 minute!");
 
-		KEYS.add("event.lightning_storm_event", "Lightning Storm");
-		KEYS.add("event.lightning_storm_event.description", "CRACK. That's the sound of the sky as you smite your enemies. Which ones? All of them.");
-		KEYS.add("event.lightning_storm_event.toast", "Chat started a LIGHTNING STORM!");
-		KEYS.add("event.zombie_invasion_event", "Zombie Invasion");
-		KEYS.add("event.zombie_invasion_event.description", "Go Walking Dead on 'em");
-		KEYS.add("event.zombie_invasion_event.toast", "Chat started a ZOMBIE INVASION!");
-		KEYS.add("event.meteor_shower_event", "Meteor Shower");
-		KEYS.add("event.meteor_shower_event.description", "Send a meteor shower raining down on... everyone");
-		KEYS.add("event.meteor_shower_event.toast", "Chat started a METEOR SHOWER! Keep an eye on the skies!");
-		KEYS.add("event.acid_rain_event", "Acid Rain");
-		KEYS.add("event.acid_rain_event.description", "MWAHAHAHA");
-		KEYS.add("event.acid_rain_event.toast", "Chat has started ACID RAIN for 1 minute!");
-		KEYS.add("event.heatwave_event", "Heat Wave");
-		KEYS.add("event.heatwave_event.description", "Slow everyone down with a dastardly heat wave!");
-		KEYS.add("event.heatwave_event.toast", "Chat has started a HEATWAVE for 1 minute!");
-		KEYS.add("event.hail_event", "Hail Storm");
-		KEYS.add("event.hail_event.description", "Hail rains down from the sky! The players better have their Umbrellas ready.");
-		KEYS.add("event.hail_event.toast", "Chat has started a HAILSTORM for 1 minute!");
+		KEYS.add("donation.lightning_storm_event", "Lightning Storm");
+		KEYS.add("donation.lightning_storm_event.description", "CRACK. That's the sound of the sky as you smite your enemies. Which ones? All of them.");
+		KEYS.add("donation.lightning_storm_event.toast", "Chat started a LIGHTNING STORM!");
+		KEYS.add("donation.zombie_invasion_event", "Zombie Invasion");
+		KEYS.add("donation.zombie_invasion_event.description", "Go Walking Dead on 'em");
+		KEYS.add("donation.zombie_invasion_event.toast", "Chat started a ZOMBIE INVASION!");
+		KEYS.add("donation.meteor_shower_event", "Meteor Shower");
+		KEYS.add("donation.meteor_shower_event.description", "Send a meteor shower raining down on... everyone");
+		KEYS.add("donation.meteor_shower_event.toast", "Chat started a METEOR SHOWER! Keep an eye on the skies!");
+		KEYS.add("donation.acid_rain_event", "Acid Rain");
+		KEYS.add("donation.acid_rain_event.description", "MWAHAHAHA");
+		KEYS.add("donation.acid_rain_event.toast", "Chat has started ACID RAIN for 1 minute!");
+		KEYS.add("donation.heatwave_event", "Heat Wave");
+		KEYS.add("donation.heatwave_event.description", "Slow everyone down with a dastardly heat wave!");
+		KEYS.add("donation.heatwave_event.toast", "Chat has started a HEATWAVE for 1 minute!");
+		KEYS.add("donation.hail_event", "Hail Storm");
+		KEYS.add("donation.hail_event.description", "Hail rains down from the sky! The players better have their Umbrellas ready.");
+		KEYS.add("donation.hail_event.toast", "Chat has started a HAILSTORM for 1 minute!");
 
 		KEYS.add("spleef.flavor.volcano.layer_countdown", "Next layer crumble in %s");
 		KEYS.add("spleef.flavor.volcano.forced_progression", "The %s level of the volcano has become unstable. It will now crumble below your feet!");
@@ -368,7 +368,7 @@ public final class MinigameTexts {
 		KEYS.add("win", "⭐ %winner% won the game!");
 
 		// Why do we have these? As far as I can tell we don't use them anywhere
-		for (DonationPackageData.PackageType type : DonationPackageData.PackageType.values()) {
+		for (DonationPackageDesc.Type type : DonationPackageDesc.Type.values()) {
 			KEYS.add("donation." + type.getSerializedName(), type.getName());
 		}
 

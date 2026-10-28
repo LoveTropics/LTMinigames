@@ -40,7 +40,7 @@ public record TriggerEveryPackageBehavior(Set<String> exclude) implements IGameB
 			}
 
 			boolean applied = false;
-			for (DonationPackageData donationPackage : packages.packages()) {
+			for (DonationPackageDesc donationPackage : packages.packages()) {
 				if (exclude.contains(donationPackage.id()) || donationPackage.id().equals(sourcePackage.packageType())) {
 					continue;
 				}
@@ -51,16 +51,16 @@ public record TriggerEveryPackageBehavior(Set<String> exclude) implements IGameB
 		});
 	}
 
-	private static TriState triggerPackage(IGamePhase game, DonationPackageData packageData, GamePackage sourcePackage) {
+	private static TriState triggerPackage(IGamePhase game, DonationPackageDesc packageData, GamePackage sourcePackage) {
 		ActionSubjects<?> targets = sourcePackage.specificTargets();
-		if (packageData.targetSelectionMode() == TargetSelectionMode.SPECIFIC && targets == null) {
-			if (packageData.applyToTeam()) {
+		if (targets == null) {
+			if (packageData.selectionMode() == DonationPackageDesc.SelectionMode.TEAM) {
 				TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
 				List<GameTeamKey> teamKeys = teams != null ? List.copyOf(teams.getTeamKeys()) : List.of();
 				if (!teamKeys.isEmpty()) {
 					targets = ActionSubjects.ofTeam(Util.getRandom(teamKeys, game.random()));
 				}
-			} else {
+			} else if (packageData.selectionMode() == DonationPackageDesc.SelectionMode.PLAYER) {
 				List<ServerPlayer> participants = Lists.newArrayList(game.participants());
 				if (!participants.isEmpty()) {
 					targets = ActionSubjects.ofPlayer(Util.getRandom(participants, game.random()));

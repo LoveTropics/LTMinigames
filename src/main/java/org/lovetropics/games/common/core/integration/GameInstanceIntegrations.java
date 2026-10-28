@@ -24,7 +24,7 @@ import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GameTeamEvents;
 import org.lovetropics.games.common.core.game.behavior.event.SubGameEvents;
-import org.lovetropics.games.common.core.game.behavior.instances.donation.DonationPackageData;
+import org.lovetropics.games.common.core.game.behavior.instances.donation.DonationPackageDesc;
 import org.lovetropics.games.common.core.game.state.GamePackageState;
 import org.lovetropics.games.common.core.game.state.GameStateKey;
 import org.lovetropics.games.common.core.game.state.IGameState;
@@ -50,9 +50,7 @@ import java.util.concurrent.CompletableFuture;
 public final class GameInstanceIntegrations implements IGameState {
 	public static final GameStateKey<GameInstanceIntegrations> KEY = GameStateKey.create("Game Integrations");
 
-	private static final Codec<List<DonationPackageData>> PACKAGES_CODEC = DonationPackageData.Payload.CODEC.codec()
-			.xmap(DonationPackageData.Payload::data, DonationPackageData::asPayload)
-			.listOf();
+	private static final Codec<List<DonationPackageDesc>> PACKAGES_CODEC = DonationPackageDesc.CODEC.listOf();
 
 	private static final GameEventType<StartGame> EVENT_START_GAME = GameEventType.createImportant("/start", StartGame.MAP_CODEC);
 	private static final GameEventType<PlayersAndTeams> EVENT_UPDATE_PLAYERS = GameEventType.create("/playerupdate", PlayersAndTeams.MAP_CODEC);
@@ -123,8 +121,8 @@ public final class GameInstanceIntegrations implements IGameState {
 		addListeners(events);
 	}
 
-	private List<DonationPackageData> collectPackages() {
-		Set<DonationPackageData> allPackages = new ObjectOpenHashSet<>();
+	private List<DonationPackageDesc> collectPackages() {
+		Set<DonationPackageDesc> allPackages = new ObjectOpenHashSet<>();
 		for (IGamePhase game : allGames) {
 			GamePackageState packageState = game.state().getOrNull(GamePackageState.KEY);
 			if (packageState != null) {
@@ -133,7 +131,7 @@ public final class GameInstanceIntegrations implements IGameState {
 		}
 
 		return allPackages.stream()
-				.sorted(Comparator.comparing(DonationPackageData::id))
+				.sorted(Comparator.comparing(DonationPackageDesc::id))
 				.toList();
 	}
 
@@ -252,7 +250,7 @@ public final class GameInstanceIntegrations implements IGameState {
 			Optional<Component> subtitle,
 			Optional<NameAndId> initiator,
 			PlayersAndTeams playersAndTeams,
-			List<DonationPackageData> packages,
+			List<DonationPackageDesc> packages,
 			GameDonationType donationType
 	) {
 		public static final MapCodec<StartGame> MAP_CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
@@ -278,7 +276,7 @@ public final class GameInstanceIntegrations implements IGameState {
 	}
 
 	private record UpdatePackages(
-			List<DonationPackageData> packages
+			List<DonationPackageDesc> packages
 	) {
 		public static final MapCodec<UpdatePackages> MAP_CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 				PACKAGES_CODEC.fieldOf("packages").forGetter(UpdatePackages::packages)

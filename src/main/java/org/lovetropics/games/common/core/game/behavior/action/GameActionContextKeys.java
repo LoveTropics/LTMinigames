@@ -6,12 +6,13 @@ import net.minecraft.util.context.ContextKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.core.game.behavior.instances.donation.DonationPackageDesc;
 import org.lovetropics.games.common.core.game.state.team.GameTeam;
 import org.lovetropics.games.common.core.integration.game_actions.GamePackage;
 
 public class GameActionContextKeys<T> {
 	public static final ContextKey<GamePackage> PACKAGE = create("package");
-	public static final ContextKey<Component> PACKAGE_NAME = create("package_name");
+	public static final ContextKey<DonationPackageDesc> PACKAGE_DESC = create("package_desc");
 	public static final ContextKey<String> PACKAGE_SENDER = create("package_sender");
 
 	public static final ContextKey<ServerPlayer> KILLER = create("killer");
