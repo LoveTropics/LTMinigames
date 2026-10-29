@@ -122,7 +122,7 @@ public class CrabGolfHoleBehavior implements PersistentGameBehavior {
 
 		events.listen(GamePlayerEvents.ATTACK, (player, target) -> {
 			PlayerHoleState state = currentlyPlaying.get(player.getUUID());
-			if (target == state.crab) {
+			if (state != null && target == state.crab) {
 				state.hits++;
 			}
 
