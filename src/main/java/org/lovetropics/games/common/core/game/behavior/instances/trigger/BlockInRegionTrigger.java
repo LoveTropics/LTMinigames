@@ -8,15 +8,11 @@ import net.minecraft.util.context.ContextMap;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.action.GameActionList;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
-
-import java.util.function.Supplier;
 
 public final class BlockInRegionTrigger implements IGameBehavior {
 
@@ -76,8 +72,8 @@ public final class BlockInRegionTrigger implements IGameBehavior {
 	}
 
 	@Override
-	public Supplier<? extends GameBehaviorType<?>> behaviorType() {
-		return GameBehaviorTypes.BLOCK_IN_REGION;
+	public MapCodec<? extends IGameBehavior> codec() {
+		return CODEC;
 	}
 
 	public RegionQuery region() {

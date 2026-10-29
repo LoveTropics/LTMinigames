@@ -8,15 +8,11 @@ import net.minecraft.util.Mth;
 import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.region.Region;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
-
-import java.util.function.Supplier;
 
 public record KillInVoidBehavior(RegionQuery voidBelowRegion) implements IGameBehavior {
 	public static final MapCodec<KillInVoidBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
@@ -64,7 +60,7 @@ public record KillInVoidBehavior(RegionQuery voidBelowRegion) implements IGameBe
 	}
 
 	@Override
-	public Supplier<? extends GameBehaviorType<?>> behaviorType() {
-		return GameBehaviorTypes.KILL_IN_VOID;
+	public MapCodec<? extends IGameBehavior> codec() {
+		return CODEC;
 	}
 }

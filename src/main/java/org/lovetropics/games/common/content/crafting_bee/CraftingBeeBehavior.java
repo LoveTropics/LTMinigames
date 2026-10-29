@@ -46,7 +46,6 @@ import org.lovetropics.games.common.content.crafting_bee.ingredient.IngredientDe
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.GameWinner;
 import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GameLogicEvents;
@@ -78,7 +77,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 public class CraftingBeeBehavior implements IGameBehavior {
@@ -457,8 +455,8 @@ public class CraftingBeeBehavior implements IGameBehavior {
 	}
 
 	@Override
-	public Supplier<? extends GameBehaviorType<?>> behaviorType() {
-		return CraftingBee.CRAFTING_BEE;
+	public MapCodec<? extends IGameBehavior> codec() {
+		return CODEC;
 	}
 
 	private static class CraftingTask {

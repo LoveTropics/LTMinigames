@@ -5,8 +5,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
@@ -15,7 +13,6 @@ import org.lovetropics.games.common.core.game.weather.WeatherController;
 import org.lovetropics.games.common.core.game.weather.WeatherControllerManager;
 
 import java.util.List;
-import java.util.function.Supplier;
 
 public class WeatherControlsBehavior implements IGameBehavior {
 	public static final MapCodec<WeatherControlsBehavior> CODEC = MapCodec.unit(WeatherControlsBehavior::new);
@@ -51,7 +48,7 @@ public class WeatherControlsBehavior implements IGameBehavior {
 	}
 
 	@Override
-	public Supplier<? extends GameBehaviorType<?>> behaviorType() {
-		return GameBehaviorTypes.WEATHER_CONTROLS;
+	public MapCodec<? extends IGameBehavior> codec() {
+		return CODEC;
 	}
 }

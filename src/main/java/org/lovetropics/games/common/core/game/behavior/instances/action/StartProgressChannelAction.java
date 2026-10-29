@@ -4,15 +4,11 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GameActionEvents;
 import org.lovetropics.games.common.core.game.state.progress.ProgressChannel;
 import org.lovetropics.games.common.core.game.state.progress.ProgressHolder;
-
-import java.util.function.Supplier;
 
 public record StartProgressChannelAction(
 		ProgressChannel channel
@@ -31,7 +27,7 @@ public record StartProgressChannelAction(
 	}
 
 	@Override
-	public Supplier<? extends GameBehaviorType<?>> behaviorType() {
-		return GameBehaviorTypes.START_PROGRESS_CHANNEL;
+	public MapCodec<? extends IGameBehavior> codec() {
+		return CODEC;
 	}
 }

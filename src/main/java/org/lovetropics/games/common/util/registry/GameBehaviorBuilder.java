@@ -4,11 +4,10 @@ import com.mojang.serialization.MapCodec;
 import com.tterrag.registrate.builders.AbstractBuilder;
 import com.tterrag.registrate.builders.BuilderCallback;
 import net.neoforged.neoforge.registries.DeferredHolder;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
 import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 
-public final class GameBehaviorBuilder<T extends IGameBehavior, P> extends AbstractBuilder<GameBehaviorType<?>, GameBehaviorType<T>, P, GameBehaviorBuilder<T, P>> {
+public final class GameBehaviorBuilder<T extends IGameBehavior, P> extends AbstractBuilder<MapCodec<? extends IGameBehavior>, MapCodec<T>, P, GameBehaviorBuilder<T, P>> {
 	private final MapCodec<T> codec;
 
 	public GameBehaviorBuilder(LoveTropicsRegistrate owner, P parent, String name, BuilderCallback callback, MapCodec<T> codec) {
@@ -17,12 +16,12 @@ public final class GameBehaviorBuilder<T extends IGameBehavior, P> extends Abstr
 	}
 
 	@Override
-	protected GameBehaviorType<T> createEntry() {
-		return new GameBehaviorType<>(codec);
+	protected MapCodec<T> createEntry() {
+		return codec;
 	}
 
 	@Override
-	protected GameBehaviorEntry<T> createEntryWrapper(DeferredHolder<GameBehaviorType<?>, GameBehaviorType<T>> delegate) {
+	protected GameBehaviorEntry<T> createEntryWrapper(DeferredHolder<MapCodec<? extends IGameBehavior>, MapCodec<T>> delegate) {
 		return new GameBehaviorEntry<>(getOwner(), delegate);
 	}
 

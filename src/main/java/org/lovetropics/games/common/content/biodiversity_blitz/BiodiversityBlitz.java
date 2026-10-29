@@ -75,7 +75,6 @@ import org.lovetropics.games.common.content.biodiversity_blitz.client_state.Curr
 import org.lovetropics.games.common.content.biodiversity_blitz.client_state.CurrencyTargetState;
 import org.lovetropics.games.common.content.biodiversity_blitz.entity.BbMobSpawner;
 import org.lovetropics.games.common.content.biodiversity_blitz.plot.plant.PlantItemType;
-import org.lovetropics.games.common.util.registry.GameBehaviorEntry;
 import org.lovetropics.games.common.util.registry.GameClientTweakEntry;
 import org.lovetropics.games.common.util.registry.LoveTropicsRegistrate;
 
@@ -87,160 +86,6 @@ public final class BiodiversityBlitz {
 	private static final LoveTropicsRegistrate REGISTRATE = LoveTropics.registrate();
 
 	public static final DeferredRegister.DataComponents DATA_COMPONENTS = DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, LoveTropics.ID);
-
-	// Behaviors
-
-	public static final GameBehaviorEntry<BbBehavior> BIODIVERSITY_BLITZ = REGISTRATE.object("biodiversity_blitz")
-			.behavior(BbBehavior.CODEC)
-			.register();
-
-	public static final GameBehaviorEntry<BbAssignPlotsBehavior> ASSIGN_PLOTS = REGISTRATE.object("biodiversity_blitz_assign_plots")
-			.behavior(BbAssignPlotsBehavior.CODEC)
-			.register();
-
-	public static final GameBehaviorEntry<BbMerchantBehavior> MERCHANT = REGISTRATE.object("biodiversity_blitz_merchant")
-			.behavior(BbMerchantBehavior.CODEC)
-			.register();
-
-	public static final GameBehaviorEntry<BbWaveSpawnerBehavior> WAVE_SPAWNER = REGISTRATE.object("biodiversity_blitz_wave_spawner")
-			.behavior(BbWaveSpawnerBehavior.CODEC)
-			.register();
-
-	public static final GameBehaviorEntry<BbSendMobsToEnemyItemBehavior> SEND_MOBS_TO_ENEMY = REGISTRATE.object("biodiversity_blitz_send_mobs_to_enemy")
-			.behavior(BbSendMobsToEnemyItemBehavior.CODEC)
-			.register();
-
-	public static final GameBehaviorEntry<PlantBehavior> PLANT = REGISTRATE.object("biodiversity_blitz_plant")
-			.behavior(PlantBehavior.CODEC)
-			.register();
-
-	public static final GameBehaviorEntry<PlantItemBehavior> PLANT_ITEM = REGISTRATE.object("biodiversity_blitz_plant_item")
-			.behavior(PlantItemBehavior.CODEC)
-			.register();
-
-	public static final GameBehaviorEntry<PlantBiomeCheckBehavior> PLANT_BIOME_CHECK = REGISTRATE.object("plant_biome_check")
-			.behavior(PlantBiomeCheckBehavior.CODEC)
-			.register();
-
-	public static final GameBehaviorEntry<PlaceSinglePlantBehavior> PLACE_SINGLE_PLANT = REGISTRATE.object("place_single_plant")
-			.behavior(PlaceSinglePlantBehavior.CODEC)
-			.register();
-
-	public static final GameBehaviorEntry<PlaceDoublePlantBehavior> PLACE_DOUBLE_PLANT = REGISTRATE.object("place_double_plant")
-			.behavior(PlaceDoublePlantBehavior.CODEC)
-			.register();
-
-	public static final GameBehaviorEntry<PlaceFeaturePlantBehavior> PLACE_FEATURE_PLANT = REGISTRATE.object("place_feature_plant")
-			.behavior(PlaceFeaturePlantBehavior.CODEC)
-			.register();
-
-	public static final GameBehaviorEntry<DropPlantItemBehavior> DROP_PLANT_ITEM = REGISTRATE.object("drop_plant_item")
-			.behavior(DropPlantItemBehavior.CODEC)
-			.register();
-
-	public static final GameBehaviorEntry<DropLootTableBehavior> DROP_LOOT_TABLE = REGISTRATE.object("drop_loot_table")
-			.behavior(DropLootTableBehavior.CODEC)
-			.register();
-
-	public static final GameBehaviorEntry<AgingCropPlantBehavior> AGING_PLANT = REGISTRATE.object("aging_plant")
-			.behavior(AgingCropPlantBehavior.CODEC)
-			.register();
-
-	public static final GameBehaviorEntry<BarrierPlantBehavior> BARRIER_PLANT = REGISTRATE.object("barrier_plant")
-			.behavior(BarrierPlantBehavior.CODEC)
-			.register();
-
-	public static final GameBehaviorEntry<BerriesPlantBehavior> BERRIES_PLANT = REGISTRATE.object("berries_plant")
-			.behavior(BerriesPlantBehavior.CODEC)
-			.register();
-
-	public static final GameBehaviorEntry<EffectAddingPlantBehavior> EFFECT_ADDING_PLANT = REGISTRATE.object("effect_adding_plant")
-			.behavior(EffectAddingPlantBehavior.CODEC)
-			.register();
-
-	public static final GameBehaviorEntry<GrowPlantBehavior> GROW_PLANT = REGISTRATE.object("grow_plant")
-			.behavior(GrowPlantBehavior.CODEC)
-			.register();
-
-	public static final GameBehaviorEntry<PlantHealthBehavior> PLANT_HEALTH = REGISTRATE.object("plant_health")
-			.behavior(PlantHealthBehavior.CODEC)
-			.register();
-
-	public static final GameBehaviorEntry<ProximityBombPlantBehavior> PROXIMITY_BOMB_PLANT = REGISTRATE.object("proximity_bomb_plant")
-			.behavior(ProximityBombPlantBehavior.CODEC)
-			.register();
-
-	public static final GameBehaviorEntry<ScareTrapPlantBehavior> SCARE_TRAP_PLANT = REGISTRATE.object("scare_trap_plant")
-			.behavior(ScareTrapPlantBehavior.CODEC)
-			.register();
-
-	public static final GameBehaviorEntry<FlamingPlantBehavior> FLAMING_PLANT = REGISTRATE.object("flaming_plant")
-			.behavior(FlamingPlantBehavior.CODEC)
-			.register();
-
-	public static final GameBehaviorEntry<WateryPlantBehavior> WATERY_PLANT = REGISTRATE.object("watery_plant")
-			.behavior(WateryPlantBehavior.CODEC)
-			.register();
-
-	public static final GameBehaviorEntry<LightningPlantBehavior> LIGHTNING_PLANT = REGISTRATE.object("lightning_plant")
-			.behavior(LightningPlantBehavior.CODEC)
-			.register();
-
-	public static final GameBehaviorEntry<MushroomPlantBehavior> MUSHROOM_PLANT = REGISTRATE.object("mushroom_plant")
-			.behavior(MushroomPlantBehavior.CODEC)
-			.register();
-
-	public static final GameBehaviorEntry<IdleDropItemPlantBehavior> IDLE_DROP_ITEM = REGISTRATE.object("idle_drop_item")
-			.behavior(IdleDropItemPlantBehavior.CODEC)
-			.register();
-
-	public static final GameBehaviorEntry<PianguasPlantBehavior> PIANGUAS = REGISTRATE.object("pianguas")
-			.behavior(PianguasPlantBehavior.CODEC)
-			.register();
-
-	public static final GameBehaviorEntry<FruitDropEntityBehavior> FRUIT_DROP_ENTITY = REGISTRATE.object("fruit_drop_entity")
-			.behavior(FruitDropEntityBehavior.CODEC)
-			.register();
-
-	public static final GameBehaviorEntry<GrowCoconutsBehavior> GROW_COCONUTS = REGISTRATE.object("grow_coconuts")
-			.behavior(GrowCoconutsBehavior.CODEC)
-			.register();
-
-	public static final GameBehaviorEntry<BbCurrencyBehavior> CURRENCY = REGISTRATE.object("biodiversity_blitz_currency")
-			.behavior(BbCurrencyBehavior.CODEC)
-			.register();
-
-	public static final GameBehaviorEntry<BbClientStateBehavior> SEND_CLIENT_STATE = REGISTRATE.object("biodiversity_blitz_client_state")
-			.behavior(BbClientStateBehavior.CODEC)
-			.register();
-
-	public static final GameBehaviorEntry<RemoveFromBlockBehavior> REMOVE_FROM_BLOCK = REGISTRATE.object("remove_from_block")
-			.behavior(RemoveFromBlockBehavior.CODEC)
-			.register();
-
-	public static final GameBehaviorEntry<BbCurrencyWinTrigger> CURRENCY_WIN_TRIGGER = REGISTRATE.object("biodiversity_blitz_currency_win_trigger")
-			.behavior(BbCurrencyWinTrigger.CODEC)
-			.register();
-
-	public static final GameBehaviorEntry<BbGivePlantsBehavior> GIVE_PLANTS = REGISTRATE.object("biodiversity_blitz_give_plants")
-			.behavior(BbGivePlantsBehavior.CODEC)
-			.register();
-
-	public static final GameBehaviorEntry<SpawnSurpriseWaveBehavior> SPAWN_SURPRISE_WAVE = REGISTRATE.object("spawn_surprise_wave")
-			.behavior(SpawnSurpriseWaveBehavior.CODEC)
-			.register();
-
-	public static final GameBehaviorEntry<EqualizeCurrencyBehavior> EQUALIZE_CURRENCY = REGISTRATE.object("equalize_currency")
-			.behavior(EqualizeCurrencyBehavior.CODEC)
-			.register();
-
-	public static final GameBehaviorEntry<BbTutorialAction> BB_TUTORIAL = REGISTRATE.object("bb_tutorial")
-			.behavior(BbTutorialAction.CODEC)
-			.register();
-
-	public static final GameBehaviorEntry<BbInGameScoreboardBehavior> IG_SCOREBOARD = REGISTRATE.object("bb_in_game_scoreboard")
-			.behavior(BbInGameScoreboardBehavior.CODEC)
-			.register();
 
 	// Client State
 
@@ -317,6 +162,47 @@ public final class BiodiversityBlitz {
 			"bb_mobs_to_send_to_enemies",
 			builder -> builder.persistent(Codec.unboundedMap(BbMobSpawner.BbEntityTypes.CODEC, ExtraCodecs.NON_NEGATIVE_INT))
 	);
+
+	static {
+		REGISTRATE.registerBehavior("biodiversity_blitz", BbBehavior.CODEC);
+		REGISTRATE.registerBehavior("biodiversity_blitz_assign_plots", BbAssignPlotsBehavior.CODEC);
+		REGISTRATE.registerBehavior("biodiversity_blitz_merchant", BbMerchantBehavior.CODEC);
+		REGISTRATE.registerBehavior("biodiversity_blitz_wave_spawner", BbWaveSpawnerBehavior.CODEC);
+		REGISTRATE.registerBehavior("biodiversity_blitz_send_mobs_to_enemy", BbSendMobsToEnemyItemBehavior.CODEC);
+		REGISTRATE.registerBehavior("biodiversity_blitz_plant", PlantBehavior.CODEC);
+		REGISTRATE.registerBehavior("biodiversity_blitz_plant_item", PlantItemBehavior.CODEC);
+		REGISTRATE.registerBehavior("plant_biome_check", PlantBiomeCheckBehavior.CODEC);
+		REGISTRATE.registerBehavior("place_single_plant", PlaceSinglePlantBehavior.CODEC);
+		REGISTRATE.registerBehavior("place_double_plant", PlaceDoublePlantBehavior.CODEC);
+		REGISTRATE.registerBehavior("place_feature_plant", PlaceFeaturePlantBehavior.CODEC);
+		REGISTRATE.registerBehavior("drop_plant_item", DropPlantItemBehavior.CODEC);
+		REGISTRATE.registerBehavior("drop_loot_table", DropLootTableBehavior.CODEC);
+		REGISTRATE.registerBehavior("aging_plant", AgingCropPlantBehavior.CODEC);
+		REGISTRATE.registerBehavior("barrier_plant", BarrierPlantBehavior.CODEC);
+		REGISTRATE.registerBehavior("berries_plant", BerriesPlantBehavior.CODEC);
+		REGISTRATE.registerBehavior("effect_adding_plant", EffectAddingPlantBehavior.CODEC);
+		REGISTRATE.registerBehavior("grow_plant", GrowPlantBehavior.CODEC);
+		REGISTRATE.registerBehavior("plant_health", PlantHealthBehavior.CODEC);
+		REGISTRATE.registerBehavior("proximity_bomb_plant", ProximityBombPlantBehavior.CODEC);
+		REGISTRATE.registerBehavior("scare_trap_plant", ScareTrapPlantBehavior.CODEC);
+		REGISTRATE.registerBehavior("flaming_plant", FlamingPlantBehavior.CODEC);
+		REGISTRATE.registerBehavior("watery_plant", WateryPlantBehavior.CODEC);
+		REGISTRATE.registerBehavior("lightning_plant", LightningPlantBehavior.CODEC);
+		REGISTRATE.registerBehavior("mushroom_plant", MushroomPlantBehavior.CODEC);
+		REGISTRATE.registerBehavior("idle_drop_item", IdleDropItemPlantBehavior.CODEC);
+		REGISTRATE.registerBehavior("pianguas", PianguasPlantBehavior.CODEC);
+		REGISTRATE.registerBehavior("fruit_drop_entity", FruitDropEntityBehavior.CODEC);
+		REGISTRATE.registerBehavior("grow_coconuts", GrowCoconutsBehavior.CODEC);
+		REGISTRATE.registerBehavior("biodiversity_blitz_currency", BbCurrencyBehavior.CODEC);
+		REGISTRATE.registerBehavior("biodiversity_blitz_client_state", BbClientStateBehavior.CODEC);
+		REGISTRATE.registerBehavior("remove_from_block", RemoveFromBlockBehavior.CODEC);
+		REGISTRATE.registerBehavior("biodiversity_blitz_currency_win_trigger", BbCurrencyWinTrigger.CODEC);
+		REGISTRATE.registerBehavior("biodiversity_blitz_give_plants", BbGivePlantsBehavior.CODEC);
+		REGISTRATE.registerBehavior("spawn_surprise_wave", SpawnSurpriseWaveBehavior.CODEC);
+		REGISTRATE.registerBehavior("equalize_currency", EqualizeCurrencyBehavior.CODEC);
+		REGISTRATE.registerBehavior("bb_tutorial", BbTutorialAction.CODEC);
+		REGISTRATE.registerBehavior("bb_in_game_scoreboard", BbInGameScoreboardBehavior.CODEC);
+	}
 
 	@EventBusSubscriber(modid = LoveTropics.ID)
 	public static class Events {

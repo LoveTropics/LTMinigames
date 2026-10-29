@@ -11,17 +11,14 @@ import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
-import org.lovetropics.games.common.content.river_race.RiverRace;
 import org.lovetropics.games.common.core.entity.MinigameEntities;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 
 import java.util.UUID;
-import java.util.function.Supplier;
 
 public record KillAboveVoidBehavior(int ticks) implements IGameBehavior {
 	public static final MapCodec<KillAboveVoidBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
@@ -73,7 +70,7 @@ public record KillAboveVoidBehavior(int ticks) implements IGameBehavior {
 	}
 
 	@Override
-	public Supplier<? extends GameBehaviorType<?>> behaviorType() {
-		return RiverRace.KILL_ABOVE_VOID_BEHAVIOR;
+	public MapCodec<? extends IGameBehavior> codec() {
+		return CODEC;
 	}
 }

@@ -6,8 +6,6 @@ import net.minecraft.advancements.predicates.ItemPredicate;
 import net.minecraft.util.context.ContextKeySet;
 import net.minecraft.util.context.ContextMap;
 import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.action.ActionSubjects;
 import org.lovetropics.games.common.core.game.behavior.action.GameActionContextKeys;
@@ -16,7 +14,6 @@ import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 
 import java.util.Optional;
-import java.util.function.Supplier;
 
 public record ItemCraftedTrigger(Optional<ItemPredicate> itemPredicate, GameActionList action) implements IGameBehavior {
 	public static final MapCodec<ItemCraftedTrigger> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
@@ -40,7 +37,7 @@ public record ItemCraftedTrigger(Optional<ItemPredicate> itemPredicate, GameActi
 	}
 
 	@Override
-	public Supplier<? extends GameBehaviorType<?>> behaviorType() {
-		return GameBehaviorTypes.ITEM_CRAFTED;
+	public MapCodec<? extends IGameBehavior> codec() {
+		return CODEC;
 	}
 }

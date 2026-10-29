@@ -11,14 +11,12 @@ import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.item.ItemStack;
 import org.lovetropics.games.common.content.qottott.Qottott;
 import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.behavior.event.PickUpResult;
 
 import java.util.Optional;
-import java.util.function.Supplier;
 
 public record ItemPickupPriorityBehavior(Optional<ItemPredicate> itemPredicate, float maxSeconds) implements IGameBehavior {
 	public static final MapCodec<ItemPickupPriorityBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
@@ -47,7 +45,7 @@ public record ItemPickupPriorityBehavior(Optional<ItemPredicate> itemPredicate, 
 	}
 
 	@Override
-	public Supplier<? extends GameBehaviorType<?>> behaviorType() {
-		return Qottott.PICKUP_PRIORITY_BEHAVIOR;
+	public MapCodec<? extends IGameBehavior> codec() {
+		return CODEC;
 	}
 }

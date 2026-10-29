@@ -10,24 +10,22 @@ import org.lovetropics.games.common.content.mcsr.modifier.ModifiersBehavior;
 import org.lovetropics.games.common.content.mcsr.modifier.RevealModifierAction;
 import org.lovetropics.games.common.content.mcsr.modifier.ScrambleDebugScreenBehavior;
 import org.lovetropics.games.common.content.mcsr.shop.ShopBehavior;
-import org.lovetropics.games.common.util.registry.GameBehaviorEntry;
 import org.lovetropics.games.common.util.registry.LoveTropicsRegistrate;
 
 /// Competitive Minecraft speedrunning mini-game
 public class Mcsr {
 	private static final LoveTropicsRegistrate REGISTRATE = LoveTropics.registrate();
 
-	public static final GameBehaviorEntry<PlayerWorldsBehavior> PLAYER_WORLDS = REGISTRATE.object("mcsr/player_worlds").behavior(PlayerWorldsBehavior.CODEC).register();
-	public static final GameBehaviorEntry<FinishBehavior> FINISH = REGISTRATE.object("mcsr/finish").behavior(FinishBehavior.CODEC).register();
-	public static final GameBehaviorEntry<ShopBehavior> SHOP = REGISTRATE.object("mcsr/shop").behavior(ShopBehavior.CODEC).register();
-
-	public static final GameBehaviorEntry<ModifiersBehavior> MODIFIERS = REGISTRATE.object("mcsr/modifiers").behavior(ModifiersBehavior.CODEC).register();
-	public static final GameBehaviorEntry<ChangeModifierAction> CHANGE_MODIFIER = REGISTRATE.object("mcsr/change_modifier").behavior(ChangeModifierAction.CODEC).register();
-	public static final GameBehaviorEntry<RevealModifierAction> REVEAL_MODIFIER = REGISTRATE.object("mcsr/reveal_modifier").behavior(RevealModifierAction.CODEC).register();
-	public static final GameBehaviorEntry<EnderPearlDeviationBehavior> ENDER_PEARL_DEVIATION = REGISTRATE.object("mcsr/ender_pearl_deviation").behavior(EnderPearlDeviationBehavior.CODEC).register();
-	public static final GameBehaviorEntry<AttributePerLevelBehavior> ATTRIBUTE_PER_LEVEL = REGISTRATE.object("mcsr/attribute_per_level").behavior(AttributePerLevelBehavior.CODEC).register();
-	public static final GameBehaviorEntry<ScrambleDebugScreenBehavior> SCRAMBLE_DEBUG_SCREEN = REGISTRATE.object("mcsr/scramble_debug_screen").behavior(ScrambleDebugScreenBehavior.CODEC).register();
-
 	public static void init() {
+		REGISTRATE.registerBehavior("mcsr/player_worlds", PlayerWorldsBehavior.CODEC);
+		REGISTRATE.registerBehavior("mcsr/finish", FinishBehavior.CODEC);
+		REGISTRATE.registerBehavior("mcsr/shop", ShopBehavior.CODEC);
+
+		REGISTRATE.registerBehavior("mcsr/modifiers", ModifiersBehavior.CODEC);
+		REGISTRATE.registerBehavior("mcsr/change_modifier", ChangeModifierAction.CODEC);
+		REGISTRATE.registerBehavior("mcsr/reveal_modifier", RevealModifierAction.CODEC);
+		REGISTRATE.registerBehavior("mcsr/ender_pearl_deviation", EnderPearlDeviationBehavior.CODEC);
+		REGISTRATE.registerBehavior("mcsr/attribute_per_level", AttributePerLevelBehavior.CODEC);
+		REGISTRATE.registerBehavior("mcsr/scramble_debug_screen", ScrambleDebugScreenBehavior.CODEC);
 	}
 }

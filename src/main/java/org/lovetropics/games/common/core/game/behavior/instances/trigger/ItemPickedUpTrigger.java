@@ -8,8 +8,6 @@ import net.minecraft.util.context.ContextKeySet;
 import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.item.ItemStack;
 import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.action.ActionSubjects;
 import org.lovetropics.games.common.core.game.behavior.action.GameActionContextKeys;
@@ -19,7 +17,6 @@ import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.behavior.event.PickUpResult;
 
 import java.util.Optional;
-import java.util.function.Supplier;
 
 public record ItemPickedUpTrigger(Optional<ItemPredicate> itemPredicate, GameActionList action, boolean consume) implements IGameBehavior {
 	public static final MapCodec<ItemPickedUpTrigger> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
@@ -47,7 +44,7 @@ public record ItemPickedUpTrigger(Optional<ItemPredicate> itemPredicate, GameAct
 	}
 
 	@Override
-	public Supplier<? extends GameBehaviorType<?>> behaviorType() {
-		return GameBehaviorTypes.ITEM_PICKED_UP;
+	public MapCodec<? extends IGameBehavior> codec() {
+		return CODEC;
 	}
 }

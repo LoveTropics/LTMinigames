@@ -8,8 +8,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.StringRepresentable;
 import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.action.ActionSubjects;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
@@ -22,7 +20,6 @@ import org.lovetropics.games.common.util.LinearSpline;
 
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 public record SetStatisticAction(
 		StatisticKey<Integer> statistic,
@@ -51,8 +48,8 @@ public record SetStatisticAction(
 	}
 
 	@Override
-	public Supplier<? extends GameBehaviorType<?>> behaviorType() {
-		return GameBehaviorTypes.SET_STATISTIC;
+	public MapCodec<? extends IGameBehavior> codec() {
+		return CODEC;
 	}
 
 	public enum Scope implements StringRepresentable {
@@ -94,7 +91,7 @@ public record SetStatisticAction(
 					}
 					yield !players.isEmpty();
 				}
-				case TEAM ->  {
+				case TEAM -> {
 					List<GameTeamKey> teams = targets.asTeams(game);
 					for (GameTeamKey team : teams) {
 						consumer.accept(game.statistics().forTeam(team));

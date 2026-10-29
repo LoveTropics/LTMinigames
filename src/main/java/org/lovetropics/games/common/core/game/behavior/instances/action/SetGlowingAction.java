@@ -5,12 +5,8 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-
-import java.util.function.Supplier;
 
 public record SetGlowingAction(boolean glowing) implements IGameBehavior {
 	public static final MapCodec<SetGlowingAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
@@ -29,7 +25,7 @@ public record SetGlowingAction(boolean glowing) implements IGameBehavior {
 	}
 
 	@Override
-	public Supplier<? extends GameBehaviorType<?>> behaviorType() {
-		return GameBehaviorTypes.SET_GLOWING;
+	public MapCodec<? extends IGameBehavior> codec() {
+		return CODEC;
 	}
 }

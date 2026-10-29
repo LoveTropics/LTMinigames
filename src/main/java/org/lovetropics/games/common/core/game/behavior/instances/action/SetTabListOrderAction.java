@@ -4,13 +4,9 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.util.duck.ServerPlayerExtension;
-
-import java.util.function.Supplier;
 
 public record SetTabListOrderAction(int order) implements IGameBehavior {
 	public static final MapCodec<SetTabListOrderAction> CODEC = Codec.INT
@@ -25,7 +21,7 @@ public record SetTabListOrderAction(int order) implements IGameBehavior {
 	}
 
 	@Override
-	public Supplier<? extends GameBehaviorType<?>> behaviorType() {
-		return GameBehaviorTypes.SET_TAB_LIST_ORDER;
+	public MapCodec<? extends IGameBehavior> codec() {
+		return CODEC;
 	}
 }

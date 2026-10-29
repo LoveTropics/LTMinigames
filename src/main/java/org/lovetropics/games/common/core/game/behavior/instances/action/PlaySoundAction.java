@@ -11,12 +11,8 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-
-import java.util.function.Supplier;
 
 public record PlaySoundAction(SoundEvent sound, float volume, float pitch, SoundSource source, boolean broadcast) implements IGameBehavior {
 	public static final MapCodec<PlaySoundAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
@@ -50,7 +46,7 @@ public record PlaySoundAction(SoundEvent sound, float volume, float pitch, Sound
 	}
 
 	@Override
-	public Supplier<? extends GameBehaviorType<?>> behaviorType() {
-		return GameBehaviorTypes.PLAY_SOUND;
+	public MapCodec<? extends IGameBehavior> codec() {
+		return CODEC;
 	}
 }

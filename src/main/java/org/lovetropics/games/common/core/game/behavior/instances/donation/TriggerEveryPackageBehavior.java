@@ -8,8 +8,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.TriState;
 import net.minecraft.util.Util;
 import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.action.ActionSubjects;
 import org.lovetropics.games.common.core.game.behavior.action.GameActionContextKeys;
@@ -23,7 +21,6 @@ import org.lovetropics.games.common.core.integration.game_actions.GamePackage;
 
 import java.util.List;
 import java.util.Set;
-import java.util.function.Supplier;
 
 public record TriggerEveryPackageBehavior(Set<String> exclude) implements IGameBehavior {
 	public static final MapCodec<TriggerEveryPackageBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
@@ -73,7 +70,7 @@ public record TriggerEveryPackageBehavior(Set<String> exclude) implements IGameB
 	}
 
 	@Override
-	public Supplier<? extends GameBehaviorType<?>> behaviorType() {
-		return GameBehaviorTypes.TRIGGER_EVERY_PACKAGE;
+	public MapCodec<? extends IGameBehavior> codec() {
+		return CODEC;
 	}
 }

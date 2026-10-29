@@ -22,6 +22,10 @@ public final class LoveTropicsRegistrate extends AbstractRegistrate<LoveTropicsR
 		return new LoveTropicsRegistrate(modid).registerEventListeners(ModLoadingContext.get().getActiveContainer().getEventBus());
 	}
 
+	public void registerBehavior(String id, MapCodec<? extends IGameBehavior> codec) {
+		object(id).behavior(codec).register();
+	}
+
 	public <T extends IGameBehavior> GameBehaviorBuilder<T, LoveTropicsRegistrate> behavior(MapCodec<T> codec) {
 		return behavior(this, codec);
 	}

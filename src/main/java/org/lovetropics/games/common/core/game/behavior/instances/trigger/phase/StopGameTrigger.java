@@ -5,15 +5,12 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.util.context.ContextMap;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.action.GameActionList;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 
 import java.util.Optional;
-import java.util.function.Supplier;
 
 public record StopGameTrigger(GameActionList actions, Optional<GameActionList> finish, Optional<GameActionList> cancel) implements IGameBehavior {
 	public static final MapCodec<StopGameTrigger> CODEC = RecordCodecBuilder.mapCodec(in -> in.group(
@@ -39,7 +36,7 @@ public record StopGameTrigger(GameActionList actions, Optional<GameActionList> f
 	}
 
 	@Override
-	public Supplier<? extends GameBehaviorType<?>> behaviorType() {
-		return GameBehaviorTypes.STOP_GAME;
+	public MapCodec<? extends IGameBehavior> codec() {
+		return CODEC;
 	}
 }

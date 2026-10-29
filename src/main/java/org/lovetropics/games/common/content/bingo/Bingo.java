@@ -5,7 +5,6 @@ import net.minecraft.server.level.ServerPlayer;
 import org.lovetropics.games.LoveTropics;
 import org.lovetropics.games.common.core.game.behavior.event.GameEventType;
 import org.lovetropics.games.common.core.game.util.TranslationCollector;
-import org.lovetropics.games.common.util.registry.GameBehaviorEntry;
 import org.lovetropics.games.common.util.registry.LoveTropicsRegistrate;
 
 public class Bingo {
@@ -39,21 +38,11 @@ public class Bingo {
 		}
 	});
 
-	public static final GameBehaviorEntry<BingoBehavior> BINGO = REGISTRATE.object("bingo")
-			.behavior(BingoBehavior.CODEC)
-			.register();
-
-	public static final GameBehaviorEntry<AddBingoTileBehavior> ADD_BINGO_TILE = REGISTRATE.object("bingo/add_tile")
-			.behavior(AddBingoTileBehavior.CODEC)
-			.register();
-	public static final GameBehaviorEntry<CompleteBingoTileBehavior> COMPLETE_BINGO_TILE = REGISTRATE.object("bingo/complete_tile")
-			.behavior(CompleteBingoTileBehavior.CODEC)
-			.register();
-	public static final GameBehaviorEntry<UnlockBingoTilesAction> UNLOCK_TILES = REGISTRATE.object("bingo/unlock_tiles")
-			.behavior(UnlockBingoTilesAction.CODEC)
-			.register();
-
 	public static void init() {
+		REGISTRATE.registerBehavior("bingo", BingoBehavior.CODEC);
+		REGISTRATE.registerBehavior("bingo/add_tile", AddBingoTileBehavior.CODEC);
+		REGISTRATE.registerBehavior("bingo/complete_tile", CompleteBingoTileBehavior.CODEC);
+		REGISTRATE.registerBehavior("bingo/unlock_tiles", UnlockBingoTilesAction.CODEC);
 	}
 
 	public interface CaptureBingoTile {

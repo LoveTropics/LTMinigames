@@ -9,9 +9,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
-import org.lovetropics.games.common.content.qottott.Qottott;
 import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
@@ -20,7 +18,6 @@ import org.lovetropics.games.common.core.game.util.TemplatedText;
 import org.lovetropics.games.common.util.Util;
 
 import java.util.Map;
-import java.util.function.Supplier;
 
 public record PowerUpIndicatorBehavior(Holder<MobEffect> effect, TemplatedText text, ConfiguredSound sound) implements IGameBehavior {
 	public static final MapCodec<PowerUpIndicatorBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
@@ -45,7 +42,7 @@ public record PowerUpIndicatorBehavior(Holder<MobEffect> effect, TemplatedText t
 	}
 
 	@Override
-	public Supplier<? extends GameBehaviorType<?>> behaviorType() {
-		return Qottott.POWER_UP_INDICATOR;
+	public MapCodec<? extends IGameBehavior> codec() {
+		return CODEC;
 	}
 }

@@ -8,6 +8,7 @@ import com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import com.mojang.serialization.MapCodec;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
@@ -27,7 +28,6 @@ import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import org.lovetropics.games.LoveTropics;
 import org.lovetropics.games.common.core.game.IGameLookup;
 import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
 import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.action.ActionSubjects;
@@ -86,7 +86,7 @@ public class GameActionCommand {
 	private static IGameBehavior parseBehavior(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
 		Identifier id = IdentifierArgument.getId(ctx, "id");
 		Tag data = NbtTagArgument.getNbtTag(ctx, "data");
-		GameBehaviorType<?> type = GameBehaviorTypes.REGISTRY.getValue(id);
+		MapCodec<? extends IGameBehavior> type = GameBehaviorTypes.REGISTRY.getValue(id);
 		if (type == null) {
 			type = GameConfigs.CUSTOM_BEHAVIORS.get(id);
 		}
@@ -95,6 +95,6 @@ public class GameActionCommand {
 		}
 
 		RegistryOps<Tag> ops = ctx.getSource().registryAccess().createSerializationContext(NbtOps.INSTANCE);
-		return type.codec().codec().parse(ops, data).getOrThrow(error -> MALFORMED_ACTION_DATA.create(id, error));
+		return type.codec().parse(ops, data).getOrThrow(error -> MALFORMED_ACTION_DATA.create(id, error));
 	}
 }

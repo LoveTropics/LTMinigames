@@ -11,8 +11,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.context.ContextMap;
 import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.action.ActionSubjects;
 import org.lovetropics.games.common.core.game.behavior.action.GameActionList;
@@ -30,7 +28,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Supplier;
 
 public record ApplyForTimeAction(
 		GameActionList apply,
@@ -74,8 +71,8 @@ public record ApplyForTimeAction(
 	}
 
 	@Override
-	public Supplier<? extends GameBehaviorType<?>> behaviorType() {
-		return GameBehaviorTypes.APPLY_FOR_TIME;
+	public MapCodec<? extends IGameBehavior> codec() {
+		return CODEC;
 	}
 
 	private class State {

@@ -5,7 +5,6 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.action.GameActionList;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
@@ -15,7 +14,6 @@ import org.lovetropics.games.common.core.game.behavior.event.SubGameEvents;
 import org.lovetropics.games.common.core.game.state.GameStateMap;
 
 import java.util.List;
-import java.util.function.Supplier;
 
 /// Sets up a [BingoBoard] for this game. Its tiles are tracked for players in this phase and in any of its sub-phases.
 public final class BingoBehavior implements IGameBehavior {
@@ -39,8 +37,8 @@ public final class BingoBehavior implements IGameBehavior {
 
 	private BingoBoard board;
 
-	/// @param tilePool      locked tiles, which are unlocked at random by `ltminigames:bingo/unlock_tiles`
-	/// @param initialTiles  how many tiles from the pool are unlocked when the game starts
+	/// @param tilePool locked tiles, which are unlocked at random by `ltminigames:bingo/unlock_tiles`
+	/// @param initialTiles how many tiles from the pool are unlocked when the game starts
 	/// @param unlockOnClear how many tiles from the pool are unlocked for everyone once a player completes every unlocked tile
 	public BingoBehavior(int rows, int columns, List<Float> positionRewardMultiplier, GameActionList onTileCompleted, GameActionList onBingo, List<BingoTileDefinition> tilePool, int initialTiles, int unlockOnClear) {
 		this.rows = rows;
@@ -81,7 +79,7 @@ public final class BingoBehavior implements IGameBehavior {
 	}
 
 	@Override
-	public Supplier<? extends GameBehaviorType<?>> behaviorType() {
-		return Bingo.BINGO;
+	public MapCodec<? extends IGameBehavior> codec() {
+		return CODEC;
 	}
 }

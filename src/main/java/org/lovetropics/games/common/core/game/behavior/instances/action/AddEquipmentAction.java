@@ -12,8 +12,6 @@ import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.component.DyedItemColor;
 import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.state.team.GameTeam;
@@ -23,7 +21,6 @@ import org.lovetropics.games.common.core.game.state.team.TeamState;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Supplier;
 
 public record AddEquipmentAction(List<ItemStackTemplate> items, Optional<ItemStackTemplate> head, Optional<ItemStackTemplate> chest, Optional<ItemStackTemplate> legs, Optional<ItemStackTemplate> feet, Optional<ItemStackTemplate> offhand, boolean clear, boolean colorByTeam, Map<GameTeamKey, ItemStackTemplate> hotbarTeamItems) implements IGameBehavior {
 	public static final MapCodec<AddEquipmentAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
@@ -123,7 +120,7 @@ public record AddEquipmentAction(List<ItemStackTemplate> items, Optional<ItemSta
 	}
 
 	@Override
-	public Supplier<? extends GameBehaviorType<?>> behaviorType() {
-		return GameBehaviorTypes.ADD_EQUIPMENT;
+	public MapCodec<? extends IGameBehavior> codec() {
+		return CODEC;
 	}
 }

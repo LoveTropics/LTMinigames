@@ -57,7 +57,6 @@ import org.lovetropics.games.common.content.escape_race.misc.RoomEntrancePadEnti
 import org.lovetropics.games.common.content.escape_race.misc.RoomEntrancePadEntityRenderer;
 import org.lovetropics.games.common.content.escape_race.vending_machine.VendingMachineEntity;
 import org.lovetropics.games.common.content.escape_race.vending_machine.VendingMachineEntityRenderer;
-import org.lovetropics.games.common.util.registry.GameBehaviorEntry;
 import org.lovetropics.games.common.util.registry.GameClientTweakEntry;
 import org.lovetropics.games.common.util.registry.LoveTropicsRegistrate;
 
@@ -143,32 +142,6 @@ public class EscapeRace {
 			.clientState(EscapeRaceClientBucksState.CODEC)
 			.register();
 
-	public static final GameBehaviorEntry<BreakBucksBehaviour> BREAK_BUCKS_BEHAVIOUR = REGISTRATE.object("escape_race/break_bucks").behavior(BreakBucksBehaviour.CODEC).register();
-	public static final GameBehaviorEntry<VacationDaysBehaviour> VACATION_DAYS_BEHAVIOUR = REGISTRATE.object("escape_race/vacation_days").behavior(VacationDaysBehaviour.CODEC).register();
-
-	public static final GameBehaviorEntry<TerryTrashBehavior> TERRY_TRASH = REGISTRATE.object("terry_trash")
-			.behavior(TerryTrashBehavior.CODEC)
-			.register();
-
-	public static final GameBehaviorEntry<WarehouseSetupBehaviour> WAREHOUSE_SETUP_BEHAVIOUR = REGISTRATE.object("escape_race/warehouse_setup").behavior(WarehouseSetupBehaviour.CODEC).register();
-	public static final GameBehaviorEntry<NamedStagesBehaviour> NAMED_STAGES_BEHAVIOUR = REGISTRATE.object("escape_race/named_stages").behavior(NamedStagesBehaviour.CODEC).register();
-	public static final GameBehaviorEntry<EarlyExitRoomAction> EARLY_EXIT_ROOM_ACTION = REGISTRATE.object("escape_race/early_exit_room").behavior(EarlyExitRoomAction.CODEC).register();
-	public static final GameBehaviorEntry<StageSkipToAction> STAGE_SKIP_TO_ACTION = REGISTRATE.object("escape_race/named_stages/skip_to").behavior(StageSkipToAction.CODEC).register();
-	public static final GameBehaviorEntry<StageProgressAction> STAGE_PROGRESS_ACTION = REGISTRATE.object("escape_race/named_stages/progress").behavior(StageProgressAction.CODEC).register();
-	public static final GameBehaviorEntry<JoinTeamIntoRoomAction> JOIN_TEAM_INTO_ROOM = REGISTRATE.object("escape_race/join_team_into_room").behavior(JoinTeamIntoRoomAction.CODEC).register();
-	public static final GameBehaviorEntry<CloseRoomsAction> CLOSE_ROOMS = REGISTRATE.object("escape_race/close_rooms").behavior(CloseRoomsAction.CODEC).register();
-	public static final GameBehaviorEntry<RevealWinnerAction> REVEAL_WINNER = REGISTRATE.object("escape_race/reveal_winner").behavior(RevealWinnerAction.CODEC).register();
-	public static final GameBehaviorEntry<EscapeRaceStageBarBehavior> STAGE_BAR = REGISTRATE.object("escape_race/stage_bar").behavior(EscapeRaceStageBarBehavior.CODEC).register();
-	public static final GameBehaviorEntry<BlockRoomsAction> BLOCK_ROOMS_ACTION = REGISTRATE.object("escape_race/block_rooms").behavior(BlockRoomsAction.CODEC).register();
-
-	public static final GameBehaviorEntry<ItemFrameCodeBehaviour> ITEM_FRAME_CODE = REGISTRATE.object("item_frame_code")
-			.behavior(ItemFrameCodeBehaviour.CODEC)
-			.register();
-
-	public static final GameBehaviorEntry<TerryBossBehaviour> TERRY_BOSS = REGISTRATE.object("escape_race/terry_boss")
-			.behavior(TerryBossBehaviour.CODEC)
-			.register();
-
 	public static final Holder<MobEffect> UPSET_STOMACH = REGISTRATE.object("upset_stomach")
 			.mobEffect(() -> new UpsetStomachEffect(MobEffectCategory.HARMFUL).addAttributeModifier(
 					Attributes.MOVEMENT_SPEED,
@@ -195,5 +168,22 @@ public class EscapeRace {
 		register("ddr_state", DDR_STATE);
 		register("ddr_input", DDR_INPUT);
 		register("ddr_session", DDR_SESSION);
+
+		REGISTRATE.registerBehavior("escape_race/break_bucks", BreakBucksBehaviour.CODEC);
+		REGISTRATE.registerBehavior("escape_race/vacation_days", VacationDaysBehaviour.CODEC);
+		REGISTRATE.registerBehavior("escape_race/warehouse_setup", WarehouseSetupBehaviour.CODEC);
+		REGISTRATE.registerBehavior("escape_race/named_stages", NamedStagesBehaviour.CODEC);
+		REGISTRATE.registerBehavior("escape_race/early_exit_room", EarlyExitRoomAction.CODEC);
+		REGISTRATE.registerBehavior("escape_race/named_stages/skip_to", StageSkipToAction.CODEC);
+		REGISTRATE.registerBehavior("escape_race/named_stages/progress", StageProgressAction.CODEC);
+		REGISTRATE.registerBehavior("escape_race/join_team_into_room", JoinTeamIntoRoomAction.CODEC);
+		REGISTRATE.registerBehavior("escape_race/close_rooms", CloseRoomsAction.CODEC);
+		REGISTRATE.registerBehavior("escape_race/reveal_winner", RevealWinnerAction.CODEC);
+		REGISTRATE.registerBehavior("escape_race/stage_bar", EscapeRaceStageBarBehavior.CODEC);
+		REGISTRATE.registerBehavior("escape_race/block_rooms", BlockRoomsAction.CODEC);
+
+		REGISTRATE.registerBehavior("terry_trash", TerryTrashBehavior.CODEC);
+		REGISTRATE.registerBehavior("item_frame_code", ItemFrameCodeBehaviour.CODEC);
+		REGISTRATE.registerBehavior("escape_race/terry_boss", TerryBossBehaviour.CODEC);
 	}
 }

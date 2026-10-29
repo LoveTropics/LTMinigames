@@ -22,8 +22,8 @@ public class GamesVoiceMod {
 			return;
 		}
 		LoveTropicsRegistrate registrate = LoveTropicsRegistrate.create(ID);
-		registrate.object("voice_chat").behavior(VoiceChatBehavior.CODEC).register();
-		registrate.object("modify_voice").behavior(ModifyVoiceAction.CODEC).register();
+		registrate.registerBehavior("voice_chat", VoiceChatBehavior.CODEC);
+		registrate.registerBehavior("modify_voice", ModifyVoiceAction.CODEC);
 	}
 
 	public static Identifier id(String path) {

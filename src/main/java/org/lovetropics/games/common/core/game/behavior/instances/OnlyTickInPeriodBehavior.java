@@ -3,8 +3,6 @@ package org.lovetropics.games.common.core.game.behavior.instances;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GameEventListeners;
@@ -16,7 +14,6 @@ import org.lovetropics.games.common.core.game.state.progress.ProgressChannel;
 import org.lovetropics.games.common.core.game.state.progress.ProgressionPeriod;
 
 import java.util.function.BooleanSupplier;
-import java.util.function.Supplier;
 
 public record OnlyTickInPeriodBehavior(ProgressChannel channel, ProgressionPeriod period, IGameBehavior behavior) implements IGameBehavior {
 	public static final MapCodec<OnlyTickInPeriodBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
@@ -62,7 +59,7 @@ public record OnlyTickInPeriodBehavior(ProgressChannel channel, ProgressionPerio
 	}
 
 	@Override
-	public Supplier<? extends GameBehaviorType<?>> behaviorType() {
-		return GameBehaviorTypes.ONLY_TICK_IN_PERIOD;
+	public MapCodec<? extends IGameBehavior> codec() {
+		return CODEC;
 	}
 }

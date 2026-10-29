@@ -6,10 +6,8 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.resources.Identifier;
-import org.lovetropics.games.common.content.escape_race.EscapeRace;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
@@ -24,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Supplier;
 
 public record WarehouseSetupBehaviour(
 		Map<String, RoomConfig> rooms,
@@ -60,8 +57,8 @@ public record WarehouseSetupBehaviour(
 	}
 
 	@Override
-	public Supplier<? extends GameBehaviorType<?>> behaviorType() {
-		return EscapeRace.WAREHOUSE_SETUP_BEHAVIOUR;
+	public MapCodec<? extends IGameBehavior> codec() {
+		return CODEC;
 	}
 
 	public record RoomConfig(

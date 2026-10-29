@@ -16,8 +16,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec2;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GameActionEvents;
@@ -28,7 +26,6 @@ import org.lovetropics.games.common.core.game.state.DebugModeState;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 public record RunCommandsAction(
 		Map<RegionQuery, List<String>> regionCommands,
@@ -125,7 +122,7 @@ public record RunCommandsAction(
 	}
 
 	@Override
-	public Supplier<? extends GameBehaviorType<?>> behaviorType() {
-		return GameBehaviorTypes.RUN_COMMANDS;
+	public MapCodec<? extends IGameBehavior> codec() {
+		return CODEC;
 	}
 }

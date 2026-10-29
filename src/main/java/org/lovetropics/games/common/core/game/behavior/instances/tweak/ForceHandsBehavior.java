@@ -7,14 +7,10 @@ import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.behavior.event.PickUpResult;
-
-import java.util.function.Supplier;
 
 /// Locks the inventory of players so that only the mainhand and offhand are accessible.
 ///
@@ -28,27 +24,27 @@ public record ForceHandsBehavior() implements IGameBehavior {
 		events.listen(GamePlayerEvents.PICK_UP_ITEM, (player, item) -> {
 			Inventory inventory = player.getInventory();
 
-			if(inventory.getItem(0).isEmpty()) {
+			if (inventory.getItem(0).isEmpty()) {
 				return PickUpResult.PASS;
 			}
 			return PickUpResult.CANCEL;
 		});
 		// force players to select first slot of the hotbar
 		events.listen(GamePlayerEvents.TICK, player -> {
-			if(player.getInventory().getSelectedSlot() != 0) {
+			if (player.getInventory().getSelectedSlot() != 0) {
 				player.getInventory().setSelectedSlot(0);
 				player.connection.send(new ClientboundSetHeldSlotPacket(0));
 			}
 		});
 		// disable players from moving items around in their inventory except for offhand and mainhand
 		events.listen(GamePlayerEvents.INVENTORY_CHANGED, (player, container, slotIndex, newItemStack) -> {
-			if(slotIndex != InventoryMenu.USE_ROW_SLOT_START && slotIndex != InventoryMenu.SHIELD_SLOT) {
+			if (slotIndex != InventoryMenu.USE_ROW_SLOT_START && slotIndex != InventoryMenu.SHIELD_SLOT) {
 				Slot slot = container.getSlot(slotIndex);
 				slot.tryRemove(newItemStack.getCount(), Integer.MAX_VALUE, player).ifPresent(stack -> {
 					ItemStack carried = container.getCarried();
 					container.setCarried(newItemStack);
 					slot.onTake(player, stack);
-					if(!carried.isEmpty()) {
+					if (!carried.isEmpty()) {
 						player.level().addFreshEntity(player.drop(carried, true));
 					}
 				});
@@ -59,7 +55,7 @@ public record ForceHandsBehavior() implements IGameBehavior {
 	}
 
 	@Override
-	public Supplier<? extends GameBehaviorType<?>> behaviorType() {
-		return GameBehaviorTypes.FORCE_HANDS;
+	public MapCodec<? extends IGameBehavior> codec() {
+		return CODEC;
 	}
 }

@@ -23,7 +23,6 @@ import org.lovetropics.games.common.content.turtle_race.RiderBehavior;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.GameWinner;
 import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GameLogicEvents;
@@ -43,7 +42,6 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
-import java.util.function.Supplier;
 
 public class DDRShowdownBehavior implements IGameBehavior {
 
@@ -73,7 +71,6 @@ public class DDRShowdownBehavior implements IGameBehavior {
 	private GameBossBar bossBar;
 	private long startTick;
 	private int gameLength;
-
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
@@ -132,7 +129,6 @@ public class DDRShowdownBehavior implements IGameBehavior {
 			game.scheduler().runAfterSeconds(2, () -> title(game, "4!"));
 			game.scheduler().runAfterSeconds(1, () -> title(game, "5!"));
 		});
-
 
 		events.listen(EscapeRaceEvents.DDR_LEVEL_COMPLETED, (player, _, score, _) -> statistics.forPlayer(player).set(StatisticKey.DDR_SCORE, score));
 		events.listen(GamePhaseEvents.TICK, () -> onTick(game));
@@ -200,11 +196,9 @@ public class DDRShowdownBehavior implements IGameBehavior {
 		}
 	}
 
-
 	private void title(IGamePhase game, String title) {
 		game.allPlayers().showTitle(Component.literal(title), Component.empty(), 0, 20, 0);
 	}
-
 
 	private Holder<DdrLevel> getRandomLevel(IGamePhase game) throws GameException {
 		return allowedLevels.getRandomElement(game.random())
@@ -212,7 +206,7 @@ public class DDRShowdownBehavior implements IGameBehavior {
 	}
 
 	@Override
-	public Supplier<? extends GameBehaviorType<?>> behaviorType() {
-		return DDRShowdown.DDR_SHOWDOWN;
+	public MapCodec<? extends IGameBehavior> codec() {
+		return CODEC;
 	}
 }

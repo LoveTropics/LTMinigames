@@ -7,8 +7,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
@@ -16,7 +14,6 @@ import org.lovetropics.games.common.role.StreamHosts;
 
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Supplier;
 
 public record ScalePlayerDamageBehavior(float factor, Map<RoleOverrideType<?>, RoleOverrideEntry<?>> roleFactors) implements IGameBehavior {
 
@@ -52,8 +49,8 @@ public record ScalePlayerDamageBehavior(float factor, Map<RoleOverrideType<?>, R
 	}
 
 	@Override
-	public Supplier<? extends GameBehaviorType<?>> behaviorType() {
-		return GameBehaviorTypes.SCALE_PLAYER_DAMAGE;
+	public MapCodec<? extends IGameBehavior> codec() {
+		return CODEC;
 	}
 
 	public record RoleOverrideEntry<T>(RoleOverrideType<T> type, T value, float factor) {

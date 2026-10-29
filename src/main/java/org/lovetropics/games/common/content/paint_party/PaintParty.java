@@ -7,17 +7,12 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import org.lovetropics.games.LoveTropics;
 import org.lovetropics.games.common.content.paint_party.entity.PaintBallEntity;
-import org.lovetropics.games.common.util.registry.GameBehaviorEntry;
 import org.lovetropics.games.common.util.registry.LoveTropicsRegistrate;
 
 import static net.minecraft.world.level.storage.loot.LootTable.lootTable;
 
 public class PaintParty {
 	private static final LoveTropicsRegistrate REGISTRATE = LoveTropics.registrate();
-
-	public static final GameBehaviorEntry<PaintPartyBehaviour> BEHAVIOR = REGISTRATE.object("paint_party")
-			.behavior(PaintPartyBehaviour.CODEC)
-			.register();
 
 	public static final RegistryEntry<EntityType<?>, EntityType<PaintBallEntity>> PAINTBALL = REGISTRATE.entity("paintball", (EntityType.EntityFactory<PaintBallEntity>) PaintBallEntity::new, MobCategory.MISC)
 			.properties(properties -> properties.sized(0.25F, 0.25F).setShouldReceiveVelocityUpdates(true).setUpdateInterval(3))
@@ -26,6 +21,7 @@ public class PaintParty {
 			.register();
 
 	public static void init() {
+		REGISTRATE.registerBehavior("paint_party", PaintPartyBehaviour.CODEC);
 	}
 
 	private static ThrownItemRenderer<PaintBallEntity> createPaintBallRenderer(EntityRendererProvider.Context context) {

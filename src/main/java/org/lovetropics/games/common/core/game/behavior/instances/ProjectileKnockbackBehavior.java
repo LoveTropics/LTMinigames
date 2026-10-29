@@ -8,14 +8,11 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GameWorldEvents;
 
 import java.util.Optional;
-import java.util.function.Supplier;
 
 public record ProjectileKnockbackBehavior(
 		Optional<EntityPredicate> projectilePredicate,
@@ -52,7 +49,7 @@ public record ProjectileKnockbackBehavior(
 	}
 
 	@Override
-	public Supplier<? extends GameBehaviorType<?>> behaviorType() {
-		return GameBehaviorTypes.PROJECTILE_KNOCKBACK;
+	public MapCodec<? extends IGameBehavior> codec() {
+		return CODEC;
 	}
 }

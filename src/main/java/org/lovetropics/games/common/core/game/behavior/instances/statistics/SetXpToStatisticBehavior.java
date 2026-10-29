@@ -3,15 +3,11 @@ package org.lovetropics.games.common.core.game.behavior.instances.statistics;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticsMap;
-
-import java.util.function.Supplier;
 
 public record SetXpToStatisticBehavior(StatisticKey<Integer> statistic) implements IGameBehavior {
 	public static final MapCodec<SetXpToStatisticBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
@@ -31,7 +27,7 @@ public record SetXpToStatisticBehavior(StatisticKey<Integer> statistic) implemen
 	}
 
 	@Override
-	public Supplier<? extends GameBehaviorType<?>> behaviorType() {
-		return GameBehaviorTypes.SET_XP_TO_STATISTIC;
+	public MapCodec<? extends IGameBehavior> codec() {
+		return CODEC;
 	}
 }

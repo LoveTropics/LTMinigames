@@ -21,21 +21,11 @@ import org.lovetropics.games.common.content.qottott.behavior.KitSelectionBehavio
 import org.lovetropics.games.common.content.qottott.behavior.LeakyPocketsBehavior;
 import org.lovetropics.games.common.content.qottott.behavior.LobbyWithPortalBehavior;
 import org.lovetropics.games.common.content.qottott.behavior.PowerUpIndicatorBehavior;
-import org.lovetropics.games.common.util.registry.GameBehaviorEntry;
 import org.lovetropics.games.common.util.registry.LoveTropicsRegistrate;
 
 @EventBusSubscriber(modid = LoveTropics.ID)
 public class Qottott {
 	private static final LoveTropicsRegistrate REGISTRATE = LoveTropics.registrate();
-
-	public static final GameBehaviorEntry<ItemDropperBehavior> ITEM_DROPPER = REGISTRATE.object("item_dropper").behavior(ItemDropperBehavior.CODEC).register();
-	public static final GameBehaviorEntry<GivePointsAction> GIVE_POINTS = REGISTRATE.object("give_points").behavior(GivePointsAction.CODEC).register();
-	public static final GameBehaviorEntry<LobbyWithPortalBehavior> LOBBY_WITH_PORTAL = REGISTRATE.object("lobby_with_portal").behavior(LobbyWithPortalBehavior.CODEC).register();
-	public static final GameBehaviorEntry<KitSelectionBehavior> KIT_SELECTION = REGISTRATE.object("kit_selection").behavior(KitSelectionBehavior.CODEC).register();
-	public static final GameBehaviorEntry<ItemPickupPriorityBehavior> PICKUP_PRIORITY_BEHAVIOR = REGISTRATE.object("pickup_priority").behavior(ItemPickupPriorityBehavior.CODEC).register();
-	public static final GameBehaviorEntry<CoinDropAttributeBehavior> COIN_DROP_ATTRIBUTE_BEHAVIOR = REGISTRATE.object("coin_drop_attribute").behavior(CoinDropAttributeBehavior.CODEC).register();
-	public static final GameBehaviorEntry<PowerUpIndicatorBehavior> POWER_UP_INDICATOR = REGISTRATE.object("power_up_indicator").behavior(PowerUpIndicatorBehavior.CODEC).register();
-	public static final GameBehaviorEntry<LeakyPocketsBehavior> LEAKY_POCKETS_BEHAVIOR = REGISTRATE.object("leaky_pockets").behavior(LeakyPocketsBehavior.CODEC).register();
 
 	public static final Holder<Attribute> COIN_MULTIPLIER = REGISTRATE.object("coin_multiplier").attribute(translationKey ->
 			new RangedAttribute(translationKey, 1.0, 0.0, 100.0).setSyncable(false)
@@ -83,6 +73,14 @@ public class Qottott {
 	)).lang("Leaky Pockets").register();
 
 	public static void init() {
+		REGISTRATE.registerBehavior("item_dropper", ItemDropperBehavior.CODEC);
+		REGISTRATE.registerBehavior("give_points", GivePointsAction.CODEC);
+		REGISTRATE.registerBehavior("lobby_with_portal", LobbyWithPortalBehavior.CODEC);
+		REGISTRATE.registerBehavior("kit_selection", KitSelectionBehavior.CODEC);
+		REGISTRATE.registerBehavior("pickup_priority", ItemPickupPriorityBehavior.CODEC);
+		REGISTRATE.registerBehavior("coin_drop_attribute", CoinDropAttributeBehavior.CODEC);
+		REGISTRATE.registerBehavior("power_up_indicator", PowerUpIndicatorBehavior.CODEC);
+		REGISTRATE.registerBehavior("leaky_pockets", LeakyPocketsBehavior.CODEC);
 	}
 
 	@SubscribeEvent

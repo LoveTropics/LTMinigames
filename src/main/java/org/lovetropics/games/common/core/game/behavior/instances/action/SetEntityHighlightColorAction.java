@@ -5,12 +5,8 @@ import net.minecraft.util.ExtraCodecs;
 import org.lovetropics.games.common.core.data.LoveTropicsAttachments;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-
-import java.util.function.Supplier;
 
 public record SetEntityHighlightColorAction(int color) implements IGameBehavior {
 	public static final MapCodec<SetEntityHighlightColorAction> CODEC = ExtraCodecs.RGB_COLOR_CODEC
@@ -29,7 +25,7 @@ public record SetEntityHighlightColorAction(int color) implements IGameBehavior 
 	}
 
 	@Override
-	public Supplier<? extends GameBehaviorType<?>> behaviorType() {
-		return GameBehaviorTypes.SET_ENTITY_HIGHLIGHT_COLOR;
+	public MapCodec<? extends IGameBehavior> codec() {
+		return CODEC;
 	}
 }

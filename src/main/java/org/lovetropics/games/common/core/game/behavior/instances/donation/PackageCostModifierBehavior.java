@@ -5,15 +5,11 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.state.GameStateKey;
 import org.lovetropics.games.common.core.game.state.GameStateMap;
 import org.lovetropics.games.common.core.game.state.IGameState;
-
-import java.util.function.Supplier;
 
 public record PackageCostModifierBehavior(State state) implements IGameBehavior {
 	public static final MapCodec<PackageCostModifierBehavior> CODEC = State.CODEC.xmap(PackageCostModifierBehavior::new, PackageCostModifierBehavior::state);
@@ -28,8 +24,8 @@ public record PackageCostModifierBehavior(State state) implements IGameBehavior 
 	}
 
 	@Override
-	public Supplier<? extends GameBehaviorType<?>> behaviorType() {
-		return GameBehaviorTypes.PACKAGE_COST_MODIFIER;
+	public MapCodec<? extends IGameBehavior> codec() {
+		return CODEC;
 	}
 
 	public record State(double scale, double offset) implements IGameState {

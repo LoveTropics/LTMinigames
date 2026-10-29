@@ -8,8 +8,6 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStackTemplate;
 import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
@@ -21,7 +19,6 @@ import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
 
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Supplier;
 
 public record StatisticTagBehavior(StatisticKey<Integer> statistic, ItemStackTemplate icon) implements IGameBehavior {
 	public static final MapCodec<StatisticTagBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
@@ -59,7 +56,7 @@ public record StatisticTagBehavior(StatisticKey<Integer> statistic, ItemStackTem
 	}
 
 	@Override
-	public Supplier<? extends GameBehaviorType<?>> behaviorType() {
-		return GameBehaviorTypes.STATISTIC_TAG;
+	public MapCodec<? extends IGameBehavior> codec() {
+		return CODEC;
 	}
 }

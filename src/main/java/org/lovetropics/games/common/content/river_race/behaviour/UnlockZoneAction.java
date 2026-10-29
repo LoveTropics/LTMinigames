@@ -3,16 +3,12 @@ package org.lovetropics.games.common.content.river_race.behaviour;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import org.lovetropics.games.common.content.river_race.RiverRace;
 import org.lovetropics.games.common.content.river_race.event.RiverRaceEvents;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GameActionEvents;
-
-import java.util.function.Supplier;
 
 public record UnlockZoneAction(
 		String zone
@@ -30,7 +26,7 @@ public record UnlockZoneAction(
 	}
 
 	@Override
-	public Supplier<? extends GameBehaviorType<?>> behaviorType() {
-		return RiverRace.UNLOCK_ZONE_ACTION;
+	public MapCodec<? extends IGameBehavior> codec() {
+		return CODEC;
 	}
 }

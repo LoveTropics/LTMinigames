@@ -14,14 +14,11 @@ import net.minecraft.world.item.ItemStackTemplate;
 import org.lovetropics.games.SoundRegistry;
 import org.lovetropics.games.common.content.qottott.Qottott;
 import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticsMap;
-
-import java.util.function.Supplier;
 
 public record CoinDropAttributeBehavior(ItemStackTemplate item, StatisticKey<Integer> statistic) implements IGameBehavior {
 	public static final MapCodec<CoinDropAttributeBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
@@ -58,7 +55,7 @@ public record CoinDropAttributeBehavior(ItemStackTemplate item, StatisticKey<Int
 	}
 
 	@Override
-	public Supplier<? extends GameBehaviorType<?>> behaviorType() {
-		return Qottott.COIN_DROP_ATTRIBUTE_BEHAVIOR;
+	public MapCodec<? extends IGameBehavior> codec() {
+		return CODEC;
 	}
 }

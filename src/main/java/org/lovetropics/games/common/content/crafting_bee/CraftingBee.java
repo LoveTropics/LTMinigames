@@ -10,17 +10,12 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.item.crafting.ShapelessRecipe;
 import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.util.registry.GameBehaviorEntry;
 import org.lovetropics.games.common.util.registry.LoveTropicsRegistrate;
 
 import java.util.function.Supplier;
 
 public class CraftingBee {
 	private static final LoveTropicsRegistrate REGISTRATE = LoveTropics.registrate();
-
-	public static final GameBehaviorEntry<CraftingBeeBehavior> CRAFTING_BEE = REGISTRATE.object("crafting_bee")
-			.behavior(CraftingBeeBehavior.CODEC)
-			.register();
 
 	public static final Supplier<DataComponentType<CraftedUsing>> CRAFTED_USING = REGISTRATE.simple(
 			"crafted_using",
@@ -33,6 +28,7 @@ public class CraftingBee {
 	);
 
 	public static void init() {
+		REGISTRATE.registerBehavior("crafting_bee", CraftingBeeBehavior.CODEC);
 	}
 
 	public static ItemStack getCraftingRecipeResult(Recipe<?> recipe, HolderLookup.Provider registries) {

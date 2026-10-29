@@ -8,13 +8,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GameWorldEvents;
-
-import java.util.function.Supplier;
 
 public record ProjectileBreakBlockBehavior(
 		EntityPredicate projectilePredicate,
@@ -40,7 +36,7 @@ public record ProjectileBreakBlockBehavior(
 	}
 
 	@Override
-	public Supplier<? extends GameBehaviorType<?>> behaviorType() {
-		return GameBehaviorTypes.PROJECTILE_BREAK_BLOCK;
+	public MapCodec<? extends IGameBehavior> codec() {
+		return CODEC;
 	}
 }

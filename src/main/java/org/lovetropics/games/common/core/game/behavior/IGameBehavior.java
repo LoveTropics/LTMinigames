@@ -5,6 +5,7 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.MapCodec;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
@@ -16,10 +17,9 @@ import org.lovetropics.games.common.util.Codecs;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 public interface IGameBehavior {
-	Codec<GameBehaviorType<?>> TYPE_CODEC = Codec.lazyInitialized(() ->
+	Codec<MapCodec<? extends IGameBehavior>> TYPE_CODEC = Codec.lazyInitialized(() ->
 			Codec.either(GameBehaviorTypes.TYPE_CODEC, GameConfigs.CUSTOM_BEHAVIORS)
 					.xmap(e -> e.map(Function.identity(), Function.identity()), Either::left)
 	);
@@ -27,8 +27,8 @@ public interface IGameBehavior {
 	Codec<IGameBehavior> SIMPLE_CODEC = Codecs.dispatchWithInlineKey(
 			"type",
 			TYPE_CODEC,
-			behavior -> behavior.behaviorType().get(),
-			GameBehaviorType::codec
+			IGameBehavior::codec,
+			Function.identity()
 	);
 
 	// Using custom codec for better error reporting
@@ -66,7 +66,7 @@ public interface IGameBehavior {
 	void register(IGamePhase game, EventRegistrar events) throws GameException;
 
 	// TODO: Implement everywhere
-	default Supplier<? extends GameBehaviorType<?>> behaviorType() {
+	default MapCodec<? extends IGameBehavior> codec() {
 		throw new UnsupportedOperationException("This behavior is not aware of its type: " + this);
 	}
 }

@@ -45,7 +45,6 @@ import org.lovetropics.games.common.content.river_race.block.TriviaBlockEntity;
 import org.lovetropics.games.common.content.river_race.block.TriviaChestBlock;
 import org.lovetropics.games.common.content.river_race.block.TriviaChestBlockEntity;
 import org.lovetropics.games.common.content.river_race.client_state.RiverRaceClientBarState;
-import org.lovetropics.games.common.util.registry.GameBehaviorEntry;
 import org.lovetropics.games.common.util.registry.GameClientTweakEntry;
 import org.lovetropics.games.common.util.registry.LoveTropicsRegistrate;
 
@@ -56,19 +55,6 @@ public class RiverRace {
 	private static final LoveTropicsRegistrate REGISTRATE = LoveTropics.registrate();
 
 	public static final DeferredRegister.DataComponents DATA_COMPONENTS = DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, LoveTropics.ID);
-
-	public static final GameBehaviorEntry<RiverRaceSetupBehavior> SETUP_BEHAVIOR = REGISTRATE.object("river_race/setup").behavior(RiverRaceSetupBehavior.CODEC).register();
-	public static final GameBehaviorEntry<RiverRaceZoneBehavior> ZONE_BEHAVIOR = REGISTRATE.object("river_race/zone").behavior(RiverRaceZoneBehavior.CODEC).register();
-	public static final GameBehaviorEntry<RiverRaceSpawnsBehavior> SPAWNS_BEHAVIOUR = REGISTRATE.object("river_race/spawns").behavior(RiverRaceSpawnsBehavior.CODEC).register();
-	public static final GameBehaviorEntry<ModifyMaxSpawnsAction> MODIFY_MAX_SPAWNS_ACTION = REGISTRATE.object("river_race/modify_max_spawns").behavior(ModifyMaxSpawnsAction.CODEC).register();
-	public static final GameBehaviorEntry<TriviaBehaviour> TRIVIA_BEHAVIOUR = REGISTRATE.object("trivia").behavior(TriviaBehaviour.CODEC).register();
-	public static final GameBehaviorEntry<VictoryPointsBehavior> VICTORY_POINTS_BEHAVIOR = REGISTRATE.object("victory_points").behavior(VictoryPointsBehavior.CODEC).register();
-	public static final GameBehaviorEntry<RiverRaceMerchantBehavior> RIVER_RACE_MERCHANT_BEHAVIOR = REGISTRATE.object("river_race_merchant").behavior(RiverRaceMerchantBehavior.CODEC).register();
-	public static final GameBehaviorEntry<ProgressBehaviour> RIVER_RACE_PROGRESS_BEHAVIOUR = REGISTRATE.object("river_race_progress").behavior(ProgressBehaviour.CODEC).register();
-	public static final GameBehaviorEntry<CollectablesBehaviour> COLLECTABLES_BEHAVIOUR = REGISTRATE.object("river_race_collectables").behavior(CollectablesBehaviour.CODEC).register();
-	public static final GameBehaviorEntry<UnlockZoneAction> UNLOCK_ZONE_ACTION = REGISTRATE.object("unlock_zone").behavior(UnlockZoneAction.CODEC).register();
-	public static final GameBehaviorEntry<KillAboveVoidBehavior> KILL_ABOVE_VOID_BEHAVIOR = REGISTRATE.object("kill_above_void").behavior(KillAboveVoidBehavior.CODEC).register();
-	public static final GameBehaviorEntry<RewardsFromMicrogameBehavior> REWARDS_FROM_MICROGAME_BEHAVIOR = REGISTRATE.object("rewards_from_microgame").behavior(RewardsFromMicrogameBehavior.CODEC).register();
 
 	public static final GameClientTweakEntry<RiverRaceClientBarState> BAR_STATE = REGISTRATE.object("river_race_bar")
 			.clientState(RiverRaceClientBarState.CODEC).streamCodec(RiverRaceClientBarState.STREAM_CODEC)
@@ -123,6 +109,18 @@ public class RiverRace {
 	);
 
 	public static void init() {
+		REGISTRATE.registerBehavior("river_race/setup", RiverRaceSetupBehavior.CODEC);
+		REGISTRATE.registerBehavior("river_race/zone", RiverRaceZoneBehavior.CODEC);
+		REGISTRATE.registerBehavior("river_race/spawns", RiverRaceSpawnsBehavior.CODEC);
+		REGISTRATE.registerBehavior("river_race/modify_max_spawns", ModifyMaxSpawnsAction.CODEC);
+		REGISTRATE.registerBehavior("trivia", TriviaBehaviour.CODEC);
+		REGISTRATE.registerBehavior("victory_points", VictoryPointsBehavior.CODEC);
+		REGISTRATE.registerBehavior("river_race_merchant", RiverRaceMerchantBehavior.CODEC);
+		REGISTRATE.registerBehavior("river_race_progress", ProgressBehaviour.CODEC);
+		REGISTRATE.registerBehavior("river_race_collectables", CollectablesBehaviour.CODEC);
+		REGISTRATE.registerBehavior("unlock_zone", UnlockZoneAction.CODEC);
+		REGISTRATE.registerBehavior("kill_above_void", KillAboveVoidBehavior.CODEC);
+		REGISTRATE.registerBehavior("rewards_from_microgame", RewardsFromMicrogameBehavior.CODEC);
 	}
 
 	private static class Models {

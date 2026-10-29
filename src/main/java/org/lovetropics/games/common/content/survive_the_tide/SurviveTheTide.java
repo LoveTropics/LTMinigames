@@ -52,7 +52,6 @@ import org.lovetropics.games.common.content.survive_the_tide.entity.PlatformEnti
 import org.lovetropics.games.common.content.survive_the_tide.item.AcidRepellentUmbrellaItem;
 import org.lovetropics.games.common.content.survive_the_tide.item.LightningArrowItem;
 import org.lovetropics.games.common.content.survive_the_tide.item.PaddleItem;
-import org.lovetropics.games.common.util.registry.GameBehaviorEntry;
 import org.lovetropics.games.common.util.registry.LoveTropicsRegistrate;
 
 import java.util.List;
@@ -133,41 +132,18 @@ public final class SurviveTheTide {
 			.renderer(() -> PlatformRenderer::new)
 			.register();
 
-	public static final GameBehaviorEntry<FormIcebergsGameBehavior> FORM_ICEBERGS = REGISTRATE.object("form_icebergs")
-			.behavior(FormIcebergsGameBehavior.CODEC)
-			.register();
-	public static final GameBehaviorEntry<SurviveTheTideRulesetBehavior> SURVIVE_THE_TIDE_RULESET = REGISTRATE.object("survive_the_tide_ruleset")
-			.behavior(SurviveTheTideRulesetBehavior.CODEC)
-			.register();
-	public static final GameBehaviorEntry<SttChatBroadcastBehavior> SURVIVE_THE_TIDE_CHAT_BROADCAST = REGISTRATE.object("survive_the_tide_chat_broadcast")
-			.behavior(SttChatBroadcastBehavior.CODEC)
-			.register();
-	public static final GameBehaviorEntry<SttWinLogicBehavior> SURVIVE_THE_TIDE_WIN_LOGIC = REGISTRATE.object("survive_the_tide_win_logic")
-			.behavior(SttWinLogicBehavior.CODEC)
-			.register();
-	public static final GameBehaviorEntry<RevealPlayersBehavior> REVEAL_PLAYERS = REGISTRATE.object("reveal_players")
-			.behavior(RevealPlayersBehavior.CODEC)
-			.register();
-	public static final GameBehaviorEntry<WorldBorderGameBehavior> WORLD_BORDER = REGISTRATE.object("world_border")
-			.behavior(WorldBorderGameBehavior.CODEC)
-			.register();
-	public static final GameBehaviorEntry<SurviveTheTideWeatherControlBehavior> WEATHER_CONTROL = REGISTRATE.object("stt_weather_control")
-			.behavior(SurviveTheTideWeatherControlBehavior.CODEC)
-			.register();
-	public static final GameBehaviorEntry<SurviveTheTideWindController> WIND_CONTROL = REGISTRATE.object("stt_wind_control")
-			.behavior(SurviveTheTideWindController.CODEC)
-			.register();
-	public static final GameBehaviorEntry<PhasedWeatherControlBehavior> PHASED_WEATHER_CONTROL = REGISTRATE.object("phased_weather_control")
-			.behavior(PhasedWeatherControlBehavior.CODEC)
-			.register();
-	public static final GameBehaviorEntry<SttSidebarBehavior> SURVIVE_THE_TIDE_SIDEBAR = REGISTRATE.object("survive_the_tide_sidebar")
-			.behavior(SttSidebarBehavior.CODEC)
-			.register();
-	public static final GameBehaviorEntry<RisingPlatformBehavior> RISING_PLATFORM = REGISTRATE.object("rising_platform")
-			.behavior(RisingPlatformBehavior.CODEC)
-			.register();
-
 	public static void init() {
+		REGISTRATE.registerBehavior("form_icebergs", FormIcebergsGameBehavior.CODEC);
+		REGISTRATE.registerBehavior("survive_the_tide_ruleset", SurviveTheTideRulesetBehavior.CODEC);
+		REGISTRATE.registerBehavior("survive_the_tide_chat_broadcast", SttChatBroadcastBehavior.CODEC);
+		REGISTRATE.registerBehavior("survive_the_tide_win_logic", SttWinLogicBehavior.CODEC);
+		REGISTRATE.registerBehavior("reveal_players", RevealPlayersBehavior.CODEC);
+		REGISTRATE.registerBehavior("world_border", WorldBorderGameBehavior.CODEC);
+		REGISTRATE.registerBehavior("stt_weather_control", SurviveTheTideWeatherControlBehavior.CODEC);
+		REGISTRATE.registerBehavior("stt_wind_control", SurviveTheTideWindController.CODEC);
+		REGISTRATE.registerBehavior("phased_weather_control", PhasedWeatherControlBehavior.CODEC);
+		REGISTRATE.registerBehavior("survive_the_tide_sidebar", SttSidebarBehavior.CODEC);
+		REGISTRATE.registerBehavior("rising_platform", RisingPlatformBehavior.CODEC);
 	}
 
 	public static ItemLore simpleLore(Component lore) {

@@ -6,8 +6,6 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.advancements.predicates.entity.EntityPredicate;
 import net.minecraft.util.context.ContextMap;
 import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.action.ActionSubjects;
 import org.lovetropics.games.common.core.game.behavior.action.GameActionList;
@@ -16,7 +14,6 @@ import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.Supplier;
 
 public record ApplyToPlayerWhileTrigger(EntityPredicate predicate, GameActionList apply, GameActionList clear) implements IGameBehavior {
 	public static final MapCodec<ApplyToPlayerWhileTrigger> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
@@ -46,7 +43,7 @@ public record ApplyToPlayerWhileTrigger(EntityPredicate predicate, GameActionLis
 	}
 
 	@Override
-	public Supplier<? extends GameBehaviorType<?>> behaviorType() {
-		return GameBehaviorTypes.APPLY_TO_PLAYER_WHILE;
+	public MapCodec<? extends IGameBehavior> codec() {
+		return CODEC;
 	}
 }

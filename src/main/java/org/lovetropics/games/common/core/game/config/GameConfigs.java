@@ -25,7 +25,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.util.DynamicTemplate;
 import org.lovetropics.games.common.util.registry.RegistryLoadingOps;
@@ -48,7 +47,7 @@ public final class GameConfigs {
 	private static final Logger LOGGER = LogManager.getLogger(GameConfigs.class);
 
 	public static final CodecRegistry<Identifier, GameConfig> REGISTRY = CodecRegistry.idKeys();
-	public static final CodecRegistry<Identifier, GameBehaviorType<?>> CUSTOM_BEHAVIORS = CodecRegistry.idKeys();
+	public static final CodecRegistry<Identifier, MapCodec<? extends IGameBehavior>> CUSTOM_BEHAVIORS = CodecRegistry.idKeys();
 
 	private static final FileToIdConverter GAME_LISTER = FileToIdConverter.json("games");
 	private static final FileToIdConverter BEHAVIOR_LISTER = FileToIdConverter.json("behaviors");
@@ -108,8 +107,8 @@ public final class GameConfigs {
 		}
 	}
 
-	private static CompletableFuture<Map<Identifier, GameBehaviorType<?>>> listBehaviors(ResourceManager resourceManager, Executor executor) {
-		List<CompletableFuture<Map.Entry<Identifier, GameBehaviorType<?>>>> futures = BEHAVIOR_LISTER.listMatchingResources(resourceManager).entrySet().stream()
+	private static CompletableFuture<Map<Identifier, MapCodec<? extends IGameBehavior>>> listBehaviors(ResourceManager resourceManager, Executor executor) {
+		List<CompletableFuture<Map.Entry<Identifier, MapCodec<? extends IGameBehavior>>>> futures = BEHAVIOR_LISTER.listMatchingResources(resourceManager).entrySet().stream()
 				.map(entry -> CompletableFuture.supplyAsync(() -> tryLoadBehavior(entry.getValue(), entry.getKey()), executor))
 				.toList();
 		return Util.sequence(futures).thenApply(behaviors -> behaviors.stream()
@@ -118,12 +117,12 @@ public final class GameConfigs {
 		);
 	}
 
-	private static @Nullable Map.Entry<Identifier, GameBehaviorType<?>> tryLoadBehavior(Resource resource, Identifier path) {
+	private static @Nullable Map.Entry<Identifier, MapCodec<? extends IGameBehavior>> tryLoadBehavior(Resource resource, Identifier path) {
 		try {
 			try (BufferedReader reader = resource.openAsReader()) {
 				JsonElement json = StrictJsonParser.parse(reader);
 				Identifier id = BEHAVIOR_LISTER.fileToId(path);
-				return Map.entry(id, new GameBehaviorType<>(createCustomBehaviorCodec(DynamicTemplate.parse(JsonOps.INSTANCE, json))));
+				return Map.entry(id, createCustomBehaviorCodec(DynamicTemplate.parse(JsonOps.INSTANCE, json)));
 			}
 		} catch (Exception e) {
 			LOGGER.error("Failed to load custom behavior at {}", path, e);

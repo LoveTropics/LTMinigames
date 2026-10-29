@@ -1,19 +1,17 @@
 package org.lovetropics.games.common.core.game.datagen;
 
+import com.mojang.serialization.MapCodec;
 import net.minecraft.resources.Identifier;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.state.GameStateMap;
 
-import java.util.function.Supplier;
-
 public record DirectBehavior(Identifier key, IGameBehavior delegate) implements IGameBehavior {
 	@Override
-	public Supplier<? extends GameBehaviorType<?>> behaviorType() {
-		return delegate.behaviorType();
+	public MapCodec<? extends IGameBehavior> codec() {
+		return delegate.codec();
 	}
 
 	@Override

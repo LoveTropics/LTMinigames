@@ -6,21 +6,15 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.util.registry.GameBehaviorEntry;
 import org.lovetropics.games.common.util.registry.LoveTropicsRegistrate;
 
 @EventBusSubscriber(modid = LoveTropics.ID)
 public final class TrashDive {
 	private static final LoveTropicsRegistrate REGISTRATE = LoveTropics.registrate();
 
-	public static final GameBehaviorEntry<PlaceTrashBehavior> PLACE_TRASH = REGISTRATE.object("place_trash")
-			.behavior(PlaceTrashBehavior.CODEC)
-			.register();
-	public static final GameBehaviorEntry<TrashCollectionBehavior> TRASH_COLLECTION = REGISTRATE.object("trash_collection")
-			.behavior(TrashCollectionBehavior.CODEC)
-			.register();
-
 	public static void init() {
+		REGISTRATE.registerBehavior("place_trash", PlaceTrashBehavior.CODEC);
+		REGISTRATE.registerBehavior("trash_collection", TrashCollectionBehavior.CODEC);
 	}
 
 	@SubscribeEvent

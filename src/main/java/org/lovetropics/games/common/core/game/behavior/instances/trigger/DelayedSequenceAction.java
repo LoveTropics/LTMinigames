@@ -9,8 +9,6 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import net.minecraft.util.context.ContextMap;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.action.ActionSubjects;
 import org.lovetropics.games.common.core.game.behavior.action.ActionTarget;
@@ -20,7 +18,6 @@ import org.lovetropics.games.common.core.game.behavior.event.GameActionEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 
 import java.util.Collection;
-import java.util.function.Supplier;
 
 public record DelayedSequenceAction(ActionTarget target, Long2ObjectMap<GameActionList> actions) implements IGameBehavior {
 	public static final MapCodec<DelayedSequenceAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
@@ -55,7 +52,7 @@ public record DelayedSequenceAction(ActionTarget target, Long2ObjectMap<GameActi
 	}
 
 	@Override
-	public Supplier<? extends GameBehaviorType<?>> behaviorType() {
-		return GameBehaviorTypes.DELAYED_SEQUENCE;
+	public MapCodec<? extends IGameBehavior> codec() {
+		return CODEC;
 	}
 }

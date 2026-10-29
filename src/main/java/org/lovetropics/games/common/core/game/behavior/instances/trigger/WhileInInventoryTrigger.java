@@ -10,8 +10,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.inventory.CraftingContainer;
 import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.action.ActionSubjects;
 import org.lovetropics.games.common.core.game.behavior.action.GameActionList;
@@ -19,7 +17,6 @@ import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 
 import java.util.UUID;
-import java.util.function.Supplier;
 
 public record WhileInInventoryTrigger(
 		ItemPredicate itemPredicate,
@@ -73,7 +70,7 @@ public record WhileInInventoryTrigger(
 	}
 
 	@Override
-	public Supplier<? extends GameBehaviorType<?>> behaviorType() {
-		return GameBehaviorTypes.WHILE_IN_INVENTORY;
+	public MapCodec<? extends IGameBehavior> codec() {
+		return CODEC;
 	}
 }

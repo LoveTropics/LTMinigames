@@ -25,8 +25,6 @@ import org.lovetropics.games.common.core.game.GameStopReason;
 import org.lovetropics.games.common.core.game.IGameDefinition;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.PendingSubPhase;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.action.ActionSubjects;
 import org.lovetropics.games.common.core.game.behavior.action.GameActionList;
@@ -47,7 +45,6 @@ import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.List;
-import java.util.function.Supplier;
 
 public final class MinigameCompetitionBehavior implements IGameBehavior {
 	private static final Logger LOGGER = LogUtils.getLogger();
@@ -218,8 +215,8 @@ public final class MinigameCompetitionBehavior implements IGameBehavior {
 	}
 
 	@Override
-	public Supplier<? extends GameBehaviorType<?>> behaviorType() {
-		return GameBehaviorTypes.MINIGAME_COMPETITION;
+	public MapCodec<? extends IGameBehavior> codec() {
+		return CODEC;
 	}
 
 	private class SubGameManager {

@@ -19,7 +19,6 @@ import org.lovetropics.games.common.content.river_race.client_state.RiverRaceCli
 import org.lovetropics.games.common.content.river_race.event.RiverRaceEvents;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
@@ -34,7 +33,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Supplier;
 
 public record ProgressBehaviour(
 		GameTeamKey topTeam,
@@ -149,7 +147,7 @@ public record ProgressBehaviour(
 	}
 
 	@Override
-	public Supplier<? extends GameBehaviorType<?>> behaviorType() {
-		return RiverRace.RIVER_RACE_PROGRESS_BEHAVIOUR;
+	public MapCodec<ProgressBehaviour> codec() {
+		return CODEC;
 	}
 }

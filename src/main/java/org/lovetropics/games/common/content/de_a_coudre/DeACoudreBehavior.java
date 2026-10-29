@@ -19,7 +19,6 @@ import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.core.game.GameStopReason;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.SpawnBuilder;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GameLogicEvents;
@@ -34,7 +33,6 @@ import org.lovetropics.games.common.util.Util;
 
 import java.util.List;
 import java.util.Map;
-import java.util.function.Supplier;
 
 public record DeACoudreBehavior(
 		RegionQuery waterRegion,
@@ -124,8 +122,8 @@ public record DeACoudreBehavior(
 	}
 
 	@Override
-	public Supplier<? extends GameBehaviorType<?>> behaviorType() {
-		return DeACoudre.BEHAVIOR;
+	public MapCodec<? extends IGameBehavior> codec() {
+		return CODEC;
 	}
 
 	private static class Board {

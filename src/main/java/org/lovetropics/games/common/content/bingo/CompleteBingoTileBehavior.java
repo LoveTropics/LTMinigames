@@ -3,11 +3,8 @@ package org.lovetropics.games.common.content.bingo;
 import com.mojang.serialization.MapCodec;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-
-import java.util.function.Supplier;
 
 public final class CompleteBingoTileBehavior implements IGameBehavior {
 	public static final MapCodec<CompleteBingoTileBehavior> CODEC = MapCodec.unit(CompleteBingoTileBehavior::new);
@@ -28,7 +25,7 @@ public final class CompleteBingoTileBehavior implements IGameBehavior {
 	}
 
 	@Override
-	public Supplier<? extends GameBehaviorType<?>> behaviorType() {
-		return Bingo.COMPLETE_BINGO_TILE;
+	public MapCodec<? extends IGameBehavior> codec() {
+		return CODEC;
 	}
 }

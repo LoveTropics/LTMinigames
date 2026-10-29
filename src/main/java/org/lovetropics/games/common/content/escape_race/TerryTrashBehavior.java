@@ -29,7 +29,6 @@ import net.minecraft.world.phys.Vec3;
 import org.lovetropics.games.SoundRegistry;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
@@ -50,7 +49,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BooleanSupplier;
-import java.util.function.Supplier;
 
 public final class TerryTrashBehavior implements IGameBehavior {
 
@@ -125,7 +123,6 @@ public final class TerryTrashBehavior implements IGameBehavior {
 		GameSidebar sidebar = GameWidgets.getOrRegister(game, events).openGlobalSidebar(EscapeRaceTexts.TERRY_TRASH);
 
 		events.listen(GamePhaseEvents.TICK, () -> onGameTick(game, sidebar, itemSpawnBox, badTrashLocation));
-
 
 		TeamState teams = game.instanceState().getOrThrow(TeamState.KEY);
 
@@ -226,8 +223,8 @@ public final class TerryTrashBehavior implements IGameBehavior {
 	}
 
 	@Override
-	public Supplier<? extends GameBehaviorType<?>> behaviorType() {
-		return EscapeRace.TERRY_TRASH;
+	public MapCodec<? extends IGameBehavior> codec() {
+		return CODEC;
 	}
 
 	private LootParams buildLootParams(ServerLevel level, Vec3 pos) {

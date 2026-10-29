@@ -12,8 +12,6 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
@@ -24,7 +22,6 @@ import org.lovetropics.games.common.core.game.state.progress.ProgressionPoint;
 import org.lovetropics.games.common.util.LinearSpline;
 
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Supplier;
 
 public record CountdownEffectsBehavior(ProgressChannel channel, ProgressionPoint target, int seconds, SoundEvent sound, float volume, int startColor, int endColor, LinearSpline pitch, boolean showTitle) implements IGameBehavior {
 	public static final MapCodec<CountdownEffectsBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
@@ -96,7 +93,7 @@ public record CountdownEffectsBehavior(ProgressChannel channel, ProgressionPoint
 	}
 
 	@Override
-	public Supplier<? extends GameBehaviorType<?>> behaviorType() {
-		return GameBehaviorTypes.COUNTDOWN_EFFECTS;
+	public MapCodec<? extends IGameBehavior> codec() {
+		return CODEC;
 	}
 }

@@ -9,13 +9,10 @@ import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import org.lovetropics.games.common.content.qottott.Qottott;
 import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.action.GameActionContextKeys;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
-
-import java.util.function.Supplier;
 
 public record GivePointsAction(StatisticKey<Integer> statistic, int count, boolean bypassMultiplier) implements IGameBehavior {
 	public static final MapCodec<GivePointsAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
@@ -50,7 +47,7 @@ public record GivePointsAction(StatisticKey<Integer> statistic, int count, boole
 	}
 
 	@Override
-	public Supplier<? extends GameBehaviorType<?>> behaviorType() {
-		return Qottott.GIVE_POINTS;
+	public MapCodec<? extends IGameBehavior> codec() {
+		return CODEC;
 	}
 }

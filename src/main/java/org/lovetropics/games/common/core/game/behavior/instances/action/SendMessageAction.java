@@ -4,13 +4,9 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorType;
-import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.util.TemplatedText;
-
-import java.util.function.Supplier;
 
 public record SendMessageAction(TemplatedText message, boolean actionBar) implements IGameBehavior {
 	public static final MapCodec<SendMessageAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
@@ -27,7 +23,7 @@ public record SendMessageAction(TemplatedText message, boolean actionBar) implem
 	}
 
 	@Override
-	public Supplier<? extends GameBehaviorType<?>> behaviorType() {
-		return GameBehaviorTypes.SEND_MESSAGE;
+	public MapCodec<? extends IGameBehavior> codec() {
+		return CODEC;
 	}
 }
