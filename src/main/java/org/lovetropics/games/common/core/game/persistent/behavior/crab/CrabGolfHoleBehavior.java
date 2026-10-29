@@ -1,5 +1,6 @@
 package org.lovetropics.games.common.core.game.persistent.behavior.crab;
 
+import com.mojang.authlib.GameProfile;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -7,10 +8,12 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
+import net.minecraft.server.Services;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.TriState;
+import net.minecraft.util.Util;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
@@ -39,6 +42,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 public class CrabGolfHoleBehavior implements PersistentGameBehavior {
@@ -210,6 +214,13 @@ public class CrabGolfHoleBehavior implements PersistentGameBehavior {
 	}
 
 	private void updateWinnerRegion(PersistentGame game, int score, @Nullable UUID player) {
+		resolveProfile(game, player).thenAcceptAsync(
+				profile -> updateWinnerRegion(game, score, profile),
+				game.server()
+		);
+	}
+
+	private void updateWinnerRegion(PersistentGame game, int score, ResolvableProfile profile) {
 		Region winnerRegion = this.winnerRegion.nullableOne(game);
 		if (winnerRegion == null) {
 			return;
@@ -227,8 +238,7 @@ public class CrabGolfHoleBehavior implements PersistentGameBehavior {
 		nbt.putInt("DisabledSlots", 4144959);
 		nbt.putBoolean("Invulnerable", true);
 
-		ResolvableProfile resolvableProfile = ResolvableProfile.createUnresolved(player == null ? SEARGE_UUID : player);
-		nbt.store("profile", ResolvableProfile.CODEC, resolvableProfile);
+		nbt.store("profile", ResolvableProfile.CODEC, profile);
 
 		if (score > 0) {
 			Component prefix = Component.translatable("lt.golf.best_score").withStyle(ChatFormatting.GREEN);
@@ -244,6 +254,18 @@ public class CrabGolfHoleBehavior implements PersistentGameBehavior {
 			return e;
 		});
 		level.tryAddFreshEntityWithPassengers(entity);
+	}
+
+	private CompletableFuture<ResolvableProfile> resolveProfile(PersistentGame game, @Nullable UUID player) {
+		Services services = game.server().services();
+		return CompletableFuture.supplyAsync(
+				() -> {
+					UUID playerId = player == null ? SEARGE_UUID : player;
+					Optional<GameProfile> profile = services.profileResolver().fetchById(playerId);
+					return profile.map(ResolvableProfile::createResolved).orElseGet(() -> ResolvableProfile.createUnresolved(playerId));
+				},
+				Util.nonCriticalIoPool()
+		);
 	}
 
 	@Override
