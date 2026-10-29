@@ -11,6 +11,7 @@ import com.mojang.logging.LogUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.IdentifierArgument;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.core.BlockPos;
@@ -101,6 +102,11 @@ public final class MapCommand {
 				))
 				.then(literal("import")
 					.then(argument("location", IdentifierArgument.id())
+							.suggests((context, builder) ->
+									MapExportReader.list(context.getSource().getServer().getResourceManager()).thenCompose(
+											ids -> SharedSuggestionProvider.suggestResource(ids, builder)
+									)
+							)
 							.then(DimensionArgument.argument("dimension")
 							.executes(context ->{
 								LevelStem dimension = DimensionArgument.get(context, "dimension");
