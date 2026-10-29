@@ -5,6 +5,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.ChatFormatting;
+import net.minecraft.SharedConstants;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
@@ -37,7 +38,6 @@ import org.lovetropics.games.common.core.game.region.Region;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -72,9 +72,7 @@ public class CrabGolfHoleBehavior implements PersistentGameBehavior {
 	private final float winnerRotation;
 	private final List<TeleportTarget> teleporters;
 
-	private final Map<ServerPlayer, LivingEntity> currentlyPlaying = new HashMap<>();
-	private final Map<ServerPlayer, Integer> ticksLeft = new HashMap<>();
-	private final Map<ServerPlayer, Integer> hits = new HashMap<>();
+	private final Map<UUID, PlayerHoleState> currentlyPlaying = new HashMap<>();
 
 	public CrabGolfHoleBehavior(int hole, RegionQuery mainRegion, RegionQuery startRegion, RegionQuery holeRegion, RegionQuery buttonRegion, RegionQuery winnerRegion, float winnerRotation, Optional<List<TeleportTarget>> teleporters) {
 		this.hole = hole;
@@ -103,14 +101,14 @@ public class CrabGolfHoleBehavior implements PersistentGameBehavior {
 			}
 		});
 
-		events.listen(GamePhaseEvents.STOP, initiator -> {
+		events.listen(GamePhaseEvents.STOP, _ -> {
 			// TODO: copy out data
-			currentlyPlaying.values().forEach(Entity::discard);
+			currentlyPlaying.values().forEach(PlayerHoleState::discard);
 			winnerRegion.getEntitiesOfClass(game, ArmorStand.class)
 					.forEach(Entity::discard);
 		});
 
-		events.listen(CrabGolfEvents.QUERY_PLAYING, currentlyPlaying::containsKey);
+		events.listen(CrabGolfEvents.QUERY_PLAYING, player -> currentlyPlaying.containsKey(player.getUUID()));
 
 		events.listen(GamePlayerEvents.USE_BLOCK, (player, level, pos, hand, hit) -> {
 			if (level.getBlockState(pos).is(BlockTags.BUTTONS) && buttonRegion.contains(game, level, pos)) {
@@ -123,9 +121,9 @@ public class CrabGolfHoleBehavior implements PersistentGameBehavior {
 		});
 
 		events.listen(GamePlayerEvents.ATTACK, (player, target) -> {
-			LivingEntity crab = currentlyPlaying.get(player);
-			if (target == crab) {
-				hits.computeIfPresent(player, (k, v) -> ++v);
+			PlayerHoleState state = currentlyPlaying.get(player.getUUID());
+			if (target == state.crab) {
+				state.hits++;
 			}
 
 			return TriState.DEFAULT;
@@ -146,71 +144,64 @@ public class CrabGolfHoleBehavior implements PersistentGameBehavior {
 				}
 
 				player.setGameMode(GameType.ADVENTURE);
-				currentlyPlaying.put(player, entity);
-				ticksLeft.put(player, 2400);
-				hits.put(player, 0);
+				currentlyPlaying.put(player.getUUID(), new PlayerHoleState(entity, 2400));
 			}
 		});
 
-		events.listen(GamePhaseEvents.TICK, () -> {
-			if (currentlyPlaying.isEmpty()) {
-				return;
+		events.listen(GamePhaseEvents.TICK, () -> tickHoles(game));
+	}
+
+	private void tickHoles(PersistentGame game) {
+		currentlyPlaying.entrySet().removeIf(entry -> {
+			PlayerHoleState state = entry.getValue();
+			ServerPlayer player = game.players().getPlayerBy(entry.getKey());
+			if (player == null) {
+				state.kill();
+				return true;
 			}
-
-			for (Map.Entry<ServerPlayer, LivingEntity> e : new HashSet<>(currentlyPlaying.entrySet())) {
-				LivingEntity entity = e.getValue();
-
-				ServerPlayer player = e.getKey();
-				if (!game.level().players().contains(player)) {
-					entity.setHealth(-100);
-					entity.kill(game.level());
-					currentlyPlaying.remove(player);
-					continue;
-				}
-
-				Vec3 velocity = entity.getDeltaMovement();
-				if (Math.abs(velocity.x) < 0.01 && Math.abs(velocity.z) < 0.01) {
-					if (holeRegion.intersects(game, entity.level(), entity.getBoundingBox().contract(0.2, 0, 0.2))) {
-						// win!!
-
-						int score = hits.get(player);
-						player.sendSystemMessage(Component.literal("Score: " + score), true);
-						entity.setHealth(-100);
-						entity.kill(game.level());
-						currentlyPlaying.remove(player);
-						ticksLeft.remove(player);
-						hits.remove(player);
-
-						game.invoker(CrabGolfEvents.WIN_GAME).onWin(hole, player, score);
-						break;
-					}
-				}
-
-				if (!mainRegion.intersects(game, entity.level(), entity.getBoundingBox())) {
-					entity.snapTo(Vec3.atBottomCenterOf(startRegion.pickRandomPos(game, entity.getRandom()).pos()));
-					entity.setDeltaMovement(0, 0, 0);
-				}
-
-				int time = ticksLeft.computeIfPresent(player, (k, v) -> --v);
-				player.sendSystemMessage(Component.literal("Seconds left: " + (time / 20) + " | Hits: " + hits.get(player)), true);
-
-				if (time == 0) {
-					// Ran out of time?
-
-					entity.setHealth(-100);
-					entity.kill(game.level());
-					currentlyPlaying.remove(player);
-					ticksLeft.remove(player);
-
-					game.invoker(CrabGolfEvents.WIN_GAME).onWin(hole, player, -1);
-					break;
-				}
-
-				for (TeleportTarget teleporter : teleporters) {
-					teleporter.tryTeleport(game, entity);
-				}
+			if (tickHole(game, state, player)) {
+				state.kill();
+				return true;
 			}
+			return false;
 		});
+	}
+
+	private boolean tickHole(PersistentGame game, PlayerHoleState state, ServerPlayer player) {
+		LivingEntity entity = state.crab;
+
+		Vec3 velocity = entity.getDeltaMovement();
+		if (Math.abs(velocity.x) < 0.01 && Math.abs(velocity.z) < 0.01) {
+			if (holeRegion.intersects(game, entity.level(), entity.getBoundingBox().contract(0.2, 0, 0.2))) {
+				// win!!
+
+				int score = state.hits;
+				player.sendSystemMessage(Component.literal("Score: " + score), true);
+
+				game.invoker(CrabGolfEvents.WIN_GAME).onWin(hole, player, score);
+				return true;
+			}
+		}
+
+		if (!mainRegion.intersects(game, entity.level(), entity.getBoundingBox())) {
+			entity.snapTo(Vec3.atBottomCenterOf(startRegion.pickRandomPos(game, entity.getRandom()).pos()));
+			entity.setDeltaMovement(0, 0, 0);
+		}
+
+		int time = state.ticksLeft--;
+		player.sendSystemMessage(Component.literal("Seconds left: " + (time / SharedConstants.TICKS_PER_SECOND) + " | Hits: " + state.hits), true);
+
+		if (time == 0) {
+			// Ran out of time?
+			game.invoker(CrabGolfEvents.WIN_GAME).onWin(hole, player, -1);
+			return true;
+		}
+
+		for (TeleportTarget teleporter : teleporters) {
+			teleporter.tryTeleport(game, entity);
+		}
+
+		return false;
 	}
 
 	private void updateWinnerRegion(PersistentGame game, int score, @Nullable UUID player) {
@@ -271,6 +262,26 @@ public class CrabGolfHoleBehavior implements PersistentGameBehavior {
 	@Override
 	public Supplier<? extends PersistentGameBehaviorType<?>> type() {
 		return PersistentGameBehaviors.CRAB_GOLF_HOLE;
+	}
+
+	private static class PlayerHoleState {
+		private final LivingEntity crab;
+		private int ticksLeft;
+		private int hits;
+
+		private PlayerHoleState(LivingEntity crab, int totalTicks) {
+			this.crab = crab;
+			ticksLeft = totalTicks;
+		}
+
+		public void discard() {
+			crab.discard();
+		}
+
+		public void kill() {
+			crab.setHealth(-100);
+			crab.kill((ServerLevel) crab.level());
+		}
 	}
 
 	public static class TeleportTarget {
