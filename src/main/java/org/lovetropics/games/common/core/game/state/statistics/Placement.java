@@ -218,12 +218,16 @@ public interface Placement<H extends StatisticHolder> extends Iterable<Placed<H>
 			return first.holder;
 		}
 
+		public List<Entry<H, T>> entries() {
+			return entries;
+		}
+
 		@Override
 		public Iterator<Placed<H>> iterator() {
 			return Iterators.transform(entries.iterator(), input -> new Placed<>(input.placement, input.holder));
 		}
 
-		record Entry<H, T>(H holder, int placement, T score) {
+		public record Entry<H, T>(H holder, int placement, T score) {
 		}
 	}
 }

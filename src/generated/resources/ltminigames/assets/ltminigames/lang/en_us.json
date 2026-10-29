@@ -521,6 +521,8 @@
   "ltminigames.minigame.paint_party.speed_power_up": "Speed Power Up",
   "ltminigames.minigame.paint_party.speed_power_up.subtitle": "Speed mode engaged!",
   "ltminigames.minigame.parkour_race_teams": "Parkour Race (Teams)",
+  "ltminigames.minigame.personal_result": "You placed %s",
+  "ltminigames.minigame.personal_result_score": "You placed %s with: %s",
   "ltminigames.minigame.player_completed_course": "%name% just completed the course!",
   "ltminigames.minigame.position.1": "first",
   "ltminigames.minigame.position.2": "second",
