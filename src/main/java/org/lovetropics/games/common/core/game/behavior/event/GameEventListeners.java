@@ -47,6 +47,7 @@ public final class GameEventListeners implements EventRegistrar {
 				invokers = this.invokers;
 				if (invokers == null) {
 					invokers = buildInvokers();
+					this.invokers = invokers;
 				}
 			}
 		}
