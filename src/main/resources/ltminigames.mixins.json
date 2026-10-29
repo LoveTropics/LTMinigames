@@ -28,6 +28,7 @@
     "event.ServerLevelMixin",
     "event.TrapdoorBlockMixin",
     "event.TrialSpawnerStateMixin",
+    "fix.LivingEntityMixin",
     "gametest.GameTestHelperAccess",
     "gametest.GameTestInfoAccess",
     "gametest.GTNetworkFiltersMixin",
