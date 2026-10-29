@@ -8,18 +8,22 @@ import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import net.minecraft.util.Mth;
 import net.minecraft.util.context.ContextKey;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
 import org.lovetropics.games.LoveTropics;
 import org.lovetropics.games.common.content.escape_race.client.ddr.DdrPlayerPoseState;
 import org.lovetropics.games.common.content.escape_race.ddr_machine.DDRMachineEntity;
+import org.lovetropics.peekaboo.api.PeekabooApi;
 
 public class DDRMachinePlayerHelper {
 
 	private static final ContextKey<DdrPose> KEY_POSE = new ContextKey<>(LoveTropics.id("ddr/pose"));
 
 	public static <T extends LivingEntity, S extends LivingEntityRenderState> void updateLivingEntityRenderState(T entity, S renderState) {
-		if (entity.getVehicle() instanceof DDRMachineEntity ddrMachineEntity) {
+		Entity disguiseOwner = PeekabooApi.getSourceEntity(entity);
+		Entity entityToCheck = disguiseOwner != null ? disguiseOwner : entity;
+		if (entityToCheck.getVehicle() instanceof DDRMachineEntity ddrMachineEntity) {
 			DdrPlayerPoseState poseState = ddrMachineEntity.getPoseState();
 			float partialTicks = renderState.partialTick;
 			renderState.setRenderData(KEY_POSE, new DdrPose(
