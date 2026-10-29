@@ -33,7 +33,9 @@ public record PointsSidebarBehavior(
 		int count,
 		Component title,
 		List<TemplatedText> header,
-		Optional<Holder> holder
+		Optional<Holder> holder,
+		boolean showPlacement,
+		boolean showScore
 ) implements IGameBehavior {
 	public static final MapCodec<PointsSidebarBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			StatisticKey.INT_CODEC.fieldOf("statistic").forGetter(PointsSidebarBehavior::statistic),
@@ -41,7 +43,9 @@ public record PointsSidebarBehavior(
 			Codec.INT.optionalFieldOf("count", 5).forGetter(PointsSidebarBehavior::count),
 			ComponentSerialization.CODEC.fieldOf("title").forGetter(PointsSidebarBehavior::title),
 			TemplatedText.CODEC.listOf().fieldOf("header").forGetter(PointsSidebarBehavior::header),
-			Holder.CODEC.optionalFieldOf("statistic_holder").forGetter(PointsSidebarBehavior::holder)
+			Holder.CODEC.optionalFieldOf("statistic_holder").forGetter(PointsSidebarBehavior::holder),
+			Codec.BOOL.optionalFieldOf("show_placement", false).forGetter(PointsSidebarBehavior::showPlacement),
+			Codec.BOOL.optionalFieldOf("show_score", true).forGetter(PointsSidebarBehavior::showScore)
 	).apply(i, PointsSidebarBehavior::new));
 
 	private static final int REFRESH_INTERVAL = SharedConstants.TICKS_PER_SECOND / 2;
@@ -77,7 +81,7 @@ public record PointsSidebarBehavior(
 		} else {
 			placement = Placement.fromTeamScore(order, game, statistic);
 		}
-		placement.addToSidebar(sidebar, count);
+		placement.buildDisplay(count, showPlacement, showScore, sidebar::add);
 
 		return sidebar.toArray(new Component[0]);
 	}

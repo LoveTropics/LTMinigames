@@ -84,7 +84,7 @@ public class MicrogameScoringBehavior implements IGameBehavior {
 
 		game.allPlayers().sendMessage(RiverRaceTexts.MICROGAME_RESULTS);
 		Placement.fromScore(game, segmentStatistics, segmentStatistics.getTeams(), statistic, PlacementOrder.MAX.asComparator(), true)
-				.sendTo(game.allPlayers(), 5);
+				.buildDisplay(5, true, true, game.allPlayers()::sendMessage);
 	}
 
 	private static final class MicrogameSegmentState {

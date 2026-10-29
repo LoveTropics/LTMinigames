@@ -8,7 +8,6 @@ import net.minecraft.server.level.ServerPlayer;
 import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.core.game.IGamePhase;
-import org.lovetropics.games.common.core.game.player.PlayerIterable;
 import org.lovetropics.games.common.core.game.player.PlayerSet;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
 import org.lovetropics.games.common.core.game.state.team.TeamState;
@@ -19,6 +18,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 public interface Placement<H extends StatisticHolder> extends Iterable<Placed<H>> {
 	static PlayerOrder fromDeathOrder(IGamePhase game, List<PlayerKey> deathOrder) {
@@ -88,9 +88,7 @@ public interface Placement<H extends StatisticHolder> extends Iterable<Placed<H>
 
 	void placeInto(GameStatistics output, StatisticKey<Integer> placementKey);
 
-	void sendTo(PlayerIterable players, int maxLength);
-
-	void addToSidebar(List<Component> sidebar, int maxLength);
+	void buildDisplay(int maxLength, boolean includePlacement, boolean includeScore, Consumer<Component> output);
 
 	@Nullable H getWinner();
 
@@ -110,7 +108,7 @@ public interface Placement<H extends StatisticHolder> extends Iterable<Placed<H>
 		}
 
 		@Override
-		public void sendTo(PlayerIterable players, int maxLength) {
+		public void buildDisplay(int maxLength, boolean includePlacement, boolean includeScore, Consumer<Component> output) {
 			int i = 0;
 			Placed<PlayerKey> entry;
 
@@ -120,25 +118,20 @@ public interface Placement<H extends StatisticHolder> extends Iterable<Placed<H>
 
 				boolean head = true;
 				while (i < order.size() && (entry = order.get(i)).placement() == place) {
-					String prefix = head ? headPrefix : indentPrefix;
+					String prefix;
+					if (includePlacement) {
+						prefix = head ? headPrefix : indentPrefix;
+					} else {
+						prefix = " - ";
+					}
 					head = false;
 
-					players.sendMessage(Component.literal(prefix).withStyle(ChatFormatting.AQUA)
+					output.accept(Component.literal(prefix).withStyle(ChatFormatting.AQUA)
 							.append(Component.literal(entry.value().name()).withStyle(ChatFormatting.GOLD))
 					);
 
 					i++;
 				}
-			}
-		}
-
-		@Override
-		public void addToSidebar(List<Component> sidebar, int maxLength) {
-			int length = Math.min(order.size(), maxLength);
-			for (int i = 0; i < length; i++) {
-				Placed<PlayerKey> entry = order.get(i);
-				Component name = Component.literal(entry.value().name()).withStyle(ChatFormatting.AQUA);
-				sidebar.add(Component.literal(" - ").append(name));
 			}
 		}
 
@@ -180,7 +173,7 @@ public interface Placement<H extends StatisticHolder> extends Iterable<Placed<H>
 		}
 
 		@Override
-		public void sendTo(PlayerIterable players, int maxLength) {
+		public void buildDisplay(int maxLength, boolean includePlacement, boolean includeScore, Consumer<Component> output) {
 			int i = 0;
 			Entry<H, T> entry;
 
@@ -190,27 +183,25 @@ public interface Placement<H extends StatisticHolder> extends Iterable<Placed<H>
 
 				boolean head = true;
 				while (i < entries.size() && (entry = entries.get(i)).placement == place) {
-					String prefix = head ? headPrefix : indentPrefix;
+					String prefix;
+					if (includePlacement) {
+						prefix = head ? headPrefix : indentPrefix;
+					} else {
+						prefix = " - ";
+					}
 					head = false;
 
-					MutableComponent name = Component.literal(prefix).append(entry.holder.getName(game)).append(": ");
-					MutableComponent score = Component.literal(scoreKey.display(entry.score));
-
-					players.sendMessage(name.withStyle(ChatFormatting.AQUA).append(score.withStyle(ChatFormatting.GOLD)));
+					if (includeScore) {
+						MutableComponent name = Component.literal(prefix).append(entry.holder.getName(game)).append(": ");
+						MutableComponent score = Component.literal(scoreKey.display(entry.score));
+						output.accept(name.withStyle(ChatFormatting.AQUA).append(score.withStyle(ChatFormatting.GOLD)));
+					} else {
+						MutableComponent name = Component.literal(prefix).append(entry.holder.getName(game));
+						output.accept(name.withStyle(ChatFormatting.AQUA));
+					}
 
 					i++;
 				}
-			}
-		}
-
-		@Override
-		public void addToSidebar(List<Component> sidebar, int maxLength) {
-			int length = Math.min(entries.size(), maxLength);
-			for (int i = 0; i < length; i++) {
-				Entry<H, T> entry = entries.get(i);
-				Component name = Component.empty().append(entry.holder.getName(game)).append(": ").withStyle(ChatFormatting.AQUA);
-				Component score = Component.literal(scoreKey.display(entry.score)).withStyle(ChatFormatting.GOLD);
-				sidebar.add(Component.literal(" - ").append(name).append(score));
 			}
 		}
 

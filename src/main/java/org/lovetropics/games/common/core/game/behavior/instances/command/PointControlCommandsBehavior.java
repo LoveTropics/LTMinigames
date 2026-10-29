@@ -17,7 +17,6 @@ import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.command.GameCommandRegistrar;
-import org.lovetropics.games.common.core.game.player.PlayerSet;
 import org.lovetropics.games.common.core.game.state.Overlords;
 import org.lovetropics.games.common.core.game.state.statistics.Placement;
 import org.lovetropics.games.common.core.game.state.statistics.PlacementOrder;
@@ -58,7 +57,7 @@ public record PointControlCommandsBehavior(
 				.then(Commands.literal("list")
 						.executes(context -> {
 							ServerPlayer player = context.getSource().getPlayerOrException();
-							Placement.fromPlayerScore(PlacementOrder.MAX, game, statistic).sendTo(PlayerSet.of(player), Integer.MAX_VALUE);
+							Placement.fromPlayerScore(PlacementOrder.MAX, game, statistic).buildDisplay(Integer.MAX_VALUE, true, true, player::sendSystemMessage);
 							return 1;
 						})
 				)

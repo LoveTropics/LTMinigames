@@ -15,17 +15,19 @@ import org.lovetropics.games.common.core.game.state.statistics.PlacementOrder;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
 import org.lovetropics.games.common.core.game.state.team.TeamState;
 
-public record DisplayLeaderboardAction<T extends Comparable<T>>(StatisticKey<T> statistic, PlacementOrder order, int length, Component header) implements IGameBehavior {
+public record DisplayLeaderboardAction<T extends Comparable<T>>(StatisticKey<T> statistic, PlacementOrder order, int length, Component header, boolean showPlacement, boolean showScore) implements IGameBehavior {
 	public static final MapCodec<DisplayLeaderboardAction<?>> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			StatisticKey.CODEC.fieldOf("statistic").forGetter(c -> c.statistic),
 			PlacementOrder.CODEC.optionalFieldOf("order", PlacementOrder.MAX).forGetter(c -> c.order),
 			Codec.INT.optionalFieldOf("length", 5).forGetter(c -> c.length),
-			ComponentSerialization.CODEC.fieldOf("header").forGetter(c -> c.header)
+			ComponentSerialization.CODEC.fieldOf("header").forGetter(c -> c.header),
+			Codec.BOOL.optionalFieldOf("show_placement", true).forGetter(c -> c.showPlacement),
+			Codec.BOOL.optionalFieldOf("show_score", true).forGetter(c -> c.showScore)
 	).apply(i, DisplayLeaderboardAction::createUnchecked));
 
 	@SuppressWarnings("unchecked")
-	private static <T extends Comparable<T>> DisplayLeaderboardAction<T> createUnchecked(StatisticKey<?> statistic, PlacementOrder order, int length, Component header) {
-		return new DisplayLeaderboardAction<>((StatisticKey<T>) statistic, order, length, header);
+	private static <T extends Comparable<T>> DisplayLeaderboardAction<T> createUnchecked(StatisticKey<?> statistic, PlacementOrder order, int length, Component header, boolean showPlacement, boolean showScore) {
+		return new DisplayLeaderboardAction<>((StatisticKey<T>) statistic, order, length, header, showPlacement, showScore);
 	}
 
 	@Override
@@ -35,9 +37,9 @@ public record DisplayLeaderboardAction<T extends Comparable<T>>(StatisticKey<T> 
 			PlayerIterable players = PlayerIterable.from(targets.asPlayers(game));
 			players.sendMessage(header);
 			if (teams == null) {
-				Placement.fromPlayerScore(order, game, statistic).sendTo(players, length);
+				Placement.fromPlayerScore(order, game, statistic).buildDisplay(length, showPlacement, showScore, players::sendMessage);
 			} else {
-				Placement.fromTeamScore(order, game, statistic).sendTo(players, length);
+				Placement.fromTeamScore(order, game, statistic).buildDisplay(length, showPlacement, showScore, players::sendMessage);
 			}
 			return true;
 		});
