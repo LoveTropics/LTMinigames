@@ -61,7 +61,7 @@ public class CrabGolfHoleBehavior implements PersistentGameBehavior {
 	).apply(instance, CrabGolfHoleBehavior::new));
 
 	private static final EntitySpawnRequest SPAWN_REQUEST = new EntitySpawnRequest(EntitySpawnReason.COMMAND, false);
-
+	private static final GameType FORCED_GAME_MODE = GameType.ADVENTURE;
 
 	private final int hole;
 	private final RegionQuery mainRegion;
@@ -143,8 +143,9 @@ public class CrabGolfHoleBehavior implements PersistentGameBehavior {
 					return;
 				}
 
-				player.setGameMode(GameType.ADVENTURE);
-				currentlyPlaying.put(player.getUUID(), new PlayerHoleState(entity, 2400));
+				GameType gameMode = player.gameMode();
+				player.setGameMode(FORCED_GAME_MODE);
+				currentlyPlaying.put(player.getUUID(), new PlayerHoleState(gameMode, entity, 2400));
 			}
 		});
 
@@ -156,11 +157,11 @@ public class CrabGolfHoleBehavior implements PersistentGameBehavior {
 			PlayerHoleState state = entry.getValue();
 			ServerPlayer player = game.players().getPlayerBy(entry.getKey());
 			if (player == null) {
-				state.kill();
+				state.stopGame(game.server().getPlayerList().getPlayer(entry.getKey()));
 				return true;
 			}
 			if (tickHole(game, state, player)) {
-				state.kill();
+				state.stopGame(player);
 				return true;
 			}
 			return false;
@@ -265,11 +266,13 @@ public class CrabGolfHoleBehavior implements PersistentGameBehavior {
 	}
 
 	private static class PlayerHoleState {
+		private final GameType initialGameMode;
 		private final LivingEntity crab;
 		private int ticksLeft;
 		private int hits;
 
-		private PlayerHoleState(LivingEntity crab, int totalTicks) {
+		private PlayerHoleState(GameType initialGameMode, LivingEntity crab, int totalTicks) {
+			this.initialGameMode = initialGameMode;
 			this.crab = crab;
 			ticksLeft = totalTicks;
 		}
@@ -278,9 +281,12 @@ public class CrabGolfHoleBehavior implements PersistentGameBehavior {
 			crab.discard();
 		}
 
-		public void kill() {
+		public void stopGame(@Nullable ServerPlayer player) {
 			crab.setHealth(-100);
 			crab.kill((ServerLevel) crab.level());
+			if (player != null && player.gameMode() == FORCED_GAME_MODE) {
+				player.setGameMode(initialGameMode);
+			}
 		}
 	}
 
