@@ -12,9 +12,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.TicketType;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -192,6 +194,18 @@ public final class RegionQuery {
 	@Override
 	public String toString() {
 		return keys.toString();
+	}
+
+	public void loadAndWaitForEntities(GameRegionHolder game) {
+		for (Region region : all(game)) {
+			ServerLevel level = region.level();
+			region.chunks().forEach(chunkKey ->
+					level.getChunkSource().addTicketWithRadius(TicketType.SPAWN_SEARCH, ChunkPos.unpack(chunkKey), 0)
+			);
+			region.chunks().forEach(chunkKey ->
+					level.waitForEntities(ChunkPos.unpack(chunkKey), 0)
+			);
+		}
 	}
 
 	private class LookupCache {

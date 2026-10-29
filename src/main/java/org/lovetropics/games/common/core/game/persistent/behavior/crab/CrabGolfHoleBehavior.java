@@ -3,9 +3,10 @@ package org.lovetropics.games.common.core.game.persistent.behavior.crab;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.BlockTags;
@@ -214,7 +215,10 @@ public class CrabGolfHoleBehavior implements PersistentGameBehavior {
 			return;
 		}
 
-		ServerLevel level = game.level();
+		ServerLevel level = winnerRegion.level();
+		this.winnerRegion.loadAndWaitForEntities(game);
+
+		// Dummy players inherit from ArmorStand right now
 		this.winnerRegion.getEntitiesOfClass(game, ArmorStand.class)
 				.forEach(Entity::discard);
 
@@ -224,30 +228,22 @@ public class CrabGolfHoleBehavior implements PersistentGameBehavior {
 		nbt.putBoolean("Invulnerable", true);
 
 		ResolvableProfile resolvableProfile = ResolvableProfile.createUnresolved(player == null ? SEARGE_UUID : player);
-		nbt.put("profile", ResolvableProfile.CODEC.encodeStart(NbtOps.INSTANCE, resolvableProfile).getOrThrow());
+		nbt.store("profile", ResolvableProfile.CODEC, resolvableProfile);
 
 		if (score > 0) {
-			CompoundTag prefix = new CompoundTag();
-			prefix.putString("translate", "lt.golf.best_score");
-			prefix.putString("color", "green");
-			nbt.put("name_prefix", prefix);
+			Component prefix = Component.translatable("lt.golf.best_score").withStyle(ChatFormatting.GREEN);
+			nbt.store("name_prefix", ComponentSerialization.CODEC, prefix);
 
-			CompoundTag suffix = new CompoundTag();
-			suffix.putString("text", " - " + score);
-			suffix.putString("color", "green");
-			nbt.put("name_suffix", suffix);
+			Component suffix = Component.literal(" - " + score).withStyle(ChatFormatting.GREEN);
+			nbt.store("name_suffix", ComponentSerialization.CODEC, suffix);
 		}
 
-		Vec3 rcenter = winnerRegion.center();
-		// move to floor
-		Vec3 pos = new Vec3(rcenter.x, rcenter.y - 0.5, rcenter.z);
-
+		Vec3 pos = Vec3.atBottomCenterOf(winnerRegion.centerBlock());
 		LivingEntity entity = (LivingEntity) EntityType.loadEntityRecursive(nbt, level, SPAWN_REQUEST, (e) -> {
 			e.snapTo(pos.x, pos.y, pos.z, winnerRotation, e.getXRot());
 			return e;
 		});
-
-		game.level().tryAddFreshEntityWithPassengers(entity);
+		level.tryAddFreshEntityWithPassengers(entity);
 	}
 
 	@Override
