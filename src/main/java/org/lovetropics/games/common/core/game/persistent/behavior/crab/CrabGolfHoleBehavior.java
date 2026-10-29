@@ -155,32 +155,38 @@ public class CrabGolfHoleBehavior implements PersistentGameBehavior {
 	private void tickHoles(PersistentGame game) {
 		currentlyPlaying.entrySet().removeIf(entry -> {
 			PlayerHoleState state = entry.getValue();
-			ServerPlayer player = game.players().getPlayerBy(entry.getKey());
+			ServerPlayer player = (ServerPlayer) game.level().getPlayerByUUID(entry.getKey());
 			if (player == null) {
-				state.stopGame(game.server().getPlayerList().getPlayer(entry.getKey()));
+				state.stopGame(null);
 				return true;
 			}
-			if (tickHole(game, state, player)) {
-				state.stopGame(player);
-				return true;
-			}
-			return false;
+			TickResult result = tickHole(game, state, player);
+			return switch (result) {
+				case CONTINUE -> false;
+				case WIN -> {
+					int score = state.hits;
+					player.sendSystemMessage(Component.literal("Score: " + score), true);
+
+					game.invoker(CrabGolfEvents.WIN_GAME).onWin(hole, player, score);
+					state.stopGame(player);
+					yield true;
+				}
+				case CANCEL -> {
+					game.invoker(CrabGolfEvents.WIN_GAME).onWin(hole, player, -1);
+					state.stopGame(player);
+					yield true;
+				}
+			};
 		});
 	}
 
-	private boolean tickHole(PersistentGame game, PlayerHoleState state, ServerPlayer player) {
+	private TickResult tickHole(PersistentGame game, PlayerHoleState state, ServerPlayer player) {
 		LivingEntity entity = state.crab;
 
 		Vec3 velocity = entity.getDeltaMovement();
 		if (Math.abs(velocity.x) < 0.01 && Math.abs(velocity.z) < 0.01) {
 			if (holeRegion.intersects(game, entity.level(), entity.getBoundingBox().contract(0.2, 0, 0.2))) {
-				// win!!
-
-				int score = state.hits;
-				player.sendSystemMessage(Component.literal("Score: " + score), true);
-
-				game.invoker(CrabGolfEvents.WIN_GAME).onWin(hole, player, score);
-				return true;
+				return TickResult.WIN;
 			}
 		}
 
@@ -193,16 +199,14 @@ public class CrabGolfHoleBehavior implements PersistentGameBehavior {
 		player.sendSystemMessage(Component.literal("Seconds left: " + (time / SharedConstants.TICKS_PER_SECOND) + " | Hits: " + state.hits), true);
 
 		if (time == 0) {
-			// Ran out of time?
-			game.invoker(CrabGolfEvents.WIN_GAME).onWin(hole, player, -1);
-			return true;
+			return TickResult.CANCEL;
 		}
 
 		for (TeleportTarget teleporter : teleporters) {
 			teleporter.tryTeleport(game, entity);
 		}
 
-		return false;
+		return TickResult.CONTINUE;
 	}
 
 	private void updateWinnerRegion(PersistentGame game, int score, @Nullable UUID player) {
@@ -263,6 +267,12 @@ public class CrabGolfHoleBehavior implements PersistentGameBehavior {
 	@Override
 	public Supplier<? extends PersistentGameBehaviorType<?>> type() {
 		return PersistentGameBehaviors.CRAB_GOLF_HOLE;
+	}
+
+	private enum TickResult {
+		CONTINUE,
+		WIN,
+		CANCEL,
 	}
 
 	private static class PlayerHoleState {
