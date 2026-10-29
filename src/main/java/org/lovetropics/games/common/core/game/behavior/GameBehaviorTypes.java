@@ -83,6 +83,7 @@ import org.lovetropics.games.common.core.game.behavior.instances.action.Incremen
 import org.lovetropics.games.common.core.game.behavior.instances.action.KillAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.LimitedTimeLootAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.ModifyEntityNBTBehaviour;
+import org.lovetropics.games.common.core.game.behavior.instances.action.MutexDispatchAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.NotificationToastAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.PlaySoundAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.RandomizeAction;
@@ -366,6 +367,7 @@ public class GameBehaviorTypes {
 	public static final GameBehaviorEntry<SetRoleTrigger> SET_ROLE = register("set_role", SetRoleTrigger.CODEC);
 	public static final GameBehaviorEntry<SpawnTrigger> SPAWN = register("on_spawn", SpawnTrigger.CODEC);
 	public static final GameBehaviorEntry<TeamDispatchAction> TEAM_DISPATCH = register("team_dispatch", TeamDispatchAction.CODEC);
+	public static final GameBehaviorEntry<MutexDispatchAction> MUTEX_DISPATCH = register("mutex_dispatch", MutexDispatchAction.CODEC);
 	public static final GameBehaviorEntry<ItemPickedUpTrigger> ITEM_PICKED_UP = register("item_picked_up", ItemPickedUpTrigger.CODEC);
 	public static final GameBehaviorEntry<ItemCraftedTrigger> ITEM_CRAFTED = register("item_crafted", ItemCraftedTrigger.CODEC);
 	public static final GameBehaviorEntry<GiveItemsToKillerBehavior> GIVE_ITEMS_TO_KILLER = register("give_items_to_killer", GiveItemsToKillerBehavior.CODEC);

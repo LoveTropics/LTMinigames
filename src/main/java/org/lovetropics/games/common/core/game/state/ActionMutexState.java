@@ -25,6 +25,16 @@ public class ActionMutexState implements IGameState {
 		return getMutexMap(id).acquireForPlayer(player, force);
 	}
 
+	public boolean isAcquiredGlobal(Identifier id) {
+		MutexMap mutexMap = getMutexMap(id);
+		return mutexMap.global != null;
+	}
+
+	public boolean isAcquiredForPlayer(Identifier id, ServerPlayer player) {
+		MutexMap mutexMap = getMutexMap(id);
+		return mutexMap.byPlayer.containsKey(player.getUUID());
+	}
+
 	/* package-private */ static class MutexMap {
 		private @Nullable ActionMutex global;
 		private final Map<UUID, ActionMutex> byPlayer = new HashMap<>();
