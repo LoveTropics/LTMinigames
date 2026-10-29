@@ -1,8 +1,11 @@
 package org.lovetropics.games.mixin;
 
 import com.google.common.collect.ImmutableList;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
@@ -42,5 +45,13 @@ public class EntityMixin {
 				}
 			}
 		}
+	}
+
+	@WrapOperation(method = "isLocalClientAuthoritative", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;isLocalClientAuthoritative()Z"))
+	private boolean isLocalClientAuthoritative(LivingEntity passenger, Operation<Boolean> original) {
+		if (passenger instanceof Player player && player.isLocalPlayer() && ClientGameStateManager.getOrNull(GameClientStateTypes.DISABLE_PLAYER_MOVEMENT) != null) {
+			return false;
+		}
+		return original.call(passenger);
 	}
 }
