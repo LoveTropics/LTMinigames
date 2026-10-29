@@ -82,6 +82,10 @@ public record RiderBehavior(EntityTemplate entity, boolean force) implements IGa
 
 	@SubscribeEvent
 	public static void onDismount(EntityMountEvent event) {
+		// Rejecting the dismount of a removed entity is definitely wrong
+		if (event.getEntityBeingMounted().isRemoved()) {
+			return;
+		}
 		if (event.isDismounting() && event.getEntityMounting().getExistingData(FORCE_RIDER).orElse(false)) {
 			event.setCanceled(true);
 		}
