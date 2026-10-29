@@ -39,12 +39,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 @EventBusSubscriber(modid = LTDimensionsMod.ID)
 public final class RuntimeDimensions {
 	private static final Logger LOGGER = LogUtils.getLogger();
+
+	private static final SetupFunction NO_SETUP = _ -> CompletableFuture.completedFuture(null);
 
 	private static @Nullable RuntimeDimensions instance;
 
@@ -99,32 +102,49 @@ public final class RuntimeDimensions {
 	}
 
 	public RuntimeDimensionHandle getOrOpenPersistent(Identifier key, Supplier<RuntimeDimensionConfig> config) {
+		return getOrOpenPersistent(key, config, NO_SETUP).join();
+	}
+
+	public CompletableFuture<RuntimeDimensionHandle> getOrOpenPersistent(Identifier key, Supplier<RuntimeDimensionConfig> config, SetupFunction setup) {
 		ResourceKey<Level> dimension = ResourceKey.create(Registries.DIMENSION, key);
 		if (server.getLevel(dimension) instanceof RuntimeServerLevel existingLevel) {
 			// If the dimension wasn't ready to delete yet anyway, just revive it
 			existingLevel.handle().revive();
-			return existingLevel.handle();
+			return CompletableFuture.completedFuture(existingLevel.handle());
 		}
 
-		return openLevel(key, config.get(), false);
+		return createLevel(key, config.get(), false, setup);
 	}
 
 	public RuntimeDimensionHandle openTemporary(RuntimeDimensionConfig config) {
-		Identifier key = generateTemporaryDimensionKey();
-		return openLevel(key, config, true);
+		return openTemporary(config, NO_SETUP).join();
 	}
 
-	private RuntimeDimensionHandle openLevel(Identifier key, RuntimeDimensionConfig config, boolean temporary) {
-		ResourceKey<Level> levelKey = ResourceKey.create(Registries.DIMENSION, key);
+	public CompletableFuture<RuntimeDimensionHandle> openTemporary(RuntimeDimensionConfig config, SetupFunction setup) {
+		return createLevel(generateTemporaryDimensionKey(), config, true, setup);
+	}
 
+	private CompletableFuture<RuntimeDimensionHandle> createLevel(Identifier key, RuntimeDimensionConfig config, boolean temporary, SetupFunction setup) {
+		ResourceKey<Level> levelKey = ResourceKey.create(Registries.DIMENSION, key);
+		Path dimensionPath = server.storageSource.getDimensionPath(levelKey);
+
+		CompletableFuture<?> setupFuture = setup.apply(dimensionPath);
+		if (setupFuture.isDone()) {
+			return CompletableFuture.completedFuture(createLevel(levelKey, config, temporary));
+		}
+
+		return setupFuture.thenApplyAsync(_ -> createLevel(levelKey, config, temporary), server);
+	}
+
+	private RuntimeDimensionHandle createLevel(ResourceKey<Level> key, RuntimeDimensionConfig config, boolean temporary) {
 		MappedRegistry<LevelStem> dimensionsRegistry = getLevelStemRegistry(server);
 		dimensionsRegistry.unfreeze(false);
-		dimensionsRegistry.register(ResourceKey.create(Registries.LEVEL_STEM, key), config.levelStem(), RegistrationInfo.BUILT_IN);
+		dimensionsRegistry.register(ResourceKey.create(Registries.LEVEL_STEM, key.identifier()), config.levelStem(), RegistrationInfo.BUILT_IN);
 		dimensionsRegistry.freeze();
 
-		RuntimeServerLevel level = new RuntimeServerLevel(server, levelKey, config, temporary);
+		RuntimeServerLevel level = new RuntimeServerLevel(server, key, config, temporary);
 
-		server.levels.put(levelKey, level);
+		server.levels.put(key, level);
 		server.markWorldsDirty();
 
 		NeoForge.EVENT_BUS.post(new LevelEvent.Load(level));
@@ -283,5 +303,10 @@ public final class RuntimeDimensions {
 
 	public @Nullable LinkedDimensions getLinks(ResourceKey<Level> dimension) {
 		return links.get(dimension);
+	}
+
+	@FunctionalInterface
+	public interface SetupFunction {
+		CompletableFuture<?> apply(Path dimensionPath);
 	}
 }

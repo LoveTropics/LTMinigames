@@ -7,6 +7,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Util;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
@@ -15,18 +16,23 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.MobSpawnEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.jspecify.annotations.Nullable;
 import org.lovetropics.dimensions.RuntimeDimensionHandle;
 import org.lovetropics.dimensions.RuntimeDimensions;
 import org.lovetropics.dimensions.SharedDimensionState;
+import org.lovetropics.maps.MapExportReader;
+import org.lovetropics.maps.MapMetadata;
 import org.lovetropics.maps.MapWorldSettings;
 import org.lovetropics.maps.editor.MapsEditorMod;
 import org.lovetropics.maps.editor.map.SavedRegions;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
 @EventBusSubscriber(modid = MapsEditorMod.ID)
 public final class MapWorkspaceManager extends SavedData {
@@ -56,14 +62,34 @@ public final class MapWorkspaceManager extends SavedData {
 		return server.overworld().getDataStorage().computeIfAbsent(TYPE);
 	}
 
-	public CompletableFuture<MapWorkspace> openWorkspace(String id, WorkspaceDimensionConfig dimensionConfig) {
-		return CompletableFuture.supplyAsync(() -> getOrCreateDimension(id, dimensionConfig, null), server)
-				.thenApplyAsync(dimensionHandle -> {
-					MapWorkspace workspace = new MapWorkspace(id, dimensionConfig, dimensionHandle);
-					workspaces.putIfAbsent(id, workspace);
+	public MapWorkspace openWorkspace(String id, WorkspaceDimensionConfig dimensionConfig) {
+		RuntimeDimensionHandle dimensionHandle = getOrCreateDimension(id, dimensionConfig, null);
+		MapWorkspace workspace = new MapWorkspace(id, dimensionConfig, dimensionHandle);
+		workspaces.putIfAbsent(id, workspace);
+		return workspace;
+	}
 
-					return workspace;
-				}, server);
+	public CompletableFuture<MapWorkspace> importWorkspace(String id, WorkspaceDimensionConfig dimensionConfig, Identifier mapId) {
+		MutableObject<MapMetadata> metadataHolder = new MutableObject<>();
+		return RuntimeDimensions.get(server).getOrOpenPersistent(
+				Identifier.fromNamespaceAndPath(LEGACY_NAMESPACE, id),
+				() -> {
+					SharedDimensionState dimensionState = SharedDimensionState.createFresh(server);
+					return dimensionConfig.toRuntimeConfig(dimensionState);
+				},
+				dimensionPath -> CompletableFuture.runAsync(() -> {
+					try (MapExportReader reader = MapExportReader.open(server, mapId)) {
+						metadataHolder.setValue(reader.loadInto(dimensionPath));
+					} catch (IOException e) {
+						throw new CompletionException(e);
+					}
+				}, Util.backgroundExecutor())
+		).thenApplyAsync(dimensionHandle -> {
+			MapWorkspace workspace = new MapWorkspace(id, dimensionConfig, dimensionHandle);
+			workspace.importFrom(metadataHolder.get());
+			workspaces.putIfAbsent(id, workspace);
+			return workspace;
+		}, server);
 	}
 
 	private RuntimeDimensionHandle getOrCreateDimension(String id, WorkspaceDimensionConfig dimensionConfig, @Nullable MapWorldSettings mapSettings) {

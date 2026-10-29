@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.core.game.map;
 
-import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Holder;
@@ -12,6 +11,7 @@ import net.minecraft.util.Util;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.lovetropics.dimensions.RuntimeDimensionConfig;
 import org.lovetropics.dimensions.RuntimeDimensionHandle;
 import org.lovetropics.dimensions.RuntimeDimensions;
@@ -22,6 +22,7 @@ import org.lovetropics.maps.MapExportReader;
 import org.lovetropics.maps.MapMetadata;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -52,24 +53,27 @@ public record LoadMapProvider(
 		SharedDimensionState sharedState = SharedDimensionState.createFresh(server);
 		RuntimeDimensionConfig config = new RuntimeDimensionConfig(dimension, sharedState);
 
-		RuntimeDimensionHandle handle = RuntimeDimensions.get(server).openTemporary(config);
+		MutableObject<MapMetadata> metadataHolder = new MutableObject<>();
+		CompletableFuture<RuntimeDimensionHandle> handleFuture = RuntimeDimensions.get(server).openTemporary(config, dimensionPath ->
+				CompletableFuture.runAsync(
+						() -> metadataHolder.setValue(loadMapInto(server, dimensionPath)),
+						Util.backgroundExecutor()
+				)
+		);
 
-		return CompletableFuture.supplyAsync(() -> loadMapInto(server, handle), Util.backgroundExecutor())
-				.thenApplyAsync(pair -> {
-					RuntimeDimensionHandle dimensionHandle = pair.getFirst();
-					MapMetadata metadata = pair.getSecond();
-					// The level is already running, so its clocks must be updated from the server thread
-					metadata.settings().setupInto(server, sharedState);
-					return new GameMap(dimensionHandle.asKey(), metadata.regions())
-							.onClose(game -> dimensionHandle.markForDeletion());
-				}, server);
+		return handleFuture.thenApplyAsync(handle -> {
+			MapMetadata metadata = metadataHolder.get();
+			// The level is already running, so its clocks must be updated from the server thread
+			metadata.settings().setupInto(server, sharedState);
+			return new GameMap(handle.asKey(), metadata.regions())
+					.onClose(_ -> handle.markForDeletion());
+		}, server);
 	}
 
-	private Pair<RuntimeDimensionHandle, MapMetadata> loadMapInto(MinecraftServer server, RuntimeDimensionHandle handle) {
+	private MapMetadata loadMapInto(MinecraftServer server, Path dimensionPath) {
 		try {
 			try (MapExportReader reader = MapExportReader.open(server, loadFrom)) {
-				MapMetadata metadata = reader.loadInto(server, handle.asKey());
-				return Pair.of(handle, metadata);
+				return reader.loadInto(dimensionPath);
 			}
 		} catch (IOException e) {
 			throw new GameException(Component.literal("Failed to load map with id '" + loadFrom + "'" + e.getMessage()), e);

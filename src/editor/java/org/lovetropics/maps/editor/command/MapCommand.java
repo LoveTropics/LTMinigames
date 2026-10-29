@@ -45,7 +45,6 @@ import org.lovetropics.maps.editor.workspace.WorkspacePositionTracker;
 import org.lovetropics.maps.editor.workspace.WorkspaceRegions;
 import org.slf4j.Logger;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Set;
@@ -157,20 +156,19 @@ public final class MapCommand {
 		long seed = server.overworld().getSeed();
 		WorkspaceDimensionConfig dimensionConfig = new WorkspaceDimensionConfig(dimension.type(), dimension.generator(), seed);
 
-		workspaceManager.openWorkspace(id, dimensionConfig).thenAcceptAsync(workspace -> {
-			source.sendSuccess(() -> {
-				MutableComponent message = Component.literal("Opened workspace with id '" + id + "'. ").withStyle(ChatFormatting.AQUA);
-				Component join = Component.literal("Click here to join")
-						.withStyle(style -> {
-							String command = "/map join " + id;
-							return style.withColor(ChatFormatting.BLUE)
-									.withUnderlined(true)
-									.withClickEvent(new ClickEvent.RunCommand(command))
-									.withHoverEvent(new HoverEvent.ShowText(Component.literal(command)));
-						});
-				return message.append(join);
-			}, false);
-		}, server);
+		workspaceManager.openWorkspace(id, dimensionConfig);
+		source.sendSuccess(() -> {
+			MutableComponent message = Component.literal("Opened workspace with id '" + id + "'. ").withStyle(ChatFormatting.AQUA);
+			Component join = Component.literal("Click here to join")
+					.withStyle(style -> {
+						String command = "/map join " + id;
+						return style.withColor(ChatFormatting.BLUE)
+								.withUnderlined(true)
+								.withClickEvent(new ClickEvent.RunCommand(command))
+								.withHoverEvent(new HoverEvent.ShowText(Component.literal(command)));
+					});
+			return message.append(join);
+		}, false);
 
 		return Command.SINGLE_SUCCESS;
 	}
@@ -353,19 +351,15 @@ public final class MapCommand {
 		long seed = server.overworld().getSeed();
 		WorkspaceDimensionConfig dimensionConfig = new WorkspaceDimensionConfig(dimension.type(), dimension.generator(), seed);
 
-		workspaceManager.openWorkspace(id, dimensionConfig).thenAcceptAsync(workspace -> {
-			try {
-				try (MapExportReader reader = MapExportReader.open(server, location)) {
-					MapMetadata metadata = reader.loadInto(server, workspace.dimensionKey());
-					workspace.importFrom(metadata);
-
-					source.sendSuccess(() -> Component.literal("Successfully imported workspace into '" + id + "'"), false);
-				}
-			} catch (IOException e) {
+		workspaceManager.importWorkspace(id, dimensionConfig, location).handleAsync((_, throwable) -> {
+			if (throwable != null) {
 				source.sendFailure(Component.literal("Failed to import workspace!"));
-				e.printStackTrace();
+				LOGGER.error("Failed to import workspace", throwable);
+				return null;
 			}
-		}, Util.backgroundExecutor());
+			source.sendSuccess(() -> Component.literal("Successfully imported workspace into '" + id + "'"), false);
+			return null;
+		});
 
 		return Command.SINGLE_SUCCESS;
 	}

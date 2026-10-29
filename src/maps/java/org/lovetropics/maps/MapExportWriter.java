@@ -5,6 +5,7 @@ import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Util;
+import net.neoforged.neoforge.attachment.LevelAttachmentsSavedData;
 
 import java.io.BufferedOutputStream;
 import java.io.Closeable;
@@ -18,8 +19,13 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Map;
+import java.util.Set;
 
 public final class MapExportWriter implements Closeable {
+	private static final Set<Identifier> INCLUDE_SAVED_DATA = Set.of(
+			LevelAttachmentsSavedData.TYPE.id()
+	);
+
 	private final FileSystem fs;
 
 	private MapExportWriter(FileSystem fs) {
@@ -44,9 +50,13 @@ public final class MapExportWriter implements Closeable {
 		}
 	}
 
-	public void writeWorldData(Path sourceRoot) throws IOException {
-		copyDirectory(sourceRoot.resolve("region"), fs.getPath("world"));
-		copyDirectory(sourceRoot.resolve("entities"), fs.getPath("entities"));
+	public void writeWorldData(Path dimension) throws IOException {
+		copyDirectory(dimension.resolve("region"), fs.getPath("world"));
+		copyDirectory(dimension.resolve("entities"), fs.getPath("entities"));
+		for (Identifier id : INCLUDE_SAVED_DATA) {
+			Identifier file = id.withSuffix(".dat");
+			copyFileIfExists(file.resolveAgainst(dimension.resolve("data")), file.resolveAgainst(fs.getPath("data")));
+		}
 	}
 
 	private static void copyDirectory(Path sourceRoot, Path targetRoot) throws IOException {
@@ -54,11 +64,21 @@ public final class MapExportWriter implements Closeable {
 			@Override
 			public FileVisitResult visitFile(Path source, BasicFileAttributes attrs) throws IOException {
 				Path target = targetRoot.resolve(sourceRoot.relativize(source).toString());
-				Files.createDirectories(target.getParent());
-				Files.copy(source, target);
+				copyFile(source, target);
 				return FileVisitResult.CONTINUE;
 			}
 		});
+	}
+
+	private static void copyFileIfExists(Path source, Path target) throws IOException {
+		if (Files.exists(source)) {
+			copyFile(source, target);
+		}
+	}
+
+	private static void copyFile(Path source, Path target) throws IOException {
+		Files.createDirectories(target.getParent());
+		Files.copy(source, target);
 	}
 
 	@Override

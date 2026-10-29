@@ -4,13 +4,10 @@ import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.Identifier;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.Util;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.storage.LevelStorageSource;
 import org.apache.commons.io.FileUtils;
 import org.jspecify.annotations.Nullable;
 
@@ -73,16 +70,13 @@ public final class MapExportReader implements Closeable {
 		return new MapExportReader(new ZipInputStream(input));
 	}
 
-	public MapMetadata loadInto(MinecraftServer server, ResourceKey<Level> dimension) throws IOException {
-		LevelStorageSource.LevelStorageAccess save = server.storageSource;
-		return loadInto(save.getDimensionPath(dimension));
-	}
-
 	public MapMetadata loadInto(Path dimensionRoot) throws IOException {
 		Path regionRoot = dimensionRoot.resolve("region");
 		Path entitiesRoot = dimensionRoot.resolve("entities");
+		Path savedDataRoot = dimensionRoot.resolve("data");
 		createClearDirectories(regionRoot);
 		createClearDirectories(entitiesRoot);
+		createClearDirectories(savedDataRoot);
 
 		MapMetadata metadata = null;
 
@@ -98,8 +92,12 @@ public final class MapExportReader implements Closeable {
 			} else if (name.startsWith("world/")) {
 				Path targetPath = regionRoot.resolve(name.substring("world/".length()));
 				Files.copy(input, targetPath);
-			} else if (name.startsWith("entities")) {
+			} else if (name.startsWith("entities/")) {
 				Path targetPath = entitiesRoot.resolve(name.substring("entities/".length()));
+				Files.copy(input, targetPath);
+			} else if (name.startsWith("data/")) {
+				Path targetPath = savedDataRoot.resolve(name.substring("data/".length()));
+				Files.createDirectories(targetPath.getParent());
 				Files.copy(input, targetPath);
 			}
 		}
