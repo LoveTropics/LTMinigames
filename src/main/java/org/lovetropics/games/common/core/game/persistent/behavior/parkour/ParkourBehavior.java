@@ -8,6 +8,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.phys.Vec3;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
@@ -42,6 +43,9 @@ public class ParkourBehavior implements PersistentGameBehavior {
 	@Override
 	public void register(PersistentGame game, EventRegistrar events) {
 		events.listen(GamePlayerEvents.ADD, player -> {
+			if (!canPlayerPlay(player)) {
+				return;
+			}
 			lastCheckpoint.put(player, defaultCheckpoint);
 			player.getInventory().add(new ItemStack(Parkour.PARKOUR_TELEPORTER.asItem()));
 		});
@@ -87,8 +91,10 @@ public class ParkourBehavior implements PersistentGameBehavior {
 		events.listen(GamePhaseEvents.TICK, () -> {
 			for (Map.Entry<ServerPlayer, RegionQuery> e : lastCheckpoint.entrySet()) {
 				ServerPlayer player = e.getKey();
-				for (RegionQuery checkpoint : checkpoints) {
-					if (checkpoint.intersects(game, player.level(), player.getBoundingBox()) && !e.getValue().equals(checkpoint)) {
+				int lastIndex = checkpoints.indexOf(e.getValue());
+				for (int i = 0; i < checkpoints.size(); i++) {
+					RegionQuery checkpoint = checkpoints.get(i);
+					if (checkpoint.intersects(game, player.level(), player.getBoundingBox()) && i > lastIndex) {
 						player.sendSystemMessage(Component.literal("Reached checkpoint!"), true);
 						e.setValue(checkpoint);
 						game.level().playSound(null, player.blockPosition(), SoundEvents.ARROW_HIT_PLAYER, SoundSource.BLOCKS, 0.4F, 1.0F);
@@ -96,6 +102,10 @@ public class ParkourBehavior implements PersistentGameBehavior {
 				}
 			}
 		});
+	}
+
+	private boolean canPlayerPlay(ServerPlayer player) {
+		return player.gameMode() != GameType.SPECTATOR;
 	}
 
 	@Override
