@@ -289,7 +289,7 @@ public final class MapCommand {
 					writer.writeMetadata(new MapMetadata(id, settings, regions));
 					writer.writeWorldData(dimensionDirectory);
 
-					source.sendSuccess(() -> Component.literal("Successfully exported map!"), false);
+					source.sendSuccess(() -> Component.literal("Successfully exported map " + workspace.id()), true);
 				}
 			} catch (Exception e) {
 				source.sendFailure(Component.literal("Failed to export map!"));
