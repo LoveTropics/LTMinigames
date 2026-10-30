@@ -190,7 +190,7 @@ dependencies {
     jarJar(libCompileOnly "org.lovetropics:peekaboo-api:$peekaboo_version")
     libCompileOnly "com.tterrag.registrate:Registrate:MC26.2-${registrate_version}"
 
-    runtimeOnly 'maven.modrinth:tropicraft:9.11.0+26.2'
+    runtimeOnly 'maven.modrinth:tropicraft:9.11.3+26.2'
     runtimeOnly("org.lovetropics:peekaboo:$peekaboo_version") {
         transitive = false
     }
