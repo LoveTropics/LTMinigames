@@ -9,6 +9,7 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.Level;
@@ -20,8 +21,10 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 import java.util.function.Function;
+import java.util.function.Supplier;
 
-// We don't normally mark WorldGenSettings as dirty when runtime dimensions change (which is good), but if we are to save for any reason - we definitely don't want to store the dimension that is supposed to be transient
+/// Runtime dimensions *must* be instantiated manually through [RuntimeDimensions#getOrOpenPersistent(Identifier, Supplier)].
+/// Drop any data we store here, such that we don't restore a ghost level that is not actually set up with the desired configuration.
 @Mixin(WorldGenSettings.class)
 public class WorldGenSettingsMixin {
 	@Unique
@@ -39,33 +42,33 @@ public class WorldGenSettingsMixin {
 			@Override
 			public <T> DataResult<T> encode(WorldGenSettings input, DynamicOps<T> ops, T prefix) {
 				return oldCodec.encode(input, ops, prefix).map(encoded ->
-						ltminigames$removeTemporaryDimensions(ops, encoded)
+						lt$removeRuntimeDimensions(ops, encoded)
 				);
 			}
 		};
 	}
 
 	@Unique
-	private static <T> T ltminigames$removeTemporaryDimensions(DynamicOps<T> ops, T root) {
+	private static <T> T lt$removeRuntimeDimensions(DynamicOps<T> ops, T root) {
 		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 		RuntimeDimensions runtimeDimensions = server != null ? RuntimeDimensions.getOrNull(server) : null;
 		if (runtimeDimensions == null) {
 			return root;
 		}
 		return ops.update(root, "dimensions", dimensionsTag ->
-				ltminigames$removeTemporaryDimensions(ops, dimensionsTag, runtimeDimensions)
+				lt$removeRuntimeDimensions(ops, dimensionsTag, runtimeDimensions)
 		);
 	}
 
 	@Unique
-	private static <T> T ltminigames$removeTemporaryDimensions(DynamicOps<T> ops, T tag, RuntimeDimensions runtimeDimensions) {
+	private static <T> T lt$removeRuntimeDimensions(DynamicOps<T> ops, T tag, RuntimeDimensions runtimeDimensions) {
 		return ops.getMap(tag).result().map(map ->
-				ops.createMap(map.entries().filter(entry -> !ltminigames$isTemporaryDimension(ops, entry.getFirst(), runtimeDimensions)))
+				ops.createMap(map.entries().filter(entry -> !lt$isRuntimeDimension(ops, entry.getFirst(), runtimeDimensions)))
 		).orElse(tag);
 	}
 
 	@Unique
-	private static <T> boolean ltminigames$isTemporaryDimension(DynamicOps<T> ops, T key, RuntimeDimensions runtimeDimensions) {
-		return KEY_CODEC.parse(ops, key).result().filter(runtimeDimensions::isTemporaryDimension).isPresent();
+	private static <T> boolean lt$isRuntimeDimension(DynamicOps<T> ops, T key, RuntimeDimensions runtimeDimensions) {
+		return KEY_CODEC.parse(ops, key).result().filter(runtimeDimensions::isRuntimeDimension).isPresent();
 	}
 }

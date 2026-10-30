@@ -15,7 +15,7 @@ import net.minecraft.world.level.saveddata.SavedDataType;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.MobSpawnEvent;
-import net.neoforged.neoforge.event.level.LevelEvent;
+import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.jspecify.annotations.Nullable;
 import org.lovetropics.dimensions.RuntimeDimensionHandle;
@@ -164,12 +164,10 @@ public final class MapWorkspaceManager extends SavedData {
 	}
 
 	@SubscribeEvent
-	public static void onServerLoad(LevelEvent.Load event) {
+	public static void onServerStarting(ServerStartingEvent event) {
 		// Make sure the workspace dimensions are available BEFORE joining players
-		if (event.getLevel() instanceof ServerLevel level && level.dimension() == Level.OVERWORLD) {
-			// TODO: Fix this when we make this storage universal
-			level.getDataStorage().computeIfAbsent(TYPE);
-		}
+		// TODO: Fix this when we make this storage universal
+		event.getServer().overworld().getDataStorage().computeIfAbsent(TYPE);
 	}
 
 	@SubscribeEvent

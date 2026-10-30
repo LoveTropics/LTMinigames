@@ -281,9 +281,8 @@ public final class RuntimeDimensions {
 		return level instanceof RuntimeServerLevel runtimeLevel && runtimeLevel.isTemporary();
 	}
 
-	public boolean isTemporaryDimension(ResourceKey<Level> dimension) {
-		ServerLevel level = server.getLevel(dimension);
-		return level != null && isTemporaryDimension(level);
+	public boolean isRuntimeDimension(ResourceKey<Level> dimension) {
+		return server.getLevel(dimension) instanceof RuntimeServerLevel;
 	}
 
 	/* package-private */ @Nullable RuntimeDimensionHandle asHandle(ServerLevel level) {
