@@ -94,7 +94,7 @@ public final class BbBehavior implements IGameBehavior {
 			return TriState.DEFAULT;
 		});
 		events.listen(GameLivingEntityEvents.FARMLAND_TRAMPLE, this::onTrampleFarmland);
-		events.listen(GameEntityEvents.MOUNTED, (level, mounting, beingMounted) -> {
+		events.listen(GameEntityEvents.MOUNT, (level, mounting, beingMounted) -> {
 			if (mounting instanceof ServerPlayer) {
 				return TriState.DEFAULT;
 			} else {

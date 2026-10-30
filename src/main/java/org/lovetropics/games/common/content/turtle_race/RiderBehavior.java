@@ -1,12 +1,13 @@
 package org.lovetropics.games.common.content.turtle_race;
 
+import com.lovetropics.lib.codec.MoreCodecs;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -25,17 +26,21 @@ import org.lovetropics.games.common.core.game.player.PlayerRole;
 import org.lovetropics.games.common.util.EntityTemplate;
 import org.slf4j.Logger;
 
-import java.util.Map;
-import java.util.UUID;
+import java.util.List;
 import java.util.function.Supplier;
 
 @EventBusSubscriber(modid = LoveTropics.ID)
-public record RiderBehavior(EntityTemplate entity, boolean force) implements IGameBehavior {
+public record RiderBehavior(
+		EntityTemplate entity,
+		boolean force,
+		List<MobEffectInstance> notRidingEffects
+) implements IGameBehavior {
 	private static final Logger LOGGER = LogUtils.getLogger();
 
 	public static final MapCodec<RiderBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			EntityTemplate.CODEC.fieldOf("entity").forGetter(RiderBehavior::entity),
-			Codec.BOOL.optionalFieldOf("force", true).forGetter(RiderBehavior::force)
+			Codec.BOOL.optionalFieldOf("force", true).forGetter(RiderBehavior::force),
+			MoreCodecs.EFFECT_INSTANCE.listOf().optionalFieldOf("not_riding_effects", List.of()).forGetter(RiderBehavior::notRidingEffects)
 	).apply(i, RiderBehavior::new));
 
 	public static final DeferredRegister<AttachmentType<?>> ATTACHMENT_TYPES = DeferredRegister.create(NeoForgeRegistries.ATTACHMENT_TYPES, LoveTropics.ID);
@@ -43,8 +48,6 @@ public record RiderBehavior(EntityTemplate entity, boolean force) implements IGa
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		Map<UUID, Entity> riddenEntities = new Object2ObjectOpenHashMap<>();
-
 		events.listen(GamePlayerEvents.SPAWN, (playerId, spawn, role) -> {
 			if (role != PlayerRole.PARTICIPANT) {
 				return;
@@ -52,31 +55,39 @@ public record RiderBehavior(EntityTemplate entity, boolean force) implements IGa
 			spawn.run(player -> {
 				Entity entity = spawnEntity(player);
 				if (entity == null) {
-					LOGGER.error("Failed to spawn entity of type: {}", entity.getType());
+					LOGGER.error("Failed to spawn entity of type: {}", this.entity.type());
 					return;
 				}
 				player.startRiding(entity);
 				player.setData(FORCE_RIDER, force);
-				riddenEntities.put(player.getUUID(), entity);
 			});
 		});
 
 		events.listen(GamePlayerEvents.SET_ROLE, (player, role, lastRole) -> {
 			if (lastRole == PlayerRole.PARTICIPANT) {
-				removeEntity(riddenEntities, player);
+				removeVehicle(player);
 			}
 		});
 
-		events.listen(GamePlayerEvents.REMOVE, player -> removeEntity(riddenEntities, player));
+		events.listen(GamePlayerEvents.TICK, player -> {
+			if (player.getVehicle() == null) {
+				for (MobEffectInstance effect : notRidingEffects) {
+					player.addEffect(new MobEffectInstance(effect));
+				}
+			}
+		});
+
+		events.listen(GamePlayerEvents.REMOVE, RiderBehavior::removeVehicle);
 	}
 
-	private static void removeEntity(Map<UUID, Entity> riddenEntities, ServerPlayer player) {
+	private static void removeVehicle(ServerPlayer player) {
+		Entity vehicle = player.getVehicle();
+
 		player.stopRiding();
 		player.removeData(FORCE_RIDER);
 
-		Entity entity = riddenEntities.remove(player.getUUID());
-		if (entity != null) {
-			entity.kill(player.level());
+		if (vehicle != null) {
+			vehicle.kill(player.level());
 		}
 	}
 

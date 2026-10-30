@@ -3,6 +3,9 @@ package org.lovetropics.games.common.core.game.behavior.instances.action;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderSet;
+import net.minecraft.core.RegistryCodecs;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.LivingEntity;
 import org.lovetropics.games.common.core.game.GameException;
@@ -10,12 +13,11 @@ import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 
-import java.util.List;
 import java.util.Optional;
 
-public record ClearEffectsAction(Optional<List<Holder<MobEffect>>> effects) implements IGameBehavior {
+public record ClearEffectsAction(Optional<HolderSet<MobEffect>> effects) implements IGameBehavior {
 	public static final MapCodec<ClearEffectsAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			MobEffect.CODEC.listOf().optionalFieldOf("effects").forGetter(ClearEffectsAction::effects)
+			RegistryCodecs.homogeneousList(Registries.MOB_EFFECT).optionalFieldOf("effects").forGetter(ClearEffectsAction::effects)
 	).apply(i, ClearEffectsAction::new));
 
 	@Override

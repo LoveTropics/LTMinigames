@@ -152,8 +152,17 @@ public final class BlockPartyBehavior implements IGameBehavior {
 	}
 
 	private void spawnPlayer(SpawnBuilder spawn) {
-		BlockPos floorPos = floorRegion.region.sample(game.random());
-		spawn.teleportTo(floorRegion.region.level(), floorPos.above());
+		Region region = floorRegion.region;
+		ServerLevel level = region.level();
+		for (int i = 0; i < 100; i++) {
+			BlockPos floorPos = region.sample(game.random());
+			if (!level.isEmptyBlock(floorPos) && level.isEmptyBlock(floorPos.above())) {
+				spawn.teleportTo(level, floorPos.above());
+				return;
+			}
+		}
+		// Very unlucky :(
+		spawn.teleportTo(level, region.centerBlock().above());
 	}
 
 	private void onStateChange(State oldState, @Nullable State newState) {

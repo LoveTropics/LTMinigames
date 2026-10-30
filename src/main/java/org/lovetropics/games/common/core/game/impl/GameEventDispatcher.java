@@ -566,7 +566,7 @@ public final class GameEventDispatcher {
 		IGamePhase game = gameLookup.getGamePhaseFor(entityBeingMounted);
 		if (game != null && event.getLevel() instanceof ServerLevel level) {
 			try {
-				TriState result = game.invoker(GameEntityEvents.MOUNTED).onEntityMounted(level, entityMounting, entityBeingMounted);
+				TriState result = game.invoker(event.isDismounting() ? GameEntityEvents.DISMOUNT : GameEntityEvents.MOUNT).onEntityMount(level, entityMounting, entityBeingMounted);
 				if (result.isFalse()) {
 					event.setCanceled(true);
 				}

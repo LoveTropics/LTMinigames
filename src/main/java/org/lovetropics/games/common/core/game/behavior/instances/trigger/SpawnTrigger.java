@@ -12,9 +12,11 @@ import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
 
-public record SpawnTrigger(PlayerRole role, GameActionList action) implements IGameBehavior {
+import java.util.Optional;
+
+public record SpawnTrigger(Optional<PlayerRole> role, GameActionList action) implements IGameBehavior {
 	public static final MapCodec<SpawnTrigger> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			PlayerRole.CODEC.fieldOf("role").forGetter(SpawnTrigger::role),
+			PlayerRole.CODEC.optionalFieldOf("role").forGetter(SpawnTrigger::role),
 			GameActionList.MAP_CODEC.forGetter(SpawnTrigger::action)
 	).apply(i, SpawnTrigger::new));
 
@@ -22,7 +24,7 @@ public record SpawnTrigger(PlayerRole role, GameActionList action) implements IG
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		action.register(game, events);
 		events.listen(GamePlayerEvents.SPAWN, (playerId, spawn, role) -> {
-			if (this.role == role) {
+			if (this.role.isEmpty() || this.role.get() == role) {
 				spawn.run(player -> action.apply(game, ContextMap.EMPTY, ActionSubjects.ofPlayer(player)));
 			}
 		});

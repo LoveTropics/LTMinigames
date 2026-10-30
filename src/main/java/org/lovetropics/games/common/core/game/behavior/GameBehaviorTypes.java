@@ -173,6 +173,7 @@ import org.lovetropics.games.common.core.game.behavior.instances.trigger.Schedul
 import org.lovetropics.games.common.core.game.behavior.instances.trigger.SetRoleTrigger;
 import org.lovetropics.games.common.core.game.behavior.instances.trigger.SpawnTrigger;
 import org.lovetropics.games.common.core.game.behavior.instances.trigger.StatisticThresholdTrigger;
+import org.lovetropics.games.common.core.game.behavior.instances.trigger.EntityTimerTrigger;
 import org.lovetropics.games.common.core.game.behavior.instances.trigger.TopPlayerTrigger;
 import org.lovetropics.games.common.core.game.behavior.instances.trigger.WeatherChangeTrigger;
 import org.lovetropics.games.common.core.game.behavior.instances.trigger.WhileInInventoryTrigger;
@@ -367,6 +368,7 @@ public class GameBehaviorTypes {
 		register("mutex_dispatch", MutexDispatchAction.CODEC);
 		register("item_picked_up", ItemPickedUpTrigger.CODEC);
 		register("item_crafted", ItemCraftedTrigger.CODEC);
+		register("entity_timer", EntityTimerTrigger.CODEC);
 		register("give_items_to_killer", GiveItemsToKillerBehavior.CODEC);
 		register("countdown_effects", CountdownEffectsBehavior.CODEC);
 		register("trigger_every_package", TriggerEveryPackageBehavior.CODEC);

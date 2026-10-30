@@ -23,19 +23,7 @@ public final class LoveTropicsRegistrate extends AbstractRegistrate<LoveTropicsR
 	}
 
 	public void registerBehavior(String id, MapCodec<? extends IGameBehavior> codec) {
-		object(id).behavior(codec).register();
-	}
-
-	public <T extends IGameBehavior> GameBehaviorBuilder<T, LoveTropicsRegistrate> behavior(MapCodec<T> codec) {
-		return behavior(this, codec);
-	}
-
-	public <T extends IGameBehavior, P> GameBehaviorBuilder<T, P> behavior(P parent, MapCodec<T> codec) {
-		return behavior(parent, currentName(), codec);
-	}
-
-	public <T extends IGameBehavior, P> GameBehaviorBuilder<T, P> behavior(P parent, String name, MapCodec<T> codec) {
-		return entry(name, callback -> new GameBehaviorBuilder<>(this, parent, name, callback, codec));
+		entry(id, callback -> new GameBehaviorBuilder<>(this, this, id, callback, codec)).register();
 	}
 
 	public <T extends PersistentGameBehavior> PersistentGameBehaviorBuilder<T, LoveTropicsRegistrate> persistentBehavior(MapCodec<T> codec) {
