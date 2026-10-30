@@ -96,8 +96,9 @@ public final class MapCommand {
 				))
 				.then(literal("leave").executes(MapCommand::leaveMap))
 				.then(literal("export")
+					.executes(c -> MapCommand.exportMap(c, getCurrentWorkspace(c)))
 					.then(MapWorkspaceArgument.argument("id")
-					.executes(MapCommand::exportMap)
+						.executes(c -> exportMap(c, MapWorkspaceArgument.get(c, "id")))
 				))
 				.then(literal("import")
 					.then(argument("location", IdentifierArgument.id())
@@ -265,9 +266,8 @@ public final class MapCommand {
 		return Command.SINGLE_SUCCESS;
 	}
 
-	private static int exportMap(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+	private static int exportMap(CommandContext<CommandSourceStack> context, MapWorkspace workspace) {
 		CommandSourceStack source = context.getSource();
-		MapWorkspace workspace = MapWorkspaceArgument.get(context, "id");
 
 		MinecraftServer server = source.getServer();
 
