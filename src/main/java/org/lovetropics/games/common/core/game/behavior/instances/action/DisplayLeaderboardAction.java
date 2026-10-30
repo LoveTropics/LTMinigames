@@ -47,23 +47,23 @@ public record DisplayLeaderboardAction<T extends Comparable<T>>(
 	public void register(IGamePhase game, EventRegistrar events) {
 		TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
 		events.listen(GameActionEvents.APPLY, (context, targets) -> {
-			PlayerIterable players = PlayerIterable.from(targets.asPlayers(game));
-			players.sendMessage(header);
+			PlayerSet targetPlayers = PlayerSet.copyOf(targets.asPlayers(game));
+			targetPlayers.sendMessage(header);
 			if (teams == null) {
 				Placement.Score<PlayerKey, T> placement = Placement.fromPlayerScore(order, game, statistic);
-				placement.buildDisplay(length, showPlacement, showScore, players::sendMessage);
+				placement.buildDisplay(length, showPlacement, showScore, targetPlayers::sendMessage);
 				for (Placement.Score.Entry<PlayerKey, T> entry : placement.entries()) {
-					ServerPlayer player = game.allPlayers().getPlayerBy(entry.holder());
+					ServerPlayer player = targetPlayers.getPlayerBy(entry.holder());
 					if (player != null && entry.placement() > length) {
 						sendPersonalResult(entry, PlayerSet.of(player));
 					}
 				}
 			} else {
 				Placement.Score<GameTeamKey, T> placement = Placement.fromTeamScore(order, game, statistic);
-				placement.buildDisplay(length, showPlacement, showScore, players::sendMessage);
+				placement.buildDisplay(length, showPlacement, showScore, targetPlayers::sendMessage);
 				for (Placement.Score.Entry<GameTeamKey, T> entry : placement.entries()) {
 					if (entry.placement() > length) {
-						sendPersonalResult(entry, teams.getPlayersForTeam(game, entry.holder()));
+						sendPersonalResult(entry, PlayerSet.intersection(targetPlayers, teams.getPlayersForTeam(game, entry.holder())));
 					}
 				}
 			}

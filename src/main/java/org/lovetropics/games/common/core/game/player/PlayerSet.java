@@ -121,6 +121,12 @@ public interface PlayerSet extends PlayerIterable {
 		};
 	}
 
+	static PlayerSet copyOf(Iterable<ServerPlayer> players) {
+		MutablePlayerSet set = new MutablePlayerSet();
+		players.forEach(set::add);
+		return set;
+	}
+
 	static PlayerSet intersection(PlayerSet left, PlayerSet right) {
 		return new PlayerSet() {
 			@Override
