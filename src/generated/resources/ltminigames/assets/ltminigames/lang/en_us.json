@@ -630,6 +630,7 @@
   "ltminigames.minigame.survive_the_tide.bar.pvp_disabled": "Grace Period: PVP Disabled",
   "ltminigames.minigame.survive_the_tide.bar.tides_rising": "Tides Rising",
   "ltminigames.minigame.survive_the_tide.camping_warning": "You should not be here!",
+  "ltminigames.minigame.survive_the_tide.cant_use_item": "You cannot use this item till pvp is eanbled!",
   "ltminigames.minigame.survive_the_tide.cant_use_spawn_egg": "You cannot use spawn eggs till pvp is enabled!",
   "ltminigames.minigame.survive_the_tide.eliminated": "☠ %message%. They are eliminated!",
   "ltminigames.minigame.survive_the_tide.lightning_storm": "Lightning Storm!",

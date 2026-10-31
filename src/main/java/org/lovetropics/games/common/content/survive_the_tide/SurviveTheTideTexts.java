@@ -38,6 +38,7 @@ public final class SurviveTheTideTexts {
 	public static final Component SNOWSTORM_TOAST = KEYS.add("toast.snowstorm", "WEATHER REPORT:\nA Snowstorm is passing!\nFind shelter!");
 	public static final Component FLASH_FLOOD_TOAST = KEYS.add("toast.flash_flood", "WEATHER REPORT:\nSeek higher ground! Heavy rains are falling!");
 	public static final Component CANT_USE_SPAWN_EGG = KEYS.add("cant_use_spawn_egg", "You cannot use spawn eggs till pvp is enabled!").withStyle(ChatFormatting.RED);
+	public static final Component CANT_USE_ITEM = KEYS.add("cant_use_item", "You cannot use this item till pvp is eanbled!").withStyle(ChatFormatting.RED);
 
 	static {
 		KEYS.add("eliminated", "☠ %message%. They are eliminated!");

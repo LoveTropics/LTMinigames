@@ -4,18 +4,22 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.TriState;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.phys.BlockHitResult;
+import org.lovetropics.games.LoveTropics;
 import org.lovetropics.games.common.content.survive_the_tide.SurviveTheTideTexts;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
@@ -33,6 +37,8 @@ public class SurviveTheTideRulesetBehavior implements IGameBehavior {
 			ProgressionPeriod.CODEC.fieldOf("safe_period").forGetter(c -> c.safePeriod),
 			Codec.BOOL.optionalFieldOf("force_drop_items_on_death", true).forGetter(c -> c.forceDropItemsOnDeath)
 	).apply(i, SurviveTheTideRulesetBehavior::new));
+
+	private static final TagKey<Item> NO_PRE_PVP = TagKey.create(Registries.ITEM, LoveTropics.id("stt_no_pre_pvp"));
 
 	private final ProgressionPeriod safePeriod;
 	private final boolean forceDropItemsOnDeath;
@@ -52,6 +58,7 @@ public class SurviveTheTideRulesetBehavior implements IGameBehavior {
 		events.listen(GamePlayerEvents.DAMAGE, this::onPlayerHurt);
 		events.listen(GamePlayerEvents.ATTACK, this::onPlayerAttackEntity);
 		events.listen(GamePlayerEvents.USE_ITEM_ON_BLOCK, this::onPlayerUseItemOnBlock);
+		events.listen(GamePlayerEvents.USE_ITEM, this::onUseItem);
 
 		events.listen(GameLivingEntityEvents.ENDER_PEARL_TELEPORT, (player, x, y, z, damage, callback) -> {
 			callback.accept(0f); // Set ender pearl damage to 0
@@ -78,6 +85,17 @@ public class SurviveTheTideRulesetBehavior implements IGameBehavior {
 			return TriState.FALSE;
 		}
 		return TriState.DEFAULT;
+	}
+
+	private InteractionResult onUseItem(ServerPlayer player, InteractionHand hand) {
+		if (progression.is(safePeriod)) {
+			ItemStack stack = player.getItemInHand(hand);
+			if (stack.is(NO_PRE_PVP)) {
+				player.sendSystemMessage(SurviveTheTideTexts.CANT_USE_ITEM, true);
+				return InteractionResult.SUCCESS;
+			}
+		}
+		return InteractionResult.PASS;
 	}
 
 	private InteractionResult onPlayerUseItemOnBlock(ServerPlayer player, ServerLevel level, BlockPos pos, InteractionHand hand, BlockHitResult traceResult) {
