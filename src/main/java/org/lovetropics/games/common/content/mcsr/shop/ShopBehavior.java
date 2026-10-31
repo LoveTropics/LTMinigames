@@ -7,7 +7,6 @@ import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
-import org.lovetropics.games.common.core.game.behavior.event.SubGameEvents;
 import org.lovetropics.games.common.core.game.state.GameStateMap;
 
 import java.util.List;
@@ -40,12 +39,6 @@ public final class ShopBehavior implements IGameBehavior {
 
 		events.listen(GamePlayerEvents.ADD, shop::updatePlayer);
 		events.listen(GamePlayerEvents.REMOVE, shop::removeFromPlayer);
-
-		// Players moving into a sub-phase are removed from this one, which clears their shop - send it again once they arrive
-		events.listen(SubGameEvents.CREATE, (subGame, subEvents) -> {
-			subEvents.listen(GamePlayerEvents.ADD, shop::updatePlayer);
-			subEvents.listen(GamePlayerEvents.REMOVE, shop::removeFromPlayer);
-		});
 
 		// Tropicoins can come from anywhere (e.g. a donation), and other players' points change as they play
 		events.listen(GamePhaseEvents.TICK, () -> {

@@ -8,7 +8,6 @@ import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
-import org.lovetropics.games.common.core.game.behavior.event.SubGameEvents;
 import org.lovetropics.games.common.core.game.state.GameStateMap;
 
 import java.util.HashSet;
@@ -49,11 +48,5 @@ public final class ModifiersBehavior implements IGameBehavior {
 		events.listen(GamePlayerEvents.ADD, state::updatePlayer);
 		events.listen(GamePlayerEvents.REMOVE, state::removeFromPlayer);
 		events.listen(GamePhaseEvents.REGISTER_COMMANDS, (commands, buildContext) -> ModifierCommands.register(game, state, commands));
-
-		// Players moving into a sub-phase are removed from this one, which clears their modifiers - send them again once they arrive
-		events.listen(SubGameEvents.CREATE, (subGame, subEvents) -> {
-			subEvents.listen(GamePlayerEvents.ADD, state::updatePlayer);
-			subEvents.listen(GamePlayerEvents.REMOVE, state::removeFromPlayer);
-		});
 	}
 }

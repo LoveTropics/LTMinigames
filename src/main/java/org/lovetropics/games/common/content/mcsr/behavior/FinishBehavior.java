@@ -18,9 +18,6 @@ import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GameLivingEntityEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GameLogicEvents;
-import org.lovetropics.games.common.core.game.behavior.event.SubGameEvents;
-import org.lovetropics.games.common.core.game.player.PlayerRole;
-import org.lovetropics.games.common.core.game.player.PlayerSet;
 import org.lovetropics.games.common.core.game.state.statistics.GameStatistics;
 import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
@@ -62,41 +59,30 @@ public final class FinishBehavior implements IGameBehavior {
 		}
 
 		if (dragonKill) {
-			events.listen(SubGameEvents.CREATE, (world, worldEvents) -> worldEvents.listen(GameLivingEntityEvents.DEATH, (level, entity, damageSource) -> {
+			events.listen(GameLivingEntityEvents.DEATH, (level, entity, damageSource) -> {
 				if (entity.getType() == EntityTypes.ENDER_DRAGON) {
 					// The dragon is usually killed with beds, which don't credit anyone with the kill, so credit whoever owns the world
-					ServerPlayer owner = getParticipant(game, world.allPlayers());
-					if (owner != null) {
-						finish(game, owner, McsrTexts.KILLED_DRAGON);
-					}
+					game.participants().inLevel(level).stream().findAny()
+							.ifPresent(owner -> finish(game, owner, McsrTexts.KILLED_DRAGON));
 				}
 				return TriState.DEFAULT;
-			}));
+			});
 		}
 
 		events.listen(GameLogicEvents.REQUEST_GAME_OVER, () -> {
 			if (!over) {
-				game.allPlayers(true).sendMessage(McsrTexts.TIME_UP);
+				game.allPlayers().sendMessage(McsrTexts.TIME_UP);
 				endGame(game, null);
 			}
 			return true;
 		});
 	}
 
-	private static @Nullable ServerPlayer getParticipant(IGamePhase game, PlayerSet players) {
-		for (ServerPlayer player : players) {
-			if (game.getRoleFor(player) == PlayerRole.PARTICIPANT) {
-				return player;
-			}
-		}
-		return null;
-	}
-
 	private void finish(IGamePhase game, ServerPlayer player, TranslationCollector.Fun1 message) {
 		if (over) {
 			return;
 		}
-		game.allPlayers(true).sendMessage(message.apply(player.getDisplayName()).withStyle(ChatFormatting.GOLD));
+		game.allPlayers().sendMessage(message.apply(player.getDisplayName()).withStyle(ChatFormatting.GOLD));
 		endGame(game, player);
 	}
 
@@ -125,7 +111,7 @@ public final class FinishBehavior implements IGameBehavior {
 		}
 
 		for (Component line : results) {
-			game.allPlayers(true).sendMessage(line);
+			game.allPlayers().sendMessage(line);
 		}
 
 		game.invoker(GameLogicEvents.GAME_OVER).onGameOver(getWinner(game, statistics, ranking, finisher));
@@ -141,10 +127,8 @@ public final class FinishBehavior implements IGameBehavior {
 				players.add(player);
 			}
 		}
-		for (ServerPlayer player : game.allPlayers(true)) {
-			if (game.getRoleFor(player) == PlayerRole.PARTICIPANT) {
-				players.add(PlayerKey.from(player));
-			}
+		for (ServerPlayer player : game.participants()) {
+			players.add(PlayerKey.from(player));
 		}
 
 		List<PlayerKey> ranking = new ArrayList<>(players);
@@ -162,7 +146,7 @@ public final class FinishBehavior implements IGameBehavior {
 		if (ranking.isEmpty() || ranking.size() > 1 && getPoints(statistics, ranking.get(0)) == getPoints(statistics, ranking.get(1))) {
 			return new GameWinner.Nobody();
 		}
-		ServerPlayer winner = game.allPlayers(true).getPlayerBy(ranking.getFirst().id());
+		ServerPlayer winner = game.allPlayers().getPlayerBy(ranking.getFirst().id());
 		return winner != null ? new GameWinner.Player(winner) : new GameWinner.OfflinePlayer(ranking.getFirst(), Component.literal(ranking.getFirst().name()));
 	}
 

@@ -30,7 +30,6 @@ import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GameActionEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePackageEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
-import org.lovetropics.games.common.core.game.player.PlayerRole;
 import org.lovetropics.games.common.core.game.state.GamePackageState;
 import org.lovetropics.games.common.core.integration.game_actions.GamePackage;
 import org.slf4j.Logger;
@@ -39,8 +38,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-/// @param includeSubPhases whether the package can also go to participants who are in sub-phases of this phase, e.g.
-///                         each playing in their own world
 public record DonationPackageBehavior(
 		String id,
 		DonationPackageDesc.Type type,
@@ -49,10 +46,7 @@ public record DonationPackageBehavior(
 		TargetSelectionMode targetMode,
 		Optional<Double> donationAmount,
 		Optional<PackageNotification> notification,
-		GameActionList receiveActions,
-		// TODO: We shouldn't really rely on triggering the package in the top-level game, behaviors (correctly) make the assumption that the target of an action exists within that game instance
-		//  MCSR should probably be creating levels at runtime rather than sub-games
-		boolean includeSubPhases
+		GameActionList receiveActions
 ) implements IGameBehavior {
 	private static final Logger LOGGER = LogUtils.getLogger();
 
@@ -64,8 +58,7 @@ public record DonationPackageBehavior(
 			TargetSelectionMode.CODEC.fieldOf("target").forGetter(DonationPackageBehavior::targetMode),
 			Codec.DOUBLE.optionalFieldOf("donation_amount").forGetter(DonationPackageBehavior::donationAmount),
 			PackageNotification.CODEC.optionalFieldOf("notification").forGetter(DonationPackageBehavior::notification),
-			GameActionList.CODEC.fieldOf("receive_actions").forGetter(DonationPackageBehavior::receiveActions),
-			Codec.BOOL.optionalFieldOf("include_sub_phases", false).forGetter(DonationPackageBehavior::includeSubPhases)
+			GameActionList.CODEC.fieldOf("receive_actions").forGetter(DonationPackageBehavior::receiveActions)
 	).apply(i, DonationPackageBehavior::new)).validate(DonationPackageBehavior::validate);
 
 	private DataResult<DonationPackageBehavior> validate() {
@@ -180,9 +173,6 @@ public record DonationPackageBehavior(
 	}
 
 	private ActionSubjects<?> narrowTargetsForGame(IGamePhase game, ActionSubjects<?> globalTargets) {
-		if (includeSubPhases) {
-			return globalTargets;
-		}
 		return globalTargets.filterPlayers(game, player -> game.allPlayers().contains(player));
 	}
 
@@ -192,19 +182,12 @@ public record DonationPackageBehavior(
 		if (specificTargets != null) {
 			return narrowTargetsForGame(game, specificTargets);
 		}
-		ActionSubjects<?> allTargets = resolveAllTargets(game);
+		ActionSubjects<?> allTargets = ActionSubjects.ofPlayers(game.participants());
 		return switch (targetMode) {
 			case PLAYER, TEAM -> null;
 			case RANDOM_PLAYER -> allTargets.takeOneRandom(game, ActionSubjectType.PLAYER);
 			case ALL_PLAYERS -> allTargets;
 		};
-	}
-
-	private ActionSubjects<?> resolveAllTargets(IGamePhase game) {
-		// Players in sub-phases are no longer in this phase, but keep their role here
-		return ActionSubjects.ofPlayers(
-				game.allPlayers(includeSubPhases).filter(player -> game.getRoleFor(player) == PlayerRole.PARTICIPANT)
-		);
 	}
 
 	private ContextMap actionContext(GamePackage gamePackage, DonationPackageDesc packageDesc) {

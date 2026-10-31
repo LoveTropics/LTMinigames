@@ -136,8 +136,8 @@ public final class BingoBoard implements IGameState {
 		if (!unlockedTitles.isEmpty()) {
 			updateTiles();
 			Component titles = ComponentUtils.formatList(unlockedTitles, Component.literal(", ")).copy().withStyle(ChatFormatting.AQUA);
-			game.allPlayers(true).sendMessage(Bingo.TILES_UNLOCKED.apply(titles).withStyle(ChatFormatting.GOLD));
-			game.allPlayers(true).playSound(SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 0.5f, 1.5f);
+			game.allPlayers().sendMessage(Bingo.TILES_UNLOCKED.apply(titles).withStyle(ChatFormatting.GOLD));
+			game.allPlayers().playSound(SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 0.5f, 1.5f);
 		}
 		return unlockedTitles.size();
 	}
@@ -172,7 +172,7 @@ public final class BingoBoard implements IGameState {
 		BingoTile completedTile = tile.get();
 
 		onTileCompleted.apply(game, ContextMap.EMPTY, ActionSubjects.ofPlayer(player));
-		game.allPlayers(true).sendMessage(Bingo.TILE_COMPLETED.apply(player.getDisplayName(), completedTile.title.copy().withStyle(ChatFormatting.AQUA)));
+		game.allPlayers().sendMessage(Bingo.TILE_COMPLETED.apply(player.getDisplayName(), completedTile.title.copy().withStyle(ChatFormatting.AQUA)));
 
 		game.statistics().forPlayer(player).incrementInt(StatisticKey.POINTS, getReward(completedTile, completedTile.completedBy.size() - 1));
 		// Everyone sees how many players completed each tile, and what it is still worth to them
@@ -240,7 +240,7 @@ public final class BingoBoard implements IGameState {
 	}
 
 	public void updateTiles() {
-		for (ServerPlayer player : game.allPlayers(true)) {
+		for (ServerPlayer player : game.allPlayers()) {
 			updatePlayer(player);
 		}
 	}
@@ -270,10 +270,8 @@ public final class BingoBoard implements IGameState {
 				players.add(player);
 			}
 		}
-		for (ServerPlayer player : game.allPlayers(true)) {
-			if (game.getRoleFor(player) == PlayerRole.PARTICIPANT) {
-				players.add(PlayerKey.from(player));
-			}
+		for (ServerPlayer player : game.participants()) {
+			players.add(PlayerKey.from(player));
 		}
 
 		List<BingoBoardClientState.PlayerProgress> progress = new ArrayList<>(players.size());

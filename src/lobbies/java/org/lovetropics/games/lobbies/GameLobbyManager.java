@@ -247,7 +247,8 @@ public class GameLobbyManager {
 		}
 
 		Set<ResourceKey<Level>> validDimensions = lobby.allSubPhases()
-				.flatMap(game -> game.dimensions().stream())
+				.flatMap(game -> game.allLevels().stream())
+				.map(Level::dimension)
 				.collect(Collectors.toSet());
 
 		if (validDimensions.contains(event.getFrom()) && !validDimensions.contains(event.getTo())) {

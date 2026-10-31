@@ -1,7 +1,7 @@
 package org.lovetropics.games.lobbies;
 
-import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
+import com.lovetropics.lib.BlockBox;
 import com.lovetropics.lib.slideshow.SlideshowApi;
 import com.mojang.logging.LogUtils;
 import net.minecraft.nbt.CompoundTag;
@@ -32,6 +32,7 @@ import org.lovetropics.games.common.core.game.behavior.event.SubGameEvents;
 import org.lovetropics.games.common.core.game.command.GameCommandSet;
 import org.lovetropics.games.common.core.game.config.GameConfig;
 import org.lovetropics.games.common.core.game.map.GameMap;
+import org.lovetropics.games.common.core.game.map.IGameMapProvider;
 import org.lovetropics.games.common.core.game.player.MutablePlayerSet;
 import org.lovetropics.games.common.core.game.player.PlayerIterable;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
@@ -45,7 +46,6 @@ import org.lovetropics.games.common.core.game.util.TeamAllocator;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
@@ -66,14 +66,21 @@ public class GamePhase implements IGamePhase {
 	private final GameConfig config;
 	private final @Nullable GamePhase parentPhase;
 
-	private final ServerLevel level;
-	private final List<ServerLevel> allLevels;
-	private final GameMap map;
-	private final GameRegions gameRegions = new GameRegions() {
-		@Override
-		public Collection<Region> get(String key) {
-			return Collections2.transform(map.mapRegions().get(key), box -> new Region(level, box));
+	private final ServerLevel primaryLevel;
+	private final List<ServerLevel> allLevels = new ArrayList<>();
+	private final List<GameMap> maps = new ArrayList<>();
+	private final GameRegions gameRegions = key -> {
+		List<Region> regions = new ArrayList<>();
+		for (GameMap map : maps) {
+			ServerLevel level = server().getLevel(map.dimension());
+			if (level == null) {
+				continue;
+			}
+			for (BlockBox box : map.mapRegions().get(key)) {
+				regions.add(new Region(level, box));
+			}
 		}
+		return regions;
 	};
 
 	private final GameStateMap phaseState = new GameStateMap();
@@ -108,12 +115,12 @@ public class GamePhase implements IGamePhase {
 		focusedLive = game.lobby().metadata.visibility().isFocusedLive();
 
 		MinecraftServer server = game.server();
-		level = Objects.requireNonNull(server.getLevel(map.dimension()), "Game dimension not loaded");
-		this.map = map;
+		primaryLevel = Objects.requireNonNull(server.getLevel(map.dimension()), "Game dimension not loaded");
 
-		allLevels = map.allDimensions().stream()
-				.map(dimension -> Objects.requireNonNull(server.getLevel(dimension), "Game dimension not loaded"))
-				.toList();
+		maps.add(map);
+		for (ResourceKey<Level> dimension : map.allDimensions()) {
+			allLevels.add(Objects.requireNonNull(server.getLevel(dimension), "Game dimension not loaded"));
+		}
 
 		for (PlayerRole role : PlayerRole.ROLES) {
 			playersByRole.put(role, allPlayers.filter(player -> roles.get(player.getUUID()) == role));
@@ -225,7 +232,7 @@ public class GamePhase implements IGamePhase {
 	private SpawnBuilder determinePlayerSpawn(ServerPlayer player, @Nullable PlayerRole role) {
 		SpawnBuilder spawn = new SpawnBuilder(player);
 		// Just have some kind of default, even if unreasonable
-		spawn.teleportTo(level, new Vec3(0.0, 64.0, 0.0), 0.0f, 0.0f);
+		spawn.teleportTo(primaryLevel, new Vec3(0.0, 64.0, 0.0), 0.0f, 0.0f);
 		try {
 			invoker(GamePlayerEvents.SPAWN).onSpawn(player.getUUID(), spawn, role);
 		} catch (Exception e) {
@@ -575,6 +582,26 @@ public class GamePhase implements IGamePhase {
 		}
 	}
 
+	@Override
+	public CompletableFuture<ServerLevel> createLevelHackyMightNotWork(IGameMapProvider mapProvider) {
+		MinecraftServer server = server();
+		return mapProvider.open(server).thenApplyAsync(gameMap -> {
+			addLevelsFromMap(server, gameMap);
+			return Objects.requireNonNull(server.getLevel(gameMap.dimension()), "Level not created");
+		}, server);
+	}
+
+	private void addLevelsFromMap(MinecraftServer server, GameMap map) {
+		for (ResourceKey<Level> dimension : map.allDimensions()) {
+			GamePhaseManager.get().addDimensionToGame(dimension, this);
+			ServerLevel level = server.getLevel(dimension);
+			if (level != null) {
+				invoker(GameWorldEvents.CREATE_LEVEL).onCreateLevel(level);
+			}
+		}
+		maps.add(map);
+	}
+
 	private void destroy() {
 		if (destroyed) {
 			return;
@@ -595,7 +622,9 @@ public class GamePhase implements IGamePhase {
 		} catch (Exception e) {
 			LOGGER.error("Unknown error while stopping game", e);
 		} finally {
-			map.close(this);
+			for (GameMap map : maps) {
+				map.close(this);
+			}
 		}
 	}
 
@@ -638,7 +667,7 @@ public class GamePhase implements IGamePhase {
 
 	@Override
 	public MinecraftServer server() {
-		return level.getServer();
+		return primaryLevel.getServer();
 	}
 
 	@Override
@@ -648,15 +677,11 @@ public class GamePhase implements IGamePhase {
 
 	@Override
 	public RandomSource random() {
-		return level.getRandom();
+		return primaryLevel.getRandom();
 	}
 
-	public ResourceKey<Level> dimension() {
-		return map.dimension();
-	}
-
-	public List<ResourceKey<Level>> dimensions() {
-		return map.allDimensions();
+	public ResourceKey<Level> tickDimension() {
+		return primaryLevel.dimension();
 	}
 
 	@Override

@@ -9,6 +9,7 @@ import net.minecraft.util.Unit;
 import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.core.game.behavior.event.GameEventType;
 import org.lovetropics.games.common.core.game.command.GameCommandSet;
+import org.lovetropics.games.common.core.game.map.IGameMapProvider;
 import org.lovetropics.games.common.core.game.player.PlayerIterable;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
 import org.lovetropics.games.common.core.game.player.PlayerSet;
@@ -20,6 +21,7 @@ import org.lovetropics.games.common.core.game.util.GameScheduler;
 import org.lovetropics.games.common.core.integration.GameInstanceIntegrations;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public interface IGamePhase extends GameRegionHolder {
 	@Override
@@ -47,6 +49,11 @@ public interface IGamePhase extends GameRegionHolder {
 	<T> T invoker(GameEventType<T> type);
 
 	GameResult<Unit> requestStop(GameStopReason reason);
+
+	/// This is a reasonable feature that we should support - but APIs and behaviors make the assumption that the set of all levels is known at creation time.
+	/// Use with care!
+	@Deprecated
+	CompletableFuture<ServerLevel> createLevelHackyMightNotWork(IGameMapProvider mapProvider);
 
 	PendingSubPhase createSubPhase(IGameDefinition subGameConfig);
 

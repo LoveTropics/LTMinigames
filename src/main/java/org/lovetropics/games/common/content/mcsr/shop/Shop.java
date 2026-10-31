@@ -111,8 +111,8 @@ public final class Shop implements IGameState {
 	/// @return the participants who offers can be used on by the given player, no matter which phase of the game they are in
 	private List<ServerPlayer> getTargets(ServerPlayer viewer) {
 		List<ServerPlayer> targets = new ArrayList<>();
-		for (ServerPlayer player : game.allPlayers(true)) {
-			if (player != viewer && isParticipant(player)) {
+		for (ServerPlayer player : game.participants()) {
+			if (player != viewer) {
 				targets.add(player);
 			}
 		}
@@ -126,7 +126,7 @@ public final class Shop implements IGameState {
 		PlayerSet.of(target).playSound(SoundEvents.ELDER_GUARDIAN_CURSE, SoundSource.PLAYERS, 0.4f, 1.5f);
 
 		Component broadcast = McsrTexts.SABOTAGE_BROADCAST.apply(buyer.getDisplayName(), offerName, target.getDisplayName()).withStyle(ChatFormatting.GRAY);
-		for (ServerPlayer player : game.allPlayers(true)) {
+		for (ServerPlayer player : game.allPlayers()) {
 			if (player != buyer && player != target) {
 				player.sendSystemMessage(broadcast);
 			}

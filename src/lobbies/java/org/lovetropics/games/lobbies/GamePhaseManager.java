@@ -138,8 +138,8 @@ public class GamePhaseManager implements IGameLookup {
 
 	private void onServerTick() {
 		for (GamePhase queuedGame : queuedGames) {
-			for (ResourceKey<Level> dimension : queuedGame.dimensions()) {
-				gamesByDimension.computeIfAbsent(dimension, _ -> new ArrayList<>()).add(queuedGame);
+			for (ServerLevel level : queuedGame.allLevels()) {
+				addDimensionToGame(level.dimension(), queuedGame);
 			}
 		}
 		queuedGames.clear();
@@ -153,17 +153,22 @@ public class GamePhaseManager implements IGameLookup {
 		List<GamePhase> destroyedGames = new ArrayList<>(0);
 		for (GamePhase game : games) {
 			// Games spanning several dimensions only tick along with their main one
-			if (game.dimension() == level.dimension() && game.tick()) {
+			if (game.tickDimension() == level.dimension() && game.tick()) {
 				destroyedGames.add(game);
 			}
 		}
 		for (GamePhase game : destroyedGames) {
-			for (ResourceKey<Level> dimension : game.dimensions()) {
+			for (ServerLevel gameLevel : game.allLevels()) {
+				ResourceKey<Level> dimension = gameLevel.dimension();
 				List<GamePhase> dimensionGames = gamesByDimension.get(dimension);
 				if (dimensionGames != null && dimensionGames.remove(game) && dimensionGames.isEmpty()) {
 					gamesByDimension.remove(dimension);
 				}
 			}
 		}
+	}
+
+	public void addDimensionToGame(ResourceKey<Level> dimension, GamePhase gamePhase) {
+		gamesByDimension.computeIfAbsent(dimension, _ -> new ArrayList<>()).add(gamePhase);
 	}
 }

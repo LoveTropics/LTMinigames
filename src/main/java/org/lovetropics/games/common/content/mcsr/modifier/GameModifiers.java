@@ -108,10 +108,10 @@ public final class GameModifiers implements IGameState {
 		levels.put(id, newLevel);
 
 		boolean stronger = newLevel > oldLevel;
-		for (ServerPlayer player : game.allPlayers(true)) {
+		for (ServerPlayer player : game.allPlayers()) {
 			player.sendSystemMessage(createChangeMessage(player, definition, newLevel, stronger));
 		}
-		game.allPlayers(true).playSound(stronger ? SoundEvents.BEACON_DEACTIVATE : SoundEvents.BEACON_ACTIVATE, SoundSource.PLAYERS, 0.5f, 1.0f);
+		game.allPlayers().playSound(stronger ? SoundEvents.BEACON_DEACTIVATE : SoundEvents.BEACON_ACTIVATE, SoundSource.PLAYERS, 0.5f, 1.0f);
 		updatePlayers();
 		return true;
 	}
@@ -165,7 +165,7 @@ public final class GameModifiers implements IGameState {
 	}
 
 	public void updatePlayers() {
-		for (ServerPlayer player : game.allPlayers(true)) {
+		for (ServerPlayer player : game.participants()) {
 			updatePlayer(player);
 		}
 	}
