@@ -78,13 +78,13 @@ public class GolfData extends SavedData {
 			return true;
 		}
 
-		boolean betterEquals = score >= d.highScore.score;
+		boolean betterEquals = d.highScore.score >= score;
 		if (betterEquals) {
 			d.highScore = playerScore;
 		}
 		d.totalPlays++;
 		d.playerHighScores.compute(player.nameAndId(), (_, oldScore) -> {
-			if (oldScore == null || score > oldScore.score) {
+			if (oldScore == null || score < oldScore.score) {
 				return playerScore;
 			}
 			return oldScore;
