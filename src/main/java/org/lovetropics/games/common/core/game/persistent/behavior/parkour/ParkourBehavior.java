@@ -19,6 +19,7 @@ import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviorT
 import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviors;
 import org.lovetropics.games.common.core.game.region.Region;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
+import org.lovetropics.games.common.util.Util;
 
 import java.util.HashMap;
 import java.util.List;
@@ -81,7 +82,7 @@ public class ParkourBehavior implements PersistentGameBehavior {
 					Vec3 center = region.center();
 					center = center.add(0, -region.size().getY() / 2.0, 0);
 					player.teleportTo(center.x, center.y, center.z);
-					game.level().playSound(null, player.blockPosition(), SoundEvents.ARROW_HIT_PLAYER, SoundSource.BLOCKS, 0.4F, 1.0F);
+					Util.sendNotifySound(player, SoundEvents.ARROW_HIT_PLAYER, SoundSource.BLOCKS, 0.4F, 1.0F);
 				}
 			}
 
@@ -97,7 +98,7 @@ public class ParkourBehavior implements PersistentGameBehavior {
 					if (checkpoint.intersects(game, player.level(), player.getBoundingBox()) && i > lastIndex) {
 						player.sendSystemMessage(Component.literal("Reached checkpoint!"), true);
 						e.setValue(checkpoint);
-						game.level().playSound(null, player.blockPosition(), SoundEvents.ARROW_HIT_PLAYER, SoundSource.BLOCKS, 0.4F, 1.0F);
+						Util.sendNotifySound(player, SoundEvents.ARROW_HIT_PLAYER, SoundSource.BLOCKS, 0.4F, 1.0F);
 					}
 				}
 			}
