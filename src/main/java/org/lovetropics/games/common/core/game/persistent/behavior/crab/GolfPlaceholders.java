@@ -9,7 +9,7 @@ import net.minecraft.server.level.ServerPlayer;
 import org.lovetropics.games.LoveTropics;
 
 public class GolfPlaceholders {
-	private static final PlaceholderResult UNKNOWN = PlaceholderResult.value("-");
+	private static final PlaceholderResult UNKNOWN = PlaceholderResult.value("?");
 
 	private static final int INVALID_HOLE = -1;
 
