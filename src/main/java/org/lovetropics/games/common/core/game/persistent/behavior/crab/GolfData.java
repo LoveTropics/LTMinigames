@@ -78,7 +78,7 @@ public class GolfData extends SavedData {
 			return true;
 		}
 
-		boolean betterEquals = d.highScore.score >= score;
+		boolean betterEquals = score >= d.highScore.score;
 		if (betterEquals) {
 			d.highScore = playerScore;
 		}
