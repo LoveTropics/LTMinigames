@@ -2,6 +2,7 @@ package org.lovetropics.games.common.content.escape_race.client.ddr.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import net.minecraft.ChatFormatting;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
@@ -109,6 +110,7 @@ public class DDRMachineEntityRenderer extends EntityRenderer<DDRMachineEntity, D
 			DDRMachineLevelClientRenderState levelState = state.levels.get(i);
 			itemModelResolver.updateForNonLiving(levelState.iconState, level.icon().create(), ItemDisplayContext.FIXED, entity);
 			levelState.displayName = level.displayName();
+			levelState.author = level.author().copy().withStyle(ChatFormatting.ITALIC, ChatFormatting.GOLD);
 			levelState.selected = i == pickedLevel;
 		}
 	}
@@ -182,6 +184,23 @@ public class DDRMachineEntityRenderer extends EntityRenderer<DDRMachineEntity, D
 				backgroundColor,
 				state.outlineColor
 		);
+		if (level.selected) {
+			poseStack.pushPose();
+			poseStack.scale(0.75f, 0.75f, 0.75f);
+			submitNodeCollector.submitText(
+					poseStack,
+					-font.width(level.author) / 2.0f,
+					36.0f,
+					level.author.getVisualOrderText(),
+					false,
+					Font.DisplayMode.NORMAL,
+					state.lightCoords,
+					CommonColors.WHITE,
+					backgroundColor,
+					state.outlineColor
+			);
+			poseStack.popPose();
+		}
 
 		poseStack.popPose();
 	}

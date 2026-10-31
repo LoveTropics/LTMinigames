@@ -101,7 +101,7 @@ public class DdrScreen {
 			int height
 	) {
 		public static final int SLOT_SIZE_X = 30;
-		public static final int SLOT_SIZE_Y = 20;
+		public static final int SLOT_SIZE_Y = 22;
 		private static final int MAX_PER_ROW = 4;
 
 		public static LevelArrangement forCount(int count) {
