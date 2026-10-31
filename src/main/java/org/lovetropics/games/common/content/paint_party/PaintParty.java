@@ -6,6 +6,8 @@ import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.content.paint_party.entity.LaunchPad;
+import org.lovetropics.games.common.content.paint_party.entity.LaunchPadRenderer;
 import org.lovetropics.games.common.content.paint_party.entity.PaintBallEntity;
 import org.lovetropics.games.common.util.registry.LoveTropicsRegistrate;
 
@@ -18,6 +20,12 @@ public class PaintParty {
 			.properties(properties -> properties.sized(0.25F, 0.25F).setShouldReceiveVelocityUpdates(true).setUpdateInterval(3))
 			.loot((loot, type) -> loot.add(type, lootTable()))
 			.renderer(() -> PaintParty::createPaintBallRenderer)
+			.register();
+
+	public static final RegistryEntry<EntityType<?>, EntityType<LaunchPad>> LAUNCH_PAD = REGISTRATE.entity("launch_pad", (EntityType.EntityFactory<LaunchPad>) LaunchPad::new, MobCategory.MISC)
+			.properties(properties -> properties.sized(0.25f, 0.5f).setUpdateInterval(3))
+			.loot((loot, type) -> loot.add(type, lootTable()))
+			.renderer(() -> LaunchPadRenderer::new)
 			.register();
 
 	public static void init() {
