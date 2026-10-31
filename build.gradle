@@ -157,11 +157,16 @@ neoForge {
 
 repositories {
     maven {
-        url = 'https://maven.gegy.dev/releases'
+        url = 'https://maven.lovetropics.org/releases'
         content {
             includeGroup 'org.lovetropics'
-            includeGroup 'com.tterrag.registrate'
             includeGroup 'eu.pb4'
+        }
+    }
+    maven {
+        url = 'https://maven.gegy.dev/releases'
+        content {
+            includeGroup 'com.tterrag.registrate'
         }
     }
     maven {
