@@ -9,7 +9,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.core.game.persistent.behavior.crab.CrabGolfWinBehavior;
+import org.lovetropics.games.common.core.game.persistent.behavior.crab.GolfData;
 
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
@@ -27,7 +27,7 @@ public class GolfCommand {
 								int hole = IntegerArgumentType.getInteger(ctx, "hole");
 								ServerPlayer player = EntityArgument.getPlayer(ctx, "target");
 
-								int score = CrabGolfWinBehavior.GolfData.get(ctx.getSource().getLevel()).getHighScoreFor(hole, player);
+								int score = GolfData.get(ctx.getSource().getLevel()).getHighScoreFor(hole, player);
 
 								return score;
 							})
@@ -40,7 +40,7 @@ public class GolfCommand {
 							int hole = IntegerArgumentType.getInteger(ctx, "hole");
 
 							CommandSourceStack source = ctx.getSource();
-							CrabGolfWinBehavior.GolfData.get(source.getLevel()).clearHole(hole);
+							GolfData.get(source.getLevel()).clearHole(hole);
 
 							return 0;
 						})

@@ -84,6 +84,7 @@ import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
 import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
 import org.lovetropics.games.common.core.game.impl.GameEventDispatcher;
 import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviors;
+import org.lovetropics.games.common.core.game.persistent.behavior.crab.GolfPlaceholders;
 import org.lovetropics.games.common.core.game.persistent.behavior.parkour.Parkour;
 import org.lovetropics.games.common.core.game.util.GameTexts;
 import org.lovetropics.games.common.core.item.MinigameDataComponents;
@@ -183,6 +184,7 @@ public class LoveTropics {
 		Mcsr.init();
 		DDRShowdown.init();
 		TropicalHoedown.init();
+		GolfPlaceholders.init();
 
 		DriftwoodRider.ATTACHMENT_TYPES.register(modBus);
 		ChatChannelStore.ATTACHMENT_TYPES.register(modBus);

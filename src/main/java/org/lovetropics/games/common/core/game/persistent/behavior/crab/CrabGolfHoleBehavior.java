@@ -88,11 +88,14 @@ public class CrabGolfHoleBehavior implements PersistentGameBehavior {
 	@Override
 	public void register(PersistentGame game, EventRegistrar events) {
 		events.listen(GamePhaseEvents.START, initiator -> {
-			CrabGolfWinBehavior.GolfData data = CrabGolfWinBehavior.GolfData.get(game.level());
-			int highScore = data.getHighScore(hole);
-			UUID uuid = data.getHighScoreUUIDFor(hole);
+			GolfData data = GolfData.get(game.level());
+			GolfData.Score highScore = data.getHighScore(hole);
 
-			updateWinnerRegion(game, highScore, uuid);
+			if (highScore != null) {
+				updateWinnerRegion(game, highScore.score(), highScore.profile().id());
+			} else {
+				updateWinnerRegion(game, 0, (UUID) null);
+			}
 		});
 
 		events.listen(CrabGolfEvents.HIGH_SCORE, (hole, player, score) -> {

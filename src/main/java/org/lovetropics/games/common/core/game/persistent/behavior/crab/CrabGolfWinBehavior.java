@@ -9,8 +9,6 @@ import net.minecraft.commands.Commands;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.permissions.LevelBasedPermissionSet;
 import net.minecraft.sounds.SoundEvents;
@@ -20,12 +18,9 @@ import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntitySpawnRequest;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStackTemplate;
-import net.minecraft.world.level.saveddata.SavedData;
-import net.minecraft.world.level.saveddata.SavedDataType;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
-import org.lovetropics.games.LoveTropics;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.instances.action.RunCommandsAction;
 import org.lovetropics.games.common.core.game.persistent.PersistentGame;
@@ -33,12 +28,6 @@ import org.lovetropics.games.common.core.game.persistent.PersistentGameBehavior;
 import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviorType;
 import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviors;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 import java.util.function.Supplier;
 
 public class CrabGolfWinBehavior implements PersistentGameBehavior {
@@ -125,112 +114,5 @@ public class CrabGolfWinBehavior implements PersistentGameBehavior {
 	@Override
 	public Supplier<? extends PersistentGameBehaviorType<?>> type() {
 		return PersistentGameBehaviors.CRAB_GOLF_WIN;
-	}
-
-	public static class GolfData extends SavedData {
-		private static final Identifier ID = LoveTropics.id("crab_golf_data");
-
-		public static final Codec<GolfData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-				Codec.unboundedMap(Codec.STRING.xmap(Integer::parseInt, Object::toString), HoleData.CODEC).fieldOf("data").forGetter(b -> b.data)
-		).apply(instance, GolfData::new));
-
-		private static final SavedDataType<GolfData> TYPE = new SavedDataType<>(ID, GolfData::new, CODEC);
-
-		private final Map<Integer, HoleData> data;
-
-		private GolfData() {
-			this(new HashMap<>());
-		}
-
-		private GolfData(Map<Integer, HoleData> data) {
-			this.data = new HashMap<>(data);
-		}
-
-		public int getHighScore(int hole) {
-			HoleData d = data.get(hole);
-			if (d != null) {
-				return d.highScore;
-			}
-
-			return -1;
-		}
-
-		public UUID getHighScoreUUIDFor(int hole) {
-			HoleData d = data.get(hole);
-			if (d != null) {
-				List<UUID> res = new ArrayList<>();
-				for (Map.Entry<UUID, Integer> e : d.playerHighScores.entrySet()) {
-					if (e.getValue() == d.highScore) {
-						res.add(e.getKey());
-					}
-				}
-
-				Collections.shuffle(res);
-
-				return res.isEmpty() ? null : res.getFirst();
-			}
-
-			return null;
-		}
-
-		public void clearHole(int hole) {
-			data.remove(hole);
-			setDirty();
-		}
-
-		public int getHighScoreFor(int hole, ServerPlayer player) {
-			HoleData d = data.get(hole);
-			if (d == null) {
-				return -1;
-			}
-
-			Integer i = d.playerHighScores.get(player.getUUID());
-			return i == null ? -1 : i;
-		}
-
-		// Returns whether this is a high score
-		public boolean submitNewScore(int hole, ServerPlayer player, int score) {
-			if (score == -1) {
-				return false;
-			}
-
-			HoleData d = data.get(hole);
-			if (d == null) {
-				HoleData hdata = new HoleData(score, 1, Map.of(player.getUUID(), score));
-				data.put(hole, hdata);
-				setDirty();
-				return true;
-			}
-
-			boolean betterEquals = d.highScore >= score;
-			d.highScore = Math.min(d.highScore, score);
-			d.totalPlays++;
-			d.playerHighScores.merge(player.getUUID(), score, Math::min);
-			setDirty();
-
-			return betterEquals;
-		}
-
-		public static GolfData get(ServerLevel level) {
-			return level.getDataStorage().computeIfAbsent(TYPE);
-		}
-
-		private static class HoleData {
-			public static final Codec<HoleData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-					Codec.INT.fieldOf("high_score").forGetter(b -> b.highScore),
-					Codec.INT.fieldOf("total_play").forGetter(b -> b.totalPlays),
-					Codec.unboundedMap(Codec.STRING.xmap(UUID::fromString, UUID::toString), Codec.INT)
-							.fieldOf("player_scores").forGetter(b -> b.playerHighScores)
-			).apply(instance, HoleData::new));
-			private int highScore;
-			private int totalPlays;
-			private final Map<UUID, Integer> playerHighScores;
-
-			public HoleData(int highScore, int totalPlays, Map<UUID, Integer> playerHighScores) {
-				this.highScore = highScore;
-				this.totalPlays = totalPlays;
-				this.playerHighScores = new HashMap<>(playerHighScores);
-			}
-		}
 	}
 }

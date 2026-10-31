@@ -199,6 +199,8 @@ dependencies {
         transitive = false
     }
 
+    jarJar(implementation("eu.pb4:placeholder-api-lt:$placeholder_api_version"))
+
     // TODO: HACK - We get Registrate at runtime through JarJar from Tropicraft. We should rather prefer to depend on the slim jar.
     jarJar("com.tterrag.registrate:Registrate:MC26.2-${registrate_version}") {
         version {
