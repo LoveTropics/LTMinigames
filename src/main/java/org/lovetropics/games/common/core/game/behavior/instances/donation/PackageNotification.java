@@ -64,18 +64,16 @@ public record PackageNotification(
 
 		Component receiverName = describeTargets(game, targets);
 		Component targetedMessage = createTargetedMessage(gamePackage.sendingPlayerName(), receiverName, message);
-		Component globalMessage = createGlobalMessage(packageDesc.name(), receiverName, sentiment);
 
 		List<ServerPlayer> targetPlayers = targets.asPlayers(game);
-		for (ServerPlayer player : game.allPlayers()) {
-			boolean targeted = targetPlayers.contains(player);
-			sendNotificationTo(player, targeted, targeted ? targetedMessage : globalMessage, sentiment, sound);
+		for (ServerPlayer player : targetPlayers) {
+			sendNotificationTo(player, targetedMessage, sentiment, sound);
 		}
 	}
 
-	private void sendNotificationTo(ServerPlayer player, boolean targeted, Component message, NotificationStyle.Sentiment sentiment, Holder<SoundEvent> sound) {
-		NotificationStyle.Color color = targeted ? NotificationStyle.Color.LIGHT : NotificationStyle.Color.DARK;
-		long visibleTime = targeted ? 8000 : 6000;
+	private void sendNotificationTo(ServerPlayer player, Component message, NotificationStyle.Sentiment sentiment, Holder<SoundEvent> sound) {
+		NotificationStyle.Color color = NotificationStyle.Color.LIGHT;
+		long visibleTime = 6000;
 
 		NotificationStyle style = createStyle(color, visibleTime, sentiment);
 		PacketDistributor.sendToPlayer(
@@ -83,18 +81,12 @@ public record PackageNotification(
 				new ShowNotificationToastMessage(message, style)
 		);
 
-		if (targeted) {
-			long seed = player.getRandom().nextLong();
-			player.connection.send(new ClientboundSoundPacket(sound, SoundSource.MASTER, player.getX(), player.getY(), player.getZ(), 0.2f, 1f, seed));
-		}
+		long seed = player.getRandom().nextLong();
+		player.connection.send(new ClientboundSoundPacket(sound, SoundSource.MASTER, player.getX(), player.getY(), player.getZ(), 0.2f, 1f, seed));
 	}
 
 	private Component createTargetedMessage(@Nullable String sender, Component receiverName, TemplatedText template) {
 		return template.apply(Map.of("sender", getSenderName(sender), "receiver", receiverName));
-	}
-
-	private Component createGlobalMessage(Component packageName, Component receiverName, NotificationStyle.Sentiment sentiment) {
-		return MinigameTexts.PACKAGE_RECEIVED.apply(receiverName, packageName.copy().withStyle(sentiment.textStyle()));
 	}
 
 	public NotificationStyle createStyle(NotificationStyle.Color color, long visibleTime, NotificationStyle.Sentiment sentiment) {

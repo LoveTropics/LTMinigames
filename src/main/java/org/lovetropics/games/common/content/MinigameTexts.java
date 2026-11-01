@@ -122,7 +122,6 @@ public final class MinigameTexts {
 
 	public static final Component UNKNOWN_DONOR = KEYS.add("donation.unknown_donor", "an unknown donor").withStyle(ChatFormatting.BLUE);
 	public static final Component EVERYONE_RECEIVER = KEYS.add("donation.everyone_receiver", "Everyone").withStyle(ChatFormatting.BLUE);
-	public static final TranslationCollector.Fun2 PACKAGE_RECEIVED = KEYS.add2("donation.package_received", "%s received: %s");
 
 	public static final Component REWARDS = KEYS.add("rewards_granted", "You got rewards for playing minigames!").withStyle(ChatFormatting.GOLD);
 	public static final TranslationCollector.Fun2 REWARD_ITEM = KEYS.add2("reward_item", " - %sx %s").withStyle(ChatFormatting.GRAY);

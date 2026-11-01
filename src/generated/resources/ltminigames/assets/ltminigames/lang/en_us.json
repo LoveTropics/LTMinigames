@@ -343,7 +343,6 @@
   "ltminigames.minigame.donation.mute_team_vc": "Mute Team Voice Channel",
   "ltminigames.minigame.donation.mute_team_vc.description": "How will your favorite team succeed at trivia if they cannot speak through voice for 1 minute? Let's find out!",
   "ltminigames.minigame.donation.mute_team_vc.toast": "%sender% has MUTED YOUR TEAM VOICE CHANNEL for 1 minute!",
-  "ltminigames.minigame.donation.package_received": "%s received: %s",
   "ltminigames.minigame.donation.player_donation": "Player Support Package",
   "ltminigames.minigame.donation.player_donation.description": "Support a competitor. The amount you donate corresponds to how much they get in-game.",
   "ltminigames.minigame.donation.player_donation.title": "You've got support!",
