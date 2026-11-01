@@ -149,6 +149,9 @@ public final class RuntimeDimensions {
 
 		NeoForge.EVENT_BUS.post(new LevelEvent.Load(level));
 
+		level.getWorldBorder().setAbsoluteMaxSize(server.getAbsoluteMaxWorldSize());
+		server.getPlayerList().addWorldborderListener(level);
+
 		level.tick(() -> true);
 
 		return level.handle();
