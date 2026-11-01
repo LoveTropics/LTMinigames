@@ -136,6 +136,7 @@ neoForge {
             logLevel = org.slf4j.event.Level.INFO
             ideName = project.name + " - " + ideName.get()
             jvmArgument("-Dmixin.debug.export=true")
+            jvmArgument '-Dneoforge.warnings.logofile.hide=true'
         }
 
         quickLoadMods.each { gameId, runDisplayName ->
