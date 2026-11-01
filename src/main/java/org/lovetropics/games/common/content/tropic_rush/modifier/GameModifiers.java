@@ -1,4 +1,4 @@
-package org.lovetropics.games.common.content.mcsr.modifier;
+package org.lovetropics.games.common.content.tropic_rush.modifier;
 
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
@@ -9,7 +9,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.Nullable;
-import org.lovetropics.games.common.content.mcsr.McsrTexts;
+import org.lovetropics.games.common.content.tropic_rush.TropicRushTexts;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.client_state.GameClientState;
@@ -119,9 +119,9 @@ public final class GameModifiers implements IGameState {
 	private Component createChangeMessage(ServerPlayer player, ModifierDefinition definition, int level, boolean stronger) {
 		if (isRevealed(player, definition.id())) {
 			Component name = definition.name().copy().withStyle(ChatFormatting.AQUA);
-			return (stronger ? McsrTexts.MODIFIER_STRONGER : McsrTexts.MODIFIER_WEAKER).apply(name, level, definition.maxLevel()).withStyle(ChatFormatting.LIGHT_PURPLE);
+			return (stronger ? TropicRushTexts.MODIFIER_STRONGER : TropicRushTexts.MODIFIER_WEAKER).apply(name, level, definition.maxLevel()).withStyle(ChatFormatting.LIGHT_PURPLE);
 		}
-		return (stronger ? McsrTexts.MYSTERY_STRONGER : McsrTexts.MYSTERY_WEAKER).copy().withStyle(ChatFormatting.LIGHT_PURPLE);
+		return (stronger ? TropicRushTexts.MYSTERY_STRONGER : TropicRushTexts.MYSTERY_WEAKER).copy().withStyle(ChatFormatting.LIGHT_PURPLE);
 	}
 
 	/// Reveals what a modifier is to a player, or a random one they don't know yet if none is given
@@ -136,7 +136,7 @@ public final class GameModifiers implements IGameState {
 
 		ModifierDefinition definition = definitions.get(revealedId);
 		Component name = definition.name().copy().withStyle(ChatFormatting.AQUA);
-		player.sendSystemMessage(McsrTexts.MODIFIER_REVEALED.apply(name, definition.description()).withStyle(ChatFormatting.LIGHT_PURPLE));
+		player.sendSystemMessage(TropicRushTexts.MODIFIER_REVEALED.apply(name, definition.description()).withStyle(ChatFormatting.LIGHT_PURPLE));
 		PlayerSet.of(player).playSound(SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 0.5f, 1.5f);
 		updatePlayer(player);
 		return true;

@@ -1,4 +1,4 @@
-package org.lovetropics.games.common.content.mcsr.behavior;
+package org.lovetropics.games.common.content.tropic_rush.behavior;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -10,7 +10,7 @@ import net.minecraft.util.TriState;
 import net.minecraft.world.entity.EntityTypes;
 import org.lovetropics.games.common.content.MinigameTexts;
 import org.lovetropics.games.common.content.bingo.Bingo;
-import org.lovetropics.games.common.content.mcsr.McsrTexts;
+import org.lovetropics.games.common.content.tropic_rush.TropicRushTexts;
 import org.lovetropics.games.common.core.game.GameWinner;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
@@ -56,7 +56,7 @@ public final class FinishBehavior implements IGameBehavior {
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
 		if (fullBingoCard) {
-			events.listen(Bingo.BOARD_COMPLETED, player -> finish(game, player, McsrTexts.COMPLETED_BOARD));
+			events.listen(Bingo.BOARD_COMPLETED, player -> finish(game, player, TropicRushTexts.COMPLETED_BOARD));
 		}
 
 		if (dragonKill) {
@@ -64,7 +64,7 @@ public final class FinishBehavior implements IGameBehavior {
 				if (entity.getType() == EntityTypes.ENDER_DRAGON) {
 					// The dragon is usually killed with beds, which don't credit anyone with the kill, so credit whoever owns the world
 					game.participants().inLevel(level).stream().findAny()
-							.ifPresent(owner -> finish(game, owner, McsrTexts.KILLED_DRAGON));
+							.ifPresent(owner -> finish(game, owner, TropicRushTexts.KILLED_DRAGON));
 				}
 				return TriState.DEFAULT;
 			});
@@ -72,7 +72,7 @@ public final class FinishBehavior implements IGameBehavior {
 
 		events.listen(GameLogicEvents.REQUEST_GAME_OVER, () -> {
 			if (!over) {
-				game.allPlayers().sendMessage(McsrTexts.TIME_UP);
+				game.allPlayers().sendMessage(TropicRushTexts.TIME_UP);
 				endGame(game);
 			}
 			return true;
@@ -120,7 +120,7 @@ public final class FinishBehavior implements IGameBehavior {
 			statistics.forPlayer(player).set(StatisticKey.PLACEMENT, placement);
 
 			Component name = Component.literal(player.name()).withStyle(ChatFormatting.AQUA);
-			results.add(finished ? McsrTexts.RESULT_FINISHED.apply(placement, name, points) : McsrTexts.RESULT.apply(placement, name, points));
+			results.add(finished ? TropicRushTexts.RESULT_FINISHED.apply(placement, name, points) : TropicRushTexts.RESULT.apply(placement, name, points));
 		}
 
 		for (Component line : results) {

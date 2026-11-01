@@ -1,4 +1,4 @@
-package org.lovetropics.games.common.content.mcsr.modifier;
+package org.lovetropics.games.common.content.tropic_rush.modifier;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -32,7 +32,7 @@ public record AttributePerLevelBehavior(String modifier, Holder<Attribute> attri
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		GameModifiers modifiers = GameModifiers.getOrThrow(game, modifier);
-		Identifier id = LoveTropics.id("mcsr_modifier/" + modifier);
+		Identifier id = LoveTropics.id("tropic_rush_modifier/" + modifier);
 
 		// Catches level changes, players who just arrived and respawned players, who don't keep transient modifiers
 		events.listen(GamePhaseEvents.TICK, () -> {

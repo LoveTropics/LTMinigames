@@ -1,4 +1,4 @@
-package org.lovetropics.games.common.content.mcsr.modifier;
+package org.lovetropics.games.common.content.tropic_rush.modifier;
 
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;

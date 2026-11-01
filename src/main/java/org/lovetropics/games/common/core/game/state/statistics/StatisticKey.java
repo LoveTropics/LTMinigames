@@ -90,7 +90,7 @@ public final class StatisticKey<T> {
 	// DDR Showdown
 	public static final StatisticKey<Integer> DDR_SCORE = ofInt("ddr_score").displays(unit("points"));
 
-	// Speedrun
+	// Tropic Rush
 	public static final StatisticKey<Integer> TROPICOINS = ofInt("tropicoins").displays(unit("tropicoins"));
 
 	private final Class<T> type;

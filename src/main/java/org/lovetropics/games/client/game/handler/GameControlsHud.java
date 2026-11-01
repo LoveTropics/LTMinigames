@@ -20,7 +20,7 @@ import org.lovetropics.games.client.game.bingo.BingoBoardScreen;
 import org.lovetropics.games.client.game.modifier.ModifiersScreen;
 import org.lovetropics.games.client.game.shop.ShopScreen;
 import org.lovetropics.games.common.content.bingo.Bingo;
-import org.lovetropics.games.common.content.mcsr.McsrTexts;
+import org.lovetropics.games.common.content.tropic_rush.TropicRushTexts;
 import org.lovetropics.games.common.content.shop.ShopTexts;
 import org.lovetropics.games.common.core.game.client_state.instance.ModifiersClientState;
 import org.lovetropics.games.common.core.game.client_state.instance.ShopClientState;
@@ -68,7 +68,7 @@ public final class GameControlsHud {
 		}
 		ModifiersClientState modifiers = GameModifiersHandler.modifiers();
 		if (modifiers != null && !modifiers.entries().isEmpty()) {
-			lines.add(McsrTexts.OPEN_RULES_HINT.apply(LTKeybinds.OPEN_RULES.getTranslatedKeyMessage()));
+			lines.add(TropicRushTexts.OPEN_RULES_HINT.apply(LTKeybinds.OPEN_RULES.getTranslatedKeyMessage()));
 		}
 		return lines;
 	}

@@ -11,7 +11,7 @@ import net.minecraft.util.FormattedCharSequence;
 import org.joml.Matrix3x2fStack;
 import org.lovetropics.games.client.LTKeybinds;
 import org.lovetropics.games.client.game.handler.GameModifiersHandler;
-import org.lovetropics.games.common.content.mcsr.McsrTexts;
+import org.lovetropics.games.common.content.tropic_rush.TropicRushTexts;
 import org.lovetropics.games.common.core.game.client_state.instance.ModifiersClientState;
 
 import java.util.List;
@@ -46,7 +46,7 @@ public final class ModifiersScreen extends Screen {
 	private static final int UNKNOWN_COLOR = 0xFF8B8B8B;
 
 	public ModifiersScreen() {
-		super(McsrTexts.RULES);
+		super(TropicRushTexts.RULES);
 	}
 
 	@Override
@@ -107,7 +107,7 @@ public final class ModifiersScreen extends Screen {
 
 		int y = PANEL_PADDING - 1 + titleH;
 		if (entries.isEmpty()) {
-			graphics.text(font, McsrTexts.RULES_EMPTY, PANEL_PADDING + 1, y, DESCRIPTION_COLOR, false);
+			graphics.text(font, TropicRushTexts.RULES_EMPTY, PANEL_PADDING + 1, y, DESCRIPTION_COLOR, false);
 		}
 		for (int i = 0; i < entries.size(); i++) {
 			if (i > 0) {
@@ -142,9 +142,9 @@ public final class ModifiersScreen extends Screen {
 		if (entry.name().isPresent()) {
 			graphics.text(font, entry.name().get(), textX, textY, TEXT_COLOR, false);
 		} else {
-			graphics.text(font, McsrTexts.RULE_UNKNOWN, textX, textY, UNKNOWN_COLOR, false);
+			graphics.text(font, TropicRushTexts.RULE_UNKNOWN, textX, textY, UNKNOWN_COLOR, false);
 		}
-		Component level = McsrTexts.RULE_LEVEL.apply(entry.level(), entry.maxLevel());
+		Component level = TropicRushTexts.RULE_LEVEL.apply(entry.level(), entry.maxLevel());
 		graphics.text(font, level, x + CONTENT_W - font.width(level), textY, TEXT_COLOR, false);
 
 		int detailsColor = entry.revealed() ? DESCRIPTION_COLOR : RIDDLE_COLOR;

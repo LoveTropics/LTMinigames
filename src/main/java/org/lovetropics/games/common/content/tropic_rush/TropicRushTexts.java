@@ -1,4 +1,4 @@
-package org.lovetropics.games.common.content.mcsr;
+package org.lovetropics.games.common.content.tropic_rush;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -7,8 +7,8 @@ import org.lovetropics.games.common.core.game.util.TranslationCollector;
 
 import java.util.function.BiConsumer;
 
-public final class McsrTexts {
-	private static final TranslationCollector KEYS = new TranslationCollector(LoveTropics.ID + ".minigame.mcsr.");
+public final class TropicRushTexts {
+	private static final TranslationCollector KEYS = new TranslationCollector(LoveTropics.ID + ".minigame.tropic_rush.");
 
 	public static final Component PREPARING_WORLD = KEYS.add("preparing_world", "Preparing your world...")
 			.withStyle(ChatFormatting.GRAY);
@@ -37,6 +37,6 @@ public final class McsrTexts {
 
 	public static void collectTranslations(BiConsumer<String, String> consumer) {
 		KEYS.forEach(consumer);
-		consumer.accept(LoveTropics.ID + ".minigame.mcsr", "Speedrun");
+		consumer.accept(LoveTropics.ID + ".minigame.tropic_rush", "Tropic Rush");
 	}
 }

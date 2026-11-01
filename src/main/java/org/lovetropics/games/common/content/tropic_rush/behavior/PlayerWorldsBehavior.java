@@ -1,4 +1,4 @@
-package org.lovetropics.games.common.content.mcsr.behavior;
+package org.lovetropics.games.common.content.tropic_rush.behavior;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;

@@ -1,4 +1,4 @@
-package org.lovetropics.games.common.content.mcsr.modifier;
+package org.lovetropics.games.common.content.tropic_rush.modifier;
 
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -14,7 +14,7 @@ import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import org.lovetropics.games.common.content.mcsr.McsrTexts;
+import org.lovetropics.games.common.content.tropic_rush.TropicRushTexts;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.instances.command.CustomCommandBehavior;
 import org.lovetropics.games.common.core.game.command.GameCommandRegistrar;
@@ -24,7 +24,7 @@ import java.util.Optional;
 
 /// `/modifier` lets overlords change the level of the modifiers of the game, and choose who knows what they are
 final class ModifierCommands {
-	private static final DynamicCommandExceptionType UNKNOWN_MODIFIER = new DynamicCommandExceptionType(id -> McsrTexts.UNKNOWN_MODIFIER.apply(id));
+	private static final DynamicCommandExceptionType UNKNOWN_MODIFIER = new DynamicCommandExceptionType(id -> TropicRushTexts.UNKNOWN_MODIFIER.apply(id));
 
 	private ModifierCommands() {
 	}
@@ -66,7 +66,7 @@ final class ModifierCommands {
 
 	private static int list(CommandContext<CommandSourceStack> context, GameModifiers modifiers) {
 		for (String id : modifiers.ids()) {
-			context.getSource().sendSuccess(() -> McsrTexts.MODIFIER_LEVEL.apply(Component.literal(id).withStyle(ChatFormatting.AQUA), modifiers.level(id), modifiers.maxLevel(id)), false);
+			context.getSource().sendSuccess(() -> TropicRushTexts.MODIFIER_LEVEL.apply(Component.literal(id).withStyle(ChatFormatting.AQUA), modifiers.level(id), modifiers.maxLevel(id)), false);
 		}
 		return modifiers.ids().size();
 	}
@@ -74,7 +74,7 @@ final class ModifierCommands {
 	private static int setLevel(CommandContext<CommandSourceStack> context, GameModifiers modifiers, int level) throws CommandSyntaxException {
 		String id = getModifier(context, modifiers);
 		modifiers.setLevel(id, level);
-		context.getSource().sendSuccess(() -> McsrTexts.MODIFIER_LEVEL.apply(Component.literal(id).withStyle(ChatFormatting.AQUA), modifiers.level(id), modifiers.maxLevel(id)), true);
+		context.getSource().sendSuccess(() -> TropicRushTexts.MODIFIER_LEVEL.apply(Component.literal(id).withStyle(ChatFormatting.AQUA), modifiers.level(id), modifiers.maxLevel(id)), true);
 		return modifiers.level(id);
 	}
 
@@ -87,7 +87,7 @@ final class ModifierCommands {
 			}
 		}
 		int revealed = count;
-		context.getSource().sendSuccess(() -> McsrTexts.MODIFIER_REVEALED_TO.apply(revealed), true);
+		context.getSource().sendSuccess(() -> TropicRushTexts.MODIFIER_REVEALED_TO.apply(revealed), true);
 		return count;
 	}
 
@@ -101,7 +101,7 @@ final class ModifierCommands {
 			}
 		}
 		int hidden = count;
-		context.getSource().sendSuccess(() -> McsrTexts.MODIFIER_HIDDEN_FROM.apply(hidden), true);
+		context.getSource().sendSuccess(() -> TropicRushTexts.MODIFIER_HIDDEN_FROM.apply(hidden), true);
 		return count;
 	}
 }
