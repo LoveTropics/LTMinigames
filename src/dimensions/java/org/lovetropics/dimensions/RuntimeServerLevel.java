@@ -34,6 +34,9 @@ public class RuntimeServerLevel extends ServerLevel {
 			RuntimeDimensionConfig config,
 			boolean temporary
 	) {
+		sharedState = config.sharedState();
+		this.temporary = temporary;
+
 		super(
 				server,
 				Util.backgroundExecutor(),
@@ -52,8 +55,6 @@ public class RuntimeServerLevel extends ServerLevel {
 				false
 		);
 		handle = new RuntimeDimensionHandle(this);
-		this.temporary = temporary;
-		sharedState = config.sharedState();
 
 		// Matching ServerLevel::prepareWeather, which references MinecraftServer directly
 		if (sharedState != null && sharedState.weather().isRaining()) {
