@@ -224,6 +224,7 @@ import org.lovetropics.games.common.core.game.behavior.instances.world.IncreaseR
 import org.lovetropics.games.common.core.game.behavior.instances.world.NicelyBreakRegionOfBlocksBehaviour;
 import org.lovetropics.games.common.core.game.behavior.instances.world.PreventBlockInteractionBehaviour;
 import org.lovetropics.games.common.core.game.behavior.instances.world.PreventCropGrowthInRegionBehaviour;
+import org.lovetropics.games.common.core.game.behavior.instances.world.PreventDimensionPortalsBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.world.PreventTramplingCropsBehaviour;
 import org.lovetropics.games.common.core.game.behavior.instances.world.PreventTrapdoorTriggersBehaviour;
 import org.lovetropics.games.common.core.game.behavior.instances.world.SetupWorldBorderBehavior;
@@ -467,6 +468,8 @@ public class GameBehaviorTypes {
 
 		register("setup_world_border", SetupWorldBorderBehavior.CODEC);
 		register("change_world_border", ChangeWorldBorderBehavior.CODEC);
+
+		register("prevent_dimension_portals", PreventDimensionPortalsBehavior.CODEC);
 	}
 
 	public static <T extends IGameBehavior> void register(String name, MapCodec<T> codec) {

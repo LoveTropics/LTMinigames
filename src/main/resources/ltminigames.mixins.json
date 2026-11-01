@@ -21,6 +21,7 @@
     "command.ServerGamePacketListenerImplMixin",
     "event.CommonHooksMixin",
     "event.CraftingMenuMixin",
+    "event.EnderEyeItemMixin",
     "event.EntityTypeMixin",
     "event.FallingBlockEntityMixin",
     "event.ItemStackMixin",
@@ -44,13 +45,13 @@
     "client.ClientPacketListenerMixin",
     "client.DebugScreenOverlayMixin",
     "client.GameRendererMixin",
-    "client.TextureAtlasMixin",
     "client.KeyboardInputMixin",
     "client.MinecraftMixin",
     "client.ModelFeatureRendererMixin",
     "client.MouseHandlerMixin",
     "client.OptionsMixin",
-    "client.ScrollWheelHandlerMixin"
+    "client.ScrollWheelHandlerMixin",
+    "client.TextureAtlasMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -600,6 +600,29 @@ public final class GameEventDispatcher {
 	}
 
 	@SubscribeEvent
+	public void onNetherPortalSpawn(BlockEvent.PortalSpawnEvent event) {
+		if (!(event.getLevel() instanceof ServerLevel level)) {
+			return;
+		}
+		IGamePhase gamePhase = gameLookup.getGamePhaseInDimension(level);
+		if (gamePhase != null) {
+			if(gamePhase.invoker(GameWorldEvents.NETHER_PORTAL_SPAWN).onNetherPortalSpawn(level, event.getPos())){
+				event.setCanceled(true);
+			}
+		}
+	}
+
+	public boolean onEndPortalSpawn(ServerLevel level, BlockPos pos) {
+		IGamePhase gamePhase = gameLookup.getGamePhaseInDimension(level);
+		if (gamePhase != null) {
+			if(gamePhase.invoker(GameWorldEvents.END_PORTAL_SPAWN).onEndPortalSpawn(level, pos)){
+				return true;
+			}
+		}
+		return false;
+	}
+
+	@SubscribeEvent
 	public void onBlockDrops(BlockDropsEvent event) {
 		if (event.getBreaker() instanceof ServerPlayer player) {
 			IGamePhase game = gameLookup.getGamePhaseFor(player);

@@ -145,6 +145,24 @@ public final class GameWorldEvents {
 		return TriState.DEFAULT;
 	});
 
+	public static final GameEventType<NetherPortalSpawn> NETHER_PORTAL_SPAWN  = GameEventType.create(NetherPortalSpawn.class, listeners -> (level, pos) ->  {
+		for (NetherPortalSpawn listener : listeners) {
+			if (listener.onNetherPortalSpawn(level, pos)) {
+				return true;
+			}
+		}
+		return false;
+	});
+
+	public static final GameEventType<EndPortalSpawn> END_PORTAL_SPAWN  = GameEventType.create(EndPortalSpawn.class, listeners -> (level, pos) ->  {
+		for (EndPortalSpawn listener : listeners) {
+			if (listener.onEndPortalSpawn(level, pos)) {
+				return true;
+			}
+		}
+		return false;
+	});
+
 	private GameWorldEvents() {
 	}
 
@@ -210,5 +228,13 @@ public final class GameWorldEvents {
 
 	public interface TrapdoorToggle {
 		TriState onTrapDoorToggle(ServerLevel level, BlockPos pos, BlockState state);
+	}
+
+	public interface NetherPortalSpawn {
+		boolean onNetherPortalSpawn(ServerLevel level, BlockPos pos);
+	}
+
+	public interface EndPortalSpawn {
+		boolean onEndPortalSpawn(ServerLevel level, BlockPos pos);
 	}
 }
