@@ -101,6 +101,16 @@ public final class GameStatistics implements IGameState {
 		);
 	}
 
+	public void accumulateFrom(GameStatistics fromStatistics, Collection<StatisticKey<Integer>> keys) {
+		global.accumulateFrom(fromStatistics.global, keys);
+		fromStatistics.byPlayer.forEach((player, fromPlayerStatistics) ->
+				forPlayer(player).accumulateFrom(fromPlayerStatistics, keys)
+		);
+		fromStatistics.byTeam.forEach((team, fromTeamStatistics) ->
+				forTeam(team).accumulateFrom(fromTeamStatistics, keys)
+		);
+	}
+
 	public void copyFrom(GameStatistics fromStatistics) {
 		global.copyFrom(fromStatistics.global);
 		fromStatistics.byPlayer.forEach((player, fromPlayerStatistics) ->

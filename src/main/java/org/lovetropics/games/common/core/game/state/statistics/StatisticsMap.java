@@ -84,6 +84,12 @@ public final class StatisticsMap {
 		}
 	}
 
+	public void accumulateFrom(StatisticsMap fromStatistics, Collection<StatisticKey<Integer>> keys) {
+		for (StatisticKey<Integer> key : keys) {
+			incrementInt(key, fromStatistics.getInt(key));
+		}
+	}
+
 	public void copyFrom(StatisticsMap fromStatistics) {
 		copyFrom(fromStatistics, fromStatistics.values.keySet());
 	}

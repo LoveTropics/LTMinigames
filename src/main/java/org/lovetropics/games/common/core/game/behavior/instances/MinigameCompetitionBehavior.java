@@ -37,7 +37,9 @@ import org.lovetropics.games.common.core.game.config.GameConfigs;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
 import org.lovetropics.games.common.core.game.state.Overlords;
 import org.lovetropics.games.common.core.game.state.statistics.GameStatistics;
+import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
+import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
 import org.lovetropics.games.common.role.StreamHosts;
 import org.slf4j.Logger;
 
@@ -52,19 +54,22 @@ public final class MinigameCompetitionBehavior implements IGameBehavior {
 	public static final MapCodec<MinigameCompetitionBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			ExtraCodecs.nonEmptyList(QueueEntry.CODEC.listOf()).fieldOf("queue").forGetter(b -> b.initialQueue),
 			StatisticKey.CODEC.listOf().optionalFieldOf("share_statistics", List.of()).forGetter(b -> b.shareStatistics),
+			StatisticAccumulator.CODEC.listOf().optionalFieldOf("accumulate_statistics", List.of()).forGetter(b -> b.accumulateStatistics),
 			GameActionList.CODEC.optionalFieldOf("return_to_lobby_actions", GameActionList.EMPTY).forGetter(b -> b.returnToLobbyActions)
 	).apply(i, MinigameCompetitionBehavior::new));
 
 	private final List<QueueEntry> initialQueue;
 	private final List<StatisticKey<?>> shareStatistics;
+	private final List<StatisticAccumulator> accumulateStatistics;
 	private final GameActionList returnToLobbyActions;
 
 	private final SubGameManager subGames = new SubGameManager();
 	private boolean participantsLocked;
 
-	public MinigameCompetitionBehavior(List<QueueEntry> initialQueue, List<StatisticKey<?>> shareStatistics, GameActionList returnToLobbyActions) {
+	public MinigameCompetitionBehavior(List<QueueEntry> initialQueue, List<StatisticKey<?>> shareStatistics, List<StatisticAccumulator> accumulateStatistics, GameActionList returnToLobbyActions) {
 		this.initialQueue = initialQueue;
 		this.shareStatistics = shareStatistics;
+		this.accumulateStatistics = accumulateStatistics;
 		this.returnToLobbyActions = returnToLobbyActions;
 	}
 
@@ -108,6 +113,9 @@ public final class MinigameCompetitionBehavior implements IGameBehavior {
 	private void onStopSubGame(IGamePhase topGame, IGamePhase subGame, GameStopReason reason) {
 		if (reason.isFinished()) {
 			topGame.statistics().copyFrom(subGame.statistics(), shareStatistics);
+			for (StatisticAccumulator accumulator : accumulateStatistics) {
+				accumulator.copyAndAccumulate(topGame.statistics(), subGame.statistics());
+			}
 		}
 		Tag statisticsTag = GameStatistics.CODEC.encodeStart(NbtOps.INSTANCE, topGame.statistics()).result().orElse(null);
 		LOGGER.debug("Stopped {} in minigame competition. New statistics: {}", subGame.definition().name().getString(), statisticsTag);
@@ -371,6 +379,26 @@ public final class MinigameCompetitionBehavior implements IGameBehavior {
 		@Override
 		public Component getName() {
 			return Component.literal("<Lobby>");
+		}
+	}
+
+	public record StatisticAccumulator(
+			StatisticKey<Integer> statistic,
+			int minimum
+	) {
+		public static final Codec<StatisticAccumulator> CODEC = RecordCodecBuilder.create(i -> i.group(
+				StatisticKey.INT_CODEC.fieldOf("statistic").forGetter(StatisticAccumulator::statistic),
+				Codec.INT.optionalFieldOf("minimum", 0).forGetter(StatisticAccumulator::minimum)
+		).apply(i, StatisticAccumulator::new));
+
+		public void copyAndAccumulate(GameStatistics topStats, GameStatistics subStats) {
+			topStats.global().incrementInt(statistic, Math.max(subStats.global().getInt(statistic), minimum));
+			for (PlayerKey player : topStats.getPlayers()) {
+				topStats.forPlayer(player).incrementInt(statistic, Math.max(subStats.forPlayer(player).getInt(statistic), minimum));
+			}
+			for (GameTeamKey team : topStats.getTeams()) {
+				topStats.forTeam(team).incrementInt(statistic, Math.max(subStats.forTeam(team).getInt(statistic), minimum));
+			}
 		}
 	}
 }
