@@ -172,8 +172,8 @@ public final class SurviveTheTide {
 					ModelLocationUtils.getModelLocation(ctx.get()),
 					new TextureMapping()
 							.put(TextureSlot.SIDE, prov.modBlockTexture("loot_dispenser_side"))
-							.put(TextureSlot.BOTTOM, prov.modBlockTexture("loot_dispenser_top"))
-							.put(TextureSlot.TOP, prov.modBlockTexture("loot_dispenser_bot")),
+							.put(TextureSlot.BOTTOM, prov.modBlockTexture("loot_dispenser_bot"))
+							.put(TextureSlot.TOP, prov.modBlockTexture("loot_dispenser_top")),
 					prov.modelOutput
 			)));
 		}
