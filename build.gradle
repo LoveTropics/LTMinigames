@@ -209,6 +209,12 @@ dependencies {
     runtimeOnly ("org.lovetropics:LTExtras:$ltextras_version") {
         transitive = false
     }
+    runtimeOnly ("org.lovetropics:DummyPlayers:$dummyplayers_version") {
+        transitive = false
+    }
+    runtimeOnly ("org.lovetropics:LTDonations:$ltdonations_version") {
+        transitive = false
+    }
 
     jarJar(implementation("eu.pb4:placeholder-api-lt:$placeholder_api_version"))
 
