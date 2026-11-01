@@ -460,11 +460,6 @@ public class GameBehaviorTypes {
 		register("named_stages/stage_bar", StageBarBehavior.CODEC);
 	}
 
-	public static final GameBehaviorEntry<NamedStagesBehaviour> NAMED_STAGES_BEHAVIOUR = REGISTRATE.object("named_stages").behavior(NamedStagesBehaviour.CODEC).register();
-	public static final GameBehaviorEntry<StageSkipToAction> STAGE_SKIP_TO_ACTION = REGISTRATE.object("named_stages/skip_to").behavior(StageSkipToAction.CODEC).register();
-	public static final GameBehaviorEntry<StageProgressAction> STAGE_PROGRESS_ACTION = REGISTRATE.object("named_stages/progress").behavior(StageProgressAction.CODEC).register();
-	public static final GameBehaviorEntry<StageBarBehavior> STAGE_BAR = REGISTRATE.object("named_stages/stage_bar").behavior(StageBarBehavior.CODEC).register();
-
 	public static <T extends IGameBehavior> void register(String name, MapCodec<T> codec) {
 		REGISTER.register(name, () -> codec);
 	}
