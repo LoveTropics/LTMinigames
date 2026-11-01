@@ -596,6 +596,7 @@ public class GamePhase implements IGamePhase {
 			GamePhaseManager.get().addDimensionToGame(dimension, this);
 			ServerLevel level = server.getLevel(dimension);
 			if (level != null) {
+				allLevels.add(level);
 				invoker(GameWorldEvents.CREATE_LEVEL).onCreateLevel(level);
 			}
 		}
