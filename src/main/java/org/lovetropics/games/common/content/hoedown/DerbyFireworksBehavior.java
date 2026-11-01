@@ -28,7 +28,8 @@ public record DerbyFireworksBehavior(
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		events.listen(GameWorldEvents.PROJECTILE_IMPACT, (level, projectile, _) -> {
-			if (projectile instanceof FireworkRocketEntity rocket) {
+			// Fireworks from finishing a lap (not fired by a player) should definitely not do anything
+			if (projectile instanceof FireworkRocketEntity rocket && rocket.getOwner() != null) {
 				for (ServerPlayer player : level.getEntitiesOfClass(ServerPlayer.class, rocket.getBoundingBox().inflate(radius))) {
 					Entity vehicle = player.getVehicle();
 					if (vehicle != null) {
