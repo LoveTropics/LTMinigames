@@ -8,6 +8,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -28,6 +29,7 @@ import org.lovetropics.games.common.core.game.state.IGameState;
 import org.lovetropics.games.common.core.game.state.statistics.GameStatistics;
 import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
+import org.lovetropics.games.common.core.integration.GameInstanceIntegrations;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -172,7 +174,19 @@ public final class BingoBoard implements IGameState {
 		BingoTile completedTile = tile.get();
 
 		onTileCompleted.apply(game, ContextMap.EMPTY, ActionSubjects.ofPlayer(player));
-		game.allPlayers().sendMessage(Bingo.TILE_COMPLETED.apply(player.getDisplayName(), completedTile.title.copy().withStyle(ChatFormatting.AQUA)));
+		MutableComponent tileCompletedComponent = Bingo.TILE_COMPLETED.apply(player.getDisplayName(), completedTile.title.copy().withStyle(ChatFormatting.AQUA));
+		game.allPlayers().sendMessage(tileCompletedComponent);
+
+		// Send the tile completion event to the techstack
+		GameInstanceIntegrations integrations = game.instanceState().getOrNull(GameInstanceIntegrations.KEY);
+		if (integrations != null) {
+			String sb = "<:pogfish:1038094258713935912> " +
+					player.getDisplayName().getString() +
+					" (" + completedTile.completedBy.size() + "/" + game.participants().size() + ")" +
+					" completed: " +
+					completedTile.title.getString();
+			integrations.sendInGameEvent(sb);
+		}
 
 		game.statistics().forPlayer(player).incrementInt(StatisticKey.POINTS, getReward(completedTile, completedTile.completedBy.size() - 1));
 		// Everyone sees how many players completed each tile, and what it is still worth to them
