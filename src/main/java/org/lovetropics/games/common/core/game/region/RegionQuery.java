@@ -210,6 +210,7 @@ public final class RegionQuery {
 
 	private class LookupCache {
 		private final WeakReference<GameRegionHolder> game;
+		private final int regionToken;
 
 		private @Nullable List<Region> regions;
 		private final Map<ResourceKey<Level>, List<Region>> regionsByDimension = new Reference2ObjectOpenHashMap<>();
@@ -218,6 +219,7 @@ public final class RegionQuery {
 
 		private LookupCache(GameRegionHolder game) {
 			this.game = new WeakReference<>(game);
+			regionToken = game.regionToken();
 		}
 
 		public List<Region> getAll() {
@@ -260,7 +262,7 @@ public final class RegionQuery {
 		}
 
 		public boolean isValid(GameRegionHolder game) {
-			return this.game.refersTo(game);
+			return this.game.refersTo(game) && regionToken == game.regionToken();
 		}
 	}
 }

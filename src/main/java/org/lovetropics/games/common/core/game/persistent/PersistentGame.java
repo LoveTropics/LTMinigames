@@ -22,5 +22,6 @@ public interface PersistentGame extends GameRegionHolder {
 		return level().getServer();
 	}
 
+	@Override
 	GameRegions gameRegions();
 }

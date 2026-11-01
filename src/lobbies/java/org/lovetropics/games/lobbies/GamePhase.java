@@ -82,6 +82,7 @@ public class GamePhase implements IGamePhase {
 		}
 		return regions;
 	};
+	private int regionToken;
 
 	private final GameStateMap phaseState = new GameStateMap();
 
@@ -597,6 +598,7 @@ public class GamePhase implements IGamePhase {
 			ServerLevel level = server.getLevel(dimension);
 			if (level != null) {
 				allLevels.add(level);
+				regionToken++;
 				invoker(GameWorldEvents.CREATE_LEVEL).onCreateLevel(level);
 			}
 		}
@@ -664,6 +666,11 @@ public class GamePhase implements IGamePhase {
 	@Override
 	public GameRegions gameRegions() {
 		return gameRegions;
+	}
+
+	@Override
+	public int regionToken() {
+		return regionToken;
 	}
 
 	@Override
