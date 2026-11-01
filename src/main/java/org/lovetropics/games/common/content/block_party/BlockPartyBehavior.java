@@ -16,12 +16,16 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.ARGB;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.TriState;
 import net.minecraft.util.Util;
+import net.minecraft.util.context.ContextMap;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -32,6 +36,8 @@ import org.lovetropics.games.common.core.game.GameStopReason;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.SpawnBuilder;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.action.ActionSubjects;
+import org.lovetropics.games.common.core.game.behavior.action.GameActionList;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GameLogicEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
@@ -57,8 +63,11 @@ public final class BlockPartyBehavior implements IGameBehavior {
 			Codec.INT.optionalFieldOf("time_decay_rounds", 5).forGetter(c -> c.timeDecayRounds),
 			Codec.INT.optionalFieldOf("interval", SharedConstants.TICKS_PER_SECOND * 3).forGetter(c -> c.interval),
 			Codec.INT.optionalFieldOf("knockback_after_round", Integer.MAX_VALUE).forGetter(c -> c.knockbackAfterAround),
-			Codec.INT.optionalFieldOf("max_lives", 1).forGetter(c -> c.maxLives)
+			Codec.INT.optionalFieldOf("max_lives", 1).forGetter(c -> c.maxLives),
+			RoundTrigger.CODEC.listOf().optionalFieldOf("on_round", List.of()).forGetter(c -> c.roundTriggers)
 	).apply(i, BlockPartyBehavior::new));
+
+	private static final CustomData TARGET_ITEM_MARKER = CustomData.EMPTY.update(tag -> tag.putBoolean("block_party", true));
 
 	private final RegionQuery floorRegionKey;
 	private final BlockState[] blocks;
@@ -71,12 +80,14 @@ public final class BlockPartyBehavior implements IGameBehavior {
 	private final int knockbackAfterAround;
 	private final int maxLives;
 
+	private final List<RoundTrigger> roundTriggers;
+
 	private IGamePhase game;
 	private FloorRegion floorRegion;
 
 	private @Nullable State state;
 
-	public BlockPartyBehavior(RegionQuery floorRegionKey, BlockState[] blocks, int quadSize, int maxTime, int minTime, int timeDecayRounds, int interval, int knockbackAfterAround, int maxLives) {
+	public BlockPartyBehavior(RegionQuery floorRegionKey, BlockState[] blocks, int quadSize, int maxTime, int minTime, int timeDecayRounds, int interval, int knockbackAfterAround, int maxLives, List<RoundTrigger> roundTriggers) {
 		this.floorRegionKey = floorRegionKey;
 		this.blocks = blocks;
 		this.quadSize = quadSize;
@@ -86,6 +97,7 @@ public final class BlockPartyBehavior implements IGameBehavior {
 		this.interval = interval;
 		this.knockbackAfterAround = knockbackAfterAround;
 		this.maxLives = maxLives;
+		this.roundTriggers = roundTriggers;
 	}
 
 	@Override
@@ -97,6 +109,10 @@ public final class BlockPartyBehavior implements IGameBehavior {
 		}
 
 		floorRegion = new FloorRegion(floorRegionKey.one(game), quadSize);
+
+		for (RoundTrigger trigger : roundTriggers) {
+			trigger.actions.register(game, events);
+		}
 
 		events.listen(GamePhaseEvents.START, initiator -> {
 			state = startCountingDown(0);
@@ -166,6 +182,14 @@ public final class BlockPartyBehavior implements IGameBehavior {
 	}
 
 	private void onStateChange(State oldState, @Nullable State newState) {
+		if (newState != null && oldState.roundIndex() != newState.roundIndex()) {
+			for (RoundTrigger trigger : roundTriggers) {
+				if (trigger.index == newState.roundIndex()) {
+					trigger.actions.apply(game, ContextMap.EMPTY, ActionSubjects.EMPTY);
+				}
+			}
+		}
+
 		if (hasKnockback(newState) && !hasKnockback(oldState)) {
 			PlayerSet allPlayers = game.allPlayers();
 			allPlayers.showTitle(BlockPartyTexts.KNOCKBACK_ENABLED_TITLE, BlockPartyTexts.KNOCKBACK_ENABLED_SUBTITLE, 10, 40, 10);
@@ -193,15 +217,20 @@ public final class BlockPartyBehavior implements IGameBehavior {
 		Floor floor = floorRegion.generateAndSet(game.random(), blocks);
 
 		ItemStack targetStack = new ItemStack(floor.target.getBlock());
+		targetStack.set(DataComponents.CUSTOM_DATA, TARGET_ITEM_MARKER);
+		targetStack.set(DataComponents.MAX_STACK_SIZE, 1);
 
 		Component name = BlockPartyTexts.STAND_ON_BLOCK.apply(targetStack.getHoverName())
 				.withStyle(style -> style.withBold(true));
 		targetStack.set(DataComponents.ITEM_NAME, name);
 
 		for (ServerPlayer player : game.participants()) {
-			player.getInventory().clearContent();
+			Inventory inventory = player.getInventory();
 			for (int i = 0; i < 9; i++) {
-				player.getInventory().setItem(i, targetStack.copy());
+				ItemStack currentItem = inventory.getItem(i);
+				if (currentItem.isEmpty() || TARGET_ITEM_MARKER.equals(currentItem.get(DataComponents.CUSTOM_DATA))) {
+					inventory.setItem(i, targetStack.copy());
+				}
 			}
 
 			if (player.gameMode() != GameType.SPECTATOR) {
@@ -226,6 +255,8 @@ public final class BlockPartyBehavior implements IGameBehavior {
 
 	interface State {
 		@Nullable State tick(IGamePhase game);
+
+		int roundIndex();
 
 		boolean hasKnockback();
 	}
@@ -275,6 +306,11 @@ public final class BlockPartyBehavior implements IGameBehavior {
 		}
 
 		@Override
+		public int roundIndex() {
+			return round;
+		}
+
+		@Override
 		public boolean hasKnockback() {
 			return round >= knockbackAfterAround;
 		}
@@ -299,6 +335,11 @@ public final class BlockPartyBehavior implements IGameBehavior {
 		}
 
 		@Override
+		public int roundIndex() {
+			return round;
+		}
+
+		@Override
 		public boolean hasKnockback() {
 			return round >= knockbackAfterAround;
 		}
@@ -317,6 +358,11 @@ public final class BlockPartyBehavior implements IGameBehavior {
 				}
 			}
 			return this;
+		}
+
+		@Override
+		public int roundIndex() {
+			return -1;
 		}
 
 		@Override
@@ -391,5 +437,15 @@ public final class BlockPartyBehavior implements IGameBehavior {
 				}
 			}
 		}
+	}
+
+	private record RoundTrigger(
+			int index,
+			GameActionList actions
+	) {
+		public static final Codec<RoundTrigger> CODEC = RecordCodecBuilder.create(i -> i.group(
+				ExtraCodecs.NON_NEGATIVE_INT.fieldOf("index").forGetter(RoundTrigger::index),
+				GameActionList.MAP_CODEC.forGetter(RoundTrigger::actions)
+		).apply(i, RoundTrigger::new));
 	}
 }
