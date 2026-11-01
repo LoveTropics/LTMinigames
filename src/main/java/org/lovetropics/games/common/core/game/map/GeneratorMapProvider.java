@@ -179,6 +179,11 @@ public record GeneratorMapProvider(
 		return chunks;
 	}
 
+	@Override
+	public GeneratorMapProvider trySetSeed(long seed) {
+		return new GeneratorMapProvider(name, generator, dimensionType, Optional.of(seed), spawnRegion, nether, end);
+	}
+
 	public record ExtraDimension(ChunkGenerator generator, Holder<DimensionType> dimensionType) {
 		public static final Codec<ExtraDimension> CODEC = RecordCodecBuilder.create(i -> i.group(
 				ChunkGenerator.CODEC.fieldOf("generator").forGetter(ExtraDimension::generator),

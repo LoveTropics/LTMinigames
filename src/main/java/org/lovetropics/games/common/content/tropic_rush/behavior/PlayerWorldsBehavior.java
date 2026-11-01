@@ -39,10 +39,12 @@ public record PlayerWorldsBehavior(
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
+		IGameMapProvider mapWithSeed = seed.map(map::trySetSeed).orElse(map);
+
 		Map<UUID, CompletableFuture<ServerLevel>> levelFutures = new HashMap<>();
 		events.listen(GamePlayerEvents.BEFORE_ADD_PLAYERS, (participants, _) -> {
 			for (PlayerKey participant : participants) {
-				levelFutures.put(participant.id(), game.createLevelHackyMightNotWork(map));
+				levelFutures.put(participant.id(), game.createLevelHackyMightNotWork(mapWithSeed));
 			}
 		});
 

@@ -17,4 +17,8 @@ public interface IGameMapProvider {
 	default List<ResourceKey<Level>> getPossibleDimensions() {
 		return Collections.emptyList();
 	}
+
+	default IGameMapProvider trySetSeed(long seed) {
+		return this;
+	}
 }
