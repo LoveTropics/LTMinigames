@@ -6,11 +6,12 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import net.minecraft.server.level.ServerPlayer;
-import org.jspecify.annotations.Nullable;
+import net.minecraft.world.level.GameType;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.client_state.GameClientState;
 import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
@@ -22,10 +23,10 @@ import java.util.List;
 import java.util.Map;
 
 public record HidePlayersBehavior(
-		Map<PlayerRole, List<PlayerRole>> rolesToHideByRole
+		Map<PlayerRole, List<GameType>> gameModesToHideByRole
 ) implements IGameBehavior {
 	public static final MapCodec<HidePlayersBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			Codec.unboundedMap(PlayerRole.CODEC, PlayerRole.CODEC.listOf()).fieldOf("roles_to_hide_by_role").forGetter(HidePlayersBehavior::rolesToHideByRole)
+			Codec.unboundedMap(PlayerRole.CODEC, GameType.CODEC.listOf()).fieldOf("game_modes_to_hide_by_role").forGetter(HidePlayersBehavior::gameModesToHideByRole)
 	).apply(i, HidePlayersBehavior::new));
 
 	@Override
@@ -35,31 +36,40 @@ public record HidePlayersBehavior(
 			hiddenPlayersByRole.put(role, new IntOpenHashSet());
 		}
 
-		events.listen(GamePlayerEvents.SET_ROLE, (player, role, lastRole) ->
-				updateRole(game, player, role, lastRole, hiddenPlayersByRole)
-		);
-		events.listen(GamePlayerEvents.REMOVE, player -> {
-				updateRole(game, player, null, game.getRoleFor(player), hiddenPlayersByRole);
-				GameClientState.removeFromPlayer(GameClientStateTypes.HIDE_PLAYERS.get(), player);
+		events.listen(GamePhaseEvents.TICK, () -> {
+			for (Map.Entry<PlayerRole, IntSet> entry : hiddenPlayersByRole.entrySet()) {
+				IntSet hiddenPlayerIds = entry.getValue();
+				List<GameType> gameModesToHide = gameModesToHideByRole.getOrDefault(entry.getKey(), List.of());
+				boolean changedRole = false;
+				for (ServerPlayer player : game.allPlayers()) {
+					GameType gameMode = player.gameMode();
+					if (gameModesToHide.contains(gameMode)) {
+						changedRole |= hiddenPlayerIds.add(player.getId());
+					} else {
+						changedRole |= hiddenPlayerIds.remove(player.getId());
+					}
+				}
+				if (changedRole) {
+					HidePlayersState hiddenPlayers = new HidePlayersState(new IntOpenHashSet(hiddenPlayerIds));
+					GameClientState.sendToPlayers(hiddenPlayers, game.getPlayersWithRole(entry.getKey()));
+				}
+			}
 		});
-	}
 
-	private void updateRole(IGamePhase game, ServerPlayer player, @Nullable PlayerRole role, @Nullable PlayerRole lastRole, Map<PlayerRole, IntSet> hiddenPlayersByRole) {
-		for (Map.Entry<PlayerRole, List<PlayerRole>> entry : rolesToHideByRole.entrySet()) {
-			List<PlayerRole> rolesToHide = entry.getValue();
-			IntSet hiddenPlayers = hiddenPlayersByRole.get(entry.getKey());
-			if (lastRole != null && rolesToHide.contains(lastRole)) {
-				hiddenPlayers.remove(player.getId());
+		events.listen(GamePlayerEvents.REMOVE, player -> {
+			for (Map.Entry<PlayerRole, IntSet> entry : hiddenPlayersByRole.entrySet()) {
+				IntSet hiddenPlayerIds = entry.getValue();
+				if (hiddenPlayerIds.remove(player.getId())) {
+					HidePlayersState hiddenPlayers = new HidePlayersState(new IntOpenHashSet(hiddenPlayerIds));
+					GameClientState.sendToPlayers(hiddenPlayers, game.getPlayersWithRole(entry.getKey()));
+				}
 			}
-			if (role != null && rolesToHide.contains(role)) {
-				hiddenPlayers.add(player.getId());
-			}
-		}
+			GameClientState.removeFromPlayer(GameClientStateTypes.HIDE_PLAYERS.get(), player);
+		});
 
-		for (ServerPlayer otherPlayer : game.allPlayers()) {
-			PlayerRole otherRole = game.getRoleFor(player);
-			IntSet hiddenPlayers = otherRole == null ? IntSet.of() : new IntOpenHashSet(hiddenPlayersByRole.get(otherRole));
-			GameClientState.sendToPlayer(new HidePlayersState(hiddenPlayers), otherPlayer);
-		}
+		events.listen(GamePlayerEvents.SET_ROLE, (player, role, lastRole) -> {
+			HidePlayersState hiddenPlayers = new HidePlayersState(new IntOpenHashSet(hiddenPlayersByRole.get(role)));
+			GameClientState.sendToPlayer(hiddenPlayers, player);
+		});
 	}
 }
