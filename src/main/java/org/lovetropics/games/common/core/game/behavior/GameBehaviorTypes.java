@@ -214,6 +214,7 @@ import org.lovetropics.games.common.core.game.behavior.instances.tweak.SetGameRu
 import org.lovetropics.games.common.core.game.behavior.instances.tweak.SetMaxHealthBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.tweak.SetTimeSpeedBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.tweak.TntAutoFuseBehavior;
+import org.lovetropics.games.common.core.game.behavior.instances.world.ChangeWorldBorderBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.world.DistributeLootBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.world.FillChestsByMarkerBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.world.FillContainerInRegionWithLootTableBehaviour;
@@ -225,6 +226,7 @@ import org.lovetropics.games.common.core.game.behavior.instances.world.PreventBl
 import org.lovetropics.games.common.core.game.behavior.instances.world.PreventCropGrowthInRegionBehaviour;
 import org.lovetropics.games.common.core.game.behavior.instances.world.PreventTramplingCropsBehaviour;
 import org.lovetropics.games.common.core.game.behavior.instances.world.PreventTrapdoorTriggersBehaviour;
+import org.lovetropics.games.common.core.game.behavior.instances.world.SetupWorldBorderBehavior;
 
 public class GameBehaviorTypes {
 	public static final ResourceKey<Registry<MapCodec<? extends IGameBehavior>>> REGISTRY_KEY = ResourceKey.createRegistryKey(LoveTropics.id("minigame_behaviours"));
@@ -462,6 +464,9 @@ public class GameBehaviorTypes {
 		register("named_stages/skip_to", StageSkipToAction.CODEC);
 		register("named_stages/progress", StageProgressAction.CODEC);
 		register("named_stages/stage_bar", StageBarBehavior.CODEC);
+
+		register("setup_world_border", SetupWorldBorderBehavior.CODEC);
+		register("change_world_border", ChangeWorldBorderBehavior.CODEC);
 	}
 
 	public static <T extends IGameBehavior> void register(String name, MapCodec<T> codec) {
