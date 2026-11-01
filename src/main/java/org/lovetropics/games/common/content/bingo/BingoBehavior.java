@@ -68,6 +68,7 @@ public final class BingoBehavior implements IGameBehavior {
 			board.updateTiles();
 		});
 		events.listen(GamePlayerEvents.ADD, board::updatePlayer);
+		events.listen(GamePlayerEvents.SET_ROLE, (player, _, _) -> board.updatePlayer(player));
 		events.listen(GamePlayerEvents.REMOVE, board::removeFromPlayer);
 
 		// Players moving into a sub-phase are removed from this one, which clears their board - send it again once they arrive

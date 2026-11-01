@@ -15,6 +15,7 @@ import org.lovetropics.games.common.content.river_race.behaviour.KillInVoidBehav
 import org.lovetropics.games.common.content.river_race.microgames.MicrogameScoringBehavior;
 import org.lovetropics.games.common.content.river_race.microgames.MicrogamesBehavior;
 import org.lovetropics.games.common.content.river_race.microgames.StartMicrogamesAction;
+import org.lovetropics.games.common.content.shop.ShopBehavior;
 import org.lovetropics.games.common.core.game.behavior.action.ApplyToAction;
 import org.lovetropics.games.common.core.game.behavior.instances.AddOverlordsBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.AddWeatherBehavior;
@@ -27,6 +28,7 @@ import org.lovetropics.games.common.core.game.behavior.instances.FadeToBlackBeha
 import org.lovetropics.games.common.core.game.behavior.instances.FirstEmptyTeamWinTrigger;
 import org.lovetropics.games.common.core.game.behavior.instances.GameEndEffectsBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.GameProgressionBehavior;
+import org.lovetropics.games.common.core.game.behavior.instances.GhostsBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.GiveItemsToKillerBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.GiveRespawnAction;
 import org.lovetropics.games.common.core.game.behavior.instances.ImmediateRespawnBehavior;
@@ -296,6 +298,8 @@ public class GameBehaviorTypes {
 		register("projectile_knockback", ProjectileKnockbackBehavior.CODEC);
 		register("in_sub_games", InSubGamesBehavior.CODEC);
 		register("add_overlords", AddOverlordsBehavior.CODEC);
+		register("ghosts", GhostsBehavior.CODEC);
+		register("shop", ShopBehavior.CODEC);
 		register("distribute_loot", DistributeLootBehavior.CODEC);
 
 		register("bind_objective_to_statistic", BindObjectiveToStatisticBehavior.CODEC);

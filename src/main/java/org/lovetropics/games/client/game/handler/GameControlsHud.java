@@ -21,6 +21,7 @@ import org.lovetropics.games.client.game.modifier.ModifiersScreen;
 import org.lovetropics.games.client.game.shop.ShopScreen;
 import org.lovetropics.games.common.content.bingo.Bingo;
 import org.lovetropics.games.common.content.mcsr.McsrTexts;
+import org.lovetropics.games.common.content.shop.ShopTexts;
 import org.lovetropics.games.common.core.game.client_state.instance.ModifiersClientState;
 import org.lovetropics.games.common.core.game.client_state.instance.ShopClientState;
 
@@ -61,9 +62,9 @@ public final class GameControlsHud {
 		}
 		ShopClientState shop = GameShopHandler.shop();
 		if (shop != null) {
-			lines.add(McsrTexts.OPEN_SHOP_HINT.apply(LTKeybinds.OPEN_SHOP.getTranslatedKeyMessage())
+			lines.add(ShopTexts.OPEN_SHOP_HINT.apply(LTKeybinds.OPEN_SHOP.getTranslatedKeyMessage())
 					.append(Component.literal(" - ").withStyle(ChatFormatting.GRAY))
-					.append(McsrTexts.TROPICOINS.apply(shop.balance()).withStyle(ChatFormatting.GOLD)));
+					.append(ShopTexts.TROPICOINS.apply(shop.balance()).withStyle(ChatFormatting.GOLD)));
 		}
 		ModifiersClientState modifiers = GameModifiersHandler.modifiers();
 		if (modifiers != null && !modifiers.entries().isEmpty()) {

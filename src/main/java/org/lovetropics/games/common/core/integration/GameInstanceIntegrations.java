@@ -27,6 +27,7 @@ import org.lovetropics.games.common.core.game.behavior.event.SubGameEvents;
 import org.lovetropics.games.common.core.game.behavior.instances.donation.DonationPackageDesc;
 import org.lovetropics.games.common.core.game.state.GamePackageState;
 import org.lovetropics.games.common.core.game.state.GameStateKey;
+import org.lovetropics.games.common.core.game.state.Ghosts;
 import org.lovetropics.games.common.core.game.state.IGameState;
 import org.lovetropics.games.common.core.game.state.statistics.GameStatistics;
 import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
@@ -164,7 +165,8 @@ public final class GameInstanceIntegrations implements IGameState {
 		TeamState teams = topLevelGame.instanceState().getOrNull(TeamState.KEY);
 
 		List<Participant> participants = allGames.stream()
-				.flatMap(game -> game.participants().stream())
+				// ghosts can still be donated to
+				.flatMap(game -> game.allPlayers().filter(player -> Ghosts.isParticipantOrGhost(game, player)).stream())
 				.map(this::packParticipant)
 				.toList();
 

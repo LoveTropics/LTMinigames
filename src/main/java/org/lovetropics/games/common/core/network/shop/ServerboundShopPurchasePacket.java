@@ -8,7 +8,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.lovetropics.games.LoveTropics;
-import org.lovetropics.games.common.content.mcsr.shop.Shop;
+import org.lovetropics.games.common.content.shop.Shop;
 import org.lovetropics.games.common.core.game.IGameLookup;
 import org.lovetropics.games.common.core.game.IGamePhase;
 

@@ -1,4 +1,4 @@
-package org.lovetropics.games.common.content.mcsr.shop;
+package org.lovetropics.games.common.content.shop;
 
 import com.mojang.serialization.MapCodec;
 import org.lovetropics.games.common.core.game.GameException;

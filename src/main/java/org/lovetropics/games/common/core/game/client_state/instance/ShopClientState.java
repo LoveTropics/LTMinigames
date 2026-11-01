@@ -7,7 +7,7 @@ import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.world.item.ItemStack;
-import org.lovetropics.games.common.content.mcsr.shop.ShopTarget;
+import org.lovetropics.games.common.content.shop.ShopTarget;
 import org.lovetropics.games.common.core.game.client_state.GameClientState;
 import org.lovetropics.games.common.core.game.client_state.GameClientStateType;
 import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;

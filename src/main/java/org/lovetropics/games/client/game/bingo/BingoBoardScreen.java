@@ -93,20 +93,22 @@ public final class BingoBoardScreen extends Screen {
 				.max(Comparator.naturalOrder()).orElse(1);
 		int tileH = TOP_PADDING + ICON_SIZE + ICON_TEXT_GAP + maxLines * lineHeight + BOTTOM_PADDING;
 
-		int boardW = columns * TILE_W + (columns - 1) * GAP;
-		int boardH = rows * tileH + (rows - 1) * GAP;
+		// spectators can still view other bingos
+		int boardW = board.hasCard() ? columns * TILE_W + (columns - 1) * GAP : 0;
+		int boardH = board.hasCard() ? rows * tileH + (rows - 1) * GAP : 0;
+		int panelGap = board.hasCard() ? PANEL_GAP : 0;
 
 		// The other players' boards go in a panel next to ours
 		List<BingoBoardClientState.PlayerProgress> others = standings.players();
 		int cardW = Math.round((GameBingoHandler.getCompactBoardWidth(board) + 6) * CARD_SCALE);
 		int cardH = Math.round((GameBingoHandler.getCompactBoardHeight(board) + 6) * CARD_SCALE);
 		int cellH = CARD_HEADER_H + cardH;
-		int panelColumns = others.size() > 3 ? 2 : 1;
+		int panelColumns = board.hasCard() ? (others.size() > 3 ? 2 : 1) : Mth.clamp(others.size(), 1, 3);
 		int panelRows = Mth.positiveCeilDiv(others.size(), panelColumns);
-		int panelW = others.isEmpty() ? 0 : PANEL_GAP + panelColumns * cardW + (panelColumns - 1) * CARD_GAP;
+		int panelW = others.isEmpty() ? 0 : panelGap + panelColumns * cardW + (panelColumns - 1) * CARD_GAP;
 		int panelH = others.isEmpty() ? 0 : panelRows * cellH + (panelRows - 1) * CARD_GAP;
 
-		Component header = createHeader(board);
+		Component header = board.hasCard() ? createHeader(board) : CommonComponents.EMPTY;
 		int headerH = lineHeight * 2 + GAP * 2;
 		int mainW = boardW + panelW;
 		int contentW = Math.max(mainW, font.width(header));
@@ -129,11 +131,13 @@ public final class BingoBoardScreen extends Screen {
 
 		int boardX = (contentW - mainW) / 2;
 		int boardY = headerH;
-		graphics.fill(boardX - 3, boardY - 3, boardX + boardW + 3, boardY + boardH + 3, 0x66000000);
+		if (board.hasCard()) {
+			graphics.fill(boardX - 3, boardY - 3, boardX + boardW + 3, boardY + boardH + 3, 0x66000000);
+		}
 
 		@Nullable List<FormattedCharSequence> tooltip = null;
 
-		int panelX = boardX + boardW + PANEL_GAP;
+		int panelX = boardX + boardW + panelGap;
 		for (BingoBoardClientState.PlayerProgress player : others) {
 			// Players overtaking each other slide between their places
 			float position = standings.position(player.id(), a);
@@ -149,29 +153,31 @@ public final class BingoBoardScreen extends Screen {
 			}
 		}
 
-		for (int r = 0; r < rows; r++) {
-			for (int c = 0; c < columns; c++) {
-				int x = boardX + c * (TILE_W + GAP);
-				int y = boardY + r * (tileH + GAP);
-				boolean hovered = localMouseX >= x && localMouseX < x + TILE_W && localMouseY >= y && localMouseY < y + tileH;
+		if (board.hasCard()) {
+			for (int r = 0; r < rows; r++) {
+				for (int c = 0; c < columns; c++) {
+					int x = boardX + c * (TILE_W + GAP);
+					int y = boardY + r * (tileH + GAP);
+					boolean hovered = localMouseX >= x && localMouseX < x + TILE_W && localMouseY >= y && localMouseY < y + tileH;
 
-				int index = r * columns + c;
-				Optional<BingoBoardClientState.Tile> optionalTile = tiles.get(index);
-				if (optionalTile.isEmpty()) {
-					Optional<BingoBoardClientState.LockedSlot> lockedSlot = board.getLockedSlot(index);
-					if (lockedSlot.isPresent()) {
-						drawLockedTile(graphics, x, y, tileH, maxLines);
-						if (hovered) {
-							tooltip = createLockedTooltip(board, lockedSlot.get());
+					int index = r * columns + c;
+					Optional<BingoBoardClientState.Tile> optionalTile = tiles.get(index);
+					if (optionalTile.isEmpty()) {
+						Optional<BingoBoardClientState.LockedSlot> lockedSlot = board.getLockedSlot(index);
+						if (lockedSlot.isPresent()) {
+							drawLockedTile(graphics, x, y, tileH, maxLines);
+							if (hovered) {
+								tooltip = createLockedTooltip(board, lockedSlot.get());
+							}
 						}
+						continue;
 					}
-					continue;
-				}
 
-				BingoBoardClientState.Tile tile = optionalTile.orElseThrow();
-				drawTile(graphics, tile, x, y, tileH, maxLines);
-				if (hovered) {
-					tooltip = createTooltip(tile);
+					BingoBoardClientState.Tile tile = optionalTile.orElseThrow();
+					drawTile(graphics, tile, x, y, tileH, maxLines);
+					if (hovered) {
+						tooltip = createTooltip(tile);
+					}
 				}
 			}
 		}

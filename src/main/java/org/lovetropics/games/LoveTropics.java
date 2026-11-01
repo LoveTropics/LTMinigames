@@ -61,6 +61,7 @@ import org.lovetropics.games.common.content.qottott.Qottott;
 import org.lovetropics.games.common.content.qottott.QottottTexts;
 import org.lovetropics.games.common.content.river_race.RiverRace;
 import org.lovetropics.games.common.content.river_race.RiverRaceTexts;
+import org.lovetropics.games.common.content.shop.ShopTexts;
 import org.lovetropics.games.common.content.speed_carb_golf.SpeedCarbGolf;
 import org.lovetropics.games.common.content.speed_carb_golf.SpeedCarbGolfTexts;
 import org.lovetropics.games.common.content.spleef.Spleef;
@@ -124,6 +125,7 @@ public class LoveTropics {
 			GameTexts.collectTranslations(consumer);
 			MinigameTexts.KEYS.forEach(consumer);
 			Bingo.KEYS.forEach(consumer);
+			ShopTexts.KEYS.forEach(consumer);
 			BiodiversityBlitzTexts.collectTranslations(consumer);
 			BlockPartyTexts.KEYS.forEach(consumer);
 			ColumnsOfChaosTexts.KEYS.forEach(consumer);

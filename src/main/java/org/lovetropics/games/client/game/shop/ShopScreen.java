@@ -16,8 +16,8 @@ import org.joml.Matrix3x2fStack;
 import org.lovetropics.games.client.LTKeybinds;
 import org.lovetropics.games.client.game.handler.GameShopHandler;
 import org.lovetropics.games.client.screen.ClientPlayerInfo;
-import org.lovetropics.games.common.content.mcsr.McsrTexts;
-import org.lovetropics.games.common.content.mcsr.shop.ShopTarget;
+import org.lovetropics.games.common.content.shop.ShopTarget;
+import org.lovetropics.games.common.content.shop.ShopTexts;
 import org.lovetropics.games.common.core.game.client_state.instance.ShopClientState;
 import org.lovetropics.games.common.core.network.shop.ServerboundShopPurchasePacket;
 
@@ -65,7 +65,7 @@ public final class ShopScreen extends Screen {
 	private int rowsX, rowsY, rowH;
 
 	public ShopScreen() {
-		super(McsrTexts.SHOP);
+		super(ShopTexts.SHOP);
 	}
 
 	@Override
@@ -188,7 +188,7 @@ public final class ShopScreen extends Screen {
 		int gridW = columns * CARD_W + (columns - 1) * GAP;
 		int gridH = rows * cardH + (rows - 1) * GAP;
 
-		Component balance = McsrTexts.TROPICOINS.apply(shop.balance()).withStyle(ChatFormatting.GOLD);
+		Component balance = ShopTexts.TROPICOINS.apply(shop.balance()).withStyle(ChatFormatting.GOLD);
 		int headerH = lineHeight * 2 + GAP * 2;
 		int contentW = Math.max(gridW, Math.max(font.width(title), font.width(balance)));
 		int contentH = headerH + gridH;
@@ -256,7 +256,7 @@ public final class ShopScreen extends Screen {
 			graphics.text(font, line, x + (CARD_W - font.width(line)) / 2, textY + i * font.lineHeight + offset, 0xFFFFFFFF, false);
 		}
 
-		Component cost = McsrTexts.TROPICOINS.apply(offer.cost()).withStyle(affordable ? ChatFormatting.GOLD : ChatFormatting.RED);
+		Component cost = ShopTexts.TROPICOINS.apply(offer.cost()).withStyle(affordable ? ChatFormatting.GOLD : ChatFormatting.RED);
 		graphics.centeredText(font, cost, x + CARD_W / 2, textY + maxLines * font.lineHeight + ICON_TEXT_GAP, 0xFFFFFFFF);
 	}
 
@@ -271,7 +271,7 @@ public final class ShopScreen extends Screen {
 		rowsX = (width - ROW_W) / 2;
 		rowsY = (height - contentH) / 2 + headerH;
 
-		Component pickTitle = McsrTexts.PICK_TARGET.apply(offer.name().copy().withStyle(ChatFormatting.AQUA));
+		Component pickTitle = ShopTexts.PICK_TARGET.apply(offer.name().copy().withStyle(ChatFormatting.AQUA));
 		graphics.centeredText(font, pickTitle, width / 2, rowsY - headerH, 0xFFFFFFFF);
 
 		int hoveredRow = getRowAt(shop, mouseX, mouseY);
@@ -289,15 +289,15 @@ public final class ShopScreen extends Screen {
 				ShopClientState.Target target = targets.get(row);
 				Component name = Component.literal("#" + (row + 1) + " ").withStyle(ChatFormatting.GRAY)
 						.append(Component.literal(target.name()).withStyle(ChatFormatting.WHITE));
-				Component points = McsrTexts.POINTS.apply(target.points()).withStyle(ChatFormatting.GOLD);
+				Component points = ShopTexts.POINTS.apply(target.points()).withStyle(ChatFormatting.GOLD);
 				int faceX = rowsX + PADDING + 2;
 				PlayerFaceExtractor.extractRenderState(graphics, ClientPlayerInfo.getSkin(target.id()), faceX, y + (rowH - FACE_SIZE) / 2, FACE_SIZE);
 				graphics.text(font, name, faceX + FACE_SIZE + 4, textY, 0xFFFFFFFF, false);
 				graphics.text(font, points, rowsX + ROW_W - PADDING - 2 - font.width(points), textY, 0xFFFFFFFF, false);
 			} else {
 				Component label = row == targets.size()
-						? McsrTexts.PICK_RANDOM.copy().withStyle(ChatFormatting.YELLOW)
-						: McsrTexts.PICK_CANCEL.copy().withStyle(ChatFormatting.GRAY);
+						? ShopTexts.PICK_RANDOM.copy().withStyle(ChatFormatting.YELLOW)
+						: ShopTexts.PICK_CANCEL.copy().withStyle(ChatFormatting.GRAY);
 				graphics.centeredText(font, label, rowsX + ROW_W / 2, textY, 0xFFFFFFFF);
 			}
 		}
@@ -315,18 +315,18 @@ public final class ShopScreen extends Screen {
 		List<FormattedCharSequence> lines = new ArrayList<>(font.split(offer.name().copy().withStyle(ChatFormatting.YELLOW), TOOLTIP_WIDTH));
 		offer.description().ifPresent(description -> lines.addAll(font.split(description.copy().withStyle(ChatFormatting.GRAY), TOOLTIP_WIDTH)));
 		switch (offer.target()) {
-			case PICK -> lines.add(McsrTexts.SABOTAGE_PICK.copy().withStyle(ChatFormatting.RED).getVisualOrderText());
-			case RANDOM -> lines.add(McsrTexts.SABOTAGE_RANDOM.copy().withStyle(ChatFormatting.RED).getVisualOrderText());
+			case PICK -> lines.add(ShopTexts.SABOTAGE_PICK.copy().withStyle(ChatFormatting.RED).getVisualOrderText());
+			case RANDOM -> lines.add(ShopTexts.SABOTAGE_RANDOM.copy().withStyle(ChatFormatting.RED).getVisualOrderText());
 			case SELF -> {
 			}
 		}
 		lines.add(CommonComponents.EMPTY.getVisualOrderText());
-		lines.add(McsrTexts.TROPICOINS.apply(offer.cost()).withStyle(ChatFormatting.GOLD).getVisualOrderText());
+		lines.add(ShopTexts.TROPICOINS.apply(offer.cost()).withStyle(ChatFormatting.GOLD).getVisualOrderText());
 		if (!affordable) {
-			lines.add(McsrTexts.NOT_ENOUGH_TROPICOINS.copy().withStyle(ChatFormatting.RED).getVisualOrderText());
+			lines.add(ShopTexts.NOT_ENOUGH_TROPICOINS.copy().withStyle(ChatFormatting.RED).getVisualOrderText());
 		}
 		if (!hasTarget) {
-			lines.add(McsrTexts.NO_TARGETS.copy().withStyle(ChatFormatting.RED).getVisualOrderText());
+			lines.add(ShopTexts.NO_TARGETS.copy().withStyle(ChatFormatting.RED).getVisualOrderText());
 		}
 		return lines;
 	}

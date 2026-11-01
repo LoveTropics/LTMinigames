@@ -8,7 +8,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.TriState;
 import net.minecraft.world.entity.EntityTypes;
-import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.content.MinigameTexts;
 import org.lovetropics.games.common.content.bingo.Bingo;
 import org.lovetropics.games.common.content.mcsr.McsrTexts;
@@ -18,6 +17,7 @@ import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GameLivingEntityEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GameLogicEvents;
+import org.lovetropics.games.common.core.game.player.PlayerRole;
 import org.lovetropics.games.common.core.game.state.statistics.GameStatistics;
 import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
@@ -29,10 +29,10 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-/// Ends the game as soon as a player finishes the game, by killing the Ender Dragon or by completing a whole bingo card.
-/// The finisher places first, and everyone else is placed by their points.
+/// Players finish the game by killing the Ender Dragon or by completing a whole bingo card, which makes them spectators (ghosts).
+/// The game ends once nobody is left playing, or when it is ended otherwise (e.g. by the time limit).
 ///
-/// If nobody finishes before the game is ended otherwise (e.g. by the time limit), everyone is placed by their points.
+/// Finishers place first in the order they finished, and everyone else is placed by their points.
 ///
 /// Must be in the same phase as the bingo board, as that is where the points are kept.
 public final class FinishBehavior implements IGameBehavior {
@@ -43,6 +43,7 @@ public final class FinishBehavior implements IGameBehavior {
 
 	private final boolean dragonKill;
 	private final boolean fullBingoCard;
+	private final List<PlayerKey> finishers = new ArrayList<>();
 	private boolean over;
 
 	/// @param dragonKill whether killing the Ender Dragon finishes the game
@@ -72,24 +73,36 @@ public final class FinishBehavior implements IGameBehavior {
 		events.listen(GameLogicEvents.REQUEST_GAME_OVER, () -> {
 			if (!over) {
 				game.allPlayers().sendMessage(McsrTexts.TIME_UP);
-				endGame(game, null);
+				endGame(game);
 			}
 			return true;
 		});
 	}
 
 	private void finish(IGamePhase game, ServerPlayer player, TranslationCollector.Fun1 message) {
-		if (over) {
+		PlayerKey playerKey = PlayerKey.from(player);
+		if (over || finishers.contains(playerKey)) {
 			return;
 		}
+		finishers.add(playerKey);
 		game.allPlayers().sendMessage(message.apply(player.getDisplayName()).withStyle(ChatFormatting.GOLD));
-		endGame(game, player);
+
+		// We may be in the middle of ticking the player or their level, so don't move them away just yet
+		game.scheduler().execute(() -> {
+			if (over) {
+				return;
+			}
+			game.setPlayerRole(player, PlayerRole.SPECTATOR);
+			if (game.participants().isEmpty()) {
+				endGame(game);
+			}
+		});
 	}
 
-	private void endGame(IGamePhase game, @Nullable ServerPlayer finisher) {
+	private void endGame(IGamePhase game) {
 		over = true;
 
-		List<PlayerKey> ranking = rank(game, finisher);
+		List<PlayerKey> ranking = rank(game);
 		GameStatistics statistics = game.statistics();
 		List<Component> results = new ArrayList<>();
 		results.add(MinigameTexts.RESULTS);
@@ -98,8 +111,8 @@ public final class FinishBehavior implements IGameBehavior {
 		Integer lastPoints = null;
 		for (PlayerKey player : ranking) {
 			int points = getPoints(statistics, player);
-			boolean finished = finisher != null && player.id().equals(finisher.getUUID());
-			// Players with the same points share a placement, but the finisher is first on their own
+			boolean finished = finishers.contains(player);
+			// Players with the same points share a placement, but finishers are on their own
 			if (lastPoints == null || points != lastPoints) {
 				placement++;
 			}
@@ -114,14 +127,14 @@ public final class FinishBehavior implements IGameBehavior {
 			game.allPlayers().sendMessage(line);
 		}
 
-		game.invoker(GameLogicEvents.GAME_OVER).onGameOver(getWinner(game, statistics, ranking, finisher));
+		game.invoker(GameLogicEvents.GAME_OVER).onGameOver(getWinner(game, statistics, ranking));
 	}
 
-	private static List<PlayerKey> rank(IGamePhase game, @Nullable ServerPlayer finisher) {
+	private List<PlayerKey> rank(IGamePhase game) {
 		GameStatistics statistics = game.statistics();
 
 		// Players who left the game still keep their points
-		Set<PlayerKey> players = new LinkedHashSet<>();
+		Set<PlayerKey> players = new LinkedHashSet<>(finishers);
 		for (PlayerKey player : statistics.getPlayers()) {
 			if (statistics.forPlayer(player).get(StatisticKey.POINTS) != null) {
 				players.add(player);
@@ -132,18 +145,20 @@ public final class FinishBehavior implements IGameBehavior {
 		}
 
 		List<PlayerKey> ranking = new ArrayList<>(players);
-		ranking.sort(Comparator.comparing((PlayerKey player) -> finisher != null && player.id().equals(finisher.getUUID()))
-				.thenComparingInt(player -> getPoints(statistics, player))
-				.reversed());
+		ranking.sort(Comparator.<PlayerKey>comparingInt(this::getFinishOrder)
+				.thenComparing(Comparator.comparingInt((PlayerKey player) -> getPoints(statistics, player)).reversed()));
 		return ranking;
 	}
 
-	private static GameWinner getWinner(IGamePhase game, GameStatistics statistics, List<PlayerKey> ranking, @Nullable ServerPlayer finisher) {
-		if (finisher != null) {
-			return new GameWinner.Player(finisher);
-		}
-		// Nobody wins a tie for the most points
-		if (ranking.isEmpty() || ranking.size() > 1 && getPoints(statistics, ranking.get(0)) == getPoints(statistics, ranking.get(1))) {
+	/// @return when the given player finished, with players who didn't finish coming last
+	private int getFinishOrder(PlayerKey player) {
+		int order = finishers.indexOf(player);
+		return order != -1 ? order : finishers.size();
+	}
+
+	private GameWinner getWinner(IGamePhase game, GameStatistics statistics, List<PlayerKey> ranking) {
+		// Nobody wins a tie for the most points, if nobody finished
+		if (finishers.isEmpty() && (ranking.isEmpty() || ranking.size() > 1 && getPoints(statistics, ranking.get(0)) == getPoints(statistics, ranking.get(1)))) {
 			return new GameWinner.Nobody();
 		}
 		ServerPlayer winner = game.allPlayers().getPlayerBy(ranking.getFirst().id());

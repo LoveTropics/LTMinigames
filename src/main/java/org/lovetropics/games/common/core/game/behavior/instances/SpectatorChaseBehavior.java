@@ -2,6 +2,8 @@ package org.lovetropics.games.common.core.game.behavior.instances;
 
 import com.google.common.primitives.Booleans;
 import com.mojang.serialization.MapCodec;
+import net.minecraft.SharedConstants;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Util;
 import net.minecraft.world.item.ItemStackTemplate;
@@ -26,6 +28,7 @@ import org.lovetropics.games.common.role.StreamHosts;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public final class SpectatorChaseBehavior implements IGameBehavior {
@@ -37,6 +40,8 @@ public final class SpectatorChaseBehavior implements IGameBehavior {
 			NotificationStyle.Color.LIGHT,
 			10 * 1000
 	));
+
+	private static final int FOLLOW_DELAY = SharedConstants.TICKS_PER_SECOND;
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
@@ -51,8 +56,22 @@ public final class SpectatorChaseBehavior implements IGameBehavior {
 			}
 			sendSpectatingUpdate(game);
 		});
+		events.listen(GamePlayerEvents.ADD_TO_LEVEL, (player, level) -> followIntoLevel(game, player, level));
 		events.listen(GamePlayerEvents.REMOVE, player -> removePlayer(game, player));
 		events.listen(GamePhaseEvents.DESTROY, () -> stop(game));
+	}
+
+	private void followIntoLevel(IGamePhase game, ServerPlayer player, ServerLevel level) {
+		for (ServerPlayer spectator : game.spectators()) {
+			if (spectator.getCamera() == player) {
+				spectator.teleportTo(level, player.getX(), player.getY(), player.getZ(), Set.of(), player.getYRot(), player.getXRot(), true);
+				game.scheduler().runAfterTicks(FOLLOW_DELAY, () -> {
+					if (game.spectators().contains(spectator) && game.allPlayers().contains(player)) {
+						spectator.setCamera(player);
+					}
+				});
+			}
+		}
 	}
 
 	private void removePlayer(IGamePhase game, ServerPlayer player) {

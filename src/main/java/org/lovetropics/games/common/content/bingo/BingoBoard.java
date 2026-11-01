@@ -22,8 +22,8 @@ import org.lovetropics.games.common.core.game.behavior.event.GameEventListeners;
 import org.lovetropics.games.common.core.game.client_state.GameClientState;
 import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
 import org.lovetropics.games.common.core.game.client_state.instance.BingoBoardClientState;
-import org.lovetropics.games.common.core.game.player.PlayerRole;
 import org.lovetropics.games.common.core.game.state.GameStateKey;
+import org.lovetropics.games.common.core.game.state.Ghosts;
 import org.lovetropics.games.common.core.game.state.IGameState;
 import org.lovetropics.games.common.core.game.state.statistics.GameStatistics;
 import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
@@ -245,11 +245,9 @@ public final class BingoBoard implements IGameState {
 		}
 	}
 
-	/// Sends the board to the given player, if they are playing - no matter which phase of the game they are in
+	/// Sends the board to the given player - no matter which phase of the game they are in.
+	/// Only those playing or who are ghosts have a card of their own
 	public void updatePlayer(ServerPlayer player) {
-		if (game.getRoleFor(player) != PlayerRole.PARTICIPANT) {
-			return;
-		}
 		List<Optional<BingoBoardClientState.Tile>> clientTiles = tiles.stream()
 				.map(o -> o.map(t -> t.tile(player, getReward(t, t.completedBy.size()))))
 				.toList();
@@ -258,7 +256,7 @@ public final class BingoBoard implements IGameState {
 				.toList();
 		int points = game.statistics().forPlayer(player).getOr(StatisticKey.POINTS, 0);
 		Optional<Component> unlockHint = !lockedSlots.isEmpty() && unlockOnClear > 0 ? Optional.of(Bingo.LOCKED_HINT_CLEAR.apply(unlockOnClear)) : Optional.empty();
-		GameClientState.sendToPlayer(new BingoBoardClientState(rows, columns, clientTiles, clientLockedSlots, points, unlockHint, getPlayerProgress()), player);
+		GameClientState.sendToPlayer(new BingoBoardClientState(rows, columns, clientTiles, clientLockedSlots, points, unlockHint, getPlayerProgress(), Ghosts.isParticipantOrGhost(game, player)), player);
 	}
 
 	/// The progress of everyone playing, and of the players who left but still have points
@@ -270,7 +268,7 @@ public final class BingoBoard implements IGameState {
 				players.add(player);
 			}
 		}
-		for (ServerPlayer player : game.participants()) {
+		for (ServerPlayer player : game.allPlayers().filter(p -> Ghosts.isParticipantOrGhost(game, p))) {
 			players.add(PlayerKey.from(player));
 		}
 

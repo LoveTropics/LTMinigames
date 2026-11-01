@@ -71,7 +71,7 @@ public class GameBingoHandler {
 	/// @return the y position just below the compact board, or `-1` if it isn't shown
 	public static int getOverlayBottom() {
 		BingoBoardClientState board = GameBingoHandler.board;
-		if (board == null || board.rows() <= 0 || board.columns() <= 0) {
+		if (board == null || !board.hasCard() || board.rows() <= 0 || board.columns() <= 0) {
 			return -1;
 		}
 		return BOARD_Y + getCompactBoardHeight(board) + 3;
@@ -100,7 +100,7 @@ public class GameBingoHandler {
 	static void registerLayers(RegisterGuiLayersEvent event) {
 		event.registerAboveAll(Identifier.fromNamespaceAndPath(LoveTropics.ID, "bingo_board"), (guiGraphics, deltaTracker) -> {
 			BingoBoardClientState board = GameBingoHandler.board;
-			if (board == null || board.rows() <= 0 || board.columns() <= 0 || Minecraft.getInstance().gui.screen() instanceof BingoBoardScreen) {
+			if (board == null || !board.hasCard() || board.rows() <= 0 || board.columns() <= 0 || Minecraft.getInstance().gui.screen() instanceof BingoBoardScreen) {
 				return;
 			}
 			Font font = Minecraft.getInstance().font;

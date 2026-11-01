@@ -9,7 +9,6 @@ import org.lovetropics.games.common.content.mcsr.modifier.EnderPearlDeviationBeh
 import org.lovetropics.games.common.content.mcsr.modifier.ModifiersBehavior;
 import org.lovetropics.games.common.content.mcsr.modifier.RevealModifierAction;
 import org.lovetropics.games.common.content.mcsr.modifier.ScrambleDebugScreenBehavior;
-import org.lovetropics.games.common.content.mcsr.shop.ShopBehavior;
 import org.lovetropics.games.common.util.registry.LoveTropicsRegistrate;
 
 /// Competitive Minecraft speedrunning mini-game
@@ -19,7 +18,6 @@ public class Mcsr {
 	public static void init() {
 		REGISTRATE.registerBehavior("mcsr/player_worlds", PlayerWorldsBehavior.CODEC);
 		REGISTRATE.registerBehavior("mcsr/finish", FinishBehavior.CODEC);
-		REGISTRATE.registerBehavior("mcsr/shop", ShopBehavior.CODEC);
 
 		REGISTRATE.registerBehavior("mcsr/modifiers", ModifiersBehavior.CODEC);
 		REGISTRATE.registerBehavior("mcsr/change_modifier", ChangeModifierAction.CODEC);

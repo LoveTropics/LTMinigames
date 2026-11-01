@@ -20,7 +20,8 @@ import java.util.UUID;
 /// @param points      the points of the player the board is sent to
 /// @param unlockHint  how to unlock more tiles, if there is anything players can do about it
 /// @param players     the progress of every player of the game, including the one the board is sent to
-public record BingoBoardClientState(int rows, int columns, List<Optional<Tile>> tiles, List<LockedSlot> lockedSlots, int points, Optional<Component> unlockHint, List<PlayerProgress> players) implements GameClientState {
+/// @param hasCard     whether the player the board is sent to has a card of their own, otherwise they can only look at the cards of the players
+public record BingoBoardClientState(int rows, int columns, List<Optional<Tile>> tiles, List<LockedSlot> lockedSlots, int points, Optional<Component> unlockHint, List<PlayerProgress> players, boolean hasCard) implements GameClientState {
 	public static final MapCodec<BingoBoardClientState> CODEC = RecordCodecBuilder.mapCodec(in -> in.group(
 			Codec.INT.fieldOf("rows").forGetter(BingoBoardClientState::rows),
 			Codec.INT.fieldOf("columns").forGetter(BingoBoardClientState::columns),
@@ -28,7 +29,8 @@ public record BingoBoardClientState(int rows, int columns, List<Optional<Tile>> 
 			LockedSlot.CODEC.listOf().optionalFieldOf("locked_slots", List.of()).forGetter(BingoBoardClientState::lockedSlots),
 			Codec.INT.optionalFieldOf("points", 0).forGetter(BingoBoardClientState::points),
 			ComponentSerialization.CODEC.optionalFieldOf("unlock_hint").forGetter(BingoBoardClientState::unlockHint),
-			PlayerProgress.CODEC.listOf().optionalFieldOf("players", List.of()).forGetter(BingoBoardClientState::players)
+			PlayerProgress.CODEC.listOf().optionalFieldOf("players", List.of()).forGetter(BingoBoardClientState::players),
+			Codec.BOOL.optionalFieldOf("has_card", true).forGetter(BingoBoardClientState::hasCard)
 	).apply(in, BingoBoardClientState::new));
 
 	@Override
