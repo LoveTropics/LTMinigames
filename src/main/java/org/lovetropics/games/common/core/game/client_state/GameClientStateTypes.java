@@ -30,7 +30,7 @@ import org.lovetropics.games.common.core.game.client_state.instance.HighlightBlo
 import org.lovetropics.games.common.core.game.client_state.instance.InvertControlsClientState;
 import org.lovetropics.games.common.core.game.client_state.instance.ModifiersClientState;
 import org.lovetropics.games.common.core.game.client_state.instance.PointTagClientState;
-import org.lovetropics.games.common.core.game.client_state.instance.ReplaceTexturesClientState;
+import org.lovetropics.games.common.core.game.client_state.instance.RemapSpriteClientState;
 import org.lovetropics.games.common.core.game.client_state.instance.ResourcePackClientState;
 import org.lovetropics.games.common.core.game.client_state.instance.ScrambleDebugScreenClientState;
 import org.lovetropics.games.common.core.game.client_state.instance.ShopClientState;
@@ -57,7 +57,6 @@ public final class GameClientStateTypes {
 
 	public static final Codec<GameClientStateType<?>> TYPE_CODEC = Codec.lazyInitialized(REGISTRY::byNameCodec);
 
-	public static final GameClientTweakEntry<ReplaceTexturesClientState> REPLACE_TEXTURES = register("replace_textures", ReplaceTexturesClientState.CODEC);
 	public static final GameClientTweakEntry<SpectatingClientState> SPECTATING = register("spectating", SpectatingClientState.CODEC);
 	public static final GameClientTweakEntry<ResourcePackClientState> RESOURCE_PACK = register("resource_pack", ResourcePackClientState.CODEC);
 	public static final GameClientTweakEntry<HealthTagClientState> HEALTH_TAG = register("health_tag", HealthTagClientState.CODEC);
@@ -91,6 +90,7 @@ public final class GameClientStateTypes {
 	public static final GameClientTweakEntry<DisableMouseMovementClientState> DISABLE_MOUSE_MOVEMENT = register("disable_mouse_movement", DisableMouseMovementClientState.CODEC, DisableMouseMovementClientState.STREAM_CODEC);
 	public static final GameClientTweakEntry<RemapHotbarKeysClientState> REMAP_QUICK_KEYS = register("remap_hotbar_keys", RemapHotbarKeysClientState.CODEC, RemapHotbarKeysClientState.STREAM_CODEC);
 	public static final GameClientTweakEntry<InvertScrollWheelClientState> INVERT_SCROLL_WHEEL = registerUnit("invert_scroll_wheel", InvertScrollWheelClientState.INSTANCE);
+	public static final GameClientTweakEntry<RemapSpriteClientState> REMAP_SPRITE = register("remap_sprite", RemapSpriteClientState.CODEC, RemapSpriteClientState.STREAM_CODEC);
 
 	public static <T extends GameClientState> GameClientTweakEntry<T> register(String name, MapCodec<T> codec) {
 		return REGISTRATE.object(name)

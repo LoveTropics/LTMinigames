@@ -44,7 +44,7 @@
     "client.ClientPacketListenerMixin",
     "client.DebugScreenOverlayMixin",
     "client.GameRendererMixin",
-    "client.HudMixin",
+    "client.TextureAtlasMixin",
     "client.KeyboardInputMixin",
     "client.MinecraftMixin",
     "client.ModelFeatureRendererMixin",
