@@ -15,6 +15,7 @@ import org.lovetropics.games.common.content.river_race.behaviour.KillInVoidBehav
 import org.lovetropics.games.common.content.river_race.microgames.MicrogameScoringBehavior;
 import org.lovetropics.games.common.content.river_race.microgames.MicrogamesBehavior;
 import org.lovetropics.games.common.content.river_race.microgames.StartMicrogamesAction;
+import org.lovetropics.games.common.content.shop.GiveDonatedTropicoinsAction;
 import org.lovetropics.games.common.content.shop.ShopBehavior;
 import org.lovetropics.games.common.core.game.behavior.action.ApplyToAction;
 import org.lovetropics.games.common.core.game.behavior.instances.AddOverlordsBehavior;
@@ -310,6 +311,7 @@ public class GameBehaviorTypes {
 		register("add_overlords", AddOverlordsBehavior.CODEC);
 		register("ghosts", GhostsBehavior.CODEC);
 		register("shop", ShopBehavior.CODEC);
+		register("give_donated_tropicoins", GiveDonatedTropicoinsAction.CODEC);
 		register("distribute_loot", DistributeLootBehavior.CODEC);
 
 		register("bind_objective_to_statistic", BindObjectiveToStatisticBehavior.CODEC);

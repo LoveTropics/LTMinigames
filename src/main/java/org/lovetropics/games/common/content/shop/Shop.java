@@ -43,10 +43,21 @@ public final class Shop implements IGameState {
 	/// What was last sent to each player who has the shop, to only update players whose shop changed
 	private final Map<UUID, SentShop> sentShops = new HashMap<>();
 
-	public Shop(IGamePhase game, List<ShopOffer> offers) {
+	private double tropicoinsPerDonatedAmount;
+
+	public Shop(IGamePhase game, List<ShopOffer> offers, double tropicoinsPerDonatedAmount) {
 		this.game = game;
 		playerOffers = offers.stream().filter(offer -> offer.usableBy().includesPlayers()).toList();
 		ghostOffers = offers.stream().filter(offer -> offer.usableBy().includesGhosts()).toList();
+		this.tropicoinsPerDonatedAmount = tropicoinsPerDonatedAmount;
+	}
+
+	public double tropicoinsPerDonatedAmount() {
+		return tropicoinsPerDonatedAmount;
+	}
+
+	public void setTropicoinsPerDonatedAmount(double tropicoinsPerDonatedAmount) {
+		this.tropicoinsPerDonatedAmount = tropicoinsPerDonatedAmount;
 	}
 
 	/// @param requestedTarget the player to use the offer on, if the buyer picked one

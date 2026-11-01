@@ -562,6 +562,7 @@
   "ltminigames.minigame.river_race.zone.the_cliff": "The Cliff",
   "ltminigames.minigame.shop.bonuses": "Bonuses",
   "ltminigames.minigame.shop.cannot_afford": "You can't afford %s yet!",
+  "ltminigames.minigame.shop.donation_rate": "Donations give %s tropicoins per unit donated",
   "ltminigames.minigame.shop.no_targets": "There is nobody to use this on",
   "ltminigames.minigame.shop.not_enough_tropicoins": "Not enough tropicoins",
   "ltminigames.minigame.shop.open_hint": "[%s] Shop",

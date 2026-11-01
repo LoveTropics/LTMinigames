@@ -16,6 +16,7 @@ public final class ShopTexts {
 	public static final TranslationCollector.Fun2 PURCHASED = KEYS.add2("purchased", "You bought %s for %s tropicoins!");
 	public static final TranslationCollector.Fun1 CANNOT_AFFORD = KEYS.add1("cannot_afford", "You can't afford %s yet!");
 	public static final TranslationCollector.Fun1 PURCHASE_FAILED = KEYS.add1("purchase_failed", "%s can't be bought right now");
+	public static final TranslationCollector.Fun1 DONATION_RATE = KEYS.add1("donation_rate", "Donations give %s tropicoins per unit donated");
 
 	// Sabotage
 	public static final TranslationCollector.Fun3 USED_ON = KEYS.add3("used_on", "You used %s on %s for %s tropicoins!");
