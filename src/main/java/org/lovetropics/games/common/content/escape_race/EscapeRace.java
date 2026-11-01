@@ -34,13 +34,9 @@ import org.lovetropics.games.common.content.escape_race.behaviours.BlockRoomsAct
 import org.lovetropics.games.common.content.escape_race.behaviours.BreakBucksBehaviour;
 import org.lovetropics.games.common.content.escape_race.behaviours.CloseRoomsAction;
 import org.lovetropics.games.common.content.escape_race.behaviours.EarlyExitRoomAction;
-import org.lovetropics.games.common.content.escape_race.behaviours.EscapeRaceStageBarBehavior;
 import org.lovetropics.games.common.content.escape_race.behaviours.ItemFrameCodeBehaviour;
 import org.lovetropics.games.common.content.escape_race.behaviours.JoinTeamIntoRoomAction;
-import org.lovetropics.games.common.content.escape_race.behaviours.NamedStagesBehaviour;
 import org.lovetropics.games.common.content.escape_race.behaviours.RevealWinnerAction;
-import org.lovetropics.games.common.content.escape_race.behaviours.StageProgressAction;
-import org.lovetropics.games.common.content.escape_race.behaviours.StageSkipToAction;
 import org.lovetropics.games.common.content.escape_race.behaviours.TerryBossBehaviour;
 import org.lovetropics.games.common.content.escape_race.behaviours.VacationDaysBehaviour;
 import org.lovetropics.games.common.content.escape_race.behaviours.WarehouseSetupBehaviour;
@@ -172,14 +168,10 @@ public class EscapeRace {
 		REGISTRATE.registerBehavior("escape_race/break_bucks", BreakBucksBehaviour.CODEC);
 		REGISTRATE.registerBehavior("escape_race/vacation_days", VacationDaysBehaviour.CODEC);
 		REGISTRATE.registerBehavior("escape_race/warehouse_setup", WarehouseSetupBehaviour.CODEC);
-		REGISTRATE.registerBehavior("escape_race/named_stages", NamedStagesBehaviour.CODEC);
 		REGISTRATE.registerBehavior("escape_race/early_exit_room", EarlyExitRoomAction.CODEC);
-		REGISTRATE.registerBehavior("escape_race/named_stages/skip_to", StageSkipToAction.CODEC);
-		REGISTRATE.registerBehavior("escape_race/named_stages/progress", StageProgressAction.CODEC);
 		REGISTRATE.registerBehavior("escape_race/join_team_into_room", JoinTeamIntoRoomAction.CODEC);
 		REGISTRATE.registerBehavior("escape_race/close_rooms", CloseRoomsAction.CODEC);
 		REGISTRATE.registerBehavior("escape_race/reveal_winner", RevealWinnerAction.CODEC);
-		REGISTRATE.registerBehavior("escape_race/stage_bar", EscapeRaceStageBarBehavior.CODEC);
 		REGISTRATE.registerBehavior("escape_race/block_rooms", BlockRoomsAction.CODEC);
 
 		REGISTRATE.registerBehavior("terry_trash", TerryTrashBehavior.CODEC);

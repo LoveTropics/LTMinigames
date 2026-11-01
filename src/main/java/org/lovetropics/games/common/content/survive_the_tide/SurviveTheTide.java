@@ -168,11 +168,12 @@ public final class SurviveTheTide {
 		}
 
 		private static void generateLootDispenser(DataGenContext<Block, LootDispenserBlock> ctx, RegistrateBlockModelGenerator prov) {
-			prov.generateDirectionalBlock(ctx.get(), plainVariant(ModelTemplates.CUBE_ORIENTABLE_VERTICAL.create(
+			prov.generateDirectionalBlock(ctx.get(), plainVariant(ModelTemplates.CUBE_BOTTOM_TOP.create(
 					ModelLocationUtils.getModelLocation(ctx.get()),
 					new TextureMapping()
-							.put(TextureSlot.SIDE, TextureMapping.getBlockTexture(Blocks.FURNACE, "_side"))
-							.put(TextureSlot.FRONT, TextureMapping.getBlockTexture(Blocks.DISPENSER, "_front_vertical")),
+							.put(TextureSlot.SIDE, prov.modBlockTexture("loot_dispenser_side"))
+							.put(TextureSlot.BOTTOM, prov.modBlockTexture("loot_dispenser_top"))
+							.put(TextureSlot.TOP, prov.modBlockTexture("loot_dispenser_bot")),
 					prov.modelOutput
 			)));
 		}

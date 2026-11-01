@@ -1,4 +1,4 @@
-package org.lovetropics.games.common.content.escape_race.behaviours;
+package org.lovetropics.games.common.core.game.behavior.instances.stages;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -9,12 +9,14 @@ import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GameActionEvents;
 
-public record StageProgressAction(
-		boolean skipEndActions
+public record StageSkipToAction(
+		String namedStage
 ) implements IGameBehavior {
-	public static final MapCodec<StageProgressAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			Codec.BOOL.optionalFieldOf("skip_end_actions", false).forGetter(StageProgressAction::skipEndActions)
-	).apply(i, StageProgressAction::new));
+
+	public static final MapCodec<StageSkipToAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+			Codec.STRING.fieldOf("stage").forGetter(StageSkipToAction::namedStage)
+	).apply(i, StageSkipToAction::new));
+
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		NamedStagesBehaviour.State stageState = game.instanceState().getOrNull(NamedStagesBehaviour.KEY);
@@ -22,10 +24,9 @@ public record StageProgressAction(
 			return;
 		}
 		events.listen(GameActionEvents.APPLY, ((context, targets) -> {
-			stageState.progressToNext(skipEndActions);
+			stageState.progressToStage(namedStage);
 			return true;
 		}));
 	}
-
 
 }

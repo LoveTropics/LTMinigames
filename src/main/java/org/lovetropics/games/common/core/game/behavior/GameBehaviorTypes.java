@@ -10,6 +10,10 @@ import org.lovetropics.games.LoveTropics;
 import org.lovetropics.games.common.content.box_hunt.DisguiseAsPlayerBoxBehaviour;
 import org.lovetropics.games.common.content.box_hunt.HitBlockCausesDamageBehaviour;
 import org.lovetropics.games.common.content.box_hunt.UpdateWordBoxesInWorldBehaviour;
+import org.lovetropics.games.common.core.game.behavior.instances.stages.StageBarBehavior;
+import org.lovetropics.games.common.core.game.behavior.instances.stages.StageProgressAction;
+import org.lovetropics.games.common.core.game.behavior.instances.stages.StageSkipToAction;
+import org.lovetropics.games.common.core.game.behavior.instances.stages.NamedStagesBehaviour;
 import org.lovetropics.games.common.content.escape_race.behaviours.StandOnBlockTrigger;
 import org.lovetropics.games.common.content.river_race.behaviour.KillInVoidBehavior;
 import org.lovetropics.games.common.content.river_race.microgames.MicrogameScoringBehavior;
@@ -202,7 +206,9 @@ import org.lovetropics.games.common.core.game.behavior.instances.tweak.ScaleDama
 import org.lovetropics.games.common.core.game.behavior.instances.tweak.ScaleExplosionKnockbackBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.tweak.ScalePlayerDamageBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.tweak.SetDayTimeBehavior;
+import org.lovetropics.games.common.core.game.behavior.instances.tweak.SetDayTimeNowBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.tweak.SetDifficultyBehavior;
+import org.lovetropics.games.common.core.game.behavior.instances.tweak.SetDifficultyNowBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.tweak.SetGameRulesBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.tweak.SetMaxHealthBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.tweak.SetTimeSpeedBehavior;
@@ -447,7 +453,17 @@ public class GameBehaviorTypes {
 		register("remove_client_state", RemoveClientStateAction.CODEC);
 
 		register("apply_to", ApplyToAction.CODEC);
+
+		register("named_stages", NamedStagesBehaviour.CODEC);
+		register("named_stages/skip_to", StageSkipToAction.CODEC);
+		register("named_stages/progress", StageProgressAction.CODEC);
+		register("named_stages/stage_bar", StageBarBehavior.CODEC);
 	}
+
+	public static final GameBehaviorEntry<NamedStagesBehaviour> NAMED_STAGES_BEHAVIOUR = REGISTRATE.object("named_stages").behavior(NamedStagesBehaviour.CODEC).register();
+	public static final GameBehaviorEntry<StageSkipToAction> STAGE_SKIP_TO_ACTION = REGISTRATE.object("named_stages/skip_to").behavior(StageSkipToAction.CODEC).register();
+	public static final GameBehaviorEntry<StageProgressAction> STAGE_PROGRESS_ACTION = REGISTRATE.object("named_stages/progress").behavior(StageProgressAction.CODEC).register();
+	public static final GameBehaviorEntry<StageBarBehavior> STAGE_BAR = REGISTRATE.object("named_stages/stage_bar").behavior(StageBarBehavior.CODEC).register();
 
 	public static <T extends IGameBehavior> void register(String name, MapCodec<T> codec) {
 		REGISTER.register(name, () -> codec);

@@ -1,4 +1,4 @@
-package org.lovetropics.games.common.content.escape_race.behaviours;
+package org.lovetropics.games.common.core.game.behavior.instances.stages;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -29,12 +29,12 @@ import org.lovetropics.games.common.util.Util;
 import java.util.Map;
 
 // TODO: Generalise?
-public record EscapeRaceStageBarBehavior(
+public record StageBarBehavior(
 		Map<String, BarConfig> barByStage
 ) implements IGameBehavior {
-	public static final MapCodec<EscapeRaceStageBarBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			Codec.unboundedMap(Codec.STRING, BarConfig.CODEC).fieldOf("bar_by_stage").forGetter(EscapeRaceStageBarBehavior::barByStage)
-	).apply(i, EscapeRaceStageBarBehavior::new));
+	public static final MapCodec<StageBarBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+			Codec.unboundedMap(Codec.STRING, BarConfig.CODEC).fieldOf("bar_by_stage").forGetter(StageBarBehavior::barByStage)
+	).apply(i, StageBarBehavior::new));
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {

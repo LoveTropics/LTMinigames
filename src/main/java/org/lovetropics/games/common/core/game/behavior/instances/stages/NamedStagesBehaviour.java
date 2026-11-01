@@ -1,4 +1,4 @@
-package org.lovetropics.games.common.content.escape_race.behaviours;
+package org.lovetropics.games.common.core.game.behavior.instances.stages;
 
 import com.lovetropics.lib.codec.MoreCodecs;
 import com.mojang.brigadier.arguments.StringArgumentType;
