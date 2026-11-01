@@ -24,7 +24,9 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Util;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.dimension.LevelStem;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -210,8 +212,12 @@ public final class MapCommand {
 			position.applyTo(player);
 		} else {
 			ServerLevel level = workspace.dimensionHandle().asLevel();
-			BlockPos pos = level.getRespawnData().pos();
-			player.teleportTo(level, pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5, Set.of(), player.getYRot(), player.getXRot(), true);
+			LevelChunk chunk = level.getChunk(0, 0);
+			int spawnY = chunk.getHeight(Heightmap.Types.WORLD_SURFACE, 0, 0) + 1;
+			if (spawnY == chunk.getMinY()) {
+				spawnY = 64;
+			}
+			player.teleportTo(level, 0.5, spawnY, 0.5, Set.of(), player.getYRot(), player.getXRot(), true);
 		}
 
 		if (player.mayFly()) {
