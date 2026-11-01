@@ -35,6 +35,7 @@ import org.lovetropics.games.common.core.game.behavior.instances.ImmediateRespaw
 import org.lovetropics.games.common.core.game.behavior.instances.InSubGamesBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.JoinLateWithRoleBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.LastRemainingWinTrigger;
+import org.lovetropics.games.common.core.game.behavior.instances.LeaderboardPlaceholderBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.MinecraftBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.MinigameCompetitionBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.ModifyLootTablesBehavior;
@@ -159,6 +160,7 @@ import org.lovetropics.games.common.core.game.behavior.instances.trigger.BindCon
 import org.lovetropics.games.common.core.game.behavior.instances.trigger.BlockBreakTrigger;
 import org.lovetropics.games.common.core.game.behavior.instances.trigger.BlockInRegionTrigger;
 import org.lovetropics.games.common.core.game.behavior.instances.trigger.DelayedSequenceAction;
+import org.lovetropics.games.common.core.game.behavior.instances.trigger.EntityTimerTrigger;
 import org.lovetropics.games.common.core.game.behavior.instances.trigger.GameFinishTrigger;
 import org.lovetropics.games.common.core.game.behavior.instances.trigger.GeneralEventsTrigger;
 import org.lovetropics.games.common.core.game.behavior.instances.trigger.ItemCraftedTrigger;
@@ -175,7 +177,6 @@ import org.lovetropics.games.common.core.game.behavior.instances.trigger.Schedul
 import org.lovetropics.games.common.core.game.behavior.instances.trigger.SetRoleTrigger;
 import org.lovetropics.games.common.core.game.behavior.instances.trigger.SpawnTrigger;
 import org.lovetropics.games.common.core.game.behavior.instances.trigger.StatisticThresholdTrigger;
-import org.lovetropics.games.common.core.game.behavior.instances.trigger.EntityTimerTrigger;
 import org.lovetropics.games.common.core.game.behavior.instances.trigger.TopPlayerTrigger;
 import org.lovetropics.games.common.core.game.behavior.instances.trigger.WeatherChangeTrigger;
 import org.lovetropics.games.common.core.game.behavior.instances.trigger.WhileInInventoryTrigger;
@@ -289,6 +290,7 @@ public class GameBehaviorTypes {
 		register("weather_change_trigger", WeatherChangeTrigger.CODEC);
 		register("player_head_reward", PlayerHeadRewardBehavior.CODEC);
 		register("points_sidebar", PointsSidebarBehavior.CODEC);
+		register("leaderboard_placeholder", LeaderboardPlaceholderBehavior.CODEC);
 		register("damage_in_water", DamageInWaterBehavior.CODEC);
 		register("apply_to_player_while", ApplyToPlayerWhileTrigger.CODEC);
 		register("block_in_region", BlockInRegionTrigger.CODEC);

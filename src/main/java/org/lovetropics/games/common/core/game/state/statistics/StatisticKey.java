@@ -162,6 +162,10 @@ public final class StatisticKey<T> {
 		return this;
 	}
 
+	public Class<T> type() {
+		return type;
+	}
+
 	public String getKey() {
 		return key;
 	}
