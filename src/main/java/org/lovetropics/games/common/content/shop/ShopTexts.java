@@ -8,6 +8,8 @@ public final class ShopTexts {
 	public static final TranslationCollector KEYS = new TranslationCollector(LoveTropics.ID + ".minigame.shop.");
 
 	public static final Component SHOP = KEYS.add("title", "Shop");
+	public static final Component BONUSES = KEYS.add("bonuses", "Bonuses");
+	public static final Component SABOTAGES = KEYS.add("sabotages", "Sabotages");
 	public static final TranslationCollector.Fun1 TROPICOINS = KEYS.add1("tropicoins", "%s tropicoins");
 	public static final TranslationCollector.Fun1 OPEN_SHOP_HINT = KEYS.add1("open_hint", "[%s] Shop");
 	public static final Component NOT_ENOUGH_TROPICOINS = KEYS.add("not_enough_tropicoins", "Not enough tropicoins");
