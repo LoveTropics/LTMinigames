@@ -43,6 +43,7 @@ import org.lovetropics.games.common.core.game.client_state.instance.controls.Dis
 import org.lovetropics.games.common.core.game.client_state.instance.controls.InvertScrollWheelClientState;
 import org.lovetropics.games.common.core.game.client_state.instance.controls.RemapHotbarKeysClientState;
 import org.lovetropics.games.common.core.game.client_state.instance.controls.RemapMovementClientState;
+import org.lovetropics.games.common.core.game.client_state.instance.controls.ReverseRiptideClientState;
 import org.lovetropics.games.common.util.registry.GameClientTweakEntry;
 import org.lovetropics.games.common.util.registry.LoveTropicsRegistrate;
 
@@ -90,6 +91,7 @@ public final class GameClientStateTypes {
 	public static final GameClientTweakEntry<DisableMouseMovementClientState> DISABLE_MOUSE_MOVEMENT = register("disable_mouse_movement", DisableMouseMovementClientState.CODEC, DisableMouseMovementClientState.STREAM_CODEC);
 	public static final GameClientTweakEntry<RemapHotbarKeysClientState> REMAP_QUICK_KEYS = register("remap_hotbar_keys", RemapHotbarKeysClientState.CODEC, RemapHotbarKeysClientState.STREAM_CODEC);
 	public static final GameClientTweakEntry<InvertScrollWheelClientState> INVERT_SCROLL_WHEEL = registerUnit("invert_scroll_wheel", InvertScrollWheelClientState.INSTANCE);
+	public static final GameClientTweakEntry<ReverseRiptideClientState> REVERSE_RIPTIDE = registerUnit("reverse_riptide", ReverseRiptideClientState.INSTANCE);
 	public static final GameClientTweakEntry<RemapSpriteClientState> REMAP_SPRITE = register("remap_sprite", RemapSpriteClientState.CODEC, RemapSpriteClientState.STREAM_CODEC);
 
 	public static <T extends GameClientState> GameClientTweakEntry<T> register(String name, MapCodec<T> codec) {
