@@ -119,13 +119,11 @@ import org.lovetropics.games.common.core.game.behavior.instances.action.SpawnEnt
 import org.lovetropics.games.common.core.game.behavior.instances.action.SpawnEntityAtRegionsAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.SpawnFireworksAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.SpawnParticlesAroundEntityAction;
-import org.lovetropics.games.common.core.game.behavior.instances.action.SpawnTornadoAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.SpectatorActivityAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.StartProgressChannelAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.SwapPlayersAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.TeamDispatchAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.TeleportToRegionAction;
-import org.lovetropics.games.common.core.game.behavior.instances.action.TransformPlayerTornadoAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.WeatherEventAction;
 import org.lovetropics.games.common.core.game.behavior.instances.command.CustomCommandBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.command.PointControlCommandsBehavior;
@@ -373,8 +371,6 @@ public class GameBehaviorTypes {
 		register("play_sound", PlaySoundAction.CODEC);
 		register("spawn_particles_around_player", SpawnParticlesAroundEntityAction.CODEC); //TODO: rename (affects any entity)
 		register("notification_toast", NotificationToastAction.CODEC);
-		register("transform_player_tornado", TransformPlayerTornadoAction.CODEC);
-		register("spawn_tornado", SpawnTornadoAction.CODEC);
 		register("chest_drop", ChestDropAction.CODEC);
 		register("damage_player", DamageAction.CODEC); //TODO: rename (affects any entity)
 		register("spectator_activity", SpectatorActivityAction.CODEC);
