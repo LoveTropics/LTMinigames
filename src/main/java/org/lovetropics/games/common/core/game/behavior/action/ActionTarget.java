@@ -6,6 +6,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.advancements.predicates.entity.EntityPredicate;
+import net.minecraft.core.Holder;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -13,6 +14,7 @@ import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.util.Util;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.dimension.DimensionType;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
 
@@ -46,6 +48,7 @@ public interface ActionTarget {
 		registry.put("players_around", PlayersAround.MAP_CODEC);
 		registry.put("specific_player", SpecificPlayer.MAP_CODEC);
 		registry.put("specific_team", SpecificTeam.MAP_CODEC);
+		registry.put("players_dimension", PlayersInDimensionType.MAP_CODEC);
 	}
 
 	default ActionSubjects<?> resolveTargets(IGamePhase game, ActionSubjects<?> sources) {
@@ -246,6 +249,28 @@ public interface ActionTarget {
 
 		@Override
 		public MapCodec<SpecificTeam> codec() {
+			return MAP_CODEC;
+		}
+	}
+
+	record PlayersInDimensionType(Holder<DimensionType> dimensionType) implements ActionTarget {
+		public static final MapCodec<PlayersInDimensionType> MAP_CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+				DimensionType.CODEC.fieldOf("dimension_type").forGetter(PlayersInDimensionType::dimensionType)
+		).apply(i, PlayersInDimensionType::new));
+
+		@Override
+		public ActionSubjects<?> modifyTargets(IGamePhase game, ActionSubjects<?> targets, ActionSubjects<?> sources) {
+			List<ServerPlayer> players = new ArrayList<>();
+			for (ServerLevel allLevel : game.allLevels()) {
+				if(allLevel.dimensionTypeRegistration().is(dimensionType)){
+					players.addAll(allLevel.players());
+				}
+			}
+			return ActionSubjects.ofPlayers(players);
+		}
+
+		@Override
+		public MapCodec<PlayersInDimensionType> codec() {
 			return MAP_CODEC;
 		}
 	}

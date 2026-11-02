@@ -51,7 +51,7 @@ public interface IGamePhase extends GameRegionHolder {
 	GameResult<Unit> requestStop(GameStopReason reason);
 
 	/// This is a reasonable feature that we should support - but APIs and behaviors make the assumption that the set of all levels is known at creation time.
-	/// Use with care!
+	/// Use with care! This only returns the first dimension... maybe.
 	@Deprecated
 	CompletableFuture<ServerLevel> createLevelHackyMightNotWork(IGameMapProvider mapProvider);
 

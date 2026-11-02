@@ -26,6 +26,7 @@ import org.lovetropics.dimensions.SharedDimensionState;
 import org.lovetropics.maps.MapRegions;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -108,28 +109,22 @@ public record GeneratorMapProvider(
 				: CompletableFuture.completedFuture(Optional.empty());
 
 		return spawnPos.thenApply(pos -> {
+			Map<ResourceKey<Level>, MapRegions> mapRegions = new HashMap<>();
 			MapRegions regions = new MapRegions();
 			if (pos.isPresent() && spawnRegion.isPresent()) {
 				regions.add(spawnRegion.get(), BlockBox.of(pos.get()));
 			}
+			mapRegions.put(Level.OVERWORLD, regions);
 
-			GameMap map = new GameMap(overwold.asKey(), regions)
-					.onClose(game -> dimensions.values().forEach(RuntimeDimensionHandle::markForDeletion));
-			if (!linked) {
-				return map;
+			if(linked) {
+				Map<ResourceKey<Level>, ResourceKey<Level>> byVanillaKey = dimensions.entrySet().stream()
+						.collect(Collectors.toUnmodifiableMap(Map.Entry::getKey, entry -> entry.getValue().asKey()));
+				LevelData.RespawnData respawnData = LevelData.RespawnData.of(overwold.asKey(), pos.orElseThrow(), 0.0f, 0.0f);
+				RuntimeDimensions.get(server).link(new LinkedDimensions(byVanillaKey, respawnData));
 			}
 
-			Map<ResourceKey<Level>, ResourceKey<Level>> byVanillaKey = dimensions.entrySet().stream()
-					.collect(Collectors.toUnmodifiableMap(Map.Entry::getKey, entry -> entry.getValue().asKey()));
-			LevelData.RespawnData respawnData = LevelData.RespawnData.of(overwold.asKey(), pos.orElseThrow(), 0.0f, 0.0f);
-			RuntimeDimensions.get(server).link(new LinkedDimensions(byVanillaKey, respawnData));
-
-			// we can just put every dimension we have for consistency
-			return map.withLinkedDimensions(dimensions.entrySet().stream()
-					.filter(entry -> entry.getKey() != Level.OVERWORLD)
-					.map(entry -> entry.getValue().asKey())
-					.toList()
-			);
+			return new GameMap(dimensions.keySet().stream().toList(), mapRegions)
+					.onClose(game -> dimensions.values().forEach(RuntimeDimensionHandle::markForDeletion));
 		});
 	}
 

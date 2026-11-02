@@ -19,6 +19,7 @@ public final class GameMapProviders {
 
 	static {
 		register("load_map", LoadMapProvider.CODEC);
+		register("load_map_with_multiple_dimensions", LoadMapWithMultipleDimensionsProvider.CODEC);
 		register("random", RandomMapProvider.CODEC);
 		register("inline", InlineMapProvider.CODEC);
 		register("void", VoidMapProvider.CODEC);

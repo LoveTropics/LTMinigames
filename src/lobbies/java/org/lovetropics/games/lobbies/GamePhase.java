@@ -72,12 +72,14 @@ public class GamePhase implements IGamePhase {
 	private final GameRegions gameRegions = key -> {
 		List<Region> regions = new ArrayList<>();
 		for (GameMap map : maps) {
-			ServerLevel level = server().getLevel(map.dimension());
-			if (level == null) {
-				continue;
-			}
-			for (BlockBox box : map.mapRegions().get(key)) {
-				regions.add(new Region(level, box));
+			for (ResourceKey<Level> dimension : map.dimensions()) {
+				ServerLevel level = server().getLevel(dimension);
+				if (level == null) {
+					continue;
+				}
+				for (BlockBox box : map.mapRegions().get(dimension).get(key)) {
+					regions.add(new Region(level, box));
+				}
 			}
 		}
 		return regions;
@@ -116,7 +118,8 @@ public class GamePhase implements IGamePhase {
 		focusedLive = game.lobby().metadata.focusedLive();
 
 		MinecraftServer server = game.server();
-		primaryLevel = Objects.requireNonNull(server.getLevel(map.dimension()), "Game dimension not loaded");
+		Objects.requireNonNull(map.dimensions().getFirst(), "Game dimension not loaded");
+		primaryLevel = Objects.requireNonNull(server.getLevel(map.dimensions().getFirst()), "Game dimension not loaded");
 
 		maps.add(map);
 		for (ResourceKey<Level> dimension : map.allDimensions()) {
@@ -588,7 +591,7 @@ public class GamePhase implements IGamePhase {
 		MinecraftServer server = server();
 		return mapProvider.open(server).thenApplyAsync(gameMap -> {
 			addLevelsFromMap(server, gameMap);
-			return Objects.requireNonNull(server.getLevel(gameMap.dimension()), "Level not created");
+			return Objects.requireNonNull(server.getLevel(gameMap.dimensions().getFirst()), "Level not created");
 		}, server);
 	}
 

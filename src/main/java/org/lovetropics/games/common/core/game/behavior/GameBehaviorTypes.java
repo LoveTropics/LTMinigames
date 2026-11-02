@@ -78,6 +78,7 @@ import org.lovetropics.games.common.core.game.behavior.instances.action.DelayedA
 import org.lovetropics.games.common.core.game.behavior.instances.action.DisplayLeaderboardAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.EndGameAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.ExtinguishPlayerFireAction;
+import org.lovetropics.games.common.core.game.behavior.instances.action.GiveDimensionTransportItemAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.GiveEffectAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.GiveItemQuantityBasedOnDonationAmountAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.GiveLootAction;
@@ -466,6 +467,7 @@ public class GameBehaviorTypes {
 		register("change_world_border", ChangeWorldBorderBehavior.CODEC);
 
 		register("prevent_dimension_portals", PreventDimensionPortalsBehavior.CODEC);
+		register("give_dimension_transport_item", GiveDimensionTransportItemAction.CODEC);
 	}
 
 	public static <T extends IGameBehavior> void register(String name, MapCodec<T> codec) {
