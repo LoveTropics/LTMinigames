@@ -1,7 +1,9 @@
 package org.lovetropics.games.lobbies;
 
 import com.google.common.collect.Lists;
+import com.mojang.logging.LogUtils;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Unit;
@@ -18,6 +20,7 @@ import org.lovetropics.games.lobbies.network.JoinedLobbyMessage;
 import org.lovetropics.games.lobbies.network.LeftLobbyMessage;
 import org.lovetropics.games.lobbies.network.LobbyPlayersMessage;
 import org.lovetropics.games.lobbies.network.LobbyUpdateMessage;
+import org.slf4j.Logger;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -27,6 +30,8 @@ import java.util.stream.Stream;
 ///
 /// A game lobby can have many games in its queue, each will be given a GameInstance.
 public final class GameLobby {
+	private static final Logger LOGGER = LogUtils.getLogger();
+
 	final GameLobbyManager manager;
 	final MinecraftServer server;
 	GameLobbyMetadata metadata;
@@ -228,13 +233,22 @@ public final class GameLobby {
 	}
 
 	ServerPlayer onPlayerLeave(ServerPlayer player, boolean loggingOut) {
-		GamePhase phase = state.getTopPhase();
-		if (phase != null) {
-			player = phase.removePlayer(player, loggingOut);
+		try {
+			GamePhase phase = state.getTopPhase();
+			// Note: can be re-entrant from dimension changing as a result of leaving a lobby - don't try to remove the player twice
+			if (phase != null && phase.allPlayers(true).contains(player)) {
+				player = phase.removePlayer(player, loggingOut);
 
-			// Don't try to restore the player if they're logging out, as we never save their in-game state anyway
+				// Don't try to restore the player if they're logging out, as we never save their in-game state anyway
+				if (!loggingOut) {
+					player = PlayerIsolation.INSTANCE.restore(player);
+				}
+			}
+		} catch (Exception e) {
+			// Something went horribly wrong, kick the player - but make sure we still run normal cleanup below
+			LOGGER.error("An exception occurred while removing player from the lobby", e);
 			if (!loggingOut) {
-				player = PlayerIsolation.INSTANCE.restore(player);
+				player.connection.disconnect(Component.translatable("disconnect.packetError"));
 			}
 		}
 

@@ -164,6 +164,7 @@ public class GameLobbyManager {
 		for (GameLobby lobby : lobbies) {
 			lobby.close(true);
 		}
+		INSTANCE.lobbiesByPlayer.clear();
 	}
 
 	@SubscribeEvent
