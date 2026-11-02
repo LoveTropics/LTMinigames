@@ -161,6 +161,13 @@ public final class GameInstanceIntegrations implements IGameState {
 		));
 	}
 
+	/// Propagate messages and useful information to the Techstack, which will likely eventually end up in Discord
+	public void sendInGameEvent(final String message) {
+		integrations.postAndRetry(ConfigLT.INTEGRATIONS.minigamesServiceUrl.get() + "/event", InGameEvent.CODEC, new InGameEvent(
+				message
+		));
+	}
+
 	private PlayersAndTeams packPlayersAndTeams() {
 		TeamState teams = topLevelGame.instanceState().getOrNull(TeamState.KEY);
 
@@ -340,5 +347,13 @@ public final class GameInstanceIntegrations implements IGameState {
 		public static <T> GameEventType<T> createImportant(String path, MapCodec<T> payload) {
 			return new GameEventType<>(path, payload, true, GameEvent.codec(payload));
 		}
+	}
+
+	private record InGameEvent(
+			String message
+	) {
+		public static final Codec<InGameEvent> CODEC = RecordCodecBuilder.create(i -> i.group(
+				Codec.STRING.fieldOf("message").forGetter(InGameEvent::message)
+		).apply(i, InGameEvent::new));
 	}
 }
