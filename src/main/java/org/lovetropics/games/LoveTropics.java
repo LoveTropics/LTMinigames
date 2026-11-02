@@ -52,6 +52,7 @@ import org.lovetropics.games.common.content.drr_showdown.DDRShowdownTexts;
 import org.lovetropics.games.common.content.escape_race.EscapeRace;
 import org.lovetropics.games.common.content.escape_race.EscapeRaceParticles;
 import org.lovetropics.games.common.content.escape_race.EscapeRaceTexts;
+import org.lovetropics.games.common.content.hoedown.HoedownTexts;
 import org.lovetropics.games.common.content.hoedown.TropicalHoedown;
 import org.lovetropics.games.common.content.tropic_rush.TropicRush;
 import org.lovetropics.games.common.content.tropic_rush.TropicRushTexts;
@@ -144,6 +145,7 @@ public class LoveTropics {
 			EscapeRaceTexts.collectTranslations(consumer);
 			TropicRushTexts.collectTranslations(consumer);
 			DDRShowdownTexts.KEYS.forEach(consumer);
+			HoedownTexts.KEYS.forEach(consumer);
 		});
 
 		registrate.generic(TAB_ID.getPath(), Registries.CREATIVE_MODE_TAB, () -> CreativeModeTab.builder()

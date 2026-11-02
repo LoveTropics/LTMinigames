@@ -720,6 +720,8 @@
   "ltminigames.minigame.tropic_rush.rules.open_hint": "[%s] Rules",
   "ltminigames.minigame.tropic_rush.rules.unknown": "???",
   "ltminigames.minigame.tropic_rush.time_up": "Time's up!",
+  "ltminigames.minigame.tropical_hoedown.a_generous_donor": "A generous donor",
+  "ltminigames.minigame.tropical_hoedown.winner_dropping_hats": "You won the last game, and are losing hats! Sorry!",
   "ltminigames.minigame.turtle_race": "Turtle Race",
   "ltminigames.minigame.turtle_race.closing": "The game will finish in %s seconds!",
   "ltminigames.minigame.turtle_race.finished": "%s finished in %s!",
