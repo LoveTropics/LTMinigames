@@ -30,14 +30,15 @@ public record DisplayLeaderboardAction(
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
-		TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
 		events.listen(GameActionEvents.APPLY, (context, targets) -> {
 			PlayerSet targetPlayers = PlayerSet.copyOf(targets.asPlayers(game));
+			// TODO need to adjust mysty columns of chaos
 			targetPlayers.sendMessage(header);
-			if (teams == null) {
-				sendByPlayer(game, targetPlayers, leaderboard);
-			} else {
+			if (leaderboard.shouldPlaceByTeam(game)) {
+				TeamState teams = game.instanceState().getOrThrow(TeamState.KEY);
 				sendByTeam(game, teams, targetPlayers, leaderboard);
+			} else {
+				sendByPlayer(game, targetPlayers, leaderboard);
 			}
 			return true;
 		});

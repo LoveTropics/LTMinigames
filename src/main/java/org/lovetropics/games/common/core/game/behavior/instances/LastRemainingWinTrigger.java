@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.core.game.behavior.instances;
 
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.server.level.ServerPlayer;
@@ -15,21 +14,22 @@ import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
 import org.lovetropics.games.common.core.game.player.PlayerSet;
+import org.lovetropics.games.common.core.game.state.statistics.StatisticHolderType;
 import org.lovetropics.games.common.core.game.state.team.GameTeam;
 import org.lovetropics.games.common.core.game.state.team.TeamState;
 
 public class LastRemainingWinTrigger implements IGameBehavior {
 	public static final MapCodec<LastRemainingWinTrigger> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			Codec.BOOL.optionalFieldOf("last_team", false).forGetter(t -> t.lastTeam)
+			StatisticHolderType.CODEC.optionalFieldOf("holder", StatisticHolderType.DEFAULT).forGetter(t -> t.holder)
 	).apply(i, LastRemainingWinTrigger::new));
 
-	private final boolean lastTeam;
+	private final StatisticHolderType holder;
 
 	private boolean eliminatedLastTick;
 	private boolean winTriggered;
 
-	public LastRemainingWinTrigger(boolean lastTeam) {
-		this.lastTeam = lastTeam;
+	public LastRemainingWinTrigger(StatisticHolderType holder) {
+		this.holder = holder;
 	}
 
 	@Override
@@ -40,7 +40,7 @@ public class LastRemainingWinTrigger implements IGameBehavior {
 			}
 		});
 
-		TeamState teams = lastTeam ? game.instanceState().getOrThrow(TeamState.KEY) : null;
+		TeamState teams = holder != StatisticHolderType.PLAYER ? game.instanceState().getOrThrow(TeamState.KEY) : null;
 		events.listen(GamePhaseEvents.TICK, () -> {
 			if (!eliminatedLastTick) {
 				return;
@@ -55,7 +55,7 @@ public class LastRemainingWinTrigger implements IGameBehavior {
 	}
 
 	private @Nullable GameWinner tryFindWinner(IGamePhase game, @Nullable TeamState teams) {
-		if (lastTeam && teams != null) {
+		if (holder != StatisticHolderType.PLAYER && teams != null) {
 			return tryFindTeamsWinner(game, teams);
 		} else {
 			return tryFindIndividualWinner(game);
