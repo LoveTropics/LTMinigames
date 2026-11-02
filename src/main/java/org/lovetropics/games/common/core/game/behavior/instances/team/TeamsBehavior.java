@@ -1,10 +1,15 @@
 package org.lovetropics.games.common.core.game.behavior.instances.team;
 
+import com.lovetropics.lib.permission.PermissionsApi;
+import com.lovetropics.lib.permission.role.Role;
+import com.lovetropics.lib.permission.role.RoleReader;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
+import com.mojang.logging.LogUtils;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.ChatFormatting;
@@ -31,6 +36,7 @@ import org.lovetropics.games.common.core.game.state.team.GameTeam;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
 import org.lovetropics.games.common.core.game.state.team.TeamSetupState;
 import org.lovetropics.games.common.core.game.state.team.TeamState;
+import org.slf4j.Logger;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -38,18 +44,23 @@ import java.util.Map;
 
 public final class TeamsBehavior implements IGameBehavior {
 	public static final MapCodec<TeamsBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			ScoreboardTeams.CODEC.forGetter(t -> t.scoreboardTeams)
+			ScoreboardTeams.CODEC.forGetter(t -> t.scoreboardTeams),
+			Codec.unboundedMap(GameTeamKey.CODEC, SetupTeamsBehavior.TeamConfig.CODEC).optionalFieldOf("instant_teams", Map.of()).forGetter(t -> t.instantTeams)
 	).apply(i, TeamsBehavior::new));
 
 	private static final DynamicCommandExceptionType NO_TEAM = new DynamicCommandExceptionType(team -> Component.literal("No team exists with id: " + team));
 
+	private static final Logger LOGGER = LogUtils.getLogger();
+
 	private final ScoreboardTeams scoreboardTeams;
+	private final Map<GameTeamKey, SetupTeamsBehavior.TeamConfig> instantTeams;
 
 	private @Nullable TeamSetupState teamSetup;
 	private TeamState teams;
 
-	public TeamsBehavior(ScoreboardTeams scoreboardTeams) {
+	public TeamsBehavior(ScoreboardTeams scoreboardTeams, Map<GameTeamKey, SetupTeamsBehavior.TeamConfig> instantTeams) {
 		this.scoreboardTeams = scoreboardTeams;
+		this.instantTeams = instantTeams;
 	}
 
 	@Override
@@ -57,13 +68,23 @@ public final class TeamsBehavior implements IGameBehavior {
 		TeamState existingTeams = instanceState.getOrNull(TeamState.KEY);
 		// We might run this behavior after teams have already been set up (for example in a sub-game), and we don't want to set it up twice
 		if (existingTeams == null) {
-			teamSetup = instanceState.getOrThrow(TeamSetupState.KEY);
-			TeamState newTeams = teamSetup.createInitialTeamState(game);
-			instanceState.register(TeamState.KEY, newTeams);
-			teams = newTeams;
+			teams = setupTeams(game, instanceState);
+			instanceState.register(TeamState.KEY, teams);
 		} else {
 			teams = existingTeams;
 		}
+	}
+
+	private TeamState setupTeams(IGamePhase game, GameStateMap instanceState) {
+		if (!instantTeams.isEmpty()) {
+			return new TeamState(game, instantTeams.entrySet().stream().map(entry -> {
+				SetupTeamsBehavior.TeamConfig config = entry.getValue();
+				return new GameTeam(entry.getKey(), config.dyeColor(), config.name());
+			}).toList());
+		}
+
+		teamSetup = instanceState.getOrThrow(TeamSetupState.KEY);
+		return teamSetup.createInitialTeamState(game);
 	}
 
 	@Override
@@ -82,6 +103,20 @@ public final class TeamsBehavior implements IGameBehavior {
 				);
 			});
 			this.teamSetup = null;
+		}
+
+		if (!instantTeams.isEmpty()) {
+			Map<Role, GameTeamKey> roleToTeams = SetupTeamsBehavior.buildRoleToTeamMap(instantTeams);
+			events.listen(GamePlayerEvents.ADD, player -> {
+				RoleReader roles = PermissionsApi.lookup().byPlayer(player);
+				for (Map.Entry<Role, GameTeamKey> entry : roleToTeams.entrySet()) {
+					if (roles.has(entry.getKey())) {
+						teams.addPlayerTo(PlayerKey.from(player), entry.getValue());
+						LOGGER.debug("Assigning {} to {} based on role assignments", player.getPlainTextName(), entry.getKey());
+						break;
+					}
+				}
+			});
 		}
 
 		events.listen(GamePlayerEvents.BEFORE_ADD_PLAYERS, (participants, spectators) -> {

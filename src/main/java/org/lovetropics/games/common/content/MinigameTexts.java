@@ -94,12 +94,6 @@ public final class MinigameTexts {
 			KEYS.add("teams.intro_1", "This is a team-based game!").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD),
 			KEYS.add("teams.intro_2", "You can select a team preference by using the items in your inventory:").withStyle(ChatFormatting.GRAY, ChatFormatting.BOLD)
 	};
-	public static final Component TEAM_RED = KEYS.add("teams.red", "Red");
-	public static final Component TEAM_BLUE = KEYS.add("teams.blue", "Blue");
-	public static final Component TEAM_YELLOW = KEYS.add("teams.yellow", "Yellow");
-	public static final Component TEAM_GREEN = KEYS.add("teams.green", "Green");
-	public static final Component TEAM_HIDERS = KEYS.add("teams.hiders", "Hiders");
-	public static final Component TEAM_SEEKERS = KEYS.add("teams.seekers", "Seekers");
 	public static final Component TEAM_NAME = KEYS.add("teams.name", "Team %s");
 
 	public static final Component CLEAR_WEATHER = KEYS.add("weather.clear", "Clear");
@@ -374,5 +368,17 @@ public final class MinigameTexts {
 		}
 
 		KEYS.add("time_remaining", "Time Remaining: %time%...");
+
+		KEYS.add("teams.red", "Red");
+		KEYS.add("teams.blue", "Blue");
+		KEYS.add("teams.yellow", "Yellow");
+		KEYS.add("teams.green", "Green");
+		KEYS.add("teams.hiders", "Hiders");
+		KEYS.add("teams.seekers", "Seekers");
+		KEYS.add("teams.magenta", "Magenta");
+		KEYS.add("teams.cyan", "Cyan");
+		KEYS.add("teams.light_gray", "Light Gray");
+		KEYS.add("teams.orange", "Orange");
+		KEYS.add("teams.black", "Black");
 	}
 }

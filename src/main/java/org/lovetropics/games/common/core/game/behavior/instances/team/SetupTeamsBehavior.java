@@ -71,7 +71,7 @@ public record SetupTeamsBehavior(
 			instance.setOpenToJoin(config.assignedRoles.isEmpty());
 		}
 
-		Map<Role, GameTeamKey> roleToTeams = buildRoleToTeamMap();
+		Map<Role, GameTeamKey> roleToTeams = buildRoleToTeamMap(initialTeams);
 		events.listen(GamePlayerEvents.ADD, player -> {
 			RoleReader roles = PermissionsApi.lookup().byPlayer(player);
 			for (Map.Entry<Role, GameTeamKey> entry : roleToTeams.entrySet()) {
@@ -254,10 +254,10 @@ public record SetupTeamsBehavior(
 				SharedSuggestionProvider.suggest(teams.teamsStream().map(i -> i.key().id()), builder);
 	}
 
-	private Map<Role, GameTeamKey> buildRoleToTeamMap() {
+	public static Map<Role, GameTeamKey> buildRoleToTeamMap(Map<GameTeamKey, TeamConfig> teams) {
 		// Preserve order: first-specified role matches
 		Map<Role, GameTeamKey> assignedRoles = new LinkedHashMap<>();
-		for (Map.Entry<GameTeamKey, TeamConfig> entry : initialTeams.entrySet()) {
+		for (Map.Entry<GameTeamKey, TeamConfig> entry : teams.entrySet()) {
 			for (String roleId : entry.getValue().assignedRoles()) {
 				Role role = PermissionsApi.provider().get(roleId);
 				if (role != null) {
