@@ -4,6 +4,7 @@ import com.lovetropics.lib.permission.PermissionNodeHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
+import net.minecraft.network.protocol.game.ClientboundTakeItemEntityPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -603,7 +604,8 @@ public final class GameEventDispatcher {
 				switch (result) {
 					case DISCARD -> {
 						event.setCanPickup(TriState.TRUE);
-						event.getItemEntity().getItem().setCount(0);
+						serverPlayer.level().getChunkSource().sendToTrackingPlayers(itemEntity, new ClientboundTakeItemEntityPacket(itemEntity.getId(), serverPlayer.getId(), itemEntity.getItem().getCount()));
+						itemEntity.getItem().setCount(0);
 					}
 					case CANCEL -> event.setCanPickup(TriState.FALSE);
 				}
