@@ -86,10 +86,11 @@ public final class RaceTrackPersistentGame implements PersistentGameBehavior {
 						}
 						if (checkpoints.size() >= requiredCheckpointCount) {
 							long time = game.server().getTickCount() - playerStartTime.getOrDefault(player, 0);
-							ScoreAccess scoreAccess = getScoreAccess(player);
+							ScoreAccess scoreAccess = getScoreAccess(player, ScoreType.RECORD);
 							if (scoreAccess.get() < time) {
 								scoreAccess.set(Math.toIntExact(time));
 							}
+							getScoreAccess(player, ScoreType.LATEST).set(Math.toIntExact(time));
 							player.sendSystemMessage(messages.raceCompleted, false);
 							playerCheckpoints.remove(player);
 						} else {
@@ -130,13 +131,18 @@ public final class RaceTrackPersistentGame implements PersistentGameBehavior {
 		});
 	}
 
-	private ScoreAccess getScoreAccess(ServerPlayer serverPlayer) {
-		Objective objective = getScoreObjective(serverPlayer);
+	public enum ScoreType {
+		RECORD,
+		LATEST,
+	}
+
+	private ScoreAccess getScoreAccess(ServerPlayer serverPlayer, ScoreType scoreType) {
+		Objective objective = getScoreObjective(serverPlayer, scoreType.name().toLowerCase());
 		return objective.getScoreboard().getOrCreatePlayerScore(serverPlayer, objective);
 	}
 
-	private Objective getScoreObjective(ServerPlayer serverPlayer) {
-		return PersistentScoreboards.getOrCreateObjective(serverPlayer.level(), "race_track", id);
+	private Objective getScoreObjective(ServerPlayer serverPlayer, String type) {
+		return PersistentScoreboards.getOrCreateObjective(serverPlayer.level(), "race_track", id, type);
 	}
 
 	private boolean checkPredicate(ServerPlayer serverPlayer) {
