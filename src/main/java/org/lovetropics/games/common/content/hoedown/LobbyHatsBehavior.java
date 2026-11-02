@@ -45,6 +45,7 @@ import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.behavior.event.MinigameCompetitionEvents;
 import org.lovetropics.games.common.core.game.behavior.event.PickUpResult;
 import org.lovetropics.games.common.core.game.behavior.event.SubGameEvents;
+import org.lovetropics.games.common.core.game.command.GameCommandRegistrar;
 import org.lovetropics.games.common.core.game.player.PlayerSet;
 import org.lovetropics.games.common.core.game.region.LevelBlockPos;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
@@ -150,7 +151,7 @@ public record LobbyHatsBehavior(
 
 		events.listen(GamePhaseEvents.REGISTER_COMMANDS, (commands, buildContext) -> commands.register(
 				Commands.literal("lobby_hats")
-						.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+						.requires(GameCommandRegistrar.adminOrOverlord(game))
 						.then(Commands.literal("runspawn")
 								.executes(_ -> {
 									tryRunMobSpawner(game, state);

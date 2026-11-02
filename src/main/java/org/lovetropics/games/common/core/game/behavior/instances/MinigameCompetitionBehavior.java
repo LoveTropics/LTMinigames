@@ -14,7 +14,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.permissions.Permissions;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.Unit;
 import net.minecraft.util.context.ContextMap;
@@ -36,7 +35,6 @@ import org.lovetropics.games.common.core.game.command.GameCommandRegistrar;
 import org.lovetropics.games.common.core.game.config.GameConfig;
 import org.lovetropics.games.common.core.game.config.GameConfigs;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
-import org.lovetropics.games.common.core.game.state.Overlords;
 import org.lovetropics.games.common.core.game.state.statistics.GameStatistics;
 import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
@@ -145,15 +143,8 @@ public final class MinigameCompetitionBehavior implements IGameBehavior {
 	}
 
 	private void registerGlobalCommands(IGamePhase topGame, IGamePhase game, GameCommandRegistrar commands) {
-		Overlords overlords = Overlords.get(topGame);
 		commands.register(Commands.literal("competition")
-				.requires(source -> {
-					if (source.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER)) {
-						return true;
-					}
-					ServerPlayer player = source.getPlayer();
-					return player != null && overlords.contains(player);
-				})
+				.requires(GameCommandRegistrar.adminOrOverlord(topGame))
 				.then(Commands.literal("start").executes(context -> {
 					if (subGames.isPlaying()) {
 						context.getSource().sendFailure(Component.literal("Already playing games!"));

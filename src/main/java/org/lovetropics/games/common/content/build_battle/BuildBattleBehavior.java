@@ -1,12 +1,15 @@
 package org.lovetropics.games.common.content.build_battle;
 
 import com.lovetropics.lib.BlockBox;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.ChatFormatting;
 import net.minecraft.SharedConstants;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.TimeArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
@@ -29,6 +32,7 @@ import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GameLogicEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
+import org.lovetropics.games.common.core.game.command.GameCommandRegistrar;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
 import org.lovetropics.games.common.core.game.region.Region;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
@@ -53,22 +57,26 @@ import java.util.Set;
 import java.util.UUID;
 
 public final class BuildBattleBehavior implements IGameBehavior {
-	private final RegionQuery plotRegionsName;
-	private final long buildTime;
-	private final long reviewTime;
+	private static final long REVIEW_DELAY_TICKS = 10 * SharedConstants.TICKS_PER_SECOND;
 
 	public static final MapCodec<BuildBattleBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			RegionQuery.CODEC.fieldOf("plots_name").forGetter(c -> c.plotRegionsName),
-			Codec.LONG.fieldOf("build_time").orElse((long) (5 * 60 * SharedConstants.TICKS_PER_SECOND)).forGetter(c -> c.buildTime)
+			Codec.LONG.fieldOf("build_time").orElse((long) (5 * 60 * SharedConstants.TICKS_PER_SECOND)).forGetter(c -> c.buildEndTime)
 	).apply(i, BuildBattleBehavior::new));
 
 	private static final Logger LOGGER = LogUtils.getLogger();
+
+	private final RegionQuery plotRegionsName;
+	private long buildEndTime;
 
 	private final HashMap<UUID, Region> playerPlots = new HashMap<>();
 	private final Deque<UUID> plotsToReview = new ArrayDeque<>();
 	private final List<UUID> reviewedPlayers = new ArrayList<>();
 	private final HashMap<UUID, Integer> overlordPoints = new HashMap<>();
 	private final Map<UUID, PlayerKey> playerKeys = new HashMap<>();
+
+	private long currentTime;
+	private boolean paused;
 
 	private int revieweeIndex = -1;
 	private Overlords overlords;
@@ -77,10 +85,9 @@ public final class BuildBattleBehavior implements IGameBehavior {
 	private GameBossBar bar;
 	private boolean building = true;
 
-	public BuildBattleBehavior(RegionQuery plotRegionsName, long buildTime) {
+	public BuildBattleBehavior(RegionQuery plotRegionsName, long buildEndTime) {
 		this.plotRegionsName = plotRegionsName;
-		this.buildTime = buildTime;
-		reviewTime = buildTime + 10 * SharedConstants.TICKS_PER_SECOND;
+		this.buildEndTime = buildEndTime;
 	}
 
 	@Override
@@ -92,8 +99,8 @@ public final class BuildBattleBehavior implements IGameBehavior {
 		events.listen(GamePhaseEvents.START, initiator -> {
 			bar = widgets.openBossBar(Component.empty(), BossEvent.BossBarColor.BLUE, BossEvent.BossBarOverlay.NOTCHED_10);
 			game.allPlayers().forEach(bar::addPlayer);
-			refreshBuildingTimeBar(0);
 			building = true;
+			refreshBuildingTimeBar(0);
 			overlords = Overlords.get(game);
 			game.allPlayers().sendMessage(BuildBattleTexts.BUILDING_START.copy().withStyle(ChatFormatting.YELLOW));
 		});
@@ -101,10 +108,10 @@ public final class BuildBattleBehavior implements IGameBehavior {
 			bar.close();
 		});
 		events.listen(GamePhaseEvents.TICK, () -> {
-			if (game.ticks() <= buildTime) {
-				refreshBuildingTimeBar(game.ticks());
+			if (currentTime <= buildEndTime) {
+				refreshBuildingTimeBar(currentTime);
 			}
-			if (game.ticks() == buildTime) {
+			if (currentTime == buildEndTime) {
 				game.allPlayers().sendMessage(BuildBattleTexts.BUILDING_END.copy().withStyle(ChatFormatting.YELLOW));
 				building = false;
 				bar.close();
@@ -112,13 +119,13 @@ public final class BuildBattleBehavior implements IGameBehavior {
 					player.getInventory().clearContent();
 				}
 			}
-			if (game.ticks() == (buildTime + 5 * SharedConstants.TICKS_PER_SECOND)) {
+			if (currentTime == buildEndTime + REVIEW_DELAY_TICKS / 2) {
 				for (ServerPlayer player : game.participants().shuffledCopy(game.random())) {
 					game.setPlayerRole(player, PlayerRole.SPECTATOR);
 				}
 				game.allPlayers().sendMessage(BuildBattleTexts.REVIEW_TIME.copy().withStyle(ChatFormatting.YELLOW));
 			}
-			if (game.ticks() == reviewTime) {
+			if (currentTime == buildEndTime + REVIEW_DELAY_TICKS) {
 				nextReviewee(game, widgets);
 			}
 
@@ -142,6 +149,10 @@ public final class BuildBattleBehavior implements IGameBehavior {
 					spawn.teleportAndApply(player);
 				}
 			});
+
+			if (!paused) {
+				currentTime++;
+			}
 		});
 
 		events.listen(GamePlayerEvents.BEFORE_ADD_PLAYERS, (participants, spectators) -> assignPlots(participants, plotRegionsName.all(game)));
@@ -152,6 +163,40 @@ public final class BuildBattleBehavior implements IGameBehavior {
 		events.listen(GamePlayerEvents.PLACE_BLOCK, (player, pos, placed, placedOn, placedItemStack) -> canInteract(player.getUUID(), player.level(), pos) ? TriState.DEFAULT : TriState.FALSE);
 		events.listen(GamePlayerEvents.USE_BLOCK, (player, level, pos, hand, result) -> canInteract(player.getUUID(), level, pos) ? InteractionResult.PASS : InteractionResult.FAIL);
 		events.listen(GamePlayerEvents.USE_ITEM, (player, hand) -> onUseItem(game, player, hand, widgets));
+
+		events.listen(GamePhaseEvents.REGISTER_COMMANDS, (commands, buildContext) -> {
+			commands.register(Commands.literal("timer")
+					.requires(GameCommandRegistrar.adminOrOverlord(game))
+					.then(Commands.literal("add")
+							.then(Commands.argument("time", TimeArgument.time(0))
+									.executes(context -> {
+										if (currentTime < buildEndTime) {
+											int ticks = IntegerArgumentType.getInteger(context, "time");
+											buildEndTime += ticks;
+											context.getSource().sendSuccess(() -> Component.literal("Added " + (ticks / SharedConstants.TICKS_PER_SECOND) + " seconds"), false);
+										} else {
+											context.getSource().sendFailure(Component.literal("Build time already ended"));
+										}
+										return 1;
+									})
+							)
+					)
+					.then(Commands.literal("pause")
+							.executes(context -> {
+								paused = true;
+								context.getSource().sendSuccess(() -> Component.literal("Paused build timer"), false);
+								return 1;
+							})
+					)
+					.then(Commands.literal("unpause")
+							.executes(context -> {
+								paused = false;
+								context.getSource().sendSuccess(() -> Component.literal("Unpaused build timer"), false);
+								return 1;
+							})
+					)
+			);
+		});
 
 		selectorItems.applyTo(events);
 	}
@@ -205,10 +250,10 @@ public final class BuildBattleBehavior implements IGameBehavior {
 	}
 
 	private void refreshBuildingTimeBar(long ticks) {
-		long remainingTicks = buildTime - ticks;
+		long remainingTicks = buildEndTime - ticks;
 		String timeRemaining = Util.formatTimer(remainingTicks / SharedConstants.TICKS_PER_SECOND);
 		bar.setTitle(BuildBattleTexts.BAR_BUILDING.copy().withStyle(ChatFormatting.AQUA).append(" ").append(BuildBattleTexts.COUNTDOWN.apply(timeRemaining)));
-		bar.setProgress(buildTime > 0 ? (float) remainingTicks / (float) buildTime : 0f);
+		bar.setProgress(buildEndTime > 0 ? (float) remainingTicks / (float) buildEndTime : 0f);
 	}
 
 	private void nextReviewee(IGamePhase game, GameWidgets widgets) {

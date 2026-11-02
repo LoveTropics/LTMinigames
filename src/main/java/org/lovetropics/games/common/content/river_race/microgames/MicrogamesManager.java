@@ -73,7 +73,7 @@ public class MicrogamesManager implements IGameState {
 
 	private void registerGlobalCommands(GameCommandRegistrar commands) {
 		commands.register(Commands.literal("microgame")
-				.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+				.requires(GameCommandRegistrar.adminOrOverlord(topGame))
 				.then(Commands.literal("queue")
 						.then(GameConfigArgument.argument("game").executes(context -> {
 							GameConfig config = GameConfigArgument.get(context, "game");
