@@ -76,12 +76,12 @@ public final class BingoBoard implements IGameState {
 		tiles = NonNullList.withSize(rows * columns, Optional.empty());
 
 		List<BingoTileDefinition> pool = new ArrayList<>(tilePool);
-		Util.shuffle(pool, game.random());
+		//Util.shuffle(pool, game.random());
 		IntList slots = new IntArrayList();
 		for (int i = 0; i < rows * columns; i++) {
 			slots.add(i);
 		}
-		Util.shuffle(slots, game.random());
+		//Util.shuffle(slots, game.random());
 
 		for (int i = 0; i < slots.size(); i++) {
 			if (i < pool.size()) {
@@ -150,7 +150,7 @@ public final class BingoBoard implements IGameState {
 	}
 
 	private void placeTile(int index, BingoTileDefinition definition) {
-		BingoTile tile = new BingoTile(definition.icon().create(), definition.title(), definition.reward(), definition.trigger());
+		BingoTile tile = new BingoTile(definition.icon().create(), definition.title(), definition.reward(), definition.trigger(), definition.tileType());
 		tiles.set(index, Optional.of(tile));
 		for (PhaseEvents phaseEvents : phases) {
 			registerTrigger(index, tile, phaseEvents);
@@ -312,18 +312,20 @@ public final class BingoBoard implements IGameState {
 		private final Component title;
 		private final int reward;
 		private final Supplier<GameActionList> trigger;
+		private final BingoTileType tileType;
 		/// In the order the players completed the tile
 		private final Set<UUID> completedBy = new LinkedHashSet<>();
 
-		private BingoTile(ItemStack icon, Component title, int reward, Supplier<GameActionList> trigger) {
+		private BingoTile(ItemStack icon, Component title, int reward, Supplier<GameActionList> trigger, BingoTileType tileType) {
 			this.icon = icon;
 			this.title = title;
 			this.reward = reward;
 			this.trigger = trigger;
+			this.tileType = tileType;
 		}
 
 		private BingoBoardClientState.Tile tile(ServerPlayer player, int nextReward) {
-			return new BingoBoardClientState.Tile(icon, title, completedBy.contains(player.getUUID()), completedBy.size(), nextReward);
+			return new BingoBoardClientState.Tile(icon, title, completedBy.contains(player.getUUID()), completedBy.size(), nextReward, tileType);
 		}
 	}
 }

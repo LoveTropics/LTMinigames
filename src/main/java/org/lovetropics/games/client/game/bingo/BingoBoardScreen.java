@@ -16,6 +16,7 @@ import org.lovetropics.games.client.LTKeybinds;
 import org.lovetropics.games.client.game.handler.GameBingoHandler;
 import org.lovetropics.games.client.screen.ClientPlayerInfo;
 import org.lovetropics.games.common.content.bingo.Bingo;
+import org.lovetropics.games.common.content.bingo.BingoTileType;
 import org.lovetropics.games.common.core.game.client_state.instance.BingoBoardClientState;
 
 import java.util.ArrayList;
@@ -240,7 +241,7 @@ public final class BingoBoardScreen extends Screen {
 	}
 
 	private void drawLockedTile(GuiGraphicsExtractor graphics, int x, int y, int tileH, int maxLines) {
-		GameBingoHandler.drawLockedBackground(graphics, x, y, TILE_W, tileH);
+		GameBingoHandler.drawLockedBackground(graphics, BingoTileType.DEFAULT.lockedColor(), BingoTileType.DEFAULT.lockedBorderColor(), x, y, TILE_W, tileH);
 		// Keep the question mark where the icon of other tiles is
 		GameBingoHandler.drawLockedIcon(graphics, font, x, y + TOP_PADDING, TILE_W, ICON_SIZE);
 

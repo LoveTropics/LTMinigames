@@ -7,6 +7,7 @@ import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.world.item.ItemStack;
+import org.lovetropics.games.common.content.bingo.BingoTileType;
 import org.lovetropics.games.common.core.game.client_state.GameClientState;
 import org.lovetropics.games.common.core.game.client_state.GameClientStateType;
 import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
@@ -48,13 +49,23 @@ public record BingoBoardClientState(int rows, int columns, List<Optional<Tile>> 
 
 	/// @param completions how many players have completed the tile
 	/// @param reward      how many points the tile is worth to the player if they complete it now
-	public record Tile(ItemStack icon, Component title, boolean completed, int completions, int reward) {
+	/// @param tileType    information about how the tile should be displayed
+	/// 				   TODO add an Appearance record to BingoTileType so we avoid sending gameplay information.
+	public record Tile(
+			ItemStack icon,
+			Component title,
+			boolean completed,
+			int completions,
+			int reward,
+			BingoTileType tileType
+	) {
 		public static final Codec<Tile> CODEC = RecordCodecBuilder.create(in -> in.group(
 				ItemStack.CODEC.fieldOf("icon").forGetter(Tile::icon),
 				ComponentSerialization.CODEC.fieldOf("title").forGetter(Tile::title),
 				Codec.BOOL.fieldOf("completed").forGetter(Tile::completed),
 				Codec.INT.optionalFieldOf("completions", 0).forGetter(Tile::completions),
-				Codec.INT.optionalFieldOf("reward", 0).forGetter(Tile::reward)
+				Codec.INT.optionalFieldOf("reward", 0).forGetter(Tile::reward),
+				BingoTileType.CODEC.optionalFieldOf("tile_type", BingoTileType.DEFAULT).forGetter(Tile::tileType)
 		).apply(in, Tile::new));
 	}
 

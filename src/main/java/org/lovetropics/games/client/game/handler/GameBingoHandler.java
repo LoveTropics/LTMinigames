@@ -18,6 +18,7 @@ import org.lovetropics.games.client.LTKeybinds;
 import org.lovetropics.games.client.game.bingo.BingoBoardScreen;
 import org.lovetropics.games.client.game.bingo.BingoStandings;
 import org.lovetropics.games.client.screen.ClientPlayerInfo;
+import org.lovetropics.games.common.content.bingo.BingoTileType;
 import org.lovetropics.games.common.core.game.client_state.instance.BingoBoardClientState;
 
 import java.util.List;
@@ -154,7 +155,7 @@ public class GameBingoHandler {
 				Optional<BingoBoardClientState.Tile> optionalTile = tiles.get(index);
 				if (optionalTile.isEmpty()) {
 					if (board.getLockedSlot(index).isPresent()) {
-						drawLockedBackground(guiGraphics, x, y, TILE_SIZE, TILE_SIZE);
+						drawLockedBackground(guiGraphics, BingoTileType.DEFAULT.lockedColor(), BingoTileType.DEFAULT.lockedBorderColor(), x, y, TILE_SIZE, TILE_SIZE);
 						drawLockedIcon(guiGraphics, font, x, y, TILE_SIZE, TILE_SIZE);
 					}
 					continue;
@@ -162,7 +163,7 @@ public class GameBingoHandler {
 
 				BingoBoardClientState.Tile tile = optionalTile.orElseThrow();
 				boolean tileCompleted = completed.test(index);
-				drawTileBackground(guiGraphics, tileCompleted, x, y, TILE_SIZE, TILE_SIZE);
+				drawTileBackground(guiGraphics, tile, x, y, TILE_SIZE, TILE_SIZE);
 
 				int iconX = x + (TILE_SIZE - 16) / 2;
 				int iconY = y + (TILE_SIZE - 16) / 2;
@@ -225,17 +226,13 @@ public class GameBingoHandler {
 	}
 
 	public static void drawTileBackground(GuiGraphicsExtractor guiGraphics, BingoBoardClientState.Tile tile, int x, int y, int w, int h) {
-		drawTileBackground(guiGraphics, tile.completed(), x, y, w, h);
+		guiGraphics.fill(x, y, x + w, y + h, tile.completed() ? tile.tileType().completedColor() : tile.tileType().color());
+		drawBorder(guiGraphics, x, y, w, h, tile.completed() ? tile.tileType().completedBorderColor() : tile.tileType().borderColor());
 	}
 
-	public static void drawTileBackground(GuiGraphicsExtractor guiGraphics, boolean completed, int x, int y, int w, int h) {
-		guiGraphics.fill(x, y, x + w, y + h, completed ? COMPLETED_COLOR : TILE_COLOR);
-		drawBorder(guiGraphics, x, y, w, h, BORDER_COLOR);
-	}
-
-	public static void drawLockedBackground(GuiGraphicsExtractor guiGraphics, int x, int y, int w, int h) {
-		guiGraphics.fill(x, y, x + w, y + h, LOCKED_COLOR);
-		drawBorder(guiGraphics, x, y, w, h, LOCKED_BORDER_COLOR);
+	public static void drawLockedBackground(GuiGraphicsExtractor guiGraphics, int lockedFillColor, int lockedBorderColor, int x, int y, int w, int h) {
+		guiGraphics.fill(x, y, x + w, y + h, lockedFillColor);
+		drawBorder(guiGraphics, x, y, w, h, lockedBorderColor);
 	}
 
 	/// Draws a question mark in the middle of the given area, where a locked tile would have its icon
