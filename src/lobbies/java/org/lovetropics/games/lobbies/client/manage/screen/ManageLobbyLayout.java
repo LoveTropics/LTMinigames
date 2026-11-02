@@ -29,6 +29,7 @@ final class ManageLobbyLayout {
 	final Layout properties;
 	final Layout name;
 	final Layout publish;
+	final Layout focusLive;
 	final Layout playerList;
 
 	final Layout close;
@@ -94,6 +95,10 @@ final class ManageLobbyLayout {
 				.width(1.0F, Flex.Unit.PERCENT).height(20)
 				.marginTop(PADDING);
 
+		Flex focusLive = properties.child()
+				.width(1.0F, Flex.Unit.PERCENT).height(20)
+				.marginTop(PADDING / 2);
+
 		Flex playerList = properties.child()
 				.width(1.0F, Flex.Unit.PERCENT).grow(1.0F)
 				.marginTop(PADDING);
@@ -123,6 +128,7 @@ final class ManageLobbyLayout {
 		this.properties = solve.layout(properties);
 		this.name = solve.layout(name);
 		this.publish = solve.layout(publish);
+		this.focusLive = solve.layout(focusLive);
 		this.playerList = solve.layout(playerList);
 		this.close = solve.layout(close);
 		this.done = solve.layout(done);

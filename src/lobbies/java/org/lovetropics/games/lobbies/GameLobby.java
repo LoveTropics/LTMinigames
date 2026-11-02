@@ -121,8 +121,8 @@ public final class GameLobby {
 		stateListener.onLobbyNameChange(this);
 	}
 
-	void setVisibility(LobbyVisibility visibility) {
-		metadata = manager.setVisibility(this, visibility);
+	void setVisibility(LobbyVisibility visibility, boolean focusedLive) {
+		metadata = manager.setVisibility(this, visibility, focusedLive);
 		trackingPlayers.rebuildTracking();
 	}
 

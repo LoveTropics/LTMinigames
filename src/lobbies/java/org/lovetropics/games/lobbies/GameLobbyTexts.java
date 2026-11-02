@@ -127,6 +127,7 @@ public final class GameLobbyTexts {
 		public static final Component MANAGE_GAME_LOBBY = KEYS.add("manage_game_lobby", "Manage Game Lobby");
 		public static final Component LOBBY_NAME = KEYS.add("lobby_name", "Lobby Name");
 		public static final Component PUBLISH = KEYS.add("publish", "Publish");
+		public static final Component UNPUBLISH = KEYS.add("unpublish", "Unpublish");
 		public static final Component FOCUS_LIVE = KEYS.add("focus_live", "Focus Live");
 		public static final Component GAME_QUEUE = KEYS.add("game_queue", "Game Queue");
 		public static final Component INSTALLED_GAMES = KEYS.add("installed_games", "Installed");
@@ -147,10 +148,6 @@ public final class GameLobbyTexts {
 
 		public static final Component FREE_CAMERA = KEYS.add("free_camera", "Free Camera");
 		public static final TranslationCollector.Fun1 CLICK_TO_SELECT = KEYS.add1("click_to_select", "%s [Click to Select]");
-
-		public static final Component LOBBY_PUBLIC = KEYS.add("visibility.public", "Public");
-		public static final Component LOBBY_PUBLIC_LIVE = KEYS.add("visibility.public_live", "Public (Live)");
-		public static final Component LOBBY_PRIVATE = KEYS.add("visibility.private", "Private");
 
 		public static MutableComponent playerCount(int count) {
 			return GAME_PLAYER_COUNT.apply(count);

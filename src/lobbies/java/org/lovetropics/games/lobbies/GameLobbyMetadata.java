@@ -4,9 +4,9 @@ import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
 import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
 
-public record GameLobbyMetadata(GameLobbyId id, PlayerKey initiator, String name, LobbyVisibility visibility) {
+public record GameLobbyMetadata(GameLobbyId id, PlayerKey initiator, String name, LobbyVisibility visibility, boolean focusedLive) {
 	public GameLobbyMetadata(GameLobbyId id, PlayerKey initiator, String name) {
-		this(id, initiator, name, LobbyVisibility.PRIVATE);
+		this(id, initiator, name, LobbyVisibility.PRIVATE, false);
 	}
 
 	public String joinCommand(@Nullable PlayerRole role) {
@@ -18,10 +18,14 @@ public record GameLobbyMetadata(GameLobbyId id, PlayerKey initiator, String name
 	}
 
 	public GameLobbyMetadata withName(String name) {
-		return new GameLobbyMetadata(id, initiator, name, visibility);
+		return new GameLobbyMetadata(id, initiator, name, visibility, focusedLive);
 	}
 
 	public GameLobbyMetadata withVisibility(LobbyVisibility visibility) {
-		return new GameLobbyMetadata(id, initiator, name, visibility);
+		return new GameLobbyMetadata(id, initiator, name, visibility, focusedLive);
+	}
+
+	public GameLobbyMetadata withFocusedLive(boolean focusedLive) {
+		return new GameLobbyMetadata(id, initiator, name, visibility, focusedLive);
 	}
 }

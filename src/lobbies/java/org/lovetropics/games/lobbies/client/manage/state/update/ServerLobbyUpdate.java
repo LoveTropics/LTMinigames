@@ -51,8 +51,8 @@ public abstract class ServerLobbyUpdate extends PartialUpdate<LobbyManagement> {
 			return this;
 		}
 
-		public Set setVisibility(LobbyVisibility visibility) {
-			add(new SetVisibility(visibility));
+		public Set setVisibility(LobbyVisibility visibility, boolean focusedLive) {
+			add(new SetVisibility(visibility, focusedLive));
 			return this;
 		}
 
@@ -217,24 +217,27 @@ public abstract class ServerLobbyUpdate extends PartialUpdate<LobbyManagement> {
 
 	public static final class SetVisibility extends ServerLobbyUpdate {
 		private final LobbyVisibility visibility;
+		private final boolean focusedLive;
 
-		public SetVisibility(LobbyVisibility visibility) {
+		public SetVisibility(LobbyVisibility visibility, boolean focusedLive) {
 			super(Type.SET_VISIBILITY);
 			this.visibility = visibility;
+			this.focusedLive = focusedLive;
 		}
 
 		@Override
 		public void applyTo(LobbyManagement lobby) {
-			lobby.setVisibility(visibility);
+			lobby.setVisibility(visibility, focusedLive);
 		}
 
 		@Override
 		protected void encode(RegistryFriendlyByteBuf buffer) {
 			buffer.writeEnum(visibility);
+			buffer.writeBoolean(focusedLive);
 		}
 
 		static SetVisibility decode(FriendlyByteBuf buffer) {
-			return new SetVisibility(buffer.readEnum(LobbyVisibility.class));
+			return new SetVisibility(buffer.readEnum(LobbyVisibility.class), buffer.readBoolean());
 		}
 	}
 

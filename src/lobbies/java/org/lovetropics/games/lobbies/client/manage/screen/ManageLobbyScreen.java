@@ -33,6 +33,7 @@ public final class ManageLobbyScreen extends Screen {
 
 	private EditBox nameField;
 	private Button publishButton;
+	private Button focusLiveButton;
 
 	private GameList gameList;
 	private LobbyPlayerList playerList;
@@ -95,13 +96,8 @@ public final class ManageLobbyScreen extends Screen {
 		nameField.setMaxLength(200);
 		nameField.setValue(lobby.getName());
 
-		publishButton = addRenderableWidget(FlexUi.createButton(layout.publish, GameLobbyTexts.Ui.PUBLISH, button -> {
-			if (session.lobby().getVisibility().isPrivate()) {
-				session.publishLobby();
-			} else {
-				session.focusLive();
-			}
-		}));
+		publishButton = addRenderableWidget(FlexUi.createButton(layout.publish, GameLobbyTexts.Ui.PUBLISH, button -> session.toggleVisibility()));
+		focusLiveButton = addRenderableWidget(FlexUi.createButton(layout.focusLive, GameLobbyTexts.Ui.FOCUS_LIVE, button -> session.focusLive()));
 
 		playerList = addWidget(new LobbyPlayerList(this, lobby, layout.playerList));
 
@@ -167,19 +163,10 @@ public final class ManageLobbyScreen extends Screen {
 	public void updatePublishState() {
 		ClientLobbyManageState lobby = session.lobby();
 		switch (lobby.getVisibility()) {
-			case PRIVATE -> {
-				publishButton.setMessage(GameLobbyTexts.Ui.PUBLISH);
-				publishButton.active = true;
-			}
-			case PUBLIC -> {
-				publishButton.setMessage(GameLobbyTexts.Ui.FOCUS_LIVE);
-				publishButton.active = lobby.canFocusLive();
-			}
-			case PUBLIC_LIVE -> {
-				publishButton.setMessage(GameLobbyTexts.Ui.FOCUS_LIVE);
-				publishButton.active = false;
-			}
+			case PRIVATE -> publishButton.setMessage(GameLobbyTexts.Ui.PUBLISH);
+			case PUBLIC -> publishButton.setMessage(GameLobbyTexts.Ui.UNPUBLISH);
 		}
+		focusLiveButton.active = lobby.canFocusLive() && !lobby.isFocusedLive();
 	}
 
 	@Override

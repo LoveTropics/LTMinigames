@@ -113,7 +113,7 @@ public class GamePhase implements IGamePhase {
 		this.config = config;
 
 		// TODO: Don't do that :(
-		focusedLive = game.lobby().metadata.visibility().isFocusedLive();
+		focusedLive = game.lobby().metadata.focusedLive();
 
 		MinecraftServer server = game.server();
 		primaryLevel = Objects.requireNonNull(server.getLevel(map.dimension()), "Game dimension not loaded");

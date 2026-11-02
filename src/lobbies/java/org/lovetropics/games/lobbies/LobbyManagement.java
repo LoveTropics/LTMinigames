@@ -47,7 +47,7 @@ public final class LobbyManagement {
 					.setCurrentGame(lobby.state.getClientCurrentGame())
 					.setPlayersFrom(lobby)
 					.setControlState(lobby.getControls().asState())
-					.setVisibility(lobby.getMetadata().visibility(), !lobby.manager.hasFocusedLiveLobby());
+					.setVisibility(lobby.getMetadata().visibility(), lobby.getMetadata().focusedLive(), !lobby.manager.hasFocusedLiveLobby());
 
 			ClientManageLobbyMessage message = initialize.intoMessage(lobby.metadata.id().networkId());
 			PacketDistributor.sendToPlayer(player, message);
@@ -110,9 +110,9 @@ public final class LobbyManagement {
 		}
 	}
 
-	public void setVisibility(LobbyVisibility visibility) {
-		lobby.setVisibility(visibility);
-		sendUpdates(updates -> updates.setVisibility(visibility, !lobby.manager.hasFocusedLiveLobby()));
+	public void setVisibility(LobbyVisibility visibility, boolean focusedLive) {
+		lobby.setVisibility(visibility, focusedLive);
+		sendUpdates(updates -> updates.setVisibility(visibility, focusedLive, !lobby.manager.hasFocusedLiveLobby()));
 	}
 
 	public void close() {
@@ -120,7 +120,7 @@ public final class LobbyManagement {
 	}
 
 	void onFocusedLiveLobbyChanged() {
-		sendUpdates(updates -> updates.setVisibility(lobby.metadata.visibility(), !lobby.manager.hasFocusedLiveLobby()));
+		sendUpdates(updates -> updates.setVisibility(lobby.metadata.visibility(), lobby.metadata.focusedLive(), !lobby.manager.hasFocusedLiveLobby()));
 	}
 
 	void onPlayersChanged() {

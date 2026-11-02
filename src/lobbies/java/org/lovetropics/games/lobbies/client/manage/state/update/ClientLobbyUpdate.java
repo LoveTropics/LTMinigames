@@ -96,8 +96,8 @@ public abstract class ClientLobbyUpdate extends PartialUpdate<ClientLobbyManagem
 			return this;
 		}
 
-		public Set setVisibility(LobbyVisibility visibility, boolean canFocusLive) {
-			add(new SetVisibility(visibility, canFocusLive));
+		public Set setVisibility(LobbyVisibility visibility, boolean focusedLive, boolean canFocusLive) {
+			add(new SetVisibility(visibility, focusedLive, canFocusLive));
 			return this;
 		}
 
@@ -321,27 +321,30 @@ public abstract class ClientLobbyUpdate extends PartialUpdate<ClientLobbyManagem
 
 	public static final class SetVisibility extends ClientLobbyUpdate {
 		private final LobbyVisibility visibility;
+		private final boolean focusedLive;
 		private final boolean canFocusLive;
 
-		public SetVisibility(LobbyVisibility visibility, boolean canFocusLive) {
+		public SetVisibility(LobbyVisibility visibility, boolean focusedLive, boolean canFocusLive) {
 			super(Type.SET_VISIBILITY);
 			this.visibility = visibility;
+			this.focusedLive = focusedLive;
 			this.canFocusLive = canFocusLive;
 		}
 
 		@Override
 		public void applyTo(ClientLobbyManagement.Session session) {
-			session.handleVisibility(visibility, canFocusLive);
+			session.handleVisibility(visibility, focusedLive, canFocusLive);
 		}
 
 		@Override
 		protected void encode(RegistryFriendlyByteBuf buffer) {
 			buffer.writeEnum(visibility);
+			buffer.writeBoolean(focusedLive);
 			buffer.writeBoolean(canFocusLive);
 		}
 
 		static SetVisibility decode(FriendlyByteBuf buffer) {
-			return new SetVisibility(buffer.readEnum(LobbyVisibility.class), buffer.readBoolean());
+			return new SetVisibility(buffer.readEnum(LobbyVisibility.class), buffer.readBoolean(), buffer.readBoolean());
 		}
 	}
 }

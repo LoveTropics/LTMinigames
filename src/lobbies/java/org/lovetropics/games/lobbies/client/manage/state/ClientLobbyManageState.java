@@ -18,6 +18,7 @@ public final class ClientLobbyManageState {
 	private List<ClientLobbyPlayer> players = List.of();
 	private LobbyControls.State controlsState = LobbyControls.State.disabled();
 	private LobbyVisibility visibility = LobbyVisibility.PRIVATE;
+	private boolean focusedLive;
 	private boolean canFocusLive;
 
 	private List<ClientGameDefinition> installedGames = List.of();
@@ -44,6 +45,10 @@ public final class ClientLobbyManageState {
 
 	public LobbyVisibility getVisibility() {
 		return visibility;
+	}
+
+	public boolean isFocusedLive() {
+		return focusedLive;
 	}
 
 	public boolean canFocusLive() {
@@ -82,8 +87,9 @@ public final class ClientLobbyManageState {
 		controlsState = state;
 	}
 
-	public void setVisibility(LobbyVisibility visibility, boolean canFocusLive) {
+	public void setVisibility(LobbyVisibility visibility, boolean focusedLive, boolean canFocusLive) {
 		this.visibility = visibility;
+		this.focusedLive = focusedLive;
 		this.canFocusLive = canFocusLive;
 	}
 }

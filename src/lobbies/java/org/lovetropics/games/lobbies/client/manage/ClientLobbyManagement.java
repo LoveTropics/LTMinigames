@@ -89,19 +89,18 @@ public final class ClientLobbyManagement {
 			sendUpdates(updates -> updates.selectControl(control));
 		}
 
-		public void publishLobby() {
+		public void toggleVisibility() {
 			LobbyVisibility visibility = lobby.getVisibility();
-			if (visibility.isPrivate()) {
-				lobby.setVisibility(LobbyVisibility.PUBLIC, lobby.canFocusLive());
-				sendUpdates(updates -> updates.setVisibility(LobbyVisibility.PUBLIC));
-			}
+			LobbyVisibility newVisibility = visibility.isPrivate() ? LobbyVisibility.PUBLIC : LobbyVisibility.PRIVATE;
+			lobby.setVisibility(newVisibility, lobby.isFocusedLive(), lobby.canFocusLive());
+			sendUpdates(updates -> updates.setVisibility(newVisibility, lobby.isFocusedLive()));
 		}
 
 		public void focusLive() {
-			LobbyVisibility visibility = lobby.getVisibility();
-			if (visibility.isPublic() && !visibility.isFocusedLive() && lobby.canFocusLive()) {
-				lobby.setVisibility(LobbyVisibility.PUBLIC_LIVE, false);
-				sendUpdates(updates -> updates.setVisibility(LobbyVisibility.PUBLIC_LIVE));
+			if (!lobby.isFocusedLive() && lobby.canFocusLive()) {
+				LobbyVisibility visibility = lobby.getVisibility();
+				lobby.setVisibility(visibility, true, true);
+				sendUpdates(updates -> updates.setVisibility(visibility, true));
 			}
 		}
 
@@ -167,8 +166,8 @@ public final class ClientLobbyManagement {
 			}
 		}
 
-		public void handleVisibility(LobbyVisibility visibility, boolean canFocusLive) {
-			lobby.setVisibility(visibility, canFocusLive);
+		public void handleVisibility(LobbyVisibility visibility, boolean focusedLive, boolean canFocusLive) {
+			lobby.setVisibility(visibility, focusedLive, canFocusLive);
 			if (screen != null) {
 				screen.updatePublishState();
 			}

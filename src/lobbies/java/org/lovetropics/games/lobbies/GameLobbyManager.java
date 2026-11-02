@@ -62,7 +62,7 @@ public class GameLobbyManager {
 
 		if (ConfigLT.INTEGRATIONS.alwaysPublishGames.get()) {
 			if (BackendIntegrations.get().isConnected()) {
-				lobby.setVisibility(LobbyVisibility.PUBLIC_LIVE);
+				lobby.setVisibility(lobby.getMetadata().visibility(), true);
 			} else {
 				LOGGER.warn("Couldn't auto-publish lobby, not connected to techstack");
 			}
@@ -127,14 +127,12 @@ public class GameLobbyManager {
 		}
 	}
 
-	GameLobbyMetadata setVisibility(GameLobby lobby, LobbyVisibility visibility) {
-		if (visibility.isFocusedLive()) {
-			if (!setFocusedLive(lobby)) {
-				return lobby.metadata;
-			}
+	GameLobbyMetadata setVisibility(GameLobby lobby, LobbyVisibility visibility, boolean focusedLive) {
+		GameLobbyMetadata metadata = lobby.metadata.withVisibility(visibility);
+		if (focusedLive && !setFocusedLive(lobby)) {
+			return metadata;
 		}
-
-		return lobby.metadata.withVisibility(visibility);
+		return metadata.withFocusedLive(focusedLive);
 	}
 
 	private boolean setFocusedLive(GameLobby lobby) {

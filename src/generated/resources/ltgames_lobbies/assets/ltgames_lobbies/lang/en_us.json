@@ -42,7 +42,5 @@
   "ltgames_lobbies.ui.select_role_message_important": "Please select to %s or %s",
   "ltgames_lobbies.ui.select_spectate": "Spectate",
   "ltgames_lobbies.ui.spectating": "Spectating",
-  "ltgames_lobbies.ui.visibility.private": "Private",
-  "ltgames_lobbies.ui.visibility.public": "Public",
-  "ltgames_lobbies.ui.visibility.public_live": "Public (Live)"
+  "ltgames_lobbies.ui.unpublish": "Unpublish"
 }
