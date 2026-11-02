@@ -64,6 +64,8 @@ public final class MinigameCompetitionBehavior implements IGameBehavior {
 	private final List<StatisticAccumulator> accumulateStatistics;
 	private final GameActionList returnToLobbyActions;
 
+	private @Nullable GameStatistics accumulatedStatistics;
+
 	private final SubGameManager subGames = new SubGameManager();
 	private boolean participantsLocked;
 
@@ -112,19 +114,34 @@ public final class MinigameCompetitionBehavior implements IGameBehavior {
 	}
 
 	private void onStopSubGame(IGamePhase topGame, IGamePhase subGame, GameStopReason reason) {
+		LOGGER.debug("Stopped {} in minigame competition due to {}", subGame.definition().name().getString(), reason);
 		if (reason.isFinished()) {
 			topGame.statistics().copyFrom(subGame.statistics(), shareStatistics);
-			for (StatisticAccumulator accumulator : accumulateStatistics) {
-				accumulator.copyAndAccumulate(topGame.statistics(), subGame.statistics());
+			if (accumulatedStatistics == null) {
+				accumulatedStatistics = new GameStatistics();
 			}
+			for (StatisticAccumulator accumulator : accumulateStatistics) {
+				accumulator.accumulateTo(subGame.statistics(), accumulatedStatistics);
+			}
+			LOGGER.debug("Pending statistics: {}", encodeStatistics(accumulatedStatistics));
 		}
-		Tag statisticsTag = GameStatistics.CODEC.encodeStart(NbtOps.INSTANCE, topGame.statistics()).result().orElse(null);
-		LOGGER.debug("Stopped {} in minigame competition. New statistics: {}", subGame.definition().name().getString(), statisticsTag);
 	}
 
 	private void onReturnToLobby(IGamePhase topGame) {
+		if (accumulatedStatistics != null) {
+			for (StatisticAccumulator accumulator : accumulateStatistics) {
+				accumulator.addFromAccumulator(topGame.statistics(), accumulatedStatistics);
+			}
+			accumulatedStatistics = null;
+		}
+		LOGGER.debug("Returned to lobby in minigame competition. New statistics: {}", encodeStatistics(topGame.statistics()));
+
 		returnToLobbyActions.apply(topGame, ContextMap.EMPTY, ActionSubjects.EMPTY);
 		topGame.invoker(MinigameCompetitionEvents.RETURN_TO_LOBBY).onReturnToLobby();
+	}
+
+	private @Nullable Tag encodeStatistics(GameStatistics statistics) {
+		return GameStatistics.CODEC.encodeStart(NbtOps.INSTANCE, statistics).result().orElse(null);
 	}
 
 	private void registerGlobalCommands(IGamePhase topGame, IGamePhase game, GameCommandRegistrar commands) {
@@ -386,20 +403,30 @@ public final class MinigameCompetitionBehavior implements IGameBehavior {
 
 	public record StatisticAccumulator(
 			StatisticKey<Integer> statistic,
-			int minimum
+			int returnToLobbyMinimum
 	) {
 		public static final Codec<StatisticAccumulator> CODEC = RecordCodecBuilder.create(i -> i.group(
 				StatisticKey.INT_CODEC.fieldOf("statistic").forGetter(StatisticAccumulator::statistic),
-				Codec.INT.optionalFieldOf("minimum", 0).forGetter(StatisticAccumulator::minimum)
+				Codec.INT.optionalFieldOf("return_to_lobby_minimum", 0).forGetter(StatisticAccumulator::returnToLobbyMinimum)
 		).apply(i, StatisticAccumulator::new));
 
-		public void copyAndAccumulate(GameStatistics topStats, GameStatistics subStats) {
-			topStats.global().incrementInt(statistic, Math.max(subStats.global().getInt(statistic), minimum));
+		public void accumulateTo(GameStatistics subStats, GameStatistics accumulatorStats) {
+			accumulatorStats.global().incrementInt(statistic, subStats.global().getInt(statistic));
+			for (PlayerKey player : accumulatorStats.getPlayers()) {
+				accumulatorStats.forPlayer(player).incrementInt(statistic, subStats.forPlayer(player).getInt(statistic));
+			}
+			for (GameTeamKey team : accumulatorStats.getTeams()) {
+				accumulatorStats.forTeam(team).incrementInt(statistic, subStats.forTeam(team).getInt(statistic));
+			}
+		}
+
+		public void addFromAccumulator(GameStatistics topStats, GameStatistics accumulatorStats) {
+			topStats.global().incrementInt(statistic, Math.max(accumulatorStats.global().getInt(statistic), returnToLobbyMinimum));
 			for (PlayerKey player : topStats.getPlayers()) {
-				topStats.forPlayer(player).incrementInt(statistic, Math.max(subStats.forPlayer(player).getInt(statistic), minimum));
+				topStats.forPlayer(player).incrementInt(statistic, Math.max(accumulatorStats.forPlayer(player).getInt(statistic), returnToLobbyMinimum));
 			}
 			for (GameTeamKey team : topStats.getTeams()) {
-				topStats.forTeam(team).incrementInt(statistic, Math.max(subStats.forTeam(team).getInt(statistic), minimum));
+				topStats.forTeam(team).incrementInt(statistic, Math.max(accumulatorStats.forTeam(team).getInt(statistic), returnToLobbyMinimum));
 			}
 		}
 	}

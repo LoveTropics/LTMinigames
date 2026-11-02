@@ -46,6 +46,9 @@ public final class TeamState implements IGameState, Iterable<GameTeam> {
 	}
 
 	public void register(IGamePhase game, EventRegistrar events) {
+		if (games.contains(game)) {
+			return;
+		}
 		games.add(game);
 
 		events.listen(GamePlayerEvents.ADD, player -> {
