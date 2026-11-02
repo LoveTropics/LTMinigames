@@ -14,6 +14,7 @@ import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Objective;
 import net.minecraft.world.scores.ScoreAccess;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
@@ -41,7 +42,8 @@ public final class RaceTrackPersistentGame implements PersistentGameBehavior {
 			Codec.INT.fieldOf("checkpoint_count").forGetter(b -> b.checkpointCount),
 			Codec.INT.fieldOf("required_checkpoint_count").forGetter(b -> b.checkpointCount),
 			Messages.CODEC.fieldOf("messages").forGetter(b -> b.messages),
-			Codec.BOOL.optionalFieldOf("only_start_at_first_checkpoint", true).forGetter(b -> b.onlyStartAtFirstCheckpoint)
+			Codec.BOOL.optionalFieldOf("only_start_at_first_checkpoint", true).forGetter(b -> b.onlyStartAtFirstCheckpoint),
+			RegionQuery.CODEC.optionalFieldOf("leave_track_spawn").forGetter(b -> b.leaveTrackSpawn)
 			).apply(instance, RaceTrackPersistentGame::new));
 
 	private final String id;
@@ -51,12 +53,13 @@ public final class RaceTrackPersistentGame implements PersistentGameBehavior {
 	private final LootItemCondition predicate;
 	private final Messages messages;
 	private final boolean onlyStartAtFirstCheckpoint;
+	private final Optional<RegionQuery> leaveTrackSpawn;
 
 	private final Map<Integer, RegionQuery> regionQueries;
 	private final Map<ServerPlayer, List<Integer>> playerCheckpoints;
 	private final Map<ServerPlayer, Integer> playerStartTime;
 
-	public RaceTrackPersistentGame(String id, LootItemCondition predicate, int checkpointCount, int requiredCheckpointCount, Messages messages, boolean onlyStartAtFirstCheckpoint) {
+	public RaceTrackPersistentGame(String id, LootItemCondition predicate, int checkpointCount, int requiredCheckpointCount, Messages messages, boolean onlyStartAtFirstCheckpoint, Optional<RegionQuery> leaveTrackSpawn) {
 		this.id = id;
 		this.predicate = predicate;
 		this.checkpointCount = checkpointCount;
@@ -64,6 +67,7 @@ public final class RaceTrackPersistentGame implements PersistentGameBehavior {
 		this.messages = messages;
 		this.endRegionQuery = RegionQuery.of(id + "_end");
 		this.onlyStartAtFirstCheckpoint = onlyStartAtFirstCheckpoint;
+		this.leaveTrackSpawn = leaveTrackSpawn;
 		this.regionQueries = new HashMap<>();
 		this.playerCheckpoints = new HashMap<>();
 		this.playerStartTime = new HashMap<>();
@@ -125,6 +129,10 @@ public final class RaceTrackPersistentGame implements PersistentGameBehavior {
 					if (playerCheckpoints.containsKey(player)) {
 						playerCheckpoints.remove(player);
 						player.sendSystemMessage(messages.leftRaceTrack, false);
+						leaveTrackSpawn.ifPresent(query -> {
+							Vec3 center = query.one(game).center();
+							player.teleportTo(center.x, center.y, center.z);
+						});
 					}
 				}
 			}
