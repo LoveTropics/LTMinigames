@@ -31,6 +31,7 @@ import org.lovetropics.games.common.core.game.behavior.action.GameActionList;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
+import org.lovetropics.games.common.core.game.behavior.event.MinigameCompetitionEvents;
 import org.lovetropics.games.common.core.game.command.GameCommandRegistrar;
 import org.lovetropics.games.common.core.game.config.GameConfig;
 import org.lovetropics.games.common.core.game.config.GameConfigs;
@@ -123,6 +124,7 @@ public final class MinigameCompetitionBehavior implements IGameBehavior {
 
 	private void onReturnToLobby(IGamePhase topGame) {
 		returnToLobbyActions.apply(topGame, ContextMap.EMPTY, ActionSubjects.EMPTY);
+		topGame.invoker(MinigameCompetitionEvents.RETURN_TO_LOBBY).onReturnToLobby();
 	}
 
 	private void registerGlobalCommands(IGamePhase topGame, IGamePhase game, GameCommandRegistrar commands) {

@@ -9,5 +9,6 @@ public class TropicalHoedown {
 
 	public static void init() {
 		REGISTRATE.registerBehavior("derby_fireworks", DerbyFireworksBehavior.CODEC);
+		REGISTRATE.registerBehavior("hats", HatsBehavior.CODEC);
 	}
 }

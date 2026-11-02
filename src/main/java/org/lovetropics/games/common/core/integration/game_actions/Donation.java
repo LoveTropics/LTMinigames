@@ -4,7 +4,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.UUIDUtil;
-import net.minecraft.network.chat.Component;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.Util;
 
@@ -31,9 +30,8 @@ public record Donation(String name, double amount, String comments, boolean anon
 			"Timid Tommy"
 	);
 
-	public Component getDisplayName(int color, RandomSource random) {
-		String name = anonymous() ? Util.getRandom(ANONYMOUS_NAMES, random) : minecraftName().isEmpty() ? name() : minecraftName();
-		return Component.literal(name).withColor(color);
+	public String selectRandomName(RandomSource random) {
+		return anonymous() ? Util.getRandom(ANONYMOUS_NAMES, random) : minecraftName().isEmpty() ? name() : minecraftName();
 	}
 
 	public static Donation empty() {

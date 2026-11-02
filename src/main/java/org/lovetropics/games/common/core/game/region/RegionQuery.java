@@ -18,6 +18,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
@@ -113,6 +114,18 @@ public final class RegionQuery {
 			index -= blocks.size();
 		}
 		return null;
+	}
+
+	public @Nullable LevelBlockPos pickRandomPosAtHeightmap(GameRegionHolder game, RandomSource random, Heightmap.Types heightmap) {
+		LevelBlockPos pos = pickRandomPos(game, random);
+		if (pos == null) {
+			return null;
+		}
+		pos.level().getChunk(pos.pos());
+		return new LevelBlockPos(
+				pos.level(),
+				pos.level().getHeightmapPos(heightmap, pos.pos())
+		);
 	}
 
 	public void forEachBlock(GameRegionHolder game, BiConsumer<ServerLevel, BlockPos> consumer) {

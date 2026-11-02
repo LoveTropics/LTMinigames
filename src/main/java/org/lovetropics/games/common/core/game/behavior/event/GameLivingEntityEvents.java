@@ -35,6 +35,23 @@ public final class GameLivingEntityEvents {
 		return TriState.DEFAULT;
 	});
 
+	public static final GameEventType<Damage> DAMAGE = GameEventType.create(Damage.class, listeners -> (level, entity, damageSource, amount) -> {
+		for (Damage listener : listeners) {
+			TriState result = listener.onDamage(level, entity, damageSource, amount);
+			if (!result.isDefault()) {
+				return result;
+			}
+		}
+		return TriState.DEFAULT;
+	});
+
+	public static final GameEventType<DamageAmount> DAMAGE_AMOUNT = GameEventType.create(DamageAmount.class, listeners -> (level, entity, damageSource, amount, originalAmount) -> {
+		for (DamageAmount listener : listeners) {
+			amount = listener.getDamageAmount(level, entity, damageSource, amount, originalAmount);
+		}
+		return amount;
+	});
+
 	public static final GameEventType<MobDrop> MOB_DROP = GameEventType.create(MobDrop.class, listeners -> (level, entity, damageSource, drops) -> {
 		for (MobDrop listener : listeners) {
 			TriState result = listener.onMobDrop(level, entity, damageSource, drops);
@@ -85,6 +102,14 @@ public final class GameLivingEntityEvents {
 
 	public interface Death {
 		TriState onDeath(ServerLevel level, LivingEntity entity, DamageSource damageSource);
+	}
+
+	public interface Damage {
+		TriState onDamage(ServerLevel level, LivingEntity entity, DamageSource damageSource, float amount);
+	}
+
+	public interface DamageAmount {
+		float getDamageAmount(ServerLevel level, LivingEntity entity, DamageSource damageSource, float amount, float originalAmount);
 	}
 
 	public interface MobDrop {

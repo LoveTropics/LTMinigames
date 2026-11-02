@@ -3,6 +3,7 @@ package org.lovetropics.games.common.core.game.behavior;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Util;
@@ -76,7 +77,8 @@ public class SpawnDonorUtils {
 
 		spawnedMob.setVillagerData(spawnedMob.getVillagerData().withProfession(level.registryAccess(), VillagerProfession.NITWIT));
 		spawnedMob.refreshBrain(level);
-		spawnedMob.setCustomName(donation.getDisplayName(scale.color(), game.random()));
+		String name = donation.selectRandomName(game.random());
+		spawnedMob.setCustomName(Component.literal(name).withColor(scale.color()));
 		spawnedMob.setData(LoveTropicsAttachments.DONATION, donation);
 		spawnedMob.snapTo(spawnPos.pos(), 0, 0);
 		level.addFreshEntity(spawnedMob);

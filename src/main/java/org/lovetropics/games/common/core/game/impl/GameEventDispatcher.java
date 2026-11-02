@@ -115,18 +115,32 @@ public final class GameEventDispatcher {
 
 	@SubscribeEvent
 	public void onPlayerDamaged(LivingDamageEvent.Pre event) {
-		if (event.getEntity() instanceof ServerPlayer player) {
-			IGamePhase game = gameLookup.getGamePhaseFor(player);
+		LivingEntity entity = event.getEntity();
+		if (entity.level() instanceof ServerLevel level) {
+			IGamePhase game = gameLookup.getGamePhaseFor(entity);
 			if (game != null) {
 				try {
 					DamageSource source = event.getSource();
+
 					float amount = event.getNewDamage();
-					TriState result = game.invoker(GamePlayerEvents.DAMAGE).onDamage(player, source, amount);
+					float newAmount = amount;
+
+					if (entity instanceof ServerPlayer player) {
+						TriState result = game.invoker(GamePlayerEvents.DAMAGE).onDamage(player, source, amount);
+						if (result.isFalse()) {
+							event.setNewDamage(0.0f);
+							return;
+						}
+						newAmount = game.invoker(GamePlayerEvents.DAMAGE_AMOUNT).getDamageAmount(player, source, newAmount, amount);
+					}
+
+					TriState result = game.invoker(GameLivingEntityEvents.DAMAGE).onDamage(level, entity, source, newAmount);
 					if (result.isFalse()) {
 						event.setNewDamage(0.0f);
 						return;
 					}
-					float newAmount = game.invoker(GamePlayerEvents.DAMAGE_AMOUNT).getDamageAmount(player, source, amount, amount);
+
+					newAmount = game.invoker(GameLivingEntityEvents.DAMAGE_AMOUNT).getDamageAmount(level, entity, source, newAmount, amount);
 					if (newAmount != amount) {
 						event.setNewDamage(newAmount);
 					}

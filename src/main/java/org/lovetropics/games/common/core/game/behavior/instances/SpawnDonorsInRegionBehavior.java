@@ -75,7 +75,8 @@ public record SpawnDonorsInRegionBehavior(
 				List<String> donorComments = List.of(donation.comments());
 
 				book.set(DataComponents.WRITABLE_BOOK_CONTENT, new WritableBookContent(donorComments.stream().map(Filterable::passThrough).toList()));
-				book.set(DataComponents.CUSTOM_NAME, Component.translatable("ltminigames.minigame.escape_race.donorbook.title", donation.getDisplayName(DyeColor.WHITE.getTextColor(), e.getRandom())));
+				String name = donation.selectRandomName(e.getRandom());
+				book.set(DataComponents.CUSTOM_NAME, Component.translatable("ltminigames.minigame.escape_race.donorbook.title", Component.literal(name).withColor(DyeColor.WHITE.getTextColor())));
 				r.add(new ItemEntity(e.level(), e.getX(), e.getY(), e.getZ(), book));
 			}
 
