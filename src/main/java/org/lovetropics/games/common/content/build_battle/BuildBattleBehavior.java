@@ -1,5 +1,6 @@
 package org.lovetropics.games.common.content.build_battle;
 
+import com.google.common.collect.Iterables;
 import com.lovetropics.lib.BlockBox;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.logging.LogUtils;
@@ -23,6 +24,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.GameWinner;
 import org.lovetropics.games.common.core.game.IGamePhase;
@@ -74,6 +76,7 @@ public final class BuildBattleBehavior implements IGameBehavior {
 	private final List<UUID> reviewedPlayers = new ArrayList<>();
 	private final HashMap<UUID, Integer> overlordPoints = new HashMap<>();
 	private final Map<UUID, PlayerKey> playerKeys = new HashMap<>();
+	private @Nullable PlayerKey winningPlayer;
 
 	private long currentTime;
 	private boolean paused;
@@ -133,12 +136,7 @@ public final class BuildBattleBehavior implements IGameBehavior {
 				if (!playerPlots.containsKey(player.getUUID())) {
 					return;
 				}
-				Region plot;
-				if (revieweeIndex > -1) {
-					plot = playerPlots.getOrDefault(reviewedPlayers.get(revieweeIndex), null);
-				} else {
-					plot = playerPlots.get(player.getUUID());
-				}
+				Region plot = getCurrentPlotToShow(player.getUUID());
 				if (plot == null) {
 					LOGGER.error("Player {} has no plot assigned!", reviewedPlayers.get(revieweeIndex));
 					return;
@@ -154,6 +152,10 @@ public final class BuildBattleBehavior implements IGameBehavior {
 				currentTime++;
 			}
 		});
+
+		events.listen(GameLogicEvents.GAME_OVER, winner ->
+				winningPlayer = Iterables.getFirst(winner.asPlayerKeys(game), null)
+		);
 
 		events.listen(GamePlayerEvents.BEFORE_ADD_PLAYERS, (participants, spectators) -> assignPlots(participants, plotRegionsName.all(game)));
 		events.listen(GamePlayerEvents.SPAWN, (playerId, spawn, role) -> spawnPlayer(playerId, spawn));
@@ -201,6 +203,16 @@ public final class BuildBattleBehavior implements IGameBehavior {
 		selectorItems.applyTo(events);
 	}
 
+	private @Nullable Region getCurrentPlotToShow(UUID playerId) {
+		if (winningPlayer != null) {
+			return playerPlots.get(winningPlayer.id());
+		} else if (revieweeIndex > -1) {
+			return playerPlots.get(reviewedPlayers.get(revieweeIndex));
+		} else {
+			return playerPlots.get(playerId);
+		}
+	}
+
 	public void assignPlots(Set<PlayerKey> players, Collection<Region> plots) {
 		if (plots.size() < players.size()) {
 			throw new GameException(Component.literal("Not enough plots for all players in Build Battle game (" + plots.size() + " plots named \"" + plotRegionsName + "\" for " + players.size() + " players)"));
@@ -221,21 +233,12 @@ public final class BuildBattleBehavior implements IGameBehavior {
 	}
 
 	private void spawnPlayer(UUID playerId, SpawnBuilder builder) {
-		if (revieweeIndex > -1) {
-			Region plot = playerPlots.get(reviewedPlayers.get(revieweeIndex));
-			if (plot == null) {
-				LOGGER.error("Player {} has no plot assigned!", reviewedPlayers.get(revieweeIndex));
-				return;
-			}
-			ServerLevel level = plot.level();
-			builder.teleportTo(level, tryFindEmptyPos(level, level.getRandom(), plot.box()));
+		Region plot = getCurrentPlotToShow(playerId);
+		if (plot == null) {
 			return;
 		}
-		Region plot = playerPlots.get(playerId);
-		if (plot != null) {
-			ServerLevel level = plot.level();
-			builder.teleportTo(level, tryFindEmptyPos(level, level.getRandom(), plot.box()));
-		}
+		ServerLevel level = plot.level();
+		builder.teleportTo(level, tryFindEmptyPos(level, level.getRandom(), plot.box()));
 	}
 
 	private BlockPos tryFindEmptyPos(ServerLevel level, RandomSource random, BlockBox box) {
@@ -310,8 +313,6 @@ public final class BuildBattleBehavior implements IGameBehavior {
 		}
 
 		bar.close();
-
-		// TODO: tp to plot of winning player
 
 		if (!game.invoker(GameLogicEvents.REQUEST_GAME_OVER).requestGameOver()) {
 			game.invoker(GameLogicEvents.GAME_OVER).onGameOver(new GameWinner.Nobody());
