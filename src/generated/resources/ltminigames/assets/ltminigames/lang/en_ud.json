@@ -79,6 +79,7 @@
   "ltminigames.commands.gamedata.storage.query": "%3$s :sʇuǝʇuoɔ buıʍoןןoɟ ǝɥʇ sɐɥ %2$s uı %1$s ɹoɟ ɐʇɐpǝɯɐ⅁",
   "ltminigames.container.triviaChest": "ʇsǝɥƆ ɐıʌıɹ⟘",
   "ltminigames.minigame.arcade_turtle_race": "ǝɔɐᴚ ǝןʇɹn⟘ ǝpɐɔɹⱯ",
+  "ltminigames.minigame.bingo.bingo.toggle_hud": "ᗡ∩H ǝןbbo⟘ [%1$s]",
   "ltminigames.minigame.bingo.board.header": "sǝןıʇ %3$s\\%2$s - sʇuıod %1$s",
   "ltminigames.minigame.bingo.board.locked_count": "pǝʞɔoן %1$s",
   "ltminigames.minigame.bingo.board.open_hint": "obuıᗺ [%1$s]",
