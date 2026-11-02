@@ -39,8 +39,8 @@ public record DonationPackageGameAction(
 	public boolean apply(IGamePhase game) {
 		ActionSubjects<?> specificTargets;
 		if (receivingTeam.isPresent()) {
-			TeamState teams = game.instanceState().getOrDefault(TeamState.KEY, TeamState.EMPTY);
-			GameTeam receivingTeam = teams.getTeamByKey(this.receivingTeam.get());
+			TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
+			GameTeam receivingTeam = teams != null ? teams.getTeamByKey(this.receivingTeam.get()) : null;
 			if (receivingTeam == null) {
 				LOGGER.warn("Could not find team target for package: {}", this);
 				return false;

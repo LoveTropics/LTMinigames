@@ -2,6 +2,7 @@ package org.lovetropics.games.common.core.game.behavior.event;
 
 import net.minecraft.server.level.ServerPlayer;
 import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
+import org.lovetropics.games.common.core.game.state.team.GameTeam;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
 import org.lovetropics.games.common.core.game.state.team.TeamState;
 
@@ -30,11 +31,11 @@ public final class GameTeamEvents {
 	}
 
 	public interface SetGameTeam {
-		void onSetGameTeam(ServerPlayer player, TeamState teams, GameTeamKey team);
+		void onSetGameTeam(ServerPlayer player, TeamState teams, GameTeam team);
 	}
 
 	public interface RemoveFromTeam {
-		void onRemoveFromTeam(ServerPlayer player, TeamState teams, GameTeamKey team);
+		void onRemoveFromTeam(ServerPlayer player, TeamState teams, GameTeam team);
 	}
 
 	public interface TeamsAllocated {

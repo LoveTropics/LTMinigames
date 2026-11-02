@@ -25,7 +25,7 @@ public class SyncTeamsBehavior implements IGameBehavior {
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		TeamState teamState = game.instanceState().getOrThrow(TeamState.KEY);
 
-		events.listen(GameTeamEvents.SET_GAME_TEAM, (player, teams, team) -> sendSync(teams, team, game));
+		events.listen(GameTeamEvents.SET_GAME_TEAM, (player, teams, team) -> sendSync(teams, team.key(), game));
 		events.listen(GamePlayerEvents.SET_ROLE, (player, role, lastRole) -> {
 			GameTeamKey team = teamState.getTeamForPlayer(player);
 			if (team != null) {
@@ -33,7 +33,7 @@ public class SyncTeamsBehavior implements IGameBehavior {
 			}
 		});
 		events.listen(GameTeamEvents.REMOVE_FROM_TEAM, (player, teams, team) -> {
-			sendSync(teams, team, game);
+			sendSync(teams, team.key(), game);
 			GameClientStateSender.get().byPlayer(player).enqueueRemove(GameClientStateTypes.TEAM_MEMBERS.get());
 		});
 

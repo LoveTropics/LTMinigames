@@ -2,6 +2,7 @@ package org.lovetropics.games.common.core.game.state.team;
 
 import net.minecraft.server.level.ServerPlayer;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.state.GameStateKey;
 import org.lovetropics.games.common.core.game.state.IGameState;
 import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
@@ -22,8 +23,8 @@ public class TeamSetupState implements IGameState {
 	private final Map<PlayerKey, GameTeamKey> assignments = new HashMap<>();
 	private final Map<PlayerKey, GameTeamKey> preferences = new HashMap<>();
 
-	public TeamState createInitialTeamState() {
-		return new TeamState(teams.values().stream().map(i -> i.team).toList());
+	public TeamState createInitialTeamState(IGamePhase game) {
+		return new TeamState(game, teams.values().stream().map(i -> i.team).toList());
 	}
 
 	public void allocatePlayers(TeamState teams, Set<PlayerKey> participants) {

@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.core.game.state.team;
 
-import com.google.common.base.Preconditions;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMaps;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
@@ -10,6 +9,9 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
+import org.lovetropics.games.common.core.game.behavior.event.GameTeamEvents;
 import org.lovetropics.games.common.core.game.player.PlayerSet;
 import org.lovetropics.games.common.core.game.state.GameStateKey;
 import org.lovetropics.games.common.core.game.state.IGameState;
@@ -27,39 +29,75 @@ import java.util.stream.Stream;
 public final class TeamState implements IGameState, Iterable<GameTeam> {
 	public static final GameStateKey<TeamState> KEY = GameStateKey.create("Teams");
 
-	public static final TeamState EMPTY = new TeamState(List.of());
-
+	private final IGamePhase game;
 	private final List<GameTeam> teams;
 
 	private final Object2ObjectMap<GameTeamKey, GameTeam> teamsByKey = new Object2ObjectOpenHashMap<>();
 	private final Object2ObjectMap<GameTeamKey, Set<UUID>> playersByKey = new Object2ObjectOpenHashMap<>();
 
-	public TeamState(List<GameTeam> teams) {
+	/// Note: must be registered by [#register(EventRegistrar)]
+	public TeamState(IGamePhase game, List<GameTeam> teams) {
+		this.game = game;
 		this.teams = teams;
 		for (GameTeam team : teams) {
 			teamsByKey.put(team.key(), team);
 		}
 	}
 
-	public void addPlayerTo(PlayerKey player, GameTeamKey team) {
-		removePlayer(player.id());
+	public void register(EventRegistrar events) {
+		events.listen(GamePlayerEvents.ADD, player -> {
+			GameTeamKey teamKey = getTeamForPlayer(player);
+			if (teamKey == null) {
+				return;
+			}
+			GameTeam team = getTeamByKey(teamKey);
+			if (team != null) {
+				game.invoker(GameTeamEvents.SET_GAME_TEAM).onSetGameTeam(player, this, team);
+			}
+		});
 
-		Set<UUID> players = playersByKey.get(team);
-		if (players == null) {
-			Preconditions.checkState(teams.contains(getTeamByKey(team)), "invalid team " + team);
-			players = new ObjectOpenHashSet<>();
-			playersByKey.put(team, players);
-		}
-		players.add(player.id());
+		events.listen(GamePlayerEvents.LEAVE, player -> {
+			GameTeam team = removePlayer(player.getUUID());
+			if (team != null) {
+				// Player is no longer in the game, trigger it with the known instance
+				game.invoker(GameTeamEvents.REMOVE_FROM_TEAM).onRemoveFromTeam(player, this, team);
+			}
+		});
 	}
 
-	public @Nullable GameTeamKey removePlayer(UUID playerId) {
-		for (Map.Entry<GameTeamKey, Set<UUID>> entry : Object2ObjectMaps.fastIterable(playersByKey)) {
-			if (entry.getValue().remove(playerId)) {
-				return entry.getKey();
-			}
+	public void addPlayerTo(PlayerKey playerKey, GameTeamKey teamKey) {
+		GameTeam team = getTeamByKey(teamKey);
+		if (team == null) {
+			throw new IllegalArgumentException("Invalid team " + teamKey);
 		}
 
+		removePlayer(playerKey.id());
+
+		Set<UUID> players = playersByKey.get(teamKey);
+		if (players == null) {
+			players = new ObjectOpenHashSet<>();
+			playersByKey.put(teamKey, players);
+		}
+		players.add(playerKey.id());
+
+		ServerPlayer player = game.allPlayers().getPlayerBy(playerKey);
+		if (player != null) {
+			game.invoker(GameTeamEvents.SET_GAME_TEAM).onSetGameTeam(player, this, team);
+		}
+	}
+
+	public @Nullable GameTeam removePlayer(UUID playerId) {
+		for (Map.Entry<GameTeamKey, Set<UUID>> entry : Object2ObjectMaps.fastIterable(playersByKey)) {
+			if (!entry.getValue().remove(playerId)) {
+				continue;
+			}
+			GameTeam team = Objects.requireNonNull(getTeamByKey(entry.getKey()));
+			ServerPlayer player = game.allPlayers().getPlayerBy(playerId);
+			if (player != null) {
+				game.invoker(GameTeamEvents.REMOVE_FROM_TEAM).onRemoveFromTeam(player, this, team);
+			}
+			return team;
+		}
 		return null;
 	}
 
@@ -135,7 +173,7 @@ public final class TeamState implements IGameState, Iterable<GameTeam> {
 		return players != null ? players.size() : 0;
 	}
 
-	public boolean areSameTeam(Entity source, Entity target) {
+	public boolean areSameTeam(@Nullable Entity source, @Nullable Entity target) {
 		if (!(source instanceof Player) || !(target instanceof Player)) {
 			return false;
 		}

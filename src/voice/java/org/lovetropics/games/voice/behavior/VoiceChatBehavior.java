@@ -70,8 +70,13 @@ public record VoiceChatBehavior(
 			});
 
 			events.listen(GameTeamEvents.SET_GAME_TEAM, (player, _, team) ->
-					addToGroup(player, voiceApi, groupsByTeam.get(team))
+					addToGroup(player, voiceApi, groupsByTeam.get(team.key()))
 			);
+
+			events.listen(GameTeamEvents.REMOVE_FROM_TEAM, (player, _, team) -> {
+				Group group = groupsByTeam.get(team.key());
+				removeFromGroup(player, voiceApi, group);
+			});
 
 			events.listen(GamePlayerEvents.SET_ROLE, (player, role, _) -> {
 				Group group = getGroup(player, teams, groupsByTeam);
