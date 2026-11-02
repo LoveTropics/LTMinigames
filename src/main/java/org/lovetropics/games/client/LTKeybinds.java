@@ -17,6 +17,7 @@ public class LTKeybinds {
 	public static final KeyMapping EXPAND_BINGO_BOARD = create("expand_bingo_board", InputConstants.KEY_B, KeyModifier.NONE);
 	public static final KeyMapping OPEN_SHOP = create("open_shop", InputConstants.KEY_N, KeyModifier.NONE);
 	public static final KeyMapping OPEN_RULES = create("open_rules", InputConstants.KEY_M, KeyModifier.NONE);
+	public static final KeyMapping TOGGLE_BINGO_HUD = create("toggle_bingo_hud", InputConstants.KEY_B, KeyModifier.SHIFT);
 
 	private static KeyMapping create(String id, int key, KeyModifier modifier) {
 		String description = "key." + LoveTropics.ID + "." + id;
@@ -29,5 +30,6 @@ public class LTKeybinds {
 		event.register(EXPAND_BINGO_BOARD);
 		event.register(OPEN_SHOP);
 		event.register(OPEN_RULES);
+		event.register(TOGGLE_BINGO_HUD);
 	}
 }

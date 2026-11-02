@@ -49,6 +49,21 @@ public class GameBingoHandler {
 	@Nullable
 	private static BingoBoardClientState board;
 
+	private enum StandingsUIState {
+		OFF,
+		STANDINGS,
+		FULL
+		;
+
+		private static final StandingsUIState[] VALUES = values();
+
+		private StandingsUIState next() {
+			return VALUES[(this.ordinal() + 1) % VALUES.length];
+		}
+	}
+
+	private static StandingsUIState standingsUIState = StandingsUIState.FULL;
+
 	/// Every player of the game, shown next to the board
 	private static final BingoStandings STANDINGS = new BingoStandings(true);
 
@@ -94,19 +109,26 @@ public class GameBingoHandler {
 				minecraft.setScreenAndShow(new BingoBoardScreen());
 			}
 		}
+
+		while (LTKeybinds.TOGGLE_BINGO_HUD.consumeClick()) {
+			standingsUIState = standingsUIState.next();
+		}
 	}
 
 	@SubscribeEvent
 	static void registerLayers(RegisterGuiLayersEvent event) {
 		event.registerAboveAll(Identifier.fromNamespaceAndPath(LoveTropics.ID, "bingo_board"), (guiGraphics, deltaTracker) -> {
 			BingoBoardClientState board = GameBingoHandler.board;
-			if (board == null || !board.hasCard() || board.rows() <= 0 || board.columns() <= 0 || Minecraft.getInstance().gui.screen() instanceof BingoBoardScreen) {
+			if (board == null || standingsUIState == StandingsUIState.OFF || !board.hasCard() || board.rows() <= 0 || board.columns() <= 0 || Minecraft.getInstance().gui.screen() instanceof BingoBoardScreen) {
 				return;
 			}
 			Font font = Minecraft.getInstance().font;
-			drawCompactBoard(guiGraphics, font, board, index -> board.tiles().get(index).map(BingoBoardClientState.Tile::completed).orElse(false), true, BOARD_X, BOARD_Y);
 
-			int standingsX = BOARD_X + getCompactBoardWidth(board) + 3 + STANDINGS_GAP + 3;
+			if (standingsUIState == StandingsUIState.FULL) {
+				drawCompactBoard(guiGraphics, font, board, index -> board.tiles().get(index).map(BingoBoardClientState.Tile::completed).orElse(false), true, BOARD_X, BOARD_Y);
+			}
+
+			final int standingsX = standingsUIState == StandingsUIState.STANDINGS ? BOARD_X : BOARD_X + getCompactBoardWidth(board) + 3 + STANDINGS_GAP + 3;
 			drawStandings(guiGraphics, font, board, standingsX, BOARD_Y, deltaTracker.getGameTimeDeltaPartialTick(true));
 		});
 	}

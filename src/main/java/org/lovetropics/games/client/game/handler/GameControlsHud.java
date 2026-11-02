@@ -57,9 +57,11 @@ public final class GameControlsHud {
 
 	private static List<Component> getLines() {
 		List<Component> lines = new ArrayList<>();
-		if (GameBingoHandler.board() != null) {
+		final boolean hasBingoBoard = GameBingoHandler.board() != null;
+		if (hasBingoBoard) {
 			lines.add(Bingo.OPEN_BOARD_HINT.apply(LTKeybinds.EXPAND_BINGO_BOARD.getTranslatedKeyMessage()));
 		}
+
 		ShopClientState shop = GameShopHandler.shop();
 		if (shop != null) {
 			lines.add(ShopTexts.OPEN_SHOP_HINT.apply(LTKeybinds.OPEN_SHOP.getTranslatedKeyMessage())
@@ -70,6 +72,11 @@ public final class GameControlsHud {
 		if (modifiers != null && !modifiers.entries().isEmpty()) {
 			lines.add(TropicRushTexts.OPEN_RULES_HINT.apply(LTKeybinds.OPEN_RULES.getTranslatedKeyMessage()));
 		}
+
+		if (hasBingoBoard) {
+			lines.add(Bingo.TOGGLE_BINGO_HUD.apply(LTKeybinds.TOGGLE_BINGO_HUD.getTranslatedKeyMessage()));
+		}
+
 		return lines;
 	}
 
