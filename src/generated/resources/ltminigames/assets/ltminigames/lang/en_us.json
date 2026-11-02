@@ -374,7 +374,7 @@
   "ltminigames.minigame.donation.random_creeper_package": "Random Creeper",
   "ltminigames.minigame.donation.random_creeper_package.description": "Spawns a Creeper primed for explosion next to a random player",
   "ltminigames.minigame.donation.random_creeper_package.toast": "%sender% sent a RANDOM CREEPER that found you! Look out!",
-  "ltminigames.minigame.donation.sabotage_package": "Sabotage Package",
+  "ltminigames.minigame.donation.sabotage_package": "Chaos Package",
   "ltminigames.minigame.donation.seriously_shoebill": "Seriously, Shoebills?",
   "ltminigames.minigame.donation.seriously_shoebill.description": "Turn all players into the fantastic Shoebill Stork.",
   "ltminigames.minigame.donation.seriously_shoebill.toast": "%sender% has TURNED EVERYONE INTO SHOEBILL STORKS!",

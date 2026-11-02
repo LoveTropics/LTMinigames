@@ -33,7 +33,7 @@ public record DonationPackageDesc(
 
 	public enum Type implements StringRepresentable {
 		CARE_PACKAGE("care_package", "Care Package"),
-		SABOTAGE_PACKAGE("sabotage_package", "Sabotage Package"),
+		SABOTAGE_PACKAGE("sabotage_package", "Chaos Package"),
 		CHAT_EVENT("chat_event", "Chat Event"),
 		AUTO("auto", "Auto"),
 		;
