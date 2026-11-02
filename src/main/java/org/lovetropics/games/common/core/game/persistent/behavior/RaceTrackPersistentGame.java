@@ -40,7 +40,8 @@ public final class RaceTrackPersistentGame implements PersistentGameBehavior {
 			LootItemCondition.TYPED_CODEC.fieldOf("predicate").forGetter(b -> b.predicate),
 			Codec.INT.fieldOf("checkpoint_count").forGetter(b -> b.checkpointCount),
 			Codec.INT.fieldOf("required_checkpoint_count").forGetter(b -> b.checkpointCount),
-			Messages.CODEC.fieldOf("messages").forGetter(b -> b.messages)
+			Messages.CODEC.fieldOf("messages").forGetter(b -> b.messages),
+			Codec.BOOL.optionalFieldOf("only_start_at_first_checkpoint", true).forGetter(b -> b.onlyStartAtFirstCheckpoint)
 			).apply(instance, RaceTrackPersistentGame::new));
 
 	private final String id;
@@ -49,18 +50,20 @@ public final class RaceTrackPersistentGame implements PersistentGameBehavior {
 	private final RegionQuery endRegionQuery;
 	private final LootItemCondition predicate;
 	private final Messages messages;
+	private final boolean onlyStartAtFirstCheckpoint;
 
 	private final Map<Integer, RegionQuery> regionQueries;
 	private final Map<ServerPlayer, List<Integer>> playerCheckpoints;
 	private final Map<ServerPlayer, Integer> playerStartTime;
 
-	public RaceTrackPersistentGame(String id, LootItemCondition predicate, int checkpointCount, int requiredCheckpointCount, Messages messages) {
+	public RaceTrackPersistentGame(String id, LootItemCondition predicate, int checkpointCount, int requiredCheckpointCount, Messages messages, boolean onlyStartAtFirstCheckpoint) {
 		this.id = id;
 		this.predicate = predicate;
 		this.checkpointCount = checkpointCount;
 		this.requiredCheckpointCount = requiredCheckpointCount;
 		this.messages = messages;
 		this.endRegionQuery = RegionQuery.of(id + "_end");
+		this.onlyStartAtFirstCheckpoint = onlyStartAtFirstCheckpoint;
 		this.regionQueries = new HashMap<>();
 		this.playerCheckpoints = new HashMap<>();
 		this.playerStartTime = new HashMap<>();
@@ -100,6 +103,10 @@ public final class RaceTrackPersistentGame implements PersistentGameBehavior {
 						RegionQuery query = regionQueries.get(i);
 						if (query != null && query.contains(game, player)) {
 							if (!playerCheckpoints.containsKey(player)) {
+								if (onlyStartAtFirstCheckpoint && i != 0) {
+									messages.notFirstCheckpoint.ifPresent(component -> player.sendSystemMessage(component, false));
+									continue;
+								}
 								playerCheckpoints.put(player, new ArrayList<>());
 								playerStartTime.put(player, game.server().getTickCount());
 							}
@@ -149,12 +156,13 @@ public final class RaceTrackPersistentGame implements PersistentGameBehavior {
 		return PersistentGameBehaviors.RACE_TRACK;
 	}
 	
-	public record Messages(Component checkpointReached, Component raceCompleted, Component notEnoughCheckpoints, Component leftRaceTrack) {
+	public record Messages(Component checkpointReached, Component raceCompleted, Component notEnoughCheckpoints, Component leftRaceTrack, Optional<Component> notFirstCheckpoint) {
 		public static final MapCodec<Messages> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 				ComponentSerialization.CODEC.fieldOf("checkpoint_reached").forGetter(Messages::checkpointReached),
 				ComponentSerialization.CODEC.fieldOf("race_completed").forGetter(Messages::raceCompleted),
 				ComponentSerialization.CODEC.fieldOf("not_enough_checkpoints").forGetter(Messages::notEnoughCheckpoints),
-				ComponentSerialization.CODEC.fieldOf("left_race_track").forGetter(Messages::leftRaceTrack)
+				ComponentSerialization.CODEC.fieldOf("left_race_track").forGetter(Messages::leftRaceTrack),
+				ComponentSerialization.CODEC.optionalFieldOf("not_first_checkpoint").forGetter(Messages::notFirstCheckpoint)
 		).apply(instance, Messages::new));
 	}
 }
