@@ -68,7 +68,7 @@ public record HidePlayersBehavior(
 		});
 
 		events.listen(GamePlayerEvents.SET_ROLE, (player, role, lastRole) -> {
-			HidePlayersState hiddenPlayers = new HidePlayersState(new IntOpenHashSet(hiddenPlayersByRole.get(role)));
+			HidePlayersState hiddenPlayers = new HidePlayersState(new IntOpenHashSet(hiddenPlayersByRole.getOrDefault(role, IntSet.of())));
 			GameClientState.sendToPlayer(hiddenPlayers, player);
 		});
 	}
