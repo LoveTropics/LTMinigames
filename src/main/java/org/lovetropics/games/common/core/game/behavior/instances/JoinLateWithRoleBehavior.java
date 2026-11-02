@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import net.minecraft.util.StringRepresentable;
 import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
@@ -17,10 +18,10 @@ import org.lovetropics.games.common.core.game.state.team.TeamState;
 
 import java.util.Map;
 
-public record JoinLateWithRoleBehavior(PlayerRole role, boolean allowRejoin) implements IGameBehavior {
+public record JoinLateWithRoleBehavior(PlayerRole role, RejoinMode rejoin) implements IGameBehavior {
 	public static final MapCodec<JoinLateWithRoleBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			PlayerRole.CODEC.fieldOf("role").forGetter(c -> c.role),
-			Codec.BOOL.optionalFieldOf("allow_rejoin", false).forGetter(c -> c.allowRejoin)
+			RejoinMode.CODEC.optionalFieldOf("rejoin", RejoinMode.NONE).forGetter(c -> c.rejoin)
 	).apply(i, JoinLateWithRoleBehavior::new));
 
 	@Override
@@ -35,7 +36,7 @@ public record JoinLateWithRoleBehavior(PlayerRole role, boolean allowRejoin) imp
 			}
 
 			OldParticipant oldParticipant = oldParticipants.remove(player);
-			if (allowRejoin && oldParticipant != null) {
+			if (rejoin != RejoinMode.NONE && oldParticipant != null) {
 				if (teams != null && oldParticipant.team != null) {
 					teams.addPlayerTo(player, oldParticipant.team);
 				}
@@ -45,7 +46,7 @@ public record JoinLateWithRoleBehavior(PlayerRole role, boolean allowRejoin) imp
 			return role;
 		});
 
-		if (allowRejoin) {
+		if (rejoin != RejoinMode.NONE) {
 			events.listen(GamePlayerEvents.SET_ROLE, (player, role, lastRole) -> {
 				PlayerKey playerKey = PlayerKey.from(player);
 				if (role == PlayerRole.PARTICIPANT) {
@@ -59,13 +60,13 @@ public record JoinLateWithRoleBehavior(PlayerRole role, boolean allowRejoin) imp
 			// TODO: We would ideally have much more clearly defined flow for a player that rejoins - e.g. a game with death should have the player effectively die
 			PlayerStorage playerStorage = new PlayerStorage();
 			events.listen(GamePlayerEvents.REMOVE, player -> {
-				if (game.getRoleFor(player) == PlayerRole.PARTICIPANT) {
+				if (rejoin == RejoinMode.RESTORE && game.getRoleFor(player) == PlayerRole.PARTICIPANT) {
 					playerStorage.store(player);
 				}
 			});
 
 			events.listen(GamePlayerEvents.LOAD, (player, role) -> {
-				if (role == PlayerRole.PARTICIPANT) {
+				if (rejoin == RejoinMode.RESTORE && role == PlayerRole.PARTICIPANT) {
 					return playerStorage.takePlayerData(player.id()).orElse(null);
 				}
 				return null;
@@ -74,5 +75,25 @@ public record JoinLateWithRoleBehavior(PlayerRole role, boolean allowRejoin) imp
 	}
 
 	private record OldParticipant(@Nullable GameTeamKey team) {
+	}
+
+	public enum RejoinMode implements StringRepresentable {
+		NONE("none"),
+		RESTORE("restore"),
+		RESPAWN("respawn"),
+		;
+
+		public static final Codec<RejoinMode> CODEC = StringRepresentable.fromEnum(RejoinMode::values);
+
+		private final String name;
+
+		RejoinMode(String name) {
+			this.name = name;
+		}
+
+		@Override
+		public String getSerializedName() {
+			return name;
+		}
 	}
 }
