@@ -10,6 +10,7 @@ import net.minecraft.world.entity.player.Player;
 import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GameTeamEvents;
 import org.lovetropics.games.common.core.game.player.PlayerSet;
@@ -17,6 +18,7 @@ import org.lovetropics.games.common.core.game.state.GameStateKey;
 import org.lovetropics.games.common.core.game.state.IGameState;
 import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -29,22 +31,23 @@ import java.util.stream.Stream;
 public final class TeamState implements IGameState, Iterable<GameTeam> {
 	public static final GameStateKey<TeamState> KEY = GameStateKey.create("Teams");
 
-	private final IGamePhase game;
+	private final List<IGamePhase> games = new ArrayList<>();
 	private final List<GameTeam> teams;
 
 	private final Object2ObjectMap<GameTeamKey, GameTeam> teamsByKey = new Object2ObjectOpenHashMap<>();
 	private final Object2ObjectMap<GameTeamKey, Set<UUID>> playersByKey = new Object2ObjectOpenHashMap<>();
 
-	/// Note: must be registered by [#register(EventRegistrar)]
-	public TeamState(IGamePhase game, List<GameTeam> teams) {
-		this.game = game;
+	/// Note: must be registered by [#register(IGamePhase, EventRegistrar)]
+	public TeamState(List<GameTeam> teams) {
 		this.teams = teams;
 		for (GameTeam team : teams) {
 			teamsByKey.put(team.key(), team);
 		}
 	}
 
-	public void register(EventRegistrar events) {
+	public void register(IGamePhase game, EventRegistrar events) {
+		games.add(game);
+
 		events.listen(GamePlayerEvents.ADD, player -> {
 			GameTeamKey teamKey = getTeamForPlayer(player);
 			if (teamKey == null) {
@@ -63,6 +66,10 @@ public final class TeamState implements IGameState, Iterable<GameTeam> {
 				game.invoker(GameTeamEvents.REMOVE_FROM_TEAM).onRemoveFromTeam(player, this, team);
 			}
 		});
+
+		events.listen(GamePhaseEvents.DESTROY, () ->
+				games.remove(game)
+		);
 	}
 
 	public void addPlayerTo(PlayerKey playerKey, GameTeamKey teamKey) {
@@ -80,9 +87,11 @@ public final class TeamState implements IGameState, Iterable<GameTeam> {
 		}
 		players.add(playerKey.id());
 
-		ServerPlayer player = game.allPlayers().getPlayerBy(playerKey);
-		if (player != null) {
-			game.invoker(GameTeamEvents.SET_GAME_TEAM).onSetGameTeam(player, this, team);
+		for (IGamePhase game : games) {
+			ServerPlayer player = game.allPlayers().getPlayerBy(playerKey);
+			if (player != null) {
+				game.invoker(GameTeamEvents.SET_GAME_TEAM).onSetGameTeam(player, this, team);
+			}
 		}
 	}
 
@@ -92,9 +101,11 @@ public final class TeamState implements IGameState, Iterable<GameTeam> {
 				continue;
 			}
 			GameTeam team = Objects.requireNonNull(getTeamByKey(entry.getKey()));
-			ServerPlayer player = game.allPlayers().getPlayerBy(playerId);
-			if (player != null) {
-				game.invoker(GameTeamEvents.REMOVE_FROM_TEAM).onRemoveFromTeam(player, this, team);
+			for (IGamePhase game : games) {
+				ServerPlayer player = game.allPlayers().getPlayerBy(playerId);
+				if (player != null) {
+					game.invoker(GameTeamEvents.REMOVE_FROM_TEAM).onRemoveFromTeam(player, this, team);
+				}
 			}
 			return team;
 		}

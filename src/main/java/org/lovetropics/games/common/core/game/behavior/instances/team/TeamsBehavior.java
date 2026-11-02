@@ -68,28 +68,28 @@ public final class TeamsBehavior implements IGameBehavior {
 		TeamState existingTeams = instanceState.getOrNull(TeamState.KEY);
 		// We might run this behavior after teams have already been set up (for example in a sub-game), and we don't want to set it up twice
 		if (existingTeams == null) {
-			teams = setupTeams(game, instanceState);
+			teams = setupTeams(instanceState);
 			instanceState.register(TeamState.KEY, teams);
 		} else {
 			teams = existingTeams;
 		}
 	}
 
-	private TeamState setupTeams(IGamePhase game, GameStateMap instanceState) {
+	private TeamState setupTeams(GameStateMap instanceState) {
 		if (!instantTeams.isEmpty()) {
-			return new TeamState(game, instantTeams.entrySet().stream().map(entry -> {
+			return new TeamState(instantTeams.entrySet().stream().map(entry -> {
 				SetupTeamsBehavior.TeamConfig config = entry.getValue();
 				return new GameTeam(entry.getKey(), config.dyeColor(), config.name());
 			}).toList());
 		}
 
 		teamSetup = instanceState.getOrThrow(TeamSetupState.KEY);
-		return teamSetup.createInitialTeamState(game);
+		return teamSetup.createInitialTeamState();
 	}
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
-		teams.register(events);
+		teams.register(game, events);
 
 		TeamSetupState teamSetup = this.teamSetup;
 		if (teamSetup != null) {
