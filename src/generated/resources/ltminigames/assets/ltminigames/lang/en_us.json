@@ -470,6 +470,7 @@
   "ltminigames.minigame.get_ready": "Get ready!",
   "ltminigames.minigame.go": "Go!",
   "ltminigames.minigame.goal_scored": "%s scored for %s!",
+  "ltminigames.minigame.hardcore_havoc": "Hardcore Havoc",
   "ltminigames.minigame.inventory_full": "Your inventory is full!",
   "ltminigames.minigame.levitation": "Levitation",
   "ltminigames.minigame.levitation.intro1": "Race to be the first to reach the top of the tube!",
