@@ -37,7 +37,7 @@ public record GameTeam(
 			case LIGHT_BLUE -> TeamColor.AQUA;
 			case YELLOW -> TeamColor.YELLOW;
 			case LIME -> TeamColor.GREEN;
-			case GRAY -> TeamColor.DARK_GRAY;
+			case GRAY, BLACK -> TeamColor.DARK_GRAY;
 			case LIGHT_GRAY -> TeamColor.GRAY;
 			case CYAN -> TeamColor.DARK_AQUA;
 			case PURPLE -> TeamColor.DARK_PURPLE;
@@ -45,7 +45,6 @@ public record GameTeam(
 			case BROWN -> TeamColor.DARK_RED;
 			case GREEN -> TeamColor.DARK_GREEN;
 			case RED -> TeamColor.RED;
-			case BLACK -> TeamColor.BLACK;
 		};
 	}
 

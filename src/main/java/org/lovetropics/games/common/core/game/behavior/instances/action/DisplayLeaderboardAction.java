@@ -32,7 +32,6 @@ public record DisplayLeaderboardAction(
 	public void register(IGamePhase game, EventRegistrar events) {
 		events.listen(GameActionEvents.APPLY, (context, targets) -> {
 			PlayerSet targetPlayers = PlayerSet.copyOf(targets.asPlayers(game));
-			// TODO need to adjust mysty columns of chaos
 			targetPlayers.sendMessage(header);
 			if (leaderboard.shouldPlaceByTeam(game)) {
 				TeamState teams = game.instanceState().getOrThrow(TeamState.KEY);
