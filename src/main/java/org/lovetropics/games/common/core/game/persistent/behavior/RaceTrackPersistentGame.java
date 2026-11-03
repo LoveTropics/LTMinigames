@@ -26,6 +26,7 @@ import org.lovetropics.games.common.core.game.behavior.instances.action.RunComma
 import org.lovetropics.games.common.core.game.persistent.PersistentGame;
 import org.lovetropics.games.common.core.game.persistent.PersistentGameBehavior;
 import org.lovetropics.games.common.core.game.persistent.PersistentScoreboards;
+import org.lovetropics.games.common.core.game.persistent.behavior.dropper.DropperBehavior;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.util.Util;
 
@@ -35,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+/// Sorry about this, really should clean this up next year, but I just kept adding features and got lazy.
 public final class RaceTrackPersistentGame implements PersistentGameBehavior {
 
 	public static final MapCodec<RaceTrackPersistentGame> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
@@ -46,7 +48,9 @@ public final class RaceTrackPersistentGame implements PersistentGameBehavior {
 			Codec.BOOL.optionalFieldOf("only_start_at_first_checkpoint", true).forGetter(b -> b.onlyStartAtFirstCheckpoint),
 			RegionQuery.CODEC.optionalFieldOf("leave_track_spawn").forGetter(b -> b.leaveTrackSpawn),
 			ExtraCodecs.compactListCodec(RunCommandsAction.COMMAND_CODEC).optionalFieldOf("commands_on_leave", List.of()).forGetter(b -> b.commandOnLeave),
-			ExtraCodecs.compactListCodec(RunCommandsAction.COMMAND_CODEC).optionalFieldOf("commands_on_exit", List.of()).forGetter(b -> b.commandOnLeave)
+			ExtraCodecs.compactListCodec(RunCommandsAction.COMMAND_CODEC).optionalFieldOf("commands_on_exit", List.of()).forGetter(b -> b.commandOnLeave),
+			DropperBehavior.Reward.CODEC.optionalFieldOf("first_win_reward", DropperBehavior.Reward.NONE).forGetter(b -> b.firstWinReward),
+			DropperBehavior.Reward.CODEC.optionalFieldOf("win_reward", DropperBehavior.Reward.NONE).forGetter(b -> b.winReward)
 			).apply(instance, RaceTrackPersistentGame::new));
 
 	private final String id;
@@ -59,12 +63,14 @@ public final class RaceTrackPersistentGame implements PersistentGameBehavior {
 	private final Optional<RegionQuery> leaveTrackSpawn;
 	private final List<String> commandOnLeave;
 	private final List<String> commandOnExit;
+	private final DropperBehavior.Reward firstWinReward;
+	private final DropperBehavior.Reward winReward;
 
 	private final Map<Integer, RegionQuery> regionQueries;
 	private final Map<ServerPlayer, List<Integer>> playerCheckpoints;
 	private final Map<ServerPlayer, Integer> playerStartTime;
 
-	public RaceTrackPersistentGame(String id, LootItemCondition predicate, int checkpointCount, int requiredCheckpointCount, Messages messages, boolean onlyStartAtFirstCheckpoint, Optional<RegionQuery> leaveTrackSpawn, List<String> commandOnLeave, List<String> commandOnExit) {
+	public RaceTrackPersistentGame(String id, LootItemCondition predicate, int checkpointCount, int requiredCheckpointCount, Messages messages, boolean onlyStartAtFirstCheckpoint, Optional<RegionQuery> leaveTrackSpawn, List<String> commandOnLeave, List<String> commandOnExit, DropperBehavior.Reward firstWinReward, DropperBehavior.Reward winReward) {
 		this.id = id;
 		this.predicate = predicate;
 		this.checkpointCount = checkpointCount;
@@ -78,6 +84,8 @@ public final class RaceTrackPersistentGame implements PersistentGameBehavior {
 		this.playerStartTime = new HashMap<>();
 		this.commandOnLeave = commandOnLeave;
 		this.commandOnExit = commandOnExit;
+		this.firstWinReward = firstWinReward;
+		this.winReward = winReward;
 	}
 
 	@Override
@@ -99,6 +107,11 @@ public final class RaceTrackPersistentGame implements PersistentGameBehavior {
 							long time = game.server().getTickCount() - playerStartTime.getOrDefault(player, 0);
 							ScoreAccess scoreAccess = getScoreAccess(player, ScoreType.RECORD);
 							int oldScore = scoreAccess.get();
+							if (oldScore == 0) {
+								firstWinReward.giveToPlayer(player);
+							} else {
+								winReward.giveToPlayer(player);
+							}
 							if (oldScore <= 0 || time < oldScore) {
 								scoreAccess.set(Math.toIntExact(time));
 							}
