@@ -4,11 +4,18 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.ChatFormatting;
+import net.minecraft.commands.CommandSource;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.LevelBasedPermissionSet;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.ExtraCodecs;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
@@ -17,14 +24,17 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Objective;
 import net.minecraft.world.scores.ScoreAccess;
+import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
+import org.lovetropics.games.common.core.game.behavior.instances.action.RunCommandsAction;
 import org.lovetropics.games.common.core.game.persistent.PersistentGame;
 import org.lovetropics.games.common.core.game.persistent.PersistentGameBehavior;
 import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviorType;
 import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviors;
 import org.lovetropics.games.common.core.game.persistent.PersistentScoreboards;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
+import org.lovetropics.games.common.core.game.state.DebugModeState;
 import org.lovetropics.games.common.util.Util;
 
 import java.util.ArrayList;
@@ -43,7 +53,8 @@ public final class RaceTrackPersistentGame implements PersistentGameBehavior {
 			Codec.INT.fieldOf("required_checkpoint_count").forGetter(b -> b.checkpointCount),
 			Messages.CODEC.fieldOf("messages").forGetter(b -> b.messages),
 			Codec.BOOL.optionalFieldOf("only_start_at_first_checkpoint", true).forGetter(b -> b.onlyStartAtFirstCheckpoint),
-			RegionQuery.CODEC.optionalFieldOf("leave_track_spawn").forGetter(b -> b.leaveTrackSpawn)
+			RegionQuery.CODEC.optionalFieldOf("leave_track_spawn").forGetter(b -> b.leaveTrackSpawn),
+			ExtraCodecs.compactListCodec(RunCommandsAction.COMMAND_CODEC).optionalFieldOf("commands_on_leave", List.of()).forGetter(b -> b.commandOnLeave)
 			).apply(instance, RaceTrackPersistentGame::new));
 
 	private final String id;
@@ -54,12 +65,13 @@ public final class RaceTrackPersistentGame implements PersistentGameBehavior {
 	private final Messages messages;
 	private final boolean onlyStartAtFirstCheckpoint;
 	private final Optional<RegionQuery> leaveTrackSpawn;
+	private final List<String> commandOnLeave;
 
 	private final Map<Integer, RegionQuery> regionQueries;
 	private final Map<ServerPlayer, List<Integer>> playerCheckpoints;
 	private final Map<ServerPlayer, Integer> playerStartTime;
 
-	public RaceTrackPersistentGame(String id, LootItemCondition predicate, int checkpointCount, int requiredCheckpointCount, Messages messages, boolean onlyStartAtFirstCheckpoint, Optional<RegionQuery> leaveTrackSpawn) {
+	public RaceTrackPersistentGame(String id, LootItemCondition predicate, int checkpointCount, int requiredCheckpointCount, Messages messages, boolean onlyStartAtFirstCheckpoint, Optional<RegionQuery> leaveTrackSpawn, List<String> commandOnLeave) {
 		this.id = id;
 		this.predicate = predicate;
 		this.checkpointCount = checkpointCount;
@@ -71,6 +83,7 @@ public final class RaceTrackPersistentGame implements PersistentGameBehavior {
 		this.regionQueries = new HashMap<>();
 		this.playerCheckpoints = new HashMap<>();
 		this.playerStartTime = new HashMap<>();
+		this.commandOnLeave = commandOnLeave;
 	}
 
 	@Override
@@ -133,10 +146,31 @@ public final class RaceTrackPersistentGame implements PersistentGameBehavior {
 							Vec3 center = query.one(game).center();
 							player.teleportTo(center.x, center.y, center.z);
 						});
+						if (!commandOnLeave.isEmpty()) {
+							Commands commands = game.server().getCommands();
+							CommandSourceStack targetSource = createCommandSourceForEntity(game, player);
+							for (String command : commandOnLeave) {
+								commands.performPrefixedCommand(targetSource, command);
+							}
+						}
 					}
 				}
 			}
 		});
+	}
+
+	private static CommandSourceStack createCommandSourceForEntity(PersistentGame game, ServerPlayer entity) {
+		return new CommandSourceStack(
+				entity.commandSource(),
+				entity.position(),
+				entity.getRotationVector(),
+				entity.level(),
+				LevelBasedPermissionSet.OWNER,
+				entity.getPlainTextName(),
+				entity.getDisplayName(),
+				game.server(),
+				entity
+		);
 	}
 
 	public enum ScoreType {
