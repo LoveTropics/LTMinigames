@@ -1,5 +1,6 @@
 package org.lovetropics.games.common.core.game.behavior.instances.action;
 
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Holder;
@@ -21,24 +22,29 @@ import java.util.List;
 public final class SetRandomDisguiseAction implements IGameBehavior {
 	public static final MapCodec<SetRandomDisguiseAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			RegistryCodecs.homogeneousList(Registries.ENTITY_TYPE).optionalFieldOf("disallowed", HolderSet.empty()).forGetter(actions -> actions.disallowedEntities),
-			Disguise.CODEC.listOf().optionalFieldOf("additional", Collections.emptyList()).forGetter(actions -> actions.additionalDisguises)
+			Disguise.CODEC.listOf().optionalFieldOf("additional", Collections.emptyList()).forGetter(actions -> actions.additionalDisguises),
+			Codec.BOOL.optionalFieldOf("changes_size", false).forGetter(actions -> actions.changesSize)
 	).apply(i, SetRandomDisguiseAction::new));
 
 	private final HolderSet<EntityType<?>> disallowedEntities;
 	private final List<Disguise> additionalDisguises;
+	private final boolean changesSize;
 
 	private final List<Disguise> allDisguises;
 
-	public SetRandomDisguiseAction(HolderSet<EntityType<?>> disallowedEntities, List<Disguise> additionalDisguises) {
+	public SetRandomDisguiseAction(HolderSet<EntityType<?>> disallowedEntities, List<Disguise> additionalDisguises, boolean changesSize) {
 		this.disallowedEntities = disallowedEntities;
 		this.additionalDisguises = additionalDisguises;
+		this.changesSize = changesSize;
 
 		this.allDisguises = new ArrayList<>();
 		this.allDisguises.addAll(additionalDisguises);
 
 		for (EntityType<?> entityType : BuiltInRegistries.ENTITY_TYPE) {
 			if (!disallowedEntities.contains(Holder.direct(entityType))) {
-				allDisguises.add(Disguise.of(entityType));
+				Disguise disguise = Disguise.of(entityType);
+				// wither? :(
+				allDisguises.add(new Disguise(disguise.entity(), disguise.scale(), changesSize, disguise.customName(), disguise.skinProfile(), disguise.hideShadow(), disguise.useDisuseEquipment()));
 			}
 		}
 	}
