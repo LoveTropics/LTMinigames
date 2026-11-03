@@ -182,7 +182,9 @@ public class VendingMachineEntity extends Entity implements ContainerEntity {
 	@Override
 	protected void addAdditionalSaveData(ValueOutput valueOutput) {
 		addChestVehicleSaveData(valueOutput);
-		valueOutput.store("cost_item", ItemStack.CODEC, costItem);
+		if (!costItem.isEmpty()) {
+			valueOutput.store("cost_item", ItemStack.CODEC, costItem);
+		}
 	}
 
 	@Override
