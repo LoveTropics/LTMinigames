@@ -318,6 +318,9 @@ public final class MinigameTexts {
 		KEYS.add("donation.feed_the_hungry.toast", "%sender% has given you SATURATION for 1 minute!");
 		KEYS.add("donation.mozart_mode", "Mozart Mode");
 		KEYS.add("donation.mozart_mode.toast", "Everyone is.. Mozart??");
+		KEYS.add("donation.random_disguise", "Disguise Disaster");
+		KEYS.add("donation.random_disguise.description", "Disguise each player as a totally random mob!");
+		KEYS.add("donation.random_disguise.toast", "%sender% has triggered a DISGUISE DISASTER!");
 
 		KEYS.add("donation.pvp_crabs", "Crab Hockey: PvP");
 		KEYS.add("donation.pvp_crabs.description", "Turn every player into a Crab, and allow PvP - players can score with each other!");
