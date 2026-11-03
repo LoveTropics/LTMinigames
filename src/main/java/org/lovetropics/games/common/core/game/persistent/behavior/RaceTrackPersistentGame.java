@@ -45,7 +45,8 @@ public final class RaceTrackPersistentGame implements PersistentGameBehavior {
 			Messages.CODEC.fieldOf("messages").forGetter(b -> b.messages),
 			Codec.BOOL.optionalFieldOf("only_start_at_first_checkpoint", true).forGetter(b -> b.onlyStartAtFirstCheckpoint),
 			RegionQuery.CODEC.optionalFieldOf("leave_track_spawn").forGetter(b -> b.leaveTrackSpawn),
-			ExtraCodecs.compactListCodec(RunCommandsAction.COMMAND_CODEC).optionalFieldOf("commands_on_leave", List.of()).forGetter(b -> b.commandOnLeave)
+			ExtraCodecs.compactListCodec(RunCommandsAction.COMMAND_CODEC).optionalFieldOf("commands_on_leave", List.of()).forGetter(b -> b.commandOnLeave),
+			ExtraCodecs.compactListCodec(RunCommandsAction.COMMAND_CODEC).optionalFieldOf("commands_on_exit", List.of()).forGetter(b -> b.commandOnLeave)
 			).apply(instance, RaceTrackPersistentGame::new));
 
 	private final String id;
@@ -57,12 +58,13 @@ public final class RaceTrackPersistentGame implements PersistentGameBehavior {
 	private final boolean onlyStartAtFirstCheckpoint;
 	private final Optional<RegionQuery> leaveTrackSpawn;
 	private final List<String> commandOnLeave;
+	private final List<String> commandOnExit;
 
 	private final Map<Integer, RegionQuery> regionQueries;
 	private final Map<ServerPlayer, List<Integer>> playerCheckpoints;
 	private final Map<ServerPlayer, Integer> playerStartTime;
 
-	public RaceTrackPersistentGame(String id, LootItemCondition predicate, int checkpointCount, int requiredCheckpointCount, Messages messages, boolean onlyStartAtFirstCheckpoint, Optional<RegionQuery> leaveTrackSpawn, List<String> commandOnLeave) {
+	public RaceTrackPersistentGame(String id, LootItemCondition predicate, int checkpointCount, int requiredCheckpointCount, Messages messages, boolean onlyStartAtFirstCheckpoint, Optional<RegionQuery> leaveTrackSpawn, List<String> commandOnLeave, List<String> commandOnExit) {
 		this.id = id;
 		this.predicate = predicate;
 		this.checkpointCount = checkpointCount;
@@ -75,6 +77,7 @@ public final class RaceTrackPersistentGame implements PersistentGameBehavior {
 		this.playerCheckpoints = new HashMap<>();
 		this.playerStartTime = new HashMap<>();
 		this.commandOnLeave = commandOnLeave;
+		this.commandOnExit = commandOnExit;
 	}
 
 	@Override
@@ -95,13 +98,28 @@ public final class RaceTrackPersistentGame implements PersistentGameBehavior {
 						if (checkpoints.size() >= requiredCheckpointCount) {
 							long time = game.server().getTickCount() - playerStartTime.getOrDefault(player, 0);
 							ScoreAccess scoreAccess = getScoreAccess(player, ScoreType.RECORD);
-							if (scoreAccess.get() < time) {
+							int oldScore = scoreAccess.get();
+							if (oldScore <= 0 || time < oldScore) {
 								scoreAccess.set(Math.toIntExact(time));
 							}
 							getScoreAccess(player, ScoreType.LATEST).set(Math.toIntExact(time));
+							if (!commandOnExit.isEmpty()) {
+								Commands commands = game.server().getCommands();
+								CommandSourceStack targetSource = createCommandSourceForEntity(game, player);
+								for (String command : commandOnExit) {
+									commands.performPrefixedCommand(targetSource, command);
+								}
+							}
 							player.sendSystemMessage(messages.raceCompleted, false);
 							playerCheckpoints.remove(player);
 						} else {
+							if (!commandOnExit.isEmpty()) {
+								Commands commands = game.server().getCommands();
+								CommandSourceStack targetSource = createCommandSourceForEntity(game, player);
+								for (String command : commandOnExit) {
+									commands.performPrefixedCommand(targetSource, command);
+								}
+							}
 							player.sendSystemMessage(messages.notEnoughCheckpoints, false);
 							playerCheckpoints.remove(player);
 						}
