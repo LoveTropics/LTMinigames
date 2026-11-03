@@ -18,8 +18,8 @@ import java.util.UUID;
 public record ApplyToPlayerWhileTrigger(EntityPredicate predicate, GameActionList apply, GameActionList clear) implements IGameBehavior {
 	public static final MapCodec<ApplyToPlayerWhileTrigger> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			EntityPredicate.CODEC.fieldOf("predicate").forGetter(ApplyToPlayerWhileTrigger::predicate),
-			GameActionList.CODEC.fieldOf("apply").forGetter(ApplyToPlayerWhileTrigger::apply),
-			GameActionList.CODEC.fieldOf("clear").forGetter(ApplyToPlayerWhileTrigger::clear)
+			GameActionList.CODEC.optionalFieldOf("apply", GameActionList.EMPTY).forGetter(ApplyToPlayerWhileTrigger::apply),
+			GameActionList.CODEC.optionalFieldOf("clear", GameActionList.EMPTY).forGetter(ApplyToPlayerWhileTrigger::clear)
 	).apply(i, ApplyToPlayerWhileTrigger::new));
 
 	@Override
