@@ -7,6 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -36,6 +37,7 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.SoundRegistry;
+import org.lovetropics.games.common.content.MinigameTexts;
 import org.lovetropics.games.common.content.escape_race.EscapeRace;
 import org.lovetropics.games.common.core.game.IGameLookup;
 import org.lovetropics.games.common.core.game.IGamePhase;
@@ -44,6 +46,7 @@ import org.lovetropics.games.common.core.network.vending.SelectVendingMachineIte
 import org.lovetropics.games.common.core.network.vending.ServerboundVendingMachinePurchasePacket;
 
 import java.util.List;
+import java.util.Optional;
 
 public class VendingMachineEntity extends Entity implements ContainerEntity {
 	private static final EntityDataAccessor<List<ItemStack>> DATA_VISUAL_ITEMS = SynchedEntityData.defineId(VendingMachineEntity.class, EscapeRace.ITEM_STACK_LIST);
@@ -59,6 +62,7 @@ public class VendingMachineEntity extends Entity implements ContainerEntity {
 	private final NonNullList<ItemStack> itemStacks = NonNullList.withSize(INVENTORY_SIZE, ItemStack.EMPTY);
 	private @Nullable ResourceKey<LootTable> lootTable;
 	private long lootTableSeed;
+	private ItemStack costItem = ItemStack.EMPTY;
 
 	private @Nullable ItemStack droppingItem = ItemStack.EMPTY;
 	private int droppingFromSlot = NO_SLOT;
@@ -133,6 +137,17 @@ public class VendingMachineEntity extends Entity implements ContainerEntity {
 			playSound(SoundRegistry.INCORRECT.value());
 			return;
 		}
+
+		if (!costItem.isEmpty()) {
+			if (player.getInventory().contains(costItem)) {
+				player.getInventory().removeItem(costItem);
+			} else {
+				playSound(SoundRegistry.INCORRECT.value());
+				player.sendSystemMessage(MinigameTexts.VENDING_MACHINE_COST.apply(costItem), true);
+				return;
+			}
+		}
+
 		playSound(SoundRegistry.CORRECT.value());
 		startDropping(selectedItem.copyWithCount(1), itemIndex);
 		getEntityData().set(DATA_SELECTED, NO_SLOT);
@@ -161,11 +176,13 @@ public class VendingMachineEntity extends Entity implements ContainerEntity {
 	protected void readAdditionalSaveData(ValueInput valueInput) {
 		readChestVehicleSaveData(valueInput);
 		onItemsChanged();
+		costItem = valueInput.read("cost_item", ItemStack.CODEC).orElse(ItemStack.EMPTY);
 	}
 
 	@Override
 	protected void addAdditionalSaveData(ValueOutput valueOutput) {
 		addChestVehicleSaveData(valueOutput);
+		valueOutput.store("cost_item", ItemStack.CODEC, costItem);
 	}
 
 	@Override

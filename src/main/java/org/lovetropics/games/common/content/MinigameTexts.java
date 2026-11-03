@@ -129,6 +129,8 @@ public final class MinigameTexts {
 	public static final Component INVENTORY_FULL = KEYS.add("inventory_full", "Your inventory is full!").withStyle(ChatFormatting.RED);
 	public static final Component CHECKPOINT_REACHED = KEYS.add("checkpoint_reached", "Checkpoint reached!").withStyle(ChatFormatting.GREEN);
 
+	public static final TranslationCollector.Fun1 VENDING_MACHINE_COST = KEYS.add1("vending_machine_cost", "Cost: %s").withStyle(ChatFormatting.GRAY);
+
 	static {
 		KEYS.add("starting_in", "Starting in %time%!");
 		KEYS.add("get_ready", "Get ready!");
