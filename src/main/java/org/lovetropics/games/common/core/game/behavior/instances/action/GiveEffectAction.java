@@ -23,10 +23,11 @@ public record GiveEffectAction(List<MobEffectInstance> effects) implements IGame
 			if (!(entity instanceof LivingEntity livingEntity)) {
 				return false;
 			}
+			boolean appliedAny = false;
 			for (MobEffectInstance effect : effects) {
-				livingEntity.addEffect(new MobEffectInstance(effect));
+				appliedAny |= livingEntity.addEffect(new MobEffectInstance(effect));
 			}
-			return true;
+			return appliedAny;
 		});
 	}
 
