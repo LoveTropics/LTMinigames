@@ -9,6 +9,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.context.ContextMap;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
@@ -26,18 +27,21 @@ public final class CountdownAction<T> implements IGameBehavior {
 	public static final MapCodec<CountdownAction<?>> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			Codec.LONG.fieldOf("countdown").forGetter(c -> c.countdown / SharedConstants.TICKS_PER_SECOND),
 			TemplatedText.CODEC.fieldOf("warning").forGetter(c -> c.warning),
+			ExtraCodecs.POSITIVE_INT.optionalFieldOf("max_queue_size", 1).forGetter(c -> c.maxQueueSize),
 			GameActionList.MAP_CODEC.forGetter(c -> c.actions)
 	).apply(i, CountdownAction::new));
 
 	private final long countdown;
 	private final TemplatedText warning;
+	private final int maxQueueSize;
 	private final GameActionList actions;
 
 	private final LinkedList<QueueEntry> queue = new LinkedList<>();
 
-	public CountdownAction(long countdown, TemplatedText warning, GameActionList actions) {
+	public CountdownAction(long countdown, TemplatedText warning, int maxQueueSize, GameActionList actions) {
 		this.countdown = countdown * SharedConstants.TICKS_PER_SECOND;
 		this.warning = warning;
+		this.maxQueueSize = maxQueueSize;
 		this.actions = actions;
 	}
 
@@ -46,6 +50,9 @@ public final class CountdownAction<T> implements IGameBehavior {
 		actions.register(game, events);
 
 		events.listen(GameActionEvents.APPLY, (context, targets) -> {
+			if (queue.size() >= maxQueueSize) {
+				return false;
+			}
 			queue.add(new QueueEntry(game.ticks() + countdown, context, targets));
 			return true;
 		});
