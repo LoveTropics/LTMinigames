@@ -292,8 +292,9 @@ public final class MinigameCompetitionBehavior implements IGameBehavior {
 				pendingGame = null;
 				currentGame = subGame;
 				subEvents.listen(GamePhaseEvents.STOP, reason -> {
-					startNextGame(topGame);
+					// Make sure statistics are copied back before we start the next game and potentially lose that data
 					onStopSubGame(topGame, subGame, reason);
+					startNextGame(topGame);
 				});
 				onCreateSubGame(topGame, subGame, subEvents);
 			});
