@@ -15,7 +15,7 @@ public record SequenceAction(
 		List<GameActionList> actions
 ) implements IGameBehavior {
 	public static final MapCodec<SequenceAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			GameActionList.CODEC.listOf().fieldOf("sequence").forGetter(SequenceAction::actions)
+			GameActionList.CODEC.listOf(2, Integer.MAX_VALUE).fieldOf("sequence").forGetter(SequenceAction::actions)
 	).apply(i, SequenceAction::new));
 
 	@Override
@@ -24,9 +24,12 @@ public record SequenceAction(
 			action.register(game, events);
 		}
 		events.listen(GameActionEvents.APPLY, (context, targets) -> {
-			for (GameActionList action : actions) {
-				if (!action.apply(game, context, targets)) {
-					return false;
+			if (!actions.getFirst().apply(game, context, targets)) {
+				return false;
+			}
+			for (int i = 1; i < actions.size(); i++) {
+				if (!actions.get(i).apply(game, context, targets)) {
+					return true;
 				}
 			}
 			return true;
