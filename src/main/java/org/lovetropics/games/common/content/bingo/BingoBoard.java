@@ -61,6 +61,7 @@ public final class BingoBoard implements IGameState {
 	private final Int2ObjectMap<BingoTileDefinition> lockedSlots = new Int2ObjectOpenHashMap<>();
 	/// Slots with nothing in them, not even a locked tile
 	private final IntList emptySlots = new IntArrayList();
+	private final List<BingoTile> placedTiles = new ArrayList<>();
 	private final List<PhaseEvents> phases = new ArrayList<>();
 
 	/// @param tilePool      locked tiles that can be unlocked onto the board
@@ -86,6 +87,7 @@ public final class BingoBoard implements IGameState {
 		for (int i = 0; i < slots.size(); i++) {
 			if (i < pool.size()) {
 				lockedSlots.put(slots.getInt(i), pool.get(i));
+				placeTile(slots.getInt(i), pool.get(i));
 			} else {
 				emptySlots.add(slots.getInt(i));
 			}
@@ -96,9 +98,8 @@ public final class BingoBoard implements IGameState {
 	public void addPhase(IGamePhase phase, EventRegistrar events) {
 		PhaseEvents phaseEvents = new PhaseEvents(phase, events);
 		phases.add(phaseEvents);
-		for (int index = 0; index < tiles.size(); index++) {
-			int tileIndex = index;
-			tiles.get(index).ifPresent(tile -> registerTrigger(tileIndex, tile, phaseEvents));
+		for (Optional<BingoTile> tile : tiles) {
+			tile.ifPresent(t -> registerTrigger(t, phaseEvents));
 		}
 	}
 
@@ -132,7 +133,6 @@ public final class BingoBoard implements IGameState {
 		while (unlockedTitles.size() < count && !lockedSlots.isEmpty()) {
 			int index = randomLockedSlot();
 			BingoTileDefinition definition = lockedSlots.remove(index);
-			placeTile(index, definition);
 			unlockedTitles.add(definition.title());
 		}
 		if (!unlockedTitles.isEmpty()) {
@@ -150,28 +150,31 @@ public final class BingoBoard implements IGameState {
 	}
 
 	private void placeTile(int index, BingoTileDefinition definition) {
-		BingoTile tile = new BingoTile(definition.icon().create(), definition.title(), definition.reward(), definition.trigger(), definition.tileType());
+		BingoTile tile = new BingoTile(placedTiles.size(), index, definition.icon().create(), definition.title(), definition.reward(), definition.trigger(), definition.tileType());
+		placedTiles.add(tile);
 		tiles.set(index, Optional.of(tile));
 		for (PhaseEvents phaseEvents : phases) {
-			registerTrigger(index, tile, phaseEvents);
+			registerTrigger(tile, phaseEvents);
 		}
 	}
 
-	private static void registerTrigger(int tileIndex, BingoTile tile, PhaseEvents phaseEvents) {
+	private static void registerTrigger(BingoTile tile, PhaseEvents phaseEvents) {
 		// This event capturing dance allows us to pass a parameter to the actions in the trigger so that those actions can report back when they complete the tile
 		GameEventListeners captureListeners = new GameEventListeners();
 
 		// Create new instances of the trigger and register its events
 		tile.trigger.get().register(phaseEvents.phase, phaseEvents.events.redirect(t -> t == Bingo.CAPTURE_TILE_EVENT, captureListeners));
-		captureListeners.invoker(Bingo.CAPTURE_TILE_EVENT).capture(tileIndex);
+		captureListeners.invoker(Bingo.CAPTURE_TILE_EVENT).capture(tile.id);
 	}
 
-	public void complete(int tileIndex, ServerPlayer player) {
-		Optional<BingoTile> tile = tileIndex >= 0 && tileIndex < tiles.size() ? tiles.get(tileIndex) : Optional.empty();
-		if (tile.isEmpty() || !tile.get().completedBy.add(player.getUUID())) {
+	public void complete(int tileId, ServerPlayer player) {
+		if (tileId < 0 || tileId >= placedTiles.size()) {
 			return;
 		}
-		BingoTile completedTile = tile.get();
+		BingoTile completedTile = placedTiles.get(tileId);
+		if (tiles.get(completedTile.slot).orElse(null) != completedTile || !completedTile.completedBy.add(player.getUUID())) {
+			return;
+		}
 
 		onTileCompleted.apply(game, ContextMap.EMPTY, ActionSubjects.ofPlayer(player));
 		MutableComponent tileCompletedComponent = Bingo.TILE_COMPLETED.apply(player.getDisplayName(), completedTile.title.copy().withStyle(ChatFormatting.AQUA));
@@ -196,13 +199,10 @@ public final class BingoBoard implements IGameState {
 			onBingo.apply(game, ContextMap.EMPTY, ActionSubjects.ofPlayer(player));
 		}
 
-		if (hasCompletedAllTiles(player.getUUID())) {
-			// Slots left empty only get a tile if one is added explicitly, so there is nothing more to complete
-			if (lockedSlots.isEmpty()) {
-				game.invoker(Bingo.BOARD_COMPLETED).onBoardCompleted(player);
-			} else if (unlockOnClear > 0) {
-				unlockTiles(unlockOnClear);
-			}
+		if (hasCompletedAllTiles(player.getUUID(), true)) {
+			game.invoker(Bingo.BOARD_COMPLETED).onBoardCompleted(player);
+		} else if (unlockOnClear > 0 && hasCompletedAllTiles(player.getUUID(), false)) {
+			unlockTiles(unlockOnClear);
 		}
 	}
 
@@ -212,8 +212,14 @@ public final class BingoBoard implements IGameState {
 		return (int) Math.floor(tile.reward * multiplier);
 	}
 
-	private boolean hasCompletedAllTiles(UUID player) {
-		return tiles.stream().allMatch(tile -> tile.map(t -> t.completedBy.contains(player)).orElse(true));
+	/// @param includeLocked whether the locked tiles have to be completed too
+	private boolean hasCompletedAllTiles(UUID player, boolean includeLocked) {
+		for (int index = 0; index < tiles.size(); index++) {
+			if ((includeLocked || !lockedSlots.containsKey(index)) && tiles.get(index).map(t -> !t.completedBy.contains(player)).orElse(false)) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	private boolean hasBingo(UUID player) {
@@ -263,9 +269,11 @@ public final class BingoBoard implements IGameState {
 	/// Only those playing or who are ghosts have a card of their own
 	public void updatePlayer(ServerPlayer player) {
 		List<Optional<BingoBoardClientState.Tile>> clientTiles = tiles.stream()
+				.map(o -> o.filter(t -> !lockedSlots.containsKey(t.slot) || t.completedBy.contains(player.getUUID())))
 				.map(o -> o.map(t -> t.tile(player, getReward(t, t.completedBy.size()))))
 				.toList();
 		List<BingoBoardClientState.LockedSlot> clientLockedSlots = lockedSlots.int2ObjectEntrySet().stream()
+				.filter(entry -> clientTiles.get(entry.getIntKey()).isEmpty())
 				.map(entry -> new BingoBoardClientState.LockedSlot(entry.getIntKey(), entry.getValue().clue()))
 				.toList();
 		int points = game.statistics().forPlayer(player).getOr(StatisticKey.POINTS, 0);
@@ -308,6 +316,8 @@ public final class BingoBoard implements IGameState {
 	}
 
 	private static final class BingoTile {
+		private final int id;
+		private final int slot;
 		private final ItemStack icon;
 		private final Component title;
 		private final int reward;
@@ -316,7 +326,9 @@ public final class BingoBoard implements IGameState {
 		/// In the order the players completed the tile
 		private final Set<UUID> completedBy = new LinkedHashSet<>();
 
-		private BingoTile(ItemStack icon, Component title, int reward, Supplier<GameActionList> trigger, BingoTileType tileType) {
+		private BingoTile(int id, int slot, ItemStack icon, Component title, int reward, Supplier<GameActionList> trigger, BingoTileType tileType) {
+			this.id = id;
+			this.slot = slot;
 			this.icon = icon;
 			this.title = title;
 			this.reward = reward;
