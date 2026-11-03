@@ -28,13 +28,10 @@ import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.persistent.PersistentGame;
 import org.lovetropics.games.common.core.game.persistent.PersistentGameBehavior;
-import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviorType;
-import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviors;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.core.game.rewards.GameRewards;
 
 import java.util.Optional;
-import java.util.function.Supplier;
 
 public class DropperBehavior implements PersistentGameBehavior {
 
@@ -156,8 +153,8 @@ public class DropperBehavior implements PersistentGameBehavior {
 	}
 
 	@Override
-	public Supplier<? extends PersistentGameBehaviorType<?>> type() {
-		return PersistentGameBehaviors.DROPPER;
+	public MapCodec<DropperBehavior> codec() {
+		return CODEC;
 	}
 
 	public record Objectives(Objective win, Objective fail, Objective play, Objective stats) {

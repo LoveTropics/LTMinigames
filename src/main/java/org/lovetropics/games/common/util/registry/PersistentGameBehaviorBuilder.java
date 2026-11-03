@@ -6,10 +6,9 @@ import com.tterrag.registrate.builders.BuilderCallback;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import org.lovetropics.games.common.core.game.persistent.PersistentGameBehavior;
 import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviorEntry;
-import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviorType;
 import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviors;
 
-public final class PersistentGameBehaviorBuilder<T extends PersistentGameBehavior, P> extends AbstractBuilder<PersistentGameBehaviorType<?>, PersistentGameBehaviorType<T>, P, PersistentGameBehaviorBuilder<T, P>> {
+public final class PersistentGameBehaviorBuilder<T extends PersistentGameBehavior, P> extends AbstractBuilder<MapCodec<? extends PersistentGameBehavior>, MapCodec<T>, P, PersistentGameBehaviorBuilder<T, P>> {
 	private final MapCodec<T> codec;
 
 	public PersistentGameBehaviorBuilder(LoveTropicsRegistrate owner, P parent, String name, BuilderCallback callback, MapCodec<T> codec) {
@@ -18,12 +17,12 @@ public final class PersistentGameBehaviorBuilder<T extends PersistentGameBehavio
 	}
 
 	@Override
-	protected PersistentGameBehaviorType<T> createEntry() {
-		return new PersistentGameBehaviorType<>(codec);
+	protected MapCodec<T> createEntry() {
+		return codec;
 	}
 
 	@Override
-	protected PersistentGameBehaviorEntry<T> createEntryWrapper(DeferredHolder<PersistentGameBehaviorType<?>, PersistentGameBehaviorType<T>> delegate) {
+	protected PersistentGameBehaviorEntry<T> createEntryWrapper(DeferredHolder<MapCodec<? extends PersistentGameBehavior>, MapCodec<T>> delegate) {
 		return new PersistentGameBehaviorEntry<>(getOwner(), delegate);
 	}
 

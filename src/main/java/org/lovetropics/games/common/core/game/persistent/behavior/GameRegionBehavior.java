@@ -8,12 +8,9 @@ import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.persistent.PersistentGame;
 import org.lovetropics.games.common.core.game.persistent.PersistentGameBehavior;
-import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviorType;
-import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviors;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
 
 import java.util.List;
-import java.util.function.Supplier;
 
 public record GameRegionBehavior(
 		RegionQuery region
@@ -50,7 +47,7 @@ public record GameRegionBehavior(
 	}
 
 	@Override
-	public Supplier<? extends PersistentGameBehaviorType<?>> type() {
-		return PersistentGameBehaviors.GAME_REGION;
+	public MapCodec<GameRegionBehavior> codec() {
+		return CODEC;
 	}
 }

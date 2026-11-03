@@ -31,8 +31,6 @@ import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.persistent.PersistentGame;
 import org.lovetropics.games.common.core.game.persistent.PersistentGameBehavior;
-import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviorType;
-import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviors;
 import org.lovetropics.games.common.core.game.region.LevelBlockPos;
 import org.lovetropics.games.common.core.game.region.Region;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
@@ -43,7 +41,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Supplier;
 
 public class CrabGolfHoleBehavior implements PersistentGameBehavior {
 
@@ -268,8 +265,8 @@ public class CrabGolfHoleBehavior implements PersistentGameBehavior {
 	}
 
 	@Override
-	public Supplier<? extends PersistentGameBehaviorType<?>> type() {
-		return PersistentGameBehaviors.CRAB_GOLF_HOLE;
+	public MapCodec<CrabGolfHoleBehavior> codec() {
+		return CODEC;
 	}
 
 	private enum TickResult {

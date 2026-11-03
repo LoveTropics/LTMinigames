@@ -9,14 +9,11 @@ import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.persistent.PersistentGame;
 import org.lovetropics.games.common.core.game.persistent.PersistentGameBehavior;
-import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviorType;
-import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviors;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Supplier;
 
 public class CrabGolfClubsBehavior implements PersistentGameBehavior {
 	public static final MapCodec<CrabGolfClubsBehavior> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
@@ -67,7 +64,7 @@ public class CrabGolfClubsBehavior implements PersistentGameBehavior {
 	}
 
 	@Override
-	public Supplier<? extends PersistentGameBehaviorType<?>> type() {
-		return PersistentGameBehaviors.CRAB_GOLF_CLUBS;
+	public MapCodec<CrabGolfClubsBehavior> codec() {
+		return CODEC;
 	}
 }

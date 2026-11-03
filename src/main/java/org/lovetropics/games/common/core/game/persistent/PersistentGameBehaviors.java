@@ -22,29 +22,30 @@ import org.lovetropics.games.common.core.game.persistent.behavior.parkour.Parkou
 import org.lovetropics.games.common.util.registry.LoveTropicsRegistrate;
 
 public class PersistentGameBehaviors {
-	public static final ResourceKey<Registry<PersistentGameBehaviorType<?>>> REGISTRY_KEY = ResourceKey.createRegistryKey(LoveTropics.id("persistent_behaviors"));
+	public static final ResourceKey<Registry<MapCodec<? extends PersistentGameBehavior>>> REGISTRY_KEY = ResourceKey.createRegistryKey(LoveTropics.id("persistent_behaviors"));
 
-	public static final DeferredRegister<PersistentGameBehaviorType<?>> REGISTER = DeferredRegister.create(REGISTRY_KEY, LoveTropics.ID);
-	public static final Registry<PersistentGameBehaviorType<?>> REGISTRY = REGISTER.makeRegistry(builder -> builder.sync(false));
+	public static final DeferredRegister<MapCodec<? extends PersistentGameBehavior>> REGISTER = DeferredRegister.create(REGISTRY_KEY, LoveTropics.ID);
+	public static final Registry<MapCodec<? extends PersistentGameBehavior>> REGISTRY = REGISTER.makeRegistry(builder -> builder.sync(false));
 	private static final LoveTropicsRegistrate REGISTRATE = LoveTropics.registrate();
 
-	public static final Codec<PersistentGameBehaviorType<?>> TYPE_CODEC = Codec.lazyInitialized(() -> REGISTRY.byNameCodec());
+	public static final Codec<MapCodec<? extends PersistentGameBehavior>> TYPE_CODEC = Codec.lazyInitialized(() -> REGISTRY.byNameCodec());
 
-	// Behaviors
-	public static final PersistentGameBehaviorEntry<NoOpBehavior> NOOP = register("noop", NoOpBehavior.CODEC);
-	public static final PersistentGameBehaviorEntry<CompositePersistentBehavior> COMPOSITE = register("composite", CompositePersistentBehavior.MAP_CODEC);
-	public static final PersistentGameBehaviorEntry<GameRegionBehavior> GAME_REGION = register("game_region", GameRegionBehavior.CODEC);
-	public static final PersistentGameBehaviorEntry<MakeSpeedyBehavior> MAKE_SPEEDY = register("make_speedy", MakeSpeedyBehavior.CODEC);
-	public static final PersistentGameBehaviorEntry<CrabGolfHoleBehavior> CRAB_GOLF_HOLE = register("crab_golf_hole", CrabGolfHoleBehavior.CODEC);
-	public static final PersistentGameBehaviorEntry<CrabGolfClubsBehavior> CRAB_GOLF_CLUBS = register("crab_golf_clubs", CrabGolfClubsBehavior.CODEC);
-	public static final PersistentGameBehaviorEntry<CrabGolfCrabBehavior> CRAB_GOLF_CRAB = register("crab_golf_crab", CrabGolfCrabBehavior.CODEC);
-	public static final PersistentGameBehaviorEntry<CrabGolfWinBehavior> CRAB_GOLF_WIN = register("crab_golf_win", CrabGolfWinBehavior.CODEC);
-	public static final PersistentGameBehaviorEntry<ParkourBehavior> PARKOUR = register("parkour", ParkourBehavior.CODEC);
-	public static final PersistentGameBehaviorEntry<DropperBehavior> DROPPER = register("dropper", DropperBehavior.CODEC);
-	public static final PersistentGameBehaviorEntry<RaceTrackPersistentGame> RACE_TRACK = register("race_track", RaceTrackPersistentGame.CODEC);
-	public static final PersistentGameBehaviorEntry<CloningMachinePersistentGame> CLONING_MACHINE = register("cloning_machine", CloningMachinePersistentGame.CODEC);
+	static {
+		register("noop", NoOpBehavior.CODEC);
+		register("composite", CompositePersistentBehavior.MAP_CODEC);
+		register("game_region", GameRegionBehavior.CODEC);
+		register("make_speedy", MakeSpeedyBehavior.CODEC);
+		register("crab_golf_hole", CrabGolfHoleBehavior.CODEC);
+		register("crab_golf_clubs", CrabGolfClubsBehavior.CODEC);
+		register("crab_golf_crab", CrabGolfCrabBehavior.CODEC);
+		register("crab_golf_win", CrabGolfWinBehavior.CODEC);
+		register("parkour", ParkourBehavior.CODEC);
+		register("dropper", DropperBehavior.CODEC);
+		register("race_track", RaceTrackPersistentGame.CODEC);
+		register("cloning_machine", CloningMachinePersistentGame.CODEC);
+	}
 
-	public static <T extends PersistentGameBehavior> PersistentGameBehaviorEntry<T> register(String name, MapCodec<T> codec) {
+	private static <T extends PersistentGameBehavior> PersistentGameBehaviorEntry<T> register(String name, MapCodec<T> codec) {
 		return REGISTRATE.object(name).persistentBehavior(codec).register();
 	}
 

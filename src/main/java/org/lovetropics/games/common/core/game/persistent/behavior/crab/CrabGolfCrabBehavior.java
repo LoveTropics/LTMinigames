@@ -13,10 +13,6 @@ import net.minecraft.world.entity.LivingEntity;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.persistent.PersistentGame;
 import org.lovetropics.games.common.core.game.persistent.PersistentGameBehavior;
-import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviorType;
-import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviors;
-
-import java.util.function.Supplier;
 
 public class CrabGolfCrabBehavior implements PersistentGameBehavior {
 	public static final MapCodec<CrabGolfCrabBehavior> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
@@ -50,7 +46,7 @@ public class CrabGolfCrabBehavior implements PersistentGameBehavior {
 	}
 
 	@Override
-	public Supplier<? extends PersistentGameBehaviorType<?>> type() {
-		return PersistentGameBehaviors.CRAB_GOLF_CRAB;
+	public MapCodec<CrabGolfCrabBehavior> codec() {
+		return CODEC;
 	}
 }

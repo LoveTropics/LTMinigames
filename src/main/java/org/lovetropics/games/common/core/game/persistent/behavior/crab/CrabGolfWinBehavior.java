@@ -25,10 +25,6 @@ import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.instances.action.RunCommandsAction;
 import org.lovetropics.games.common.core.game.persistent.PersistentGame;
 import org.lovetropics.games.common.core.game.persistent.PersistentGameBehavior;
-import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviorType;
-import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviors;
-
-import java.util.function.Supplier;
 
 public class CrabGolfWinBehavior implements PersistentGameBehavior {
 	public static final MapCodec<CrabGolfWinBehavior> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
@@ -112,7 +108,7 @@ public class CrabGolfWinBehavior implements PersistentGameBehavior {
 	}
 
 	@Override
-	public Supplier<? extends PersistentGameBehaviorType<?>> type() {
-		return PersistentGameBehaviors.CRAB_GOLF_WIN;
+	public MapCodec<CrabGolfWinBehavior> codec() {
+		return CODEC;
 	}
 }

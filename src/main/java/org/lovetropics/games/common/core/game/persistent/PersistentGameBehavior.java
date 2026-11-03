@@ -5,23 +5,23 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.MapCodec;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.persistent.behavior.CompositePersistentBehavior;
 import org.lovetropics.games.common.util.Codecs;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 public interface PersistentGameBehavior {
-	Codec<PersistentGameBehaviorType<?>> TYPE_CODEC = Codec.either(PersistentGameBehaviors.TYPE_CODEC, PersistentGameConfigs.CUSTOM_BEHAVIORS)
+	Codec<MapCodec<? extends PersistentGameBehavior>> TYPE_CODEC = Codec.either(PersistentGameBehaviors.TYPE_CODEC, PersistentGameConfigs.CUSTOM_BEHAVIORS)
 			.xmap(e -> e.map(Function.identity(), Function.identity()), Either::left);
 
 	Codec<PersistentGameBehavior> SIMPLE_CODEC = Codecs.dispatchWithInlineKey(
 			"type",
 			TYPE_CODEC,
-			behavior -> behavior.type().get(),
-			PersistentGameBehaviorType::codec
+			PersistentGameBehavior::codec,
+			Function.identity()
 	);
 
 	// Using custom codec for better error reporting
@@ -48,5 +48,5 @@ public interface PersistentGameBehavior {
 
 	void register(PersistentGame game, EventRegistrar events);
 
-	Supplier<? extends PersistentGameBehaviorType<?>> type();
+	MapCodec<? extends PersistentGameBehavior> codec();
 }

@@ -8,10 +8,6 @@ import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
 import org.lovetropics.games.common.core.game.client_state.instance.BeSpeedyState;
 import org.lovetropics.games.common.core.game.persistent.PersistentGame;
 import org.lovetropics.games.common.core.game.persistent.PersistentGameBehavior;
-import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviorType;
-import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviors;
-
-import java.util.function.Supplier;
 
 public class MakeSpeedyBehavior implements PersistentGameBehavior {
 	public static final MapCodec<MakeSpeedyBehavior> CODEC = MapCodec.unit(MakeSpeedyBehavior::new);
@@ -28,7 +24,7 @@ public class MakeSpeedyBehavior implements PersistentGameBehavior {
 	}
 
 	@Override
-	public Supplier<? extends PersistentGameBehaviorType<?>> type() {
-		return PersistentGameBehaviors.MAKE_SPEEDY;
+	public MapCodec<MakeSpeedyBehavior> codec() {
+		return CODEC;
 	}
 }

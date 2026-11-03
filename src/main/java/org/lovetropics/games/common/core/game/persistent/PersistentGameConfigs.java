@@ -44,7 +44,7 @@ public class PersistentGameConfigs {
 	private static final Logger LOGGER = LogManager.getLogger(PersistentGameConfigs.class);
 
 	public static final CodecRegistry<Identifier, PersistentGameConfig> REGISTRY = CodecRegistry.idKeys();
-	public static final CodecRegistry<Identifier, PersistentGameBehaviorType<?>> CUSTOM_BEHAVIORS = CodecRegistry.idKeys();
+	public static final CodecRegistry<Identifier, MapCodec<? extends PersistentGameBehavior>> CUSTOM_BEHAVIORS = CodecRegistry.idKeys();
 
 	private static final FileToIdConverter GAME_LISTER = FileToIdConverter.json("persistent_games");
 	private static final FileToIdConverter BEHAVIOR_LISTER = FileToIdConverter.json("persistent_behaviors");
@@ -114,8 +114,8 @@ public class PersistentGameConfigs {
 		}
 	}
 
-	private static CompletableFuture<Map<Identifier, PersistentGameBehaviorType<?>>> listBehaviors(ResourceManager resourceManager, Executor executor) {
-		List<CompletableFuture<Map.Entry<Identifier, PersistentGameBehaviorType<?>>>> futures = BEHAVIOR_LISTER.listMatchingResources(resourceManager).entrySet().stream()
+	private static CompletableFuture<Map<Identifier, MapCodec<? extends PersistentGameBehavior>>> listBehaviors(ResourceManager resourceManager, Executor executor) {
+		List<CompletableFuture<Map.Entry<Identifier, MapCodec<? extends PersistentGameBehavior>>>> futures = BEHAVIOR_LISTER.listMatchingResources(resourceManager).entrySet().stream()
 				.map(entry -> CompletableFuture.supplyAsync(() -> tryLoadBehavior(entry.getValue(), entry.getKey()), executor))
 				.toList();
 		return Util.sequence(futures).thenApply(behaviors -> behaviors.stream()
@@ -124,12 +124,12 @@ public class PersistentGameConfigs {
 		);
 	}
 
-	private static Map.Entry<Identifier, @Nullable PersistentGameBehaviorType<?>> tryLoadBehavior(Resource resource, Identifier path) {
+	private static Map.Entry<Identifier, @Nullable MapCodec<? extends PersistentGameBehavior>> tryLoadBehavior(Resource resource, Identifier path) {
 		try {
 			try (BufferedReader reader = resource.openAsReader()) {
 				JsonElement json = StrictJsonParser.parse(reader);
 				Identifier id = BEHAVIOR_LISTER.fileToId(path);
-				return Map.entry(id, new PersistentGameBehaviorType<>(createCustomBehaviorCodec(DynamicTemplate.parse(JsonOps.INSTANCE, json))));
+				return Map.entry(id, createCustomBehaviorCodec(DynamicTemplate.parse(JsonOps.INSTANCE, json)));
 			}
 		} catch (Exception e) {
 			LOGGER.error("Failed to load custom behavior at {}", path, e);

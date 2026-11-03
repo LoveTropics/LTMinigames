@@ -15,8 +15,6 @@ import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.persistent.PersistentGame;
 import org.lovetropics.games.common.core.game.persistent.PersistentGameBehavior;
-import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviorType;
-import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviors;
 import org.lovetropics.games.common.core.game.region.Region;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.util.Util;
@@ -24,7 +22,6 @@ import org.lovetropics.games.common.util.Util;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Supplier;
 
 public class ParkourBehavior implements PersistentGameBehavior {
 	public static final MapCodec<ParkourBehavior> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
@@ -110,7 +107,7 @@ public class ParkourBehavior implements PersistentGameBehavior {
 	}
 
 	@Override
-	public Supplier<? extends PersistentGameBehaviorType<?>> type() {
-		return PersistentGameBehaviors.PARKOUR;
+	public MapCodec<ParkourBehavior> codec() {
+		return CODEC;
 	}
 }

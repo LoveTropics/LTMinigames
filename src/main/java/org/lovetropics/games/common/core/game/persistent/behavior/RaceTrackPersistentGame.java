@@ -3,19 +3,15 @@ package org.lovetropics.games.common.core.game.persistent.behavior;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.ChatFormatting;
-import net.minecraft.commands.CommandSource;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.permissions.LevelBasedPermissionSet;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.ExtraCodecs;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
@@ -24,17 +20,13 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Objective;
 import net.minecraft.world.scores.ScoreAccess;
-import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.behavior.instances.action.RunCommandsAction;
 import org.lovetropics.games.common.core.game.persistent.PersistentGame;
 import org.lovetropics.games.common.core.game.persistent.PersistentGameBehavior;
-import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviorType;
-import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviors;
 import org.lovetropics.games.common.core.game.persistent.PersistentScoreboards;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
-import org.lovetropics.games.common.core.game.state.DebugModeState;
 import org.lovetropics.games.common.util.Util;
 
 import java.util.ArrayList;
@@ -42,7 +34,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Supplier;
 
 public final class RaceTrackPersistentGame implements PersistentGameBehavior {
 
@@ -200,10 +191,10 @@ public final class RaceTrackPersistentGame implements PersistentGameBehavior {
 	}
 
 	@Override
-	public Supplier<? extends PersistentGameBehaviorType<?>> type() {
-		return PersistentGameBehaviors.RACE_TRACK;
+	public MapCodec<RaceTrackPersistentGame> codec() {
+		return CODEC;
 	}
-	
+
 	public record Messages(Component checkpointReached, Component raceCompleted, Component notEnoughCheckpoints, Component leftRaceTrack, Optional<Component> notFirstCheckpoint) {
 		public static final MapCodec<Messages> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 				ComponentSerialization.CODEC.fieldOf("checkpoint_reached").forGetter(Messages::checkpointReached),

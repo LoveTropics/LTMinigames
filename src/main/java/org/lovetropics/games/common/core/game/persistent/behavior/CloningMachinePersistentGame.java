@@ -30,8 +30,6 @@ import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.persistent.PersistentGame;
 import org.lovetropics.games.common.core.game.persistent.PersistentGameBehavior;
-import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviorType;
-import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviors;
 import org.lovetropics.games.common.core.game.region.Region;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
 import org.lovetropics.games.common.util.EntityTemplate;
@@ -41,7 +39,6 @@ import org.slf4j.Logger;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Supplier;
 
 public class CloningMachinePersistentGame implements PersistentGameBehavior {
 
@@ -159,8 +156,8 @@ public class CloningMachinePersistentGame implements PersistentGameBehavior {
 	}
 
 	@Override
-	public Supplier<? extends PersistentGameBehaviorType<?>> type() {
-		return PersistentGameBehaviors.CLONING_MACHINE;
+	public MapCodec<CloningMachinePersistentGame> codec() {
+		return CODEC;
 	}
 
 	private static CompletableFuture<CompoundTag> resolveDummyDisguise(MinecraftServer server, UUID uuid) {

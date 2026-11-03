@@ -5,11 +5,8 @@ import com.mojang.serialization.MapCodec;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.persistent.PersistentGame;
 import org.lovetropics.games.common.core.game.persistent.PersistentGameBehavior;
-import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviorType;
-import org.lovetropics.games.common.core.game.persistent.PersistentGameBehaviors;
 
 import java.util.List;
-import java.util.function.Supplier;
 
 public record CompositePersistentBehavior(List<PersistentGameBehavior> behaviors) implements PersistentGameBehavior {
 	public static final Codec<CompositePersistentBehavior> CODEC = PersistentGameBehavior.CODEC.listOf().xmap(CompositePersistentBehavior::new, CompositePersistentBehavior::behaviors);
@@ -23,7 +20,7 @@ public record CompositePersistentBehavior(List<PersistentGameBehavior> behaviors
 	}
 
 	@Override
-	public Supplier<? extends PersistentGameBehaviorType<?>> type() {
-		return PersistentGameBehaviors.COMPOSITE;
+	public MapCodec<CompositePersistentBehavior> codec() {
+		return MAP_CODEC;
 	}
 }
