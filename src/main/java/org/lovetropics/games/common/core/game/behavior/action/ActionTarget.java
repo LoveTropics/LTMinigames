@@ -16,6 +16,7 @@ import net.minecraft.util.Util;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.dimension.DimensionType;
 import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.state.Overlords;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
 
 import java.util.ArrayList;
@@ -65,6 +66,7 @@ public interface ActionTarget {
 		ALL_PLAYERS("all_players", (game, targets, sources) -> ActionSubjects.ofPlayers(game.allPlayers())),
 		PARTICIPANTS("participants", (game, targets, sources) -> ActionSubjects.ofPlayers(game.participants())),
 		SPECTATORS("spectators", (game, targets, sources) -> ActionSubjects.ofPlayers(game.spectators())),
+		OVERLORDS("overlords", (game, targets, sources) -> ActionSubjects.ofPlayers(Overlords.get(game))),
 		WIDEN_TO_TEAM("widen_to_team", (game, targets, sources) -> targets.coerceInto(game, ActionSubjectType.TEAM)),
 		WIDEN_TO_PLOT("widen_to_plot", (game, targets, sources) -> targets.coerceInto(game, ActionSubjectType.PLOT)),
 		ALL_ENTITIES("all_entities", (game, targets, sources) -> {

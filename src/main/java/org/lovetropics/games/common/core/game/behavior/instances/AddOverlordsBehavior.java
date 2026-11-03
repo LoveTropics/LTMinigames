@@ -12,11 +12,14 @@ import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.level.GameType;
 import net.neoforged.fml.loading.FMLEnvironment;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.action.ActionSubjects;
+import org.lovetropics.games.common.core.game.behavior.action.GameActionList;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
@@ -32,17 +35,21 @@ import java.util.UUID;
 
 public record AddOverlordsBehavior(
 		List<String> roles,
-		Set<UUID> playerIds
+		Set<UUID> playerIds,
+		GameActionList applyToOverlord
 ) implements IGameBehavior {
 	private static final Logger LOGGER = LogUtils.getLogger();
 
 	public static final MapCodec<AddOverlordsBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			Codec.STRING.listOf().optionalFieldOf("roles", List.of()).forGetter(AddOverlordsBehavior::roles),
-			UUIDUtil.CODEC_SET.optionalFieldOf("players", Set.of()).forGetter(AddOverlordsBehavior::playerIds)
+			UUIDUtil.CODEC_SET.optionalFieldOf("players", Set.of()).forGetter(AddOverlordsBehavior::playerIds),
+			GameActionList.CODEC.optionalFieldOf("apply_to_overlord", GameActionList.EMPTY).forGetter(AddOverlordsBehavior::applyToOverlord)
 	).apply(i, AddOverlordsBehavior::new));
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
+		applyToOverlord.register(game, events);
+
 		List<Role> roles = this.roles.stream().map(id -> {
 			Role role = PermissionsApi.provider().get(id);
 			if (role == null) {
@@ -117,6 +124,8 @@ public record AddOverlordsBehavior(
 	private void onAddOverlord(IGamePhase game, ServerPlayer player) {
 		game.setPlayerRole(player, PlayerRole.SPECTATOR);
 		player.setGameMode(GameType.CREATIVE);
+
+		applyToOverlord.apply(game, ContextMap.EMPTY, ActionSubjects.ofPlayer(player));
 	}
 
 	private void onRemoveOverlord(IGamePhase game, ServerPlayer player) {

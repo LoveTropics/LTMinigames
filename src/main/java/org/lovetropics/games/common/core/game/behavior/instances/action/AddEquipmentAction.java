@@ -23,7 +23,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public record AddEquipmentAction(List<ItemStackTemplate> items, Optional<ItemStackTemplate> head, Optional<ItemStackTemplate> chest, Optional<ItemStackTemplate> legs, Optional<ItemStackTemplate> feet, Optional<ItemStackTemplate> mainhand, Optional<ItemStackTemplate> offhand, boolean clear, boolean colorByTeam, Map<GameTeamKey, ItemStackTemplate> hotbarTeamItems) implements IGameBehavior {
+public record AddEquipmentAction(
+		List<ItemStackTemplate> items,
+		Optional<ItemStackTemplate> head,
+		Optional<ItemStackTemplate> chest,
+		Optional<ItemStackTemplate> legs,
+		Optional<ItemStackTemplate> feet,
+		Optional<ItemStackTemplate> mainhand,
+		Optional<ItemStackTemplate> offhand,
+		boolean clear,
+		boolean colorByTeam,
+		Map<GameTeamKey, ItemStackTemplate> hotbarTeamItems,
+		boolean allowDuplicates
+) implements IGameBehavior {
 	public static final MapCodec<AddEquipmentAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			ItemStackTemplate.CODEC.listOf().optionalFieldOf("items", List.of()).forGetter(AddEquipmentAction::items),
 			ItemStackTemplate.CODEC.optionalFieldOf("head").forGetter(AddEquipmentAction::head),
@@ -34,7 +46,8 @@ public record AddEquipmentAction(List<ItemStackTemplate> items, Optional<ItemSta
 			ItemStackTemplate.CODEC.optionalFieldOf("offhand").forGetter(AddEquipmentAction::offhand),
 			Codec.BOOL.optionalFieldOf("clear", false).forGetter(AddEquipmentAction::clear),
 			Codec.BOOL.optionalFieldOf("color_by_team", false).forGetter(AddEquipmentAction::colorByTeam),
-			Codec.unboundedMap(GameTeamKey.CODEC, ItemStackTemplate.CODEC).optionalFieldOf("hotbar_team_items", Map.of()).forGetter(AddEquipmentAction::hotbarTeamItems)
+			Codec.unboundedMap(GameTeamKey.CODEC, ItemStackTemplate.CODEC).optionalFieldOf("hotbar_team_items", Map.of()).forGetter(AddEquipmentAction::hotbarTeamItems),
+			Codec.BOOL.optionalFieldOf("allow_duplicates", true).forGetter(AddEquipmentAction::allowDuplicates)
 	).apply(i, AddEquipmentAction::new));
 
 	@Override
@@ -46,11 +59,15 @@ public record AddEquipmentAction(List<ItemStackTemplate> items, Optional<ItemSta
 			}
 
 			if (entity instanceof ServerPlayer player) {
+				Inventory inventory = player.getInventory();
 				if (clear) {
-					player.getInventory().clearContent();
+					inventory.clearContent();
 				}
 				for (ItemStackTemplate item : items) {
-					player.getInventory().add(copyAndModify(player, teams, item.create()));
+					ItemStack stack = copyAndModify(player, teams, item.create());
+					if (allowDuplicates || !inventory.contains(stack)) {
+						inventory.add(stack);
+					}
 				}
 
 				if (teams != null) {
@@ -58,7 +75,10 @@ public record AddEquipmentAction(List<ItemStackTemplate> items, Optional<ItemSta
 					if (teamKey != null) {
 						ItemStackTemplate hotbarItem = hotbarTeamItems.get(teamKey);
 						if (hotbarItem != null) {
-							player.getInventory().add(8, copyAndModify(livingEntity, teams, hotbarItem.create()));
+							ItemStack stack = copyAndModify(livingEntity, teams, hotbarItem.create());
+							if (allowDuplicates || !ItemStack.isSameItemSameComponents(inventory.getItem(8), stack)) {
+								inventory.add(8, stack);
+							}
 						}
 					}
 				}

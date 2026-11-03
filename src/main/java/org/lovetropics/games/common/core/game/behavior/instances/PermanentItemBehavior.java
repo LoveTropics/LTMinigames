@@ -3,25 +3,38 @@ package org.lovetropics.games.common.core.game.behavior.instances;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStackTemplate;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
+import org.lovetropics.games.common.core.game.behavior.action.ActionSubjects;
+import org.lovetropics.games.common.core.game.behavior.action.ActionTarget;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
+import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 
 import java.util.Optional;
 
-public record PermanentItemBehavior(ItemStackTemplate item, int interval, Optional<Integer> maxCount) implements IGameBehavior {
+public record PermanentItemBehavior(
+		ItemStackTemplate item,
+		int interval,
+		Optional<Integer> maxCount,
+		ActionTarget target
+) implements IGameBehavior {
 	public static final MapCodec<PermanentItemBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			ItemStackTemplate.CODEC.fieldOf("item").forGetter(c -> c.item),
 			Codec.INT.optionalFieldOf("interval", 5).forGetter(c -> c.interval),
-			Codec.INT.optionalFieldOf("max_count").forGetter(c -> c.maxCount)
+			Codec.INT.optionalFieldOf("max_count").forGetter(c -> c.maxCount),
+			ActionTarget.CODEC.optionalFieldOf("target", ActionTarget.Simple.PARTICIPANTS).forGetter(c -> c.target)
 	).apply(i, PermanentItemBehavior::new));
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
-		events.listen(GamePlayerEvents.TICK, player -> {
-			if (game.participants().contains(player) && game.ticks() % interval == 0) {
+		events.listen(GamePhaseEvents.TICK, () -> {
+			if (game.ticks() % interval != 0) {
+				return;
+			}
+			ActionSubjects<?> targets = target.resolveTargets(game, ActionSubjects.EMPTY);
+			for (ServerPlayer player : targets.asPlayers(game)) {
 				int currentCount = player.getInventory().countItem(item.item().value());
 				int targetCount = maxCount.orElse(item.count());
 				if (currentCount < targetCount) {
