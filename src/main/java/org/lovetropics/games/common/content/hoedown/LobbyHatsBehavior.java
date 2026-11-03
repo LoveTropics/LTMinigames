@@ -68,7 +68,7 @@ public record LobbyHatsBehavior(
 		List<HatMobSpec> hatMobs,
 		RegionQuery hatSpawn,
 		WeightedList<StackedHat> hats,
-		double donationValuePerHat,
+		double initialDonationValuePerHat,
 		float loseOnWin
 ) implements IGameBehavior {
 	private static final int SPAWN_ATTEMPTS = 200;
@@ -81,14 +81,14 @@ public record LobbyHatsBehavior(
 			RegionQuery.CODEC.fieldOf("hat_spawn").forGetter(LobbyHatsBehavior::hatSpawn),
 			WeightedList.nonEmptyCodec(StackedHat.CODEC).fieldOf("hats").forGetter(LobbyHatsBehavior::hats),
 			// TODO: Should be live-configurable
-			Codec.DOUBLE.fieldOf("donation_value_per_hat").forGetter(LobbyHatsBehavior::donationValuePerHat),
+			Codec.DOUBLE.fieldOf("donation_value_per_hat").forGetter(LobbyHatsBehavior::initialDonationValuePerHat),
 			Codec.FLOAT.optionalFieldOf("lose_on_win", 1.0f).forGetter(LobbyHatsBehavior::loseOnWin)
 	).apply(i, LobbyHatsBehavior::new));
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
 		HatMobSelector mobSelector = new HatMobSelector(hatMobs);
-		State state = new State(mobSelector, HatsState.get(game));
+		State state = new State(mobSelector, HatsState.get(game), initialDonationValuePerHat);
 
 		events.listen(GamePackageEvents.RECEIVE_DONATION, donation -> {
 			String name = donation.selectRandomName(game.random());
@@ -165,6 +165,15 @@ public record LobbyHatsBehavior(
 										})
 								)
 						)
+						.then(Commands.literal("hatvalue")
+								.then(Commands.argument("amount", DoubleArgumentType.doubleArg(0.1))
+										.executes(context -> {
+											state.donationValuePerHat = DoubleArgumentType.getDouble(context, "amount");
+											context.getSource().sendSuccess(() -> Component.literal("Set donation value per hat: $" + state.donationValuePerHat), true);
+											return 1;
+										})
+								)
+						)
 		));
 
 		events.listen(SubGameEvents.CREATE, (_, subEvents) -> {
@@ -182,7 +191,7 @@ public record LobbyHatsBehavior(
 	}
 
 	private void tryRunMobSpawner(IGamePhase game, State state, int initialDelay) {
-		int availableHats = Mth.floor(state.accumulatedDonations / donationValuePerHat);
+		int availableHats = Mth.floor(state.accumulatedDonations / state.donationValuePerHat);
 		if (availableHats <= 0) {
 			return;
 		}
@@ -193,7 +202,7 @@ public record LobbyHatsBehavior(
 
 		for (int i = 0; i < selection.size(); i++) {
 			HatMobSpec mob = selection.get(i);
-			double donationValue = donationValuePerHat * mob.hatCount;
+			double donationValue = state.donationValuePerHat * mob.hatCount;
 			state.accumulatedDonations -= donationValue;
 			String name = state.donorNamePool.select(donationValue);
 
@@ -329,9 +338,12 @@ public record LobbyHatsBehavior(
 
 		private final Map<UUID, HatMobSpec> spawnedHatMobs = new HashMap<>();
 
-		private State(HatMobSelector mobSelector, HatsState hats) {
+		private double donationValuePerHat;
+
+		private State(HatMobSelector mobSelector, HatsState hats, double donationValuePerHat) {
 			this.hats = hats;
 			this.mobSelector = mobSelector;
+			this.donationValuePerHat = donationValuePerHat;
 		}
 	}
 
