@@ -43,6 +43,7 @@ import org.lovetropics.games.common.core.game.state.GameStateMap;
 import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
 import org.lovetropics.games.common.core.game.util.GameScheduler;
 import org.lovetropics.games.common.core.game.util.TeamAllocator;
+import org.lovetropics.maps.MapRegions;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
@@ -74,10 +75,11 @@ public class GamePhase implements IGamePhase {
 		for (GameMap map : maps) {
 			for (ResourceKey<Level> dimension : map.dimensions()) {
 				ServerLevel level = server().getLevel(dimension);
-				if (level == null) {
+				MapRegions mapRegions = map.mapRegions().get(dimension);
+				if (level == null || mapRegions == null) {
 					continue;
 				}
-				for (BlockBox box : map.mapRegions().get(dimension).get(key)) {
+				for (BlockBox box : mapRegions.get(key)) {
 					regions.add(new Region(level, box));
 				}
 			}
@@ -596,6 +598,7 @@ public class GamePhase implements IGamePhase {
 	}
 
 	private void addLevelsFromMap(MinecraftServer server, GameMap map) {
+		maps.add(map);
 		for (ResourceKey<Level> dimension : map.allDimensions()) {
 			GamePhaseManager.get().addDimensionToGame(dimension, this);
 			ServerLevel level = server.getLevel(dimension);
@@ -605,7 +608,6 @@ public class GamePhase implements IGamePhase {
 				invoker(GameWorldEvents.CREATE_LEVEL).onCreateLevel(level);
 			}
 		}
-		maps.add(map);
 	}
 
 	private void destroy() {

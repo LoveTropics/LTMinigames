@@ -26,7 +26,6 @@ import org.lovetropics.dimensions.SharedDimensionState;
 import org.lovetropics.maps.MapRegions;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -109,12 +108,11 @@ public record GeneratorMapProvider(
 				: CompletableFuture.completedFuture(Optional.empty());
 
 		return spawnPos.thenApply(pos -> {
-			Map<ResourceKey<Level>, MapRegions> mapRegions = new HashMap<>();
 			MapRegions regions = new MapRegions();
 			if (pos.isPresent() && spawnRegion.isPresent()) {
 				regions.add(spawnRegion.get(), BlockBox.of(pos.get()));
 			}
-			mapRegions.put(Level.OVERWORLD, regions);
+			Map<ResourceKey<Level>, MapRegions> mapRegions = Map.of(overwold.asKey(), regions);
 
 			if(linked) {
 				Map<ResourceKey<Level>, ResourceKey<Level>> byVanillaKey = dimensions.entrySet().stream()
@@ -123,7 +121,8 @@ public record GeneratorMapProvider(
 				RuntimeDimensions.get(server).link(new LinkedDimensions(byVanillaKey, respawnData));
 			}
 
-			return new GameMap(dimensions.keySet().stream().toList(), mapRegions)
+			List<ResourceKey<Level>> dimensionKeys = dimensions.values().stream().map(RuntimeDimensionHandle::asKey).toList();
+			return new GameMap(dimensionKeys, mapRegions)
 					.onClose(game -> dimensions.values().forEach(RuntimeDimensionHandle::markForDeletion));
 		});
 	}

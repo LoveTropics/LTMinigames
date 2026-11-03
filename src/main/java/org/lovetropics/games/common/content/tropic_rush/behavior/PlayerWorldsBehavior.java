@@ -23,7 +23,8 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 /// Gives every participant their own copy of the same generated world, each running as a sub-phase of this game.
-/// The world config must use a generator map: its seed is replaced with one shared by every player of this game.
+/// The world config must use a generator map: its seed is replaced with one shared by every player of this game,
+/// either the configured one or one picked at random for this game.
 public record PlayerWorldsBehavior(
 		Identifier world,
 		IGameMapProvider map,
@@ -39,7 +40,8 @@ public record PlayerWorldsBehavior(
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
-		IGameMapProvider mapWithSeed = seed.map(map::trySetSeed).orElse(map);
+		long sharedSeed = seed.orElseGet(() -> game.random().nextLong());
+		IGameMapProvider mapWithSeed = map.trySetSeed(sharedSeed);
 
 		Map<UUID, CompletableFuture<ServerLevel>> levelFutures = new HashMap<>();
 		events.listen(GamePlayerEvents.BEFORE_ADD_PLAYERS, (participants, _) -> {
