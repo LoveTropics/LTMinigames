@@ -33,6 +33,7 @@ public class HatsState implements IGameState {
 		PlayerSet playerSet = PlayerSet.of(player);
 		playerSet.playSound(SoundEvents.ARROW_HIT_PLAYER, SoundSource.PLAYERS, 1.0f, 1.0f);
 		playerSet.playSound(SoundEvents.ARMOR_EQUIP_LEATHER.value(), SoundSource.PLAYERS, 1.0f, 1.0f);
+		playerSet.sendMessage(HoedownTexts.ADDED_HAT, true);
 	}
 
 	public @Nullable StackedHat removeTopHat(ServerPlayer player) {
