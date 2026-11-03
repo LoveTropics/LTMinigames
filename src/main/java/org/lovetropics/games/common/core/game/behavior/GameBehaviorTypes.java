@@ -95,6 +95,7 @@ import org.lovetropics.games.common.core.game.behavior.instances.action.PlaySoun
 import org.lovetropics.games.common.core.game.behavior.instances.action.RandomizeAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.RemoveClientStateAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.RemoveCollidersAction;
+import org.lovetropics.games.common.core.game.behavior.instances.action.RemoveItemFromPlayerAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.RepeatAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.ResetHungerAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.ResizeAction;
@@ -474,6 +475,7 @@ public class GameBehaviorTypes {
 
 		register("prevent_dimension_portals", PreventDimensionPortalsBehavior.CODEC);
 		register("give_dimension_transport_item", GiveDimensionTransportItemAction.CODEC);
+		register("remove_item_from_player", RemoveItemFromPlayerAction.CODEC);
 	}
 
 	public static <T extends IGameBehavior> void register(String name, MapCodec<T> codec) {
