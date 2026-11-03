@@ -5,13 +5,13 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.ClientAvatarEntity;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.sprite.SpriteId;
-import net.minecraft.data.AtlasIds;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.CommonColors;
@@ -33,8 +33,8 @@ import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
 
 @EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
 public final class HealthTagRenderer {
-	private static final SpriteId HEART_CONTAINER_SPRITE = new SpriteId(AtlasIds.GUI, Identifier.withDefaultNamespace("hud/heart/container"));
-	private static final SpriteId HEART_SPRITE = new SpriteId(AtlasIds.GUI, Identifier.withDefaultNamespace("hud/heart/full"));
+	private static final SpriteId HEART_CONTAINER_SPRITE = new SpriteId(Sheets.GUI_SHEET, Identifier.withDefaultNamespace("hud/heart/container"));
+	private static final SpriteId HEART_SPRITE = new SpriteId(Sheets.GUI_SHEET, Identifier.withDefaultNamespace("hud/heart/full"));
 
 	private static final ContextKey<Float> HEALTH_TAG_KEY = new ContextKey<>(LoveTropics.id("health_tag"));
 
@@ -47,7 +47,7 @@ public final class HealthTagRenderer {
 					Minecraft minecraft = Minecraft.getInstance();
 
 					if (!player.isCreative() && !player.isSpectator()) {
-						if (player == minecraft.getCameraEntity() || !Minecraft.getInstance().gui.hud.isHidden()) {
+						if (player == minecraft.getCameraEntity() || Minecraft.getInstance().gui.hud.isHidden()) {
 							return;
 						}
 
