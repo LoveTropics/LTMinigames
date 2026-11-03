@@ -47,7 +47,7 @@ public class ShootProjectilesAroundPlayerAction implements IGameBehavior {
 	private final Object2IntMap<UUID> playerToAmountToSpawn = new Object2IntOpenHashMap<>();
 	private final Object2IntMap<UUID> playerToDelayToSpawn = new Object2IntOpenHashMap<>();
 
-	public ShootProjectilesAroundPlayerAction(/*final Identifier entityId, */ int entityCount, int spawnDistanceMax, int spawnRangeY, int spawnsPerTickBase, int spawnsPerTickRandom, int targetRandomness, int explosionStrength) {
+	public ShootProjectilesAroundPlayerAction(/*final Identifier entityId, */ int entityCount, int spawnDistanceMax, int targetRandomness, int spawnRangeY, int spawnsPerTickBase, int spawnsPerTickRandom, int explosionStrength) {
 		//this.entityId = entityId;
 		entityCountPerPlayer = entityCount;
 		this.spawnDistanceMax = spawnDistanceMax;
