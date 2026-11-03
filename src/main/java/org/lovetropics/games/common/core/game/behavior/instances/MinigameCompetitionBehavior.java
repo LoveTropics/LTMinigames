@@ -233,7 +233,7 @@ public final class MinigameCompetitionBehavior implements IGameBehavior {
 	}
 
 	@Override
-	public MapCodec<? extends IGameBehavior> codec() {
+	public MapCodec<MinigameCompetitionBehavior> codec() {
 		return CODEC;
 	}
 
@@ -403,13 +403,7 @@ public final class MinigameCompetitionBehavior implements IGameBehavior {
 		).apply(i, StatisticAccumulator::new));
 
 		public void accumulateTo(GameStatistics subStats, GameStatistics accumulatorStats) {
-			accumulatorStats.global().incrementInt(statistic, subStats.global().getInt(statistic));
-			for (PlayerKey player : accumulatorStats.getPlayers()) {
-				accumulatorStats.forPlayer(player).incrementInt(statistic, subStats.forPlayer(player).getInt(statistic));
-			}
-			for (GameTeamKey team : accumulatorStats.getTeams()) {
-				accumulatorStats.forTeam(team).incrementInt(statistic, subStats.forTeam(team).getInt(statistic));
-			}
+			accumulatorStats.accumulateFrom(subStats, List.of(statistic));
 		}
 
 		public void addFromAccumulator(GameStatistics topStats, GameStatistics accumulatorStats) {

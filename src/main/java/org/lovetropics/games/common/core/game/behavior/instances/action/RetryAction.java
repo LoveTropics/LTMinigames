@@ -31,4 +31,9 @@ public record RetryAction(
 			return false;
 		});
 	}
+
+	@Override
+	public MapCodec<RetryAction> codec() {
+		return CODEC;
+	}
 }

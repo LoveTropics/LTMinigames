@@ -95,6 +95,7 @@ import org.lovetropics.games.common.core.game.behavior.instances.action.PlaySoun
 import org.lovetropics.games.common.core.game.behavior.instances.action.RandomizeAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.RemoveClientStateAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.RemoveCollidersAction;
+import org.lovetropics.games.common.core.game.behavior.instances.action.RepeatAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.ResetHungerAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.ResizeAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.RetryAction;
@@ -446,6 +447,7 @@ public class GameBehaviorTypes {
 		register("give_respawn", GiveRespawnAction.CODEC);
 		register("randomize", RandomizeAction.CODEC);
 		register("retry", RetryAction.CODEC);
+		register("repeat", RepeatAction.CODEC);
 		register("sequence", SequenceAction.CODEC);
 		register("resize", ResizeAction.CODEC);
 		register("add_dvd_face", AddPlayerDVDFaceAction.CODEC);
