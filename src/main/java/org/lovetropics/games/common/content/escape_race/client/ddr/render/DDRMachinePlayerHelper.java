@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.content.escape_race.client.ddr.render;
 
-import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.player.PlayerCapeModel;
@@ -42,18 +41,15 @@ public class DDRMachinePlayerHelper {
 		}
 	}
 
-	public static void apply(LivingEntityRenderState renderState, EntityModel<?> model) {
-		if (!(renderState instanceof HumanoidRenderState humanoidRenderState) || !(model instanceof HumanoidModel<?> humanoidModel)) {
-			return;
-		}
-		DdrPose pose = humanoidRenderState.getRenderData(KEY_POSE);
+	public static void apply(HumanoidRenderState renderState, HumanoidModel<?> model) {
+		DdrPose pose = renderState.getRenderData(KEY_POSE);
 		if (pose == null) {
 			return;
 		}
 
-		ModelPart root = humanoidModel.root();
-		ModelPart rightLeg = humanoidModel.rightLeg;
-		ModelPart leftLeg = humanoidModel.leftLeg;
+		ModelPart root = model.root();
+		ModelPart rightLeg = model.rightLeg;
+		ModelPart leftLeg = model.leftLeg;
 
 		if(pose.sleeping()){
 			root.z = -16;
@@ -85,7 +81,7 @@ public class DDRMachinePlayerHelper {
 		leftLeg.xRot += -58.31f * Mth.DEG_TO_RAD * remapLegAnimation(rightAndNotLeft * forward);
 
 		// Rotate the clip is it does not clip into the player model when leaning back
-		if (humanoidModel instanceof PlayerCapeModel capeModel) {
+		if (model instanceof PlayerCapeModel capeModel) {
 			if (capeModel.body.hasChild("cape")) {
 				capeModel.body.getChild("cape").xRot -= 0.5f * back;
 			}
