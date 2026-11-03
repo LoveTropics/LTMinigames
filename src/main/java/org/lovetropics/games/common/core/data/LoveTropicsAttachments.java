@@ -6,6 +6,7 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.core.game.persistent.behavior.scavengerhunt.ScavengerHuntState;
 import org.lovetropics.games.common.core.integration.game_actions.Donation;
 
 public class LoveTropicsAttachments {
@@ -14,6 +15,12 @@ public class LoveTropicsAttachments {
 			"highlight_color",
 			() -> AttachmentType.builder(() -> 0)
 					.sync(ByteBufCodecs.INT)
+					.build()
+	);
+	public static final DeferredHolder<AttachmentType<?>, AttachmentType<ScavengerHuntState>> SCAVENGER_HUNT_STATE = ATTACHMENT_TYPES.register(
+			"scavenger_hunt_state",
+			() -> AttachmentType.builder(ScavengerHuntState::new)
+					.serialize(ScavengerHuntState.CODEC)
 					.build()
 	);
 

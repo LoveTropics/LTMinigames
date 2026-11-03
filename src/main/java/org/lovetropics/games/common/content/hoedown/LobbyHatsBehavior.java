@@ -80,7 +80,6 @@ public record LobbyHatsBehavior(
 			ExtraCodecs.nonEmptyList(HatMobSpec.CODEC.listOf()).fieldOf("hat_mobs").forGetter(LobbyHatsBehavior::hatMobs),
 			RegionQuery.CODEC.fieldOf("hat_spawn").forGetter(LobbyHatsBehavior::hatSpawn),
 			WeightedList.nonEmptyCodec(StackedHat.CODEC).fieldOf("hats").forGetter(LobbyHatsBehavior::hats),
-			// TODO: Should be live-configurable
 			Codec.DOUBLE.fieldOf("donation_value_per_hat").forGetter(LobbyHatsBehavior::initialDonationValuePerHat),
 			Codec.FLOAT.optionalFieldOf("lose_on_win", 1.0f).forGetter(LobbyHatsBehavior::loseOnWin)
 	).apply(i, LobbyHatsBehavior::new));

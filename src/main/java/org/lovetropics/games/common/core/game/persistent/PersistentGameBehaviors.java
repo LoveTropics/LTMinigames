@@ -19,6 +19,7 @@ import org.lovetropics.games.common.core.game.persistent.behavior.crab.CrabGolfH
 import org.lovetropics.games.common.core.game.persistent.behavior.crab.CrabGolfWinBehavior;
 import org.lovetropics.games.common.core.game.persistent.behavior.dropper.DropperBehavior;
 import org.lovetropics.games.common.core.game.persistent.behavior.parkour.ParkourBehavior;
+import org.lovetropics.games.common.core.game.persistent.behavior.scavengerhunt.ScavengerHuntBehavior;
 import org.lovetropics.games.common.util.registry.LoveTropicsRegistrate;
 
 public class PersistentGameBehaviors {
@@ -43,6 +44,7 @@ public class PersistentGameBehaviors {
 		register("dropper", DropperBehavior.CODEC);
 		register("race_track", RaceTrackPersistentGame.CODEC);
 		register("cloning_machine", CloningMachinePersistentGame.CODEC);
+		register("scavenger_hunt", ScavengerHuntBehavior.CODEC);
 	}
 
 	private static <T extends PersistentGameBehavior> PersistentGameBehaviorEntry<T> register(String name, MapCodec<T> codec) {
