@@ -75,7 +75,7 @@ public class CloningMachinePersistentGame implements PersistentGameBehavior {
 			MoreCodecs.BLOCK_STATE_PROVIDER.fieldOf("blocks").forGetter(c -> c.blockStateProvider),
 			Codec.INT.optionalFieldOf("cloning_cooldown", 0).forGetter(c -> c.cloningCooldown),
 			ItemStackTemplate.CODEC.fieldOf("template").forGetter(c -> c.template),
-			WeightedList.codec(CompoundTag.CODEC).optionalFieldOf("additional_entity_data", WeightedList.of()).forGetter(c -> c.additionalEntityData),
+			WeightedList.codec(CompoundTag.CODEC).optionalFieldOf("additional_entity_data", WeightedList.of()).forGetter(c -> c.additionalEntityData)
 	).apply(i, CloningMachinePersistentGame::new));
 
 	public CloningMachinePersistentGame(
