@@ -80,6 +80,7 @@ import org.lovetropics.games.common.core.game.behavior.instances.action.EndGameA
 import org.lovetropics.games.common.core.game.behavior.instances.action.ExtinguishPlayerFireAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.GiveDimensionTransportItemAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.GiveEffectAction;
+import org.lovetropics.games.common.core.game.behavior.instances.action.GiveHatsAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.GiveItemQuantityBasedOnDonationAmountAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.GiveLootAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.GiveRewardAction;
@@ -96,6 +97,7 @@ import org.lovetropics.games.common.core.game.behavior.instances.action.RemoveCl
 import org.lovetropics.games.common.core.game.behavior.instances.action.RemoveCollidersAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.ResetHungerAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.ResizeAction;
+import org.lovetropics.games.common.core.game.behavior.instances.action.RetryAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.RunCommandsAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.SendMessageAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.SequenceAction;
@@ -287,6 +289,7 @@ public class GameBehaviorTypes {
 		register("first_empty_team_win_trigger", FirstEmptyTeamWinTrigger.CODEC);
 		register("sync_teams", SyncTeamsBehavior.CODEC);
 		register("add_equipment", AddEquipmentAction.CODEC);
+		register("give_hats", GiveHatsAction.CODEC);
 		register("reset_hunger", ResetHungerAction.CODEC);
 		register("clear_effects", ClearEffectsAction.CODEC);
 		register("extinguish_player", ExtinguishPlayerFireAction.CODEC);
@@ -442,6 +445,7 @@ public class GameBehaviorTypes {
 		register("minecraft", MinecraftBehavior.CODEC);
 		register("give_respawn", GiveRespawnAction.CODEC);
 		register("randomize", RandomizeAction.CODEC);
+		register("retry", RetryAction.CODEC);
 		register("sequence", SequenceAction.CODEC);
 		register("resize", ResizeAction.CODEC);
 		register("add_dvd_face", AddPlayerDVDFaceAction.CODEC);
