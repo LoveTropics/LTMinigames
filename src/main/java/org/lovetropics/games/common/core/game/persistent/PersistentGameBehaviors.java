@@ -7,6 +7,7 @@ import net.minecraft.resources.ResourceKey;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.common.core.game.persistent.behavior.CloningMachinePersistentGame;
 import org.lovetropics.games.common.core.game.persistent.behavior.CompositePersistentBehavior;
 import org.lovetropics.games.common.core.game.persistent.behavior.GameRegionBehavior;
 import org.lovetropics.games.common.core.game.persistent.behavior.MakeSpeedyBehavior;
@@ -41,6 +42,7 @@ public class PersistentGameBehaviors {
 	public static final PersistentGameBehaviorEntry<ParkourBehavior> PARKOUR = register("parkour", ParkourBehavior.CODEC);
 	public static final PersistentGameBehaviorEntry<DropperBehavior> DROPPER = register("dropper", DropperBehavior.CODEC);
 	public static final PersistentGameBehaviorEntry<RaceTrackPersistentGame> RACE_TRACK = register("race_track", RaceTrackPersistentGame.CODEC);
+	public static final PersistentGameBehaviorEntry<CloningMachinePersistentGame> CLONING_MACHINE = register("cloning_machine", CloningMachinePersistentGame.CODEC);
 
 	public static <T extends PersistentGameBehavior> PersistentGameBehaviorEntry<T> register(String name, MapCodec<T> codec) {
 		return REGISTRATE.object(name).persistentBehavior(codec).register();
