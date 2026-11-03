@@ -43,7 +43,6 @@ import org.lovetropics.games.common.core.game.behavior.event.GamePackageEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.behavior.event.MinigameCompetitionEvents;
-import org.lovetropics.games.common.core.game.behavior.event.PickUpResult;
 import org.lovetropics.games.common.core.game.behavior.event.SubGameEvents;
 import org.lovetropics.games.common.core.game.command.GameCommandRegistrar;
 import org.lovetropics.games.common.core.game.player.PlayerSet;
@@ -98,7 +97,7 @@ public record LobbyHatsBehavior(
 		});
 
 		events.listen(MinigameCompetitionEvents.RETURN_TO_LOBBY, () ->
-				tryRunMobSpawner(game, state)
+				tryRunMobSpawner(game, state, SharedConstants.TICKS_PER_SECOND * 5)
 		);
 
 		events.listen(GameLivingEntityEvents.DAMAGE_AMOUNT, (level, entity, damageSource, amount, originalAmount) -> {
@@ -140,21 +139,12 @@ public record LobbyHatsBehavior(
 			return TriState.DEFAULT;
 		});
 
-		events.listen(GamePlayerEvents.PICK_UP_ITEM, (player, item) -> {
-			List<StackedHat> hats = StackedHat.get(item.getItem());
-			if (!hats.isEmpty()) {
-				state.hats.addHats(player, hats);
-				return PickUpResult.DISCARD;
-			}
-			return PickUpResult.PASS;
-		});
-
 		events.listen(GamePhaseEvents.REGISTER_COMMANDS, (commands, buildContext) -> commands.register(
-				Commands.literal("lobby_hats")
+				Commands.literal("hats")
 						.requires(GameCommandRegistrar.adminOrOverlord(game))
 						.then(Commands.literal("runspawn")
 								.executes(_ -> {
-									tryRunMobSpawner(game, state);
+									tryRunMobSpawner(game, state, 0);
 									return 1;
 								})
 						)
@@ -190,8 +180,7 @@ public record LobbyHatsBehavior(
 		});
 	}
 
-	// TODO: Some kind of effects to indicate that a bunch of hats spawned
-	private void tryRunMobSpawner(IGamePhase game, State state) {
+	private void tryRunMobSpawner(IGamePhase game, State state, int initialDelay) {
 		int availableHats = Mth.floor(state.accumulatedDonations / donationValuePerHat);
 		if (availableHats <= 0) {
 			return;
@@ -201,17 +190,20 @@ public record LobbyHatsBehavior(
 		List<HatMobSpec> selection = state.mobSelector.run(availableHats);
 		Collections.shuffle(selection);
 
-		for (HatMobSpec mob : selection) {
+		for (int i = 0; i < selection.size(); i++) {
+			HatMobSpec mob = selection.get(i);
 			double donationValue = donationValuePerHat * mob.hatCount;
 			state.accumulatedDonations -= donationValue;
-
 			String name = state.donorNamePool.select(donationValue);
-			if (name != null) {
-				spawnMobWithHat(game, state, Component.literal(name), mob);
-			} else {
-				// Can probably happen in a rounding error
-				spawnMobWithHat(game, state, HoedownTexts.A_GENEROUS_DONOR, mob);
-			}
+
+			game.scheduler().runAfterTicks(initialDelay + (i / 2), () -> {
+				if (name != null) {
+					spawnMobWithHat(game, state, Component.literal(name), mob);
+				} else {
+					// Can probably happen in a rounding error
+					spawnMobWithHat(game, state, HoedownTexts.A_GENEROUS_DONOR, mob);
+				}
+			});
 		}
 	}
 
@@ -312,6 +304,8 @@ public record LobbyHatsBehavior(
 			}
 			living.skipDropExperience();
 		}
+
+		entity.playSound(SoundEvents.SNIFFER_EGG_PLOP);
 
 		StackedHat.setEntityHats(entity, Stream.generate(() -> hats.getRandomOrThrow(random)).limit(spec.hatCount).toList());
 		return true;

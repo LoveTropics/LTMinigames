@@ -11,5 +11,6 @@ public class TropicalHoedown {
 		REGISTRATE.registerBehavior("derby_fireworks", DerbyFireworksBehavior.CODEC);
 		REGISTRATE.registerBehavior("hats", HatsBehavior.CODEC);
 		REGISTRATE.registerBehavior("lobby_hats", LobbyHatsBehavior.CODEC);
+		REGISTRATE.registerBehavior("hat_pickup", HatPickupBehavior.CODEC);
 	}
 }
