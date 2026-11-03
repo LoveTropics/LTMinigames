@@ -123,6 +123,7 @@ public record LobbyHatsBehavior(
 			List<StackedHat> hats = StackedHat.getEntityHats(entity);
 			if (entity.getMaxHealth() <= 1.0) {
 				ServerPlayer responsiblePlayer = getResponsiblePlayer(game, level, entity, damageSource);
+				level.sendParticles(ParticleTypes.TOTEM_OF_UNDYING, true, false, entity.getX(), entity.getY(0.5), entity.getZ(), 5, 0.3, 0.3, 0.3, 0.5);
 				if (responsiblePlayer != null) {
 					state.hats.addHats(responsiblePlayer, hats);
 					return TriState.DEFAULT;
