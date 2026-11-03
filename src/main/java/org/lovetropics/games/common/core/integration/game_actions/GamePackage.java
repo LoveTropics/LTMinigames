@@ -12,4 +12,7 @@ public record GamePackage(
 		@Nullable ActionSubjects<?> specificTargets,
 		Optional<Double> amount
 ) {
+	public GamePackage withId(String id) {
+		return new GamePackage(id, sendingPlayerName, specificTargets, amount);
+	}
 }

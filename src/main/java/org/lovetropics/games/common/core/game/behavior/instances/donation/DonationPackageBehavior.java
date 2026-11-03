@@ -104,7 +104,7 @@ public record DonationPackageBehavior(
 		if (GameActionList.REGISTERING_ACTION.isBound()) {
 			events.listen(GameActionEvents.APPLY, (context, targets) -> {
 				GamePackage gamePackage = context.getOptional(GameActionContextKeys.PACKAGE);
-				return gamePackage != null && triggerPackage(game, gamePackage, packageDesc, targets);
+				return gamePackage != null && triggerPackage(game, gamePackage.withId(packageDesc.id()), packageDesc, targets);
 			});
 			return;
 		}
