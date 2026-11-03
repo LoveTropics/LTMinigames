@@ -3,6 +3,7 @@ package org.lovetropics.games.common.content.tropic_rush;
 import org.lovetropics.games.LoveTropics;
 import org.lovetropics.games.common.content.tropic_rush.behavior.FinishBehavior;
 import org.lovetropics.games.common.content.tropic_rush.behavior.PlayerWorldsBehavior;
+import org.lovetropics.games.common.content.tropic_rush.behavior.SpyingBehavior;
 import org.lovetropics.games.common.content.tropic_rush.modifier.AttributePerLevelBehavior;
 import org.lovetropics.games.common.content.tropic_rush.modifier.ChangeModifierAction;
 import org.lovetropics.games.common.content.tropic_rush.modifier.EnderPearlDeviationBehavior;
@@ -18,6 +19,7 @@ public class TropicRush {
 	public static void init() {
 		REGISTRATE.registerBehavior("tropic_rush/player_worlds", PlayerWorldsBehavior.CODEC);
 		REGISTRATE.registerBehavior("tropic_rush/finish", FinishBehavior.CODEC);
+		REGISTRATE.registerBehavior("tropic_rush/spying", SpyingBehavior.CODEC);
 
 		REGISTRATE.registerBehavior("tropic_rush/modifiers", ModifiersBehavior.CODEC);
 		REGISTRATE.registerBehavior("tropic_rush/change_modifier", ChangeModifierAction.CODEC);

@@ -6,12 +6,15 @@ import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlers
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import org.lovetropics.games.LoveTropics;
+import org.lovetropics.games.client.game.spying.SpyingScreen;
 import org.lovetropics.games.client.gui.ClientFadeToBlack;
 import org.lovetropics.games.client.toast.ShowNotificationToastMessage;
 import org.lovetropics.games.common.core.network.ddr.ClientboundDdrInputHitPacket;
 import org.lovetropics.games.common.core.network.ddr.ServerboundDdrInputPacket;
 import org.lovetropics.games.common.core.network.ddr.ServerboundSelectDdrLevelPacket;
 import org.lovetropics.games.common.core.network.shop.ServerboundShopPurchasePacket;
+import org.lovetropics.games.common.core.network.spying.ClientboundOpenSpyingScreenPacket;
+import org.lovetropics.games.common.core.network.spying.ServerboundSpyPacket;
 import org.lovetropics.games.common.core.network.trivia.RequestTriviaStateUpdateMessage;
 import org.lovetropics.games.common.core.network.trivia.SelectTriviaAnswerMessage;
 import org.lovetropics.games.common.core.network.trivia.ShowTriviaMessage;
@@ -49,6 +52,9 @@ public final class LoveTropicsNetwork {
 
 		registrar.playToServer(ServerboundShopPurchasePacket.TYPE, ServerboundShopPurchasePacket.STREAM_CODEC, ServerboundShopPurchasePacket::handle);
 
+		registrar.playToClient(ClientboundOpenSpyingScreenPacket.TYPE, ClientboundOpenSpyingScreenPacket.STREAM_CODEC);
+		registrar.playToServer(ServerboundSpyPacket.TYPE, ServerboundSpyPacket.STREAM_CODEC, ServerboundSpyPacket::handle);
+
 		registrar.playToServer(ServerboundDdrInputPacket.TYPE, ServerboundDdrInputPacket.STREAM_CODEC, ServerboundDdrInputPacket::handle);
 		registrar.playToServer(ServerboundSelectDdrLevelPacket.TYPE, ServerboundSelectDdrLevelPacket.STREAM_CODEC, ServerboundSelectDdrLevelPacket::handle);
 		registrar.playToClient(ClientboundDdrInputHitPacket.TYPE, ClientboundDdrInputHitPacket.STREAM_CODEC);
@@ -78,6 +84,8 @@ public final class LoveTropicsNetwork {
 		event.register(ClientboundVendingMachineDropPacket.TYPE, ClientboundVendingMachineDropPacket::handle);
 
 		event.register(ClientboundFadeToBlackPacket.TYPE, ClientFadeToBlack::handle);
+
+		event.register(ClientboundOpenSpyingScreenPacket.TYPE, SpyingScreen::open);
 
 		event.register(ClientboundPlayerFaceDVDPackets.Add.TYPE, ClientboundPlayerFaceDVDPackets.Add::handle);
 		event.register(ClientboundPlayerFaceDVDPackets.Clear.TYPE, ClientboundPlayerFaceDVDPackets.Clear::handle);

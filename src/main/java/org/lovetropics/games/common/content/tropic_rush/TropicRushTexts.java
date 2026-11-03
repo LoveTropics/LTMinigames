@@ -19,6 +19,15 @@ public final class TropicRushTexts {
 	public static final TranslationCollector.Fun3 RESULT = KEYS.add3("result", "%s. %s - %s points");
 	public static final TranslationCollector.Fun3 RESULT_FINISHED = KEYS.add3("result_finished", "%s. %s - finished with %s points");
 
+	// Spying
+	public static final Component SPYING_PICK_TARGET = KEYS.add("spying.pick_target", "Spy on...");
+	public static final TranslationCollector.Fun1 SPYING_PICK_ACTION = KEYS.add1("spying.pick_action", "Spy on %s by...");
+	public static final Component SPYING_SEE_INVENTORY = KEYS.add("spying.see_inventory", "See their inventory");
+	public static final Component SPYING_WATCH = KEYS.add("spying.watch", "Watch through their eyes");
+	public static final TranslationCollector.Fun1 SPYING_INVENTORY = KEYS.add1("spying.inventory", "Inventory of %s");
+	public static final TranslationCollector.Fun1 SPYING_WATCHING = KEYS.add1("spying.watching", "Watching %s - sneak to return");
+	public static final TranslationCollector.Fun1 SPYING_BUSY = KEYS.add1("spying.busy", "%s is already spying on someone right now");
+
 	// Modifiers
 	public static final Component RULES = KEYS.add("rules", "Rules");
 	public static final TranslationCollector.Fun1 OPEN_RULES_HINT = KEYS.add1("rules.open_hint", "[%s] Rules");

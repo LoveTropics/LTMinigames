@@ -33,6 +33,7 @@ import org.lovetropics.games.common.core.game.client_state.instance.PointTagClie
 import org.lovetropics.games.common.core.game.client_state.instance.RemapSpriteClientState;
 import org.lovetropics.games.common.core.game.client_state.instance.ResourcePackClientState;
 import org.lovetropics.games.common.core.game.client_state.instance.ScrambleDebugScreenClientState;
+import org.lovetropics.games.common.core.game.client_state.instance.SpyingClientState;
 import org.lovetropics.games.common.core.game.client_state.instance.ShopClientState;
 import org.lovetropics.games.common.core.game.client_state.instance.SidebarClientState;
 import org.lovetropics.games.common.core.game.client_state.instance.SoundVolumeModifier;
@@ -93,6 +94,7 @@ public final class GameClientStateTypes {
 	public static final GameClientTweakEntry<InvertScrollWheelClientState> INVERT_SCROLL_WHEEL = registerUnit("invert_scroll_wheel", InvertScrollWheelClientState.INSTANCE);
 	public static final GameClientTweakEntry<ReverseRiptideClientState> REVERSE_RIPTIDE = registerUnit("reverse_riptide", ReverseRiptideClientState.INSTANCE);
 	public static final GameClientTweakEntry<RemapSpriteClientState> REMAP_SPRITE = register("remap_sprite", RemapSpriteClientState.CODEC, RemapSpriteClientState.STREAM_CODEC);
+	public static final GameClientTweakEntry<SpyingClientState> SPYING = registerUnit("spying", SpyingClientState.INSTANCE);
 
 	public static <T extends GameClientState> GameClientTweakEntry<T> register(String name, MapCodec<T> codec) {
 		return REGISTRATE.object(name)

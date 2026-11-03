@@ -334,7 +334,7 @@ public final class ShopScreen extends Screen {
 		}
 	}
 
-	private static void drawFrame(GuiGraphicsExtractor graphics, int x, int y, int w, int h, int background, int border) {
+	public static void drawFrame(GuiGraphicsExtractor graphics, int x, int y, int w, int h, int background, int border) {
 		graphics.fill(x, y, x + w, y + h, background);
 		graphics.fill(x, y, x + w, y + 1, border);
 		graphics.fill(x, y + h - 1, x + w, y + h, border);
