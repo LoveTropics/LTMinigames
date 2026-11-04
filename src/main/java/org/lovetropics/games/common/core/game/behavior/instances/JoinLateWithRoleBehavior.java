@@ -3,20 +3,22 @@ package org.lovetropics.games.common.core.game.behavior.instances;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.util.StringRepresentable;
-import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
+import org.lovetropics.games.common.core.game.behavior.event.GameTeamEvents;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
 import org.lovetropics.games.common.core.game.player.PlayerStorage;
 import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
 import org.lovetropics.games.common.core.game.state.team.TeamState;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public record JoinLateWithRoleBehavior(PlayerRole role, RejoinMode rejoin) implements IGameBehavior {
 	public static final MapCodec<JoinLateWithRoleBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
@@ -27,34 +29,47 @@ public record JoinLateWithRoleBehavior(PlayerRole role, RejoinMode rejoin) imple
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
 		TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
-		Map<PlayerKey, OldParticipant> oldParticipants = new Object2ObjectOpenHashMap<>();
+		Set<PlayerKey> oldParticipants = new HashSet<>();
+		Map<PlayerKey, GameTeamKey> oldTeams = new HashMap<>();
 
 		events.listen(GamePlayerEvents.SELECT_ROLE_ON_JOIN, (player, requestedRole) -> {
 			// Let the player be a spectator if they really want to
 			if (requestedRole == PlayerRole.SPECTATOR) {
 				return PlayerRole.SPECTATOR;
 			}
-
-			OldParticipant oldParticipant = oldParticipants.remove(player);
-			if (rejoin != RejoinMode.NONE && oldParticipant != null) {
-				if (teams != null && oldParticipant.team != null) {
-					teams.addPlayerTo(player, oldParticipant.team);
-				}
+			if (rejoin != RejoinMode.NONE && oldParticipants.remove(player)) {
 				return PlayerRole.PARTICIPANT;
 			}
-
 			return role;
 		});
 
 		if (rejoin != RejoinMode.NONE) {
+			events.listen(GamePlayerEvents.JOIN, player -> {
+				PlayerKey playerKey = PlayerKey.from(player);
+				GameTeamKey oldTeam = oldTeams.get(playerKey);
+				if (teams != null && oldTeam != null) {
+					teams.addPlayerTo(playerKey, oldTeam);
+				}
+			});
+
 			events.listen(GamePlayerEvents.SET_ROLE, (player, role, lastRole) -> {
 				PlayerKey playerKey = PlayerKey.from(player);
 				if (role == PlayerRole.PARTICIPANT) {
-					GameTeamKey team = teams != null ? teams.getTeamForPlayer(player) : null;
-					oldParticipants.putIfAbsent(playerKey, new OldParticipant(team));
+					oldParticipants.add(playerKey);
 				} else if (lastRole == PlayerRole.PARTICIPANT) {
 					oldParticipants.remove(playerKey);
 				}
+			});
+
+			events.listen(GameTeamEvents.SET_GAME_TEAM, (player, _, team) ->
+					oldTeams.put(PlayerKey.from(player), team.key())
+			);
+			events.listen(GameTeamEvents.REMOVE_FROM_TEAM, (player, _, team) -> {
+				// If the player is leaving, this is the normal clearing process - ignore
+				if (!game.allPlayers().contains(player)) {
+					return;
+				}
+				oldTeams.remove(PlayerKey.from(player), team.key());
 			});
 
 			// TODO: We would ideally have much more clearly defined flow for a player that rejoins - e.g. a game with death should have the player effectively die
@@ -72,9 +87,6 @@ public record JoinLateWithRoleBehavior(PlayerRole role, RejoinMode rejoin) imple
 				return null;
 			});
 		}
-	}
-
-	private record OldParticipant(@Nullable GameTeamKey team) {
 	}
 
 	public enum RejoinMode implements StringRepresentable {
