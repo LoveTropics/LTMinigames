@@ -3,6 +3,7 @@ package org.lovetropics.games.common.content.hoedown;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
@@ -31,22 +32,34 @@ public record DerbyFireworksBehavior(
 			// Fireworks from finishing a lap (not fired by a player) should definitely not do anything
 			if (projectile instanceof FireworkRocketEntity rocket && rocket.getOwner() != null) {
 				for (ServerPlayer player : level.getEntitiesOfClass(ServerPlayer.class, rocket.getBoundingBox().inflate(radius))) {
-					Entity vehicle = player.getVehicle();
-					if (vehicle != null) {
-						player.stopRiding();
-						vehicle.kill(level);
-					}
-					RandomSource random = player.getRandom();
-					Vec3 impulse = new Vec3(
-							random.nextFloat() * 2.0 - 1.0,
-							1.0,
-							random.nextFloat() * 2.0 - 1.0
-					).multiply(horizontalKnockback, verticalKnockback, horizontalKnockback);
-					player.setDeltaMovement(player.getKnownMovement().add(impulse));
-					player.hurtMarked = true;
+					launchAndDismount(level, player);
 				}
 			}
 		});
+		events.listen(GameWorldEvents.EXPLOSION_DETONATE, (level, _, _, affectedEntities) -> {
+			for (Entity affectedEntity : affectedEntities) {
+				if (affectedEntity instanceof ServerPlayer player) {
+					launchAndDismount(level, player);
+				}
+			}
+			affectedEntities.clear();
+		});
+	}
+
+	private void launchAndDismount(ServerLevel level, ServerPlayer player) {
+		Entity vehicle = player.getVehicle();
+		if (vehicle != null) {
+			player.stopRiding();
+			vehicle.kill(level);
+		}
+		RandomSource random = player.getRandom();
+		Vec3 impulse = new Vec3(
+				random.nextFloat() * 2.0 - 1.0,
+				1.0,
+				random.nextFloat() * 2.0 - 1.0
+		).multiply(horizontalKnockback, verticalKnockback, horizontalKnockback);
+		player.setDeltaMovement(player.getKnownMovement().add(impulse));
+		player.hurtMarked = true;
 	}
 
 	@Override
