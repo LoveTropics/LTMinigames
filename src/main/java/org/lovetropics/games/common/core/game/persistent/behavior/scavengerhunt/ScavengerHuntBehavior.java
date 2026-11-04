@@ -137,7 +137,7 @@ public record ScavengerHuntBehavior(
 	) {
 		public static final Codec<Action> CODEC = RecordCodecBuilder.create(i -> i.group(
 				Codec.STRING.listOf().optionalFieldOf("commands", List.of()).forGetter(Action::commands),
-				ExtraCodecs.POSITIVE_INT.optionalFieldOf("set_stage_index").forGetter(Action::setStageIndex),
+				ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("set_stage_index").forGetter(Action::setStageIndex),
 				ComponentSerialization.CODEC.listOf().optionalFieldOf("messages", List.of()).forGetter(Action::messages),
 				SoundEvent.CODEC.optionalFieldOf("sound").forGetter(Action::sound)
 		).apply(i, Action::new));
