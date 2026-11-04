@@ -214,6 +214,7 @@ import org.lovetropics.games.common.core.game.behavior.instances.tweak.SetDayTim
 import org.lovetropics.games.common.core.game.behavior.instances.tweak.SetDifficultyBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.tweak.SetDifficultyNowBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.tweak.SetGameRulesBehavior;
+import org.lovetropics.games.common.core.game.behavior.instances.tweak.SetGameRulesNowBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.tweak.SetMaxHealthBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.tweak.SetTimeSpeedBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.tweak.TntAutoFuseBehavior;
@@ -272,6 +273,7 @@ public class GameBehaviorTypes {
 		register("scale_damage", ScaleDamageBehavior.CODEC);
 		register("scale_explosion_knockback", ScaleExplosionKnockbackBehavior.CODEC);
 		register("set_game_rules", SetGameRulesBehavior.CODEC);
+		register("set_game_rules_now", SetGameRulesNowBehavior.CODEC);
 		register("setup_teams", SetupTeamsBehavior.CODEC);
 		register("teams", TeamsBehavior.CODEC);
 		register("team_chat", TeamChatBehavior.CODEC);

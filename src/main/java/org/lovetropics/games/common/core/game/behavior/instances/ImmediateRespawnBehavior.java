@@ -14,6 +14,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.warden.WardenAi;
 import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.SpawnBuilder;
@@ -30,6 +31,7 @@ import org.lovetropics.games.common.util.Util;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 public record ImmediateRespawnBehavior(
 		Optional<PlayerRole> role,
@@ -39,7 +41,8 @@ public record ImmediateRespawnBehavior(
 		GameActionList respawnAction,
 		boolean spectateKiller,
 		boolean clearKillTracker,
-		Optional<StatisticKey<Integer>> livesStatistic
+		Optional<StatisticKey<Integer>> livesStatistic,
+		boolean respawnInPlace
 ) implements IGameBehavior {
 	public static final MapCodec<ImmediateRespawnBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			PlayerRole.CODEC.optionalFieldOf("role").forGetter(c -> c.role),
@@ -49,13 +52,22 @@ public record ImmediateRespawnBehavior(
 			GameActionList.CODEC.optionalFieldOf("respawn_action", GameActionList.EMPTY).forGetter(c -> c.respawnAction),
 			Codec.BOOL.optionalFieldOf("spectate_killer", true).forGetter(c -> c.spectateKiller),
 			Codec.BOOL.optionalFieldOf("clear_kill_tracker", false).forGetter(c -> c.clearKillTracker),
-			StatisticKey.INT_CODEC.optionalFieldOf("lives").forGetter(c -> c.livesStatistic)
+			StatisticKey.INT_CODEC.optionalFieldOf("lives").forGetter(c -> c.livesStatistic),
+			Codec.BOOL.optionalFieldOf("respawn_in_place", false).forGetter(c -> c.respawnInPlace)
 	).apply(i, ImmediateRespawnBehavior::new));
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
 		respawnAction.register(game, events);
 		events.listen(GamePlayerEvents.DEATH, (player, source) -> onPlayerDeath(game, player, source));
+		events.listen(GamePlayerEvents.SPAWN, ((playerId, spawn, role1) -> {
+			ServerPlayer player = game.allPlayers().getPlayerBy(playerId);
+			if(player != null && player.entityTags().contains("respawn_in_place")){
+				player.removeTag("respawn_in_place");
+				Vec3 position = player.position();
+				spawn.teleportTo(player.level(), position);
+			}
+		}));
 	}
 
 	private TriState onPlayerDeath(IGamePhase game, ServerPlayer player, DamageSource source) {
@@ -105,6 +117,9 @@ public record ImmediateRespawnBehavior(
 
 	private void respawnPlayer(IGamePhase game, ServerPlayer player, @Nullable PlayerRole playerRole, DamageSource source) {
 		if (respawnAsRole.isPresent()) {
+			if(respawnInPlace){
+				player.addTag("respawn_in_place");
+			}
 			game.setPlayerRole(player, respawnAsRole.get());
 			ServerPlayer killer = Util.getKillerPlayer(player, source);
 			if (spectateKiller && respawnAsRole.get() == PlayerRole.SPECTATOR && killer != null) {
