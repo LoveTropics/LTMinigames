@@ -6,7 +6,9 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.item.ItemStack;
+import org.lovetropics.games.common.content.shop.ShopOfferFlavor;
 import org.lovetropics.games.common.content.shop.ShopTarget;
 import org.lovetropics.games.common.core.game.client_state.GameClientState;
 import org.lovetropics.games.common.core.game.client_state.GameClientStateType;
@@ -16,11 +18,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-/// @param balance how many tropicoins the player the shop is sent to has
+/// @param balance how many tropicoins the player the shop is sent to has, if applicable
 /// @param targets the other players that offers can be used on, with the most points first
-public record ShopClientState(int balance, List<Offer> offers, List<Target> targets) implements GameClientState {
+public record ShopClientState(
+		Optional<Integer> balance,
+		List<Offer> offers,
+		List<Target> targets
+) implements GameClientState {
 	public static final MapCodec<ShopClientState> CODEC = RecordCodecBuilder.mapCodec(in -> in.group(
-			Codec.INT.fieldOf("balance").forGetter(ShopClientState::balance),
+			Codec.INT.optionalFieldOf("balance").forGetter(ShopClientState::balance),
 			Offer.CODEC.listOf().fieldOf("offers").forGetter(ShopClientState::offers),
 			Target.CODEC.listOf().optionalFieldOf("targets", List.of()).forGetter(ShopClientState::targets)
 	).apply(in, ShopClientState::new));
@@ -32,14 +38,15 @@ public record ShopClientState(int balance, List<Offer> offers, List<Target> targ
 
 	/// @param cost   how many tropicoins the offer costs
 	/// @param target who the offer is used on
-	public record Offer(ItemStack icon, Component name, Optional<Component> description, int cost, ShopTarget target) {
+	public record Offer(ItemStack icon, Component name, List<Component> description, int cost, ShopTarget target, ShopOfferFlavor flavor) {
 		public static final Codec<Offer> CODEC = RecordCodecBuilder.create(in -> in.group(
 				// An icon that can't exist (e.g. more of an item than fits in a stack) ends up empty, which shouldn't kick players
 				ItemStack.OPTIONAL_CODEC.fieldOf("icon").forGetter(Offer::icon),
 				ComponentSerialization.CODEC.fieldOf("name").forGetter(Offer::name),
-				ComponentSerialization.CODEC.optionalFieldOf("description").forGetter(Offer::description),
+				ExtraCodecs.compactListCodec(ComponentSerialization.CODEC).optionalFieldOf("description", List.of()).forGetter(Offer::description),
 				Codec.INT.fieldOf("cost").forGetter(Offer::cost),
-				ShopTarget.CODEC.optionalFieldOf("target", ShopTarget.SELF).forGetter(Offer::target)
+				ShopTarget.CODEC.optionalFieldOf("target", ShopTarget.SELF).forGetter(Offer::target),
+				ShopOfferFlavor.CODEC.fieldOf("flavor").forGetter(Offer::flavor)
 		).apply(in, Offer::new));
 	}
 

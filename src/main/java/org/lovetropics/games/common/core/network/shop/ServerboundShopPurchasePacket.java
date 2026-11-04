@@ -30,7 +30,7 @@ public record ServerboundShopPurchasePacket(int offer, Optional<UUID> target) im
 		ServerPlayer player = (ServerPlayer) context.player();
 		IGamePhase game = IGameLookup.get().getGamePhaseFor(player);
 		// The shop is shared by all phases of the game, as players may be in a sub-phase
-		Shop shop = game != null ? game.instanceState().getOrNull(Shop.KEY) : null;
+		Shop shop = game != null ? game.state().getOrNull(Shop.KEY) : null;
 		if (shop != null) {
 			shop.purchase(player, message.offer, message.target);
 		}

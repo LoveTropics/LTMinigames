@@ -37,7 +37,7 @@ public final class ShopBehavior implements IGameBehavior {
 
 	@Override
 	public void registerState(IGamePhase game, GameStateMap phaseState, GameStateMap instanceState) {
-		shop = instanceState.register(Shop.KEY, new Shop(game, offers, tropicoinsPerDonatedAmount));
+		shop = phaseState.register(Shop.KEY, new Shop(game, offers, tropicoinsPerDonatedAmount));
 	}
 
 	@Override

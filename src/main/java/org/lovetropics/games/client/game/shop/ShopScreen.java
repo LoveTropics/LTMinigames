@@ -9,6 +9,8 @@ import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentUtils;
+import net.minecraft.network.chat.Style;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.FormattedCharSequence;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
@@ -16,6 +18,7 @@ import org.joml.Matrix3x2fStack;
 import org.lovetropics.games.client.LTKeybinds;
 import org.lovetropics.games.client.game.handler.GameShopHandler;
 import org.lovetropics.games.client.screen.ClientPlayerInfo;
+import org.lovetropics.games.common.content.shop.ShopOfferFlavor;
 import org.lovetropics.games.common.content.shop.ShopTarget;
 import org.lovetropics.games.common.content.shop.ShopTexts;
 import org.lovetropics.games.common.core.game.client_state.instance.ShopClientState;
@@ -154,11 +157,11 @@ public final class ShopScreen extends Screen {
 	}
 
 	private static boolean canBuy(ShopClientState shop, ShopClientState.Offer offer) {
-		return shop.balance() >= offer.cost() && hasTarget(shop, offer);
+		return shop.balance().orElse(Integer.MAX_VALUE) >= offer.cost() && hasTarget(shop, offer);
 	}
 
 	private static boolean hasTarget(ShopClientState shop, ShopClientState.Offer offer) {
-		return !offer.target().isOtherPlayer() || !shop.targets().isEmpty();
+		return !offer.target().requiresOtherPlayer() || !shop.targets().isEmpty();
 	}
 
 	@Override
@@ -184,11 +187,12 @@ public final class ShopScreen extends Screen {
 				.max(Comparator.naturalOrder()).orElse(1);
 		cardH = PADDING + ICON_SIZE + ICON_TEXT_GAP + maxLines * lineHeight + ICON_TEXT_GAP + lineHeight + PADDING;
 
-		List<Integer> bonuses = getOfferIndices(offers, false);
-		List<Integer> sabotages = getOfferIndices(offers, true);
+		List<Integer> bonuses = getOfferIndices(offers, ShopOfferFlavor.BONUS);
+		List<Integer> sabotages = getOfferIndices(offers, ShopOfferFlavor.SABOTAGE);
 
-		Component balance = ShopTexts.TROPICOINS.apply(shop.balance()).withStyle(ChatFormatting.GOLD);
-		int contentW = Math.max(Math.max(getColumns(bonuses), getColumns(sabotages)) * (CARD_W + GAP) - GAP, Math.max(font.width(title), font.width(balance)));
+		boolean showCost = shop.balance().isPresent();
+		Component balance = showCost ? ShopTexts.TROPICOINS.apply(shop.balance().get()).withStyle(ChatFormatting.GOLD) : null;
+		int contentW = Math.max(Math.max(getColumns(bonuses), getColumns(sabotages)) * (CARD_W + GAP) - GAP, Math.max(font.width(title), balance != null ? font.width(balance) : 0));
 
 		List<Section> newSections = new ArrayList<>();
 		int contentH = lineHeight * 2 + GAP;
@@ -209,14 +213,16 @@ public final class ShopScreen extends Screen {
 		pose.scale(scale, scale);
 
 		graphics.centeredText(font, title, contentW / 2, 0, 0xFFFFFFFF);
-		graphics.centeredText(font, balance, contentW / 2, lineHeight + GAP, 0xFFFFFFFF);
+		if (balance != null) {
+			graphics.centeredText(font, balance, contentW / 2, lineHeight + GAP, 0xFFFFFFFF);
+		}
 
 		for (Section section : sections) {
 			graphics.centeredText(font, section.title(), contentW / 2, section.titleY(), 0xFFFFFFFF);
 			graphics.fill(section.gridX() - 3, section.gridY() - 3, section.gridX() + section.gridW() + 3, section.gridY() + section.gridH(cardH) + 3, 0x66000000);
 			for (int position = 0; position < section.offers().size(); position++) {
 				int index = section.offers().get(position);
-				drawCard(graphics, shop, offers.get(index), section.getCardX(position), section.getCardY(position, cardH), maxLines, index == hoveredIndex);
+				drawCard(graphics, shop, offers.get(index), section.getCardX(position), section.getCardY(position, cardH), maxLines, index == hoveredIndex, showCost);
 			}
 		}
 
@@ -224,13 +230,13 @@ public final class ShopScreen extends Screen {
 
 		if (hoveredIndex >= 0) {
 			ShopClientState.Offer offer = offers.get(hoveredIndex);
-			graphics.setTooltipForNextFrame(font, createTooltip(offer, shop.balance() >= offer.cost(), hasTarget(shop, offer)), mouseX, mouseY);
+			graphics.setTooltipForNextFrame(font, createTooltip(offer, shop.balance().orElse(Integer.MAX_VALUE) >= offer.cost(), hasTarget(shop, offer), showCost), mouseX, mouseY);
 		}
 	}
 
-	private static List<Integer> getOfferIndices(List<ShopClientState.Offer> offers, boolean sabotages) {
+	private static List<Integer> getOfferIndices(List<ShopClientState.Offer> offers, ShopOfferFlavor flavor) {
 		return IntStream.range(0, offers.size())
-				.filter(i -> offers.get(i).target().isOtherPlayer() == sabotages)
+				.filter(i -> offers.get(i).flavor() == flavor)
 				.boxed().toList();
 	}
 
@@ -250,11 +256,11 @@ public final class ShopScreen extends Screen {
 		return section.gridY() + section.gridH(cardH);
 	}
 
-	private void drawCard(GuiGraphicsExtractor graphics, ShopClientState shop, ShopClientState.Offer offer, int x, int y, int maxLines, boolean hovered) {
+	private void drawCard(GuiGraphicsExtractor graphics, ShopClientState shop, ShopClientState.Offer offer, int x, int y, int maxLines, boolean hovered, boolean showCost) {
 		boolean buyable = canBuy(shop, offer);
 		boolean highlighted = hovered && buyable;
 		int background = highlighted ? CARD_HOVERED_COLOR : CARD_COLOR;
-		int border = !buyable || offer.target().isOtherPlayer()
+		int border = !buyable || offer.flavor() == ShopOfferFlavor.SABOTAGE
 				? highlighted ? BORDER_HOVERED_COLOR : BORDER_COLOR
 				: highlighted ? BENEFIT_BORDER_HOVERED_COLOR : BENEFIT_BORDER_COLOR;
 		drawFrame(graphics, x, y, CARD_W, cardH, background, border);
@@ -287,8 +293,10 @@ public final class ShopScreen extends Screen {
 			graphics.fill(x, y, x + CARD_W, y + cardH, CARD_UNBUYABLE_OVERLAY_COLOR);
 		}
 
-		Component cost = ShopTexts.TROPICOINS.apply(offer.cost()).withStyle(shop.balance() >= offer.cost() ? ChatFormatting.GOLD : ChatFormatting.RED);
-		graphics.centeredText(font, cost, x + CARD_W / 2, textY + maxLines * font.lineHeight + ICON_TEXT_GAP, 0xFFFFFFFF);
+		if (showCost) {
+			Component cost = ShopTexts.TROPICOINS.apply(offer.cost()).withStyle(shop.balance().orElse(Integer.MAX_VALUE) >= offer.cost() ? ChatFormatting.GOLD : ChatFormatting.RED);
+			graphics.centeredText(font, cost, x + CARD_W / 2, textY + maxLines * font.lineHeight + ICON_TEXT_GAP, 0xFFFFFFFF);
+		}
 	}
 
 	/// Draws a row for each player the offer can be used on, then one to pick a random player and one to cancel
@@ -342,17 +350,25 @@ public final class ShopScreen extends Screen {
 		graphics.fill(x + w - 1, y, x + w, y + h, border);
 	}
 
-	private List<FormattedCharSequence> createTooltip(ShopClientState.Offer offer, boolean affordable, boolean hasTarget) {
-		List<FormattedCharSequence> lines = new ArrayList<>(font.split(offer.name().copy().withStyle(ChatFormatting.YELLOW), TOOLTIP_WIDTH));
-		offer.description().ifPresent(description -> lines.addAll(font.split(description.copy().withStyle(ChatFormatting.GRAY), TOOLTIP_WIDTH)));
+	private List<FormattedCharSequence> createTooltip(ShopClientState.Offer offer, boolean affordable, boolean hasTarget, boolean showCost) {
+		List<FormattedCharSequence> lines = new ArrayList<>(font.split(ComponentUtils.mergeStyles(offer.name(), Style.EMPTY.withColor(ChatFormatting.YELLOW)), TOOLTIP_WIDTH));
+		for (Component line : offer.description()) {
+			lines.addAll(font.split(ComponentUtils.mergeStyles(line, Style.EMPTY.withColor(ChatFormatting.GRAY)), TOOLTIP_WIDTH));
+		}
+		switch (offer.flavor()) {
+			case BONUS -> lines.add(ShopTexts.BONUS.getVisualOrderText());
+			case SABOTAGE ->  lines.add(ShopTexts.SABOTAGE.getVisualOrderText());
+		}
 		switch (offer.target()) {
-			case PICK -> lines.add(ShopTexts.SABOTAGE_PICK.copy().withStyle(ChatFormatting.RED).getVisualOrderText());
-			case RANDOM -> lines.add(ShopTexts.SABOTAGE_RANDOM.copy().withStyle(ChatFormatting.RED).getVisualOrderText());
+			case PICK -> lines.add(ShopTexts.TARGET_PICK.getVisualOrderText());
+			case RANDOM -> lines.add(ShopTexts.TARGET_RANDOM.getVisualOrderText());
 			case SELF -> {
 			}
 		}
 		lines.add(CommonComponents.EMPTY.getVisualOrderText());
-		lines.add(ShopTexts.TROPICOINS.apply(offer.cost()).withStyle(ChatFormatting.GOLD).getVisualOrderText());
+		if (showCost) {
+			lines.add(ShopTexts.TROPICOINS.apply(offer.cost()).withStyle(ChatFormatting.GOLD).getVisualOrderText());
+		}
 		if (!affordable) {
 			lines.add(ShopTexts.NOT_ENOUGH_TROPICOINS.copy().withStyle(ChatFormatting.RED).getVisualOrderText());
 		}

@@ -8,6 +8,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.HumanoidArm;
 import net.neoforged.api.distmarker.Dist;
@@ -20,8 +21,8 @@ import org.lovetropics.games.client.game.bingo.BingoBoardScreen;
 import org.lovetropics.games.client.game.modifier.ModifiersScreen;
 import org.lovetropics.games.client.game.shop.ShopScreen;
 import org.lovetropics.games.common.content.bingo.Bingo;
-import org.lovetropics.games.common.content.tropic_rush.TropicRushTexts;
 import org.lovetropics.games.common.content.shop.ShopTexts;
+import org.lovetropics.games.common.content.tropic_rush.TropicRushTexts;
 import org.lovetropics.games.common.core.game.client_state.instance.ModifiersClientState;
 import org.lovetropics.games.common.core.game.client_state.instance.ShopClientState;
 
@@ -64,9 +65,12 @@ public final class GameControlsHud {
 
 		ShopClientState shop = GameShopHandler.shop();
 		if (shop != null) {
-			lines.add(ShopTexts.OPEN_SHOP_HINT.apply(LTKeybinds.OPEN_SHOP.getTranslatedKeyMessage())
-					.append(Component.literal(" - ").withStyle(ChatFormatting.GRAY))
-					.append(ShopTexts.TROPICOINS.apply(shop.balance()).withStyle(ChatFormatting.GOLD)));
+			MutableComponent hint = ShopTexts.OPEN_SHOP_HINT.apply(LTKeybinds.OPEN_SHOP.getTranslatedKeyMessage());
+			if (shop.balance().isPresent()) {
+				hint.append(Component.literal(" - ").withStyle(ChatFormatting.GRAY))
+						.append(ShopTexts.TROPICOINS.apply(shop.balance().get()).withStyle(ChatFormatting.GOLD));
+			}
+			lines.add(hint);
 		}
 		ModifiersClientState modifiers = GameModifiersHandler.modifiers();
 		if (modifiers != null && !modifiers.entries().isEmpty()) {

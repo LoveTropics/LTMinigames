@@ -8,6 +8,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.context.ContextKeySet;
 import net.minecraft.util.context.ContextMap;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.SoundRegistry;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.action.ActionSubjects;
 import org.lovetropics.games.common.core.game.behavior.action.GameActionContextKeys;
@@ -19,6 +20,7 @@ import org.lovetropics.games.common.core.game.player.PlayerSet;
 import org.lovetropics.games.common.core.game.state.GameStateKey;
 import org.lovetropics.games.common.core.game.state.Ghosts;
 import org.lovetropics.games.common.core.game.state.IGameState;
+import org.lovetropics.games.common.core.game.state.Overlords;
 import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
 
@@ -39,6 +41,7 @@ public final class Shop implements IGameState {
 	private final IGamePhase game;
 	private final List<ShopOffer> playerOffers;
 	private final List<ShopOffer> ghostOffers;
+	private final List<ShopOffer> overlordOffers;
 	/// What was last sent to each player who has the shop, to only update players whose shop changed
 	private final Map<UUID, SentShop> sentShops = new HashMap<>();
 
@@ -48,6 +51,7 @@ public final class Shop implements IGameState {
 		this.game = game;
 		playerOffers = offers.stream().filter(offer -> offer.usableBy().includesPlayers()).toList();
 		ghostOffers = offers.stream().filter(offer -> offer.usableBy().includesGhosts()).toList();
+		overlordOffers = offers.stream().filter(offer -> offer.usableBy().includesOverlords()).toList();
 		this.tropicoinsPerDonatedAmount = tropicoinsPerDonatedAmount;
 	}
 
@@ -61,9 +65,6 @@ public final class Shop implements IGameState {
 
 	/// @param requestedTarget the player to use the offer on, if the buyer picked one
 	public void purchase(ServerPlayer player, int offerIndex, Optional<UUID> requestedTarget) {
-		if (!Ghosts.isParticipantOrGhost(game, player)) {
-			return;
-		}
 		List<ShopOffer> offers = getOffers(player);
 		if (offerIndex < 0 || offerIndex >= offers.size()) {
 			return;
@@ -77,31 +78,41 @@ public final class Shop implements IGameState {
 
 		// Players who don't pick a target get a random one
 		boolean picked = offer.target() == ShopTarget.PICK && requestedTarget.isPresent();
-		ServerPlayer target = switch (offer.target()) {
+		ServerPlayer targetPlayer = switch (offer.target()) {
 			case SELF -> player;
 			case PICK -> picked ? getPickedTarget(player, requestedTarget.get()) : getRandomTarget(player);
 			case RANDOM -> getRandomTarget(player);
+			case GLOBAL -> null;
 		};
-		if (target == null) {
+		if (targetPlayer == null && offer.target() != ShopTarget.GLOBAL) {
 			Component message = picked ? ShopTexts.TARGET_UNAVAILABLE : ShopTexts.NO_TARGETS;
 			player.sendSystemMessage(message.copy().withStyle(ChatFormatting.RED));
 			return;
 		}
 
+		ActionSubjects<?> targets = targetPlayer != null ? ActionSubjects.ofPlayer(targetPlayer) : ActionSubjects.EMPTY;
+
 		ContextMap context = new ContextMap.Builder()
 				.withParameter(GameActionContextKeys.PACKAGE_SENDER, PlayerKey.from(player).name())
 				.create(ContextKeySet.EMPTY);
 		// Only charge for what the player actually got
-		if (!offer.actions().apply(game, context, ActionSubjects.ofPlayer(target))) {
+		if (!offer.actions().apply(game, context, targets)) {
 			player.sendSystemMessage(ShopTexts.PURCHASE_FAILED.apply(offer.name()).withStyle(ChatFormatting.RED));
 			return;
 		}
-		game.statistics().forPlayer(player).set(StatisticKey.TROPICOINS, balance - offer.cost());
 
-		if (target == player) {
-			player.sendSystemMessage(ShopTexts.PURCHASED.apply(offer.name(), offer.cost()).withStyle(ChatFormatting.GREEN));
+		// It's important right now to not instantiate statistics if we don't actually want it, because everything is terrible
+		if (offer.cost() > 0) {
+			game.statistics().forPlayer(player).set(StatisticKey.TROPICOINS, balance - offer.cost());
+		}
+
+		if (targetPlayer == null || targetPlayer == player) {
+			player.sendSystemMessage(offer.cost() > 0 ? ShopTexts.USED.apply(offer.name()) : ShopTexts.USED_WITH_COST.apply(offer.name(), offer.cost()));
+			if (targetPlayer == null) {
+				announceUseGlobal(player, offer);
+			}
 		} else {
-			announceSabotage(player, target, offer);
+			announceUseOnTarget(player, targetPlayer, offer);
 		}
 		PlayerSet.of(player).playSound(SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 0.5f, 1.0f);
 		updatePlayer(player);
@@ -129,13 +140,32 @@ public final class Shop implements IGameState {
 		return targets;
 	}
 
-	private void announceSabotage(ServerPlayer buyer, ServerPlayer target, ShopOffer offer) {
+	private void announceUseGlobal(ServerPlayer buyer, ShopOffer offer) {
 		Component offerName = offer.name().copy().withStyle(ChatFormatting.AQUA);
-		buyer.sendSystemMessage(ShopTexts.USED_ON.apply(offerName, target.getDisplayName(), offer.cost()).withStyle(ChatFormatting.GREEN));
-		target.sendSystemMessage(ShopTexts.SABOTAGED_BY.apply(buyer.getDisplayName(), offerName).withStyle(ChatFormatting.RED));
-		PlayerSet.of(target).playSound(SoundEvents.ELDER_GUARDIAN_CURSE, SoundSource.PLAYERS, 0.4f, 1.5f);
+		PlayerSet players = game.allPlayers();
 
-		Component broadcast = ShopTexts.SABOTAGE_BROADCAST.apply(buyer.getDisplayName(), offerName, target.getDisplayName()).withStyle(ChatFormatting.GRAY);
+		if (offer.flavor() == ShopOfferFlavor.SABOTAGE) {
+			players.playSound(SoundEvents.ELDER_GUARDIAN_CURSE, SoundSource.PLAYERS, 0.4f, 1.5f);
+			players.sendMessage(ShopTexts.USE_GLOBAL_BROADCAST.apply(buyer.getDisplayName(), offerName).withStyle(ChatFormatting.RED));
+		} else {
+			players.playSound(SoundRegistry.PACKAGE_RECEIVE.value(), SoundSource.PLAYERS, 0.5f, 1.0f);
+			players.sendMessage(ShopTexts.USE_GLOBAL_BROADCAST.apply(buyer.getDisplayName(), offerName).withStyle(ChatFormatting.GREEN));
+		}
+	}
+
+	private void announceUseOnTarget(ServerPlayer buyer, ServerPlayer target, ShopOffer offer) {
+		Component offerName = offer.name().copy().withStyle(ChatFormatting.AQUA);
+		buyer.sendSystemMessage(offer.cost() > 0 ? ShopTexts.USED_ON_WITH_COST.apply(offerName, target.getDisplayName(), offer.cost()) : ShopTexts.USED_ON.apply(offerName, target.getDisplayName()));
+
+		if (offer.flavor() == ShopOfferFlavor.SABOTAGE) {
+			PlayerSet.of(target).playSound(SoundEvents.ELDER_GUARDIAN_CURSE, SoundSource.PLAYERS, 0.4f, 1.5f);
+			target.sendSystemMessage(ShopTexts.SABOTAGED_BY.apply(buyer.getDisplayName(), offerName));
+		} else {
+			PlayerSet.of(target).playSound(SoundRegistry.PACKAGE_RECEIVE.value(), SoundSource.PLAYERS, 0.5f, 1.0f);
+			target.sendSystemMessage(ShopTexts.BONUS_FROM.apply(buyer.getDisplayName(), offerName));
+		}
+
+		Component broadcast = ShopTexts.USE_ON_BROADCAST.apply(buyer.getDisplayName(), offerName, target.getDisplayName()).withStyle(ChatFormatting.GRAY);
 		for (ServerPlayer player : game.allPlayers()) {
 			if (player != buyer && player != target) {
 				player.sendSystemMessage(broadcast);
@@ -145,47 +175,59 @@ public final class Shop implements IGameState {
 
 	/// Sends the shop again to players whose shop changed since, e.g. after a donation or when they became a ghost
 	public void updateChangedPlayers() {
-		for (ServerPlayer player : game.allPlayers()) {
-			if (!Ghosts.isParticipantOrGhost(game, player)) {
-				if (sentShops.containsKey(player.getUUID())) {
-					removeFromPlayer(player);
-				}
-			} else if (!createSentShop(player).equals(sentShops.get(player.getUUID()))) {
-				updatePlayer(player);
-			}
-		}
+		game.allPlayers().forEach(this::updatePlayer);
 	}
 
 	/// Sends the shop to the given player, if they can use it - no matter which phase of the game they are in
 	public void updatePlayer(ServerPlayer player) {
-		if (!Ghosts.isParticipantOrGhost(game, player)) {
+		SentShop shop = createShopFor(player);
+		if (shop != null) {
+			updatePlayer(player, shop);
+		} else {
+			removeFromPlayer(player);
+		}
+	}
+
+	private void updatePlayer(ServerPlayer player, SentShop shop) {
+		SentShop lastShop = sentShops.put(player.getUUID(), shop);
+		if (shop.equals(lastShop)) {
 			return;
 		}
-		SentShop shop = createSentShop(player);
-		sentShops.put(player.getUUID(), shop);
-		List<ShopClientState.Offer> clientOffers = getOffers(player).stream().map(ShopOffer::asClientOffer).toList();
-		GameClientState.sendToPlayer(new ShopClientState(shop.balance, clientOffers, shop.targets), player);
+
+		List<ShopClientState.Offer> clientOffers = shop.offers.stream().map(ShopOffer::asClientOffer).toList();
+		boolean anyHasCost = shop.offers.stream().anyMatch(offer -> offer.cost() > 0);
+
+		GameClientState.sendToPlayer(new ShopClientState(anyHasCost ? Optional.of(shop.balance) : Optional.empty(), clientOffers, shop.targets), player);
 	}
 
 	public void removeFromPlayer(ServerPlayer player) {
-		sentShops.remove(player.getUUID());
-		GameClientState.removeFromPlayer(GameClientStateTypes.SHOP.get(), player);
+		SentShop shop = sentShops.remove(player.getUUID());
+		if (shop != null) {
+			GameClientState.removeFromPlayer(GameClientStateTypes.SHOP.get(), player);
+		}
 	}
 
-	private SentShop createSentShop(ServerPlayer player) {
+	private @Nullable SentShop createShopFor(ServerPlayer player) {
+		List<ShopOffer> offers = getOffers(player);
+		if (offers.isEmpty()) {
+			return null;
+		}
 		List<ShopClientState.Target> targets = getTargets(player).stream()
 				.map(target -> new ShopClientState.Target(target.getUUID(), PlayerKey.from(target).name(), getPoints(target)))
 				.sorted(Comparator.comparingInt(ShopClientState.Target::points).reversed())
 				.toList();
-		return new SentShop(getBalance(player), isGhost(player), targets);
+		return new SentShop(getBalance(player), offers, targets);
 	}
 
 	private List<ShopOffer> getOffers(ServerPlayer player) {
-		return isGhost(player) ? ghostOffers : playerOffers;
-	}
-
-	private boolean isGhost(ServerPlayer player) {
-		return !isParticipant(player) && Ghosts.get(game).contains(player);
+		if (Overlords.get(game).contains(player)) {
+			return overlordOffers;
+		} else if (isParticipant(player)) {
+			return playerOffers;
+		} else if (Ghosts.get(game).contains(player)) {
+			return ghostOffers;
+		}
+		return List.of();
 	}
 
 	private boolean isParticipant(ServerPlayer player) {
@@ -200,6 +242,6 @@ public final class Shop implements IGameState {
 		return game.statistics().readForPlayer(player).getOr(StatisticKey.POINTS, 0);
 	}
 
-	private record SentShop(int balance, boolean ghost, List<ShopClientState.Target> targets) {
+	private record SentShop(int balance, List<ShopOffer> offers, List<ShopClientState.Target> targets) {
 	}
 }

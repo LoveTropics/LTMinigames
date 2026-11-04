@@ -27,7 +27,7 @@ public record GiveDonatedTropicoinsAction(int fallbackAmount) implements IGameBe
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
 		events.listen(GameActionEvents.APPLY, (context, targets) -> {
-			Shop shop = game.instanceState().getOrNull(Shop.KEY);
+			Shop shop = game.state().getOrNull(Shop.KEY);
 			if (shop == null) {
 				return false;
 			}

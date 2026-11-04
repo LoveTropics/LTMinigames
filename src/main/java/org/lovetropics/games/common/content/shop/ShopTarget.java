@@ -7,6 +7,7 @@ public enum ShopTarget implements StringRepresentable {
 	SELF("self"),
 	PICK("pick"),
 	RANDOM("random"),
+	GLOBAL("global"),
 	;
 
 	public static final Codec<ShopTarget> CODEC = StringRepresentable.fromEnum(ShopTarget::values);
@@ -17,8 +18,11 @@ public enum ShopTarget implements StringRepresentable {
 		this.name = name;
 	}
 
-	public boolean isOtherPlayer() {
-		return this != SELF;
+	public boolean requiresOtherPlayer() {
+		return switch (this) {
+			case PICK, RANDOM -> true;
+			default -> false;
+		};
 	}
 
 	@Override

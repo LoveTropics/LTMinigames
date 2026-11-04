@@ -6,6 +6,7 @@ import net.minecraft.util.StringRepresentable;
 public enum ShopUsers implements StringRepresentable {
 	PLAYERS("players"),
 	GHOSTS("ghosts"),
+	OVERLORDS("overlords"),
 	ALL("all"),
 	;
 
@@ -18,11 +19,24 @@ public enum ShopUsers implements StringRepresentable {
 	}
 
 	public boolean includesPlayers() {
-		return this != GHOSTS;
+		return switch (this) {
+			case PLAYERS, ALL -> true;
+			default -> false;
+		};
 	}
 
 	public boolean includesGhosts() {
-		return this != PLAYERS;
+		return switch (this) {
+			case GHOSTS, ALL -> true;
+			default -> false;
+		};
+	}
+
+	public boolean includesOverlords() {
+		return switch (this) {
+			case OVERLORDS, ALL -> true;
+			default -> false;
+		};
 	}
 
 	@Override
