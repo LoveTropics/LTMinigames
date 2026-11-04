@@ -46,7 +46,7 @@ public class ScavengerHuntState {
 
 	@SubscribeEvent
 	public static void onRegisterCommands(RegisterCommandsEvent event) {
-		event.getDispatcher().register(Commands.literal("game")
+		event.getDispatcher().register(Commands.literal("persistentgame")
 				.then(Commands.literal("scavengerhunt")
 						.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
 						.then(Commands.literal("set")
