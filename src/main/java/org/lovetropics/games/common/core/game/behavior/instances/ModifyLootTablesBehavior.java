@@ -22,7 +22,7 @@ public record ModifyLootTablesBehavior(
 		Set<ResourceKey<LootTable>> remove
 ) implements IGameBehavior {
 	public static final MapCodec<ModifyLootTablesBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			Codec.unboundedMap(LootTable.KEY_CODEC, Codecs.LOOT_TABLE).fieldOf("replace").forGetter(ModifyLootTablesBehavior::replace),
+			Codec.unboundedMap(LootTable.KEY_CODEC, Codecs.LOOT_TABLE).optionalFieldOf("replace", Map.of()).forGetter(ModifyLootTablesBehavior::replace),
 			LootTable.KEY_CODEC.listOf().xmap(Set::copyOf, List::copyOf).optionalFieldOf("remove", Set.of()).forGetter(ModifyLootTablesBehavior::remove)
 	).apply(i, ModifyLootTablesBehavior::new));
 
