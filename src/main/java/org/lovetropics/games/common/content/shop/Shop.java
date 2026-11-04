@@ -107,7 +107,7 @@ public final class Shop implements IGameState {
 		}
 
 		if (targetPlayer == null || targetPlayer == player) {
-			player.sendSystemMessage(offer.cost() > 0 ? ShopTexts.USED.apply(offer.name()) : ShopTexts.USED_WITH_COST.apply(offer.name(), offer.cost()));
+			player.sendSystemMessage(offer.cost() == 0 ? ShopTexts.USED.apply(offer.name()) : ShopTexts.USED_WITH_COST.apply(offer.name(), offer.cost()));
 			if (targetPlayer == null) {
 				announceUseGlobal(player, offer);
 			}
