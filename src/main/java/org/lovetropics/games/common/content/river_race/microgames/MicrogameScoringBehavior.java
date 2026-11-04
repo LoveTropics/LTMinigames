@@ -64,8 +64,7 @@ public class MicrogameScoringBehavior implements IGameBehavior {
 	}
 
 	private void onMicrogameWinTriggered(IGamePhase game, Identifier microgameId, GameWinner winner, MicrogameSegmentState segmentState) {
-		GameTeamKey winningTeam = winner.asTeam(game);
-		if (winningTeam != null) {
+		for (GameTeamKey winningTeam : winner.resolveSubjects(game).asTeams(game)) {
 			int winIndex = segmentState.winCountByTeam.addTo(winningTeam, 1);
 			int points = pointsPerGameWon.get(Math.min(winIndex, pointsPerGameWon.size() - 1));
 			points = specialPointsPerGame.getOrDefault(microgameId, points);

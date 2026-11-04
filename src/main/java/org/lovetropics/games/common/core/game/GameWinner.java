@@ -2,12 +2,10 @@ package org.lovetropics.games.common.core.game;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.content.MinigameTexts;
 import org.lovetropics.games.common.core.game.behavior.action.ActionSubjects;
 import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
 import org.lovetropics.games.common.core.game.state.team.GameTeam;
-import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
 import org.lovetropics.games.common.core.game.state.team.TeamState;
 
 import java.util.Set;
@@ -24,20 +22,6 @@ public sealed interface GameWinner {
 	ActionSubjects<?> resolveSubjects(IGamePhase game);
 
 	Set<PlayerKey> asPlayerKeys(IGamePhase game);
-
-	default @Nullable GameTeamKey asTeam(IGamePhase game) {
-		return switch (this) {
-			case GameWinner.Player(ServerPlayer player) -> getTeamFor(game, PlayerKey.from(player));
-			case GameWinner.Team(GameTeam team) -> team.key();
-			case GameWinner.OfflinePlayer(PlayerKey playerKey, Component ignored) -> getTeamFor(game, playerKey);
-			case GameWinner.Nobody ignored -> null;
-		};
-	}
-
-	private static @Nullable GameTeamKey getTeamFor(IGamePhase game, PlayerKey player) {
-		TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
-		return teams != null ? teams.getTeamForPlayer(player) : null;
-	}
 
 	record Nobody() implements GameWinner {
 		@Override

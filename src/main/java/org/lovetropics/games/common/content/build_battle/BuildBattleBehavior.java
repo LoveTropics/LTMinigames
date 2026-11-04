@@ -105,7 +105,7 @@ public final class BuildBattleBehavior implements IGameBehavior {
 			building = true;
 			refreshBuildingTimeBar(0);
 			overlords = Overlords.get(game);
-			game.allPlayers().sendMessage(BuildBattleTexts.BUILDING_START.copy().withStyle(ChatFormatting.YELLOW));
+			game.allPlayers().showTitle(BuildBattleTexts.BUILDING_START, BuildBattleTexts.BUILDING_START_SUBTITLE, 5, SharedConstants.TICKS_PER_SECOND * 2, 5);
 		});
 		events.listen(GamePhaseEvents.DESTROY, () -> {
 			bar.close();
@@ -115,7 +115,7 @@ public final class BuildBattleBehavior implements IGameBehavior {
 				refreshBuildingTimeBar(currentTime);
 			}
 			if (currentTime == buildEndTime) {
-				game.allPlayers().sendMessage(BuildBattleTexts.BUILDING_END.copy().withStyle(ChatFormatting.YELLOW));
+				game.allPlayers().showTitle(BuildBattleTexts.BUILDING_END, 5, SharedConstants.TICKS_PER_SECOND * 2, 5);
 				building = false;
 				bar.close();
 				for (ServerPlayer player : game.allPlayers()) {
@@ -126,7 +126,7 @@ public final class BuildBattleBehavior implements IGameBehavior {
 				for (ServerPlayer player : game.participants().shuffledCopy(game.random())) {
 					game.setPlayerRole(player, PlayerRole.SPECTATOR);
 				}
-				game.allPlayers().sendMessage(BuildBattleTexts.REVIEW_TIME.copy().withStyle(ChatFormatting.YELLOW));
+				game.allPlayers().showTitle(BuildBattleTexts.REVIEW_TIME, BuildBattleTexts.REVIEW_TIME_SUBTITLE, 5, SharedConstants.TICKS_PER_SECOND * 2, 5);
 			}
 			if (currentTime == buildEndTime + REVIEW_DELAY_TICKS) {
 				nextReviewee(game, widgets);
