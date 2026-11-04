@@ -47,9 +47,8 @@ public final class SelectorItems<V> {
 	}
 
 	public void giveSelectorsTo(ServerPlayer player) {
-		if (playersWithSelectors.add(player)) {
-			resetSelectorsFor(player);
-		}
+		playersWithSelectors.add(player);
+		resetSelectorsFor(player);
 	}
 
 	private void resetSelectorsFor(ServerPlayer player) {

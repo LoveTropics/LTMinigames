@@ -270,33 +270,38 @@ public final class BuildBattleBehavior implements IGameBehavior {
 			}
 			return;
 		}
+
 		UUID currentRevieweeId = reviewedPlayers.get(revieweeIndex);
 		revieweeIndex++;
 
-		if (revieweeIndex == reviewedPlayers.size()) {
-			if (currentRevieweeId != null) {
-				int points = 0;
-				for (Map.Entry<UUID, Integer> overlordPoints : overlordPoints.entrySet()) {
-					points += overlordPoints.getValue();
-				}
-				PlayerKey playerKey = playerKeys.get(currentRevieweeId);
-				game.statistics().forPlayer(playerKey).incrementInt(StatisticKey.POINTS, points);
-			}
-			overlordPoints.clear();
-
-			UUID nextPlot = plotsToReview.poll();
-			if (nextPlot != null) {
-				reviewedPlayers.add(nextPlot);
-				refreshReviewee(game, widgets);
-				return;
-			}
-		}
 		if (revieweeIndex < reviewedPlayers.size()) {
+			// Just moving back to a reviewee we saw before
 			refreshReviewee(game, widgets);
 			return;
 		}
-		revieweeIndex = -2;
-		announceWinner(game);
+
+		// Assign score and move to next reviewee
+		assignPointsForReviewee(game, currentRevieweeId);
+
+		UUID nextPlot = plotsToReview.poll();
+		if (nextPlot != null) {
+			reviewedPlayers.add(nextPlot);
+			refreshReviewee(game, widgets);
+		} else {
+			// No more plots to review, trigger win!
+			revieweeIndex = -2;
+			announceWinner(game);
+		}
+	}
+
+	private void assignPointsForReviewee(IGamePhase game, UUID revieweeId) {
+		int points = 0;
+		for (Map.Entry<UUID, Integer> overlordPoints : overlordPoints.entrySet()) {
+			points += overlordPoints.getValue();
+		}
+		PlayerKey playerKey = playerKeys.get(revieweeId);
+		game.statistics().forPlayer(playerKey).incrementInt(StatisticKey.POINTS, points);
+		overlordPoints.clear();
 	}
 
 	private void previousReviewee(IGamePhase game, GameWidgets widgets) {
@@ -328,13 +333,13 @@ public final class BuildBattleBehavior implements IGameBehavior {
 		for (ServerPlayer overlord : overlords) {
 			overlord.getInventory().clearContent();
 			ItemStack previous = new ItemStack(Items.SPONGE);
-			previous.set(DataComponents.CUSTOM_NAME, BuildBattleTexts.ITEM_PREVIOUS);
+			previous.set(DataComponents.ITEM_NAME, BuildBattleTexts.ITEM_PREVIOUS);
 			overlord.addItem(previous);
 			if (revieweeIndex == reviewedPlayers.size() - 1) {
 				selectorItems.giveSelectorsTo(overlord);
 			}
 			ItemStack next = new ItemStack(Items.GOLD_BLOCK);
-			next.set(DataComponents.CUSTOM_NAME, BuildBattleTexts.ITEM_NEXT);
+			next.set(DataComponents.ITEM_NAME, BuildBattleTexts.ITEM_NEXT);
 			overlord.addItem(next);
 		}
 
