@@ -213,7 +213,7 @@ public final class Shop implements IGameState {
 			return null;
 		}
 		List<ShopClientState.Target> targets = getTargets(player).stream()
-				.map(target -> new ShopClientState.Target(target.getUUID(), PlayerKey.from(target).name(), getPoints(target)))
+				.map(target -> new ShopClientState.Target(target.getUUID(), target.getDisplayName(), getPoints(target)))
 				.sorted(Comparator.comparingInt(ShopClientState.Target::points).reversed())
 				.toList();
 		return new SentShop(getBalance(player), offers, targets);

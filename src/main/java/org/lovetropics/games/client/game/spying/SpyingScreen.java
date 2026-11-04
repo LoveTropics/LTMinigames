@@ -56,7 +56,7 @@ public final class SpyingScreen extends Screen {
 			return List.of(TropicRushTexts.SPYING_SEE_INVENTORY, TropicRushTexts.SPYING_WATCH, CommonComponents.GUI_BACK);
 		}
 		return Stream.concat(
-				targets.stream().map(target -> (Component) Component.literal(target.name())),
+				targets.stream().map(ShopClientState.Target::name),
 				Stream.of(CommonComponents.GUI_CANCEL)
 		).toList();
 	}
@@ -109,7 +109,7 @@ public final class SpyingScreen extends Screen {
 		rowsX = (width - ROW_W) / 2;
 		rowsY = (height - contentH) / 2 + headerH;
 
-		Component header = target != null ? TropicRushTexts.SPYING_PICK_ACTION.apply(Component.literal(target.name()).withStyle(ChatFormatting.LIGHT_PURPLE)) : title;
+		Component header = target != null ? TropicRushTexts.SPYING_PICK_ACTION.apply(target.name().copy().withStyle(ChatFormatting.LIGHT_PURPLE)) : title;
 		graphics.centeredText(font, header, width / 2, rowsY - headerH, 0xFFFFFFFF);
 
 		int hoveredRow = getRowAt(mouseX, mouseY);

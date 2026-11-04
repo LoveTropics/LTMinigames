@@ -6,13 +6,16 @@ import net.minecraft.client.gui.components.PlayerFaceExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.Style;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.util.Mth;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.joml.Matrix3x2fStack;
 import org.lovetropics.games.client.LTKeybinds;
@@ -35,6 +38,10 @@ import java.util.stream.IntStream;
 ///
 /// Offers that are used on a player of the buyer's choice first show the other players, with the most points first.
 public final class ShopScreen extends Screen {
+	private static final int SCROLLBAR_WIDTH = 6;
+	private static final int SCROLLBAR_HEIGHT = 32;
+	private static final Identifier SCROLLER_SPRITE = Identifier.withDefaultNamespace("widget/scroller");
+
 	private static final int CARD_W = 72;
 	private static final int GAP = 4;
 	private static final int ICON_SIZE = 20;
@@ -67,6 +74,7 @@ public final class ShopScreen extends Screen {
 	private int pickingOffer = -1;
 	// Where the rows of the target picker were last drawn
 	private int rowsX, rowsY, rowH;
+	private int contentH;
 
 	public ShopScreen() {
 		super(ShopTexts.SHOP);
@@ -154,6 +162,15 @@ public final class ShopScreen extends Screen {
 
 	private void playClickSound() {
 		minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0f));
+	}
+
+	@Override
+	public boolean mouseScrolled(double x, double y, double scrollX, double scrollY) {
+		if (pickingOffer >= 0) {
+			targetPickerScroll -= (int) Math.round(scrollY * 10.0);
+			return true;
+		}
+		return super.mouseScrolled(x, y, scrollX, scrollY);
 	}
 
 	private static boolean canBuy(ShopClientState shop, ShopClientState.Offer offer) {
@@ -299,6 +316,8 @@ public final class ShopScreen extends Screen {
 		}
 	}
 
+	private int targetPickerScroll;
+
 	/// Draws a row for each player the offer can be used on, then one to pick a random player and one to cancel
 	private void drawTargetPicker(GuiGraphicsExtractor graphics, ShopClientState shop, ShopClientState.Offer offer, int mouseX, int mouseY) {
 		List<ShopClientState.Target> targets = shop.targets();
@@ -306,12 +325,28 @@ public final class ShopScreen extends Screen {
 		rowH = Math.max(lineHeight, FACE_SIZE) + PADDING * 2;
 		int rowCount = targets.size() + 2;
 		int headerH = lineHeight + GAP * 2;
-		int contentH = headerH + rowCount * rowH + (rowCount - 1) * GAP;
+
+		int maxContentH = graphics.guiHeight() - 40 - headerH;
+		int actualContentH = rowCount * rowH + (rowCount - 1) * GAP;
+		contentH = Math.min(actualContentH, maxContentH);
+
 		rowsX = (width - ROW_W) / 2;
-		rowsY = (height - contentH) / 2 + headerH;
+		rowsY = (height - contentH + headerH) / 2;
+
+		int maxScrollAmount = Math.max(actualContentH - maxContentH, 0);
 
 		Component pickTitle = ShopTexts.PICK_TARGET.apply(offer.name().copy().withStyle(ChatFormatting.AQUA));
 		graphics.centeredText(font, pickTitle, width / 2, rowsY - headerH, 0xFFFFFFFF);
+
+		// They're calling it the most scuffed scrollbar of all time
+		targetPickerScroll = Mth.clamp(targetPickerScroll, 0, maxScrollAmount);
+
+		if (maxScrollAmount > 0) {
+			int offset = targetPickerScroll * (contentH - SCROLLBAR_HEIGHT) / maxScrollAmount;
+			graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SCROLLER_SPRITE, rowsX + ROW_W + PADDING, rowsY + offset, SCROLLBAR_WIDTH, SCROLLBAR_HEIGHT);
+		}
+
+		graphics.enableScissor(rowsX, rowsY, rowsX + ROW_W, rowsY + contentH);
 
 		int hoveredRow = getRowAt(shop, mouseX, mouseY);
 		for (int row = 0; row < rowCount; row++) {
@@ -326,8 +361,9 @@ public final class ShopScreen extends Screen {
 			int textY = y + (rowH - lineHeight) / 2 + 1;
 			if (playerRow) {
 				ShopClientState.Target target = targets.get(row);
-				Component name = Component.literal("#" + (row + 1) + " ").withStyle(ChatFormatting.GRAY)
-						.append(Component.literal(target.name()).withStyle(ChatFormatting.WHITE));
+				Component name = Component.empty()
+						.append(Component.literal("#" + (row + 1) + " ").withStyle(ChatFormatting.GRAY))
+						.append(target.name());
 				Component points = ShopTexts.POINTS.apply(target.points()).withStyle(ChatFormatting.GOLD);
 				int faceX = rowsX + PADDING + 2;
 				PlayerFaceExtractor.extractRenderState(graphics, ClientPlayerInfo.getSkin(target.id()), faceX, y + (rowH - FACE_SIZE) / 2, FACE_SIZE);
@@ -340,6 +376,8 @@ public final class ShopScreen extends Screen {
 				graphics.centeredText(font, label, rowsX + ROW_W / 2, textY, 0xFFFFFFFF);
 			}
 		}
+
+		graphics.disableScissor();
 	}
 
 	public static void drawFrame(GuiGraphicsExtractor graphics, int x, int y, int w, int h, int background, int border) {
@@ -401,6 +439,9 @@ public final class ShopScreen extends Screen {
 		if (mouseX < rowsX || mouseX >= rowsX + ROW_W) {
 			return -1;
 		}
+		if (mouseY < rowsY || mouseY >= rowsY + contentH) {
+			return -1;
+		}
 		int rowCount = shop.targets().size() + 2;
 		for (int row = 0; row < rowCount; row++) {
 			int y = getRowY(row);
@@ -412,7 +453,7 @@ public final class ShopScreen extends Screen {
 	}
 
 	private int getRowY(int row) {
-		return rowsY + row * (rowH + GAP);
+		return rowsY + row * (rowH + GAP) - targetPickerScroll;
 	}
 
 	/// @param offers the indices of the offers in this section

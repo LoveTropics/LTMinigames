@@ -36,7 +36,6 @@ import org.lovetropics.games.common.core.game.client_state.instance.SpyingClient
 import org.lovetropics.games.common.core.game.state.GameStateKey;
 import org.lovetropics.games.common.core.game.state.GameStateMap;
 import org.lovetropics.games.common.core.game.state.IGameState;
-import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
 import org.lovetropics.games.common.core.item.MinigameDataComponents;
 import org.lovetropics.games.common.core.network.spying.ClientboundOpenSpyingScreenPacket;
@@ -92,7 +91,7 @@ public final class SpyingBehavior implements IGameBehavior, IGameState {
 	private List<ShopClientState.Target> getTargets(ServerPlayer player) {
 		return game.participants().stream()
 				.filter(target -> target != player)
-				.map(target -> new ShopClientState.Target(target.getUUID(), PlayerKey.from(target).name(), game.statistics().readForPlayer(target).getOr(StatisticKey.POINTS, 0)))
+				.map(target -> new ShopClientState.Target(target.getUUID(), target.getDisplayName(), game.statistics().readForPlayer(target).getOr(StatisticKey.POINTS, 0)))
 				.sorted(Comparator.comparingInt(ShopClientState.Target::points).reversed())
 				.toList();
 	}

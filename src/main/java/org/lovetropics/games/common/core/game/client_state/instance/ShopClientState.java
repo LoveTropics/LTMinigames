@@ -50,10 +50,10 @@ public record ShopClientState(
 		).apply(in, Offer::new));
 	}
 
-	public record Target(UUID id, String name, int points) {
+	public record Target(UUID id, Component name, int points) {
 		public static final Codec<Target> CODEC = RecordCodecBuilder.create(in -> in.group(
 				UUIDUtil.CODEC.fieldOf("id").forGetter(Target::id),
-				Codec.STRING.fieldOf("name").forGetter(Target::name),
+				ComponentSerialization.CODEC.fieldOf("name").forGetter(Target::name),
 				Codec.INT.fieldOf("points").forGetter(Target::points)
 		).apply(in, Target::new));
 	}
