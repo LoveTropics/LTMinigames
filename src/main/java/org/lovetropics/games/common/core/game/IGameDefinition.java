@@ -35,4 +35,8 @@ public interface IGameDefinition {
 	default GameDonationType donationType() {
 		return GameDonationType.PACKAGES;
 	}
+
+	default @Nullable Identifier introSlideshow() {
+		return null;
+	}
 }

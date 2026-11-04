@@ -1,5 +1,7 @@
 package org.lovetropics.games.common.core.game.behavior.instances;
 
+import com.lovetropics.lib.slideshow.SlideshowApi;
+import com.lovetropics.lib.slideshow.SlideshowInstanceHandle;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.datafixers.util.Either;
 import com.mojang.logging.LogUtils;
@@ -18,6 +20,7 @@ import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.Unit;
 import net.minecraft.util.context.ContextMap;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.config.ConfigLT;
 import org.lovetropics.games.common.core.command.argument.GameConfigArgument;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.GameStopReason;
@@ -96,6 +99,8 @@ public final class MinigameCompetitionBehavior implements IGameBehavior {
 				registerGlobalCommands(topGame, topGame, commands)
 		);
 
+		events.listen(GamePhaseEvents.TICK, () -> subGames.tick(topGame));
+
 		events.listen(GamePlayerEvents.JOIN, player ->
 				subGames.onPlayerJoin(topGame, player)
 		);
@@ -146,11 +151,9 @@ public final class MinigameCompetitionBehavior implements IGameBehavior {
 		commands.register(Commands.literal("competition")
 				.requires(GameCommandRegistrar.adminOrOverlord(topGame))
 				.then(Commands.literal("start").executes(context -> {
-					if (subGames.isPlaying()) {
+					if (!subGames.start(topGame)) {
 						context.getSource().sendFailure(Component.literal("Already playing games!"));
-						return 1;
 					}
-					subGames.startNextGame(topGame);
 					return 1;
 				}))
 				.then(Commands.literal("backToLobby").executes(context -> {
@@ -240,8 +243,7 @@ public final class MinigameCompetitionBehavior implements IGameBehavior {
 	private class SubGameManager {
 		private final Deque<QueueEntry> queue = new ArrayDeque<>();
 
-		private @Nullable IGamePhase currentGame;
-		private @Nullable PendingSubPhase pendingGame;
+		private State state = new State.Lobby();
 
 		public void queueFirst(QueueEntry entry) {
 			queue.addFirst(entry);
@@ -260,56 +262,108 @@ public final class MinigameCompetitionBehavior implements IGameBehavior {
 		}
 
 		public void onPlayerJoin(IGamePhase topGame, ServerPlayer player) {
-			if (currentGame != null) {
-				topGame.transferPlayerTo(player, currentGame);
-			} else if (pendingGame != null) {
-				pendingGame.queuePlayer(player);
+			switch (state) {
+				case State.Game(IGamePhase currentGame) -> topGame.transferPlayerTo(player, currentGame);
+				case State.Pending(PendingSubPhase pendingGame) -> pendingGame.queuePlayer(player);
+				case State.Slideshow(_, SlideshowInstanceHandle slideshow) -> slideshow.addPlayer(player);
+				case State.Lobby _ -> {
+				}
 			}
 		}
 
-		public void startNextGame(IGamePhase topGame) {
-			IGamePhase lastGame = currentGame;
-			currentGame = null;
-			pendingGame = null;
+		private State updateState(State newState) {
+			State lastState = state;
+			state = newState;
+			return lastState;
+		}
 
-			QueueEntry nextEntry = queue.poll();
-			IGameDefinition nextGameConfig = nextEntry != null ? nextEntry.resolveGame() : null;
-			if (nextGameConfig == null) {
-				if (lastGame != null) {
-					lastGame.returnToParent(lastGame.allPlayers());
-					onReturnToLobby(topGame);
-				}
-				return;
+		private @Nullable SlideshowInstanceHandle openIntroSlideshow(IGameDefinition game) {
+			if (ConfigLT.GENERAL.skipIntroSlideshows.get()) {
+				return null;
+			}
+			Identifier slideshowId = game.introSlideshow();
+			SlideshowInstanceHandle slideshow = slideshowId != null ? SlideshowApi.open(slideshowId) : null;
+			if (slideshow != null) {
+				slideshow.play();
+			}
+			return slideshow;
+		}
+
+		public boolean start(IGamePhase topGame) {
+			if (!(state instanceof State.Lobby)) {
+				return false;
 			}
 
-			pendingGame = topGame.createSubPhase(nextGameConfig);
+			IGameDefinition nextGameConfig = pollNextGame();
+			if (nextGameConfig == null) {
+				return true;
+			}
+
+			SlideshowInstanceHandle introSlideshow = openIntroSlideshow(nextGameConfig);
+			if (introSlideshow != null) {
+				topGame.allPlayers().forEach(introSlideshow::addPlayer);
+				state = new State.Slideshow(nextGameConfig, introSlideshow);
+			} else {
+				startNextGame(topGame, nextGameConfig);
+			}
+
+			return true;
+		}
+
+		public void tick(IGamePhase topGame) {
+			if (state instanceof State.Slideshow slideshow && slideshow.isReadyToStart()) {
+				startNextGame(topGame, slideshow.nextGame);
+			}
+		}
+
+		private @Nullable IGameDefinition pollNextGame() {
+			QueueEntry nextEntry = queue.poll();
+			return nextEntry != null ? nextEntry.resolveGame() : null;
+		}
+
+		private void startNextGame(IGamePhase topGame, IGameDefinition nextGameConfig) {
+			PendingSubPhase pendingGame = topGame.createSubPhase(nextGameConfig);
 			pendingGame.queuePlayers(topGame.allPlayers());
-			if (lastGame != null) {
+
+			State lastState = updateState(new State.Pending(pendingGame));
+			if (lastState instanceof State.Game(IGamePhase lastGame)) {
 				pendingGame.queuePlayers(lastGame.allPlayers());
 			}
 
 			pendingGame.whenCreated((subGame, subEvents) -> {
-				pendingGame = null;
-				currentGame = subGame;
+				state = new State.Game(subGame);
 				subEvents.listen(GamePhaseEvents.STOP, reason -> {
 					// Make sure statistics are copied back before we start the next game and potentially lose that data
 					onStopSubGame(topGame, subGame, reason);
-					startNextGame(topGame);
+					continueToNextSubGame(topGame);
 				});
 				onCreateSubGame(topGame, subGame, subEvents);
 			});
-			pendingGame.whenErrored(exception -> {
-				pendingGame = null;
-				currentGame = null;
+			pendingGame.whenErrored(_ -> {
+				// Players are already transferred to the top phase by this point, we just need to match that state
+				state = new State.Lobby();
 				topGame.allPlayers().sendMessage(Component.literal("An error occurred starting the last minigame"));
-				queueFirst(new Lobby());
-				startNextGame(topGame);
+				onReturnToLobby(topGame);
 			});
 		}
 
+		private void continueToNextSubGame(IGamePhase topGame) {
+			IGameDefinition nextGameConfig = pollNextGame();
+			if (nextGameConfig == null) {
+				State lastState = updateState(new State.Lobby());
+				if (lastState instanceof State.Game(IGamePhase lastGame)) {
+					lastGame.returnToParent(lastGame.allPlayers());
+				}
+				onReturnToLobby(topGame);
+				return;
+			}
+
+			// It's only really safe to show a slideshow when transferring from the lobby - skip it :)
+			startNextGame(topGame, nextGameConfig);
+		}
+
 		public @Nullable IGameDefinition cancelCurrentGame() {
-			IGamePhase currentGame = this.currentGame;
-			if (currentGame != null) {
+			if (state instanceof State.Game(IGamePhase currentGame)) {
 				currentGame.requestStop(GameStopReason.canceled());
 				return currentGame.definition();
 			}
@@ -317,8 +371,7 @@ public final class MinigameCompetitionBehavior implements IGameBehavior {
 		}
 
 		public @Nullable IGameDefinition restartCurrentGame() {
-			IGamePhase currentGame = this.currentGame;
-			if (currentGame != null) {
+			if (state instanceof State.Game(IGamePhase currentGame)) {
 				// Note: because we pass by id, if we /reload this will fetch the new instance
 				queueFirst(new Game(currentGame.definition().id()));
 				currentGame.requestStop(GameStopReason.canceled());
@@ -328,8 +381,7 @@ public final class MinigameCompetitionBehavior implements IGameBehavior {
 		}
 
 		public boolean backToLobby() {
-			IGamePhase currentGame = this.currentGame;
-			if (currentGame != null) {
+			if (state instanceof State.Game(IGamePhase currentGame)) {
 				queueFirst(new Game(currentGame.definition().id()));
 				queueFirst(new Lobby());
 				currentGame.requestStop(GameStopReason.canceled());
@@ -338,8 +390,30 @@ public final class MinigameCompetitionBehavior implements IGameBehavior {
 			return false;
 		}
 
-		public boolean isPlaying() {
-			return currentGame != null || pendingGame != null;
+		private sealed interface State {
+			record Lobby() implements State {
+			}
+
+			record Slideshow(
+					IGameDefinition nextGame,
+					SlideshowInstanceHandle slideshow
+			) implements State {
+				private static final double SLIDESHOW_BUFFER_SECONDS = 0.5;
+
+				public boolean isReadyToStart() {
+					return slideshow.currentTime() >= slideshow.totalTime() - SLIDESHOW_BUFFER_SECONDS;
+				}
+			}
+
+			record Pending(
+					PendingSubPhase pendingGame
+			) implements State {
+			}
+
+			record Game(
+					IGamePhase game
+			) implements State {
+			}
 		}
 	}
 
