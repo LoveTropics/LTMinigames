@@ -327,6 +327,8 @@ public final class MinigameTexts {
 		KEYS.add("donation.speed.toast", "%sender% has given a SPEED BOOST!");
 		KEYS.add("donation.slow", "Slowness");
 		KEYS.add("donation.slow.toast", "%sender% has given SLOWNESS!");
+		KEYS.add("donation.player_dvd", "DVD Screensaver");
+		KEYS.add("donation.player_dvd.toast", "%sender% wants you to see their DVD Screensaver");
 
 		KEYS.add("donation.pvp_crabs", "Crab Hockey: PvP");
 		KEYS.add("donation.pvp_crabs.description", "Turn every player into a Crab, and allow PvP - players can score with each other!");

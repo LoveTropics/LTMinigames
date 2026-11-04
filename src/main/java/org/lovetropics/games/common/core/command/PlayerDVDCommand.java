@@ -32,7 +32,7 @@ public class PlayerDVDCommand {
 											PlayerIterable players = PlayerIterable.from(EntityArgument.getPlayers(context, "players"));
 											NameAndId nameAndId = Iterables.getOnlyElement(GameProfileArgument.getGameProfiles(context, "player"));
 											int duration = getInteger(context, "duration");
-											players.addPlayerFaceDVD(nameAndId.id(), duration);
+											players.addPlayerFaceDVD(nameAndId.id(), duration, 1);
 											return 1;
 										})
 								)

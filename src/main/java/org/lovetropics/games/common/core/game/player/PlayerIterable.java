@@ -107,8 +107,8 @@ public interface PlayerIterable extends Iterable<ServerPlayer> {
 		sendPacket(new ClientboundFadeToBlackPacket(false, fadeDuration));
 	}
 
-	default void addPlayerFaceDVD(UUID uuid, int lengthInTicks) {
-		sendPacket(new ClientboundPlayerFaceDVDPackets.Add(uuid, lengthInTicks));
+	default void addPlayerFaceDVD(UUID uuid, int lengthInTicks, int count) {
+		sendPacket(new ClientboundPlayerFaceDVDPackets.Add(uuid, lengthInTicks, count));
 	}
 
 	default void clearPlayerFaceDVD() {

@@ -13,18 +13,21 @@ import java.util.UUID;
 
 public class ClientboundPlayerFaceDVDPackets {
 
-	public record Add(UUID uuid, int lengthInTicks) implements CustomPacketPayload {
+	public record Add(UUID uuid, int lengthInTicks, int count) implements CustomPacketPayload {
 
 		public static final Type<Add> TYPE = new Type<>(LoveTropics.id("add_player_face_dvd"));
 
 		public static final StreamCodec<ByteBuf, Add> STREAM_CODEC = StreamCodec.composite(
 				UUIDUtil.STREAM_CODEC, Add::uuid,
-				ByteBufCodecs.INT, Add::lengthInTicks,
+				ByteBufCodecs.VAR_INT, Add::lengthInTicks,
+				ByteBufCodecs.VAR_INT, Add::count,
 				Add::new
 		);
 
 		public static void handle(Add add, IPayloadContext context) {
-			PlayerFaceDVDRender.add(add.uuid(), add.lengthInTicks());
+			for (int i = 0; i < add.count; i++) {
+				PlayerFaceDVDRender.add(add.uuid(), add.lengthInTicks());
+			}
 		}
 
 		@Override
