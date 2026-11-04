@@ -1,6 +1,7 @@
 package org.lovetropics.games.common.core.game.behavior.instances.donation;
 
 import com.google.common.collect.Sets;
+import com.lovetropics.lib.text.ChatHighlighter;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.ReferenceArraySet;
@@ -49,6 +50,11 @@ public record PackageNotification(
 
 	public void broadcast(IGamePhase game, ActionSubjects<?> targets, GamePackage gamePackage, DonationPackageDesc packageDesc) {
 		NotificationStyle.Sentiment sentiment = this.sentiment.orElseGet(() -> packageDesc.type().defaultSentiment());
+		sendToastToTargets(game, targets, gamePackage, sentiment);
+		broadcastChat(game, targets, gamePackage, packageDesc, sentiment);
+	}
+
+	private void sendToastToTargets(IGamePhase game, ActionSubjects<?> targets, GamePackage gamePackage, NotificationStyle.Sentiment sentiment) {
 		Holder<SoundEvent> sound = this.sound.orElseGet(() -> switch (sentiment) {
 			case POSITIVE -> SoundRegistry.PACKAGE_RECEIVE;
 			case NEGATIVE, NEUTRAL -> SoundRegistry.SABOTAGE_RECEIVE;
@@ -62,20 +68,22 @@ public record PackageNotification(
 				)
 		);
 
-		Component receiverName = describeTargets(game, targets);
-		Component targetedMessage = createTargetedMessage(gamePackage.sendingPlayerName(), receiverName, message);
+		Component targetDescription = describeTargets(game, targets, ChatFormatting.BLUE);
+		String senderName = gamePackage.sendingPlayerName();
+		Component targetedMessage = message.apply(Map.of(
+				"sender", (senderName != null ? Component.literal(senderName) : MinigameTexts.ANONYMOUS_DONOR.copy()).withStyle(ChatFormatting.BLUE),
+				"receiver", targetDescription != null ? targetDescription : MinigameTexts.EVERYONE_RECEIVER.copy().withStyle(ChatFormatting.BLUE)
+		));
 
-		List<ServerPlayer> targetPlayers = targets.asPlayers(game);
-		for (ServerPlayer player : targetPlayers) {
-			sendNotificationTo(player, targetedMessage, sentiment, sound);
+		for (ServerPlayer player : targets.asPlayers(game)) {
+			sendToastToTarget(player, targetedMessage, sentiment, sound);
 		}
 	}
 
-	private void sendNotificationTo(ServerPlayer player, Component message, NotificationStyle.Sentiment sentiment, Holder<SoundEvent> sound) {
-		NotificationStyle.Color color = NotificationStyle.Color.LIGHT;
+	private void sendToastToTarget(ServerPlayer player, Component message, NotificationStyle.Sentiment sentiment, Holder<SoundEvent> sound) {
 		long visibleTime = 6000;
 
-		NotificationStyle style = createStyle(color, visibleTime, sentiment);
+		NotificationStyle style = createStyle(NotificationStyle.Color.LIGHT, visibleTime, sentiment);
 		PacketDistributor.sendToPlayer(
 				player,
 				new ShowNotificationToastMessage(message, style)
@@ -85,18 +93,34 @@ public record PackageNotification(
 		player.connection.send(new ClientboundSoundPacket(sound, SoundSource.MASTER, player.getX(), player.getY(), player.getZ(), 0.2f, 1f, seed));
 	}
 
-	private Component createTargetedMessage(@Nullable String sender, Component receiverName, TemplatedText template) {
-		return template.apply(Map.of("sender", getSenderName(sender), "receiver", receiverName));
+	private void broadcastChat(IGamePhase game, ActionSubjects<?> targets, GamePackage gamePackage, DonationPackageDesc packageDesc, NotificationStyle.Sentiment sentiment) {
+		Component packageName = packageDesc.name().copy().withStyle(sentiment == NotificationStyle.Sentiment.NEGATIVE ? ChatFormatting.RED : ChatFormatting.GOLD);
+
+		String senderName = gamePackage.sendingPlayerName();
+		Component sender = (senderName != null ? Component.literal(senderName) : MinigameTexts.ANONYMOUS_DONOR.copy()).withStyle(ChatFormatting.AQUA);
+
+		Component targetDescription = describeTargets(game, targets, ChatFormatting.AQUA);
+		Component message;
+		if (targetDescription != null) {
+			message = MinigameTexts.PACKAGE_TRIGGERED_WITH_TARGET.apply(sender, packageName, targetDescription);
+		} else {
+			message = MinigameTexts.PACKAGE_TRIGGERED.apply(sender, packageName);
+		}
+		game.allPlayers().sendMessage(ChatHighlighter.highlight(
+				message,
+				0xa0ffaa00,
+				0x60519e45
+		));
 	}
 
 	public NotificationStyle createStyle(NotificationStyle.Color color, long visibleTime, NotificationStyle.Sentiment sentiment) {
 		return new NotificationStyle(icon, sentiment, color, visibleTime);
 	}
 
-	private Component describeTargets(IGamePhase game, ActionSubjects<?> targets) {
+	private @Nullable Component describeTargets(IGamePhase game, ActionSubjects<?> targets, ChatFormatting playerNameStyle) {
 		List<ServerPlayer> targetPlayers = targets.asPlayers(game);
-		if (Set.copyOf(targetPlayers).containsAll(Sets.newHashSet(game.participants()))) {
-			return MinigameTexts.EVERYONE_RECEIVER;
+		if (targetPlayers.isEmpty() || Set.copyOf(targetPlayers).containsAll(Sets.newHashSet(game.participants()))) {
+			return null;
 		}
 
 		// Try to figure out the intended target of the package, if we can find teams that fully match this target list, that is likely most relevant
@@ -106,7 +130,7 @@ public record PackageNotification(
 			return ComponentUtils.formatList(targetTeams, GameTeam::styledName);
 		}
 
-		return ComponentUtils.formatList(targetPlayers, p -> p.getDisplayName().copy().withStyle(ChatFormatting.BLUE));
+		return ComponentUtils.formatList(targetPlayers, p -> p.getDisplayName().copy().withStyle(playerNameStyle));
 	}
 
 	private static @Nullable Set<GameTeam> teamsExactlyMatching(IGamePhase game, List<ServerPlayer> players) {
@@ -128,12 +152,5 @@ public record PackageNotification(
 			exactTeams.add(team);
 		}
 		return exactTeams;
-	}
-
-	private Component getSenderName(@Nullable String sender) {
-		if (sender != null) {
-			return Component.literal(sender).withStyle(ChatFormatting.BLUE);
-		}
-		return MinigameTexts.UNKNOWN_DONOR;
 	}
 }

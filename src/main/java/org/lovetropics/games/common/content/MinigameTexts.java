@@ -115,8 +115,11 @@ public final class MinigameTexts {
 		return PROGRESS_BAR_TIME.apply(text, Util.formatTimer(secondsLeft));
 	}
 
-	public static final Component UNKNOWN_DONOR = KEYS.add("donation.unknown_donor", "an unknown donor").withStyle(ChatFormatting.BLUE);
-	public static final Component EVERYONE_RECEIVER = KEYS.add("donation.everyone_receiver", "Everyone").withStyle(ChatFormatting.BLUE);
+	public static final Component ANONYMOUS_DONOR = KEYS.add("donation.anonymouse_donor", "Anonymous donor");
+	public static final Component EVERYONE_RECEIVER = KEYS.add("donation.everyone_receiver", "Everyone");
+
+	public static final TranslationCollector.Fun2 PACKAGE_TRIGGERED = KEYS.add2("donation.package_triggered", "%s donated %s");
+	public static final TranslationCollector.Fun3 PACKAGE_TRIGGERED_WITH_TARGET = KEYS.add3("donation.package_triggered_with_target", "%s donated %s to %s");
 
 	public static final Component REWARDS = KEYS.add("rewards_granted", "You got rewards for playing minigames!").withStyle(ChatFormatting.GOLD);
 	public static final TranslationCollector.Fun2 REWARD_ITEM = KEYS.add2("reward_item", " - %sx %s").withStyle(ChatFormatting.GRAY);
