@@ -1,5 +1,6 @@
 package org.lovetropics.games.common.core.game.util;
 
+import com.lovetropics.lib.text.ChatHighlighter;
 import com.mojang.serialization.Codec;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import net.minecraft.network.chat.Component;
@@ -65,6 +66,8 @@ public record TemplatedText(Component template) {
 			return template;
 		}
 
+		ChatHighlighter.Highlight highlight = ChatHighlighter.extract(template);
+
 		// TODO: Precompute this
 		MutableComponent result = Component.literal("");
 		template.visit((FormattedText.StyledContentConsumer<Unit>) (style, text) -> {
@@ -87,6 +90,11 @@ public record TemplatedText(Component template) {
 			}
 			return Optional.empty();
 		}, Style.EMPTY);
+
+		// Rendering it out loses the highlight unfortunately - this would almost certainly be better as part of the Style, but that's less easily extendable
+		if (highlight != null) {
+			return ChatHighlighter.highlight(result, highlight.leftColor(), highlight.rightColor());
+		}
 		return result;
 	}
 }
