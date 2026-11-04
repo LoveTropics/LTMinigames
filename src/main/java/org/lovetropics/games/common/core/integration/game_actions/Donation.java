@@ -18,7 +18,7 @@ public record Donation(String name, double amount, String comments, boolean anon
 			Codec.BOOL.optionalFieldOf("anonymous", false).forGetter(Donation::anonymous),
 			Codec.DOUBLE.fieldOf("total").forGetter(Donation::total),
 			Codec.STRING.optionalFieldOf("minecraft_name", "").forGetter(Donation::minecraftName),
-			UUIDUtil.AUTHLIB_CODEC.lenientOptionalFieldOf("minecraft_uuid", Util.NIL_UUID).forGetter(Donation::minecraftUuid)
+			UUIDUtil.STRING_CODEC.optionalFieldOf("minecraft_uuid", Util.NIL_UUID).forGetter(Donation::minecraftUuid)
 	).apply(i, Donation::new));
 
 	public static final Codec<Donation> CODEC = MAP_CODEC.codec();
