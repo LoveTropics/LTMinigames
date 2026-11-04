@@ -121,15 +121,12 @@ public final class HealthTagRenderer {
 	}
 //
 	private static void drawSprite(PoseStack poseStack, SubmitNodeCollector submitNodeCollector, SpriteId spriteId, int width, int height) {
-		PoseStack.Pose pose = poseStack.last();
 		TextureAtlasSprite sprite = Minecraft.getInstance().getAtlasManager().get(spriteId);
-		submitNodeCollector.submitCustomGeometry(poseStack, RenderTypes.text(sprite.atlasLocation()), (pose1, consumer) -> {
+		submitNodeCollector.submitCustomGeometry(poseStack, RenderTypes.text(sprite.atlasLocation()), (pose, consumer) -> {
 			consumer.addVertex(pose, 0.0f, 0.0f, 0.0f).setUv(sprite.getU0(), sprite.getV0()).setColor(CommonColors.WHITE).setLight(LightCoordsUtil.FULL_BRIGHT);
 			consumer.addVertex(pose, width, 0.0f, 0.0f).setUv(sprite.getU1(), sprite.getV0()).setColor(CommonColors.WHITE).setLight(LightCoordsUtil.FULL_BRIGHT);
 			consumer.addVertex(pose, width, height, 0.0f).setUv(sprite.getU1(), sprite.getV1()).setColor(CommonColors.WHITE).setLight(LightCoordsUtil.FULL_BRIGHT);
 			consumer.addVertex(pose, 0.0f, height, 0.0f).setUv(sprite.getU0(), sprite.getV1()).setColor(CommonColors.WHITE).setLight(LightCoordsUtil.FULL_BRIGHT);
 		});
-
-
 	}
 }
