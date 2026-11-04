@@ -20,8 +20,6 @@ import org.lovetropics.games.common.core.game.IGameLookup;
 import org.lovetropics.games.common.core.game.IGamePhase;
 
 public class PaintBallEntity extends ThrowableProjectile implements ItemSupplier {
-	private static final ItemStack DEFAULT_VISUAL_ITEM = new ItemStack(Items.CONCRETE.white());
-
 	private static final EntityDataAccessor<ItemStack> VISUAL_ITEM = SynchedEntityData.defineId(PaintBallEntity.class, EntityDataSerializers.ITEM_STACK);
 
 	public PaintBallEntity(EntityType<? extends ThrowableProjectile> entityType, Level level) {
@@ -32,9 +30,13 @@ public class PaintBallEntity extends ThrowableProjectile implements ItemSupplier
 		this(PaintParty.PAINTBALL.get(), level);
 	}
 
+	private static ItemStack defaultVisualItem() {
+		return new ItemStack(Items.CONCRETE.white());
+	}
+
 	@Override
 	protected void defineSynchedData(SynchedEntityData.Builder builder) {
-		builder.define(VISUAL_ITEM, DEFAULT_VISUAL_ITEM);
+		builder.define(VISUAL_ITEM, defaultVisualItem());
 	}
 
 	@Override
@@ -46,7 +48,7 @@ public class PaintBallEntity extends ThrowableProjectile implements ItemSupplier
 	@Override
 	protected void readAdditionalSaveData(ValueInput input) {
 		super.readAdditionalSaveData(input);
-		setVisualItem(input.read("visual_item", ItemStack.CODEC).orElse(DEFAULT_VISUAL_ITEM));
+		setVisualItem(input.read("visual_item", ItemStack.CODEC).orElse(defaultVisualItem()));
 	}
 
 	@Override
