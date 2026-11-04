@@ -92,7 +92,7 @@ public final class SpyingBehavior implements IGameBehavior, IGameState {
 	private List<ShopClientState.Target> getTargets(ServerPlayer player) {
 		return game.participants().stream()
 				.filter(target -> target != player)
-				.map(target -> new ShopClientState.Target(target.getUUID(), PlayerKey.from(target).name(), game.statistics().forPlayer(target).getOr(StatisticKey.POINTS, 0)))
+				.map(target -> new ShopClientState.Target(target.getUUID(), PlayerKey.from(target).name(), game.statistics().readForPlayer(target).getOr(StatisticKey.POINTS, 0)))
 				.sorted(Comparator.comparingInt(ShopClientState.Target::points).reversed())
 				.toList();
 	}

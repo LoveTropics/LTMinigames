@@ -16,12 +16,11 @@ import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
 import org.lovetropics.games.common.core.game.client_state.instance.ShopClientState;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
 import org.lovetropics.games.common.core.game.player.PlayerSet;
-import org.lovetropics.games.common.core.game.state.Ghosts;
 import org.lovetropics.games.common.core.game.state.GameStateKey;
+import org.lovetropics.games.common.core.game.state.Ghosts;
 import org.lovetropics.games.common.core.game.state.IGameState;
 import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
-import org.lovetropics.games.common.core.game.state.statistics.StatisticsMap;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -70,7 +69,6 @@ public final class Shop implements IGameState {
 			return;
 		}
 		ShopOffer offer = offers.get(offerIndex);
-		StatisticsMap statistics = game.statistics().forPlayer(player);
 		int balance = getBalance(player);
 		if (balance < offer.cost()) {
 			player.sendSystemMessage(ShopTexts.CANNOT_AFFORD.apply(offer.name()).withStyle(ChatFormatting.RED));
@@ -98,7 +96,7 @@ public final class Shop implements IGameState {
 			player.sendSystemMessage(ShopTexts.PURCHASE_FAILED.apply(offer.name()).withStyle(ChatFormatting.RED));
 			return;
 		}
-		statistics.set(StatisticKey.TROPICOINS, balance - offer.cost());
+		game.statistics().forPlayer(player).set(StatisticKey.TROPICOINS, balance - offer.cost());
 
 		if (target == player) {
 			player.sendSystemMessage(ShopTexts.PURCHASED.apply(offer.name(), offer.cost()).withStyle(ChatFormatting.GREEN));
@@ -195,11 +193,11 @@ public final class Shop implements IGameState {
 	}
 
 	private int getBalance(ServerPlayer player) {
-		return game.statistics().forPlayer(player).getOr(StatisticKey.TROPICOINS, 0);
+		return game.statistics().readForPlayer(player).getOr(StatisticKey.TROPICOINS, 0);
 	}
 
 	private int getPoints(ServerPlayer player) {
-		return game.statistics().forPlayer(player).getOr(StatisticKey.POINTS, 0);
+		return game.statistics().readForPlayer(player).getOr(StatisticKey.POINTS, 0);
 	}
 
 	private record SentShop(int balance, boolean ghost, List<ShopClientState.Target> targets) {

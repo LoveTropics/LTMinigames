@@ -136,7 +136,7 @@ public final class FinishBehavior implements IGameBehavior {
 		// Players who left the game still keep their points
 		Set<PlayerKey> players = new LinkedHashSet<>(finishers);
 		for (PlayerKey player : statistics.getPlayers()) {
-			if (statistics.forPlayer(player).get(StatisticKey.POINTS) != null) {
+			if (statistics.readForPlayer(player).get(StatisticKey.POINTS) != null) {
 				players.add(player);
 			}
 		}
@@ -166,6 +166,6 @@ public final class FinishBehavior implements IGameBehavior {
 	}
 
 	private static int getPoints(GameStatistics statistics, PlayerKey player) {
-		return statistics.forPlayer(player).getOr(StatisticKey.POINTS, 0);
+		return statistics.readForPlayer(player).getOr(StatisticKey.POINTS, 0);
 	}
 }

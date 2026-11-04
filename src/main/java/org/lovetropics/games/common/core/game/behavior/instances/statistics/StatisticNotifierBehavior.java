@@ -61,13 +61,13 @@ public record StatisticNotifierBehavior(
 
 		events.listen(GamePlayerEvents.ADD, player ->
 				// We don't want to notify players about statistics they already had when they joined
-				lastValues.put(player.getUUID(), game.statistics().forPlayer(player).getInt(statistic))
+				lastValues.put(player.getUUID(), game.statistics().readForPlayer(player).getInt(statistic))
 		);
 		events.listen(GamePlayerEvents.REMOVE, player -> lastValues.removeInt(player.getUUID()));
 
 		events.listen(GamePhaseEvents.TICK, () -> {
 			for (ServerPlayer player : game.allPlayers()) {
-				int value = game.statistics().forPlayer(player).getInt(statistic);
+				int value = game.statistics().readForPlayer(player).getInt(statistic);
 				int lastValue = lastValues.put(player.getUUID(), value);
 				if (lastValue != value) {
 					onValueChange(game, value, lastValue, ActionSubjects.ofPlayer(player));

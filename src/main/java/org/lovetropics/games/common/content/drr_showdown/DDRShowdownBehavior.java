@@ -176,8 +176,8 @@ public class DDRShowdownBehavior implements IGameBehavior {
 		// Todo Players could tie but like...
 		GameStatistics statistics = game.statistics();
 		PlayerKey playerKey = statistics.getPlayers().stream().max((o1, o2) -> {
-			int score1 = statistics.forPlayer(o1).getInt(StatisticKey.DDR_SCORE);
-			int score2 = statistics.forPlayer(o2).getInt(StatisticKey.DDR_SCORE);
+			int score1 = statistics.readForPlayer(o1).getInt(StatisticKey.DDR_SCORE);
+			int score2 = statistics.readForPlayer(o2).getInt(StatisticKey.DDR_SCORE);
 			return Integer.compare(score1, score2);
 		}).orElse(null);
 

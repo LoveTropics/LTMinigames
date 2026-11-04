@@ -75,7 +75,7 @@ public record StatisticBossBarBehavior<T>(
 			}
 			if (role == PlayerRole.PARTICIPANT) {
 				GameBossBar bossBar = widgets.openBossBar(CommonComponents.EMPTY, color, style);
-				updateBossBar(bossBar, game.statistics().forPlayer(player).get(statistic));
+				updateBossBar(bossBar, game.statistics().readForPlayer(player).get(statistic));
 				bossBar.addPlayer(player);
 				bossBars.put(player.getUUID(), bossBar);
 			}
@@ -91,7 +91,7 @@ public record StatisticBossBarBehavior<T>(
 		events.listen(GamePlayerEvents.TICK, player -> {
 			GameBossBar bossBar = bossBars.get(player.getUUID());
 			if (bossBar != null) {
-				updateBossBar(bossBar, game.statistics().forPlayer(player).get(statistic));
+				updateBossBar(bossBar, game.statistics().readForPlayer(player).get(statistic));
 			}
 		});
 	}

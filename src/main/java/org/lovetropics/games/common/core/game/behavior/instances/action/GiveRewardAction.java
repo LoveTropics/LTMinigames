@@ -57,7 +57,7 @@ public record GiveRewardAction(List<ItemStackTemplate> items, List<Identifier> c
 					value += game.statistics().forTeam(team).getInt(statistic);
 				}
 			} else {
-				value = game.statistics().forPlayer(player).getInt(statistic);
+				value = game.statistics().readForPlayer(player).getInt(statistic);
 			}
 			return Mth.floor(multiplier * value);
 		}

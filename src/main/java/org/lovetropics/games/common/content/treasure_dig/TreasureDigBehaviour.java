@@ -39,7 +39,7 @@ public record TreasureDigBehaviour(
 				return;
 			}
 
-			int oldPlayerScore = game.statistics().forPlayer(player).getInt(StatisticKey.POINTS);
+			int oldPlayerScore = game.statistics().readForPlayer(player).getInt(StatisticKey.POINTS);
 			int newPlayerScore = calculatePlayerScore(player);
 			if (newPlayerScore == oldPlayerScore) {
 				return;

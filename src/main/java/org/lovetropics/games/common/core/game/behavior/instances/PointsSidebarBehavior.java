@@ -51,7 +51,7 @@ public record PointsSidebarBehavior(
 			//noinspection unchecked
 			StatisticKey<Integer> intStat = (StatisticKey<Integer>) leaderboard.statistic();
 			for (PlayerKey player : game.statistics().getPlayers()) {
-				totalCount += game.statistics().forPlayer(player).getInt(intStat);
+				totalCount += game.statistics().readForPlayer(player).getInt(intStat);
 			}
 			for (GameTeamKey team : game.statistics().getTeams()) {
 				totalCount += game.statistics().forTeam(team).getInt(intStat);

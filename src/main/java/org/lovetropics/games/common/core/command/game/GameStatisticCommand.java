@@ -29,6 +29,7 @@ import org.lovetropics.games.common.core.game.IGameLookup;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.state.statistics.GameStatistics;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
+import org.lovetropics.games.common.core.game.state.statistics.StatisticsGetter;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticsMap;
 import org.lovetropics.games.common.core.game.state.team.GameTeam;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
@@ -97,7 +98,7 @@ public class GameStatisticCommand {
 												.executes(context -> {
 													ServerPlayer player = getPlayer(context, "player");
 													StatisticKey<?> statisticKey = StatisticKeyArgument.get(context, "statistic");
-													return getStatistic(context.getSource(), s -> s.forPlayer(player), player.getDisplayName(), statisticKey);
+													return getStatistic(context.getSource(), s -> s.readForPlayer(player), player.getDisplayName(), statisticKey);
 												})
 										)
 								)
@@ -163,7 +164,7 @@ public class GameStatisticCommand {
 		return game;
 	}
 
-	private static <T> int getStatistic(CommandSourceStack source, Function<GameStatistics, StatisticsMap> statisticExtractor, Component targetName, StatisticKey<T> statisticKey) throws CommandSyntaxException {
+	private static <T> int getStatistic(CommandSourceStack source, Function<GameStatistics, StatisticsGetter> statisticExtractor, Component targetName, StatisticKey<T> statisticKey) throws CommandSyntaxException {
 		T value = statisticExtractor.apply(getGameFor(source).statistics()).get(statisticKey);
 		return displayStatisticValue(source, targetName, statisticKey, value);
 	}

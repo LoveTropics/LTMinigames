@@ -63,7 +63,7 @@ public record SetupPodiumAction(
 				continue;
 			}
 
-			int placement = statistics.forPlayer(playerKey).getOr(StatisticKey.PLACEMENT, Integer.MAX_VALUE);
+			int placement = statistics.readForPlayer(playerKey).getOr(StatisticKey.PLACEMENT, Integer.MAX_VALUE);
 			if (placement >= 1 && placement <= winnerBoxes.size()) {
 				teleportToRegion(player, winnerBoxes.get(placement - 1), loserBox);
 				if (placement <= winnerActions.size()) {

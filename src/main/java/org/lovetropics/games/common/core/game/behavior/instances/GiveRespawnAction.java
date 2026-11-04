@@ -39,7 +39,7 @@ public record GiveRespawnAction(
 
 		// TODO: This is a hack, would run more with more instances
 		events.listen(GamePlayerEvents.RESPAWN, player -> {
-			int livesLeft = game.statistics().forPlayer(player).getInt(StatisticKey.LIVES);
+			int livesLeft = game.statistics().readForPlayer(player).getInt(StatisticKey.LIVES);
 			Component donor = Objects.requireNonNullElse(livesGivenBy.poll(), ANONYMOUS_DONOR);
 
 			PlayerSet players = PlayerSet.of(player);

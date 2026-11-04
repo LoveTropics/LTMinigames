@@ -53,6 +53,17 @@ public final class GameStatistics implements IGameState {
 		return forPlayer(PlayerKey.from(player));
 	}
 
+	// TODO: This is a big hack - we really shouldn't be reliant on the set of players with initialized stats
+	//       We currently *do* though, because player role isn't reliable for "is this player participating in a game?" due to respawning often swapping the player's role
+	public StatisticsGetter readForPlayer(PlayerKey key) {
+		StatisticsMap map = byPlayer.get(key);
+		return map != null ? map : StatisticsGetter.EMPTY;
+	}
+
+	public StatisticsGetter readForPlayer(Player player) {
+		return readForPlayer(PlayerKey.from(player));
+	}
+
 	public StatisticsMap forTeam(GameTeamKey key) {
 		return byTeam.computeIfAbsent(key, k -> new StatisticsMap());
 	}

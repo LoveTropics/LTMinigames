@@ -12,7 +12,6 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.Util;
 import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.item.ItemStack;
 import org.lovetropics.games.common.core.game.IGamePhase;
@@ -276,7 +275,7 @@ public final class BingoBoard implements IGameState {
 				.filter(entry -> clientTiles.get(entry.getIntKey()).isEmpty())
 				.map(entry -> new BingoBoardClientState.LockedSlot(entry.getIntKey(), entry.getValue().clue()))
 				.toList();
-		int points = game.statistics().forPlayer(player).getOr(StatisticKey.POINTS, 0);
+		int points = game.statistics().readForPlayer(player).getOr(StatisticKey.POINTS, 0);
 		Optional<Component> unlockHint = !lockedSlots.isEmpty() && unlockOnClear > 0 ? Optional.of(Bingo.LOCKED_HINT_CLEAR.apply(unlockOnClear)) : Optional.empty();
 		GameClientState.sendToPlayer(new BingoBoardClientState(rows, columns, clientTiles, clientLockedSlots, points, unlockHint, getPlayerProgress(), Ghosts.isParticipantOrGhost(game, player)), player);
 	}
@@ -286,7 +285,7 @@ public final class BingoBoard implements IGameState {
 		GameStatistics statistics = game.statistics();
 		Set<PlayerKey> players = new LinkedHashSet<>();
 		for (PlayerKey player : statistics.getPlayers()) {
-			if (statistics.forPlayer(player).get(StatisticKey.POINTS) != null) {
+			if (statistics.readForPlayer(player).contains(StatisticKey.POINTS)) {
 				players.add(player);
 			}
 		}
@@ -302,7 +301,7 @@ public final class BingoBoard implements IGameState {
 					completedTiles.add(index);
 				}
 			}
-			int points = statistics.forPlayer(player).getOr(StatisticKey.POINTS, 0);
+			int points = statistics.readForPlayer(player).getOr(StatisticKey.POINTS, 0);
 			progress.add(new BingoBoardClientState.PlayerProgress(player.id(), player.name(), points, completedTiles));
 		}
 		return progress;
