@@ -41,7 +41,7 @@ public final class SurviveTheTideTexts {
 	public static final Component CANT_USE_ITEM = KEYS.add("cant_use_item", "You cannot use this item until PVP is enabled!").withStyle(ChatFormatting.RED);
 
 	static {
-		KEYS.add("eliminated", "☠ %message%. They are eliminated!");
+		KEYS.add("eliminated", "☠ %message%");
 		KEYS.add("outro.ffa1", "Through the rising sea levels, the volatile and chaotic weather, and the struggle to survive, one player remains: %winner%.");
 		KEYS.add("outro.ffa2", "\nThose who have fallen have been swept away by the encroaching tides that engulf countless landmasses in this dire future.");
 		KEYS.add("outro.ffa3", "\nThe lone survivor of this city, %winner%, has won - but at what cost? The world is not what it once was, and they must survive in this new apocalyptic land.");
