@@ -35,6 +35,7 @@ import org.lovetropics.games.common.core.integration.GameInstanceIntegrations;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -43,10 +44,6 @@ import java.util.UUID;
 ///
 /// The board belongs to the phase that declares it, which keeps the players' points. Players may be playing in sub-phases
 /// of that phase (e.g. each in their own world), so tiles can be completed from any phase of the game instance.
-///
-/// Tiles can be added directly, or unlocked from a pool of locked tiles. Which tile of the pool ends up in which slot is
-/// decided upfront, so that players can be given a clue about a locked tile before it gets unlocked. They are unlocked
-/// in a random order, and the tiles of the pool that don't fit on the board are never used.
 public final class BingoBoard implements IGameState {
 	public static final GameStateKey<BingoBoard> KEY = GameStateKey.create("Bingo Board");
 
@@ -64,9 +61,9 @@ public final class BingoBoard implements IGameState {
 	private final List<BingoTile> placedTiles = new ArrayList<>();
 	private boolean started;
 
-	/// @param tilePool      locked tiles that can be unlocked onto the board
+	/// @param lockedTiles   locked tiles in their slot on the board, which can then be unlocked
 	/// @param unlockOnClear how many tiles to unlock once a player has completed every tile on the board
-	public BingoBoard(IGamePhase game, int rows, int columns, List<Float> positionRewardMultiplier, GameActionList onTileCompleted, GameActionList onBingo, List<BingoTileDefinition> tilePool, int unlockOnClear) {
+	public BingoBoard(IGamePhase game, int rows, int columns, List<Float> positionRewardMultiplier, GameActionList onTileCompleted, GameActionList onBingo, Map<TilePosition, BingoTileDefinition> lockedTiles, int unlockOnClear) {
 		this.game = game;
 		this.rows = rows;
 		this.columns = columns;
@@ -76,20 +73,14 @@ public final class BingoBoard implements IGameState {
 		this.unlockOnClear = unlockOnClear;
 		tiles = NonNullList.withSize(rows * columns, Optional.empty());
 
-		List<BingoTileDefinition> pool = new ArrayList<>(tilePool);
-		//Util.shuffle(pool, game.random());
-		IntList slots = new IntArrayList();
-		for (int i = 0; i < rows * columns; i++) {
-			slots.add(i);
-		}
-		//Util.shuffle(slots, game.random());
-
-		for (int i = 0; i < slots.size(); i++) {
-			if (i < pool.size()) {
-				lockedSlots.put(slots.getInt(i), pool.get(i));
-				placeTile(slots.getInt(i), pool.get(i));
-			} else {
-				emptySlots.add(slots.getInt(i));
+		lockedTiles.forEach((position, definition) -> {
+			int slot = position.slot(columns);
+			lockedSlots.put(slot, definition);
+			placeTile(slot, definition);
+		});
+		for (int slot = 0; slot < rows * columns; slot++) {
+			if (!lockedSlots.containsKey(slot)) {
+				emptySlots.add(slot);
 			}
 		}
 	}
@@ -156,7 +147,7 @@ public final class BingoBoard implements IGameState {
 	private void placeTile(int index, BingoTileDefinition definition) {
 		int id = placedTiles.size();
 		CriteriaTracker tracker = new CriteriaTracker(definition.criteria(), definition.requirements(), this::canComplete, player -> complete(id, player));
-		BingoTile tile = new BingoTile(id, index, definition.icon().create(), definition.title(), definition.reward(), tracker, definition.tileType());
+		BingoTile tile = new BingoTile(id, index, definition.icon().create(), definition.title(), definition.description(), definition.reward(), tracker, definition.tileType());
 		placedTiles.add(tile);
 		tiles.set(index, Optional.of(tile)).ifPresent(replaced -> replaced.tracker.stop(game.server()));
 		if (started) {
@@ -320,24 +311,26 @@ public final class BingoBoard implements IGameState {
 		private final int slot;
 		private final ItemStack icon;
 		private final Component title;
+		private final Optional<Component> description;
 		private final int reward;
 		private final CriteriaTracker tracker;
 		private final BingoTileType tileType;
 		/// In the order the players completed the tile
 		private final Set<UUID> completedBy = new LinkedHashSet<>();
 
-		private BingoTile(int id, int slot, ItemStack icon, Component title, int reward, CriteriaTracker tracker, BingoTileType tileType) {
+		private BingoTile(int id, int slot, ItemStack icon, Component title, Optional<Component> description, int reward, CriteriaTracker tracker, BingoTileType tileType) {
 			this.id = id;
 			this.slot = slot;
 			this.icon = icon;
 			this.title = title;
+			this.description = description;
 			this.reward = reward;
 			this.tracker = tracker;
 			this.tileType = tileType;
 		}
 
 		private BingoBoardClientState.Tile tile(ServerPlayer player, int nextReward) {
-			return new BingoBoardClientState.Tile(icon, title, completedBy.contains(player.getUUID()), completedBy.size(), nextReward, tileType);
+			return new BingoBoardClientState.Tile(icon, title, description, completedBy.contains(player.getUUID()), completedBy.size(), nextReward, tileType);
 		}
 	}
 }

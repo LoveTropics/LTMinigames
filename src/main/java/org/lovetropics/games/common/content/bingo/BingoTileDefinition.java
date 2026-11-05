@@ -19,6 +19,7 @@ import java.util.Optional;
 public record BingoTileDefinition(
 		ItemStackTemplate icon,
 		Component title,
+		Optional<Component> description,
 		Optional<Component> clue,
 		int reward,
 		Map<String, Criterion<?>> criteria,
@@ -30,13 +31,14 @@ public record BingoTileDefinition(
 	public static final MapCodec<BingoTileDefinition> MAP_CODEC = RecordCodecBuilder.<BingoTileDefinition>mapCodec(in -> in.group(
 			ItemStackTemplate.CODEC.fieldOf("icon").forGetter(BingoTileDefinition::icon),
 			ComponentSerialization.CODEC.fieldOf("title").forGetter(BingoTileDefinition::title),
+			ComponentSerialization.CODEC.optionalFieldOf("description").forGetter(BingoTileDefinition::description),
 			ComponentSerialization.CODEC.optionalFieldOf("clue").forGetter(BingoTileDefinition::clue),
 			Codec.INT.fieldOf("reward").forGetter(BingoTileDefinition::reward),
 			CRITERIA_CODEC.fieldOf("criteria").forGetter(BingoTileDefinition::criteria),
 			AdvancementRequirements.CODEC.optionalFieldOf("requirements").forGetter(d -> Optional.of(d.requirements())),
 			BingoTileType.CODEC.optionalFieldOf("tile_type", BingoTileType.DEFAULT).forGetter(BingoTileDefinition::tileType)
-	).apply(in, (icon, title, clue, reward, criteria, requirements, tileType) -> new BingoTileDefinition(
-			icon, title, clue, reward, criteria, requirements.orElseGet(() -> AdvancementRequirements.allOf(criteria.keySet())), tileType
+	).apply(in, (icon, title, description, clue, reward, criteria, requirements, tileType) -> new BingoTileDefinition(
+			icon, title, description, clue, reward, criteria, requirements.orElseGet(() -> AdvancementRequirements.allOf(criteria.keySet())), tileType
 	))).validate(d -> d.requirements().validate(d.criteria().keySet()).map(_ -> d));
 	public static final Codec<BingoTileDefinition> CODEC = MAP_CODEC.codec();
 }

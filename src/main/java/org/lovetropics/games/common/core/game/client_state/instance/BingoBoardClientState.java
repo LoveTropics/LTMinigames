@@ -56,6 +56,7 @@ public record BingoBoardClientState(int rows, int columns, List<Optional<Tile>> 
 	public record Tile(
 			ItemStack icon,
 			Component title,
+			Optional<Component> description,
 			boolean completed,
 			int completions,
 			int reward,
@@ -64,6 +65,7 @@ public record BingoBoardClientState(int rows, int columns, List<Optional<Tile>> 
 		public static final Codec<Tile> CODEC = RecordCodecBuilder.create(in -> in.group(
 				ItemStack.CODEC.fieldOf("icon").forGetter(Tile::icon),
 				ComponentSerialization.CODEC.fieldOf("title").forGetter(Tile::title),
+				ComponentSerialization.CODEC.optionalFieldOf("description").forGetter(Tile::description),
 				Codec.BOOL.fieldOf("completed").forGetter(Tile::completed),
 				Codec.INT.optionalFieldOf("completions", 0).forGetter(Tile::completions),
 				Codec.INT.optionalFieldOf("reward", 0).forGetter(Tile::reward),

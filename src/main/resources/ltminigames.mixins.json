@@ -12,6 +12,7 @@
     "EntityMixin",
     "ItemFrameMixin",
     "PlayerAdvancementsMixin",
+    "RaidMixin",
     "RideCommandMixin",
     "ServerPlayerMixin",
     "TrialSpawnerAccess",

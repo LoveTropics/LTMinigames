@@ -252,6 +252,7 @@ public final class BingoBoardScreen extends Screen {
 	private List<FormattedCharSequence> createTooltip(BingoBoardClientState.Tile tile) {
 		List<FormattedCharSequence> lines = new ArrayList<>();
 		lines.addAll(font.split(tile.title().copy().withStyle(ChatFormatting.YELLOW), TOOLTIP_WIDTH));
+		tile.description().ifPresent(description -> lines.addAll(font.split(description.copy().withStyle(ChatFormatting.GRAY), TOOLTIP_WIDTH)));
 		lines.add(CommonComponents.EMPTY.getVisualOrderText());
 		Component status = tile.completed()
 				? Bingo.TILE_DONE.copy().withStyle(ChatFormatting.GREEN)

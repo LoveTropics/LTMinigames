@@ -82,6 +82,7 @@ import org.lovetropics.games.common.core.data.LoveTropicsAttachments;
 import org.lovetropics.games.common.core.entity.MinigameEntities;
 import org.lovetropics.games.common.core.extension.LimitedSpawnerAttachment;
 import org.lovetropics.games.common.core.game.GameLootModifier;
+import org.lovetropics.games.common.core.advancement.LoveTropicsCriteria;
 import org.lovetropics.games.common.core.game.behavior.GameBehaviorTypes;
 import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
 import org.lovetropics.games.common.core.game.impl.GameEventDispatcher;
@@ -166,6 +167,7 @@ public class LoveTropics {
 		GameBehaviorTypes.init(modBus);
 		PersistentGameBehaviors.init(modBus);
 		GameClientStateTypes.init(modBus);
+		LoveTropicsCriteria.init(modBus);
 		StreamHosts.init();
 
 		SurviveTheTide.init();
