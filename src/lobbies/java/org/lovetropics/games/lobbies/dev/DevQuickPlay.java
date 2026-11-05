@@ -105,7 +105,7 @@ public class DevQuickPlay {
 			} else {
 				WorldDataConfiguration dataConfiguration = new WorldDataConfiguration(DataPackConfig.DEFAULT, FeatureFlags.VANILLA_SET);
 				LevelSettings levelSettings = new LevelSettings(LEVEL_NAME, GameType.CREATIVE, new LevelSettings.DifficultySettings(Difficulty.NORMAL, false, false), true, dataConfiguration);
-				WorldOptions worldOptions = new WorldOptions(0, false, false);
+				WorldOptions worldOptions = new WorldOptions(0, true, false);
 				Function<HolderLookup.Provider, WorldDimensions> dimensionsProvider = registries -> {
 					Holder.Reference<WorldPreset> flatPreset = registries.lookupOrThrow(Registries.WORLD_PRESET).getOrThrow(WorldPresets.FLAT);
 					Holder.Reference<FlatLevelGeneratorPreset> redstoneReady = registries.lookupOrThrow(Registries.FLAT_LEVEL_GENERATOR_PRESET).getOrThrow(FlatLevelGeneratorPresets.REDSTONE_READY);
