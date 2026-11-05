@@ -14,11 +14,11 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.item.ItemStack;
+import org.lovetropics.games.common.core.advancement.CriteriaTracker;
+import org.lovetropics.games.common.core.game.IGameLookup;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.action.ActionSubjects;
 import org.lovetropics.games.common.core.game.behavior.action.GameActionList;
-import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
-import org.lovetropics.games.common.core.game.behavior.event.GameEventListeners;
 import org.lovetropics.games.common.core.game.client_state.GameClientState;
 import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
 import org.lovetropics.games.common.core.game.client_state.instance.BingoBoardClientState;
@@ -38,12 +38,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.Supplier;
 
 /// The bingo board of a game, shared by all of its phases.
 ///
 /// The board belongs to the phase that declares it, which keeps the players' points. Players may be playing in sub-phases
-/// of that phase (e.g. each in their own world), so the trigger of every tile is registered in each of those too.
+/// of that phase (e.g. each in their own world), so tiles can be completed from any phase of the game instance.
 ///
 /// Tiles can be added directly, or unlocked from a pool of locked tiles. Which tile of the pool ends up in which slot is
 /// decided upfront, so that players can be given a clue about a locked tile before it gets unlocked. They are unlocked
@@ -63,7 +62,7 @@ public final class BingoBoard implements IGameState {
 	/// Slots with nothing in them, not even a locked tile
 	private final IntList emptySlots = new IntArrayList();
 	private final List<BingoTile> placedTiles = new ArrayList<>();
-	private final List<PhaseEvents> phases = new ArrayList<>();
+	private boolean started;
 
 	/// @param tilePool      locked tiles that can be unlocked onto the board
 	/// @param unlockOnClear how many tiles to unlock once a player has completed every tile on the board
@@ -95,17 +94,21 @@ public final class BingoBoard implements IGameState {
 		}
 	}
 
-	/// Registers the triggers of all tiles, current and future, in the given phase
-	public void addPhase(IGamePhase phase, EventRegistrar events) {
-		PhaseEvents phaseEvents = new PhaseEvents(phase, events);
-		phases.add(phaseEvents);
-		for (Optional<BingoTile> tile : tiles) {
-			tile.ifPresent(t -> registerTrigger(t, phaseEvents));
+	/// Starts tracking the criteria of all tiles, current and future
+	public void start() {
+		if (!started) {
+			started = true;
+			CriteriaTracker.startAll(game.server(), tiles.stream().flatMap(Optional::stream).map(t -> t.tracker).toList());
 		}
 	}
 
-	public void removePhase(IGamePhase phase) {
-		phases.removeIf(phaseEvents -> phaseEvents.phase == phase);
+	public void stop() {
+		if (started) {
+			started = false;
+			for (BingoTile tile : placedTiles) {
+				tile.tracker.stop(game.server());
+			}
+		}
 	}
 
 	/// Adds a tile into an empty slot, or in place of a locked tile if there is none left
@@ -151,21 +154,19 @@ public final class BingoBoard implements IGameState {
 	}
 
 	private void placeTile(int index, BingoTileDefinition definition) {
-		BingoTile tile = new BingoTile(placedTiles.size(), index, definition.icon().create(), definition.title(), definition.reward(), definition.trigger(), definition.tileType());
+		int id = placedTiles.size();
+		CriteriaTracker tracker = new CriteriaTracker(definition.criteria(), definition.requirements(), this::canComplete, player -> complete(id, player));
+		BingoTile tile = new BingoTile(id, index, definition.icon().create(), definition.title(), definition.reward(), tracker, definition.tileType());
 		placedTiles.add(tile);
-		tiles.set(index, Optional.of(tile));
-		for (PhaseEvents phaseEvents : phases) {
-			registerTrigger(tile, phaseEvents);
+		tiles.set(index, Optional.of(tile)).ifPresent(replaced -> replaced.tracker.stop(game.server()));
+		if (started) {
+			tracker.start(game.server());
 		}
 	}
 
-	private static void registerTrigger(BingoTile tile, PhaseEvents phaseEvents) {
-		// This event capturing dance allows us to pass a parameter to the actions in the trigger so that those actions can report back when they complete the tile
-		GameEventListeners captureListeners = new GameEventListeners();
-
-		// Create new instances of the trigger and register its events
-		tile.trigger.get().register(phaseEvents.phase, phaseEvents.events.redirect(t -> t == Bingo.CAPTURE_TILE_EVENT, captureListeners));
-		captureListeners.invoker(Bingo.CAPTURE_TILE_EVENT).capture(tile.id);
+	private boolean canComplete(ServerPlayer player) {
+		IGamePhase phase = IGameLookup.get().getGamePhaseFor(player);
+		return phase != null && phase.instanceState().getOrNull(KEY) == this && Ghosts.isParticipantOrGhost(phase, player);
 	}
 
 	public void complete(int tileId, ServerPlayer player) {
@@ -314,27 +315,24 @@ public final class BingoBoard implements IGameState {
 		GameClientState.removeFromPlayer(GameClientStateTypes.BINGO_BOARD.get(), player);
 	}
 
-	private record PhaseEvents(IGamePhase phase, EventRegistrar events) {
-	}
-
 	private static final class BingoTile {
 		private final int id;
 		private final int slot;
 		private final ItemStack icon;
 		private final Component title;
 		private final int reward;
-		private final Supplier<GameActionList> trigger;
+		private final CriteriaTracker tracker;
 		private final BingoTileType tileType;
 		/// In the order the players completed the tile
 		private final Set<UUID> completedBy = new LinkedHashSet<>();
 
-		private BingoTile(int id, int slot, ItemStack icon, Component title, int reward, Supplier<GameActionList> trigger, BingoTileType tileType) {
+		private BingoTile(int id, int slot, ItemStack icon, Component title, int reward, CriteriaTracker tracker, BingoTileType tileType) {
 			this.id = id;
 			this.slot = slot;
 			this.icon = icon;
 			this.title = title;
 			this.reward = reward;
-			this.trigger = trigger;
+			this.tracker = tracker;
 			this.tileType = tileType;
 		}
 

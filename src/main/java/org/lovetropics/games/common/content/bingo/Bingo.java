@@ -26,12 +26,6 @@ public class Bingo {
 	public static final TranslationCollector.Fun1 TILE_REWARD = KEYS.add1("tile.reward", "+%s points");
 	public static final TranslationCollector.Fun1 TILE_COMPLETIONS = KEYS.add1("tile.completions", "Done by %s");
 
-	public static final GameEventType<CaptureBingoTile> CAPTURE_TILE_EVENT = GameEventType.create(CaptureBingoTile.class, listeners -> (tile) -> {
-		for (CaptureBingoTile listener : listeners) {
-			listener.capture(tile);
-		}
-	});
-
 	/// Fired in the phase that owns the board once a player has completed every tile of a full board
 	public static final GameEventType<BoardCompleted> BOARD_COMPLETED = GameEventType.create(BoardCompleted.class, listeners -> (player) -> {
 		for (BoardCompleted listener : listeners) {
@@ -42,12 +36,7 @@ public class Bingo {
 	public static void init() {
 		REGISTRATE.registerBehavior("bingo", BingoBehavior.CODEC);
 		REGISTRATE.registerBehavior("bingo/add_tile", AddBingoTileBehavior.CODEC);
-		REGISTRATE.registerBehavior("bingo/complete_tile", CompleteBingoTileBehavior.CODEC);
 		REGISTRATE.registerBehavior("bingo/unlock_tiles", UnlockBingoTilesAction.CODEC);
-	}
-
-	public interface CaptureBingoTile {
-		void capture(int tileIndex);
 	}
 
 	public interface BoardCompleted {

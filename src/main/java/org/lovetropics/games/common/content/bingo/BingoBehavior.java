@@ -61,23 +61,19 @@ public final class BingoBehavior implements IGameBehavior {
 		onTileCompleted.register(game, events);
 		onBingo.register(game, events);
 
-		board.addPhase(game, events);
-
 		events.listen(GamePhaseEvents.START, _ -> {
+			board.start();
 			board.unlockTiles(initialTiles);
 			board.updateTiles();
 		});
+		events.listen(GamePhaseEvents.STOP, _ -> board.stop());
 		events.listen(GamePlayerEvents.ADD, board::updatePlayer);
 		events.listen(GamePlayerEvents.SET_ROLE, (player, _, _) -> board.updatePlayer(player));
 		events.listen(GamePlayerEvents.OVERLORD_CHANGE, (player, _) -> board.updatePlayer(player));
 		events.listen(GamePlayerEvents.REMOVE, board::removeFromPlayer);
 
 		// Players moving into a sub-phase are removed from this one, which clears their board - send it again once they arrive
-		events.listen(SubGameEvents.CREATE, (subGame, subEvents) -> {
-			board.addPhase(subGame, subEvents);
-			subEvents.listen(GamePlayerEvents.ADD, board::updatePlayer);
-			subEvents.listen(GamePhaseEvents.STOP, _ -> board.removePhase(subGame));
-		});
+		events.listen(SubGameEvents.CREATE, (_, subEvents) -> subEvents.listen(GamePlayerEvents.ADD, board::updatePlayer));
 	}
 
 	@Override
