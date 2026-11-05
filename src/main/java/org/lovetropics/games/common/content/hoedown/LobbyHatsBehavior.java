@@ -13,6 +13,7 @@ import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -23,6 +24,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.util.TriState;
 import net.minecraft.util.Util;
 import net.minecraft.util.random.WeightedList;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -53,6 +55,7 @@ import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -117,12 +120,16 @@ public record LobbyHatsBehavior(
 				return TriState.DEFAULT;
 			}
 			List<StackedHat> hats = StackedHat.getEntityHats(entity);
-			if (hats.size() == 1) {
+			if (entity.getMaxHealth() <= 1.0) {
+				ServerPlayer responsiblePlayer = getResponsiblePlayer(game, level, entity, damageSource);
 				level.sendParticles(ParticleTypes.TOTEM_OF_UNDYING, true, false, entity.getX(), entity.getY(0.5), entity.getZ(), 5, 0.3, 0.3, 0.3, 0.5);
-			} else {
-				level.sendParticles(ParticleTypes.EXPLOSION, entity.getX(), entity.getY(0.5), entity.getZ(), 5, 1.0, 1.0, 1.0, 0.0);
-				level.playSound(null, entity, SoundEvents.GENERIC_EXPLODE.value(), SoundSource.PLAYERS, 1.0f, 1.0f);
+				if (responsiblePlayer != null) {
+					state.hats.addHats(responsiblePlayer, hats);
+					return TriState.DEFAULT;
+				}
 			}
+			level.playSound(null, entity, SoundEvents.GENERIC_EXPLODE.value(), SoundSource.PLAYERS, 1.0f, 1.0f);
+			level.sendParticles(ParticleTypes.EXPLOSION, entity.getX(), entity.getY(0.5), entity.getZ(), 5, 1.0, 1.0, 1.0, 0.0);
 			for (StackedHat hat : hats) {
 				// This is a bit cursed - create an item that looks like the hat, but pass the StackedHat through the component
 				ItemStack itemStack = hat.item().create();
@@ -250,6 +257,17 @@ public record LobbyHatsBehavior(
 		itemEntity.lifespan = SharedConstants.TICKS_PER_SECOND * 3;
 		player.level().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.SNIFFER_DROP_SEED, SoundSource.PLAYERS);
 		player.level().addFreshEntity(itemEntity);
+	}
+
+	private @Nullable ServerPlayer getResponsiblePlayer(IGamePhase game, ServerLevel level, LivingEntity entity, DamageSource damageSource) {
+		if (damageSource.getEntity() instanceof ServerPlayer player) {
+			return player;
+		} else if (damageSource.getDirectEntity() instanceof ServerPlayer player) {
+			return player;
+		}
+		return game.participants().inLevel(level).stream()
+				.min(Comparator.comparingDouble(player -> player.distanceToSqr(entity)))
+				.orElse(null);
 	}
 
 	private void spawnMobWithHat(IGamePhase game, State state, Component customName, HatMobSpec spec) {
