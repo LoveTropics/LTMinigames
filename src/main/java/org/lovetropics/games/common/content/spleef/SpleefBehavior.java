@@ -23,9 +23,11 @@ import net.minecraft.world.level.block.Blocks;
 import org.lovetropics.games.common.content.MinigameTexts;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.GameStopReason;
+import org.lovetropics.games.common.core.game.GameWinner;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.core.game.behavior.event.GameLogicEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.player.PlayerIterable;
@@ -180,39 +182,25 @@ public class SpleefBehavior implements IGameBehavior {
 		}
 		PlayerSet participants = game.participants();
 
-		if (participants.size() <= 1) {
+		if (participants.size() <= (blockSinglePlayerWin ? 0 : 1)) {
+			List<ServerPlayer> winnerCandidates = participants.stream().toList();
+			if (winnerCandidates.isEmpty()) {
+				winnerCandidates = lastTickPlayers;
+			}
 
-			if (game.participants().size() == 1 && !blockSinglePlayerWin) {
-				winTitle(participants.stream().toList());
-				Component displayName = participants.iterator().next().getDisplayName();
+			// Totally unfair, but let's be practical :)
+			ServerPlayer winningPlayer = net.minecraft.util.Util.getRandomSafe(winnerCandidates, game.random()).orElse(null);
+			if (winningPlayer != null) {
+				winTitle(List.of(winningPlayer));
+				Component displayName = winningPlayer.getDisplayName();
 				Style style = displayName.getStyle();
 				if (style.getColor() == null) {
 					style = style.withColor(ChatFormatting.WHITE);
 				}
 				game.allPlayers().playSound(SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundSource.MASTER, Integer.MAX_VALUE, 0.8f);
 				announceWinner(Component.translatable(getFlavourTextKey("win"), displayName.copy().withStyle(style)));
-			} else if (game.participants().isEmpty()) {
-				// Join the winners with a comma from the last tick though add an & for the last join.
-				List<ServerPlayer> winners = lastTickPlayers.stream().toList();
-				MutableComponent winnerText = Component.literal("");
 
-				for (int i = 0; i < winners.size(); i++) {
-					winTitle(winners);
-					Component displayName = winners.get(i).getDisplayName();
-					Style style = displayName.getStyle();
-					if (style.getColor() == null) {
-						style = style.withColor(ChatFormatting.WHITE);
-					}
-					winnerText.append(winners.get(i).getDisplayName().copy().withStyle(style));
-					if (i < winners.size() - 2) {
-						winnerText.append(", ");
-					} else if (i == winners.size() - 2) {
-						winnerText.append(" & ");
-					}
-				}
-
-				game.allPlayers().playSound(SoundEvents.RAID_HORN.value(), SoundSource.MASTER, Integer.MAX_VALUE, 0.75f);
-				announceWinner(Component.translatable(getFlavourTextKey("winners"), winnerText));
+				game.invoker(GameLogicEvents.GAME_OVER).onGameOver(new GameWinner.Player(winningPlayer));
 			}
 		} else {
 			lastTickPlayers = participants.stream().toList();
