@@ -3,7 +3,9 @@ package org.lovetropics.games.common.core.game.behavior.instances.tweak;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.util.TriState;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.player.Player;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
@@ -26,11 +28,15 @@ public record CancelPlayerDamageBehavior(boolean knockback, ProgressChannel chan
 	public void register(IGamePhase game, EventRegistrar events) {
 		BooleanSupplier predicate = period.map(p -> p.createPredicate(game, channel)).orElse(() -> true);
 		if (knockback) {
-			events.listen(GamePlayerEvents.DAMAGE_AMOUNT, (player, damageSource, amount, originalAmount) -> predicate.getAsBoolean() ? 0.0F : amount);
+			events.listen(GamePlayerEvents.DAMAGE_AMOUNT, (player, damageSource, amount, originalAmount) -> canCancel(damageSource) && predicate.getAsBoolean() ? 0.0F : amount);
 		} else {
 			events.listen(GamePlayerEvents.ATTACK, (player, target) -> target instanceof Player && predicate.getAsBoolean() ? TriState.FALSE : TriState.DEFAULT);
-			events.listen(GamePlayerEvents.DAMAGE, (player, damageSource, amount) -> predicate.getAsBoolean() ? TriState.FALSE : TriState.DEFAULT);
+			events.listen(GamePlayerEvents.DAMAGE, (player, damageSource, amount) -> canCancel(damageSource) &&  predicate.getAsBoolean() ? TriState.FALSE : TriState.DEFAULT);
 		}
+	}
+
+	private boolean canCancel(DamageSource source) {
+		return !source.is(DamageTypeTags.BYPASSES_INVULNERABILITY);
 	}
 
 	@Override
