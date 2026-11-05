@@ -178,19 +178,8 @@ public interface Placement<H extends StatisticHolder> extends Iterable<Placed<H>
 			Entry<H, T> entry;
 
 			for (int place = 1; place <= maxLength && i < entries.size(); place++) {
-				String headPrefix = " " + place + ". ";
-				String indentPrefix = StringUtils.repeat(' ', headPrefix.length());
-
-				boolean head = true;
+				String prefix = includePlacement ? " " + place + ". " : " - ";
 				while (i < entries.size() && (entry = entries.get(i)).placement == place) {
-					String prefix;
-					if (includePlacement) {
-						prefix = head ? headPrefix : indentPrefix;
-					} else {
-						prefix = " - ";
-					}
-					head = false;
-
 					if (includeScore) {
 						MutableComponent name = Component.literal(prefix).append(entry.holder.getName(game)).append(": ");
 						MutableComponent score = Component.literal(scoreKey.display(entry.score));
