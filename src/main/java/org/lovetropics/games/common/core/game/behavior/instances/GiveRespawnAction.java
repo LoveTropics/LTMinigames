@@ -69,7 +69,7 @@ public record GiveRespawnAction(
 									Component.translatable("%s lives left",
 											Component.literal(String.valueOf(livesLeft)).withStyle(ChatFormatting.RED)
 									),
-									Component.literal("Donate at ").append(Component.literal("live.lovetropics.org/donate").withStyle(ChatFormatting.AQUA)),
+									Component.literal("Donate at ").append(Component.literal("live.lovetropics.org").withStyle(ChatFormatting.AQUA)),
 									0,
 									SharedConstants.TICKS_PER_SECOND * 3,
 									SharedConstants.TICKS_PER_SECOND
