@@ -7,6 +7,7 @@ import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.world.item.ItemStack;
+import org.lovetropics.games.common.content.bingo.BingoTileKind;
 import org.lovetropics.games.common.content.bingo.BingoTileType;
 import org.lovetropics.games.common.core.game.client_state.GameClientState;
 import org.lovetropics.games.common.core.game.client_state.GameClientStateType;
@@ -50,9 +51,10 @@ public record BingoBoardClientState(int rows, int columns, List<Optional<Tile>> 
 	}
 
 	/// @param completions how many players have completed the tile
-	/// @param reward      how many points the tile is worth to the player if they complete it now
+	/// @param reward      how many points the tile earned the player if they completed it, otherwise what it is worth to them if they complete it now
 	/// @param tileType    information about how the tile should be displayed
 	/// 				   TODO add an Appearance record to BingoTileType so we avoid sending gameplay information.
+	/// @param kind        what players have to do to complete the tile
 	public record Tile(
 			ItemStack icon,
 			Component title,
@@ -60,7 +62,8 @@ public record BingoBoardClientState(int rows, int columns, List<Optional<Tile>> 
 			boolean completed,
 			int completions,
 			int reward,
-			BingoTileType tileType
+			BingoTileType tileType,
+			BingoTileKind kind
 	) {
 		public static final Codec<Tile> CODEC = RecordCodecBuilder.create(in -> in.group(
 				ItemStack.CODEC.fieldOf("icon").forGetter(Tile::icon),
@@ -69,7 +72,8 @@ public record BingoBoardClientState(int rows, int columns, List<Optional<Tile>> 
 				Codec.BOOL.fieldOf("completed").forGetter(Tile::completed),
 				Codec.INT.optionalFieldOf("completions", 0).forGetter(Tile::completions),
 				Codec.INT.optionalFieldOf("reward", 0).forGetter(Tile::reward),
-				BingoTileType.CODEC.optionalFieldOf("tile_type", BingoTileType.DEFAULT).forGetter(Tile::tileType)
+				BingoTileType.CODEC.optionalFieldOf("tile_type", BingoTileType.DEFAULT).forGetter(Tile::tileType),
+				BingoTileKind.CODEC.optionalFieldOf("kind", BingoTileKind.OBTAIN).forGetter(Tile::kind)
 		).apply(in, Tile::new));
 	}
 

@@ -5,9 +5,13 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.PlayerFaceExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FontDescription;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import org.joml.Matrix3x2fStack;
@@ -20,18 +24,19 @@ import org.lovetropics.games.common.content.bingo.BingoTileType;
 import org.lovetropics.games.common.core.game.client_state.instance.BingoBoardClientState;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
 /// The full bingo board, with tooltips giving the details of each tile
 public final class BingoBoardScreen extends Screen {
-	private static final int TILE_W = 64;
+	private static final int TILE_W = 52;
 	private static final int GAP = 4;
 	private static final int ICON_SIZE = 20;
+	private static final int KIND_SPRITE_SIZE = 14;
 	private static final int TOP_PADDING = 3;
 	private static final int SIDE_PADDING = 3;
-	private static final int ICON_TEXT_GAP = 2;
+	private static final int ICON_KIND_GAP = 2;
+	private static final int COMPLETED_POINTS_COLOR = 0xFF55FF55;
 	private static final int BOTTOM_PADDING = 3;
 	private static final int SCREEN_MARGIN = 10;
 	private static final int TOOLTIP_WIDTH = 200;
@@ -39,6 +44,8 @@ public final class BingoBoardScreen extends Screen {
 	private static final int CARD_HEADER_H = GameBingoHandler.FACE_SIZE + 3;
 	private static final int CARD_GAP = 6;
 	private static final int PANEL_GAP = 12;
+
+	private static final Style POINTS_STYLE = Style.EMPTY.withFont(new FontDescription.Resource(Identifier.fromNamespaceAndPath("lt", "minecraft_five")));
 
 	/// The other players, whose boards are shown next to ours
 	private final BingoStandings standings = new BingoStandings(false);
@@ -84,15 +91,8 @@ public final class BingoBoardScreen extends Screen {
 		int columns = board.columns();
 		List<Optional<BingoBoardClientState.Tile>> tiles = board.tiles();
 
-		int textAreaW = TILE_W - SIDE_PADDING * 2;
 		int lineHeight = font.lineHeight;
-
-		// All tiles are as tall as the one with the longest title
-		int maxLines = tiles.stream()
-				.flatMap(Optional::stream)
-				.map(t -> font.split(t.title(), textAreaW).size())
-				.max(Comparator.naturalOrder()).orElse(1);
-		int tileH = TOP_PADDING + ICON_SIZE + ICON_TEXT_GAP + maxLines * lineHeight + BOTTOM_PADDING;
+		int tileH = TOP_PADDING + ICON_SIZE + ICON_KIND_GAP + KIND_SPRITE_SIZE + BOTTOM_PADDING;
 
 		// spectators can still view other bingos
 		int boardW = board.hasCard() ? columns * TILE_W + (columns - 1) * GAP : 0;
@@ -166,7 +166,7 @@ public final class BingoBoardScreen extends Screen {
 					if (optionalTile.isEmpty()) {
 						Optional<BingoBoardClientState.LockedSlot> lockedSlot = board.getLockedSlot(index);
 						if (lockedSlot.isPresent()) {
-							drawLockedTile(graphics, x, y, tileH, maxLines);
+							drawLockedTile(graphics, x, y, tileH);
 							if (hovered) {
 								tooltip = createLockedTooltip(board, lockedSlot.get());
 							}
@@ -175,7 +175,7 @@ public final class BingoBoardScreen extends Screen {
 					}
 
 					BingoBoardClientState.Tile tile = optionalTile.orElseThrow();
-					drawTile(graphics, tile, x, y, tileH, maxLines);
+					drawTile(graphics, tile, x, y, tileH);
 					if (hovered) {
 						tooltip = createTooltip(tile);
 					}
@@ -190,7 +190,7 @@ public final class BingoBoardScreen extends Screen {
 		}
 	}
 
-	private void drawTile(GuiGraphicsExtractor graphics, BingoBoardClientState.Tile tile, int x, int y, int tileH, int maxLines) {
+	private void drawTile(GuiGraphicsExtractor graphics, BingoBoardClientState.Tile tile, int x, int y, int tileH) {
 		GameBingoHandler.drawTileBackground(graphics, tile, x, y, TILE_W, tileH);
 
 		int iconX = x + (TILE_W - ICON_SIZE) / 2;
@@ -208,14 +208,15 @@ public final class BingoBoardScreen extends Screen {
 			graphics.itemDecorations(font, tile.icon(), iconX, iconY);
 		}
 
-		int textAreaW = TILE_W - SIDE_PADDING * 2;
-		int textAreaY = iconY + ICON_SIZE + ICON_TEXT_GAP;
-		List<FormattedCharSequence> lines = font.split(tile.title(), textAreaW);
-		int offset = (maxLines - lines.size()) * font.lineHeight / 2;
-		for (int i = 0; i < lines.size(); i++) {
-			FormattedCharSequence line = lines.get(i);
-			graphics.text(font, line, x + (TILE_W - font.width(line)) / 2, textAreaY + i * font.lineHeight + offset, 0xFFFFFFFF, false);
-		}
+		int rowY = iconY + ICON_SIZE + ICON_KIND_GAP;
+
+		// what the tile earned the player once completed, otherwise what it is worth now
+		Component points = Component.literal(String.valueOf(tile.reward())).withStyle(POINTS_STYLE);
+		int pointsColor = tile.completed() ? COMPLETED_POINTS_COLOR : GameBingoHandler.POINTS_COLOR;
+		graphics.text(font, points, x + SIDE_PADDING, rowY + (KIND_SPRITE_SIZE - font.lineHeight) / 2 + 1, pointsColor, true);
+
+		int kindX = x + TILE_W - SIDE_PADDING - KIND_SPRITE_SIZE;
+		graphics.blitSprite(RenderPipelines.GUI_TEXTURED, tile.kind().sprite(), kindX, rowY, KIND_SPRITE_SIZE, KIND_SPRITE_SIZE);
 	}
 
 	/// Draws another player's head, name and points above a compact version of their board
@@ -240,13 +241,10 @@ public final class BingoBoardScreen extends Screen {
 		pose.popMatrix();
 	}
 
-	private void drawLockedTile(GuiGraphicsExtractor graphics, int x, int y, int tileH, int maxLines) {
+	private void drawLockedTile(GuiGraphicsExtractor graphics, int x, int y, int tileH) {
 		GameBingoHandler.drawLockedBackground(graphics, BingoTileType.DEFAULT.lockedColor(), BingoTileType.DEFAULT.lockedBorderColor(), x, y, TILE_W, tileH);
 		// Keep the question mark where the icon of other tiles is
 		GameBingoHandler.drawLockedIcon(graphics, font, x, y + TOP_PADDING, TILE_W, ICON_SIZE);
-
-		int textY = y + TOP_PADDING + ICON_SIZE + ICON_TEXT_GAP + (maxLines - 1) * font.lineHeight / 2;
-		graphics.centeredText(font, Bingo.TILE_LOCKED, x + TILE_W / 2, textY, GameBingoHandler.LOCKED_TEXT_COLOR);
 	}
 
 	private List<FormattedCharSequence> createTooltip(BingoBoardClientState.Tile tile) {

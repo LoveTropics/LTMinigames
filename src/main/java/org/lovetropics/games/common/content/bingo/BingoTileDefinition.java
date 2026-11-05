@@ -16,6 +16,7 @@ import java.util.Optional;
 /// @param clue         shown to players when they hover the tile while it is still locked, as a teaser of what it will be
 /// @param criteria     advancement criteria that complete the tile, like those of an advancement
 /// @param requirements which of the criteria must be meet, like those of an advancement (all of them by default)
+/// @param kind         icon
 public record BingoTileDefinition(
 		ItemStackTemplate icon,
 		Component title,
@@ -24,7 +25,8 @@ public record BingoTileDefinition(
 		int reward,
 		Map<String, Criterion<?>> criteria,
 		AdvancementRequirements requirements,
-		BingoTileType tileType
+		BingoTileType tileType,
+		BingoTileKind kind
 ) {
 	private static final Codec<Map<String, Criterion<?>>> CRITERIA_CODEC = ExtraCodecs.nonEmptyMap(Codec.unboundedMap(Codec.STRING, Criterion.CODEC));
 
@@ -36,9 +38,10 @@ public record BingoTileDefinition(
 			Codec.INT.fieldOf("reward").forGetter(BingoTileDefinition::reward),
 			CRITERIA_CODEC.fieldOf("criteria").forGetter(BingoTileDefinition::criteria),
 			AdvancementRequirements.CODEC.optionalFieldOf("requirements").forGetter(d -> Optional.of(d.requirements())),
-			BingoTileType.CODEC.optionalFieldOf("tile_type", BingoTileType.DEFAULT).forGetter(BingoTileDefinition::tileType)
-	).apply(in, (icon, title, description, clue, reward, criteria, requirements, tileType) -> new BingoTileDefinition(
-			icon, title, description, clue, reward, criteria, requirements.orElseGet(() -> AdvancementRequirements.allOf(criteria.keySet())), tileType
+			BingoTileType.CODEC.optionalFieldOf("tile_type", BingoTileType.DEFAULT).forGetter(BingoTileDefinition::tileType),
+			BingoTileKind.CODEC.optionalFieldOf("kind", BingoTileKind.OBTAIN).forGetter(BingoTileDefinition::kind)
+	).apply(in, (icon, title, description, clue, reward, criteria, requirements, tileType, kind) -> new BingoTileDefinition(
+			icon, title, description, clue, reward, criteria, requirements.orElseGet(() -> AdvancementRequirements.allOf(criteria.keySet())), tileType, kind
 	))).validate(d -> d.requirements().validate(d.criteria().keySet()).map(_ -> d));
 	public static final Codec<BingoTileDefinition> CODEC = MAP_CODEC.codec();
 }

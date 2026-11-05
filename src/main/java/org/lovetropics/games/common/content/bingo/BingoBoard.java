@@ -147,7 +147,7 @@ public final class BingoBoard implements IGameState {
 	private void placeTile(int index, BingoTileDefinition definition) {
 		int id = placedTiles.size();
 		CriteriaTracker tracker = new CriteriaTracker(definition.criteria(), definition.requirements(), this::canComplete, player -> complete(id, player));
-		BingoTile tile = new BingoTile(id, index, definition.icon().create(), definition.title(), definition.description(), definition.reward(), tracker, definition.tileType());
+		BingoTile tile = new BingoTile(id, index, definition.icon().create(), definition.title(), definition.description(), definition.reward(), tracker, definition.tileType(), definition.kind());
 		placedTiles.add(tile);
 		tiles.set(index, Optional.of(tile)).ifPresent(replaced -> replaced.tracker.stop(game.server()));
 		if (started) {
@@ -197,6 +197,18 @@ public final class BingoBoard implements IGameState {
 		} else if (unlockOnClear > 0 && hasCompletedAllTiles(player.getUUID(), false)) {
 			unlockTiles(unlockOnClear);
 		}
+	}
+
+	/// What the tile earned the player if they completed it, otherwise what it is worth to them if they complete it now
+	private int getPlayerReward(BingoTile tile, UUID player) {
+		int position = 0;
+		for (UUID completedBy : tile.completedBy) {
+			if (completedBy.equals(player)) {
+				return getReward(tile, position);
+			}
+			position++;
+		}
+		return getReward(tile, position);
 	}
 
 	/// @param position how many players completed the tile before
@@ -263,7 +275,7 @@ public final class BingoBoard implements IGameState {
 	public void updatePlayer(ServerPlayer player) {
 		List<Optional<BingoBoardClientState.Tile>> clientTiles = tiles.stream()
 				.map(o -> o.filter(t -> !lockedSlots.containsKey(t.slot) || t.completedBy.contains(player.getUUID())))
-				.map(o -> o.map(t -> t.tile(player, getReward(t, t.completedBy.size()))))
+				.map(o -> o.map(t -> t.tile(player, getPlayerReward(t, player.getUUID()))))
 				.toList();
 		List<BingoBoardClientState.LockedSlot> clientLockedSlots = lockedSlots.int2ObjectEntrySet().stream()
 				.filter(entry -> clientTiles.get(entry.getIntKey()).isEmpty())
@@ -315,10 +327,11 @@ public final class BingoBoard implements IGameState {
 		private final int reward;
 		private final CriteriaTracker tracker;
 		private final BingoTileType tileType;
+		private final BingoTileKind kind;
 		/// In the order the players completed the tile
 		private final Set<UUID> completedBy = new LinkedHashSet<>();
 
-		private BingoTile(int id, int slot, ItemStack icon, Component title, Optional<Component> description, int reward, CriteriaTracker tracker, BingoTileType tileType) {
+		private BingoTile(int id, int slot, ItemStack icon, Component title, Optional<Component> description, int reward, CriteriaTracker tracker, BingoTileType tileType, BingoTileKind kind) {
 			this.id = id;
 			this.slot = slot;
 			this.icon = icon;
@@ -327,10 +340,11 @@ public final class BingoBoard implements IGameState {
 			this.reward = reward;
 			this.tracker = tracker;
 			this.tileType = tileType;
+			this.kind = kind;
 		}
 
-		private BingoBoardClientState.Tile tile(ServerPlayer player, int nextReward) {
-			return new BingoBoardClientState.Tile(icon, title, description, completedBy.contains(player.getUUID()), completedBy.size(), nextReward, tileType);
+		private BingoBoardClientState.Tile tile(ServerPlayer player, int reward) {
+			return new BingoBoardClientState.Tile(icon, title, description, completedBy.contains(player.getUUID()), completedBy.size(), reward, tileType, kind);
 		}
 	}
 }
