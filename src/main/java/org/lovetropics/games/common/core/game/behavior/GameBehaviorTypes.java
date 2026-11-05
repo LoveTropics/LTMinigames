@@ -131,6 +131,7 @@ import org.lovetropics.games.common.core.game.behavior.instances.action.SwapPlay
 import org.lovetropics.games.common.core.game.behavior.instances.action.TeamDispatchAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.TeleportToRegionAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.WeatherEventAction;
+import org.lovetropics.games.common.core.game.behavior.instances.command.AnnouncementsBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.command.CustomCommandBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.command.PointControlCommandsBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.command.WeatherControlsBehavior;
@@ -482,6 +483,8 @@ public class GameBehaviorTypes {
 		register("prevent_dimension_portals", PreventDimensionPortalsBehavior.CODEC);
 		register("give_dimension_transport_item", GiveDimensionTransportItemAction.CODEC);
 		register("remove_item_from_player", RemoveItemFromPlayerAction.CODEC);
+
+		register("announcements", AnnouncementsBehavior.CODEC);
 	}
 
 	public static <T extends IGameBehavior> void register(String name, MapCodec<T> codec) {
