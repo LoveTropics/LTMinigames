@@ -1,5 +1,6 @@
 package org.lovetropics.games.common.core.game.behavior.event;
 
+import com.google.common.collect.Multimap;
 import net.minecraft.server.level.ServerPlayer;
 import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
 import org.lovetropics.games.common.core.game.state.team.GameTeam;
@@ -21,9 +22,9 @@ public final class GameTeamEvents {
 		}
 	});
 
-	public static final GameEventType<TeamsAllocated> TEAMS_ALLOCATED = GameEventType.create(TeamsAllocated.class, listeners -> participantTeams -> {
+	public static final GameEventType<TeamsAllocated> TEAMS_ALLOCATED = GameEventType.create(TeamsAllocated.class, listeners -> (participantTeams, teamParticipants) -> {
 		for (TeamsAllocated listener : listeners) {
-			listener.onTeamsAllocated(participantTeams);
+			listener.onTeamsAllocated(participantTeams, teamParticipants);
 		}
 	});
 
@@ -39,6 +40,6 @@ public final class GameTeamEvents {
 	}
 
 	public interface TeamsAllocated {
-		void onTeamsAllocated(Map<PlayerKey, GameTeamKey> participantTeams);
+		void onTeamsAllocated(Map<PlayerKey, GameTeamKey> participantTeams, Multimap<GameTeamKey, PlayerKey> teamParticipants);
 	}
 }

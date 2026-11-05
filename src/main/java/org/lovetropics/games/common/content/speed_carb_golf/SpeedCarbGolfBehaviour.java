@@ -237,7 +237,7 @@ public record SpeedCarbGolfBehaviour(
 				}
 			}
 		});
-		events.listen(GameTeamEvents.TEAMS_ALLOCATED, participantTeams -> {
+		events.listen(GameTeamEvents.TEAMS_ALLOCATED, (participantTeams, teamParticipants) -> {
 			int x = 1;
 			for (GameTeam team : teams) {
 				List<PlayerKey> playersForTeam = participantTeams.entrySet().stream()

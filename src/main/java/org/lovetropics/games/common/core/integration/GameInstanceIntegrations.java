@@ -84,7 +84,7 @@ public final class GameInstanceIntegrations implements IGameState {
 	private void addListeners(EventRegistrar events) {
 		events.listen(GamePlayerEvents.REMOVE, _ -> post(EVENT_UPDATE_PLAYERS, packPlayersAndTeams()));
 		events.listen(GamePlayerEvents.SET_ROLE, (_, _, _) -> post(EVENT_UPDATE_PLAYERS, packPlayersAndTeams()));
-		events.listen(GameTeamEvents.TEAMS_ALLOCATED, _ -> post(EVENT_UPDATE_PLAYERS, packPlayersAndTeams()));
+		events.listen(GameTeamEvents.TEAMS_ALLOCATED, (_, teamParticipants) -> post(EVENT_UPDATE_PLAYERS, packPlayersAndTeams()));
 
 		addSubGameListeners(events);
 	}

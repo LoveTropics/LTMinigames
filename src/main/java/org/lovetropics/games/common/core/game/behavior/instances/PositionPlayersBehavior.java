@@ -89,7 +89,7 @@ public class PositionPlayersBehavior implements IGameBehavior {
 					));
 				});
 			} else if (!participantSpawner.regions().isEmpty()) {
-				events.listen(GameTeamEvents.TEAMS_ALLOCATED, participantTeams -> {
+				events.listen(GameTeamEvents.TEAMS_ALLOCATED, (participantTeams, teamParticipants) -> {
 					teamSpawners = createTeamSpawners(teams, participantSpawner, participantTeams);
 				});
 			}

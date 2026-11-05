@@ -22,8 +22,12 @@ public final class StatisticsMap implements StatisticsGetter {
 
 	private final Map<StatisticKey<?>, Object> values = new Reference2ObjectOpenHashMap<>();
 
-	public <T> StatisticsMap set(StatisticKey<T> key, T value) {
-		values.put(key, value);
+	public <T> StatisticsMap set(StatisticKey<T> key, @Nullable T value) {
+		if (value != null) {
+			values.put(key, value);
+		} else {
+			values.remove(key);
+		}
 		return this;
 	}
 

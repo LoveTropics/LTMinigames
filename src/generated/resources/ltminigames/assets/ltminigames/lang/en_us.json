@@ -192,7 +192,7 @@
   "ltminigames.minigame.build_battle.bar.reviewing": "Reviewing %s...",
   "ltminigames.minigame.build_battle.building_end": "Building has ended!",
   "ltminigames.minigame.build_battle.building_start": "Build-off!",
-  "ltminigames.minigame.build_battle.building_start.subtitle": "Build a tropical masterpiece!",
+  "ltminigames.minigame.build_battle.building_start.subtitle": "Theme: %s",
   "ltminigames.minigame.build_battle.countdown": "%s remaining",
   "ltminigames.minigame.build_battle.give_points": "You gave %d points!",
   "ltminigames.minigame.build_battle.item.next": "Next",

@@ -99,7 +99,7 @@ public final class SelectorItems<V> {
 
 	private ItemStack createSelectorItem(Item item, V value) {
 		ItemStack stack = new ItemStack(item);
-		stack.set(DataComponents.CUSTOM_NAME, handlers.getNameFor(value));
+		stack.set(DataComponents.ITEM_NAME, handlers.getNameFor(value));
 		stack.set(MinigameDataComponents.SELECTOR, handlers.getIdFor(value));
 
 		return stack;

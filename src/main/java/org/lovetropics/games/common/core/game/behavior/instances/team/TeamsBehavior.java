@@ -1,5 +1,7 @@
 package org.lovetropics.games.common.core.game.behavior.instances.team;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import com.lovetropics.lib.permission.PermissionsApi;
 import com.lovetropics.lib.permission.role.Role;
 import com.lovetropics.lib.permission.role.RoleReader;
@@ -121,13 +123,15 @@ public final class TeamsBehavior implements IGameBehavior {
 
 		events.listen(GamePlayerEvents.BEFORE_ADD_PLAYERS, (participants, spectators) -> {
 			Map<PlayerKey, GameTeamKey> participantTeams = new HashMap<>();
+			Multimap<GameTeamKey, PlayerKey> teamParticipants = HashMultimap.create();
 			for (PlayerKey participant : participants) {
 				GameTeamKey team = teams.getTeamForPlayer(participant);
 				if (team != null) {
 					participantTeams.put(participant, team);
+					teamParticipants.put(team, participant);
 				}
 			}
-			game.invoker(GameTeamEvents.TEAMS_ALLOCATED).onTeamsAllocated(participantTeams);
+			game.invoker(GameTeamEvents.TEAMS_ALLOCATED).onTeamsAllocated(participantTeams, teamParticipants);
 		});
 
 		events.listen(GameTeamEvents.SET_GAME_TEAM, (player, _, team) -> {

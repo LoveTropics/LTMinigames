@@ -576,11 +576,11 @@ public class GamePhase implements IGamePhase {
 		stopReason = reason;
 
 		try {
-			invoker(GamePhaseEvents.STOP).stop(reason);
-
 			if (reason.isFinished()) {
 				invoker(GamePhaseEvents.FINISH).finish();
 			}
+
+			invoker(GamePhaseEvents.STOP).stop(reason);
 
 			return GameResult.ok();
 		} catch (Exception e) {

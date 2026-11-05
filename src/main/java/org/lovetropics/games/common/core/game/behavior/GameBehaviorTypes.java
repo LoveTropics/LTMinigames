@@ -153,6 +153,7 @@ import org.lovetropics.games.common.core.game.behavior.instances.statistics.Plac
 import org.lovetropics.games.common.core.game.behavior.instances.statistics.PlaceByStatisticBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.statistics.SetWinnerStatisticBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.statistics.SetXpToStatisticBehavior;
+import org.lovetropics.games.common.core.game.behavior.instances.statistics.ShareStatisticInTeamBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.statistics.StatisticBossBarBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.statistics.StatisticNotifierBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.statistics.StatisticOverlayBehavior;
@@ -333,6 +334,7 @@ public class GameBehaviorTypes {
 		register("damage_tracker", DamageTrackerBehavior.CODEC);
 		register("blocks_broken_tracker", BlocksBrokenTrackerBehavior.CODEC);
 		register("sum_statistic", SumStatisticBehavior.CODEC);
+		register("share_statistic_in_team", ShareStatisticInTeamBehavior.CODEC);
 		register("statistic_tag", StatisticTagBehavior.CODEC);
 		register("set_xp_to_statistic", SetXpToStatisticBehavior.CODEC);
 		register("only_tick_in_period", OnlyTickInPeriodBehavior.CODEC);

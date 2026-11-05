@@ -91,7 +91,7 @@ public final class ColumnsOfChaosBehavior implements IGameBehavior {
 		TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
 		if (teams != null) {
 			Map<GameTeamKey, CycledSpawner> teamSpawners = new HashMap<>();
-			events.listen(GameTeamEvents.TEAMS_ALLOCATED, participantTeams -> {
+			events.listen(GameTeamEvents.TEAMS_ALLOCATED, (participantTeams, teamParticipants) -> {
 				for (GameTeam team : teams) {
 					int teamSize = (int) participantTeams.values().stream()
 							.filter(team.key()::equals)
