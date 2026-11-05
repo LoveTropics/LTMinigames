@@ -51,7 +51,7 @@ public final class Shop implements IGameState {
 		this.game = game;
 		playerOffers = offers.stream().filter(ShopOffer::isUsableByPlayers).toList();
 		ghostOffers = offers.stream().filter(ShopOffer::isUsableByGhosts).toList();
-		overlordOffers = offers.stream().filter(ShopOffer::isUsableByOverlords).toList();
+		overlordOffers = offers.stream().filter(ShopOffer::isUsableByOverlords).map(ShopOffer::forOverlords).toList();
 		this.tropicoinsPerDonatedAmount = tropicoinsPerDonatedAmount;
 	}
 

@@ -51,6 +51,11 @@ public record ShopOffer(
 		return usableBy.stream().anyMatch(ShopUsers::includesOverlords);
 	}
 
+	public ShopOffer forOverlords() {
+		ShopTarget overlordTarget = target == ShopTarget.RANDOM ? ShopTarget.PICK : target;
+		return new ShopOffer(icon, name, description, 0, overlordTarget, usableBy, flavor, actions);
+	}
+
 	public ShopClientState.Offer asClientOffer() {
 		return new ShopClientState.Offer(icon.create(), name, description, cost, target, flavor);
 	}
