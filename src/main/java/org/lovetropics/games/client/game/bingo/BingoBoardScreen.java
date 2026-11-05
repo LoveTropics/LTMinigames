@@ -33,6 +33,7 @@ public final class BingoBoardScreen extends Screen {
 	private static final int GAP = 4;
 	private static final int ICON_SIZE = 20;
 	private static final int KIND_SPRITE_SIZE = 14;
+	private static final float KIND_SPRITE_ALPHA = 0.2f;
 	private static final int TOP_PADDING = 3;
 	private static final int SIDE_PADDING = 3;
 	private static final int ICON_KIND_GAP = 2;
@@ -216,7 +217,7 @@ public final class BingoBoardScreen extends Screen {
 		graphics.text(font, points, x + SIDE_PADDING, rowY + (KIND_SPRITE_SIZE - font.lineHeight) / 2 + 1, pointsColor, true);
 
 		int kindX = x + TILE_W - SIDE_PADDING - KIND_SPRITE_SIZE;
-		graphics.blitSprite(RenderPipelines.GUI_TEXTURED, tile.kind().sprite(), kindX, rowY, KIND_SPRITE_SIZE, KIND_SPRITE_SIZE);
+		graphics.blitSprite(RenderPipelines.GUI_TEXTURED, tile.kind().sprite(), kindX, rowY, KIND_SPRITE_SIZE, KIND_SPRITE_SIZE, KIND_SPRITE_ALPHA);
 	}
 
 	/// Draws another player's head, name and points above a compact version of their board
