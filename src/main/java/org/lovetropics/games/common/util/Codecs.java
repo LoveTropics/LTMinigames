@@ -13,6 +13,8 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.RegistryCodecs;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.util.random.Weighted;
+import net.minecraft.util.random.WeightedList;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.storage.loot.LootPool;
@@ -24,6 +26,7 @@ import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -161,4 +164,17 @@ public class Codecs {
 	);
 
 	public static final Codec<Instant> EPOCH_SECOND = Codec.LONG.xmap(Instant::ofEpochSecond, Instant::getEpochSecond);
+
+	public static <T> Codec<WeightedList<T>> compactNonEmptyWeightedList(Codec<T> elementCodec) {
+		return Codec.either(elementCodec, WeightedList.nonEmptyCodec(elementCodec)).xmap(
+				either -> either.map(WeightedList::of, Function.identity()),
+				list -> {
+					List<Weighted<T>> elements = list.unwrap();
+					if (elements.size() == 1) {
+						return Either.left(elements.getFirst().value());
+					}
+					return Either.right(list);
+				}
+		);
+	}
 }
