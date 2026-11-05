@@ -133,8 +133,7 @@ public final class MinigameTexts {
 	public static final Component CHECKPOINT_REACHED = KEYS.add("checkpoint_reached", "Checkpoint reached!").withStyle(ChatFormatting.GREEN);
 
 	public static final Component COMPETITION_LOBBY_LEADERBOARD = KEYS.add("competition_lobby_leaderboard", "Here are the top-scorers from the last rounds of games:").withStyle(ChatFormatting.GRAY);
-
-	public static final TranslationCollector.Fun1 VENDING_MACHINE_COST = KEYS.add1("vending_machine_cost", "Cost: %s").withStyle(ChatFormatting.GRAY);
+	public static final TranslationCollector.Fun2 VENDING_MACHINE_COST = KEYS.add2("vending_machine_cost", "Cost: %s %s").withStyle(ChatFormatting.RED);
 
 	static {
 		KEYS.add("starting_in", "Starting in %time%!");

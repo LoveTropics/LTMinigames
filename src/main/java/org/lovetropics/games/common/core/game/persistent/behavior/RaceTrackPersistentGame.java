@@ -48,7 +48,8 @@ public final class RaceTrackPersistentGame implements PersistentGameBehavior {
 			Codec.BOOL.optionalFieldOf("only_start_at_first_checkpoint", true).forGetter(b -> b.onlyStartAtFirstCheckpoint),
 			RegionQuery.CODEC.optionalFieldOf("leave_track_spawn").forGetter(b -> b.leaveTrackSpawn),
 			ExtraCodecs.compactListCodec(RunCommandsAction.COMMAND_CODEC).optionalFieldOf("commands_on_leave", List.of()).forGetter(b -> b.commandOnLeave),
-			ExtraCodecs.compactListCodec(RunCommandsAction.COMMAND_CODEC).optionalFieldOf("commands_on_exit", List.of()).forGetter(b -> b.commandOnLeave),
+			ExtraCodecs.compactListCodec(RunCommandsAction.COMMAND_CODEC).optionalFieldOf("commands_on_exit", List.of()).forGetter(b -> b.commandOnExit),
+			ExtraCodecs.compactListCodec(RunCommandsAction.COMMAND_CODEC).optionalFieldOf("commands_on_start", List.of()).forGetter(b -> b.commandOnStart),
 			DropperBehavior.Reward.CODEC.optionalFieldOf("first_win_reward", DropperBehavior.Reward.NONE).forGetter(b -> b.firstWinReward),
 			DropperBehavior.Reward.CODEC.optionalFieldOf("win_reward", DropperBehavior.Reward.NONE).forGetter(b -> b.winReward)
 			).apply(instance, RaceTrackPersistentGame::new));
@@ -63,6 +64,7 @@ public final class RaceTrackPersistentGame implements PersistentGameBehavior {
 	private final Optional<RegionQuery> leaveTrackSpawn;
 	private final List<String> commandOnLeave;
 	private final List<String> commandOnExit;
+	private final List<String > commandOnStart;
 	private final DropperBehavior.Reward firstWinReward;
 	private final DropperBehavior.Reward winReward;
 
@@ -70,7 +72,7 @@ public final class RaceTrackPersistentGame implements PersistentGameBehavior {
 	private final Map<ServerPlayer, List<Integer>> playerCheckpoints;
 	private final Map<ServerPlayer, Integer> playerStartTime;
 
-	public RaceTrackPersistentGame(String id, LootItemCondition predicate, int checkpointCount, int requiredCheckpointCount, Messages messages, boolean onlyStartAtFirstCheckpoint, Optional<RegionQuery> leaveTrackSpawn, List<String> commandOnLeave, List<String> commandOnExit, DropperBehavior.Reward firstWinReward, DropperBehavior.Reward winReward) {
+	public RaceTrackPersistentGame(String id, LootItemCondition predicate, int checkpointCount, int requiredCheckpointCount, Messages messages, boolean onlyStartAtFirstCheckpoint, Optional<RegionQuery> leaveTrackSpawn, List<String> commandOnLeave, List<String> commandOnExit, List<String> commandOnStart, DropperBehavior.Reward firstWinReward, DropperBehavior.Reward winReward) {
 		this.id = id;
 		this.predicate = predicate;
 		this.checkpointCount = checkpointCount;
@@ -82,6 +84,7 @@ public final class RaceTrackPersistentGame implements PersistentGameBehavior {
 		this.regionQueries = new HashMap<>();
 		this.playerCheckpoints = new HashMap<>();
 		this.playerStartTime = new HashMap<>();
+		this.commandOnStart = commandOnStart;
 		this.commandOnLeave = commandOnLeave;
 		this.commandOnExit = commandOnExit;
 		this.firstWinReward = firstWinReward;
@@ -146,6 +149,13 @@ public final class RaceTrackPersistentGame implements PersistentGameBehavior {
 								if (onlyStartAtFirstCheckpoint && i != 0) {
 									messages.notFirstCheckpoint.ifPresent(component -> player.sendSystemMessage(component, false));
 									continue;
+								}
+								if (!commandOnStart.isEmpty()) {
+									Commands commands = game.server().getCommands();
+									CommandSourceStack targetSource = createCommandSourceForEntity(game, player);
+									for (String command : commandOnStart) {
+										commands.performPrefixedCommand(targetSource, command);
+									}
 								}
 								playerCheckpoints.put(player, new ArrayList<>());
 								playerStartTime.put(player, game.server().getTickCount());

@@ -94,7 +94,7 @@ public class DdrServerSession {
 	}
 
 	public boolean isFinished(ServerPlayer player) {
-		return currentTick(player) > level.value().lengthInTicks();
+		return currentTick(player) > level.value().lastRecordedTick();
 	}
 
 	public long currentTick(ServerPlayer player) {

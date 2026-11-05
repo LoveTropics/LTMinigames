@@ -7,6 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -45,6 +46,7 @@ import org.lovetropics.games.common.core.network.vending.SelectVendingMachineIte
 import org.lovetropics.games.common.core.network.vending.ServerboundVendingMachinePurchasePacket;
 
 import java.util.List;
+import java.util.Optional;
 
 public class VendingMachineEntity extends Entity implements ContainerEntity {
 	private static final EntityDataAccessor<List<ItemStack>> DATA_VISUAL_ITEMS = SynchedEntityData.defineId(VendingMachineEntity.class, EscapeRace.ITEM_STACK_LIST);
@@ -141,7 +143,7 @@ public class VendingMachineEntity extends Entity implements ContainerEntity {
 				player.getInventory().removeItem(costItem);
 			} else {
 				playSound(SoundRegistry.INCORRECT.value());
-				player.sendSystemMessage(MinigameTexts.VENDING_MACHINE_COST.apply(costItem.getHoverName()), true);
+				player.sendSystemMessage(MinigameTexts.VENDING_MACHINE_COST.apply(costItem), true);
 				return;
 			}
 		}

@@ -3,6 +3,7 @@ package org.lovetropics.games.common.content.escape_race.ddr_machine;
 import net.minecraft.core.Holder;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerScoreboard;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.JukeboxSong;
 import net.minecraft.world.scores.Objective;
@@ -35,5 +36,35 @@ public class DDRScoreHelper {
 			game.invoker(EscapeRaceEvents.DDR_LEVEL_COMPLETED)
 					.onComplete(serverPlayer, level, score, bestStreak);
 		}
+	}
+
+	public static int getPlayerHighScore(ServerPlayer serverPlayer, Holder<DdrLevel> level) {
+		MinecraftServer server = serverPlayer.level().getServer();
+		Holder<JukeboxSong> song = level.value().track();
+		String key = song.getRegisteredName();
+		String objectiveName = LoveTropics.ID + ".ddr." + key.replace(":", "_");
+		ServerScoreboard scoreboard = server.getScoreboard();
+		Objective objective = scoreboard.getObjective(objectiveName);
+		if (objective == null) {
+			return 0;
+		}
+		return objective.getScoreboard().getOrCreatePlayerScore(serverPlayer, objective).get();
+	}
+
+	public static int getGlobalHighScore(ServerLevel level, Holder<DdrLevel> ddrLevelHolder) {
+		MinecraftServer server = level.getServer();
+		Holder<JukeboxSong> song = ddrLevelHolder.value().track();
+		String key = song.getRegisteredName();
+		String objectiveName = LoveTropics.ID + ".ddr." + key.replace(":", "_");
+		ServerScoreboard scoreboard = server.getScoreboard();
+		Objective objective = scoreboard.getObjective(objectiveName);
+		if (objective == null) {
+			return 0;
+		}
+		return objective.getScoreboard().getTrackedPlayers()
+				.stream()
+				.mapToInt(player -> objective.getScoreboard().getOrCreatePlayerScore(player, objective).get())
+				.max()
+				.orElse(0);
 	}
 }

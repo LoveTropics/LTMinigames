@@ -7,11 +7,14 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FontDescription;
+import net.minecraft.network.chat.TextColor;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.ByIdMap;
@@ -196,6 +199,21 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 		return InteractionResult.PASS;
 	}
 
+	private Component buildComponent(int newScore, int bestScore, int globalScore) {
+		return Component.literal("SCORE")
+				.withStyle(style -> style.withFont(new FontDescription.Resource(Identifier.fromNamespaceAndPath("lt", "minecraft_five"))))
+				.append(Component.literal("\\____________________________").withStyle(style -> style.withBold(false).withColor(TextColor.WHITE)))
+				.append(Component.literal("\n NEW ").withStyle(style -> style.withColor(TextColor.DARK_GREEN)))
+				.append(Component.literal(String.format("%05d", newScore)).withStyle(style -> style.withColor(TextColor.YELLOW)))
+				.append(Component.literal(" | ").withStyle(style -> style.withColor(TextColor.WHITE)))
+				.append(Component.literal("BEST ").withStyle(style -> style.withColor(TextColor.GOLD)))
+				.append(Component.literal(String.format("%05d", bestScore)).withStyle(style -> style.withColor(TextColor.YELLOW)))
+				.append(Component.literal(" | ").withStyle(style -> style.withColor(TextColor.WHITE)))
+				.append(Component.literal("GLOBAL").withStyle(style -> style.withColor(TextColor.GOLD).withUnderlined(true)))
+				.append(Component.literal(" "))
+				.append(Component.literal(String.format("%04d", globalScore % 10000)).withStyle(style -> style.withColor(TextColor.YELLOW)));
+	}
+
 	private void interactControlledClient(Player player) {
 		if (!player.isLocalPlayer()) {
 			return;
@@ -292,6 +310,7 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 		}
 
 		if (serverSession != null && serverSession.isFinished(player)) {
+			player.stopRiding();
 			stopPlaying(player);
 		}
 	}
@@ -320,12 +339,12 @@ public class DDRMachineEntity extends Entity implements PlayerRideable {
 			return;
 		}
 		DDRScoreHelper.onGameFinished(player, serverSession.level(), serverSession.getCurrentLevelScore(), serverSession.getHighestStreak());
-		player.sendSystemMessage(Component.literal("Your Score: " + serverSession.getCurrentLevelScore()));
-		player.sendSystemMessage(Component.literal("Highest Streak: " + serverSession.getHighestStreak()));
+		int globalHighScore = DDRScoreHelper.getGlobalHighScore(player.level(), serverSession.level());
+		int playerHighScore = DDRScoreHelper.getPlayerHighScore(player, serverSession.level());
+		player.sendSystemMessage(buildComponent(serverSession.getCurrentLevelScore(), playerHighScore, globalHighScore));
 		getEntityData().set(DATA_SESSION, DdrSessionState.INACTIVE);
 		setState(DDRMachineState.MENU);
 		serverSession = null;
-		player.sendSystemMessage(Component.literal("Stopping track"));
 	}
 
 	public void startRecording(ServerPlayer player, Holder<JukeboxSong> track, String name) {
