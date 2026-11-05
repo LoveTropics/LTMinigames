@@ -111,7 +111,7 @@ public record ScavengerHuntBehavior(
 	}
 
 	private Objective getScoreObjective(ServerPlayer serverPlayer) {
-		return PersistentScoreboards.getOrCreateObjective(serverPlayer.level(), "scavenger_hunt", "next_stage");
+		return PersistentScoreboards.getOrCreateObjective(serverPlayer.level(), "scavenger_hunt", id.getPath(), "next_stage");
 	}
 
 	@Override
