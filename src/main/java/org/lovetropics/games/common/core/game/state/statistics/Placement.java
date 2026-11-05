@@ -92,6 +92,8 @@ public interface Placement<H extends StatisticHolder> extends Iterable<Placed<H>
 
 	@Nullable H getWinner();
 
+	List<H> getAllWinners();
+
 	final class PlayerOrder implements Placement<PlayerKey> {
 		private final List<Placed<PlayerKey>> order;
 
@@ -138,6 +140,12 @@ public interface Placement<H extends StatisticHolder> extends Iterable<Placed<H>
 		@Override
 		public @Nullable PlayerKey getWinner() {
 			return !order.isEmpty() ? order.getFirst().value() : null;
+		}
+
+		@Override
+		public List<PlayerKey> getAllWinners() {
+			PlayerKey winner = getWinner();
+			return winner != null ? List.of(winner) : List.of();
 		}
 
 		@Override
@@ -205,6 +213,24 @@ public interface Placement<H extends StatisticHolder> extends Iterable<Placed<H>
 				return null;
 			}
 			return first.holder;
+		}
+
+		@Override
+		public List<H> getAllWinners() {
+			if (entries.isEmpty()) {
+				return List.of();
+			}
+			List<H> winners = new ArrayList<>();
+			Entry<H, T> first = entries.getFirst();
+			winners.add(first.holder);
+			for (int i = 1; i < entries.size(); i++) {
+				Entry<H, T> entry = entries.get(i);
+				if (!entry.score.equals(first.score)) {
+					break;
+				}
+				winners.add(entry.holder);
+			}
+			return winners;
 		}
 
 		public List<Entry<H, T>> entries() {

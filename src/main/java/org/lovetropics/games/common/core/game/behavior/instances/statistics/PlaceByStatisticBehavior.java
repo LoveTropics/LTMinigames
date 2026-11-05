@@ -1,5 +1,6 @@
 package org.lovetropics.games.common.core.game.behavior.instances.statistics;
 
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import org.lovetropics.games.common.core.game.GameWinner;
@@ -18,13 +19,18 @@ import org.lovetropics.games.common.core.game.state.team.GameTeam;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
 import org.lovetropics.games.common.core.game.state.team.TeamState;
 
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
-public record PlaceByStatisticBehavior(StatisticKey<Integer> statistic, PlacementOrder order, Optional<StatisticHolderType> triggerWin) implements IGameBehavior {
+public record PlaceByStatisticBehavior(StatisticKey<Integer> statistic, PlacementOrder order, Optional<StatisticHolderType> triggerWin, boolean allowMultipleWins) implements IGameBehavior {
 	public static final MapCodec<PlaceByStatisticBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			StatisticKey.INT_CODEC.fieldOf("statistic").forGetter(c -> c.statistic),
 			PlacementOrder.CODEC.optionalFieldOf("order", PlacementOrder.MAX).forGetter(c -> c.order),
-			StatisticHolderType.CODEC.optionalFieldOf("trigger_win").forGetter(c -> c.triggerWin)
+			StatisticHolderType.CODEC.optionalFieldOf("trigger_win").forGetter(c -> c.triggerWin),
+			// TODO: This should probably always be the case - but we need to interrogate it more deeply
+			Codec.BOOL.optionalFieldOf("allow_multiple_wins", false).forGetter(c -> c.allowMultipleWins)
 	).apply(i, PlaceByStatisticBehavior::new));
 
 	@Override
@@ -55,18 +61,33 @@ public record PlaceByStatisticBehavior(StatisticKey<Integer> statistic, Placemen
 		Placement.Score<GameTeamKey, Integer> teamPlacement = Placement.fromTeamScore(order, game, statistic);
 		teamPlacement.placeInto(game.statistics(), StatisticKey.PLACEMENT);
 
-		PlayerKey winningPlayerKey = playerPlacement.getWinner();
-		GameTeamKey winningTeamKey = teamPlacement.getWinner();
+		if (allowMultipleWins) {
+			List<PlayerKey> winningPlayerKeys = playerPlacement.getAllWinners();
+			List<GameTeamKey> winningTeamKeys = teamPlacement.getAllWinners();
 
-		StatisticHolderType winnerType = triggerWin.orElse(StatisticHolderType.DEFAULT);
+			StatisticHolderType winnerType = triggerWin.orElse(StatisticHolderType.DEFAULT);
 
-		TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
-		GameTeam winningTeam = teams != null && winningTeamKey != null ? teams.getTeamByKey(winningTeamKey) : null;
-		if (winningTeam != null && winnerType != StatisticHolderType.PLAYER) {
-			return new GameWinner.Team(winningTeam);
-		} else if (winningPlayerKey != null && winnerType != StatisticHolderType.TEAM) {
-			return GameWinner.byPlayerKey(game, winningPlayerKey);
+			TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
+			if (teams != null && !winningTeamKeys.isEmpty() && winnerType != StatisticHolderType.PLAYER) {
+				return new GameWinner.MultipleTeams(winningTeamKeys.stream().map(teams::getTeamByKey).filter(Objects::nonNull).collect(Collectors.toSet()));
+			} else if (!winningPlayerKeys.isEmpty() && winnerType != StatisticHolderType.TEAM) {
+				return GameWinner.byPlayerKeys(game, winningPlayerKeys);
+			}
+		} else {
+			PlayerKey winningPlayerKey = playerPlacement.getWinner();
+			GameTeamKey winningTeamKey = teamPlacement.getWinner();
+
+			StatisticHolderType winnerType = triggerWin.orElse(StatisticHolderType.DEFAULT);
+
+			TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
+			GameTeam winningTeam = teams != null && winningTeamKey != null ? teams.getTeamByKey(winningTeamKey) : null;
+			if (winningTeam != null && winnerType != StatisticHolderType.PLAYER) {
+				return new GameWinner.Team(winningTeam);
+			} else if (winningPlayerKey != null && winnerType != StatisticHolderType.TEAM) {
+				return GameWinner.byPlayerKey(game, winningPlayerKey);
+			}
 		}
+
 		return new GameWinner.Nobody();
 	}
 

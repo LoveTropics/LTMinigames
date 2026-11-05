@@ -25,7 +25,7 @@ public record SetWinnerStatisticBehavior() implements IGameBehavior {
 						game.statistics().global().set(StatisticKey.WINNING_PLAYER, playerKey);
 				case GameWinner.Team(GameTeam team) ->
 						game.statistics().global().set(StatisticKey.WINNING_TEAM, team.key());
-				case GameWinner.Nobody ignored -> {
+				case GameWinner.MultiplePlayers _, GameWinner.MultipleTeams _, GameWinner.Nobody _ -> {
 				}
 			}
 		});
