@@ -18,6 +18,7 @@ import org.lovetropics.games.common.content.river_race.microgames.StartMicrogame
 import org.lovetropics.games.common.content.shop.GiveDonatedTropicoinsAction;
 import org.lovetropics.games.common.content.shop.ShopBehavior;
 import org.lovetropics.games.common.core.game.behavior.action.ApplyToAction;
+import org.lovetropics.games.common.core.game.behavior.instances.ActionBarBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.AddOverlordsBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.AddWeatherBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.CheckpointsBehavior;
@@ -323,6 +324,7 @@ public class GameBehaviorTypes {
 		register("shop", ShopBehavior.CODEC);
 		register("give_donated_tropicoins", GiveDonatedTropicoinsAction.CODEC);
 		register("distribute_loot", DistributeLootBehavior.CODEC);
+		register("action_bar", ActionBarBehavior.CODEC);
 
 		register("bind_objective_to_statistic", BindObjectiveToStatisticBehavior.CODEC);
 		register("place_by_statistic", PlaceByStatisticBehavior.CODEC);
