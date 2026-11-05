@@ -63,7 +63,9 @@ public record BingoBoardClientState(int rows, int columns, List<Optional<Tile>> 
 			int completions,
 			int reward,
 			BingoTileType tileType,
-			BingoTileKind kind
+			BingoTileKind kind,
+			List<Integer> placeRewards,
+			List<UUID> completedBy
 	) {
 		public static final Codec<Tile> CODEC = RecordCodecBuilder.create(in -> in.group(
 				ItemStack.CODEC.fieldOf("icon").forGetter(Tile::icon),
@@ -73,7 +75,9 @@ public record BingoBoardClientState(int rows, int columns, List<Optional<Tile>> 
 				Codec.INT.optionalFieldOf("completions", 0).forGetter(Tile::completions),
 				Codec.INT.optionalFieldOf("reward", 0).forGetter(Tile::reward),
 				BingoTileType.CODEC.optionalFieldOf("tile_type", BingoTileType.DEFAULT).forGetter(Tile::tileType),
-				BingoTileKind.CODEC.optionalFieldOf("kind", BingoTileKind.OBTAIN).forGetter(Tile::kind)
+				BingoTileKind.CODEC.optionalFieldOf("kind", BingoTileKind.OBTAIN).forGetter(Tile::kind),
+				Codec.INT.listOf().optionalFieldOf("place_rewards", List.of()).forGetter(Tile::placeRewards),
+				UUIDUtil.CODEC.listOf().optionalFieldOf("completed_by", List.of()).forGetter(Tile::completedBy)
 		).apply(in, Tile::new));
 	}
 

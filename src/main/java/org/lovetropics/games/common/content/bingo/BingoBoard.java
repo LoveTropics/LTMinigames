@@ -46,6 +46,7 @@ import java.util.UUID;
 /// of that phase (e.g. each in their own world), so tiles can be completed from any phase of the game instance.
 public final class BingoBoard implements IGameState {
 	public static final GameStateKey<BingoBoard> KEY = GameStateKey.create("Bingo Board");
+	private static final int SHOWN_PLACES = 6;
 
 	private final IGamePhase game;
 	private final int rows, columns;
@@ -211,6 +212,15 @@ public final class BingoBoard implements IGameState {
 		return getReward(tile, position);
 	}
 
+	private List<Integer> getPlaceRewards(BingoTile tile) {
+		int places = Math.max(SHOWN_PLACES, tile.completedBy.size());
+		List<Integer> rewards = new ArrayList<>(places);
+		for (int position = 0; position < places; position++) {
+			rewards.add(getReward(tile, position));
+		}
+		return rewards;
+	}
+
 	/// @param position how many players completed the tile before
 	private int getReward(BingoTile tile, int position) {
 		float multiplier = positionRewardMultiplier.get(Math.min(position, positionRewardMultiplier.size() - 1));
@@ -275,7 +285,7 @@ public final class BingoBoard implements IGameState {
 	public void updatePlayer(ServerPlayer player) {
 		List<Optional<BingoBoardClientState.Tile>> clientTiles = tiles.stream()
 				.map(o -> o.filter(t -> !lockedSlots.containsKey(t.slot) || t.completedBy.contains(player.getUUID())))
-				.map(o -> o.map(t -> t.tile(player, getPlayerReward(t, player.getUUID()))))
+				.map(o -> o.map(t -> t.tile(player, getPlayerReward(t, player.getUUID()), getPlaceRewards(t))))
 				.toList();
 		List<BingoBoardClientState.LockedSlot> clientLockedSlots = lockedSlots.int2ObjectEntrySet().stream()
 				.filter(entry -> clientTiles.get(entry.getIntKey()).isEmpty())
@@ -343,8 +353,8 @@ public final class BingoBoard implements IGameState {
 			this.kind = kind;
 		}
 
-		private BingoBoardClientState.Tile tile(ServerPlayer player, int reward) {
-			return new BingoBoardClientState.Tile(icon, title, description, completedBy.contains(player.getUUID()), completedBy.size(), reward, tileType, kind);
+		private BingoBoardClientState.Tile tile(ServerPlayer player, int reward, List<Integer> placeRewards) {
+			return new BingoBoardClientState.Tile(icon, title, description, completedBy.contains(player.getUUID()), completedBy.size(), reward, tileType, kind, placeRewards, List.copyOf(completedBy));
 		}
 	}
 }

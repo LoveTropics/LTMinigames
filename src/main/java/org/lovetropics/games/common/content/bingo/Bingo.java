@@ -7,6 +7,8 @@ import org.lovetropics.games.common.core.game.behavior.event.GameEventType;
 import org.lovetropics.games.common.core.game.util.TranslationCollector;
 import org.lovetropics.games.common.util.registry.LoveTropicsRegistrate;
 
+import java.util.List;
+
 public class Bingo {
 	private static final LoveTropicsRegistrate REGISTRATE = LoveTropics.registrate();
 	public static final TranslationCollector KEYS = new TranslationCollector(LoveTropics.ID + ".minigame.bingo.");
@@ -22,9 +24,16 @@ public class Bingo {
 	public static final TranslationCollector.Fun3 BOARD_HEADER = KEYS.add3("board.header", "%s points - %s/%s tiles");
 	public static final TranslationCollector.Fun1 BOARD_LOCKED_COUNT = KEYS.add1("board.locked_count", "%s locked");
 	public static final Component TILE_LOCKED = KEYS.add("tile.locked", "Locked");
-	public static final Component TILE_DONE = KEYS.add("tile.done", "Done!");
-	public static final TranslationCollector.Fun1 TILE_REWARD = KEYS.add1("tile.reward", "+%s points");
-	public static final TranslationCollector.Fun1 TILE_COMPLETIONS = KEYS.add1("tile.completions", "Done by %s");
+	public static final List<Component> TILE_PLACES = List.of(
+			KEYS.add("tile.place.1", "1st"),
+			KEYS.add("tile.place.2", "2nd"),
+			KEYS.add("tile.place.3", "3rd"),
+			KEYS.add("tile.place.4", "4th"),
+			KEYS.add("tile.place.5", "5th"),
+			KEYS.add("tile.place.6", "6th")
+	);
+	public static final TranslationCollector.Fun1 TILE_PLACE = KEYS.add1("tile.place", "%sth");
+	public static final TranslationCollector.Fun2 TILE_PLACE_REWARD = KEYS.add2("tile.place_reward", "%s: %s points");
 
 	/// Fired in the phase that owns the board once a player has completed every tile of a full board
 	public static final GameEventType<BoardCompleted> BOARD_COMPLETED = GameEventType.create(BoardCompleted.class, listeners -> (player) -> {

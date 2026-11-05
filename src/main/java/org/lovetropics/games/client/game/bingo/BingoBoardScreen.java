@@ -1,6 +1,7 @@
 package org.lovetropics.games.client.game.bingo;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.PlayerFaceExtractor;
 import net.minecraft.client.gui.screens.Screen;
@@ -11,9 +12,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FontDescription;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.contents.objects.PlayerSprite;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
+import net.minecraft.world.item.component.ResolvableProfile;
 import org.joml.Matrix3x2fStack;
 import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.client.LTKeybinds;
@@ -26,6 +29,7 @@ import org.lovetropics.games.common.core.game.client_state.instance.BingoBoardCl
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 /// The full bingo board, with tooltips giving the details of each tile
 public final class BingoBoardScreen extends Screen {
@@ -178,7 +182,7 @@ public final class BingoBoardScreen extends Screen {
 					BingoBoardClientState.Tile tile = optionalTile.orElseThrow();
 					drawTile(graphics, tile, x, y, tileH);
 					if (hovered) {
-						tooltip = createTooltip(tile);
+						tooltip = createTooltip(board, tile);
 					}
 				}
 			}
@@ -248,19 +252,42 @@ public final class BingoBoardScreen extends Screen {
 		GameBingoHandler.drawLockedIcon(graphics, font, x, y + TOP_PADDING, TILE_W, ICON_SIZE);
 	}
 
-	private List<FormattedCharSequence> createTooltip(BingoBoardClientState.Tile tile) {
+	private List<FormattedCharSequence> createTooltip(BingoBoardClientState board, BingoBoardClientState.Tile tile) {
 		List<FormattedCharSequence> lines = new ArrayList<>();
 		lines.addAll(font.split(tile.title().copy().withStyle(ChatFormatting.YELLOW), TOOLTIP_WIDTH));
 		tile.description().ifPresent(description -> lines.addAll(font.split(description.copy().withStyle(ChatFormatting.GRAY), TOOLTIP_WIDTH)));
 		lines.add(CommonComponents.EMPTY.getVisualOrderText());
-		Component status = tile.completed()
-				? Bingo.TILE_DONE.copy().withStyle(ChatFormatting.GREEN)
-				: Bingo.TILE_REWARD.apply(tile.reward()).withStyle(ChatFormatting.GOLD);
-		lines.add(status.getVisualOrderText());
-		if (tile.completions() > 0) {
-			lines.add(Bingo.TILE_COMPLETIONS.apply(tile.completions()).withStyle(ChatFormatting.GRAY).getVisualOrderText());
+		for (int place = 0; place < tile.placeRewards().size(); place++) {
+			lines.add(createPointsLine(board, tile, place).getVisualOrderText());
 		}
 		return lines;
+	}
+
+	// points for each place, crossed out if someone got it
+	private static Component createPointsLine(BingoBoardClientState board, BingoBoardClientState.Tile tile, int place) {
+		Component placeName = place < Bingo.TILE_PLACES.size() ? Bingo.TILE_PLACES.get(place) : Bingo.TILE_PLACE.apply(place + 1);
+		MutableComponent reward = Bingo.TILE_PLACE_REWARD.apply(placeName, tile.placeRewards().get(place));
+		if (place >= tile.completedBy().size()) {
+			return reward.withStyle(place == tile.completedBy().size() ? ChatFormatting.GOLD : ChatFormatting.GRAY);
+		}
+
+		UUID player = tile.completedBy().get(place);
+		boolean self = Minecraft.getInstance().player != null && player.equals(Minecraft.getInstance().player.getUUID());
+		return Component.empty()
+				.append(reward.withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.STRIKETHROUGH))
+				.append(Component.literal(" "))
+				.append(Component.object(new PlayerSprite(ResolvableProfile.createUnresolved(player), true)))
+				.append(Component.literal(" ").append(getPlayerName(board, player)).withStyle(self ? ChatFormatting.GREEN : ChatFormatting.WHITE));
+	}
+
+	private static Component getPlayerName(BingoBoardClientState board, UUID player) {
+		for (BingoBoardClientState.PlayerProgress progress : board.players()) {
+			if (progress.id().equals(player)) {
+				return Component.literal(progress.name());
+			}
+		}
+		Component name = ClientPlayerInfo.getName(player);
+		return name != null ? name : Component.literal("?");
 	}
 
 	private List<FormattedCharSequence> createLockedTooltip(BingoBoardClientState board, BingoBoardClientState.LockedSlot slot) {
