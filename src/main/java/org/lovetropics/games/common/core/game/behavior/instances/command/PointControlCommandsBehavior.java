@@ -57,7 +57,7 @@ public record PointControlCommandsBehavior(
 				.then(Commands.literal("list")
 						.executes(context -> {
 							ServerPlayer player = context.getSource().getPlayerOrException();
-							Placement.fromPlayerScore(PlacementOrder.MAX, game, statistic).buildDisplay(Integer.MAX_VALUE, true, true, player::sendSystemMessage);
+							Placement.fromPlayerScore(PlacementOrder.MAX, game, game.statistics(), statistic).buildDisplay(Integer.MAX_VALUE, true, true, player::sendSystemMessage);
 							return 1;
 						})
 				)

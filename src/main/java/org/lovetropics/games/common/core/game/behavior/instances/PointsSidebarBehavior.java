@@ -62,7 +62,7 @@ public record PointsSidebarBehavior(
 		for (TemplatedText line : header) {
 			sidebar.add(line.apply(Map.of("total", Component.literal(String.valueOf(totalCount)))));
 		}
-		leaderboard.buildDisplay(game, sidebar::add);
+		leaderboard.buildDisplay(game, game.statistics(), sidebar::add);
 		return sidebar.toArray(new Component[0]);
 	}
 }

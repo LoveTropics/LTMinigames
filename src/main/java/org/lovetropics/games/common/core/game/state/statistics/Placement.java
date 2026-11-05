@@ -39,21 +39,21 @@ public interface Placement<H extends StatisticHolder> extends Iterable<Placed<H>
 		return new PlayerOrder(order);
 	}
 
-	static <T extends Comparable<T>> Score<PlayerKey, T> fromPlayerScore(PlacementOrder order, IGamePhase game, StatisticKey<T> statistic) {
-		return fromPlayerScore(order, game, statistic, false);
+	static <T extends Comparable<T>> Score<PlayerKey, T> fromPlayerScore(PlacementOrder order, IGamePhase game, GameStatistics statistics, StatisticKey<T> statistic) {
+		return fromPlayerScore(order, game, statistics, statistic, false);
 	}
 
-	static <T extends Comparable<T>> Score<GameTeamKey, T> fromTeamScore(PlacementOrder order, IGamePhase game, StatisticKey<T> statistic) {
+	static <T extends Comparable<T>> Score<GameTeamKey, T> fromTeamScore(PlacementOrder order, IGamePhase game, GameStatistics statistics, StatisticKey<T> statistic) {
 		TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
-		return fromScore(game, game.statistics(), teams != null ? teams.getTeamKeys() : List.of(), statistic, order.asComparator(), true);
+		return fromScore(game, statistics, teams != null ? teams.getTeamKeys() : List.of(), statistic, order.asComparator(), true);
 	}
 
-	static <T extends Comparable<T>> Score<PlayerKey, T> fromPlayerScore(PlacementOrder order, IGamePhase game, StatisticKey<T> statistic, boolean onlyOnline) {
-		List<PlayerKey> players = new ArrayList<>(game.statistics().getPlayers());
+	static <T extends Comparable<T>> Score<PlayerKey, T> fromPlayerScore(PlacementOrder order, IGamePhase game, GameStatistics statistics, StatisticKey<T> statistic, boolean onlyOnline) {
+		List<PlayerKey> players = new ArrayList<>(statistics.getPlayers());
 		if (onlyOnline) {
 			players.removeIf(key -> !game.allPlayers().contains(key.id()));
 		}
-		return fromScore(game, game.statistics(), players, statistic, order.asComparator(), false);
+		return fromScore(game, statistics, players, statistic, order.asComparator(), false);
 	}
 
 	static <H extends StatisticHolder, T> Score<H, T> fromScore(IGamePhase game, GameStatistics statistics, Collection<H> scoreHolders, StatisticKey<T> scoreKey, Comparator<T> comparator, boolean teams) {

@@ -31,12 +31,12 @@ public record LeaderboardConfig<T extends Comparable<T>>(
 		return new LeaderboardConfig<>((StatisticKey<T>) statistic, order, length, showPlacement, showScore, holder);
 	}
 
-	public void buildDisplay(IGamePhase game, Consumer<Component> output) {
+	public void buildDisplay(IGamePhase game, GameStatistics statistics, Consumer<Component> output) {
 		Placement.Score<?, ?> placement;
 		if (shouldPlaceByTeam(game)) {
-			placement = Placement.fromTeamScore(order, game, statistic);
+			placement = Placement.fromTeamScore(order, game, statistics, statistic);
 		} else {
-			placement = Placement.fromPlayerScore(order, game, statistic);
+			placement = Placement.fromPlayerScore(order, game, statistics, statistic);
 		}
 		placement.buildDisplay(length, showPlacement, showScore, output);
 	}

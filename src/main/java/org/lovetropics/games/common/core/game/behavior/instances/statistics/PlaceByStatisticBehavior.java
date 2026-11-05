@@ -53,12 +53,12 @@ public record PlaceByStatisticBehavior(StatisticKey<Integer> statistic, Placemen
 	}
 
 	private GameWinner runPlacement(IGamePhase game) {
-		Placement.Score<PlayerKey, Integer> playerPlacement = Placement.fromPlayerScore(order, game, statistic);
+		Placement.Score<PlayerKey, Integer> playerPlacement = Placement.fromPlayerScore(order, game, game.statistics(), statistic);
 		playerPlacement.placeInto(game.statistics(), StatisticKey.PLACEMENT);
 
 		addReversePlacements(game);
 
-		Placement.Score<GameTeamKey, Integer> teamPlacement = Placement.fromTeamScore(order, game, statistic);
+		Placement.Score<GameTeamKey, Integer> teamPlacement = Placement.fromTeamScore(order, game, game.statistics(), statistic);
 		teamPlacement.placeInto(game.statistics(), StatisticKey.PLACEMENT);
 
 		if (allowMultipleWins) {

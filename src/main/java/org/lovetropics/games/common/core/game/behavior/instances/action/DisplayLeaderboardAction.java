@@ -44,7 +44,7 @@ public record DisplayLeaderboardAction(
 	}
 
 	private <T extends Comparable<T>> void sendByPlayer(IGamePhase game, PlayerSet targetPlayers, LeaderboardConfig<T> leaderboard) {
-		Placement.Score<PlayerKey, T> placement = Placement.fromPlayerScore(leaderboard.order(), game, leaderboard.statistic());
+		Placement.Score<PlayerKey, T> placement = Placement.fromPlayerScore(leaderboard.order(), game, game.statistics(), leaderboard.statistic());
 		placement.buildDisplay(leaderboard.length(), leaderboard.showPlacement(), leaderboard.showScore(), targetPlayers::sendMessage);
 		for (Placement.Score.Entry<PlayerKey, T> entry : placement.entries()) {
 			ServerPlayer player = targetPlayers.getPlayerBy(entry.holder());
@@ -55,7 +55,7 @@ public record DisplayLeaderboardAction(
 	}
 
 	private <T extends Comparable<T>> void sendByTeam(IGamePhase game, TeamState teams, PlayerSet targetPlayers, LeaderboardConfig<T> leaderboard) {
-		Placement.Score<GameTeamKey, T> placement = Placement.fromTeamScore(leaderboard.order(), game, leaderboard.statistic());
+		Placement.Score<GameTeamKey, T> placement = Placement.fromTeamScore(leaderboard.order(), game, game.statistics(), leaderboard.statistic());
 		placement.buildDisplay(leaderboard.length(), leaderboard.showPlacement(), leaderboard.showScore(), targetPlayers::sendMessage);
 		for (Placement.Score.Entry<GameTeamKey, T> entry : placement.entries()) {
 			if (entry.placement() > leaderboard.length()) {

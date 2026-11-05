@@ -18,7 +18,7 @@ public record RevealWinnerAction() implements IGameBehavior {
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		events.listen(GameActionEvents.APPLY, ((context, targets) -> {
-			Placement.Score<GameTeamKey, Integer> teamPlacement = Placement.fromTeamScore(PlacementOrder.MAX, game, StatisticKey.VACATION_DAYS);
+			Placement.Score<GameTeamKey, Integer> teamPlacement = Placement.fromTeamScore(PlacementOrder.MAX, game, game.statistics(), StatisticKey.VACATION_DAYS);
 			GameTeamKey winner = teamPlacement.getWinner();
 			game.allPlayers().showTitle(
 					winner.getName(game),

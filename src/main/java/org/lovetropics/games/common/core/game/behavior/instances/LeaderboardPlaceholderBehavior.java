@@ -29,7 +29,7 @@ public record LeaderboardPlaceholderBehavior(
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		GamePlaceholders.get(game).register(id, (_, _) -> {
 			List<Component> lines = new ArrayList<>(10);
-			leaderboard.buildDisplay(game, lines::add);
+			leaderboard.buildDisplay(game, game.statistics(), lines::add);
 			return PlaceholderResult.value(CommonComponents.joinLines(lines));
 		});
 	}

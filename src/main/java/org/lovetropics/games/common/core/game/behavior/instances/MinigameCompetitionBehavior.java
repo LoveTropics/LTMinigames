@@ -21,6 +21,7 @@ import net.minecraft.util.Unit;
 import net.minecraft.util.context.ContextMap;
 import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.config.ConfigLT;
+import org.lovetropics.games.common.content.MinigameTexts;
 import org.lovetropics.games.common.core.command.argument.GameConfigArgument;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.GameStopReason;
@@ -39,6 +40,7 @@ import org.lovetropics.games.common.core.game.config.GameConfig;
 import org.lovetropics.games.common.core.game.config.GameConfigs;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
 import org.lovetropics.games.common.core.game.state.statistics.GameStatistics;
+import org.lovetropics.games.common.core.game.state.statistics.LeaderboardConfig;
 import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
@@ -49,6 +51,7 @@ import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.List;
+import java.util.Optional;
 
 public final class MinigameCompetitionBehavior implements IGameBehavior {
 	private static final Logger LOGGER = LogUtils.getLogger();
@@ -57,24 +60,27 @@ public final class MinigameCompetitionBehavior implements IGameBehavior {
 			ExtraCodecs.nonEmptyList(QueueEntry.CODEC.listOf()).fieldOf("queue").forGetter(b -> b.initialQueue),
 			StatisticKey.CODEC.listOf().optionalFieldOf("share_statistics", List.of()).forGetter(b -> b.shareStatistics),
 			StatisticAccumulator.CODEC.listOf().optionalFieldOf("accumulate_statistics", List.of()).forGetter(b -> b.accumulateStatistics),
-			GameActionList.CODEC.optionalFieldOf("return_to_lobby_actions", GameActionList.EMPTY).forGetter(b -> b.returnToLobbyActions)
+			GameActionList.CODEC.optionalFieldOf("return_to_lobby_actions", GameActionList.EMPTY).forGetter(b -> b.returnToLobbyActions),
+			LeaderboardConfig.MAP_CODEC.codec().optionalFieldOf("return_to_lobby_leaderboard").forGetter(b -> b.returnToLobbyLeaderboard)
 	).apply(i, MinigameCompetitionBehavior::new));
 
 	private final List<QueueEntry> initialQueue;
 	private final List<StatisticKey<?>> shareStatistics;
 	private final List<StatisticAccumulator> accumulateStatistics;
 	private final GameActionList returnToLobbyActions;
+	private final Optional<LeaderboardConfig<?>> returnToLobbyLeaderboard;
 
 	private @Nullable GameStatistics accumulatedStatistics;
 
 	private final SubGameManager subGames = new SubGameManager();
 	private boolean participantsLocked;
 
-	public MinigameCompetitionBehavior(List<QueueEntry> initialQueue, List<StatisticKey<?>> shareStatistics, List<StatisticAccumulator> accumulateStatistics, GameActionList returnToLobbyActions) {
+	public MinigameCompetitionBehavior(List<QueueEntry> initialQueue, List<StatisticKey<?>> shareStatistics, List<StatisticAccumulator> accumulateStatistics, GameActionList returnToLobbyActions, Optional<LeaderboardConfig<?>> returnToLobbyLeaderboard) {
 		this.initialQueue = initialQueue;
 		this.shareStatistics = shareStatistics;
 		this.accumulateStatistics = accumulateStatistics;
 		this.returnToLobbyActions = returnToLobbyActions;
+		this.returnToLobbyLeaderboard = returnToLobbyLeaderboard;
 	}
 
 	@Override
@@ -132,6 +138,10 @@ public final class MinigameCompetitionBehavior implements IGameBehavior {
 
 	private void onReturnToLobby(IGamePhase topGame) {
 		if (accumulatedStatistics != null) {
+			if (returnToLobbyLeaderboard.isPresent()) {
+				topGame.allPlayers().sendMessage(MinigameTexts.COMPETITION_LOBBY_LEADERBOARD);
+				returnToLobbyLeaderboard.get().buildDisplay(topGame, accumulatedStatistics, topGame.allPlayers()::sendMessage);
+			}
 			for (StatisticAccumulator accumulator : accumulateStatistics) {
 				accumulator.addFromAccumulator(topGame.statistics(), accumulatedStatistics);
 			}
