@@ -60,6 +60,7 @@ public record KitSelectionBehavior(List<Kit> kits) implements IGameBehavior {
 						LOGGER.error("Unable to create entity for kit: {}", kit);
 						continue;
 					}
+					kit.entity().loadInto(entity);
 					Vec3 center = region.center();
 					entity.snapTo(center.x, region.min().getY(), center.z, kit.angle, 0.0f);
 					level.addFreshEntity(entity);
