@@ -15,7 +15,7 @@ public class LTKeybinds {
 	public static final KeyMapping.Category CATEGORY = new KeyMapping.Category(LoveTropics.id("lovetropics"));
 
 	public static final KeyMapping EXPAND_BINGO_BOARD = create("expand_bingo_board", InputConstants.KEY_B, KeyModifier.NONE);
-	public static final KeyMapping OPEN_SHOP = create("open_shop", InputConstants.KEY_N, KeyModifier.NONE);
+	public static final KeyMapping OPEN_SHOP = create("open_shop", InputConstants.KEY_J, KeyModifier.NONE);
 	public static final KeyMapping OPEN_RULES = create("open_rules", InputConstants.KEY_M, KeyModifier.NONE);
 	public static final KeyMapping TOGGLE_BINGO_HUD = create("toggle_bingo_hud", InputConstants.KEY_B, KeyModifier.SHIFT);
 
