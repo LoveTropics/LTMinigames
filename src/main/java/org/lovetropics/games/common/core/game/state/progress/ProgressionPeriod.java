@@ -1,25 +1,25 @@
 package org.lovetropics.games.common.core.game.state.progress;
 
+import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import org.lovetropics.games.common.core.game.IGamePhase;
 
-import java.util.List;
+import java.util.Optional;
 import java.util.function.BooleanSupplier;
+import java.util.function.Function;
 
-public record ProgressionPeriod(ProgressionPoint start, ProgressionPoint end) {
+public record ProgressionPeriod(ProgressionPoint start, Optional<ProgressionPoint> end) {
 	public static final MapCodec<ProgressionPeriod> MAP_CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			ProgressionPoint.CODEC.fieldOf("start").forGetter(ProgressionPeriod::start),
-			ProgressionPoint.CODEC.fieldOf("end").forGetter(ProgressionPeriod::end)
+			ProgressionPoint.CODEC.optionalFieldOf("end").forGetter(ProgressionPeriod::end)
 	).apply(i, ProgressionPeriod::new));
 
-	private static final Codec<ProgressionPeriod> TUPLE_CODEC = ProgressionPoint.CODEC.listOf(2, 2).xmap(
-			points -> new ProgressionPeriod(points.getFirst(), points.getLast()),
-			period -> List.of(period.start, period.end)
+	public static final Codec<ProgressionPeriod> CODEC = Codec.either(MAP_CODEC.codec(), ProgressionPoint.CODEC.listOf(2, 2)).xmap(
+			either -> either.map(Function.identity(), points -> new ProgressionPeriod(points.getFirst(), Optional.of(points.getLast()))),
+			Either::left
 	);
-
-	public static final Codec<ProgressionPeriod> CODEC = Codec.withAlternative(MAP_CODEC.codec(), TUPLE_CODEC);
 
 	public BooleanSupplier createPredicate(IGamePhase game, ProgressChannel channel) {
 		ProgressHolder holder = channel.getOrThrow(game);

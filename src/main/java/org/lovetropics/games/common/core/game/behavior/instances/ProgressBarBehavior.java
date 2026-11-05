@@ -99,7 +99,7 @@ public class ProgressBarBehavior implements IGameBehavior {
 			int startTime = entry.period.start().resolve(progression);
 			seconds = (progression.time() - startTime) / SharedConstants.TICKS_PER_SECOND;
 		} else {
-			int endTime = entry.period.end().resolve(progression);
+			int endTime = entry.period.end().map(p -> p.resolve(progression)).orElse(progression.time());
 			seconds = Mth.positiveCeilDiv(endTime - progression.time(), SharedConstants.TICKS_PER_SECOND);
 		}
 		return entry.title.resolve(game, seconds);

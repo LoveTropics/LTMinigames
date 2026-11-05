@@ -33,7 +33,7 @@ public final class ProgressHolder implements ProgressionPoint.NamedResolver {
 	}
 
 	public boolean is(ProgressionPeriod period) {
-		return isAfter(period.start()) && isBefore(period.end());
+		return isAfter(period.start()) && (period.end().isEmpty() || isBefore(period.end().get()));
 	}
 
 	public boolean is(Iterable<ProgressionPeriod> periods) {
@@ -47,7 +47,7 @@ public final class ProgressHolder implements ProgressionPoint.NamedResolver {
 
 	public float progressIn(ProgressionPeriod period) {
 		int start = period.start().resolve(this);
-		int end = period.end().resolve(this);
+		int end = period.end().map(point -> point.resolve(this)).orElse(ProgressionPoint.UNRESOLVED);
 		if (start == ProgressionPoint.UNRESOLVED || end == ProgressionPoint.UNRESOLVED) {
 			return 0.0f;
 		}
