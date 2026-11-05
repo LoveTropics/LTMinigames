@@ -39,7 +39,8 @@ public class WorldBorderGameBehavior implements IGameBehavior {
 			Codec.INT.fieldOf("particle_height").forGetter(c -> c.particleHeight),
 			Codec.INT.fieldOf("damage_rate_delay").forGetter(c -> c.damageRateDelay),
 			Codec.INT.fieldOf("damage_amount").forGetter(c -> c.damageAmount),
-			ExtraCodecs.compactListCodec(ParticleType.CODEC).fieldOf("border_particles").forGetter(c -> c.borderParticles)
+			ExtraCodecs.compactListCodec(ParticleType.CODEC).fieldOf("border_particles").forGetter(c -> c.borderParticles),
+			Codec.FLOAT.optionalFieldOf("min_radius", 0.0f).forGetter(c -> c.minRadius)
 	).apply(i, WorldBorderGameBehavior::new));
 
 	private final RegionQuery worldBorderCenterRegion;
@@ -48,6 +49,7 @@ public class WorldBorderGameBehavior implements IGameBehavior {
 	private final int particleHeight;
 	private final int damageRateDelay;
 	private final int damageAmount;
+	private final float minRadius;
 	private final List<ParticleType> borderParticles;
 
 	private LevelBlockPos worldBorderCenter;
@@ -58,7 +60,7 @@ public class WorldBorderGameBehavior implements IGameBehavior {
 	private boolean addedBeacon;
 
 	public WorldBorderGameBehavior(RegionQuery worldBorderCenterRegion, ProgressChannel channel, ProgressionPeriod period,
-								   int particleHeight, int damageRateDelay, int damageAmount, List<ParticleType> borderParticles) {
+								   int particleHeight, int damageRateDelay, int damageAmount, List<ParticleType> borderParticles, float minRadius) {
 		this.worldBorderCenterRegion = worldBorderCenterRegion;
 		this.channel = channel;
 		this.period = period;
@@ -66,6 +68,7 @@ public class WorldBorderGameBehavior implements IGameBehavior {
 		this.damageRateDelay = damageRateDelay;
 		this.damageAmount = damageAmount;
 		this.borderParticles = borderParticles;
+		this.minRadius = minRadius;
 	}
 
 	@Override
@@ -101,7 +104,7 @@ public class WorldBorderGameBehavior implements IGameBehavior {
 		float borderPercent = Math.max(1.0f - phaseProgress, 0.01f);
 
 		float maxRadius = 210;
-		float currentRadius = maxRadius * borderPercent;
+		float currentRadius = Math.max(maxRadius * borderPercent, minRadius);
 
 		for (ParticleType particle : borderParticles) {
 			if (game.ticks() % particle.rate == 0) {
@@ -124,7 +127,7 @@ public class WorldBorderGameBehavior implements IGameBehavior {
 		float stepAmount = 360F / amountPerCircle;
 
 		int yMin = -10;
-		int yStepAmount = 5;
+		int yStepAmount = 3;
 
 		for (float step = 0; step <= 360; step += stepAmount) {
 			for (int yStep = yMin; yStep < particleHeight; yStep += yStepAmount) {
@@ -134,7 +137,7 @@ public class WorldBorderGameBehavior implements IGameBehavior {
 					//level.addParticle(borderParticle, worldBorderCenter.getX() + xVec, worldBorderCenter.getY() + yStep, worldBorderCenter.getZ() + zVec, 0, 0, 0);
 					//IParticleData data = ForgeRegistries.PARTICLE_TYPES.getValue(new Identifier("heart"));
 					level.sendParticles(particle.particle, worldBorderCenter.pos().getX() + xVec, worldBorderCenter.pos().getY() + yStep, worldBorderCenter.pos()
-							.getZ() + zVec, 1, 0, 0, 0, 1D);
+							.getZ() + zVec, 1, 0, 0, 0, particle.speed);
 				}
 			}
 		}
@@ -153,12 +156,13 @@ public class WorldBorderGameBehavior implements IGameBehavior {
 		}
 	}
 
-	public record ParticleType(ParticleOptions particle, int rate, int chance, float density) {
+	public record ParticleType(ParticleOptions particle, int rate, int chance, float density, double speed) {
 		public static final Codec<ParticleType> CODEC = RecordCodecBuilder.create(i -> i.group(
 				ParticleTypes.CODEC.fieldOf("particle").forGetter(ParticleType::particle),
 				Codec.INT.fieldOf("rate").forGetter(ParticleType::rate),
 				Codec.INT.fieldOf("chance").forGetter(ParticleType::chance),
-				Codec.FLOAT.fieldOf("density").forGetter(ParticleType::density)
+				Codec.FLOAT.fieldOf("density").forGetter(ParticleType::density),
+				Codec.DOUBLE.optionalFieldOf("speed", 1D).forGetter(ParticleType::speed)
 		).apply(i, ParticleType::new));
 	}
 }
