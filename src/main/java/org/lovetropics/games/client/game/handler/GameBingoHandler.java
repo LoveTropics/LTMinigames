@@ -17,6 +17,7 @@ import org.lovetropics.games.LoveTropics;
 import org.lovetropics.games.client.LTKeybinds;
 import org.lovetropics.games.client.game.bingo.BingoBoardScreen;
 import org.lovetropics.games.client.game.bingo.BingoStandings;
+import org.lovetropics.games.client.game.overlord.OverlordScreen;
 import org.lovetropics.games.client.screen.ClientPlayerInfo;
 import org.lovetropics.games.common.content.bingo.BingoTileType;
 import org.lovetropics.games.common.core.game.client_state.instance.BingoBoardClientState;
@@ -26,7 +27,7 @@ import java.util.Optional;
 import java.util.function.IntPredicate;
 
 /// Shows a compact bingo board in the corner of the screen, which can be opened in full with [BingoBoardScreen].
-/// Next to it, how far along every player is.
+/// Next to it, how far along every player is. Overlords open the [OverlordScreen] instead.
 @EventBusSubscriber(modid = LoveTropics.ID, value = Dist.CLIENT)
 public class GameBingoHandler {
 	private static final int BOARD_X = 20, BOARD_Y = 20;
@@ -107,7 +108,7 @@ public class GameBingoHandler {
 		STANDINGS.tick(board);
 		while (LTKeybinds.EXPAND_BINGO_BOARD.consumeClick()) {
 			if (board != null && minecraft.gui.screen() == null) {
-				minecraft.setScreenAndShow(new BingoBoardScreen());
+				minecraft.setScreenAndShow(OverlordScreen.isOverlord(board) ? new OverlordScreen() : new BingoBoardScreen());
 			}
 		}
 

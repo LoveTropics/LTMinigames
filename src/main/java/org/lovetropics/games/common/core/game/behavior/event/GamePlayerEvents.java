@@ -70,6 +70,12 @@ public final class GamePlayerEvents {
 		}
 	});
 
+	public static final GameEventType<OverlordChange> OVERLORD_CHANGE = GameEventType.create(OverlordChange.class, listeners -> (player, overlord) -> {
+		for (OverlordChange listener : listeners) {
+			listener.onOverlordChange(player, overlord);
+		}
+	});
+
 	public static final GameEventType<SelectRole> SELECT_ROLE_ON_JOIN = GameEventType.create(SelectRole.class, listeners -> (player, requestedRole) -> {
 		for (SelectRole listener : listeners) {
 			PlayerRole role = listener.selectRole(player, requestedRole);
@@ -302,6 +308,10 @@ public final class GamePlayerEvents {
 
 	public interface SetRole {
 		void onSetRole(ServerPlayer player, @Nullable PlayerRole role, @Nullable PlayerRole lastRole);
+	}
+
+	public interface OverlordChange {
+		void onOverlordChange(ServerPlayer player, boolean overlord);
 	}
 
 	public interface SelectRole {

@@ -19,10 +19,12 @@ import org.lovetropics.games.LoveTropics;
 import org.lovetropics.games.client.LTKeybinds;
 import org.lovetropics.games.client.game.bingo.BingoBoardScreen;
 import org.lovetropics.games.client.game.modifier.ModifiersScreen;
+import org.lovetropics.games.client.game.overlord.OverlordScreen;
 import org.lovetropics.games.client.game.shop.ShopScreen;
 import org.lovetropics.games.common.content.bingo.Bingo;
 import org.lovetropics.games.common.content.shop.ShopTexts;
 import org.lovetropics.games.common.content.tropic_rush.TropicRushTexts;
+import org.lovetropics.games.common.core.game.client_state.instance.BingoBoardClientState;
 import org.lovetropics.games.common.core.game.client_state.instance.ModifiersClientState;
 import org.lovetropics.games.common.core.game.client_state.instance.ShopClientState;
 
@@ -46,7 +48,7 @@ public final class GameControlsHud {
 			Minecraft minecraft = Minecraft.getInstance();
 			LocalPlayer player = minecraft.player;
 			Screen screen = minecraft.gui.screen();
-			if (player == null || minecraft.gui.hud.isHidden() || screen instanceof BingoBoardScreen || screen instanceof ShopScreen || screen instanceof ModifiersScreen) {
+			if (player == null || minecraft.gui.hud.isHidden() || screen instanceof BingoBoardScreen || screen instanceof OverlordScreen || screen instanceof ShopScreen || screen instanceof ModifiersScreen) {
 				return;
 			}
 			List<Component> lines = getLines();
@@ -58,8 +60,12 @@ public final class GameControlsHud {
 
 	private static List<Component> getLines() {
 		List<Component> lines = new ArrayList<>();
-		final boolean hasBingoBoard = GameBingoHandler.board() != null;
-		if (hasBingoBoard) {
+		BingoBoardClientState board = GameBingoHandler.board();
+		final boolean overlord = board != null && OverlordScreen.isOverlord(board);
+		final boolean hasBingoBoard = board != null && !overlord;
+		if (overlord) {
+			lines.add(TropicRushTexts.OPEN_OVERLORD_HINT.apply(LTKeybinds.EXPAND_BINGO_BOARD.getTranslatedKeyMessage()));
+		} else if (hasBingoBoard) {
 			lines.add(Bingo.OPEN_BOARD_HINT.apply(LTKeybinds.EXPAND_BINGO_BOARD.getTranslatedKeyMessage()));
 		}
 

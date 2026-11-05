@@ -36,13 +36,15 @@ import java.util.UUID;
 public record AddOverlordsBehavior(
 		List<String> roles,
 		Set<UUID> playerIds,
+		GameType gameType,
 		GameActionList applyToOverlord
 ) implements IGameBehavior {
 	private static final Logger LOGGER = LogUtils.getLogger();
 
 	public static final MapCodec<AddOverlordsBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			Codec.STRING.listOf().optionalFieldOf("roles", List.of()).forGetter(AddOverlordsBehavior::roles),
-			UUIDUtil.CODEC_SET.optionalFieldOf("players", Set.of()).forGetter(AddOverlordsBehavior::playerIds),
+			UUIDUtil.LENIENT_CODEC.listOf().xmap(Set::copyOf, List::copyOf).optionalFieldOf("players", Set.of()).forGetter(AddOverlordsBehavior::playerIds),
+			GameType.CODEC.optionalFieldOf("game_type", GameType.CREATIVE).forGetter(AddOverlordsBehavior::gameType),
 			GameActionList.CODEC.optionalFieldOf("apply_to_overlord", GameActionList.EMPTY).forGetter(AddOverlordsBehavior::applyToOverlord)
 	).apply(i, AddOverlordsBehavior::new));
 
@@ -100,6 +102,7 @@ public record AddOverlordsBehavior(
 										EntityArgument.getPlayers(context, "players").forEach(player -> {
 											overlords.add(player);
 											onAddOverlord(game, player);
+											game.invoker(GamePlayerEvents.OVERLORD_CHANGE).onOverlordChange(player, true);
 										});
 										return 1;
 									})
@@ -111,6 +114,7 @@ public record AddOverlordsBehavior(
 										EntityArgument.getPlayers(context, "players").forEach(player -> {
 											if (overlords.remove(player)) {
 												onRemoveOverlord(game, player);
+												game.invoker(GamePlayerEvents.OVERLORD_CHANGE).onOverlordChange(player, false);
 											}
 										});
 										return 1;
@@ -123,7 +127,7 @@ public record AddOverlordsBehavior(
 
 	private void onAddOverlord(IGamePhase game, ServerPlayer player) {
 		game.setPlayerRole(player, PlayerRole.SPECTATOR);
-		player.setGameMode(GameType.CREATIVE);
+		player.setGameMode(gameType);
 
 		applyToOverlord.apply(game, ContextMap.EMPTY, ActionSubjects.ofPlayer(player));
 	}

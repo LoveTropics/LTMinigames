@@ -23,8 +23,10 @@ import org.lovetropics.games.common.core.game.client_state.GameClientState;
 import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
 import org.lovetropics.games.common.core.game.client_state.instance.BingoBoardClientState;
 import org.lovetropics.games.common.core.game.state.GameStateKey;
+import org.lovetropics.games.common.core.game.player.PlayerRole;
 import org.lovetropics.games.common.core.game.state.Ghosts;
 import org.lovetropics.games.common.core.game.state.IGameState;
+import org.lovetropics.games.common.core.game.state.Overlords;
 import org.lovetropics.games.common.core.game.state.statistics.GameStatistics;
 import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
@@ -277,7 +279,8 @@ public final class BingoBoard implements IGameState {
 				.toList();
 		int points = game.statistics().readForPlayer(player).getOr(StatisticKey.POINTS, 0);
 		Optional<Component> unlockHint = !lockedSlots.isEmpty() && unlockOnClear > 0 ? Optional.of(Bingo.LOCKED_HINT_CLEAR.apply(unlockOnClear)) : Optional.empty();
-		GameClientState.sendToPlayer(new BingoBoardClientState(rows, columns, clientTiles, clientLockedSlots, points, unlockHint, getPlayerProgress(), Ghosts.isParticipantOrGhost(game, player)), player);
+		boolean overlord = game.getRoleFor(player) == PlayerRole.SPECTATOR && Overlords.get(game).contains(player);
+		GameClientState.sendToPlayer(new BingoBoardClientState(rows, columns, clientTiles, clientLockedSlots, points, unlockHint, getPlayerProgress(), Ghosts.isParticipantOrGhost(game, player), overlord), player);
 	}
 
 	/// The progress of everyone playing, and of the players who left but still have points

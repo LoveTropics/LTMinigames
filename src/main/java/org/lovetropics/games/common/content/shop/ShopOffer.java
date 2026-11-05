@@ -15,7 +15,7 @@ import java.util.List;
 ///
 /// @param cost     how many tropicoins it costs
 /// @param target   who the offer is applied to, e.g. myself or another player
-/// @param usableBy who can buy the offer
+/// @param usableBy who can buy the offer, e.g. players and ghosts but not overlords
 /// @param flavor   the intent of the offer - i.e. how it should be shown in UI and chat messages
 /// @param actions  applied to the target
 public record ShopOffer(
@@ -24,7 +24,7 @@ public record ShopOffer(
 		List<Component> description,
 		int cost,
 		ShopTarget target,
-		ShopUsers usableBy,
+		List<ShopUsers> usableBy,
 		ShopOfferFlavor flavor,
 		GameActionList actions
 ) {
@@ -34,10 +34,22 @@ public record ShopOffer(
 			ComponentSerialization.CODEC.listOf().optionalFieldOf("description", List.of()).forGetter(ShopOffer::description),
 			ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("cost", 0).forGetter(ShopOffer::cost),
 			ShopTarget.CODEC.optionalFieldOf("target", ShopTarget.SELF).forGetter(ShopOffer::target),
-			ShopUsers.CODEC.optionalFieldOf("usable_by", ShopUsers.PLAYERS).forGetter(ShopOffer::usableBy),
+			ExtraCodecs.compactListCodec(ShopUsers.CODEC).optionalFieldOf("usable_by", List.of(ShopUsers.PLAYERS)).forGetter(ShopOffer::usableBy),
 			ShopOfferFlavor.CODEC.fieldOf("flavor").forGetter(ShopOffer::flavor),
 			GameActionList.CODEC.fieldOf("actions").forGetter(ShopOffer::actions)
 	).apply(in, ShopOffer::new));
+
+	public boolean isUsableByPlayers() {
+		return usableBy.stream().anyMatch(ShopUsers::includesPlayers);
+	}
+
+	public boolean isUsableByGhosts() {
+		return usableBy.stream().anyMatch(ShopUsers::includesGhosts);
+	}
+
+	public boolean isUsableByOverlords() {
+		return usableBy.stream().anyMatch(ShopUsers::includesOverlords);
+	}
 
 	public ShopClientState.Offer asClientOffer() {
 		return new ShopClientState.Offer(icon.create(), name, description, cost, target, flavor);

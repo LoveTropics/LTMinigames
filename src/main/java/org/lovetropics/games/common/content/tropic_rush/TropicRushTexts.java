@@ -44,6 +44,11 @@ public final class TropicRushTexts {
 	public static final TranslationCollector.Fun1 MODIFIER_REVEALED_TO = KEYS.add1("modifier.revealed_to", "Revealed a rule to %s players");
 	public static final TranslationCollector.Fun1 MODIFIER_HIDDEN_FROM = KEYS.add1("modifier.hidden_from", "Hid a rule from %s players");
 
+	// Overlord
+	public static final Component OVERLORD = KEYS.add("overlord", "Overlord");
+	public static final TranslationCollector.Fun1 OPEN_OVERLORD_HINT = KEYS.add1("overlord.open_hint", "[%s] Overlord");
+	public static final Component OVERLORD_NO_PLAYERS = KEYS.add("overlord.no_players", "Nobody is playing");
+
 	public static void collectTranslations(BiConsumer<String, String> consumer) {
 		KEYS.forEach(consumer);
 		consumer.accept(LoveTropics.ID + ".minigame.tropic_rush", "Tropic Rush");
