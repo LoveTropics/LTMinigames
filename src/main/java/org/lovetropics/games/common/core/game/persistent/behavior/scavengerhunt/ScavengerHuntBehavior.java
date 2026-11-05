@@ -11,6 +11,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.permissions.LevelBasedPermissionSet;
@@ -35,12 +36,14 @@ import java.util.List;
 import java.util.Optional;
 
 public record ScavengerHuntBehavior(
+		Identifier id,
 		List<Stage> stages,
 		Optional<Action> unlockAction,
 		Optional<Action> missingPreviousAction,
 		Optional<Action> alreadyUnlockedAction
 ) implements PersistentGameBehavior {
 	public static final MapCodec<ScavengerHuntBehavior> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+			Identifier.CODEC.fieldOf("id").forGetter(ScavengerHuntBehavior::id),
 			Stage.CODEC.listOf().fieldOf("stages").forGetter(ScavengerHuntBehavior::stages),
 			Action.CODEC.optionalFieldOf("on_unlock").forGetter(ScavengerHuntBehavior::unlockAction),
 			Action.CODEC.optionalFieldOf("on_missing_previous").forGetter(ScavengerHuntBehavior::missingPreviousAction),
@@ -62,29 +65,30 @@ public record ScavengerHuntBehavior(
 
 			ScavengerHuntState state = player.getData(LoveTropicsAttachments.SCAVENGER_HUNT_STATE);
 			tryUnlock(player, selectedStageIndex, state, selectedStage);
-			getScoreAccess(player).set(state.nextStageIndex());
+			getScoreAccess(player).set(state.nextStageIndex(id));
 
 			return InteractionResult.PASS;
 		});
 	}
 
 	private void tryUnlock(ServerPlayer player, int selectedStageIndex, ScavengerHuntState state, Stage selectedStage) {
-		if (selectedStageIndex < state.nextStageIndex()) {
+		int nextStageIndex = state.nextStageIndex(id);
+		if (selectedStageIndex < nextStageIndex) {
 			// Already unlocked this stage
-			alreadyUnlockedAction.ifPresent(action -> action.execute(player, state));
-			selectedStage.alreadyUnlockedAction.ifPresent(action -> action.execute(player, state));
+			alreadyUnlockedAction.ifPresent(action -> action.execute(player, state, id));
+			selectedStage.alreadyUnlockedAction.ifPresent(action -> action.execute(player, state, id));
 			return;
 		}
-		if (selectedStageIndex > state.nextStageIndex()) {
+		if (selectedStageIndex > nextStageIndex) {
 			// Haven't unlocked prerequisite
-			missingPreviousAction.ifPresent(action -> action.execute(player, state));
-			selectedStage.missingPreviousAction.ifPresent(action -> action.execute(player, state));
+			missingPreviousAction.ifPresent(action -> action.execute(player, state, id));
+			selectedStage.missingPreviousAction.ifPresent(action -> action.execute(player, state, id));
 			return;
 		}
 
-		state.incrementStageIndex();
-		unlockAction.ifPresent(action -> action.execute(player, state));
-		selectedStage.unlockAction.ifPresent(action -> action.execute(player, state));
+		state.incrementStageIndex(id);
+		unlockAction.ifPresent(action -> action.execute(player, state, id));
+		selectedStage.unlockAction.ifPresent(action -> action.execute(player, state, id));
 	}
 
 	private @Nullable Stage getStage(int index) {
@@ -142,7 +146,7 @@ public record ScavengerHuntBehavior(
 				SoundEvent.CODEC.optionalFieldOf("sound").forGetter(Action::sound)
 		).apply(i, Action::new));
 
-		public void execute(ServerPlayer player, ScavengerHuntState state) {
+		public void execute(ServerPlayer player, ScavengerHuntState state, Identifier id) {
 			if (!commands.isEmpty()) {
 				CommandSourceStack source = player.createCommandSourceStack().withSuppressedOutput().withPermission(LevelBasedPermissionSet.ADMIN).withSource(player.level().getServer());
 				CommandDispatcher<CommandSourceStack> dispatcher = source.dispatcher();
@@ -155,7 +159,7 @@ public record ScavengerHuntBehavior(
 				}
 			}
 
-			setStageIndex.ifPresent(state::setNextStageIndex);
+			setStageIndex.ifPresent(index -> state.setNextStageIndices(id, index));
 
 			for (Component message : messages) {
 				player.sendSystemMessage(message);
