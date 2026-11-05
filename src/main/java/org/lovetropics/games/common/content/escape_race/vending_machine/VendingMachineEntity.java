@@ -143,7 +143,7 @@ public class VendingMachineEntity extends Entity implements ContainerEntity {
 				player.getInventory().removeItem(costItem);
 			} else {
 				playSound(SoundRegistry.INCORRECT.value());
-				player.sendSystemMessage(MinigameTexts.VENDING_MACHINE_COST.apply(costItem), true);
+				player.sendSystemMessage(MinigameTexts.VENDING_MACHINE_COST.apply(costItem.getCount(), costItem.getHoverName()), true);
 				return;
 			}
 		}
