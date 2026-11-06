@@ -46,10 +46,10 @@ public record AnnouncementsBehavior() implements IGameBehavior {
 	}
 	private static final TextColor SUBTITLE_COLOR = TextColor.fromRgb(0xA9B4B7);
 	private static final Component EMPTY_TITLE = CommonComponents.space();
-	private static final int STAY = SharedConstants.TICKS_PER_SECOND * 2;
+	private static final int STAY = SharedConstants.TICKS_PER_SECOND * 6;
 	private static final int FADE_IN = SharedConstants.TICKS_PER_SECOND / 4;
 	private static final int FADE_OUT = SharedConstants.TICKS_PER_SECOND  / 4;
-	private static final FontDescription.Resource MINECRAFT_5 = new FontDescription.Resource(Identifier.fromNamespaceAndPath("lt", "minecraft_5"));
+	private static final FontDescription.Resource MINECRAFT_5 = new FontDescription.Resource(Identifier.fromNamespaceAndPath("lt", "minecraft_five"));
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		events.listen(GamePhaseEvents.REGISTER_COMMANDS, (commands, buildContext) -> {
