@@ -12,7 +12,6 @@ import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
 import org.lovetropics.games.common.core.game.behavior.instances.command.CustomCommandBehavior;
-import org.lovetropics.games.common.core.game.state.GameStateMap;
 
 import java.util.List;
 
@@ -36,12 +35,9 @@ public final class ShopBehavior implements IGameBehavior {
 	}
 
 	@Override
-	public void registerState(IGamePhase game, GameStateMap phaseState, GameStateMap instanceState) {
-		shop = phaseState.register(Shop.KEY, new Shop(game, offers, tropicoinsPerDonatedAmount));
-	}
-
-	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
+		shop = Shop.register(game, events, offers, tropicoinsPerDonatedAmount);
+
 		for (ShopOffer offer : offers) {
 			offer.actions().register(game, events);
 		}

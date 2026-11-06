@@ -1,9 +1,13 @@
 package org.lovetropics.games.common.content.shop;
 
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import net.minecraft.ChatFormatting;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -18,9 +22,12 @@ import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.action.ActionSubjectDescriber;
 import org.lovetropics.games.common.core.game.behavior.action.ActionSubjects;
 import org.lovetropics.games.common.core.game.behavior.action.GameActionContextKeys;
+import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.client_state.GameClientState;
 import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
 import org.lovetropics.games.common.core.game.client_state.instance.ShopClientState;
+import org.lovetropics.games.common.core.game.command.GameCommandRegistrar;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
 import org.lovetropics.games.common.core.game.player.PlayerSet;
 import org.lovetropics.games.common.core.game.state.GameStateKey;
@@ -50,21 +57,66 @@ public final class Shop implements IGameState {
 	public static final GameStateKey<Shop> KEY = GameStateKey.create("Shop");
 
 	private final IGamePhase game;
-	private final List<ShopOffer> playerOffers;
-	private final List<ShopOffer> ghostOffers;
-	private final List<ShopOffer> overlordOffers;
+	private final List<ShopOffer> allOffers;
+	private List<ShopOffer> playerOffers = List.of();
+	private List<ShopOffer> ghostOffers = List.of();
+	private List<ShopOffer> overlordOffers = List.of();
 	/// What was last sent to each player who has the shop, to only update players whose shop changed
 	private final Map<UUID, SentShop> sentShops = new HashMap<>();
 	private final Map<UUID, Reference2IntOpenHashMap<ShopOffer>> purchases = new HashMap<>();
 
 	private double tropicoinsPerDonatedAmount;
 
-	public Shop(IGamePhase game, List<ShopOffer> offers, double tropicoinsPerDonatedAmount) {
+	private Shop(IGamePhase game, List<ShopOffer> offers, double tropicoinsPerDonatedAmount) {
 		this.game = game;
-		playerOffers = offers.stream().filter(ShopOffer::isUsableByPlayers).toList();
-		ghostOffers = offers.stream().filter(ShopOffer::isUsableByGhosts).toList();
-		overlordOffers = offers.stream().filter(ShopOffer::isUsableByOverlords).map(ShopOffer::forOverlords).toList();
+		allOffers = new ArrayList<>(offers);
+		rebuildOffers();
 		this.tropicoinsPerDonatedAmount = tropicoinsPerDonatedAmount;
+	}
+
+	private void rebuildOffers() {
+		playerOffers = allOffers.stream().filter(ShopOffer::isUsableByPlayers).toList();
+		ghostOffers = allOffers.stream().filter(ShopOffer::isUsableByGhosts).toList();
+		overlordOffers = allOffers.stream().filter(ShopOffer::isUsableByOverlords).map(ShopOffer::forOverlords).toList();
+	}
+
+	private boolean setOfferCost(String id, int cost) {
+		for (int i = 0; i < allOffers.size(); i++) {
+			ShopOffer offer = allOffers.get(i);
+			if (offer.id().equals(id)) {
+				allOffers.set(i, offer.withCost(cost));
+				rebuildOffers();
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public static Shop register(IGamePhase game, EventRegistrar events, List<ShopOffer> offers, double tropicoinsPerDonatedAmount) {
+		Shop shop = new Shop(game, offers, tropicoinsPerDonatedAmount);
+		events.listen(GamePhaseEvents.REGISTER_COMMANDS, (commands, _) -> {
+			commands.register(Commands.literal("shop").then(Commands.literal("offer")
+					.requires(GameCommandRegistrar.adminOrOverlord(game))
+					.then(Commands.argument("id", StringArgumentType.string())
+							.suggests((_, builder) -> SharedSuggestionProvider.suggest(shop.allOffers.stream().map(ShopOffer::id), builder))
+							.then(Commands.literal("setcost")
+									.then(Commands.argument("cost", IntegerArgumentType.integer(0))
+											.executes(context -> {
+												String id = StringArgumentType.getString(context, "id");
+												int cost = IntegerArgumentType.getInteger(context, "cost");
+												if (shop.setOfferCost(id, cost)) {
+													context.getSource().sendSuccess(() -> Component.literal("Set shop offer " + id + " cost to " + cost), true);
+												} else {
+													context.getSource().sendFailure(Component.literal("No shop with offer " + id));
+												}
+												return 1;
+											})
+									)
+							)
+					)
+			));
+		});
+		return shop;
 	}
 
 	public double tropicoinsPerDonatedAmount() {
