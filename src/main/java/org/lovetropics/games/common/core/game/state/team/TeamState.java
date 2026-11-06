@@ -193,6 +193,9 @@ public final class TeamState implements IGameState, Iterable<GameTeam> {
 		}
 		GameTeamKey sourceTeam = getTeamForPlayer((Player) source);
 		GameTeamKey targetTeam = getTeamForPlayer((Player) target);
+		if (sourceTeam == null || targetTeam == null) {
+			return false;
+		}
 		return Objects.equals(sourceTeam, targetTeam);
 	}
 
