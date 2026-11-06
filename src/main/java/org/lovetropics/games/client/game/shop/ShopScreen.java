@@ -125,8 +125,10 @@ public final class ShopScreen extends Screen {
 	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
 		ShopClientState shop = GameShopHandler.shop();
 		if (shop != null && event.input() == 0) {
-			if (pickingOffer >= 0) {
-				clickTargetRow(shop, getRowAt(shop, event.x(), event.y()));
+			if (pickingOffer >= 0 && pickingOffer < shop.offers().size()) {
+				ShopClientState.Offer offer = shop.offers().get(pickingOffer);
+				List<ShopClientState.Target> targets = offer.targetsIn(shop);
+				clickTargetRow(getRowAt(event.x(), event.y(), targets), targets);
 				return true;
 			}
 			int index = getOfferAt(shop, event.x(), event.y());
@@ -144,15 +146,15 @@ public final class ShopScreen extends Screen {
 	}
 
 	/// @param row the row of the target picker, as given by [#getRowAt]
-	private void clickTargetRow(ShopClientState shop, int row) {
+	private void clickTargetRow(int row, List<ShopClientState.Target> targets) {
 		int offer = pickingOffer;
 		pickingOffer = -1;
 		// Clicking the cancel row or outside of the rows cancels
-		if (row < 0 || row > shop.playerTargets().size()) {
+		if (row < 0 || row > targets.size()) {
 			return;
 		}
 		// The row after the players picks one at random
-		Optional<UUID> target = row < shop.playerTargets().size() ? Optional.of(shop.playerTargets().get(row).id()) : Optional.empty();
+		Optional<UUID> target = row < targets.size() ? Optional.of(targets.get(row).id()) : Optional.empty();
 		purchase(offer, target);
 		playClickSound();
 	}
@@ -180,7 +182,7 @@ public final class ShopScreen extends Screen {
 	}
 
 	private static boolean hasTarget(ShopClientState shop, ShopClientState.Offer offer) {
-		return !offer.target().requiresOtherPlayer() || !shop.playerTargets().isEmpty();
+		return !offer.target().requiresOtherPlayer() || !offer.targetsIn(shop).isEmpty();
 	}
 
 	@Override
@@ -337,7 +339,7 @@ public final class ShopScreen extends Screen {
 
 	/// Draws a row for each player the offer can be used on, then one to pick a random player and one to cancel
 	private void drawTargetPicker(GuiGraphicsExtractor graphics, ShopClientState shop, ShopClientState.Offer offer, int mouseX, int mouseY) {
-		List<ShopClientState.Target> targets = offer.targetTeam() ? shop.teamTargets() : shop.playerTargets();
+		List<ShopClientState.Target> targets = offer.targetsIn(shop);
 		int lineHeight = font.lineHeight;
 		rowH = Math.max(lineHeight, FACE_SIZE) + PADDING * 2;
 		int rowCount = targets.size() + 2;
@@ -365,7 +367,7 @@ public final class ShopScreen extends Screen {
 
 		graphics.enableScissor(rowsX, rowsY, rowsX + ROW_W, rowsY + contentH);
 
-		int hoveredRow = getRowAt(shop, mouseX, mouseY);
+		int hoveredRow = getRowAt(mouseX, mouseY, offer.targetsIn(shop));
 		for (int row = 0; row < rowCount; row++) {
 			int y = getRowY(row);
 			boolean hovered = row == hoveredRow;
@@ -461,14 +463,14 @@ public final class ShopScreen extends Screen {
 	}
 
 	/// @return the row of the target picker under the given screen position: the players, then random, then cancel - or `-1` if there is none
-	private int getRowAt(ShopClientState shop, double mouseX, double mouseY) {
+	private int getRowAt(double mouseX, double mouseY, List<ShopClientState.Target> targets) {
 		if (mouseX < rowsX || mouseX >= rowsX + ROW_W) {
 			return -1;
 		}
 		if (mouseY < rowsY || mouseY >= rowsY + contentH) {
 			return -1;
 		}
-		int rowCount = shop.playerTargets().size() + 2;
+		int rowCount = targets.size() + 2;
 		for (int row = 0; row < rowCount; row++) {
 			int y = getRowY(row);
 			if (mouseY >= y && mouseY < y + rowH) {

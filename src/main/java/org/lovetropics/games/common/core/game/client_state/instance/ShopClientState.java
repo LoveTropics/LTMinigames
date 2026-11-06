@@ -57,6 +57,10 @@ public record ShopClientState(
 		public boolean isSoldOut() {
 			return stock.isPresent() && stock.get() <= 0; // || isBlackFriday() ?
 		}
+
+		public List<Target> targetsIn(ShopClientState shop) {
+			return targetTeam ? shop.teamTargets : shop.playerTargets;
+		}
 	}
 
 	public record Target(
