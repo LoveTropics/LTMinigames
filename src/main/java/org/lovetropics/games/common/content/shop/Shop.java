@@ -193,6 +193,9 @@ public final class Shop implements IGameState {
 		if (shop.equals(lastShop)) {
 			return;
 		}
+		if (lastShop != null && shop.balance > lastShop.balance) {
+			PlayerSet.of(player).playSound(SoundRegistry.COINS.value(), SoundSource.PLAYERS, 1.0f, game.random().nextFloat() * 0.4f + 1.3f);
+		}
 
 		List<ShopClientState.Offer> clientOffers = shop.offers.stream().map(ShopOffer::asClientOffer).toList();
 		boolean anyHasCost = shop.offers.stream().anyMatch(offer -> offer.cost() > 0);

@@ -24,6 +24,7 @@ import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
 import org.lovetropics.games.common.core.game.client_state.instance.BingoBoardClientState;
 import org.lovetropics.games.common.core.game.state.GameStateKey;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
+import org.lovetropics.games.common.core.game.player.PlayerSet;
 import org.lovetropics.games.common.core.game.state.Ghosts;
 import org.lovetropics.games.common.core.game.state.IGameState;
 import org.lovetropics.games.common.core.game.state.Overlords;
@@ -176,6 +177,7 @@ public final class BingoBoard implements IGameState {
 		onTileCompleted.apply(game, ContextMap.EMPTY, ActionSubjects.ofPlayer(player));
 		MutableComponent tileCompletedComponent = Bingo.TILE_COMPLETED.apply(player.getDisplayName(), completedTile.title.copy().withStyle(ChatFormatting.AQUA));
 		game.allPlayers().sendMessage(tileCompletedComponent);
+		playCompletionSounds(player, completedTile);
 
 		// Send the tile completion event to the techstack
 		GameInstanceIntegrations integrations = game.instanceState().getOrNull(GameInstanceIntegrations.KEY);
@@ -200,6 +202,25 @@ public final class BingoBoard implements IGameState {
 			game.invoker(Bingo.BOARD_COMPLETED).onBoardCompleted(player);
 		} else if (unlockOnClear > 0 && hasCompletedAllTiles(player.getUUID(), false)) {
 			unlockTiles(unlockOnClear);
+		}
+	}
+
+	private void playCompletionSounds(ServerPlayer player, BingoTile tile) {
+		PlayerSet completer = PlayerSet.of(player);
+		if (!tile.columnMultipliers.isEmpty()) {
+			completer.playSound(SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundSource.PLAYERS, 0.6f, 1.0f);
+			completer.playSound(SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 0.8f, 1.0f);
+			completer.playSound(SoundEvents.FIREWORK_ROCKET_TWINKLE, SoundSource.PLAYERS, 0.6f, 1.0f);
+			completer.playSound(SoundEvents.AMETHYST_BLOCK_RESONATE, SoundSource.PLAYERS, 1.0f, 1.0f);
+		} else {
+			completer.playSound(SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 0.6f, 1.4f);
+			completer.playSound(SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.PLAYERS, 1.0f, 1.2f);
+			completer.playSound(SoundEvents.NOTE_BLOCK_CHIME.value(), SoundSource.PLAYERS, 0.6f, 1.5f);
+		}
+		for (ServerPlayer other : game.allPlayers()) {
+			if (other != player) {
+				PlayerSet.of(other).playSound(SoundEvents.NOTE_BLOCK_PLING.value(), SoundSource.PLAYERS, 0.3f, tile.columnMultipliers.isEmpty() ? 1.2f : 0.8f);
+			}
 		}
 	}
 
