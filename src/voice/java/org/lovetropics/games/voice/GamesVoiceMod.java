@@ -6,6 +6,7 @@ import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.Mod;
 import org.lovetropics.games.common.util.registry.LoveTropicsRegistrate;
 import org.lovetropics.games.voice.behavior.ModifyVoiceAction;
+import org.lovetropics.games.voice.behavior.TimedGroupAction;
 import org.lovetropics.games.voice.behavior.VoiceChatBehavior;
 import org.slf4j.Logger;
 
@@ -24,6 +25,7 @@ public class GamesVoiceMod {
 		LoveTropicsRegistrate registrate = LoveTropicsRegistrate.create(ID);
 		registrate.registerBehavior("voice_chat", VoiceChatBehavior.CODEC);
 		registrate.registerBehavior("modify_voice", ModifyVoiceAction.CODEC);
+		registrate.registerBehavior("timed_group", TimedGroupAction.CODEC);
 	}
 
 	public static Identifier id(String path) {

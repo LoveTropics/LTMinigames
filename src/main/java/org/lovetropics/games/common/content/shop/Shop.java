@@ -97,7 +97,12 @@ public final class Shop implements IGameState {
 			return;
 		}
 
-		ActionSubjects<?> targets = targetPlayer != null ? ActionSubjects.ofPlayer(targetPlayer) : ActionSubjects.EMPTY;
+		ActionSubjects<?> targets;
+		if (targetPlayer != null) {
+			targets = offer.includeSelf() ? ActionSubjects.ofPlayers(List.of(targetPlayer, player)) : ActionSubjects.ofPlayer(targetPlayer);
+		} else {
+			targets = ActionSubjects.EMPTY;
+		}
 
 		ContextMap context = new ContextMap.Builder()
 				.withParameter(GameActionContextKeys.PACKAGE_SENDER, PlayerKey.from(player).name())
