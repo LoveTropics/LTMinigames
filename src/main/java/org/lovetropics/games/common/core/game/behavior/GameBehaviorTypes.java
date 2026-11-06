@@ -143,6 +143,7 @@ import org.lovetropics.games.common.core.game.behavior.instances.donation.Donati
 import org.lovetropics.games.common.core.game.behavior.instances.donation.GivePlayerHeadPackageBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.donation.PackageCostModifierBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.donation.TriggerEveryPackageBehavior;
+import org.lovetropics.games.common.core.game.behavior.instances.stages.BlockPackagesDuringStage;
 import org.lovetropics.games.common.core.game.behavior.instances.stages.NamedStagesBehaviour;
 import org.lovetropics.games.common.core.game.behavior.instances.stages.StageBarBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.stages.StageProgressAction;
@@ -478,6 +479,7 @@ public class GameBehaviorTypes {
 		register("named_stages/skip_to", StageSkipToAction.CODEC);
 		register("named_stages/progress", StageProgressAction.CODEC);
 		register("named_stages/stage_bar", StageBarBehavior.CODEC);
+		register("named_stages/block_packages", BlockPackagesDuringStage.CODEC);
 
 		register("setup_world_border", SetupWorldBorderBehavior.CODEC);
 		register("change_world_border", ChangeWorldBorderBehavior.CODEC);
