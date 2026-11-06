@@ -1,5 +1,6 @@
 package org.lovetropics.games.common.content.shop;
 
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import net.minecraft.ChatFormatting;
@@ -100,9 +101,18 @@ public final class Shop implements IGameState {
 		}
 
 		if (offer.includeSelf()) {
-			Set<Entity> entities = new ReferenceOpenHashSet<>(targets.asEntities(game));
-			entities.add(player);
-			targets = ActionSubjects.ofEntities(entities);
+			if (offer.targetTeam()) {
+				Set<GameTeamKey> teams = new ObjectOpenHashSet<>(targets.asTeams(game));
+				GameTeamKey selfTeam = game.instanceState().getOrThrow(TeamState.KEY).getTeamForPlayer(player);
+				if (selfTeam != null) {
+					teams.add(selfTeam);
+				}
+				targets = ActionSubjects.ofTeams(teams);
+			} else {
+				Set<Entity> entities = new ReferenceOpenHashSet<>(targets.asEntities(game));
+				entities.add(player);
+				targets = ActionSubjects.ofEntities(entities);
+			}
 		}
 
 		ContextMap context = new ContextMap.Builder()

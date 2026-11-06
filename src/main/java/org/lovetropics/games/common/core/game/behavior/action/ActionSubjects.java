@@ -40,8 +40,8 @@ public record ActionSubjects<T>(ActionSubjectType<T> type, List<T> instances) {
 		return new ActionSubjects<>(ActionSubjectType.TEAM, List.of(team));
 	}
 
-	public static ActionSubjects<GameTeamKey> ofTeams(List<GameTeamKey> teams) {
-		return new ActionSubjects<>(ActionSubjectType.TEAM, teams);
+	public static ActionSubjects<GameTeamKey> ofTeams(Collection<GameTeamKey> teams) {
+		return new ActionSubjects<>(ActionSubjectType.TEAM, List.copyOf(teams));
 	}
 
 	public static ActionSubjects<Plot> ofPlot(Plot plot) {
