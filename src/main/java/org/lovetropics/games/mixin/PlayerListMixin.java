@@ -19,7 +19,11 @@ public abstract class PlayerListMixin {
     @WrapOperation(method = "broadcastChatMessage(Lnet/minecraft/network/chat/PlayerChatMessage;Ljava/util/function/Predicate;Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/network/chat/ChatType$Bound;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerPlayer;sendChatMessage(Lnet/minecraft/network/chat/OutgoingChatMessage;ZLnet/minecraft/network/chat/ChatType$Bound;)V"))
 	private void onBroadcastChatMessage(ServerPlayer receiver, OutgoingChatMessage message, boolean filtered, ChatType.Bound chatType, Operation<Void> original, @Local(name = "senderPlayer", argsOnly = true) ServerPlayer senderPlayer) {
 		IGamePhase game = IGameLookup.get().getGamePhaseFor(receiver);
-		if (game != null && game.invoker(GamePlayerEvents.CHAT_SEND).onChatSend(senderPlayer, receiver)) {
+		if (game == null) {
+			original.call(receiver, message, filtered, chatType);
+			return;
+		}
+		if ( game.invoker(GamePlayerEvents.CHAT_SEND).onChatSend(senderPlayer, receiver)) {
 			original.call(receiver, message, filtered, chatType);
 		}
 	}
