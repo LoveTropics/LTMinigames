@@ -80,6 +80,10 @@ public final class GameTexts {
 		private static final TranslationCollector.Fun3 STATISTIC_VALUE = KEYS.add3("statistic_value", "%s on %s has a value of: %s");
 		public static final Component GAME_STATISTICS = KEYS.add("game_statistics", "Game Statistics");
 
+		public static final TranslationCollector.Fun3 DONATION_MILESTONES = KEYS.add3("donation_milestones", "%s: a milestone every %s donated, %s left until the next one");
+		public static final TranslationCollector.Fun2 DONATION_MILESTONES_REACHED = KEYS.add2("donation_milestones.reached", "%s: reached %s milestones");
+		public static final TranslationCollector.Fun1 FAKE_DONATION = KEYS.add1("fake_donation", "Sent a fake donation of %s");
+
 		public static MutableComponent stoppedGame(IGameDefinition game) {
 			return formatNegative(STOPPED_GAME.apply(gameName(game)));
 		}

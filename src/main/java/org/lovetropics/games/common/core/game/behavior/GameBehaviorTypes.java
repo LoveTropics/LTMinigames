@@ -141,6 +141,7 @@ import org.lovetropics.games.common.core.game.behavior.instances.command.CustomC
 import org.lovetropics.games.common.core.game.behavior.instances.command.PointControlCommandsBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.command.WeatherControlsBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.donation.BlockPackagesDuringPhaseBehavior;
+import org.lovetropics.games.common.core.game.behavior.instances.donation.DonationMilestonesBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.donation.DonationPackageBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.donation.DonationThresholdBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.donation.GivePlayerHeadPackageBehavior;
@@ -357,6 +358,7 @@ public class GameBehaviorTypes {
 
 		register("donation_package", DonationPackageBehavior.CODEC);
 		register("donation_threshold", DonationThresholdBehavior.CODEC);
+		register("donation_milestones", DonationMilestonesBehavior.CODEC);
 		register("give_loot", GiveLootAction.CODEC);
 		register("give_effect", GiveEffectAction.CODEC);
 		register("set_glowing", SetGlowingAction.CODEC);

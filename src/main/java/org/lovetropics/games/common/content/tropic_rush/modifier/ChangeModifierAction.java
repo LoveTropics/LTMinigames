@@ -18,19 +18,23 @@ import java.util.Optional;
 ///
 /// @param perDonatedAmount if set, the amount is instead the donated amount of the package times this.
 ///                         Packages without an amount, such as those sent by command, use the amount.
-public record ChangeModifierAction(String modifier, int amount, Optional<Double> perDonatedAmount) implements IGameBehavior {
+public record ChangeModifierAction(Optional<String> modifier, int amount, Optional<Double> perDonatedAmount) implements IGameBehavior {
 	public static final MapCodec<ChangeModifierAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			Codec.STRING.fieldOf("modifier").forGetter(ChangeModifierAction::modifier),
+			Codec.STRING.optionalFieldOf("modifier").forGetter(ChangeModifierAction::modifier),
 			Codec.INT.optionalFieldOf("amount", 1).forGetter(ChangeModifierAction::amount),
 			Codec.DOUBLE.optionalFieldOf("per_donated_amount").forGetter(ChangeModifierAction::perDonatedAmount)
 	).apply(i, ChangeModifierAction::new));
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		GameModifiers.validate(game, modifier);
+		modifier.ifPresent(id -> GameModifiers.validate(game, id));
 		events.listen(GameActionEvents.APPLY, (context, targets) -> {
 			GameModifiers modifiers = game.instanceState().getOrNull(GameModifiers.KEY);
-			return modifiers != null && modifiers.change(modifier, getAmount(context));
+			if (modifiers == null) {
+				return false;
+			}
+			int amount = getAmount(context);
+			return modifier.map(id -> modifiers.change(id, amount)).orElseGet(() -> modifiers.changeRandom(amount));
 		});
 	}
 

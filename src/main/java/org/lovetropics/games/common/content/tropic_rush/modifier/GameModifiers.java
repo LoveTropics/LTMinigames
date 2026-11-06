@@ -92,6 +92,20 @@ public final class GameModifiers implements IGameState {
 		return setLevel(id, levels.getInt(id) + amount);
 	}
 
+	/// Changes the level of a random modifier
+	///
+	/// @return whether the level changed
+	public boolean changeRandom(int amount) {
+		List<String> changeable = definitions.values().stream()
+				.filter(definition -> definition.clamp(levels.getInt(definition.id()) + amount) != levels.getInt(definition.id()))
+				.map(ModifierDefinition::id)
+				.toList();
+		if (changeable.isEmpty()) {
+			return false;
+		}
+		return change(changeable.get(game.random().nextInt(changeable.size())), amount);
+	}
+
 	/// Sets the level of a modifier for everyone, within the bounds of the modifier
 	///
 	/// @return whether the level changed
