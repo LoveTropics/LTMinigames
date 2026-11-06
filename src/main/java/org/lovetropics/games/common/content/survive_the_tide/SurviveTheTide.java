@@ -30,6 +30,7 @@ import org.lovetropics.games.client.render.block.BigRedButtonBlockEntityRenderer
 import org.lovetropics.games.client.render.entity.DriftwoodRenderer;
 import org.lovetropics.games.client.render.entity.LightningArrowRenderer;
 import org.lovetropics.games.client.render.entity.PlatformRenderer;
+import org.lovetropics.games.common.content.survive_the_tide.behavior.ExtractionLayerBehavior;
 import org.lovetropics.games.common.content.survive_the_tide.behavior.FormIcebergsGameBehavior;
 import org.lovetropics.games.common.content.survive_the_tide.behavior.PhasedWeatherControlBehavior;
 import org.lovetropics.games.common.content.survive_the_tide.behavior.RevealPlayersBehavior;
@@ -144,6 +145,7 @@ public final class SurviveTheTide {
 		REGISTRATE.registerBehavior("phased_weather_control", PhasedWeatherControlBehavior.CODEC);
 		REGISTRATE.registerBehavior("survive_the_tide_sidebar", SttSidebarBehavior.CODEC);
 		REGISTRATE.registerBehavior("rising_platform", RisingPlatformBehavior.CODEC);
+		REGISTRATE.registerBehavior("extraction_layer", ExtractionLayerBehavior.CODEC);
 	}
 
 	public static ItemLore simpleLore(Component lore) {

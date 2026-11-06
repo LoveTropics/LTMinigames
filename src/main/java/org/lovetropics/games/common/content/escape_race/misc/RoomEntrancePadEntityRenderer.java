@@ -87,57 +87,59 @@ public class RoomEntrancePadEntityRenderer extends EntityRenderer<RoomEntrancePa
 
 		poseStack.popPose();
 
-		poseStack.pushPose();
 		int backgroundColor = ARGB.color(Minecraft.getInstance().options.getBackgroundOpacity(0.25F), CommonColors.BLACK);
+		poseStack.pushPose();
 		poseStack.translate(0.0f, 0.5f, 0.0f);
+		if(renderState.cost > 0) {
+			float textScale = 0.05f;
+			String costText = renderState.cost + "x";
+			int costTextWidth = font.width(costText);
 
-		float textScale = 0.05f;
-		String costText = renderState.cost + "x";
-		int costTextWidth = font.width(costText);
+			float buckWidth = 0.7f;
+			float totalWidth = buckWidth + costTextWidth * textScale;
 
-		float buckWidth = 0.7f;
-		float totalWidth = buckWidth + costTextWidth * textScale;
+			poseStack.pushPose();
+			poseStack.mulPose(Mth.rotationAroundAxis(Mth.Y_AXIS, entityRenderDispatcher.camera.rotation(), new Quaternionf()));
+			poseStack.translate(-totalWidth / 2.0f + buckWidth / 2.0f, 0.0f, 0.0f);
+			poseStack.pushPose();
+			poseStack.scale(-1.0f, 1.0f, -1.0f);
+			renderState.breakBuck.submit(poseStack, submitNodeCollector, packedLight, OverlayTexture.NO_OVERLAY, renderState.outlineColor);
+			poseStack.popPose();
 
-		poseStack.pushPose();
-		poseStack.mulPose(Mth.rotationAroundAxis(Mth.Y_AXIS, entityRenderDispatcher.camera.rotation(), new Quaternionf()));
-		poseStack.translate(-totalWidth / 2.0f + buckWidth / 2.0f, 0.0f, 0.0f);
-		poseStack.pushPose();
-		poseStack.scale(-1.0f, 1.0f, -1.0f);
-		renderState.breakBuck.submit(poseStack, submitNodeCollector, packedLight, OverlayTexture.NO_OVERLAY, renderState.outlineColor);
-		poseStack.popPose();
-
-		int color = renderState.canAfford ? CommonColors.WHITE : CommonColors.SOFT_RED;
-		poseStack.translate(buckWidth, 0.0f, 0.0f);
-		poseStack.scale(textScale, -textScale, textScale);
-		submitNodeCollector.submitText(poseStack,
-				0,
-				-font.lineHeight / 2.0f,
-				FormattedCharSequence.forward(costText, Style.EMPTY),
-				false,
-				Font.DisplayMode.NORMAL,
-				packedLight,
-				color,
-				backgroundColor,
-				renderState.outlineColor
-				);
-		poseStack.popPose();
-
-		poseStack.pushPose();
-		poseStack.mulPose(Axis.YP.rotationDegrees(renderState.yRot));
-		poseStack.translate(0.0f, 2.5f, -renderState.depth / 2.0f);
-		poseStack.scale(0.08f, -0.08f, 0.08f);
-		submitNodeCollector.submitText(poseStack,
-				-font.width(renderState.roomName) / 2.0f,
-				0.0f,
-				renderState.roomName.getVisualOrderText(),
-				false,
-				Font.DisplayMode.NORMAL,
-				packedLight,
-				CommonColors.WHITE,
-				backgroundColor,
-				renderState.outlineColor
-		);
-		poseStack.popPose();
+			int color = renderState.canAfford ? CommonColors.WHITE : CommonColors.SOFT_RED;
+			poseStack.translate(buckWidth, 0.0f, 0.0f);
+			poseStack.scale(textScale, -textScale, textScale);
+			submitNodeCollector.submitText(poseStack,
+					0,
+					-font.lineHeight / 2.0f,
+					FormattedCharSequence.forward(costText, Style.EMPTY),
+					false,
+					Font.DisplayMode.NORMAL,
+					packedLight,
+					color,
+					backgroundColor,
+					renderState.outlineColor
+			);
+			poseStack.popPose();
+		}
+		if(!renderState.roomName.tryCollapseToString().isEmpty()) {
+			poseStack.pushPose();
+			poseStack.mulPose(Axis.YP.rotationDegrees(renderState.yRot));
+			poseStack.translate(0.0f, 2.5f, -renderState.depth / 2.0f);
+			poseStack.scale(0.08f, -0.08f, 0.08f);
+			submitNodeCollector.submitText(poseStack,
+					-font.width(renderState.roomName) / 2.0f,
+					0.0f,
+					renderState.roomName.getVisualOrderText(),
+					false,
+					Font.DisplayMode.NORMAL,
+					packedLight,
+					CommonColors.WHITE,
+					backgroundColor,
+					renderState.outlineColor
+			);
+			poseStack.popPose();
+		}
 
 		poseStack.popPose();
 	}
