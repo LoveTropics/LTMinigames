@@ -281,7 +281,7 @@ public final class GamePlayerEvents {
 				return true;
 			}
 		}
-		return false;
+		return true;
 	});
 
 	public static final GameEventType<Craft> CRAFT = GameEventType.create(Craft.class, listeners -> (player, item, container) -> {
