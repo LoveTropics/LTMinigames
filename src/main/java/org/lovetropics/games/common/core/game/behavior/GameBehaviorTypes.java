@@ -109,6 +109,7 @@ import org.lovetropics.games.common.core.game.behavior.instances.action.SetBlock
 import org.lovetropics.games.common.core.game.behavior.instances.action.SetDisguiseAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.SetEntityHighlightColorAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.SetExtendingBlocksAction;
+import org.lovetropics.games.common.core.game.behavior.instances.action.SetGameModeAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.SetGlowingAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.SetPlayerRoleAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.SetRandomDisguiseAction;
@@ -464,6 +465,7 @@ public class GameBehaviorTypes {
 		register("add_dvd_face", AddPlayerDVDFaceAction.CODEC);
 		register("clear_dvd_faces", ClearPlayerDVDFaceAction.CODEC);
 		register("give_items_amount_based", GiveItemQuantityBasedOnDonationAmountAction.CODEC);
+		register("set_game_mode_now", SetGameModeAction.CODEC);
 
 		register("setup_integrations", SetupIntegrationsBehavior.CODEC);
 		register("join_late_with_role", JoinLateWithRoleBehavior.CODEC);
