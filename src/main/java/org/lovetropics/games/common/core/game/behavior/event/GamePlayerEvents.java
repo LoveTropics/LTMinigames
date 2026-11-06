@@ -275,6 +275,15 @@ public final class GamePlayerEvents {
 		return false;
 	});
 
+	public static final GameEventType<ChatSend> CHAT_SEND = GameEventType.create(ChatSend.class, listeners -> (source, target) -> {
+		for (ChatSend listener : listeners) {
+			if (listener.onChatSend(source, target)) {
+				return true;
+			}
+		}
+		return false;
+	});
+
 	public static final GameEventType<Craft> CRAFT = GameEventType.create(Craft.class, listeners -> (player, item, container) -> {
 		for (Craft listener : listeners) {
 			listener.onCraft(player, item, container);
@@ -419,5 +428,9 @@ public final class GamePlayerEvents {
 
 	public interface InventoryChanged {
 		void onInventoryChanged(ServerPlayer player, AbstractContainerMenu container, int slotIndex, ItemStack newItemStack);
+	}
+
+	public interface ChatSend {
+		boolean onChatSend(ServerPlayer source, ServerPlayer target);
 	}
 }

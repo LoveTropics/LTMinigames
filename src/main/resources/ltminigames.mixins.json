@@ -18,6 +18,7 @@
     "ServerPlayerMixin",
     "TrialSpawnerAccess",
     "TridentItemMixin",
+    "PlayerListMixin",
     "chat.ServerGamePacketListenerImplMixin",
     "client.MultiPlayerGameModeMixin",
     "client.PlayerMixin",

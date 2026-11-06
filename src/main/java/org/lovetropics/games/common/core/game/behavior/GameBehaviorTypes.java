@@ -29,6 +29,7 @@ import org.lovetropics.games.common.core.game.behavior.instances.FadeFromBlackBe
 import org.lovetropics.games.common.core.game.behavior.instances.FadeToBlackBehaviour;
 import org.lovetropics.games.common.core.game.behavior.instances.FirstEmptyTeamWinTrigger;
 import org.lovetropics.games.common.core.game.behavior.instances.GameEndEffectsBehavior;
+import org.lovetropics.games.common.core.game.behavior.instances.GameLimitedChatBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.GameProgressionBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.GhostsBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.GiveItemsToKillerBehavior;
@@ -497,6 +498,8 @@ public class GameBehaviorTypes {
 		register("spawn_entity_disguised_as_donator_and_tamed_by_target", SpawnDisguisedAsPlayerAndTamedEntityAction.CODEC);
 		register("swap_teams", SwapTeamsAction.CODEC);
 		register("modify_furnace_smelt_times", ModifyFurnaceSmeltTimesBehavior.CODEC);
+
+		register("game_limted_chat", GameLimitedChatBehavior.CODEC);
 		register("leaky_pockets", LeakyPocketsBehavior.CODEC);
 	}
 
