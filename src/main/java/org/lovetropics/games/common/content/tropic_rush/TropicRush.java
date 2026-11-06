@@ -5,6 +5,7 @@ import org.lovetropics.games.common.content.tropic_rush.behavior.FinishBehavior;
 import org.lovetropics.games.common.content.tropic_rush.behavior.PlayerWorldsBehavior;
 import org.lovetropics.games.common.content.tropic_rush.behavior.SpyingBehavior;
 import org.lovetropics.games.common.content.tropic_rush.modifier.AttributePerLevelBehavior;
+import org.lovetropics.games.common.content.tropic_rush.modifier.BouncyGroundBehavior;
 import org.lovetropics.games.common.content.tropic_rush.modifier.ChangeModifierAction;
 import org.lovetropics.games.common.content.tropic_rush.modifier.EnderPearlDeviationBehavior;
 import org.lovetropics.games.common.content.tropic_rush.modifier.ModifiersBehavior;
@@ -27,5 +28,6 @@ public class TropicRush {
 		REGISTRATE.registerBehavior("tropic_rush/ender_pearl_deviation", EnderPearlDeviationBehavior.CODEC);
 		REGISTRATE.registerBehavior("tropic_rush/attribute_per_level", AttributePerLevelBehavior.CODEC);
 		REGISTRATE.registerBehavior("tropic_rush/scramble_debug_screen", ScrambleDebugScreenBehavior.CODEC);
+		REGISTRATE.registerBehavior("tropic_rush/bouncy_ground", BouncyGroundBehavior.CODEC);
 	}
 }

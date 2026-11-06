@@ -36,11 +36,11 @@ import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 import net.neoforged.neoforge.event.entity.EntityMountEvent;
 import net.neoforged.neoforge.event.entity.EntityTeleportEvent;
-import net.neoforged.neoforge.event.entity.EntityTravelToDimensionEvent;
 import net.neoforged.neoforge.event.entity.ProjectileImpactEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
+import net.neoforged.neoforge.event.entity.living.LivingFallEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.MobSpawnEvent;
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
@@ -111,6 +111,16 @@ public final class GameEventDispatcher {
 			if (level != null && game != null) {
 				LevelChunk chunk = level.getChunk(queuedChunk.pos.x(), queuedChunk.pos.z());
 				game.invoker(GameWorldEvents.CHUNK_LOAD).onChunkLoad(level, chunk);
+			}
+		}
+	}
+
+	@SubscribeEvent
+	public void onPlayerFall(LivingFallEvent event) {
+		if (event.getEntity() instanceof ServerPlayer player) {
+			IGamePhase game = gameLookup.getGamePhaseFor(player);
+			if (game != null) {
+				event.setDamageMultiplier(game.invoker(GamePlayerEvents.FALL).getFallDamageMultiplier(player, event.getDistance(), event.getDamageMultiplier()));
 			}
 		}
 	}

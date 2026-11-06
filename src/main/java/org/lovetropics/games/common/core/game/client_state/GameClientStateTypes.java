@@ -12,6 +12,7 @@ import org.lovetropics.games.LoveTropics;
 import org.lovetropics.games.common.core.game.client_state.instance.BeSpeedyState;
 import org.lovetropics.games.common.core.game.client_state.instance.BeaconClientState;
 import org.lovetropics.games.common.core.game.client_state.instance.BingoBoardClientState;
+import org.lovetropics.games.common.core.game.client_state.instance.BouncyGroundClientState;
 import org.lovetropics.games.common.core.game.client_state.instance.BreakDelayState;
 import org.lovetropics.games.common.core.game.client_state.instance.CollidersClientState;
 import org.lovetropics.games.common.core.game.client_state.instance.CraftingBeeCraftsClientState;
@@ -75,6 +76,7 @@ public final class GameClientStateTypes {
 	public static final GameClientTweakEntry<ShopClientState> SHOP = register("shop", ShopClientState.CODEC);
 	public static final GameClientTweakEntry<ModifiersClientState> MODIFIERS = register("modifiers", ModifiersClientState.CODEC);
 	public static final GameClientTweakEntry<ScrambleDebugScreenClientState> SCRAMBLE_DEBUG_SCREEN = register("scramble_debug_screen", ScrambleDebugScreenClientState.CODEC);
+	public static final GameClientTweakEntry<BouncyGroundClientState> BOUNCY_GROUND = register("bouncy_ground", BouncyGroundClientState.CODEC);
 	public static final GameClientTweakEntry<InvertControlsClientState> INVERT_CONTROLS = register("invert_controls", InvertControlsClientState.CODEC);
 	public static final GameClientTweakEntry<RemapMovementClientState> REMAP_MOVEMENT = register("remap_movement", RemapMovementClientState.CODEC, RemapMovementClientState.STREAM_CODEC);
 	public static final GameClientTweakEntry<CollidersClientState> COLLIDERS = register("colliders", CollidersClientState.CODEC, CollidersClientState.STREAM_CODEC);

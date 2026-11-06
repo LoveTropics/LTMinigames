@@ -125,7 +125,14 @@ public final class GamePlayerEvents {
 		return amount;
 	});
 
-	public static final GameEventType<Attack> ATTACK = GameEventType.create(Attack.class, listeners -> (player, target) -> {
+	public static final GameEventType<Fall> FALL = GameEventType.create(Fall.class, listeners -> (player, fallDistance, damageMultiplier) -> {
+		for (Fall listener : listeners) {
+			damageMultiplier = listener.getFallDamageMultiplier(player, fallDistance, damageMultiplier);
+		}
+		return damageMultiplier;
+	});
+
+	public static final GameEventType<Attack> ATTACK =GameEventType.create(Attack.class, listeners -> (player, target) -> {
 		for (Attack listener : listeners) {
 			TriState result = listener.onAttack(player, target);
 			if (!result.isDefault()) {
@@ -336,6 +343,10 @@ public final class GamePlayerEvents {
 
 	public interface DamageAmount {
 		float getDamageAmount(ServerPlayer player, DamageSource damageSource, float amount, float originalAmount);
+	}
+
+	public interface Fall {
+		float getFallDamageMultiplier(ServerPlayer player, double fallDistance, float damageMultiplier);
 	}
 
 	public interface Attack {
