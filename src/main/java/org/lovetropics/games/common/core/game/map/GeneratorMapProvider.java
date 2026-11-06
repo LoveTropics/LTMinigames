@@ -35,14 +35,13 @@ import java.util.OptionalLong;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
-/// @param nether if present, a Nether generated alongside the main dimension, which Nether portals lead to
-/// @param end    if present, an End generated alongside the main dimension, which End portals lead to
 public record GeneratorMapProvider(
 		Optional<String> name,
 		ChunkGenerator generator,
 		Holder<DimensionType> dimensionType,
 		Optional<Long> seed,
 		Optional<String> spawnRegion,
+		Optional<BlockPos> spawnPos,
 		Optional<ExtraDimension> nether,
 		Optional<ExtraDimension> end
 ) implements IGameMapProvider {
@@ -52,6 +51,7 @@ public record GeneratorMapProvider(
 			DimensionType.CODEC.fieldOf("dimension").forGetter(c -> c.dimensionType),
 			Codec.LONG.optionalFieldOf("seed").forGetter(GeneratorMapProvider::seed),
 			Codec.STRING.optionalFieldOf("spawn_region").forGetter(GeneratorMapProvider::spawnRegion),
+			BlockPos.CODEC.optionalFieldOf("spawn_pos").forGetter(GeneratorMapProvider::spawnPos),
 			ExtraDimension.CODEC.optionalFieldOf("nether").forGetter(GeneratorMapProvider::nether),
 			ExtraDimension.CODEC.optionalFieldOf("end").forGetter(GeneratorMapProvider::end)
 	).apply(i, GeneratorMapProvider::new));
@@ -65,7 +65,7 @@ public record GeneratorMapProvider(
 	}
 
 	public GeneratorMapProvider withSeed(long seed) {
-		return new GeneratorMapProvider(name, generator, dimensionType, Optional.of(seed), spawnRegion, nether, end);
+		return new GeneratorMapProvider(name, generator, dimensionType, Optional.of(seed), spawnRegion, spawnPos, nether, end);
 	}
 
 	@Override
@@ -103,11 +103,11 @@ public record GeneratorMapProvider(
 		RuntimeDimensionHandle overwold = dimensions.get(Level.OVERWORLD);
 		boolean linked = dimensions.size() > 1;
 		// Linked dimensions also need a spawn point, for anything leaving the End to arrive at
-		CompletableFuture<Optional<BlockPos>> spawnPos = spawnRegion.isPresent() || linked
-				? findSpawnPos(overwold.asLevel()).thenApply(Optional::of)
+		CompletableFuture<Optional<BlockPos>> spawnPosFuture = spawnRegion.isPresent() || linked
+				? this.spawnPos.map(CompletableFuture::completedFuture).orElseGet(() -> findSpawnPos(overwold.asLevel())).thenApply(Optional::of)
 				: CompletableFuture.completedFuture(Optional.empty());
 
-		return spawnPos.thenApply(pos -> {
+		return spawnPosFuture.thenApply(pos -> {
 			MapRegions regions = new MapRegions();
 			if (pos.isPresent() && spawnRegion.isPresent()) {
 				regions.add(spawnRegion.get(), BlockBox.of(pos.get()));
@@ -175,7 +175,7 @@ public record GeneratorMapProvider(
 
 	@Override
 	public GeneratorMapProvider trySetSeed(long seed) {
-		return new GeneratorMapProvider(name, generator, dimensionType, Optional.of(seed), spawnRegion, nether, end);
+		return new GeneratorMapProvider(name, generator, dimensionType, Optional.of(seed), spawnRegion, spawnPos, nether, end);
 	}
 
 	public record ExtraDimension(ChunkGenerator generator, Holder<DimensionType> dimensionType) {
