@@ -211,6 +211,7 @@ import org.lovetropics.games.common.core.game.behavior.instances.tweak.DisableTh
 import org.lovetropics.games.common.core.game.behavior.instances.tweak.DisableTntDestructionBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.tweak.ForceHandsBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.tweak.HidePlayersBehavior;
+import org.lovetropics.games.common.core.game.behavior.instances.tweak.ModifyFurnaceSmeltTimesBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.tweak.PreventBreakBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.tweak.QuietExplosionsBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.tweak.ScaleDamageBehavior;
@@ -494,6 +495,7 @@ public class GameBehaviorTypes {
 
 		register("spawn_entity_disguised_as_donator_and_tamed_by_target", SpawnDisguisedAsPlayerAndTamedEntityAction.CODEC);
 		register("swap_teams", SwapTeamsAction.CODEC);
+		register("modify_furnace_smelt_times", ModifyFurnaceSmeltTimesBehavior.CODEC);
 	}
 
 	public static <T extends IGameBehavior> void register(String name, MapCodec<T> codec) {

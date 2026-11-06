@@ -163,6 +163,16 @@ public final class GameWorldEvents {
 		return false;
 	});
 
+	public static final GameEventType<CookTimeResolve> COOK_TIME_RESOLVE  = GameEventType.create(CookTimeResolve.class, listeners -> (level, originalTime, itemStack) ->  {
+		for (CookTimeResolve listener : listeners) {
+			int newTime = listener.onCookTimeResolve(level, originalTime, itemStack);
+			if(newTime != originalTime){
+				return newTime;
+			}
+		}
+		return originalTime;
+	});
+
 	private GameWorldEvents() {
 	}
 
@@ -236,5 +246,9 @@ public final class GameWorldEvents {
 
 	public interface EndPortalSpawn {
 		boolean onEndPortalSpawn(ServerLevel level, BlockPos pos);
+	}
+
+	public interface CookTimeResolve {
+		int onCookTimeResolve(ServerLevel level, int originalTime, ItemStack itemStack);
 	}
 }

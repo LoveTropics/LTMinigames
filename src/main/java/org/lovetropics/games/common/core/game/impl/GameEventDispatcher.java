@@ -213,6 +213,8 @@ public final class GameEventDispatcher {
 		return false;
 	}
 
+
+
 	@SubscribeEvent
 	public void onLivingUpdate(EntityTickEvent.Post event) {
 		if (event.getEntity() instanceof LivingEntity entity && entity.level() instanceof ServerLevel level) {
@@ -637,6 +639,17 @@ public final class GameEventDispatcher {
 			}
 		}
 		return false;
+	}
+
+	public int onCookTimeResolved(ServerLevel level, int initialCookTime, ItemStack cookingStack) {
+		IGamePhase gamePhase = gameLookup.getGamePhaseInDimension(level);
+		if (gamePhase != null) {
+			int i = gamePhase.invoker(GameWorldEvents.COOK_TIME_RESOLVE).onCookTimeResolve(level, initialCookTime, cookingStack);
+			if(i != initialCookTime){
+				return i;
+			}
+		}
+		return initialCookTime;
 	}
 
 	@SubscribeEvent

@@ -5,6 +5,7 @@
   "plugin": "org.lovetropics.games.mixin.LTMixinPlugin",
   "mixins": [
     "AbstractBoatMixin",
+    "AbstractFurnaceBlockEntityMixin",
     "BaseSpawnerAccessor",
     "DataCommandsMixin",
     "EntityAccessor",
