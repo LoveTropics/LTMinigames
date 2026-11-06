@@ -304,9 +304,12 @@ public final class MinigameTexts {
 		KEYS.add("donation.invert_controls_package", "Invert Controls");
 		KEYS.add("donation.invert_controls_package.description", "For those that want the players to suffer: invert the players' vertical mouse control!");
 		KEYS.add("donation.invert_controls_package.toast", "%sender% has INVERTED MOUSE CONTROLS for 1 minute!");
-		KEYS.add("donation.mute_team_vc", "Mute Team Voice Channel");
-		KEYS.add("donation.mute_team_vc.description", "How will your favorite team succeed at trivia if they cannot speak through voice for 1 minute? Let's find out!");
-		KEYS.add("donation.mute_team_vc.toast", "%sender% has MUTED YOUR TEAM VOICE CHANNEL for 1 minute!");
+		KEYS.add("donation.mute_team_vc", "Mute Team Voicechat");
+		KEYS.add("donation.mute_team_vc.description", "How will your favorite team succeed if they cannot speak through voice for 1 minute? Let's find out!");
+		KEYS.add("donation.mute_team_vc.toast", "%sender% has MUTED YOUR TEAM VOICECHAT for 1 minute!");
+		KEYS.add("donation.mute_voice", "Mute Voicechat");
+		KEYS.add("donation.mute_voice.description", "How will your favorite players succeed if they cannot speak through voice for 1 minute? Let's find out!");
+		KEYS.add("donation.mute_voice.toast", "%sender% has MUTED YOUR VOICECHAT for 1 minute!");
 		KEYS.add("donation.team_coins", "Gift Coins");
 		KEYS.add("donation.team_coins.description", "Give 20 TropiCoins to every player on the team of your choice!");
 		KEYS.add("donation.team_coins.toast", "%sender% has sent you 20 TropiCoins!");

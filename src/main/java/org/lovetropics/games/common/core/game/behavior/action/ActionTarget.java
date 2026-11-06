@@ -5,6 +5,7 @@ import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import net.minecraft.advancements.predicates.entity.EntityPredicate;
 import net.minecraft.core.Holder;
 import net.minecraft.core.UUIDUtil;
@@ -21,6 +22,7 @@ import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public interface ActionTarget {
@@ -43,6 +45,7 @@ public interface ActionTarget {
 	private static void register(ExtraCodecs.LateBoundIdMapper<String, MapCodec<? extends ActionTarget>> registry) {
 		registry.put("simple", Simple.MAP_CODEC);
 		registry.put("sequence", Sequence.MAP_CODEC);
+		registry.put("include", Including.MAP_CODEC);
 		registry.put("exclude", Excluding.MAP_CODEC);
 		registry.put("filter_entities", FilterEntities.MAP_CODEC);
 		registry.put("limit_entities", LimitEntities.MAP_CODEC);
@@ -127,6 +130,24 @@ public interface ActionTarget {
 
 		@Override
 		public MapCodec<Sequence> codec() {
+			return MAP_CODEC;
+		}
+	}
+
+	record Including(ActionTarget including) implements ActionTarget {
+		public static final MapCodec<Including> MAP_CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+				ActionTarget.CODEC.fieldOf("including").forGetter(Including::including)
+		).apply(i, Including::new));
+
+		@Override
+		public ActionSubjects<?> modifyTargets(IGamePhase game, ActionSubjects<?> targets, ActionSubjects<?> sources) {
+			Set<Entity> entities = new ReferenceOpenHashSet<>(targets.asEntities(game));
+			entities.addAll(including.modifyTargets(game, targets, sources).asEntities(game));
+			return ActionSubjects.ofEntities(entities);
+		}
+
+		@Override
+		public MapCodec<Including> codec() {
 			return MAP_CODEC;
 		}
 	}
