@@ -2,11 +2,13 @@ package org.lovetropics.games.common.content.shop;
 
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.context.CommandContext;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import net.minecraft.ChatFormatting;
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.network.chat.Component;
@@ -50,6 +52,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.UnaryOperator;
 import java.util.stream.IntStream;
 
 /// The shop of a game, where participants and ghosts spend their tropicoins.
@@ -85,11 +88,12 @@ public final class Shop implements IGameState {
 		overlordOffers = allOffers.stream().filter(ShopOffer::isUsableByOverlords).map(ShopOffer::forOverlords).toList();
 	}
 
-	private boolean setOfferCost(String id, int cost) {
+	/// @return false if there is no offer with the given id
+	private boolean updateOffer(String id, UnaryOperator<ShopOffer> update) {
 		for (int i = 0; i < allOffers.size(); i++) {
 			ShopOffer offer = allOffers.get(i);
 			if (offer.id().equals(id)) {
-				allOffers.set(i, offer.withCost(cost));
+				allOffers.set(i, update.apply(offer));
 				rebuildOffers();
 				return true;
 			}
@@ -108,14 +112,19 @@ public final class Shop implements IGameState {
 							.then(Commands.literal("setcost")
 									.then(Commands.argument("cost", IntegerArgumentType.integer(0))
 											.executes(context -> {
-												String id = StringArgumentType.getString(context, "id");
 												int cost = IntegerArgumentType.getInteger(context, "cost");
-												if (shop.setOfferCost(id, cost)) {
-													context.getSource().sendSuccess(() -> Component.literal("Set shop offer " + id + " cost to " + cost), true);
-												} else {
-													context.getSource().sendFailure(Component.literal("No shop with offer " + id));
-												}
-												return 1;
+												return shop.updateOfferFromCommand(context, offer -> offer.withCost(cost), "cost to " + cost);
+											})
+									)
+							)
+							.then(Commands.literal("setstock")
+									.then(Commands.literal("unlimited")
+											.executes(context -> shop.updateOfferFromCommand(context, offer -> offer.withStock(Optional.empty()), "stock to unlimited"))
+									)
+									.then(Commands.argument("stock", IntegerArgumentType.integer(0))
+											.executes(context -> {
+												int stock = IntegerArgumentType.getInteger(context, "stock");
+												return shop.updateOfferFromCommand(context, offer -> offer.withStock(Optional.of(stock)), "stock to " + stock);
 											})
 									)
 							)
@@ -123,6 +132,17 @@ public final class Shop implements IGameState {
 			));
 		});
 		return shop;
+	}
+
+	/// @param change what was changed, for the feedback message
+	private int updateOfferFromCommand(CommandContext<CommandSourceStack> context, UnaryOperator<ShopOffer> update, String change) {
+		String id = StringArgumentType.getString(context, "id");
+		if (updateOffer(id, update)) {
+			context.getSource().sendSuccess(() -> Component.literal("Set shop offer " + id + " " + change), true);
+			return 1;
+		}
+		context.getSource().sendFailure(Component.literal("No shop with offer " + id));
+		return 0;
 	}
 
 	public double tropicoinsPerDonatedAmount() {
@@ -195,9 +215,7 @@ public final class Shop implements IGameState {
 		if (offer.cost() > 0) {
 			game.statistics().forPlayer(player).set(StatisticKey.TROPICOINS, balance - offer.cost());
 		}
-		if (offer.stock().isPresent()) {
-			purchases.computeIfAbsent(player.getUUID(), _ -> new Object2IntOpenHashMap<>()).addTo(offer.id(), 1);
-		}
+		purchases.computeIfAbsent(player.getUUID(), _ -> new Object2IntOpenHashMap<>()).addTo(offer.id(), 1);
 		Optional<Integer> cooldown = offer.targetCooldownTicks();
 		if (cooldown.isPresent() && target.id() != null) {
 			cooldownEnds.computeIfAbsent(target.id(), _ -> new Object2LongOpenHashMap<>()).put(offer.id(), game.ticks() + cooldown.get());

@@ -84,6 +84,10 @@ public record ShopOffer(
 		return new ShopOffer(id, icon, name, description, cost, stock, target, targetTeam, includeSelf, targetCooldown, usableBy, flavor, actions);
 	}
 
+	public ShopOffer withStock(Optional<Integer> stock) {
+		return new ShopOffer(id, icon, name, description, cost, stock, target, targetTeam, includeSelf, targetCooldown, usableBy, flavor, actions);
+	}
+
 	/// @param remainingStock how many more times the player the shop is sent to can buy it, if limited
 	/// @param cooldowns      how many ticks are left before the offer can be used on each player or team again
 	public ShopClientState.Offer asClientOffer(Optional<Integer> remainingStock, Map<UUID, Integer> cooldowns) {
