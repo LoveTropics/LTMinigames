@@ -141,7 +141,7 @@ public class LootDispenserBlockEntity extends BlockEntity {
 		Direction facing = state.getValue(LootDispenserBlock.FACING);
 		return Vec3.atCenterOf(pos).add(
 				facing.getStepX() * DISPENSE_DISTANCE,
-				facing.getStepY() * DISPENSE_DISTANCE,
+				-facing.getStepY() * DISPENSE_DISTANCE,
 				facing.getStepZ() * DISPENSE_DISTANCE
 		);
 	}
