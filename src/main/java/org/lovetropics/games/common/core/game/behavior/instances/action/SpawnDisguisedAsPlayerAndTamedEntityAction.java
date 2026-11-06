@@ -47,6 +47,8 @@ public record SpawnDisguisedAsPlayerAndTamedEntityAction(EntityTemplate entity, 
 				if (spawn instanceof TamableAnimal tamedAnimal) {
 					tamedAnimal.setOwner(target);
 					tamedAnimal.setTame(true, true);
+					tamedAnimal.setCustomName(Component.literal(sendingPlayer));
+					tamedAnimal.setCustomNameVisible(true);
 				}
 				EntityDisguiseHolder disguiseHolder = EntityDisguiseHolder.getOrNull(spawn);
 				if (disguiseHolder != null) {
@@ -54,9 +56,11 @@ public record SpawnDisguisedAsPlayerAndTamedEntityAction(EntityTemplate entity, 
 					CompoundTag profile = new CompoundTag();
 					profile.putString("name", sendingPlayer);
 					root.put("profile", profile);
+					root.putBoolean("hide_description", true);
 					Disguise mannequinDisguise = Disguise.of(EntityTypes.WOLF)
 							.withCustomName(Optional.of(Component.literal(sendingPlayer)))
-							.withEntity(Optional.of(TypedEntityData.of(EntityTypes.MANNEQUIN, root)));
+							.withEntity(Optional.of(TypedEntityData.of(EntityTypes.MANNEQUIN, root)))
+							.withScale(0.6f);
 					disguiseHolder.set(mannequinDisguise);
 				}
 			}

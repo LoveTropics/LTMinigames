@@ -1,6 +1,5 @@
 package org.lovetropics.games.common.core.game.behavior.instances.action;
 
-import com.google.common.collect.Lists;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
