@@ -21,6 +21,9 @@ public final class ShopTexts {
 	public static final TranslationCollector.Fun1 SOLD_OUT_FOR_YOU = KEYS.add1("sold_out_for_you", "You can't buy any more %s!");
 	public static final Component SOLD_OUT = KEYS.add("sold_out", "Sold out");
 	public static final TranslationCollector.Fun1 STOCK_LEFT = KEYS.add1("stock_left", "%s left");
+	public static final TranslationCollector.Fun1 TARGET_COOLDOWN = KEYS.add1("target_cooldown", "Can't be used on the same player again for %s");
+	public static final TranslationCollector.Fun2 TARGET_ON_COOLDOWN = KEYS.add2("target_on_cooldown", "%s can't get %s again yet!");
+	public static final Component ALL_ON_COOLDOWN = KEYS.add("all_on_cooldown", "Everyone got this too recently, come back later!");
 	public static final TranslationCollector.Fun1 DONATION_RATE = KEYS.add1("donation_rate", "Donations give %s tropicoins per unit donated");
 
 	// Used on self

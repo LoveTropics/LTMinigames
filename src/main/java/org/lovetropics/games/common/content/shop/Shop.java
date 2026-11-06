@@ -3,7 +3,8 @@ package org.lovetropics.games.common.content.shop;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.Commands;
@@ -45,6 +46,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -63,7 +65,10 @@ public final class Shop implements IGameState {
 	private List<ShopOffer> overlordOffers = List.of();
 	/// What was last sent to each player who has the shop, to only update players whose shop changed
 	private final Map<UUID, SentShop> sentShops = new HashMap<>();
-	private final Map<UUID, Reference2IntOpenHashMap<ShopOffer>> purchases = new HashMap<>();
+	/// How many times each player bought each offer that has a limited stock, by offer id so that it survives changing the offer's cost
+	private final Map<UUID, Object2IntOpenHashMap<String>> purchases = new HashMap<>();
+	/// For each player or team, the game tick from which the offers that have a cooldown can be used on them again
+	private final Map<UUID, Object2LongOpenHashMap<String>> cooldownEnds = new HashMap<>();
 
 	private double tropicoinsPerDonatedAmount;
 
@@ -145,13 +150,22 @@ public final class Shop implements IGameState {
 		}
 
 		// Players who don't pick a target get a random one
-		ActionSubjects<?> targets = getTargets(player, requestedTarget, offer);
-		if (targets == null) {
-			Component message = requestedTarget.isPresent() ? ShopTexts.TARGET_UNAVAILABLE : ShopTexts.NO_TARGETS;
+		ResolvedTarget target = getTarget(player, requestedTarget, offer);
+		if (target == null) {
+			Component message = requestedTarget.isPresent() ? ShopTexts.TARGET_UNAVAILABLE
+					: offer.targetCooldownTicks().isPresent() && !getPlayerTargets(player).isEmpty() ? ShopTexts.ALL_ON_COOLDOWN
+					: ShopTexts.NO_TARGETS;
 			player.sendSystemMessage(message.copy().withStyle(ChatFormatting.RED));
 			return;
 		}
+		// Someone else may have used it on the picked target since the buyer's shop was last sent
+		if (target.id() != null && isOnCooldown(target.id(), offer)) {
+			Component targetName = Objects.requireNonNullElse(ActionSubjectDescriber.describe(game, target.subjects(), null), MinigameTexts.EVERYONE_RECEIVER);
+			player.sendSystemMessage(ShopTexts.TARGET_ON_COOLDOWN.apply(targetName, offer.name()).withStyle(ChatFormatting.RED));
+			return;
+		}
 
+		ActionSubjects<?> targets = target.subjects();
 		if (offer.includeSelf()) {
 			if (offer.targetTeam()) {
 				Set<GameTeamKey> teams = new ObjectOpenHashSet<>(targets.asTeams(game));
@@ -181,7 +195,11 @@ public final class Shop implements IGameState {
 			game.statistics().forPlayer(player).set(StatisticKey.TROPICOINS, balance - offer.cost());
 		}
 		if (offer.stock().isPresent()) {
-			purchases.computeIfAbsent(player.getUUID(), _ -> new Reference2IntOpenHashMap<>()).addTo(offer, 1);
+			purchases.computeIfAbsent(player.getUUID(), _ -> new Object2IntOpenHashMap<>()).addTo(offer.id(), 1);
+		}
+		Optional<Integer> cooldown = offer.targetCooldownTicks();
+		if (cooldown.isPresent() && target.id() != null) {
+			cooldownEnds.computeIfAbsent(target.id(), _ -> new Object2LongOpenHashMap<>()).put(offer.id(), game.ticks() + cooldown.get());
 		}
 
 		List<ServerPlayer> targetPlayers = targets.asPlayers(game);
@@ -198,36 +216,36 @@ public final class Shop implements IGameState {
 	}
 
 	/// @return `null` if the target could not be resolved
-	private @Nullable ActionSubjects<?> getTargets(ServerPlayer player, Optional<UUID> requestedTarget, ShopOffer offer) {
+	private @Nullable ResolvedTarget getTarget(ServerPlayer player, Optional<UUID> requestedTarget, ShopOffer offer) {
 		boolean picked = offer.target() == ShopTarget.PICK && requestedTarget.isPresent();
 		TeamState teams = offer.targetTeam() ? game.instanceState().getOrThrow(TeamState.KEY) : null;
 		return switch (offer.target()) {
 			case SELF -> {
 				if (teams != null) {
 					GameTeamKey playerTeam = teams.getTeamForPlayer(player);
-					yield playerTeam != null ? ActionSubjects.ofTeam(playerTeam) : null;
+					yield playerTeam != null ? new ResolvedTarget(ActionSubjects.ofTeam(playerTeam), null) : null;
 				}
-				yield ActionSubjects.ofPlayer(player);
+				yield new ResolvedTarget(ActionSubjects.ofPlayer(player), null);
 			}
 			case PICK -> {
 				if (picked) {
 					if (teams != null) {
 						GameTeam pickedTeam = teams.getTeamByUuid(requestedTarget.get());
-						yield pickedTeam != null ? ActionSubjects.ofTeam(pickedTeam.key()) : null;
+						yield pickedTeam != null ? new ResolvedTarget(ActionSubjects.ofTeam(pickedTeam.key()), pickedTeam.uuid()) : null;
 					} else {
 						ServerPlayer pickedTarget = getPickedTarget(player, requestedTarget.get());
-						yield pickedTarget != null ? ActionSubjects.ofPlayer(pickedTarget) : null;
+						yield pickedTarget != null ? ResolvedTarget.of(pickedTarget) : null;
 					}
 				} else {
-					ServerPlayer randomTarget = getRandomTarget(player);
-					yield randomTarget != null ? ActionSubjects.ofPlayer(randomTarget) : null;
+					ServerPlayer randomTarget = getRandomTarget(player, offer);
+					yield randomTarget != null ? ResolvedTarget.of(randomTarget) : null;
 				}
 			}
 			case RANDOM -> {
-				ServerPlayer randomTarget = getRandomTarget(player);
-				yield randomTarget != null ? ActionSubjects.ofPlayer(randomTarget) : null;
+				ServerPlayer randomTarget = getRandomTarget(player, offer);
+				yield randomTarget != null ? ResolvedTarget.of(randomTarget) : null;
 			}
-			case GLOBAL -> ActionSubjects.EMPTY;
+			case GLOBAL -> new ResolvedTarget(ActionSubjects.EMPTY, null);
 		};
 	}
 
@@ -237,9 +255,21 @@ public final class Shop implements IGameState {
 		return target != null && target != buyer && isParticipant(target) ? target : null;
 	}
 
-	private @Nullable ServerPlayer getRandomTarget(ServerPlayer buyer) {
-		List<ServerPlayer> targets = getPlayerTargets(buyer);
+	/// @return a random player who the offer can be used on right now, if any
+	private @Nullable ServerPlayer getRandomTarget(ServerPlayer buyer, ShopOffer offer) {
+		List<ServerPlayer> targets = getPlayerTargets(buyer).stream()
+				.filter(target -> !isOnCooldown(target.getUUID(), offer))
+				.toList();
 		return !targets.isEmpty() ? targets.get(game.random().nextInt(targets.size())) : null;
+	}
+
+	private long getCooldownEndingTick(UUID target, ShopOffer offer) {
+		Object2LongOpenHashMap<String> ends = cooldownEnds.get(target);
+		return ends != null ? ends.getLong(offer.id()) : 0;
+	}
+
+	private boolean isOnCooldown(UUID target, ShopOffer offer) {
+		return getCooldownEndingTick(target, offer) > game.ticks();
 	}
 
 	/// @return the participants who offers can be used on by the given player, no matter which phase of the game they are in
@@ -331,8 +361,13 @@ public final class Shop implements IGameState {
 			PlayerSet.of(player).playSound(SoundRegistry.COINS.value(), SoundSource.PLAYERS, 1.0f, game.random().nextFloat() * 0.4f + 1.3f);
 		}
 
+		long now = game.ticks();
 		List<ShopClientState.Offer> clientOffers = IntStream.range(0, shop.offers.size())
-				.mapToObj(i -> shop.offers.get(i).asClientOffer(shop.remainingStock.get(i)))
+				.mapToObj(i -> {
+					Map<UUID, Integer> ticksLeft = new HashMap<>();
+					shop.cooldownEnds.get(i).forEach((target, end) -> ticksLeft.put(target, (int) (end - now)));
+					return shop.offers.get(i).asClientOffer(shop.remainingStock.get(i), ticksLeft);
+				})
 				.toList();
 		boolean anyHasCost = shop.offers.stream().anyMatch(offer -> offer.cost() > 0);
 
@@ -360,14 +395,32 @@ public final class Shop implements IGameState {
 				.sorted(Comparator.comparingInt(ShopClientState.Target::points).reversed())
 				.toList();
 		List<Optional<Integer>> remainingStock = offers.stream().map(offer -> getRemainingStock(player, offer)).toList();
-		return new SentShop(getBalance(player), offers, remainingStock, playerTargets, teamTargets);
+		List<Map<UUID, Long>> cooldownEnds = offers.stream()
+				.map(offer -> getActiveCooldownEnds(offer, offer.targetTeam() ? teamTargets : playerTargets))
+				.toList();
+		return new SentShop(getBalance(player), offers, remainingStock, cooldownEnds, playerTargets, teamTargets);
+	}
+
+	/// The ends of the cooldowns rather than the time left, so that the shop only changes when a cooldown starts or ends
+	private Map<UUID, Long> getActiveCooldownEnds(ShopOffer offer, List<ShopClientState.Target> targets) {
+		if (offer.targetCooldownTicks().isEmpty()) {
+			return Map.of();
+		}
+		Map<UUID, Long> ends = new HashMap<>();
+		for (ShopClientState.Target target : targets) {
+			long end = getCooldownEndingTick(target.id(), offer);
+			if (end > game.ticks()) {
+				ends.put(target.id(), end);
+			}
+		}
+		return ends;
 	}
 
 	/// @return how many more times the player can buy the offer
 	private Optional<Integer> getRemainingStock(ServerPlayer player, ShopOffer offer) {
 		return offer.stock().map(stock -> {
-			Reference2IntOpenHashMap<ShopOffer> bought = purchases.get(player.getUUID());
-			return Math.max(stock - (bought != null ? bought.getInt(offer) : 0), 0);
+			Object2IntOpenHashMap<String> bought = purchases.get(player.getUUID());
+			return Math.max(stock - (bought != null ? bought.getInt(offer.id()) : 0), 0);
 		});
 	}
 
@@ -399,6 +452,22 @@ public final class Shop implements IGameState {
 	}
 
 	/// @param remainingStock for each offer, how many more times the player can buy it
-	private record SentShop(int balance, List<ShopOffer> offers, List<Optional<Integer>> remainingStock, List<ShopClientState.Target> playerTargets, List<ShopClientState.Target> teamTargets) {
+	/// @param cooldownEnds   for each offer, the game tick from which it can be used on each player or team that is on cooldown
+	private record SentShop(
+			int balance,
+			List<ShopOffer> offers,
+			List<Optional<Integer>> remainingStock,
+			List<Map<UUID, Long>> cooldownEnds,
+			List<ShopClientState.Target> playerTargets,
+			List<ShopClientState.Target> teamTargets
+	) {
+	}
+
+	/// @param subjects what the offer's actions are applied to
+	/// @param id       the player or team the offer is used on, as shown in the shop, which its cooldown applies to - `null` for offers used on oneself or globally
+	private record ResolvedTarget(ActionSubjects<?> subjects, @Nullable UUID id) {
+		static ResolvedTarget of(ServerPlayer player) {
+			return new ResolvedTarget(ActionSubjects.ofPlayer(player), player.getUUID());
+		}
 	}
 }

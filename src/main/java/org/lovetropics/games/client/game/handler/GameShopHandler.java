@@ -1,6 +1,8 @@
 package org.lovetropics.games.client.game.handler;
 
+import net.minecraft.SharedConstants;
 import net.minecraft.client.Minecraft;
+import net.minecraft.util.Util;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -16,11 +18,13 @@ import org.lovetropics.games.common.core.game.client_state.instance.ShopClientSt
 public class GameShopHandler {
 	@Nullable
 	private static ShopClientState shop;
+	private static long receivedAt;
 
 	static final ClientGameStateHandler<ShopClientState> HANDLER = new ClientGameStateHandler<>() {
 		@Override
 		public void accept(ShopClientState state) {
 			shop = state;
+			receivedAt = Util.getMillis();
 		}
 
 		@Override
@@ -31,6 +35,10 @@ public class GameShopHandler {
 
 	public static @Nullable ShopClientState shop() {
 		return shop;
+	}
+
+	public static long getMillisLeft(int ticksLeft) {
+		return Math.max(ticksLeft * (long) SharedConstants.MILLIS_PER_TICK - (Util.getMillis() - receivedAt), 0);
 	}
 
 	@SubscribeEvent

@@ -15,6 +15,7 @@ import org.lovetropics.games.common.core.game.client_state.GameClientStateType;
 import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -38,10 +39,24 @@ public record ShopClientState(
 		return GameClientStateTypes.SHOP.get();
 	}
 
-	/// @param cost  how many tropicoins the offer costs
-	/// @param stock how many more times the player can buy the offer, if limited
-	/// @param target who the offer is used on
-	public record Offer(ItemStack icon, Component name, List<Component> description, int cost, Optional<Integer> stock, ShopTarget target, boolean targetTeam, ShopOfferFlavor flavor) {
+	/// @param cost           how many tropicoins the offer costs
+	/// @param stock          how many more times the player can buy the offer, if limited
+	/// @param targetCooldown how many ticks it takes before the offer can be used on the same player or team again, if it has a cooldown
+	/// @param cooldowns      the players or teams it can't be used on yet, with how many ticks were left when the shop was sent
+	/// @param target         who the offer is used on
+	/// @param targetTeam     true if the offer is used on teams rather than players
+	public record Offer(
+			ItemStack icon,
+			Component name,
+			List<Component> description,
+			int cost,
+			Optional<Integer> stock,
+			Optional<Integer> targetCooldown,
+			Map<UUID, Integer> cooldowns,
+			ShopTarget target,
+			boolean targetTeam,
+			ShopOfferFlavor flavor
+	) {
 		public static final Codec<Offer> CODEC = RecordCodecBuilder.create(in -> in.group(
 				// An icon that can't exist (e.g. more of an item than fits in a stack) ends up empty, which shouldn't kick players
 				ItemStack.OPTIONAL_CODEC.fieldOf("icon").forGetter(Offer::icon),
@@ -49,6 +64,8 @@ public record ShopClientState(
 				ExtraCodecs.compactListCodec(ComponentSerialization.CODEC).optionalFieldOf("description", List.of()).forGetter(Offer::description),
 				Codec.INT.fieldOf("cost").forGetter(Offer::cost),
 				Codec.INT.optionalFieldOf("stock").forGetter(Offer::stock),
+				Codec.INT.optionalFieldOf("target_cooldown").forGetter(Offer::targetCooldown),
+				Codec.unboundedMap(UUIDUtil.STRING_CODEC, Codec.INT).optionalFieldOf("cooldowns", Map.of()).forGetter(Offer::cooldowns),
 				ShopTarget.CODEC.optionalFieldOf("target", ShopTarget.SELF).forGetter(Offer::target),
 				Codec.BOOL.optionalFieldOf("target_team", false).forGetter(Offer::targetTeam),
 				ShopOfferFlavor.CODEC.fieldOf("flavor").forGetter(Offer::flavor)
@@ -60,6 +77,11 @@ public record ShopClientState(
 
 		public List<Target> targetsIn(ShopClientState shop) {
 			return targetTeam ? shop.teamTargets : shop.playerTargets;
+		}
+
+		/// The shop is sent again once the cooldown is over
+		public boolean isOnCooldown(UUID target) {
+			return cooldowns.containsKey(target);
 		}
 	}
 

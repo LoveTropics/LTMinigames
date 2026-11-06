@@ -27,6 +27,7 @@ public final class TropicRushTexts {
 	public static final TranslationCollector.Fun1 SPYING_INVENTORY = KEYS.add1("spying.inventory", "Inventory of %s");
 	public static final TranslationCollector.Fun1 SPYING_WATCHING = KEYS.add1("spying.watching", "Watching %s - sneak to return");
 	public static final TranslationCollector.Fun1 SPYING_BUSY = KEYS.add1("spying.busy", "%s is already spying on someone right now");
+	public static final Component SPYING_IN_ADVENTURE = KEYS.add("spying.in_adventure", "You can't spy while in adventure mode");
 
 	// Modifiers
 	public static final Component RULES = KEYS.add("rules", "Rules");

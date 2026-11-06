@@ -72,7 +72,9 @@ public final class SpyingBehavior implements IGameBehavior, IGameState {
 				return InteractionResult.PASS;
 			}
 			List<ShopClientState.Target> targets = getTargets(player);
-			if (targets.isEmpty()) {
+			if (isInAdventure(player)) {
+				player.sendSystemMessage(TropicRushTexts.SPYING_IN_ADVENTURE.copy().withStyle(ChatFormatting.RED));
+			} else if (targets.isEmpty()) {
 				player.sendSystemMessage(ShopTexts.NO_TARGETS.copy().withStyle(ChatFormatting.RED));
 			} else {
 				PacketDistributor.sendToPlayer(player, new ClientboundOpenSpyingScreenPacket(targets));
@@ -100,7 +102,7 @@ public final class SpyingBehavior implements IGameBehavior, IGameState {
 		ItemStack item = getSpyingItem(player);
 		ServerPlayer target = game.participants().getPlayerBy(targetId);
 		if (item == null || player.getCooldowns().isOnCooldown(item) || target == null || target == player
-				|| !game.participants().contains(player) || watches.containsKey(player.getUUID())) {
+				|| !game.participants().contains(player) || watches.containsKey(player.getUUID()) || isInAdventure(player)) {
 			return;
 		}
 		// Watching someone who is watching would only show where they are watching from
@@ -118,6 +120,10 @@ public final class SpyingBehavior implements IGameBehavior, IGameState {
 		} else {
 			openInventory(player, target);
 		}
+	}
+
+	private static boolean isInAdventure(ServerPlayer player) {
+		return player.gameMode.getGameModeForPlayer() == GameType.ADVENTURE;
 	}
 
 	private static boolean isSpyingItem(ItemStack stack) {

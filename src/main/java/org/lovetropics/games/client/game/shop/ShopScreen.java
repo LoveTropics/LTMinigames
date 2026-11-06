@@ -1,6 +1,7 @@
 package org.lovetropics.games.client.game.shop;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.SharedConstants;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.PlayerFaceExtractor;
 import net.minecraft.client.gui.screens.Screen;
@@ -28,6 +29,7 @@ import org.lovetropics.games.common.content.shop.ShopTarget;
 import org.lovetropics.games.common.content.shop.ShopTexts;
 import org.lovetropics.games.common.core.game.client_state.instance.ShopClientState;
 import org.lovetropics.games.common.core.network.shop.ServerboundShopPurchasePacket;
+import org.lovetropics.games.common.util.Util;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -55,6 +57,7 @@ public final class ShopScreen extends Screen {
 	private static final int ROW_W = 160;
 	private static final int FACE_SIZE = 10;
 	private static final int SECTION_GAP = 8;
+	private static final int COOLDOWN_BAR_H = 2;
 
 	private static final int CARD_COLOR = 0xAA222222;
 	private static final int CARD_HOVERED_COLOR = 0xAA444444;
@@ -128,7 +131,7 @@ public final class ShopScreen extends Screen {
 			if (pickingOffer >= 0 && pickingOffer < shop.offers().size()) {
 				ShopClientState.Offer offer = shop.offers().get(pickingOffer);
 				List<ShopClientState.Target> targets = offer.targetsIn(shop);
-				clickTargetRow(getRowAt(event.x(), event.y(), targets), targets);
+				clickTargetRow(getRowAt(event.x(), event.y(), targets), offer, targets);
 				return true;
 			}
 			int index = getOfferAt(shop, event.x(), event.y());
@@ -146,7 +149,11 @@ public final class ShopScreen extends Screen {
 	}
 
 	/// @param row the row of the target picker, as given by [#getRowAt]
-	private void clickTargetRow(int row, List<ShopClientState.Target> targets) {
+	private void clickTargetRow(int row, ShopClientState.Offer pickedOffer, List<ShopClientState.Target> targets) {
+		// Targets who got the offer recently can't be picked, but the others still can
+		if (row >= 0 && row < targets.size() && pickedOffer.isOnCooldown(targets.get(row).id())) {
+			return;
+		}
 		int offer = pickingOffer;
 		pickingOffer = -1;
 		// Clicking the cancel row or outside of the rows cancels
@@ -182,7 +189,7 @@ public final class ShopScreen extends Screen {
 	}
 
 	private static boolean hasTarget(ShopClientState shop, ShopClientState.Offer offer) {
-		return !offer.target().requiresOtherPlayer() || !offer.targetsIn(shop).isEmpty();
+		return !offer.target().requiresOtherPlayer() || offer.targetsIn(shop).stream().anyMatch(target -> !offer.isOnCooldown(target.id()));
 	}
 
 	@Override
@@ -252,7 +259,7 @@ public final class ShopScreen extends Screen {
 
 		if (hoveredIndex >= 0) {
 			ShopClientState.Offer offer = offers.get(hoveredIndex);
-			graphics.setTooltipForNextFrame(font, createTooltip(offer, shop.balance().orElse(Integer.MAX_VALUE) >= offer.cost(), hasTarget(shop, offer), showCost), mouseX, mouseY);
+			graphics.setTooltipForNextFrame(font, createTooltip(shop, offer, showCost), mouseX, mouseY);
 		}
 	}
 
@@ -370,9 +377,10 @@ public final class ShopScreen extends Screen {
 		int hoveredRow = getRowAt(mouseX, mouseY, offer.targetsIn(shop));
 		for (int row = 0; row < rowCount; row++) {
 			int y = getRowY(row);
-			boolean hovered = row == hoveredRow;
 			boolean playerRow = row < targets.size();
-			int border = playerRow
+			Integer cooldownTicks = playerRow ? offer.cooldowns().get(targets.get(row).id()) : null;
+			boolean hovered = row == hoveredRow && cooldownTicks == null;
+			int border = playerRow && cooldownTicks == null
 					? hovered ? SABOTAGE_BORDER_HOVERED_COLOR : SABOTAGE_BORDER_COLOR
 					: hovered ? BORDER_HOVERED_COLOR : BORDER_COLOR;
 			drawFrame(graphics, rowsX, y, ROW_W, rowH, hovered ? CARD_HOVERED_COLOR : CARD_COLOR, border);
@@ -383,14 +391,17 @@ public final class ShopScreen extends Screen {
 				Component name = Component.empty()
 						.append(Component.literal("#" + (row + 1) + " ").withStyle(ChatFormatting.GRAY))
 						.append(target.name());
-				Component points = ShopTexts.POINTS.apply(target.points()).withStyle(ChatFormatting.GOLD);
 				int leftX = rowsX + PADDING + 2;
 				if (!offer.targetTeam()) {
 					PlayerFaceExtractor.extractRenderState(graphics, ClientPlayerInfo.getSkin(target.id()), leftX, y + (rowH - FACE_SIZE) / 2, FACE_SIZE);
 					graphics.text(font, name, leftX + FACE_SIZE + 4, textY, CommonColors.WHITE, false);
-					graphics.text(font, points, rowsX + ROW_W - PADDING - 2 - font.width(points), textY, CommonColors.WHITE, false);
 				} else {
 					graphics.text(font, name, leftX, textY, CommonColors.WHITE, false);
+				}
+				if (cooldownTicks != null) {
+					drawCooldown(graphics, offer, cooldownTicks, y, textY);
+				} else {
+					Component points = ShopTexts.POINTS.apply(target.points()).withStyle(ChatFormatting.GOLD);
 					graphics.text(font, points, rowsX + ROW_W - PADDING - 2 - font.width(points), textY, CommonColors.WHITE, false);
 				}
 			} else {
@@ -404,6 +415,21 @@ public final class ShopScreen extends Screen {
 		graphics.disableScissor();
 	}
 
+	/// Grays out the row of a player or team who can't get the offer yet, with the time left and a bar that empties until they can
+	private void drawCooldown(GuiGraphicsExtractor graphics, ShopClientState.Offer offer, int ticksLeft, int y, int textY) {
+		graphics.fill(rowsX, y, rowsX + ROW_W, y + rowH, CARD_UNBUYABLE_OVERLAY_COLOR);
+
+		long millisLeft = GameShopHandler.getMillisLeft(ticksLeft);
+		Component timeLeft = Component.literal(Util.formatTimer(Mth.positiveCeilDiv((int) millisLeft, 1000))).withStyle(ChatFormatting.GRAY);
+		graphics.text(font, timeLeft, rowsX + ROW_W - PADDING - 2 - font.width(timeLeft), textY, CommonColors.WHITE, false);
+
+		long totalMillis = offer.targetCooldown().orElse(ticksLeft) * (long) SharedConstants.MILLIS_PER_TICK;
+		float progress = totalMillis > 0 ? Mth.clamp((float) millisLeft / totalMillis, 0.0f, 1.0f) : 0.0f;
+		int barW = Math.round((ROW_W - 2) * progress);
+		int barColor = offer.flavor() == ShopOfferFlavor.SABOTAGE ? SABOTAGE_BORDER_HOVERED_COLOR : BENEFIT_BORDER_HOVERED_COLOR;
+		graphics.fill(rowsX + 1, y + rowH - 1 - COOLDOWN_BAR_H, rowsX + 1 + barW, y + rowH - 1, barColor);
+	}
+
 	public static void drawFrame(GuiGraphicsExtractor graphics, int x, int y, int w, int h, int background, int border) {
 		graphics.fill(x, y, x + w, y + h, background);
 		graphics.fill(x, y, x + w, y + 1, border);
@@ -412,7 +438,8 @@ public final class ShopScreen extends Screen {
 		graphics.fill(x + w - 1, y, x + w, y + h, border);
 	}
 
-	private List<FormattedCharSequence> createTooltip(ShopClientState.Offer offer, boolean affordable, boolean hasTarget, boolean showCost) {
+	private List<FormattedCharSequence> createTooltip(ShopClientState shop, ShopClientState.Offer offer, boolean showCost) {
+		boolean affordable = shop.balance().orElse(Integer.MAX_VALUE) >= offer.cost();
 		List<FormattedCharSequence> lines = new ArrayList<>(font.split(ComponentUtils.mergeStyles(offer.name(), Style.EMPTY.withColor(ChatFormatting.YELLOW)), TOOLTIP_WIDTH));
 		for (Component line : offer.description()) {
 			lines.addAll(font.split(ComponentUtils.mergeStyles(line, Style.EMPTY.withColor(ChatFormatting.GRAY)), TOOLTIP_WIDTH));
@@ -427,6 +454,10 @@ public final class ShopScreen extends Screen {
 			case SELF -> {
 			}
 		}
+		offer.targetCooldown().ifPresent(ticks -> {
+			String duration = Util.formatTimer(ticks / SharedConstants.TICKS_PER_SECOND);
+			lines.add(ShopTexts.TARGET_COOLDOWN.apply(duration).withStyle(ChatFormatting.GRAY).getVisualOrderText());
+		});
 		lines.add(CommonComponents.EMPTY.getVisualOrderText());
 		if (showCost) {
 			lines.add(ShopTexts.TROPICOINS.apply(offer.cost()).withStyle(ChatFormatting.GOLD).getVisualOrderText());
@@ -438,8 +469,9 @@ public final class ShopScreen extends Screen {
 		if (!affordable) {
 			lines.add(ShopTexts.NOT_ENOUGH_TROPICOINS.copy().withStyle(ChatFormatting.RED).getVisualOrderText());
 		}
-		if (!hasTarget) {
-			lines.add(ShopTexts.NO_TARGETS.copy().withStyle(ChatFormatting.RED).getVisualOrderText());
+		if (!hasTarget(shop, offer)) {
+			Component reason = offer.targetsIn(shop).isEmpty() ? ShopTexts.NO_TARGETS : ShopTexts.ALL_ON_COOLDOWN;
+			lines.add(reason.copy().withStyle(ChatFormatting.RED).getVisualOrderText());
 		}
 		return lines;
 	}
