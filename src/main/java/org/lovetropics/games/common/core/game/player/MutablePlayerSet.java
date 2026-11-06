@@ -27,6 +27,10 @@ public final class MutablePlayerSet implements PlayerSet {
 		return players.add(player.getUUID());
 	}
 
+	public void addAll(PlayerSet players) {
+		players.forEach(this::add);
+	}
+
 	public boolean remove(UUID id) {
 		return players.remove(id);
 	}

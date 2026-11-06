@@ -57,7 +57,7 @@ public record AnnouncementsBehavior() implements IGameBehavior {
 					.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
 					.then(Commands.argument("target", StringArgumentType.word()).suggests((context, builder) -> {
 						builder.suggest("all");
-						TeamState orNull = game.state().getOrNull(TeamState.KEY);
+						TeamState orNull = game.instanceState().getOrNull(TeamState.KEY);
 						if(orNull != null){
 							for (GameTeamKey teamKey : orNull.getTeamKeys()) {
 								builder.suggest(teamKey.id());
@@ -94,7 +94,7 @@ public record AnnouncementsBehavior() implements IGameBehavior {
 		if(targetString.equals("all")){
 			players.set(game.participants());
 		} else {
-			game.state().getOptional(TeamState.KEY).ifPresent(teamState -> {
+			game.instanceState().getOptional(TeamState.KEY).ifPresent(teamState -> {
 				GameTeam teamByKey = teamState.getTeamByKey(targetString);
 				if(teamByKey != null){
 					players.set(teamState.getPlayersForTeam(game, teamByKey.key()));
@@ -121,6 +121,12 @@ public record AnnouncementsBehavior() implements IGameBehavior {
 			if (SUBTITLE != EMPTY_TITLE) {
 				target.connection.send(new ClientboundSetSubtitleTextPacket(SUBTITLE));
 			}
+			target.sendSystemMessage(
+					Component.empty()
+							.append(TITLE)
+							.append(Component.literal(" - ").withColor(TextColor.DARK_GRAY))
+							.append(SUBTITLE)
+			);
 		}
 	}
 

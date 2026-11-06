@@ -119,6 +119,7 @@ import org.lovetropics.games.common.core.game.behavior.instances.action.SetupPod
 import org.lovetropics.games.common.core.game.behavior.instances.action.ShootProjectilesAroundPlayerAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.ShowTitleAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.SimpleDialogBehavior;
+import org.lovetropics.games.common.core.game.behavior.instances.action.SpawnDisguisedAsPlayerAndTamedEntityAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.SpawnEntitiesAroundPlayersAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.SpawnEntitiesAtRegionsOverTimeAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.SpawnEntityAtPlayerAction;
@@ -128,6 +129,7 @@ import org.lovetropics.games.common.core.game.behavior.instances.action.SpawnPar
 import org.lovetropics.games.common.core.game.behavior.instances.action.SpectatorActivityAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.StartProgressChannelAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.SwapPlayersAction;
+import org.lovetropics.games.common.core.game.behavior.instances.action.SwapTeamsAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.TeamDispatchAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.TeleportToRegionAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.WeatherEventAction;
@@ -485,6 +487,9 @@ public class GameBehaviorTypes {
 		register("remove_item_from_player", RemoveItemFromPlayerAction.CODEC);
 
 		register("announcements", AnnouncementsBehavior.CODEC);
+
+		register("spawn_entity_disguised_as_donator_and_tamed_by_target", SpawnDisguisedAsPlayerAndTamedEntityAction.CODEC);
+		register("swap_teams", SwapTeamsAction.CODEC);
 	}
 
 	public static <T extends IGameBehavior> void register(String name, MapCodec<T> codec) {
