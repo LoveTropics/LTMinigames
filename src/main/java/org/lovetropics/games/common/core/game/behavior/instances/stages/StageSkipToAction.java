@@ -10,11 +10,13 @@ import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GameActionEvents;
 
 public record StageSkipToAction(
-		String namedStage
+		String namedStage,
+		boolean ignoreEndActions
 ) implements IGameBehavior {
 
 	public static final MapCodec<StageSkipToAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			Codec.STRING.fieldOf("stage").forGetter(StageSkipToAction::namedStage)
+			Codec.STRING.fieldOf("stage").forGetter(StageSkipToAction::namedStage),
+			Codec.BOOL.optionalFieldOf("ignore_end_actions", false).forGetter(StageSkipToAction::ignoreEndActions)
 	).apply(i, StageSkipToAction::new));
 
 	@Override
@@ -24,7 +26,7 @@ public record StageSkipToAction(
 			return;
 		}
 		events.listen(GameActionEvents.APPLY, ((context, targets) -> {
-			stageState.progressToStage(namedStage);
+			stageState.progressToStage(namedStage, ignoreEndActions);
 			return true;
 		}));
 	}

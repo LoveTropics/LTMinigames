@@ -27,6 +27,9 @@ import org.lovetropics.games.common.core.game.util.TemplatedText;
 import org.lovetropics.games.common.util.Util;
 
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 // TODO: Generalise?
 public record StageBarBehavior(
@@ -44,9 +47,18 @@ public record StageBarBehavior(
 		);
 
 		registerGlobalEvents(state, game, events);
+		AtomicBoolean isPaused = new AtomicBoolean(false);
+		AtomicLong pausedTime = new AtomicLong(0);
 
 		events.listen(GamePhaseEvents.TICK, () -> {
 			NamedStagesBehaviour.StageState stageState = state.stages.getCurrentStageState();
+			if(stageState != null && stageState.paused() && !isPaused.get()){
+				isPaused.set(true);
+				pausedTime.set(game.ticks());
+			} else if(stageState != null && !stageState.paused() && isPaused.get()){
+				isPaused.set(false);
+				pausedTime.set(0);
+			}
 			BarConfig currentBar = stageState != null ? barByStage.get(stageState.id()) : null;
 			if (state.override != null) {
 				if (currentBar != null) {
@@ -65,7 +77,7 @@ public record StageBarBehavior(
 					state.bar = new Bar(widgets, currentBar);
 					state.bar.inner.setPlayers(game.allPlayers(true));
 				}
-				state.bar.tick(game.ticks(), stageState);
+				state.bar.tick(isPaused.get() ? pausedTime.get() : game.ticks(), stageState);
 			}
 		});
 
@@ -133,13 +145,15 @@ public record StageBarBehavior(
 
 		public void tick(long gameTime, NamedStagesBehaviour.StageState state) {
 			if (state.stage().timerLengthTicks().isPresent()) {
-				float progress = (gameTime - state.startTime()) / (float) (state.endTime() - state.startTime());
+				float progress = state.elapsedTicks() / (float) (state.stage().timerLengthTicks().get());
 				progress = Mth.clamp(progress, 0.0f, 1.0f);
+				float rawProgress = progress;
 				if (config.reversed()) {
 					progress = 1.0f - progress;
 				}
 				inner.setProgress(progress);
-				long secondsLeft = Math.max(state.endTime() - gameTime, 0) / SharedConstants.TICKS_PER_SECOND;
+				long lengthInTicks = state.stage().timerLengthTicks().orElse(0);
+				long secondsLeft = (long) ((1.0f - rawProgress) * lengthInTicks) / SharedConstants.TICKS_PER_SECOND;
 				Component timeText = Component.literal(Util.formatTimer(secondsLeft)).withStyle(ChatFormatting.AQUA);
 				inner.setTitle(config.title.apply(Map.of("time", timeText)));
 			} else {

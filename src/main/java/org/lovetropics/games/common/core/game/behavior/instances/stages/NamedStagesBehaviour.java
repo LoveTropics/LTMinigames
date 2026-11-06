@@ -1,6 +1,7 @@
 package org.lovetropics.games.common.core.game.behavior.instances.stages;
 
 import com.lovetropics.lib.codec.MoreCodecs;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
@@ -103,6 +104,13 @@ public record NamedStagesBehaviour(
 	private void registerCommands(GameCommandRegistrar commands, State state) {
 		commands.register(Commands.literal("stage")
 				.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+				.then(Commands.literal("speed")
+						.then(Commands.argument("speed", IntegerArgumentType.integer(1, 100))
+						.executes(context -> {
+							state.setSpeedModifier(IntegerArgumentType.getInteger(context, "speed"));
+							context.getSource().sendSuccess(() -> Component.literal("Speed updated.").withStyle(ChatFormatting.GREEN), true);
+							return 1;
+						})))
 				.then(Commands.literal("pause")
 						.executes(context -> {
 							if(state.running){
@@ -163,9 +171,8 @@ public record NamedStagesBehaviour(
         private final IGamePhase game;
         private final NamedStagesBehaviour parent;
 
-        private long currentStageStartTime = -1;
-        private long currentStageEndTime = -1;
-        private long pausedAt = -1;
+		private long stageTicksElapsed = 0;
+		private int speedModifier = 1;
         private boolean running = false;
         private @Nullable NamedStage currentStage;
         private @Nullable String currentStageName;
@@ -175,48 +182,49 @@ public record NamedStagesBehaviour(
             this.game = game;
         }
 
+		public void setSpeedModifier(int speedModifier) {
+			this.speedModifier = speedModifier;
+		}
+
         public void pause() {
             if (currentStage != null && running) {
                 running = false;
-                pausedAt = game.ticks();
             }
         }
 
         public void start() {
             if (currentStage != null && !running) {
                 running = true;
-                if (currentStageStartTime != -1 && currentStage.timerLengthTicks.isPresent()) {
-                    long ticksThrough = pausedAt - currentStageStartTime;
-                    long ticksRemaining = currentStage.timerLengthTicks.get() - ticksThrough;
-                    currentStageEndTime = game.ticks() + ticksRemaining;
-                }
-                pausedAt = -1;
             }
         }
 
         public void tick() {
-            if (running) {
-                if (currentStage != null) {
-                    if (currentStage.timerLengthTicks.isPresent()) {
-                        long currentTick = currentStage.timerLengthTicks.get() - (currentStageEndTime - game.ticks());
-                        GameActionList actions = currentStage.tickActions.get(currentTick);
-                        if (actions != null) {
-                            actions.apply(game, ContextMap.EMPTY);
-                        }
-                        if (currentStage.autoMoveOn() && currentStage.nextStage().isPresent()) {
-                            if (game.ticks() >= currentStageEndTime) {
-                                progressToStage(currentStage.nextStage().get());
-                            }
-                        }
-                    }
-                }
-            }
+			NamedStage stage = currentStage;
+			if(!running || stage == null || stage.timerLengthTicks().isEmpty()){
+				return;
+			}
+			long length = stage.timerLengthTicks().get();
+			long from = stageTicksElapsed;
+			long to = from + speedModifier;
+
+			for(long t = from + 1; t <= to; t++){
+				stageTicksElapsed = t;
+				GameActionList actions = stage.tickActions.get(t);
+				if (actions != null) {
+					actions.apply(game, ContextMap.EMPTY);
+				}
+				if(currentStage != stage || !running){
+					return;
+				}
+			}
+			if (stage.autoMoveOn() && stage.nextStage().isPresent() && stageTicksElapsed >= length) {
+				progressToStage(stage.nextStage().get());
+			}
         }
 
         public void progressToNext(boolean skipEndActions) {
             if (currentStage != null && currentStage.nextStage().isPresent()) {
-                String stage = currentStage.nextStage().get();
-                progressToStage(stage, skipEndActions);
+                progressToStage(currentStage.nextStage.get(), skipEndActions);
             }
         }
 
@@ -242,12 +250,7 @@ public record NamedStagesBehaviour(
             }
             currentStage = stage;
             currentStageName = stageName;
-            currentStageStartTime = game.ticks();
-            if (currentStage.timerLengthTicks().isPresent()) {
-                currentStageEndTime = game.ticks() + currentStage.timerLengthTicks().get();
-            } else {
-                currentStageEndTime = -1;
-            }
+			stageTicksElapsed = 0;
             currentStage.startActions.ifPresent(actions -> actions.apply(game, ContextMap.EMPTY));
         }
 
@@ -258,8 +261,8 @@ public record NamedStagesBehaviour(
             return new StageState(
                     currentStageName,
                     currentStage,
-                    currentStageStartTime,
-                    currentStageEndTime
+					stageTicksElapsed,
+					!running
             );
         }
     }
@@ -267,8 +270,8 @@ public record NamedStagesBehaviour(
 	public record StageState(
 			String id,
 			NamedStage stage,
-			long startTime,
-			long endTime
+			long elapsedTicks,
+			boolean paused
 	) {
 	}
 }
