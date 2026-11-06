@@ -1,71 +1,71 @@
 package org.lovetropics.games.common.core.game.behavior.instances.action;
 
-import com.mojang.serialization.Codec;
+import com.google.common.collect.Lists;
 import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Util;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GameActionEvents;
-import org.lovetropics.games.common.core.game.player.MutablePlayerSet;
-import org.lovetropics.games.common.core.game.player.PlayerSet;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
 import org.lovetropics.games.common.core.game.state.team.TeamState;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-public record SwapTeamsAction(double distanceThreshold) implements IGameBehavior {
-	public static final MapCodec<SwapTeamsAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			Codec.DOUBLE.optionalFieldOf("distance_threshold", Double.MAX_VALUE).forGetter(c -> c.distanceThreshold)
-	).apply(i, SwapTeamsAction::new));
+public record SwapTeamsAction(
+) implements IGameBehavior {
+	public static final MapCodec<SwapTeamsAction> CODEC = MapCodec.unit(SwapTeamsAction::new);
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
-		TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
+		TeamState teams = game.instanceState().getOrThrow(TeamState.KEY);
 
 		events.listen(GameActionEvents.APPLY, (context, targets) -> {
-			if (game.participants().size() <= 1) {
+			Map<GameTeamKey, List<LevelPos>> teamPlayerPositions = new HashMap<>();
+			for (GameTeamKey team : targets.asTeams(game)) {
+				List<LevelPos> positions = new ArrayList<>();
+				for (ServerPlayer player : teams.getPlayersForTeam(game, team)) {
+					positions.add(new LevelPos(player.level(), player.position()));
+				}
+				if (positions.isEmpty()) {
+					continue;
+				}
+				Util.shuffle(positions, game.random());
+				teamPlayerPositions.put(team, positions);
+			}
+
+			List<GameTeamKey> shuffledTeams = new ArrayList<>(teamPlayerPositions.keySet());
+			if (shuffledTeams.size() < 2) {
 				return false;
 			}
-			if (distanceThreshold == Double.MAX_VALUE) {
-				shuffleTeams(game, teams);
+
+			Util.shuffle(shuffledTeams, game.random());
+
+			for (int i = 0; i < shuffledTeams.size(); i++) {
+				GameTeamKey team = shuffledTeams.get(i);
+				GameTeamKey otherTeam = shuffledTeams.get((i + 1) % shuffledTeams.size());
+
+				List<ServerPlayer> teamPlayers = Lists.newArrayList(teams.getPlayersForTeam(game, team));
+				List<LevelPos> targetPositions = teamPlayerPositions.get(otherTeam);
+
+				for (int j = 0; j < teamPlayers.size(); j++) {
+					ServerPlayer player = teamPlayers.get(j);
+					LevelPos pos = targetPositions.get(j % targetPositions.size());
+					player.teleportTo(pos.level, pos.pos.x, pos.pos.y, pos.pos.z, Set.of(), 0.0f, 0.0f, true);
+				}
 			}
+
 			return true;
 		});
 	}
 
-	private void shuffleSpecificPlayers(IGamePhase game, List<ServerPlayer> players) {
-		List<Vec3> playerPositions = players.stream()
-				.map(Entity::position)
-				.toList();
-
-		for (int i = 0; i < players.size(); i++) {
-			ServerPlayer player = players.get(i);
-			Vec3 teleportTo = playerPositions.get((i + 1) % playerPositions.size());
-			player.teleportTo(teleportTo.x, teleportTo.y, teleportTo.z);
-		}
-	}
-
-	private void shuffleSpecificTeams(IGamePhase game, TeamState teamState, List<GameTeamKey> teams) {
-		for (int i = 0; i < teams.size(); i++) {
-			GameTeamKey team = teams.get(i);
-			GameTeamKey otherTeam = teams.get((i + 1) % teams.size());
-			PlayerSet firstTeamPlayers = teamState.getPlayersForTeam(game, team);
-			PlayerSet secondTeamPlayers = teamState.getPlayersForTeam(game, otherTeam);
-			MutablePlayerSet mutablePlayerSet = new MutablePlayerSet();
-			mutablePlayerSet.addAll(firstTeamPlayers);
-			mutablePlayerSet.addAll(secondTeamPlayers);
-			shuffleSpecificPlayers(game, mutablePlayerSet.shuffledCopy(game.random()));
-		}
-	}
-
-	private void shuffleTeams(IGamePhase game, TeamState teams) {
-		List<GameTeamKey> shuffledTeams = teams.getTeamKeys().stream().toList();
-		Util.shuffle(shuffledTeams, game.random());
-		shuffleSpecificTeams(game, teams, shuffledTeams);
+	private record LevelPos(ServerLevel level, Vec3 pos) {
 	}
 }
