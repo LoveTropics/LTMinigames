@@ -335,6 +335,7 @@ public final class MinigameTexts {
 		KEYS.add("donation.slow", "Slowness");
 		KEYS.add("donation.slow.toast", "%sender% has given SLOWNESS!");
 		KEYS.add("donation.player_dvd", "DVD Screensaver");
+		KEYS.add("donation.player_dvd.description", "Add your player face as a DVD Screensaver over everyone's screens");
 		KEYS.add("donation.player_dvd.toast", "%sender% wants you to see their DVD Screensaver");
 		KEYS.add("donation.swap_teams", "Swap Teams");
 		KEYS.add("donation.swap_teams.description", "Swaps every teams' positions");

@@ -246,7 +246,7 @@ public final class Shop implements IGameState {
 				ServerPlayer randomTarget = getRandomTarget(player, offer);
 				yield randomTarget != null ? ResolvedTarget.of(randomTarget) : null;
 			}
-			case GLOBAL -> new ResolvedTarget(ActionSubjects.EMPTY, null);
+			case GLOBAL -> new ResolvedTarget(ActionSubjects.ofPlayers(game.participants().filter(p -> p != player)), null);
 		};
 	}
 

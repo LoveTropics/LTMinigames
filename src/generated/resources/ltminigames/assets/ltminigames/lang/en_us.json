@@ -368,6 +368,7 @@
   "ltminigames.minigame.donation.player_dummy_package.description": "Turn every player in the game into a dummy-version of your Minecraft avatar!",
   "ltminigames.minigame.donation.player_dummy_package.toast": "Everyone is '%sender%'!",
   "ltminigames.minigame.donation.player_dvd": "DVD Screensaver",
+  "ltminigames.minigame.donation.player_dvd.description": "Add your player face as a DVD Screensaver over everyone's screens",
   "ltminigames.minigame.donation.player_dvd.toast": "%sender% wants you to see their DVD Screensaver",
   "ltminigames.minigame.donation.player_tornado": "Player Tornado",
   "ltminigames.minigame.donation.player_tornado.description": "Turn a player into a Tornado. Yes. Literally.",
