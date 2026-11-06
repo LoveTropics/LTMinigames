@@ -118,7 +118,7 @@ public record VoiceChatBehavior(
 
 	private void removeFromGroup(ServerPlayer player, VoicechatServerApi voiceApi, Group group) {
 		VoicechatConnection connection = voiceApi.getConnectionOf(player.getUUID());
-		if (connection != null && connection.getGroup() == group) {
+		if (connection != null && group.equals(connection.getGroup())) {
 			connection.setGroup(null);
 		}
 	}
