@@ -26,7 +26,10 @@ import org.lovetropics.games.common.content.bingo.Bingo;
 import org.lovetropics.games.common.content.bingo.BingoTileType;
 import org.lovetropics.games.common.core.game.client_state.instance.BingoBoardClientState;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -42,6 +45,10 @@ public final class BingoBoardScreen extends Screen {
 	private static final int SIDE_PADDING = 3;
 	private static final int ICON_KIND_GAP = 2;
 	private static final int COMPLETED_POINTS_COLOR = 0xFF55FF55;
+	private static final int MULTIPLIED_PREVIOUS_POINTS_COLOR = 0xFFAAAAAA;
+	private static final int MULTIPLIED_COLUMN_BORDER = 0xFFFFDD33;
+	private static final int MULTIPLIED_COLUMN_FILL = 0x33FFDD33;
+	private static final DecimalFormat MULTIPLIER_FORMAT = new DecimalFormat("0.##", DecimalFormatSymbols.getInstance(Locale.ROOT));
 	private static final int BOTTOM_PADDING = 3;
 	private static final int SCREEN_MARGIN = 10;
 	private static final int TOOLTIP_WIDTH = 200;
@@ -160,6 +167,21 @@ public final class BingoBoardScreen extends Screen {
 		}
 
 		if (board.hasCard()) {
+			boolean[] completedMultiplierColumns = new boolean[columns];
+			boolean[] boostedColumns = new boolean[columns];
+			for (int index = 0; index < tiles.size(); index++) {
+				BingoBoardClientState.Tile tile = tiles.get(index).orElse(null);
+				if (tile == null || !tile.isColumnMultiplier()) {
+					continue;
+				}
+				int thing = index % columns;
+				int x = boardX + thing * (TILE_W + GAP);
+				int y = boardY + (index / columns) * (tileH + GAP);
+				boolean hovered = localMouseX >= x && localMouseX < x + TILE_W && localMouseY >= y && localMouseY < y + tileH;
+				completedMultiplierColumns[thing] |= tile.completed();
+				boostedColumns[thing] |= tile.completed() || hovered;
+			}
+
 			for (int r = 0; r < rows; r++) {
 				for (int c = 0; c < columns; c++) {
 					int x = boardX + c * (TILE_W + GAP);
@@ -180,11 +202,22 @@ public final class BingoBoardScreen extends Screen {
 					}
 
 					BingoBoardClientState.Tile tile = optionalTile.orElseThrow();
-					drawTile(graphics, tile, x, y, tileH);
+					drawTile(graphics, tile, x, y, tileH, boostedColumns[c]);
 					if (hovered) {
 						tooltip = createTooltip(board, tile);
 					}
 				}
+			}
+
+			for (int c = 0; c < columns; c++) {
+				if (!boostedColumns[c]) {
+					continue;
+				}
+				int x = boardX + c * (TILE_W + GAP);
+				if (completedMultiplierColumns[c]) {
+					graphics.fill(x, boardY, x + TILE_W, boardY + boardH, MULTIPLIED_COLUMN_FILL);
+				}
+				GameBingoHandler.drawBorder(graphics, x - 2, boardY - 2, TILE_W + 4, boardH + 4, MULTIPLIED_COLUMN_BORDER);
 			}
 		}
 
@@ -195,7 +228,8 @@ public final class BingoBoardScreen extends Screen {
 		}
 	}
 
-	private void drawTile(GuiGraphicsExtractor graphics, BingoBoardClientState.Tile tile, int x, int y, int tileH) {
+	/// @param boosted whether to show what the tile is worth with the multipliers of its column
+	private void drawTile(GuiGraphicsExtractor graphics, BingoBoardClientState.Tile tile, int x, int y, int tileH, boolean boosted) {
 		GameBingoHandler.drawTileBackground(graphics, tile, x, y, TILE_W, tileH);
 
 		int iconX = x + (TILE_W - ICON_SIZE) / 2;
@@ -216,9 +250,19 @@ public final class BingoBoardScreen extends Screen {
 		int rowY = iconY + ICON_SIZE + ICON_KIND_GAP;
 
 		// what the tile earned the player once completed, otherwise what it is worth now
-		Component points = Component.literal(String.valueOf(tile.reward())).withStyle(POINTS_STYLE);
+		int pointsX = x + SIDE_PADDING;
+		int pointsY = rowY + (KIND_SPRITE_SIZE - font.lineHeight) / 2 + 1;
 		int pointsColor = tile.completed() ? COMPLETED_POINTS_COLOR : GameBingoHandler.POINTS_COLOR;
-		graphics.text(font, points, x + SIDE_PADDING, rowY + (KIND_SPRITE_SIZE - font.lineHeight) / 2 + 1, pointsColor, true);
+		if (boosted && tile.boostedReward() != tile.reward()) {
+			Component previous = Component.literal(String.valueOf(tile.reward())).withStyle(POINTS_STYLE.withStrikethrough(true));
+			graphics.text(font, previous, pointsX, pointsY, MULTIPLIED_PREVIOUS_POINTS_COLOR, true);
+			pointsX += font.width(previous) + 2;
+			Component points = Component.literal(String.valueOf(tile.boostedReward())).withStyle(POINTS_STYLE);
+			graphics.text(font, points, pointsX, pointsY, pointsColor, true);
+		} else {
+			Component points = Component.literal(String.valueOf(tile.reward())).withStyle(POINTS_STYLE);
+			graphics.text(font, points, pointsX, pointsY, pointsColor, true);
+		}
 
 		int kindX = x + TILE_W - SIDE_PADDING - KIND_SPRITE_SIZE;
 		graphics.blitSprite(RenderPipelines.GUI_TEXTURED, tile.kind().sprite(), kindX, rowY, KIND_SPRITE_SIZE, KIND_SPRITE_SIZE, KIND_SPRITE_ALPHA);
@@ -267,6 +311,10 @@ public final class BingoBoardScreen extends Screen {
 	private static Component createPointsLine(BingoBoardClientState board, BingoBoardClientState.Tile tile, int place) {
 		Component placeName = place < Bingo.TILE_PLACES.size() ? Bingo.TILE_PLACES.get(place) : Bingo.TILE_PLACE.apply(place + 1);
 		MutableComponent reward = Bingo.TILE_PLACE_REWARD.apply(placeName, tile.placeRewards().get(place));
+		if (tile.isColumnMultiplier()) {
+			float multiplier = tile.columnMultipliers().get(Math.min(place, tile.columnMultipliers().size() - 1));
+			reward.append(Component.literal(" ")).append(Bingo.TILE_PLACE_COLUMN_MULTIPLIER.apply(MULTIPLIER_FORMAT.format(multiplier)));
+		}
 		if (place >= tile.completedBy().size()) {
 			return reward.withStyle(place == tile.completedBy().size() ? ChatFormatting.GOLD : ChatFormatting.GRAY);
 		}

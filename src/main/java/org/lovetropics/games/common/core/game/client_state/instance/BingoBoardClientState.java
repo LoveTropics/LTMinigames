@@ -55,6 +55,8 @@ public record BingoBoardClientState(int rows, int columns, List<Optional<Tile>> 
 	/// @param tileType    information about how the tile should be displayed
 	/// 				   TODO add an Appearance record to BingoTileType so we avoid sending gameplay information.
 	/// @param kind        what players have to do to complete the tile
+	/// @param boostedReward     the reward with the multipliers of the tile's column, those the player completed and those they would get if they completed them now
+	/// @param columnMultipliers if not empty, the multiplier the tile gives its column for each place
 	public record Tile(
 			ItemStack icon,
 			Component title,
@@ -65,8 +67,14 @@ public record BingoBoardClientState(int rows, int columns, List<Optional<Tile>> 
 			BingoTileType tileType,
 			BingoTileKind kind,
 			List<Integer> placeRewards,
-			List<UUID> completedBy
+			List<UUID> completedBy,
+			int boostedReward,
+			List<Float> columnMultipliers
 	) {
+		public boolean isColumnMultiplier() {
+			return !columnMultipliers.isEmpty();
+		}
+
 		public static final Codec<Tile> CODEC = RecordCodecBuilder.create(in -> in.group(
 				ItemStack.CODEC.fieldOf("icon").forGetter(Tile::icon),
 				ComponentSerialization.CODEC.fieldOf("title").forGetter(Tile::title),
@@ -77,7 +85,9 @@ public record BingoBoardClientState(int rows, int columns, List<Optional<Tile>> 
 				BingoTileType.CODEC.optionalFieldOf("tile_type", BingoTileType.DEFAULT).forGetter(Tile::tileType),
 				BingoTileKind.CODEC.optionalFieldOf("kind", BingoTileKind.OBTAIN).forGetter(Tile::kind),
 				Codec.INT.listOf().optionalFieldOf("place_rewards", List.of()).forGetter(Tile::placeRewards),
-				UUIDUtil.CODEC.listOf().optionalFieldOf("completed_by", List.of()).forGetter(Tile::completedBy)
+				UUIDUtil.CODEC.listOf().optionalFieldOf("completed_by", List.of()).forGetter(Tile::completedBy),
+				Codec.INT.optionalFieldOf("boosted_reward", 0).forGetter(Tile::boostedReward),
+				Codec.FLOAT.listOf().optionalFieldOf("column_multipliers", List.of()).forGetter(Tile::columnMultipliers)
 		).apply(in, Tile::new));
 	}
 

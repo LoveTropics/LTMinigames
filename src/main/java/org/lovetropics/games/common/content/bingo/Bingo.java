@@ -33,6 +33,7 @@ public class Bingo {
 			KEYS.add("tile.place.6", "6th")
 	);
 	public static final TranslationCollector.Fun1 TILE_PLACE = KEYS.add1("tile.place", "%sth");
+	public static final TranslationCollector.Fun1 TILE_PLACE_COLUMN_MULTIPLIER = KEYS.add1("tile.place_column_multiplier", "(x%s column)");
 	public static final TranslationCollector.Fun2 TILE_PLACE_REWARD = KEYS.add2("tile.place_reward", "%s: %s points");
 
 	/// Fired in the phase that owns the board once a player has completed every tile of a full board

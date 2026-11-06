@@ -148,7 +148,7 @@ public final class BingoBoard implements IGameState {
 	private void placeTile(int index, BingoTileDefinition definition) {
 		int id = placedTiles.size();
 		CriteriaTracker tracker = new CriteriaTracker(definition.criteria(), definition.requirements(), this::canComplete, player -> complete(id, player));
-		BingoTile tile = new BingoTile(id, index, definition.icon().create(), definition.title(), definition.description(), definition.reward(), tracker, definition.tileType(), definition.kind());
+		BingoTile tile = new BingoTile(id, index, definition.icon().create(), definition.title(), definition.description(), definition.reward(), tracker, definition.tileType(), definition.kind(), definition.columnMultipliers());
 		placedTiles.add(tile);
 		tiles.set(index, Optional.of(tile)).ifPresent(replaced -> replaced.tracker.stop(game.server()));
 		if (started) {
@@ -166,9 +166,12 @@ public final class BingoBoard implements IGameState {
 			return;
 		}
 		BingoTile completedTile = placedTiles.get(tileId);
-		if (tiles.get(completedTile.slot).orElse(null) != completedTile || !completedTile.completedBy.add(player.getUUID())) {
+		if (tiles.get(completedTile.slot).orElse(null) != completedTile || completedTile.completedBy.contains(player.getUUID())) {
 			return;
 		}
+		// completing a column multiplier also changes what the tiles completed before are worth :)
+		int pointsBefore = getTotalPoints(player.getUUID());
+		completedTile.completedBy.add(player.getUUID());
 
 		onTileCompleted.apply(game, ContextMap.EMPTY, ActionSubjects.ofPlayer(player));
 		MutableComponent tileCompletedComponent = Bingo.TILE_COMPLETED.apply(player.getDisplayName(), completedTile.title.copy().withStyle(ChatFormatting.AQUA));
@@ -185,7 +188,7 @@ public final class BingoBoard implements IGameState {
 			integrations.sendInGameEvent(sb);
 		}
 
-		game.statistics().forPlayer(player).incrementInt(StatisticKey.POINTS, getReward(completedTile, completedTile.completedBy.size() - 1));
+		game.statistics().forPlayer(player).incrementInt(StatisticKey.POINTS, getTotalPoints(player.getUUID()) - pointsBefore);
 		// Everyone sees how many players completed each tile, and what it is still worth to them
 		updateTiles();
 
@@ -200,31 +203,71 @@ public final class BingoBoard implements IGameState {
 		}
 	}
 
-	/// What the tile earned the player if they completed it, otherwise what it is worth to them if they complete it now
-	private int getPlayerReward(BingoTile tile, UUID player) {
+	private int getTotalPoints(UUID player) {
+		int points = 0;
+		for (Optional<BingoTile> optionalTile : tiles) {
+			BingoTile tile = optionalTile.orElse(null);
+			if (tile != null && tile.completedBy.contains(player)) {
+				points += getReward(tile, getPosition(tile, player), getColumnMultiplier(tile, player, true));
+			}
+		}
+		return points;
+	}
+
+	private static int getPosition(BingoTile tile, UUID player) {
 		int position = 0;
 		for (UUID completedBy : tile.completedBy) {
 			if (completedBy.equals(player)) {
-				return getReward(tile, position);
+				return position;
 			}
 			position++;
 		}
-		return getReward(tile, position);
+		return position;
 	}
 
-	private List<Integer> getPlaceRewards(BingoTile tile) {
+	private float getColumnMultiplier(BingoTile tile, UUID player, boolean completedOnly) {
+		float multiplier = 1.0f;
+		int column = tile.slot % columns;
+		for (int row = 0; row < rows; row++) {
+			BingoTile other = tiles.get(row * columns + column).orElse(null);
+			if (other == null || other == tile || other.columnMultipliers.isEmpty()) {
+				continue;
+			}
+			if (!other.completedBy.contains(player) && (completedOnly || lockedSlots.containsKey(other.slot))) {
+				continue;
+			}
+			multiplier *= other.getColumnMultiplier(getPosition(other, player));
+		}
+		return multiplier;
+	}
+
+	private List<Integer> getPlaceRewards(BingoTile tile, UUID player) {
+		float columnMultiplier = getColumnMultiplier(tile, player, true);
 		int places = Math.max(SHOWN_PLACES, tile.completedBy.size());
 		List<Integer> rewards = new ArrayList<>(places);
 		for (int position = 0; position < places; position++) {
-			rewards.add(getReward(tile, position));
+			rewards.add(getReward(tile, position, columnMultiplier));
 		}
 		return rewards;
 	}
 
 	/// @param position how many players completed the tile before
-	private int getReward(BingoTile tile, int position) {
+	private int getReward(BingoTile tile, int position, float columnMultiplier) {
 		float multiplier = positionRewardMultiplier.get(Math.min(position, positionRewardMultiplier.size() - 1));
-		return (int) Math.floor(tile.reward * multiplier);
+		return (int) Math.floor(tile.reward * multiplier * columnMultiplier);
+	}
+
+	private BingoBoardClientState.Tile createClientTile(BingoTile tile, UUID player) {
+		int position = getPosition(tile, player);
+		return new BingoBoardClientState.Tile(
+				tile.icon, tile.title, tile.description,
+				tile.completedBy.contains(player), tile.completedBy.size(),
+				getReward(tile, position, 1.0f),
+				tile.tileType, tile.kind,
+				getPlaceRewards(tile, player), List.copyOf(tile.completedBy),
+				getReward(tile, position, getColumnMultiplier(tile, player, false)),
+				tile.columnMultipliers
+		);
 	}
 
 	/// @param includeLocked whether the locked tiles have to be completed too
@@ -285,7 +328,7 @@ public final class BingoBoard implements IGameState {
 	public void updatePlayer(ServerPlayer player) {
 		List<Optional<BingoBoardClientState.Tile>> clientTiles = tiles.stream()
 				.map(o -> o.filter(t -> !lockedSlots.containsKey(t.slot) || t.completedBy.contains(player.getUUID())))
-				.map(o -> o.map(t -> t.tile(player, getPlayerReward(t, player.getUUID()), getPlaceRewards(t))))
+				.map(o -> o.map(t -> createClientTile(t, player.getUUID())))
 				.toList();
 		List<BingoBoardClientState.LockedSlot> clientLockedSlots = lockedSlots.int2ObjectEntrySet().stream()
 				.filter(entry -> clientTiles.get(entry.getIntKey()).isEmpty())
@@ -338,10 +381,11 @@ public final class BingoBoard implements IGameState {
 		private final CriteriaTracker tracker;
 		private final BingoTileType tileType;
 		private final BingoTileKind kind;
+		private final List<Float> columnMultipliers;
 		/// In the order the players completed the tile
 		private final Set<UUID> completedBy = new LinkedHashSet<>();
 
-		private BingoTile(int id, int slot, ItemStack icon, Component title, Optional<Component> description, int reward, CriteriaTracker tracker, BingoTileType tileType, BingoTileKind kind) {
+		private BingoTile(int id, int slot, ItemStack icon, Component title, Optional<Component> description, int reward, CriteriaTracker tracker, BingoTileType tileType, BingoTileKind kind, List<Float> columnMultipliers) {
 			this.id = id;
 			this.slot = slot;
 			this.icon = icon;
@@ -351,10 +395,12 @@ public final class BingoBoard implements IGameState {
 			this.tracker = tracker;
 			this.tileType = tileType;
 			this.kind = kind;
+			this.columnMultipliers = columnMultipliers;
 		}
 
-		private BingoBoardClientState.Tile tile(ServerPlayer player, int reward, List<Integer> placeRewards) {
-			return new BingoBoardClientState.Tile(icon, title, description, completedBy.contains(player.getUUID()), completedBy.size(), reward, tileType, kind, placeRewards, List.copyOf(completedBy));
+		/// @param position how many players completed the tile before
+		private float getColumnMultiplier(int position) {
+			return columnMultipliers.get(Math.min(position, columnMultipliers.size() - 1));
 		}
 	}
 }

@@ -93,6 +93,7 @@
   "ltminigames.minigame.bingo.tile.place.4": "4th",
   "ltminigames.minigame.bingo.tile.place.5": "5th",
   "ltminigames.minigame.bingo.tile.place.6": "6th",
+  "ltminigames.minigame.bingo.tile.place_column_multiplier": "(x%s column)",
   "ltminigames.minigame.bingo.tile.place_reward": "%s: %s points",
   "ltminigames.minigame.bingo.tile_completed": "%s completed tile %s!",
   "ltminigames.minigame.bingo.tiles_unlocked": "New bingo tiles unlocked: %s",
