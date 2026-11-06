@@ -38,6 +38,7 @@ import org.lovetropics.games.common.core.game.behavior.instances.InSubGamesBehav
 import org.lovetropics.games.common.core.game.behavior.instances.JoinLateWithRoleBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.LastRemainingWinTrigger;
 import org.lovetropics.games.common.core.game.behavior.instances.LeaderboardPlaceholderBehavior;
+import org.lovetropics.games.common.core.game.behavior.instances.LeakyPocketsBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.MinecraftBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.MinigameCompetitionBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.ModifyLootTablesBehavior;
@@ -496,6 +497,7 @@ public class GameBehaviorTypes {
 		register("spawn_entity_disguised_as_donator_and_tamed_by_target", SpawnDisguisedAsPlayerAndTamedEntityAction.CODEC);
 		register("swap_teams", SwapTeamsAction.CODEC);
 		register("modify_furnace_smelt_times", ModifyFurnaceSmeltTimesBehavior.CODEC);
+		register("leaky_pockets", LeakyPocketsBehavior.CODEC);
 	}
 
 	public static <T extends IGameBehavior> void register(String name, MapCodec<T> codec) {

@@ -2,21 +2,16 @@ package org.lovetropics.games.common.content.qottott.behavior;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
-import net.minecraft.util.RandomSource;
 import net.minecraft.util.TriState;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
-import org.lovetropics.games.SoundRegistry;
 import org.lovetropics.games.common.content.qottott.Qottott;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
+import org.lovetropics.games.common.core.game.behavior.instances.LeakyPocketsBehavior;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticsMap;
 
@@ -36,22 +31,12 @@ public record CoinDropAttributeBehavior(ItemStackTemplate item, StatisticKey<Int
 					int amount = Mth.floor(statistics.getInt(statistic) * coinDrops);
 					if (amount > 0) {
 						statistics.incrementInt(statistic, -amount);
-						spawnItems(player, amount, item.create());
+						LeakyPocketsBehavior.spawnItems(player, amount, item.create(), 0);
 					}
 				}
 			}
 			return TriState.DEFAULT;
 		});
-	}
-
-	public static void spawnItems(ServerPlayer player, int amount, ItemStack item) {
-		RandomSource random = player.getRandom();
-		for (int i = 0; i < amount; i++) {
-			ItemEntity entity = new ItemEntity(player.level(), player.getRandomX(1.0), player.getRandomY(), player.getRandomZ(1.0), item.copyWithCount(1));
-			entity.setDeltaMovement(random.triangle(0.0, 0.155), random.triangle(0.2, 0.155), random.triangle(0.0, 0.155));
-			player.level().addFreshEntity(entity);
-		}
-		player.level().playSound(null, player.getX(), player.getY(), player.getZ(), SoundRegistry.COINS, SoundSource.PLAYERS, 1.0f, random.nextFloat() * 0.4f + 1.3f);
 	}
 
 	@Override

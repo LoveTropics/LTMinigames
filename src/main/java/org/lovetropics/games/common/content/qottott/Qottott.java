@@ -18,7 +18,7 @@ import org.lovetropics.games.common.content.qottott.behavior.GivePointsAction;
 import org.lovetropics.games.common.content.qottott.behavior.ItemDropperBehavior;
 import org.lovetropics.games.common.content.qottott.behavior.ItemPickupPriorityBehavior;
 import org.lovetropics.games.common.content.qottott.behavior.KitSelectionBehavior;
-import org.lovetropics.games.common.content.qottott.behavior.LeakyPocketsBehavior;
+import org.lovetropics.games.common.content.qottott.behavior.QottottLeakyPocketsBehavior;
 import org.lovetropics.games.common.content.qottott.behavior.LobbyWithPortalBehavior;
 import org.lovetropics.games.common.content.qottott.behavior.PowerUpIndicatorBehavior;
 import org.lovetropics.games.common.util.registry.LoveTropicsRegistrate;
@@ -80,7 +80,7 @@ public class Qottott {
 		REGISTRATE.registerBehavior("pickup_priority", ItemPickupPriorityBehavior.CODEC);
 		REGISTRATE.registerBehavior("coin_drop_attribute", CoinDropAttributeBehavior.CODEC);
 		REGISTRATE.registerBehavior("power_up_indicator", PowerUpIndicatorBehavior.CODEC);
-		REGISTRATE.registerBehavior("leaky_pockets", LeakyPocketsBehavior.CODEC);
+		REGISTRATE.registerBehavior("qottott/leaky_pockets", QottottLeakyPocketsBehavior.CODEC);
 	}
 
 	@SubscribeEvent

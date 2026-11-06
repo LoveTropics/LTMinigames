@@ -99,6 +99,7 @@ public final class Shop implements IGameState {
 
 	public static Shop register(IGamePhase game, EventRegistrar events, List<ShopOffer> offers, double tropicoinsPerDonatedAmount) {
 		Shop shop = new Shop(game, offers, tropicoinsPerDonatedAmount);
+		game.state().register(KEY, shop);
 		events.listen(GamePhaseEvents.REGISTER_COMMANDS, (commands, _) -> {
 			commands.register(Commands.literal("shop").then(Commands.literal("offer")
 					.requires(GameCommandRegistrar.adminOrOverlord(game))
