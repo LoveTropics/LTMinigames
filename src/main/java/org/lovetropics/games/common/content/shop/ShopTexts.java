@@ -13,9 +13,9 @@ public final class ShopTexts {
 	public static final Component SABOTAGES = KEYS.add("sabotages", "Sabotages");
 	public static final Component BONUS = KEYS.add("bonus", "Bonus").withStyle(ChatFormatting.GREEN);
 	public static final Component SABOTAGE = KEYS.add("sabotage", "Sabotage").withStyle(ChatFormatting.RED);
-	public static final TranslationCollector.Fun1 TROPICOINS = KEYS.add1("tropicoins", "%s tropicoins");
+	public static final TranslationCollector.Fun1 TROPICOINS = KEYS.add1("tropicoins", "%s Tropicoins");
 	public static final TranslationCollector.Fun1 OPEN_SHOP_HINT = KEYS.add1("open_hint", "[%s] Shop");
-	public static final Component NOT_ENOUGH_TROPICOINS = KEYS.add("not_enough_tropicoins", "Not enough tropicoins");
+	public static final Component NOT_ENOUGH_TROPICOINS = KEYS.add("not_enough_tropicoins", "Not enough Tropicoins");
 	public static final TranslationCollector.Fun1 CANNOT_AFFORD = KEYS.add1("cannot_afford", "You can't afford %s yet!");
 	public static final TranslationCollector.Fun1 PURCHASE_FAILED = KEYS.add1("purchase_failed", "%s can't be bought right now");
 	public static final TranslationCollector.Fun1 SOLD_OUT_FOR_YOU = KEYS.add1("sold_out_for_you", "You can't buy any more %s!");
@@ -24,15 +24,15 @@ public final class ShopTexts {
 	public static final TranslationCollector.Fun1 TARGET_COOLDOWN = KEYS.add1("target_cooldown", "Can't be used on the same player again for %s");
 	public static final TranslationCollector.Fun2 TARGET_ON_COOLDOWN = KEYS.add2("target_on_cooldown", "%s can't get %s again yet!");
 	public static final Component ALL_ON_COOLDOWN = KEYS.add("all_on_cooldown", "Everyone got this too recently, come back later!");
-	public static final TranslationCollector.Fun1 DONATION_RATE = KEYS.add1("donation_rate", "Donations give %s tropicoins per unit donated");
+	public static final TranslationCollector.Fun1 DONATION_RATE = KEYS.add1("donation_rate", "Donations give %s Tropicoins per unit donated");
 
 	// Used on self
 	public static final TranslationCollector.Fun1 USED = KEYS.add1("used", "You used %s!").withStyle(ChatFormatting.GREEN);
-	public static final TranslationCollector.Fun2 USED_WITH_COST = KEYS.add2("used_with_cost", "You bought %s for %s tropicoins!").withStyle(ChatFormatting.GREEN);
+	public static final TranslationCollector.Fun2 USED_WITH_COST = KEYS.add2("used_with_cost", "You bought %s for %s Tropicoins!").withStyle(ChatFormatting.GREEN);
 
 	// Use on other target
 	public static final TranslationCollector.Fun2 USED_ON = KEYS.add2("used_on_free", "You used %s on %s!").withStyle(ChatFormatting.GREEN);
-	public static final TranslationCollector.Fun3 USED_ON_WITH_COST = KEYS.add3("used_on", "You used %s on %s for %s tropicoins!").withStyle(ChatFormatting.GREEN);
+	public static final TranslationCollector.Fun3 USED_ON_WITH_COST = KEYS.add3("used_on", "You used %s on %s for %s Tropicoins!").withStyle(ChatFormatting.GREEN);
 	public static final TranslationCollector.Fun2 BONUS_FROM = KEYS.add2("bonus_from", "%s gave you %s!").withStyle(ChatFormatting.GREEN);
 	public static final TranslationCollector.Fun2 SABOTAGED_BY = KEYS.add2("sabotaged_by", "%s sabotaged you with %s!").withStyle(ChatFormatting.RED);
 	public static final TranslationCollector.Fun3 USE_ON_BROADCAST = KEYS.add3("use_on_broadcast", "%s used %s on %s!");
