@@ -31,7 +31,6 @@ import org.lovetropics.games.common.util.Util;
 
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 public record ImmediateRespawnBehavior(
 		Optional<PlayerRole> role,
@@ -56,14 +55,17 @@ public record ImmediateRespawnBehavior(
 			Codec.BOOL.optionalFieldOf("respawn_in_place", false).forGetter(c -> c.respawnInPlace)
 	).apply(i, ImmediateRespawnBehavior::new));
 
+	// TODO: we need better systemsss
+	public static final String TAG_RESPAWN_IN_PLACE = "respawn_in_place";
+
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
 		respawnAction.register(game, events);
 		events.listen(GamePlayerEvents.DEATH, (player, source) -> onPlayerDeath(game, player, source));
 		events.listen(GamePlayerEvents.SPAWN, ((playerId, spawn, role1) -> {
 			ServerPlayer player = game.allPlayers().getPlayerBy(playerId);
-			if(player != null && player.entityTags().contains("respawn_in_place")){
-				player.removeTag("respawn_in_place");
+			if(player != null && player.entityTags().contains(TAG_RESPAWN_IN_PLACE)){
+				player.removeTag(TAG_RESPAWN_IN_PLACE);
 				Vec3 position = player.position();
 				spawn.teleportTo(player.level(), position);
 			}
@@ -118,7 +120,7 @@ public record ImmediateRespawnBehavior(
 	private void respawnPlayer(IGamePhase game, ServerPlayer player, @Nullable PlayerRole playerRole, DamageSource source) {
 		if (respawnAsRole.isPresent()) {
 			if(respawnInPlace){
-				player.addTag("respawn_in_place");
+				player.addTag(TAG_RESPAWN_IN_PLACE);
 			}
 			game.setPlayerRole(player, respawnAsRole.get());
 			ServerPlayer killer = Util.getKillerPlayer(player, source);

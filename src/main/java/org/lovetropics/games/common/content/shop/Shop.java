@@ -26,6 +26,7 @@ import org.lovetropics.games.common.core.game.behavior.action.ActionSubjectDescr
 import org.lovetropics.games.common.core.game.behavior.action.ActionSubjects;
 import org.lovetropics.games.common.core.game.behavior.action.GameActionContextKeys;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
+import org.lovetropics.games.common.core.game.behavior.event.GameLogicEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.client_state.GameClientState;
 import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
@@ -74,6 +75,8 @@ public final class Shop implements IGameState {
 	private final Map<UUID, Object2LongOpenHashMap<String>> cooldownEnds = new HashMap<>();
 
 	private double tropicoinsPerDonatedAmount;
+
+	private boolean locked;
 
 	private Shop(IGamePhase game, List<ShopOffer> offers, double tropicoinsPerDonatedAmount) {
 		this.game = game;
@@ -131,6 +134,7 @@ public final class Shop implements IGameState {
 					)
 			));
 		});
+		events.listen(GameLogicEvents.GAME_OVER, winner -> shop.locked = true);
 		return shop;
 	}
 
@@ -448,6 +452,9 @@ public final class Shop implements IGameState {
 	}
 
 	private List<ShopOffer> getOffers(ServerPlayer player) {
+		if (locked) {
+			return List.of();
+		}
 		if (Overlords.get(game).contains(player)) {
 			return overlordOffers;
 		} else if (isParticipant(player)) {
