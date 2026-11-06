@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.SharedConstants;
+import net.minecraft.util.random.WeightedList;
 import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
@@ -15,6 +16,7 @@ import org.lovetropics.games.common.core.game.state.progress.ProgressionPeriod;
 import org.lovetropics.games.common.core.game.state.weather.GameWeatherState;
 import org.lovetropics.games.common.core.game.weather.WeatherEvent;
 import org.lovetropics.games.common.core.game.weather.WeatherEventType;
+import org.lovetropics.games.common.util.Codecs;
 
 import java.util.List;
 import java.util.Objects;
@@ -33,15 +35,25 @@ public record PhasedWeatherControlBehavior(
 		GameWeatherState weather = game.state().getOrThrow(GameWeatherState.KEY);
 		ProgressHolder progression = channel.getOrThrow(game);
 
+		class State {
+			private @Nullable Period lastPeriod;
+			private @Nullable WeatherEventType weather;
+		}
+		State state = new State();
+
 		events.listen(GamePhaseEvents.TICK, () -> {
 			if (game.ticks() % SharedConstants.TICKS_PER_SECOND == 0) {
-				tick(weather, progression);
+				Period period = getCurrentPeriod(progression);
+				if (period != state.lastPeriod) {
+					state.weather = period != null ? period.weather.getRandomOrThrow(game.random()) : null;
+					state.lastPeriod = period;
+				}
+				tick(weather, state.weather);
 			}
 		});
 	}
 
-	private void tick(GameWeatherState weather, ProgressHolder progression) {
-		WeatherEventType weatherType = getCurrentWeather(progression);
+	private void tick(GameWeatherState weather, @Nullable WeatherEventType weatherType) {
 		if (Objects.equals(weatherType, weather.getEventType())) {
 			return;
 		}
@@ -52,19 +64,19 @@ public record PhasedWeatherControlBehavior(
 		}
 	}
 
-	private @Nullable WeatherEventType getCurrentWeather(ProgressHolder progression) {
+	private @Nullable Period getCurrentPeriod(ProgressHolder progression) {
 		for (Period period : periods) {
 			if (progression.is(period.period())) {
-				return period.weather();
+				return period;
 			}
 		}
 		return null;
 	}
 
-	public record Period(ProgressionPeriod period, WeatherEventType weather) {
+	public record Period(ProgressionPeriod period, WeightedList<WeatherEventType> weather) {
 		public static final Codec<Period> CODEC = RecordCodecBuilder.create(i -> i.group(
 				ProgressionPeriod.MAP_CODEC.forGetter(Period::period),
-				WeatherEventType.CODEC.fieldOf("weather").forGetter(Period::weather)
+				Codecs.compactNonEmptyWeightedList(WeatherEventType.CODEC).fieldOf("weather").forGetter(Period::weather)
 		).apply(i, Period::new));
 	}
 }

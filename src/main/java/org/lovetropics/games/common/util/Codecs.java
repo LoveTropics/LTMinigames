@@ -13,6 +13,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.RegistryCodecs;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.random.Weighted;
 import net.minecraft.util.random.WeightedList;
 import net.minecraft.world.item.Item;
@@ -166,15 +167,19 @@ public class Codecs {
 	public static final Codec<Instant> EPOCH_SECOND = Codec.LONG.xmap(Instant::ofEpochSecond, Instant::getEpochSecond);
 
 	public static <T> Codec<WeightedList<T>> compactNonEmptyWeightedList(Codec<T> elementCodec) {
-		return Codec.either(elementCodec, WeightedList.nonEmptyCodec(elementCodec)).xmap(
-				either -> either.map(WeightedList::of, Function.identity()),
+		return Codec.either(ExtraCodecs.compactListCodec(elementCodec), WeightedList.nonEmptyCodec(elementCodec)).xmap(
+				either -> either.map(Codecs::asWeighted, Function.identity()),
 				list -> {
 					List<Weighted<T>> elements = list.unwrap();
-					if (elements.size() == 1) {
-						return Either.left(elements.getFirst().value());
+					if (elements.stream().allMatch(w -> w.weight() == 1)) {
+						return Either.left(elements.stream().map(Weighted::value).toList());
 					}
 					return Either.right(list);
 				}
 		);
+	}
+
+	private static <T> WeightedList<T> asWeighted(List<T> elements) {
+		return WeightedList.of(elements.stream().map(t -> new Weighted<>(t, 1)).toList());
 	}
 }
