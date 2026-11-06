@@ -16,7 +16,7 @@ import java.util.UUID;
 
 /// The players of the bingo board ordered by points, who slide smoothly into their new place when overtaking each other
 public final class BingoStandings {
-	private static final Comparator<BingoBoardClientState.PlayerProgress> ORDER = Comparator.comparingInt(BingoBoardClientState.PlayerProgress::points).reversed()
+	public static final Comparator<BingoBoardClientState.PlayerProgress> ORDER = Comparator.comparingInt(BingoBoardClientState.PlayerProgress::points).reversed()
 			.thenComparing(BingoBoardClientState.PlayerProgress::name, String.CASE_INSENSITIVE_ORDER);
 
 	/// How much of the way to its new place a player moves every tick

@@ -34,6 +34,7 @@ import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
 import org.lovetropics.games.common.core.integration.GameInstanceIntegrations;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -61,6 +62,7 @@ public final class BingoBoard implements IGameState {
 	/// Slots with nothing in them, not even a locked tile
 	private final IntList emptySlots = new IntArrayList();
 	private final List<BingoTile> placedTiles = new ArrayList<>();
+	private final Map<UUID, IntList> completionTicks = new HashMap<>();
 	private boolean started;
 
 	/// @param lockedTiles   locked tiles in their slot on the board, which can then be unlocked
@@ -173,6 +175,7 @@ public final class BingoBoard implements IGameState {
 		// completing a column multiplier also changes what the tiles completed before are worth :)
 		int pointsBefore = getTotalPoints(player.getUUID());
 		completedTile.completedBy.add(player.getUUID());
+		completionTicks.computeIfAbsent(player.getUUID(), _ -> new IntArrayList()).add((int) game.ticks());
 
 		onTileCompleted.apply(game, ContextMap.EMPTY, ActionSubjects.ofPlayer(player));
 		MutableComponent tileCompletedComponent = Bingo.TILE_COMPLETED.apply(player.getDisplayName(), completedTile.title.copy().withStyle(ChatFormatting.AQUA));
@@ -383,7 +386,8 @@ public final class BingoBoard implements IGameState {
 				}
 			}
 			int points = statistics.readForPlayer(player).getOr(StatisticKey.POINTS, 0);
-			progress.add(new BingoBoardClientState.PlayerProgress(player.id(), player.name(), points, completedTiles));
+			List<Integer> ticks = List.copyOf(completionTicks.getOrDefault(player.id(), IntList.of()));
+			progress.add(new BingoBoardClientState.PlayerProgress(player.id(), player.name(), points, completedTiles, ticks));
 		}
 		return progress;
 	}

@@ -99,13 +99,14 @@ public record BingoBoardClientState(int rows, int columns, List<Optional<Tile>> 
 		).apply(in, LockedSlot::new));
 	}
 
-	/// @param completedTiles the indices of the tiles the player has completed
-	public record PlayerProgress(UUID id, String name, int points, List<Integer> completedTiles) {
+	/// @param completedTiles  the indices of the tiles the player has completed
+	public record PlayerProgress(UUID id, String name, int points, List<Integer> completedTiles, List<Integer> completionTicks) {
 		public static final Codec<PlayerProgress> CODEC = RecordCodecBuilder.create(in -> in.group(
 				UUIDUtil.CODEC.fieldOf("id").forGetter(PlayerProgress::id),
 				Codec.STRING.fieldOf("name").forGetter(PlayerProgress::name),
 				Codec.INT.fieldOf("points").forGetter(PlayerProgress::points),
-				Codec.INT.listOf().fieldOf("completed_tiles").forGetter(PlayerProgress::completedTiles)
+				Codec.INT.listOf().fieldOf("completed_tiles").forGetter(PlayerProgress::completedTiles),
+				Codec.INT.listOf().optionalFieldOf("completion_ticks", List.of()).forGetter(PlayerProgress::completionTicks)
 		).apply(in, PlayerProgress::new));
 
 		public boolean hasCompleted(int index) {

@@ -25,13 +25,15 @@ public record ShopClientState(
 		Optional<Integer> balance,
 		List<Offer> offers,
 		List<Target> playerTargets,
-		List<Target> teamTargets
+		List<Target> teamTargets,
+		List<Sabotage> sabotages
 ) implements GameClientState {
 	public static final MapCodec<ShopClientState> CODEC = RecordCodecBuilder.mapCodec(in -> in.group(
 			Codec.INT.optionalFieldOf("balance").forGetter(ShopClientState::balance),
 			Offer.CODEC.listOf().fieldOf("offers").forGetter(ShopClientState::offers),
 			Target.CODEC.listOf().optionalFieldOf("player_targets", List.of()).forGetter(ShopClientState::playerTargets),
-			Target.CODEC.listOf().optionalFieldOf("team_targets", List.of()).forGetter(ShopClientState::teamTargets)
+			Target.CODEC.listOf().optionalFieldOf("team_targets", List.of()).forGetter(ShopClientState::teamTargets),
+			Sabotage.CODEC.listOf().optionalFieldOf("sabotages", List.of()).forGetter(ShopClientState::sabotages)
 	).apply(in, ShopClientState::new));
 
 	@Override
@@ -95,5 +97,14 @@ public record ShopClientState(
 				ComponentSerialization.CODEC.fieldOf("name").forGetter(Target::name),
 				Codec.INT.fieldOf("points").forGetter(Target::points)
 		).apply(in, Target::new));
+	}
+
+	public record Sabotage(int ticks, Component buyer, Component target, Component offer) {
+		public static final Codec<Sabotage> CODEC = RecordCodecBuilder.create(in -> in.group(
+				Codec.INT.fieldOf("ticks").forGetter(Sabotage::ticks),
+				ComponentSerialization.CODEC.fieldOf("buyer").forGetter(Sabotage::buyer),
+				ComponentSerialization.CODEC.fieldOf("target").forGetter(Sabotage::target),
+				ComponentSerialization.CODEC.fieldOf("offer").forGetter(Sabotage::offer)
+		).apply(in, Sabotage::new));
 	}
 }

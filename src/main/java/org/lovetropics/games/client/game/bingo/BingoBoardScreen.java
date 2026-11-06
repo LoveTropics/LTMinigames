@@ -61,10 +61,26 @@ public final class BingoBoardScreen extends Screen {
 
 	/// The other players, whose boards are shown next to ours
 	private final BingoStandings standings = new BingoStandings(false);
+	private final @Nullable Screen parent;
 
 	public BingoBoardScreen() {
+		this(null);
+	}
+
+	/// @param parent the screen to go back to once closed
+	public BingoBoardScreen(@Nullable Screen parent) {
 		super(Bingo.BOARD_TITLE);
+		this.parent = parent;
 		standings.tick(GameBingoHandler.board());
+	}
+
+	@Override
+	public void onClose() {
+		if (parent != null) {
+			minecraft.gui.setScreen(parent);
+		} else {
+			super.onClose();
+		}
 	}
 
 	@Override

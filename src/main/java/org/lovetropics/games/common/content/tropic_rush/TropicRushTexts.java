@@ -49,6 +49,11 @@ public final class TropicRushTexts {
 	public static final Component OVERLORD = KEYS.add("overlord", "Overlord");
 	public static final TranslationCollector.Fun1 OPEN_OVERLORD_HINT = KEYS.add1("overlord.open_hint", "[%s] Overlord");
 	public static final Component OVERLORD_NO_PLAYERS = KEYS.add("overlord.no_players", "Nobody is playing");
+	public static final Component OVERLORD_POINTS = KEYS.add("overlord.points", "Points");
+	public static final Component OVERLORD_BOARDS = KEYS.add("overlord.boards", "Bingo Boards");
+	public static final Component OVERLORD_SABOTAGES = KEYS.add("overlord.sabotages", "Sabotages");
+	public static final Component OVERLORD_NO_SABOTAGES = KEYS.add("overlord.no_sabotages", "No sabotages yet");
+	public static final Component OVERLORD_COMPLETIONS = KEYS.add("overlord.completions", "Tile Completions");
 
 	public static void collectTranslations(BiConsumer<String, String> consumer) {
 		KEYS.forEach(consumer);

@@ -73,6 +73,8 @@ public final class Shop implements IGameState {
 	private final Map<UUID, Object2IntOpenHashMap<String>> purchases = new HashMap<>();
 	/// For each player or team, the game tick from which the offers that have a cooldown can be used on them again
 	private final Map<UUID, Object2LongOpenHashMap<String>> cooldownEnds = new HashMap<>();
+	/// Every sabotage used so far, for overlords to follow the game
+	private final List<ShopClientState.Sabotage> sabotages = new ArrayList<>();
 
 	private double tropicoinsPerDonatedAmount;
 
@@ -224,6 +226,10 @@ public final class Shop implements IGameState {
 		if (cooldown.isPresent() && target.id() != null) {
 			cooldownEnds.computeIfAbsent(target.id(), _ -> new Object2LongOpenHashMap<>()).put(offer.id(), game.ticks() + cooldown.get());
 		}
+		if (offer.flavor() == ShopOfferFlavor.SABOTAGE) {
+			Component targetName = Objects.requireNonNullElse(ActionSubjectDescriber.describe(game, targets, null), MinigameTexts.EVERYONE_RECEIVER);
+			sabotages.add(new ShopClientState.Sabotage((int) game.ticks(), player.getDisplayName(), targetName, offer.name()));
+		}
 
 		List<ServerPlayer> targetPlayers = targets.asPlayers(game);
 		if (targets.isEmpty() || (targetPlayers.size() == 1 && targetPlayers.getFirst() == player)) {
@@ -292,7 +298,7 @@ public final class Shop implements IGameState {
 	}
 
 	private boolean isOnCooldown(UUID target, ShopOffer offer) {
-		return getCooldownEndingTick(target, offer) > game.ticks();
+		return offer.targetCooldownTicks().isPresent() && getCooldownEndingTick(target, offer) > game.ticks();
 	}
 
 	/// @return the participants who offers can be used on by the given player, no matter which phase of the game they are in
@@ -394,7 +400,7 @@ public final class Shop implements IGameState {
 				.toList();
 		boolean anyHasCost = shop.offers.stream().anyMatch(offer -> offer.cost() > 0);
 
-		GameClientState.sendToPlayer(new ShopClientState(anyHasCost ? Optional.of(shop.balance) : Optional.empty(), clientOffers, shop.playerTargets, shop.teamTargets), player);
+		GameClientState.sendToPlayer(new ShopClientState(anyHasCost ? Optional.of(shop.balance) : Optional.empty(), clientOffers, shop.playerTargets, shop.teamTargets, shop.sabotages), player);
 	}
 
 	public void removeFromPlayer(ServerPlayer player) {
@@ -421,7 +427,8 @@ public final class Shop implements IGameState {
 		List<Map<UUID, Long>> cooldownEnds = offers.stream()
 				.map(offer -> getActiveCooldownEnds(offer, offer.targetTeam() ? teamTargets : playerTargets))
 				.toList();
-		return new SentShop(getBalance(player), offers, remainingStock, cooldownEnds, playerTargets, teamTargets);
+		List<ShopClientState.Sabotage> sabotages = Overlords.get(game).contains(player) ? List.copyOf(this.sabotages) : List.of();
+		return new SentShop(getBalance(player), offers, remainingStock, cooldownEnds, playerTargets, teamTargets, sabotages);
 	}
 
 	/// The ends of the cooldowns rather than the time left, so that the shop only changes when a cooldown starts or ends
@@ -479,13 +486,15 @@ public final class Shop implements IGameState {
 
 	/// @param remainingStock for each offer, how many more times the player can buy it
 	/// @param cooldownEnds   for each offer, the game tick from which it can be used on each player or team that is on cooldown
+	/// @param sabotages      the sabotages used so far, if the player is an overlord
 	private record SentShop(
 			int balance,
 			List<ShopOffer> offers,
 			List<Optional<Integer>> remainingStock,
 			List<Map<UUID, Long>> cooldownEnds,
 			List<ShopClientState.Target> playerTargets,
-			List<ShopClientState.Target> teamTargets
+			List<ShopClientState.Target> teamTargets,
+			List<ShopClientState.Sabotage> sabotages
 	) {
 	}
 

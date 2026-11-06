@@ -19,6 +19,7 @@ import org.lovetropics.games.LoveTropics;
 import org.lovetropics.games.client.LTKeybinds;
 import org.lovetropics.games.client.game.bingo.BingoBoardScreen;
 import org.lovetropics.games.client.game.modifier.ModifiersScreen;
+import org.lovetropics.games.client.game.overlord.OverlordDetailScreen;
 import org.lovetropics.games.client.game.overlord.OverlordScreen;
 import org.lovetropics.games.client.game.shop.ShopScreen;
 import org.lovetropics.games.common.content.bingo.Bingo;
@@ -48,7 +49,7 @@ public final class GameControlsHud {
 			Minecraft minecraft = Minecraft.getInstance();
 			LocalPlayer player = minecraft.player;
 			Screen screen = minecraft.gui.screen();
-			if (player == null || minecraft.gui.hud.isHidden() || screen instanceof BingoBoardScreen || screen instanceof OverlordScreen || screen instanceof ShopScreen || screen instanceof ModifiersScreen) {
+			if (player == null || minecraft.gui.hud.isHidden() || screen instanceof BingoBoardScreen || screen instanceof OverlordScreen || screen instanceof OverlordDetailScreen || screen instanceof ShopScreen || screen instanceof ModifiersScreen) {
 				return;
 			}
 			List<Component> lines = getLines();
