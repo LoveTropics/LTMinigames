@@ -97,13 +97,12 @@ public record AddOverlordsBehavior(
 			commands.register(Commands.literal("overlord")
 					.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
 					.then(Commands.literal("add")
-							.then(Commands.argument("players", EntityArgument.players())
+							.then(Commands.argument("player", EntityArgument.player())
 									.executes(context -> {
-										EntityArgument.getPlayers(context, "players").forEach(player -> {
-											overlords.add(player);
-											onAddOverlord(game, player);
-											game.invoker(GamePlayerEvents.OVERLORD_CHANGE).onOverlordChange(player, true);
-										});
+										ServerPlayer player = EntityArgument.getPlayer(context, "player");
+										overlords.add(player);
+										onAddOverlord(game, player);
+										game.invoker(GamePlayerEvents.OVERLORD_CHANGE).onOverlordChange(player, true);
 										return 1;
 									})
 							)
