@@ -164,7 +164,7 @@ public class GameBingoHandler {
 
 				BingoBoardClientState.Tile tile = optionalTile.orElseThrow();
 				boolean tileCompleted = completed.test(index);
-				drawTileBackground(guiGraphics, tile, x, y, TILE_SIZE, TILE_SIZE);
+				drawTileBackground(guiGraphics, tile, tileCompleted, x, y, TILE_SIZE, TILE_SIZE);
 
 				int iconX = x + (TILE_SIZE - 16) / 2;
 				int iconY = y + (TILE_SIZE - 16) / 2;
@@ -226,9 +226,9 @@ public class GameBingoHandler {
 		}
 	}
 
-	public static void drawTileBackground(GuiGraphicsExtractor guiGraphics, BingoBoardClientState.Tile tile, int x, int y, int w, int h) {
-		guiGraphics.fill(x, y, x + w, y + h, tile.completed() ? tile.tileType().completedColor() : tile.tileType().color());
-		drawBorder(guiGraphics, x, y, w, h, tile.completed() ? tile.tileType().completedBorderColor() : tile.tileType().borderColor());
+	public static void drawTileBackground(GuiGraphicsExtractor guiGraphics, BingoBoardClientState.Tile tile, boolean completed, int x, int y, int w, int h) {
+		guiGraphics.fill(x, y, x + w, y + h, completed ? tile.tileType().completedColor() : tile.tileType().color());
+		drawBorder(guiGraphics, x, y, w, h, completed ? tile.tileType().completedBorderColor() : tile.tileType().borderColor());
 	}
 
 	public static void drawLockedBackground(GuiGraphicsExtractor guiGraphics, int lockedFillColor, int lockedBorderColor, int x, int y, int w, int h) {

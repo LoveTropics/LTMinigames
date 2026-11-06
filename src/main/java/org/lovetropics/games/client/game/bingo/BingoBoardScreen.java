@@ -230,7 +230,7 @@ public final class BingoBoardScreen extends Screen {
 
 	/// @param boosted whether to show what the tile is worth with the multipliers of its column
 	private void drawTile(GuiGraphicsExtractor graphics, BingoBoardClientState.Tile tile, int x, int y, int tileH, boolean boosted) {
-		GameBingoHandler.drawTileBackground(graphics, tile, x, y, TILE_W, tileH);
+		GameBingoHandler.drawTileBackground(graphics, tile, tile.completed(), x, y, TILE_W, tileH);
 
 		int iconX = x + (TILE_W - ICON_SIZE) / 2;
 		int iconY = y + TOP_PADDING;
