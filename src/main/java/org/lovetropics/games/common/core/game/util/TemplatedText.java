@@ -29,7 +29,7 @@ public record TemplatedText(Component template) {
 	}
 
 	private static void addValuesFromContext(ContextMap context, Map<String, Component> values) {
-		Optional.ofNullable(context.getOptional(GameActionContextKeys.PACKAGE_SENDER)).ifPresent(name ->
+		Optional.ofNullable(context.getOptional(GameActionContextKeys.SENDER)).ifPresent(name ->
 				values.put("sender", Component.literal(name))
 		);
 		Optional.ofNullable(context.getOptional(GameActionContextKeys.KILLER)).ifPresent(player ->

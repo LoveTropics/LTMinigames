@@ -56,7 +56,7 @@ public record SetDisguiseAction(Disguise disguise, boolean applyDonorName, boole
 	}
 
 	private CompletableFuture<Disguise> resolveDisguise(IGamePhase game, ContextMap context) {
-		String packageSender = context.getOptional(GameActionContextKeys.PACKAGE_SENDER);
+		String packageSender = context.getOptional(GameActionContextKeys.SENDER);
 		Optional<TypedEntityData<EntityType<?>>> entityDisguise = disguise.entity();
 		if (entityDisguise.isEmpty()) {
 			return CompletableFuture.completedFuture(disguise);

@@ -24,7 +24,7 @@ public record GivePlayerHeadPackageBehavior(boolean forced) implements IGameBeha
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
 		events.applyToPlayers(game, (context, player) -> {
-			String sendingPlayer = context.getOrDefault(GameActionContextKeys.PACKAGE_SENDER, "LoveTropics");
+			String sendingPlayer = context.getOrDefault(GameActionContextKeys.SENDER, "LoveTropics");
 
 			ItemStack head = createHeadForSender(sendingPlayer);
 			if (forced) {

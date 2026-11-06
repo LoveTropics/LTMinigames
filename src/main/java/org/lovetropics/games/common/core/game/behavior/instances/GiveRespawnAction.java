@@ -31,7 +31,7 @@ public record GiveRespawnAction(
 		Queue<Component> livesGivenBy = new ArrayDeque<>();
 
 		events.applyToPlayers(game, (context, target) -> {
-			String sender = context.getOptional(GameActionContextKeys.PACKAGE_SENDER);
+			String sender = context.getOptional(GameActionContextKeys.SENDER);
 			livesGivenBy.add(sender != null ? Component.literal(sender).withStyle(ChatFormatting.AQUA) : ANONYMOUS_DONOR);
 			game.statistics().forPlayer(target).incrementInt(StatisticKey.LIVES, 1);
 			return true;

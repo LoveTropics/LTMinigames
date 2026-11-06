@@ -13,7 +13,7 @@ import org.lovetropics.games.common.core.integration.game_actions.GamePackage;
 public class GameActionContextKeys<T> {
 	public static final ContextKey<GamePackage> PACKAGE = create("package");
 	public static final ContextKey<DonationPackageDesc> PACKAGE_DESC = create("package_desc");
-	public static final ContextKey<String> PACKAGE_SENDER = create("package_sender");
+	public static final ContextKey<String> SENDER = create("sender");
 
 	public static final ContextKey<ServerPlayer> KILLER = create("killer");
 	public static final ContextKey<ServerPlayer> KILLED = create("killed");

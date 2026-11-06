@@ -11,7 +11,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.TamableAnimal;
-import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.item.component.TypedEntityData;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
@@ -37,7 +36,7 @@ public record SpawnDisguisedAsPlayerAndTamedEntityAction(EntityTemplate entity, 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		events.applyToPlayers(game, (context,  target) -> {
-			String sendingPlayer = context.getOrDefault(GameActionContextKeys.PACKAGE_SENDER, "LoveTropics");
+			String sendingPlayer = context.getOrDefault(GameActionContextKeys.SENDER, "LoveTropics");
 			Vec3 spawnPos = findSpawnPos(target.level(), target);
 			if (spawnPos == null) {
 				spawnPos = target.position();

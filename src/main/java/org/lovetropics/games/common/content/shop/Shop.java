@@ -183,7 +183,7 @@ public final class Shop implements IGameState {
 		}
 
 		ContextMap context = new ContextMap.Builder()
-				.withParameter(GameActionContextKeys.PACKAGE_SENDER, PlayerKey.from(player).name())
+				.withParameter(GameActionContextKeys.SENDER, PlayerKey.from(player).name())
 				.create(ContextKeySet.EMPTY);
 		// Only charge for what the player actually got
 		if (!offer.actions().apply(game, context, targets)) {

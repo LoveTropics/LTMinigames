@@ -35,7 +35,7 @@ public record DonationThresholdBehavior(double threshold, GameActionList actions
 	private static ContextMap actionContext(Donation donation) {
 		ContextMap.Builder context = new ContextMap.Builder();
 		if (!Strings.isNullOrEmpty(donation.name()) && !donation.anonymous()) {
-			context.withParameter(GameActionContextKeys.PACKAGE_SENDER, donation.name());
+			context.withParameter(GameActionContextKeys.SENDER, donation.name());
 		}
 		return context.create(ContextKeySet.EMPTY);
 	}

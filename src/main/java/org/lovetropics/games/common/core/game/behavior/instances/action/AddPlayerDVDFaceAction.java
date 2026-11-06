@@ -43,7 +43,7 @@ public record AddPlayerDVDFaceAction(
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		events.applyToPlayers(game, (context, player) -> {
-			String packageSender = context.getOptional(GameActionContextKeys.PACKAGE_SENDER);
+			String packageSender = context.getOptional(GameActionContextKeys.SENDER);
 			if (applyDonorName && packageSender != null) {
 				resolveSenderId(game, packageSender).thenAcceptAsync(
 						donorId -> PacketDistributor.sendToPlayer(player, new ClientboundPlayerFaceDVDPackets.Add(donorId, lengthInTicks, count)),

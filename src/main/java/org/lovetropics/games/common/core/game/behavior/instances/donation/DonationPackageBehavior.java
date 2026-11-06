@@ -195,7 +195,7 @@ public record DonationPackageBehavior(
 		context.withParameter(GameActionContextKeys.PACKAGE, gamePackage);
 		context.withParameter(GameActionContextKeys.PACKAGE_DESC, packageDesc);
 		if (gamePackage.sendingPlayerName() != null) {
-			context.withParameter(GameActionContextKeys.PACKAGE_SENDER, gamePackage.sendingPlayerName());
+			context.withParameter(GameActionContextKeys.SENDER, gamePackage.sendingPlayerName());
 		}
 		return context.create(ContextKeySet.EMPTY);
 	}
