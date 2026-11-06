@@ -18,6 +18,7 @@ import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.joml.Matrix3x2fStack;
+import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.client.LTKeybinds;
 import org.lovetropics.games.client.game.handler.GameShopHandler;
 import org.lovetropics.games.client.screen.ClientPlayerInfo;
@@ -174,7 +175,7 @@ public final class ShopScreen extends Screen {
 	}
 
 	private static boolean canBuy(ShopClientState shop, ShopClientState.Offer offer) {
-		return shop.balance().orElse(Integer.MAX_VALUE) >= offer.cost() && hasTarget(shop, offer);
+		return shop.balance().orElse(Integer.MAX_VALUE) >= offer.cost() && hasTarget(shop, offer) && !offer.isSoldOut();
 	}
 
 	private static boolean hasTarget(ShopClientState shop, ShopClientState.Offer offer) {
@@ -202,7 +203,8 @@ public final class ShopScreen extends Screen {
 		int maxLines = offers.stream()
 				.map(offer -> font.split(offer.name(), textAreaW).size())
 				.max(Comparator.naturalOrder()).orElse(1);
-		cardH = PADDING + ICON_SIZE + ICON_TEXT_GAP + maxLines * lineHeight + ICON_TEXT_GAP + lineHeight + PADDING;
+		boolean anyHasStock = offers.stream().anyMatch(offer -> offer.stock().isPresent());
+		cardH = PADDING + ICON_SIZE + ICON_TEXT_GAP + maxLines * lineHeight + ICON_TEXT_GAP + lineHeight + (anyHasStock ? lineHeight : 0) + PADDING;
 
 		List<Integer> bonuses = getOfferIndices(offers, ShopOfferFlavor.BONUS);
 		List<Integer> sabotages = getOfferIndices(offers, ShopOfferFlavor.SABOTAGE);
@@ -310,10 +312,24 @@ public final class ShopScreen extends Screen {
 			graphics.fill(x, y, x + CARD_W, y + cardH, CARD_UNBUYABLE_OVERLAY_COLOR);
 		}
 
+		int costY = textY + maxLines * font.lineHeight + ICON_TEXT_GAP;
 		if (showCost) {
 			Component cost = ShopTexts.TROPICOINS.apply(offer.cost()).withStyle(shop.balance().orElse(Integer.MAX_VALUE) >= offer.cost() ? ChatFormatting.GOLD : ChatFormatting.RED);
-			graphics.centeredText(font, cost, x + CARD_W / 2, textY + maxLines * font.lineHeight + ICON_TEXT_GAP, 0xFFFFFFFF);
+			graphics.centeredText(font, cost, x + CARD_W / 2, costY, 0xFFFFFFFF);
 		}
+		Component stock = getStockText(offer);
+		if (stock != null) {
+			graphics.centeredText(font, stock, x + CARD_W / 2, costY + font.lineHeight, 0xFFFFFFFF);
+		}
+	}
+
+	private static @Nullable Component getStockText(ShopClientState.Offer offer) {
+		if (offer.stock().isEmpty()) {
+			return null;
+		}
+		return offer.isSoldOut()
+				? ShopTexts.SOLD_OUT.copy().withStyle(ChatFormatting.RED)
+				: ShopTexts.STOCK_LEFT.apply(offer.stock().get()).withStyle(ChatFormatting.GRAY);
 	}
 
 	private int targetPickerScroll;
@@ -406,6 +422,10 @@ public final class ShopScreen extends Screen {
 		lines.add(CommonComponents.EMPTY.getVisualOrderText());
 		if (showCost) {
 			lines.add(ShopTexts.TROPICOINS.apply(offer.cost()).withStyle(ChatFormatting.GOLD).getVisualOrderText());
+		}
+		Component stock = getStockText(offer);
+		if (stock != null) {
+			lines.add(stock.getVisualOrderText());
 		}
 		if (!affordable) {
 			lines.add(ShopTexts.NOT_ENOUGH_TROPICOINS.copy().withStyle(ChatFormatting.RED).getVisualOrderText());

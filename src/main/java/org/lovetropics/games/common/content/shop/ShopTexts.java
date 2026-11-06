@@ -18,6 +18,9 @@ public final class ShopTexts {
 	public static final Component NOT_ENOUGH_TROPICOINS = KEYS.add("not_enough_tropicoins", "Not enough tropicoins");
 	public static final TranslationCollector.Fun1 CANNOT_AFFORD = KEYS.add1("cannot_afford", "You can't afford %s yet!");
 	public static final TranslationCollector.Fun1 PURCHASE_FAILED = KEYS.add1("purchase_failed", "%s can't be bought right now");
+	public static final TranslationCollector.Fun1 SOLD_OUT_FOR_YOU = KEYS.add1("sold_out_for_you", "You can't buy any more %s!");
+	public static final Component SOLD_OUT = KEYS.add("sold_out", "Sold out");
+	public static final TranslationCollector.Fun1 STOCK_LEFT = KEYS.add1("stock_left", "%s left");
 	public static final TranslationCollector.Fun1 DONATION_RATE = KEYS.add1("donation_rate", "Donations give %s tropicoins per unit donated");
 
 	// Used on self

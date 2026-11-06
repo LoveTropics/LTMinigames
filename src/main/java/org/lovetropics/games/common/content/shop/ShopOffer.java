@@ -10,10 +10,12 @@ import org.lovetropics.games.common.core.game.behavior.action.GameActionList;
 import org.lovetropics.games.common.core.game.client_state.instance.ShopClientState;
 
 import java.util.List;
+import java.util.Optional;
 
 /// Something players can buy in the [Shop]
 ///
 /// @param cost     how many tropicoins it costs
+/// @param stock    how many times each player can buy it, or unlimited if empty - overlords are never limited
 /// @param target   who the offer is applied to, e.g. myself or another player
 /// @param usableBy who can buy the offer, e.g. players and ghosts but not overlords
 /// @param flavor   the intent of the offer - i.e. how it should be shown in UI and chat messages
@@ -23,6 +25,7 @@ public record ShopOffer(
 		Component name,
 		List<Component> description,
 		int cost,
+		Optional<Integer> stock,
 		ShopTarget target,
 		List<ShopUsers> usableBy,
 		ShopOfferFlavor flavor,
@@ -33,6 +36,7 @@ public record ShopOffer(
 			ComponentSerialization.CODEC.fieldOf("name").forGetter(ShopOffer::name),
 			ComponentSerialization.CODEC.listOf().optionalFieldOf("description", List.of()).forGetter(ShopOffer::description),
 			ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("cost", 0).forGetter(ShopOffer::cost),
+			ExtraCodecs.POSITIVE_INT.optionalFieldOf("stock").forGetter(ShopOffer::stock),
 			ShopTarget.CODEC.optionalFieldOf("target", ShopTarget.SELF).forGetter(ShopOffer::target),
 			ExtraCodecs.compactListCodec(ShopUsers.CODEC).optionalFieldOf("usable_by", List.of(ShopUsers.PLAYERS)).forGetter(ShopOffer::usableBy),
 			ShopOfferFlavor.CODEC.fieldOf("flavor").forGetter(ShopOffer::flavor),
@@ -53,10 +57,11 @@ public record ShopOffer(
 
 	public ShopOffer forOverlords() {
 		ShopTarget overlordTarget = target == ShopTarget.RANDOM ? ShopTarget.PICK : target;
-		return new ShopOffer(icon, name, description, 0, overlordTarget, usableBy, flavor, actions);
+		return new ShopOffer(icon, name, description, 0, Optional.empty(), overlordTarget, usableBy, flavor, actions);
 	}
 
-	public ShopClientState.Offer asClientOffer() {
-		return new ShopClientState.Offer(icon.create(), name, description, cost, target, flavor);
+	/// @param remainingStock how many more times the player the shop is sent to can buy it, if limited
+	public ShopClientState.Offer asClientOffer(Optional<Integer> remainingStock) {
+		return new ShopClientState.Offer(icon.create(), name, description, cost, remainingStock, target, flavor);
 	}
 }

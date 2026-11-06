@@ -36,18 +36,24 @@ public record ShopClientState(
 		return GameClientStateTypes.SHOP.get();
 	}
 
-	/// @param cost   how many tropicoins the offer costs
+	/// @param cost  how many tropicoins the offer costs
+	/// @param stock how many more times the player can buy the offer, if limited
 	/// @param target who the offer is used on
-	public record Offer(ItemStack icon, Component name, List<Component> description, int cost, ShopTarget target, ShopOfferFlavor flavor) {
+	public record Offer(ItemStack icon, Component name, List<Component> description, int cost, Optional<Integer> stock, ShopTarget target, ShopOfferFlavor flavor) {
 		public static final Codec<Offer> CODEC = RecordCodecBuilder.create(in -> in.group(
 				// An icon that can't exist (e.g. more of an item than fits in a stack) ends up empty, which shouldn't kick players
 				ItemStack.OPTIONAL_CODEC.fieldOf("icon").forGetter(Offer::icon),
 				ComponentSerialization.CODEC.fieldOf("name").forGetter(Offer::name),
 				ExtraCodecs.compactListCodec(ComponentSerialization.CODEC).optionalFieldOf("description", List.of()).forGetter(Offer::description),
 				Codec.INT.fieldOf("cost").forGetter(Offer::cost),
+				Codec.INT.optionalFieldOf("stock").forGetter(Offer::stock),
 				ShopTarget.CODEC.optionalFieldOf("target", ShopTarget.SELF).forGetter(Offer::target),
 				ShopOfferFlavor.CODEC.fieldOf("flavor").forGetter(Offer::flavor)
 		).apply(in, Offer::new));
+
+		public boolean isSoldOut() {
+			return stock.isPresent() && stock.get() <= 0; // || isBlackFriday() ?
+		}
 	}
 
 	public record Target(UUID id, Component name, int points) {

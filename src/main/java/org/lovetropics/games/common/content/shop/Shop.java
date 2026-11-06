@@ -1,5 +1,6 @@
 package org.lovetropics.games.common.content.shop;
 
+import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -31,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.IntStream;
 
 /// The shop of a game, where participants and ghosts spend their tropicoins.
 ///
@@ -44,6 +46,7 @@ public final class Shop implements IGameState {
 	private final List<ShopOffer> overlordOffers;
 	/// What was last sent to each player who has the shop, to only update players whose shop changed
 	private final Map<UUID, SentShop> sentShops = new HashMap<>();
+	private final Map<UUID, Reference2IntOpenHashMap<ShopOffer>> purchases = new HashMap<>();
 
 	private double tropicoinsPerDonatedAmount;
 
@@ -70,6 +73,10 @@ public final class Shop implements IGameState {
 			return;
 		}
 		ShopOffer offer = offers.get(offerIndex);
+		if (isSoldOut(player, offer)) {
+			player.sendSystemMessage(ShopTexts.SOLD_OUT_FOR_YOU.apply(offer.name()).withStyle(ChatFormatting.RED));
+			return;
+		}
 		int balance = getBalance(player);
 		if (balance < offer.cost()) {
 			player.sendSystemMessage(ShopTexts.CANNOT_AFFORD.apply(offer.name()).withStyle(ChatFormatting.RED));
@@ -104,6 +111,9 @@ public final class Shop implements IGameState {
 		// It's important right now to not instantiate statistics if we don't actually want it, because everything is terrible
 		if (offer.cost() > 0) {
 			game.statistics().forPlayer(player).set(StatisticKey.TROPICOINS, balance - offer.cost());
+		}
+		if (offer.stock().isPresent()) {
+			purchases.computeIfAbsent(player.getUUID(), _ -> new Reference2IntOpenHashMap<>()).addTo(offer, 1);
 		}
 
 		if (targetPlayer == null || targetPlayer == player) {
@@ -197,7 +207,9 @@ public final class Shop implements IGameState {
 			PlayerSet.of(player).playSound(SoundRegistry.COINS.value(), SoundSource.PLAYERS, 1.0f, game.random().nextFloat() * 0.4f + 1.3f);
 		}
 
-		List<ShopClientState.Offer> clientOffers = shop.offers.stream().map(ShopOffer::asClientOffer).toList();
+		List<ShopClientState.Offer> clientOffers = IntStream.range(0, shop.offers.size())
+				.mapToObj(i -> shop.offers.get(i).asClientOffer(shop.remainingStock.get(i)))
+				.toList();
 		boolean anyHasCost = shop.offers.stream().anyMatch(offer -> offer.cost() > 0);
 
 		GameClientState.sendToPlayer(new ShopClientState(anyHasCost ? Optional.of(shop.balance) : Optional.empty(), clientOffers, shop.targets), player);
@@ -219,7 +231,20 @@ public final class Shop implements IGameState {
 				.map(target -> new ShopClientState.Target(target.getUUID(), target.getDisplayName(), getPoints(target)))
 				.sorted(Comparator.comparingInt(ShopClientState.Target::points).reversed())
 				.toList();
-		return new SentShop(getBalance(player), offers, targets);
+		List<Optional<Integer>> remainingStock = offers.stream().map(offer -> getRemainingStock(player, offer)).toList();
+		return new SentShop(getBalance(player), offers, remainingStock, targets);
+	}
+
+	/// @return how many more times the player can buy the offer
+	private Optional<Integer> getRemainingStock(ServerPlayer player, ShopOffer offer) {
+		return offer.stock().map(stock -> {
+			Reference2IntOpenHashMap<ShopOffer> bought = purchases.get(player.getUUID());
+			return Math.max(stock - (bought != null ? bought.getInt(offer) : 0), 0);
+		});
+	}
+
+	private boolean isSoldOut(ServerPlayer player, ShopOffer offer) {
+		return getRemainingStock(player, offer).map(remaining -> remaining <= 0).orElse(false);
 	}
 
 	private List<ShopOffer> getOffers(ServerPlayer player) {
@@ -245,6 +270,7 @@ public final class Shop implements IGameState {
 		return game.statistics().readForPlayer(player).getOr(StatisticKey.POINTS, 0);
 	}
 
-	private record SentShop(int balance, List<ShopOffer> offers, List<ShopClientState.Target> targets) {
+	/// @param remainingStock for each offer, how many more times the player can buy it
+	private record SentShop(int balance, List<ShopOffer> offers, List<Optional<Integer>> remainingStock, List<ShopClientState.Target> targets) {
 	}
 }
