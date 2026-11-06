@@ -19,16 +19,18 @@ import java.util.Optional;
 import java.util.UUID;
 
 /// @param balance how many tropicoins the player the shop is sent to has, if applicable
-/// @param targets the other players that offers can be used on, with the most points first
+/// @param playerTargets the other players that offers can be used on, with the most points first
 public record ShopClientState(
 		Optional<Integer> balance,
 		List<Offer> offers,
-		List<Target> targets
+		List<Target> playerTargets,
+		List<Target> teamTargets
 ) implements GameClientState {
 	public static final MapCodec<ShopClientState> CODEC = RecordCodecBuilder.mapCodec(in -> in.group(
 			Codec.INT.optionalFieldOf("balance").forGetter(ShopClientState::balance),
 			Offer.CODEC.listOf().fieldOf("offers").forGetter(ShopClientState::offers),
-			Target.CODEC.listOf().optionalFieldOf("targets", List.of()).forGetter(ShopClientState::targets)
+			Target.CODEC.listOf().optionalFieldOf("player_targets", List.of()).forGetter(ShopClientState::playerTargets),
+			Target.CODEC.listOf().optionalFieldOf("team_targets", List.of()).forGetter(ShopClientState::teamTargets)
 	).apply(in, ShopClientState::new));
 
 	@Override
@@ -39,7 +41,7 @@ public record ShopClientState(
 	/// @param cost  how many tropicoins the offer costs
 	/// @param stock how many more times the player can buy the offer, if limited
 	/// @param target who the offer is used on
-	public record Offer(ItemStack icon, Component name, List<Component> description, int cost, Optional<Integer> stock, ShopTarget target, ShopOfferFlavor flavor) {
+	public record Offer(ItemStack icon, Component name, List<Component> description, int cost, Optional<Integer> stock, ShopTarget target, boolean targetTeam, ShopOfferFlavor flavor) {
 		public static final Codec<Offer> CODEC = RecordCodecBuilder.create(in -> in.group(
 				// An icon that can't exist (e.g. more of an item than fits in a stack) ends up empty, which shouldn't kick players
 				ItemStack.OPTIONAL_CODEC.fieldOf("icon").forGetter(Offer::icon),
@@ -48,6 +50,7 @@ public record ShopClientState(
 				Codec.INT.fieldOf("cost").forGetter(Offer::cost),
 				Codec.INT.optionalFieldOf("stock").forGetter(Offer::stock),
 				ShopTarget.CODEC.optionalFieldOf("target", ShopTarget.SELF).forGetter(Offer::target),
+				Codec.BOOL.optionalFieldOf("target_team", false).forGetter(Offer::targetTeam),
 				ShopOfferFlavor.CODEC.fieldOf("flavor").forGetter(Offer::flavor)
 		).apply(in, Offer::new));
 
@@ -56,7 +59,11 @@ public record ShopClientState(
 		}
 	}
 
-	public record Target(UUID id, Component name, int points) {
+	public record Target(
+			UUID id,
+			Component name,
+			int points
+	) {
 		public static final Codec<Target> CODEC = RecordCodecBuilder.create(in -> in.group(
 				UUIDUtil.CODEC.fieldOf("id").forGetter(Target::id),
 				ComponentSerialization.CODEC.fieldOf("name").forGetter(Target::name),

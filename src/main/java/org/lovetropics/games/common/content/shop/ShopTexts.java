@@ -39,10 +39,10 @@ public final class ShopTexts {
 
 	public static final Component NO_TARGETS = KEYS.add("no_targets", "There is nobody to use this on");
 	public static final Component TARGET_UNAVAILABLE = KEYS.add("target_unavailable", "That player can't be targeted right now");
-	public static final Component TARGET_PICK = KEYS.add("target_pick", "Pick a player").withStyle(ChatFormatting.GRAY);
-	public static final Component TARGET_RANDOM = KEYS.add("target_random", "Hits a random player").withStyle(ChatFormatting.GRAY);
+	public static final Component TARGET_PICK = KEYS.add("target_pick", "Pick a target").withStyle(ChatFormatting.GRAY);
+	public static final Component TARGET_RANDOM = KEYS.add("target_random", "Hits a target randomly").withStyle(ChatFormatting.GRAY);
 	public static final TranslationCollector.Fun1 PICK_TARGET = KEYS.add1("pick_target", "Use %s on...");
-	public static final Component PICK_RANDOM = KEYS.add("pick_random", "Random player");
+	public static final Component PICK_RANDOM = KEYS.add("pick_random", "Pick randomly");
 	public static final Component PICK_CANCEL = KEYS.add("pick_cancel", "Cancel");
 	public static final TranslationCollector.Fun1 POINTS = KEYS.add1("points", "%s points");
 }

@@ -17,7 +17,7 @@ import java.util.UUID;
 
 /// Buys an offer from the shop of the game the player is in
 ///
-/// @param target the player to use the offer on, if the buyer picked one
+/// @param target the target to use the offer on, if the buyer picked one
 public record ServerboundShopPurchasePacket(int offer, Optional<UUID> target) implements CustomPacketPayload {
 	public static final Type<ServerboundShopPurchasePacket> TYPE = new Type<>(LoveTropics.id("shop_purchase"));
 	public static final StreamCodec<ByteBuf, ServerboundShopPurchasePacket> STREAM_CODEC = StreamCodec.composite(

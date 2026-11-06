@@ -47,6 +47,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public record SetupTeamsBehavior(
 		Map<GameTeamKey, TeamConfig> initialTeams
@@ -66,7 +67,7 @@ public record SetupTeamsBehavior(
 		TeamSetupState teamState = game.instanceState().register(TeamSetupState.KEY, new TeamSetupState());
 		for (Map.Entry<GameTeamKey, TeamConfig> entry : initialTeams.entrySet()) {
 			TeamConfig config = entry.getValue();
-			TeamSetupState.Instance instance = teamState.addTeam(new GameTeam(entry.getKey(), config.dyeColor(), config.name()));
+			TeamSetupState.Instance instance = teamState.addTeam(new GameTeam(UUID.randomUUID(), entry.getKey(), config.dyeColor(), config.name()));
 			instance.setMaxPlayers(config.maxSize);
 			instance.setOpenToJoin(config.assignedRoles.isEmpty());
 		}
@@ -124,7 +125,7 @@ public record SetupTeamsBehavior(
 													if (color == null) {
 														throw NO_COLOR.create(colorId);
 													}
-													TeamSetupState.Instance instance = teamState.addTeam(new GameTeam(key, color, name));
+													TeamSetupState.Instance instance = teamState.addTeam(new GameTeam(UUID.randomUUID(), key, color, name));
 													instance.setOpenToJoin(false);
 													resetSelectors(teamState, selectors);
 													context.getSource().sendSuccess(

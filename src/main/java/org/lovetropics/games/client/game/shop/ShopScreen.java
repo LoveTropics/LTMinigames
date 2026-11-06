@@ -14,6 +14,7 @@ import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.CommonColors;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
@@ -147,11 +148,11 @@ public final class ShopScreen extends Screen {
 		int offer = pickingOffer;
 		pickingOffer = -1;
 		// Clicking the cancel row or outside of the rows cancels
-		if (row < 0 || row > shop.targets().size()) {
+		if (row < 0 || row > shop.playerTargets().size()) {
 			return;
 		}
 		// The row after the players picks one at random
-		Optional<UUID> target = row < shop.targets().size() ? Optional.of(shop.targets().get(row).id()) : Optional.empty();
+		Optional<UUID> target = row < shop.playerTargets().size() ? Optional.of(shop.playerTargets().get(row).id()) : Optional.empty();
 		purchase(offer, target);
 		playClickSound();
 	}
@@ -179,7 +180,7 @@ public final class ShopScreen extends Screen {
 	}
 
 	private static boolean hasTarget(ShopClientState shop, ShopClientState.Offer offer) {
-		return !offer.target().requiresOtherPlayer() || !shop.targets().isEmpty();
+		return !offer.target().requiresOtherPlayer() || !shop.playerTargets().isEmpty();
 	}
 
 	@Override
@@ -336,7 +337,7 @@ public final class ShopScreen extends Screen {
 
 	/// Draws a row for each player the offer can be used on, then one to pick a random player and one to cancel
 	private void drawTargetPicker(GuiGraphicsExtractor graphics, ShopClientState shop, ShopClientState.Offer offer, int mouseX, int mouseY) {
-		List<ShopClientState.Target> targets = shop.targets();
+		List<ShopClientState.Target> targets = offer.targetTeam() ? shop.teamTargets() : shop.playerTargets();
 		int lineHeight = font.lineHeight;
 		rowH = Math.max(lineHeight, FACE_SIZE) + PADDING * 2;
 		int rowCount = targets.size() + 2;
@@ -381,15 +382,20 @@ public final class ShopScreen extends Screen {
 						.append(Component.literal("#" + (row + 1) + " ").withStyle(ChatFormatting.GRAY))
 						.append(target.name());
 				Component points = ShopTexts.POINTS.apply(target.points()).withStyle(ChatFormatting.GOLD);
-				int faceX = rowsX + PADDING + 2;
-				PlayerFaceExtractor.extractRenderState(graphics, ClientPlayerInfo.getSkin(target.id()), faceX, y + (rowH - FACE_SIZE) / 2, FACE_SIZE);
-				graphics.text(font, name, faceX + FACE_SIZE + 4, textY, 0xFFFFFFFF, false);
-				graphics.text(font, points, rowsX + ROW_W - PADDING - 2 - font.width(points), textY, 0xFFFFFFFF, false);
+				int leftX = rowsX + PADDING + 2;
+				if (!offer.targetTeam()) {
+					PlayerFaceExtractor.extractRenderState(graphics, ClientPlayerInfo.getSkin(target.id()), leftX, y + (rowH - FACE_SIZE) / 2, FACE_SIZE);
+					graphics.text(font, name, leftX + FACE_SIZE + 4, textY, CommonColors.WHITE, false);
+					graphics.text(font, points, rowsX + ROW_W - PADDING - 2 - font.width(points), textY, CommonColors.WHITE, false);
+				} else {
+					graphics.text(font, name, leftX, textY, CommonColors.WHITE, false);
+					graphics.text(font, points, rowsX + ROW_W - PADDING - 2 - font.width(points), textY, CommonColors.WHITE, false);
+				}
 			} else {
 				Component label = row == targets.size()
 						? ShopTexts.PICK_RANDOM.copy().withStyle(ChatFormatting.YELLOW)
 						: ShopTexts.PICK_CANCEL.copy().withStyle(ChatFormatting.GRAY);
-				graphics.centeredText(font, label, rowsX + ROW_W / 2, textY, 0xFFFFFFFF);
+				graphics.centeredText(font, label, rowsX + ROW_W / 2, textY, CommonColors.WHITE);
 			}
 		}
 
@@ -462,7 +468,7 @@ public final class ShopScreen extends Screen {
 		if (mouseY < rowsY || mouseY >= rowsY + contentH) {
 			return -1;
 		}
-		int rowCount = shop.targets().size() + 2;
+		int rowCount = shop.playerTargets().size() + 2;
 		for (int row = 0; row < rowCount; row++) {
 			int y = getRowY(row);
 			if (mouseY >= y && mouseY < y + rowH) {

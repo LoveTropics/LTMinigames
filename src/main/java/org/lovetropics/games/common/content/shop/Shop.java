@@ -1,6 +1,7 @@
 package org.lovetropics.games.common.content.shop;
 
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -8,9 +9,12 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.context.ContextKeySet;
 import net.minecraft.util.context.ContextMap;
+import net.minecraft.world.entity.Entity;
 import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.SoundRegistry;
+import org.lovetropics.games.common.content.MinigameTexts;
 import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.action.ActionSubjectDescriber;
 import org.lovetropics.games.common.core.game.behavior.action.ActionSubjects;
 import org.lovetropics.games.common.core.game.behavior.action.GameActionContextKeys;
 import org.lovetropics.games.common.core.game.client_state.GameClientState;
@@ -24,6 +28,9 @@ import org.lovetropics.games.common.core.game.state.IGameState;
 import org.lovetropics.games.common.core.game.state.Overlords;
 import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
+import org.lovetropics.games.common.core.game.state.team.GameTeam;
+import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
+import org.lovetropics.games.common.core.game.state.team.TeamState;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -31,6 +38,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.IntStream;
 
@@ -84,24 +92,17 @@ public final class Shop implements IGameState {
 		}
 
 		// Players who don't pick a target get a random one
-		boolean picked = offer.target() == ShopTarget.PICK && requestedTarget.isPresent();
-		ServerPlayer targetPlayer = switch (offer.target()) {
-			case SELF -> player;
-			case PICK -> picked ? getPickedTarget(player, requestedTarget.get()) : getRandomTarget(player);
-			case RANDOM -> getRandomTarget(player);
-			case GLOBAL -> null;
-		};
-		if (targetPlayer == null && offer.target() != ShopTarget.GLOBAL) {
-			Component message = picked ? ShopTexts.TARGET_UNAVAILABLE : ShopTexts.NO_TARGETS;
+		ActionSubjects<?> targets = getTargets(player, requestedTarget, offer);
+		if (targets == null) {
+			Component message = requestedTarget.isPresent() ? ShopTexts.TARGET_UNAVAILABLE : ShopTexts.NO_TARGETS;
 			player.sendSystemMessage(message.copy().withStyle(ChatFormatting.RED));
 			return;
 		}
 
-		ActionSubjects<?> targets;
-		if (targetPlayer != null) {
-			targets = offer.includeSelf() ? ActionSubjects.ofPlayers(List.of(targetPlayer, player)) : ActionSubjects.ofPlayer(targetPlayer);
-		} else {
-			targets = ActionSubjects.EMPTY;
+		if (offer.includeSelf()) {
+			Set<Entity> entities = new ReferenceOpenHashSet<>(targets.asEntities(game));
+			entities.add(player);
+			targets = ActionSubjects.ofEntities(entities);
 		}
 
 		ContextMap context = new ContextMap.Builder()
@@ -121,16 +122,51 @@ public final class Shop implements IGameState {
 			purchases.computeIfAbsent(player.getUUID(), _ -> new Reference2IntOpenHashMap<>()).addTo(offer, 1);
 		}
 
-		if (targetPlayer == null || targetPlayer == player) {
+		List<ServerPlayer> targetPlayers = targets.asPlayers(game);
+		if (targets.isEmpty() || (targetPlayers.size() == 1 && targetPlayers.getFirst() == player)) {
 			player.sendSystemMessage(offer.cost() == 0 ? ShopTexts.USED.apply(offer.name()) : ShopTexts.USED_WITH_COST.apply(offer.name(), offer.cost()));
-			if (targetPlayer == null) {
+			if (targets.isEmpty()) {
 				announceUseGlobal(player, offer);
 			}
 		} else {
-			announceUseOnTarget(player, targetPlayer, offer);
+			announceUseOnTarget(player, targets, offer);
 		}
 		PlayerSet.of(player).playSound(SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 0.5f, 1.0f);
 		updatePlayer(player);
+	}
+
+	/// @return `null` if the target could not be resolved
+	private @Nullable ActionSubjects<?> getTargets(ServerPlayer player, Optional<UUID> requestedTarget, ShopOffer offer) {
+		boolean picked = offer.target() == ShopTarget.PICK && requestedTarget.isPresent();
+		TeamState teams = offer.targetTeam() ? game.instanceState().getOrThrow(TeamState.KEY) : null;
+		return switch (offer.target()) {
+			case SELF -> {
+				if (teams != null) {
+					GameTeamKey playerTeam = teams.getTeamForPlayer(player);
+					yield playerTeam != null ? ActionSubjects.ofTeam(playerTeam) : null;
+				}
+				yield ActionSubjects.ofPlayer(player);
+			}
+			case PICK -> {
+				if (picked) {
+					if (teams != null) {
+						GameTeam pickedTeam = teams.getTeamByUuid(requestedTarget.get());
+						yield pickedTeam != null ? ActionSubjects.ofTeam(pickedTeam.key()) : null;
+					} else {
+						ServerPlayer pickedTarget = getPickedTarget(player, requestedTarget.get());
+						yield pickedTarget != null ? ActionSubjects.ofPlayer(pickedTarget) : null;
+					}
+				} else {
+					ServerPlayer randomTarget = getRandomTarget(player);
+					yield randomTarget != null ? ActionSubjects.ofPlayer(randomTarget) : null;
+				}
+			}
+			case RANDOM -> {
+				ServerPlayer randomTarget = getRandomTarget(player);
+				yield randomTarget != null ? ActionSubjects.ofPlayer(randomTarget) : null;
+			}
+			case GLOBAL -> ActionSubjects.EMPTY;
+		};
 	}
 
 	/// @return the picked player, or `null` if they can't be targeted, e.g. because they left the game since
@@ -140,16 +176,30 @@ public final class Shop implements IGameState {
 	}
 
 	private @Nullable ServerPlayer getRandomTarget(ServerPlayer buyer) {
-		List<ServerPlayer> targets = getTargets(buyer);
+		List<ServerPlayer> targets = getPlayerTargets(buyer);
 		return !targets.isEmpty() ? targets.get(game.random().nextInt(targets.size())) : null;
 	}
 
 	/// @return the participants who offers can be used on by the given player, no matter which phase of the game they are in
-	private List<ServerPlayer> getTargets(ServerPlayer viewer) {
+	private List<ServerPlayer> getPlayerTargets(ServerPlayer viewer) {
 		List<ServerPlayer> targets = new ArrayList<>();
 		for (ServerPlayer player : game.participants()) {
 			if (player != viewer) {
 				targets.add(player);
+			}
+		}
+		return targets;
+	}
+
+	private List<GameTeam> getTeamTargets(ServerPlayer viewer) {
+		TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
+		if (teams == null) {
+			return List.of();
+		}
+		List<GameTeam> targets = new ArrayList<>();
+		for (GameTeam team : teams) {
+			if (!teams.isOnTeam(viewer, team.key())) {
+				targets.add(team);
 			}
 		}
 		return targets;
@@ -168,21 +218,28 @@ public final class Shop implements IGameState {
 		}
 	}
 
-	private void announceUseOnTarget(ServerPlayer buyer, ServerPlayer target, ShopOffer offer) {
-		Component offerName = offer.name().copy().withStyle(ChatFormatting.AQUA);
-		buyer.sendSystemMessage(offer.cost() > 0 ? ShopTexts.USED_ON_WITH_COST.apply(offerName, target.getDisplayName(), offer.cost()) : ShopTexts.USED_ON.apply(offerName, target.getDisplayName()));
-
-		if (offer.flavor() == ShopOfferFlavor.SABOTAGE) {
-			PlayerSet.of(target).playSound(SoundEvents.ELDER_GUARDIAN_CURSE, SoundSource.PLAYERS, 0.4f, 1.5f);
-			target.sendSystemMessage(ShopTexts.SABOTAGED_BY.apply(buyer.getDisplayName(), offerName));
-		} else {
-			PlayerSet.of(target).playSound(SoundRegistry.PACKAGE_RECEIVE.value(), SoundSource.PLAYERS, 0.5f, 1.0f);
-			target.sendSystemMessage(ShopTexts.BONUS_FROM.apply(buyer.getDisplayName(), offerName));
+	private void announceUseOnTarget(ServerPlayer buyer, ActionSubjects<?> targets, ShopOffer offer) {
+		Component targetName = ActionSubjectDescriber.describe(game, targets, null);
+		if (targetName == null) {
+			targetName = MinigameTexts.EVERYONE_RECEIVER;
 		}
 
-		Component broadcast = ShopTexts.USE_ON_BROADCAST.apply(buyer.getDisplayName(), offerName, target.getDisplayName()).withStyle(ChatFormatting.GRAY);
+		Component offerName = offer.name().copy().withStyle(ChatFormatting.AQUA);
+		buyer.sendSystemMessage(offer.cost() > 0 ? ShopTexts.USED_ON_WITH_COST.apply(offerName, targetName, offer.cost()) : ShopTexts.USED_ON.apply(offerName, targetName));
+
+		PlayerSet targetPlayers = PlayerSet.copyOf(targets.asPlayers(game));
+
+		if (offer.flavor() == ShopOfferFlavor.SABOTAGE) {
+			targetPlayers.playSound(SoundEvents.ELDER_GUARDIAN_CURSE, SoundSource.PLAYERS, 0.4f, 1.5f);
+			targetPlayers.sendMessage(ShopTexts.SABOTAGED_BY.apply(buyer.getDisplayName(), offerName));
+		} else {
+			targetPlayers.playSound(SoundRegistry.PACKAGE_RECEIVE.value(), SoundSource.PLAYERS, 0.5f, 1.0f);
+			targetPlayers.sendMessage(ShopTexts.BONUS_FROM.apply(buyer.getDisplayName(), offerName));
+		}
+
+		Component broadcast = ShopTexts.USE_ON_BROADCAST.apply(buyer.getDisplayName(), offerName, targetName).withStyle(ChatFormatting.GRAY);
 		for (ServerPlayer player : game.allPlayers()) {
-			if (player != buyer && player != target) {
+			if (player != buyer && !targetPlayers.contains(player)) {
 				player.sendSystemMessage(broadcast);
 			}
 		}
@@ -217,7 +274,7 @@ public final class Shop implements IGameState {
 				.toList();
 		boolean anyHasCost = shop.offers.stream().anyMatch(offer -> offer.cost() > 0);
 
-		GameClientState.sendToPlayer(new ShopClientState(anyHasCost ? Optional.of(shop.balance) : Optional.empty(), clientOffers, shop.targets), player);
+		GameClientState.sendToPlayer(new ShopClientState(anyHasCost ? Optional.of(shop.balance) : Optional.empty(), clientOffers, shop.playerTargets, shop.teamTargets), player);
 	}
 
 	public void removeFromPlayer(ServerPlayer player) {
@@ -232,12 +289,16 @@ public final class Shop implements IGameState {
 		if (offers.isEmpty()) {
 			return null;
 		}
-		List<ShopClientState.Target> targets = getTargets(player).stream()
+		List<ShopClientState.Target> playerTargets = getPlayerTargets(player).stream()
 				.map(target -> new ShopClientState.Target(target.getUUID(), target.getDisplayName(), getPoints(target)))
 				.sorted(Comparator.comparingInt(ShopClientState.Target::points).reversed())
 				.toList();
+		List<ShopClientState.Target> teamTargets = getTeamTargets(player).stream()
+				.map(target -> new ShopClientState.Target(target.uuid(), target.styledName(), 0))
+				.sorted(Comparator.comparingInt(ShopClientState.Target::points).reversed())
+				.toList();
 		List<Optional<Integer>> remainingStock = offers.stream().map(offer -> getRemainingStock(player, offer)).toList();
-		return new SentShop(getBalance(player), offers, remainingStock, targets);
+		return new SentShop(getBalance(player), offers, remainingStock, playerTargets, teamTargets);
 	}
 
 	/// @return how many more times the player can buy the offer
@@ -276,6 +337,6 @@ public final class Shop implements IGameState {
 	}
 
 	/// @param remainingStock for each offer, how many more times the player can buy it
-	private record SentShop(int balance, List<ShopOffer> offers, List<Optional<Integer>> remainingStock, List<ShopClientState.Target> targets) {
+	private record SentShop(int balance, List<ShopOffer> offers, List<Optional<Integer>> remainingStock, List<ShopClientState.Target> playerTargets, List<ShopClientState.Target> teamTargets) {
 	}
 }

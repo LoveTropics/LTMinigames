@@ -97,4 +97,8 @@ public record ActionSubjects<T>(ActionSubjectType<T> type, List<T> instances) {
 		}
 		return new ActionSubjects<>(type, asType(game, type));
 	}
+
+	public boolean isEmpty() {
+		return instances.isEmpty();
+	}
 }

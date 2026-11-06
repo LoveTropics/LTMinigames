@@ -1,14 +1,11 @@
 package org.lovetropics.games.common.core.game.behavior.instances.donation;
 
-import com.google.common.collect.Sets;
 import com.lovetropics.lib.text.ChatHighlighter;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import it.unimi.dsi.fastutil.objects.ReferenceArraySet;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -16,24 +13,19 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.network.PacketDistributor;
-import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.SoundRegistry;
 import org.lovetropics.games.client.toast.NotificationIcon;
 import org.lovetropics.games.client.toast.NotificationStyle;
 import org.lovetropics.games.client.toast.ShowNotificationToastMessage;
 import org.lovetropics.games.common.content.MinigameTexts;
 import org.lovetropics.games.common.core.game.IGamePhase;
+import org.lovetropics.games.common.core.game.behavior.action.ActionSubjectDescriber;
 import org.lovetropics.games.common.core.game.behavior.action.ActionSubjects;
-import org.lovetropics.games.common.core.game.state.team.GameTeam;
-import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
-import org.lovetropics.games.common.core.game.state.team.TeamState;
 import org.lovetropics.games.common.core.game.util.TemplatedText;
 import org.lovetropics.games.common.core.integration.game_actions.GamePackage;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 public record PackageNotification(
 		Optional<TemplatedText> message,
@@ -68,7 +60,7 @@ public record PackageNotification(
 				)
 		);
 
-		Component targetDescription = describeTargets(game, targets, ChatFormatting.BLUE);
+		Component targetDescription = ActionSubjectDescriber.describe(game, targets, ChatFormatting.BLUE);
 		String senderName = gamePackage.sendingPlayerName();
 		Component targetedMessage = message.apply(Map.of(
 				"sender", (senderName != null ? Component.literal(senderName) : MinigameTexts.ANONYMOUS_DONOR.copy()).withStyle(ChatFormatting.BLUE),
@@ -99,7 +91,7 @@ public record PackageNotification(
 		String senderName = gamePackage.sendingPlayerName();
 		Component sender = (senderName != null ? Component.literal(senderName) : MinigameTexts.ANONYMOUS_DONOR.copy()).withStyle(ChatFormatting.AQUA);
 
-		Component targetDescription = describeTargets(game, targets, ChatFormatting.AQUA);
+		Component targetDescription = ActionSubjectDescriber.describe(game, targets, ChatFormatting.AQUA);
 		Component message;
 		if (targetDescription != null) {
 			message = MinigameTexts.PACKAGE_TRIGGERED_WITH_TARGET.apply(sender, packageName, targetDescription);
@@ -115,42 +107,5 @@ public record PackageNotification(
 
 	public NotificationStyle createStyle(NotificationStyle.Color color, long visibleTime, NotificationStyle.Sentiment sentiment) {
 		return new NotificationStyle(icon, sentiment, color, visibleTime);
-	}
-
-	private @Nullable Component describeTargets(IGamePhase game, ActionSubjects<?> targets, ChatFormatting playerNameStyle) {
-		List<ServerPlayer> targetPlayers = targets.asPlayers(game);
-		if (targetPlayers.isEmpty() || Set.copyOf(targetPlayers).containsAll(Sets.newHashSet(game.participants()))) {
-			return null;
-		}
-
-		// Try to figure out the intended target of the package, if we can find teams that fully match this target list, that is likely most relevant
-		// Intentionally not using a strong dependency on the package configuration to keep this flexible
-		Set<GameTeam> targetTeams = teamsExactlyMatching(game, targetPlayers);
-		if (targetTeams != null) {
-			return ComponentUtils.formatList(targetTeams, GameTeam::styledName);
-		}
-
-		return ComponentUtils.formatList(targetPlayers, p -> p.getDisplayName().copy().withStyle(playerNameStyle));
-	}
-
-	private static @Nullable Set<GameTeam> teamsExactlyMatching(IGamePhase game, List<ServerPlayer> players) {
-		TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
-		if (teams == null) {
-			return null;
-		}
-		Set<GameTeam> exactTeams = new ReferenceArraySet<>();
-		for (ServerPlayer player : players) {
-			GameTeamKey key = teams.getTeamForPlayer(player);
-			GameTeam team = key != null ? teams.getTeamByKey(key) : null;
-			if (team == null) {
-				return null;
-			}
-			if (teams.getParticipantsForTeam(game, key).stream().anyMatch(otherPlayer -> !players.contains(otherPlayer))) {
-				// There are other players in this team, but not all of them are included
-				return null;
-			}
-			exactTeams.add(team);
-		}
-		return exactTeams;
 	}
 }

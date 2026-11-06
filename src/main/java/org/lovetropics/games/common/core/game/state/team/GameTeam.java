@@ -12,7 +12,10 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.scores.TeamColor;
 
+import java.util.UUID;
+
 public record GameTeam(
+		UUID uuid,
 		GameTeamKey key,
 		DyeColor dyeColor,
 		Component plainName

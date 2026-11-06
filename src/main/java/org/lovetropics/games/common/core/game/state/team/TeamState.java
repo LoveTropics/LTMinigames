@@ -178,6 +178,15 @@ public final class TeamState implements IGameState, Iterable<GameTeam> {
 		return teamsByKey.get(key);
 	}
 
+	public @Nullable GameTeam getTeamByUuid(UUID uuid) {
+		for (GameTeam team : teams) {
+			if (team.uuid().equals(uuid)) {
+				return team;
+			}
+		}
+		return null;
+	}
+
 	public GameTeam getTeamOrThrow(GameTeamKey key) {
 		return Objects.requireNonNull(getTeamByKey(key));
 	}

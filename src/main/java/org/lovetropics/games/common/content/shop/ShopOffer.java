@@ -28,6 +28,7 @@ public record ShopOffer(
 		int cost,
 		Optional<Integer> stock,
 		ShopTarget target,
+		boolean targetTeam,
 		boolean includeSelf,
 		List<ShopUsers> usableBy,
 		ShopOfferFlavor flavor,
@@ -40,6 +41,7 @@ public record ShopOffer(
 			ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("cost", 0).forGetter(ShopOffer::cost),
 			ExtraCodecs.POSITIVE_INT.optionalFieldOf("stock").forGetter(ShopOffer::stock),
 			ShopTarget.CODEC.optionalFieldOf("target", ShopTarget.SELF).forGetter(ShopOffer::target),
+			Codec.BOOL.optionalFieldOf("target_team", false).forGetter(ShopOffer::targetTeam),
 			Codec.BOOL.optionalFieldOf("include_self", false).forGetter(ShopOffer::includeSelf),
 			ExtraCodecs.compactListCodec(ShopUsers.CODEC).optionalFieldOf("usable_by", List.of(ShopUsers.PLAYERS)).forGetter(ShopOffer::usableBy),
 			ShopOfferFlavor.CODEC.fieldOf("flavor").forGetter(ShopOffer::flavor),
@@ -60,11 +62,11 @@ public record ShopOffer(
 
 	public ShopOffer forOverlords() {
 		ShopTarget overlordTarget = target == ShopTarget.RANDOM ? ShopTarget.PICK : target;
-		return new ShopOffer(icon, name, description, 0, Optional.empty(), overlordTarget, includeSelf, usableBy, flavor, actions);
+		return new ShopOffer(icon, name, description, 0, Optional.empty(), overlordTarget, targetTeam, includeSelf, usableBy, flavor, actions);
 	}
 
 	/// @param remainingStock how many more times the player the shop is sent to can buy it, if limited
 	public ShopClientState.Offer asClientOffer(Optional<Integer> remainingStock) {
-		return new ShopClientState.Offer(icon.create(), name, description, cost, remainingStock, target, flavor);
+		return new ShopClientState.Offer(icon.create(), name, description, cost, remainingStock, target, targetTeam, flavor);
 	}
 }

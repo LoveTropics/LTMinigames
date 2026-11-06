@@ -43,6 +43,7 @@ import org.slf4j.Logger;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public final class TeamsBehavior implements IGameBehavior {
 	public static final MapCodec<TeamsBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
@@ -81,7 +82,7 @@ public final class TeamsBehavior implements IGameBehavior {
 		if (!instantTeams.isEmpty()) {
 			return new TeamState(instantTeams.entrySet().stream().map(entry -> {
 				SetupTeamsBehavior.TeamConfig config = entry.getValue();
-				return new GameTeam(entry.getKey(), config.dyeColor(), config.name());
+				return new GameTeam(UUID.randomUUID(), entry.getKey(), config.dyeColor(), config.name());
 			}).toList());
 		}
 
