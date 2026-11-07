@@ -52,15 +52,7 @@ public record RiderBehavior(
 			if (role != PlayerRole.PARTICIPANT) {
 				return;
 			}
-			spawn.run(player -> {
-				Entity entity = spawnEntity(player);
-				if (entity == null) {
-					LOGGER.error("Failed to spawn entity of type: {}", this.entity.type());
-					return;
-				}
-				player.startRiding(entity);
-				player.setData(FORCE_RIDER, force);
-			});
+			spawn.run(this::spawnAndRide);
 		});
 
 		events.listen(GamePlayerEvents.SET_ROLE, (player, role, lastRole) -> {
@@ -71,13 +63,27 @@ public record RiderBehavior(
 
 		events.listen(GamePlayerEvents.TICK, player -> {
 			if (player.getVehicle() == null) {
-				for (MobEffectInstance effect : notRidingEffects) {
-					player.addEffect(new MobEffectInstance(effect));
+				if (force) {
+					spawnAndRide(player);
+				} else {
+					for (MobEffectInstance effect : notRidingEffects) {
+						player.addEffect(new MobEffectInstance(effect));
+					}
 				}
 			}
 		});
 
 		events.listen(GamePlayerEvents.REMOVE, RiderBehavior::removeVehicle);
+	}
+
+	private void spawnAndRide(ServerPlayer player) {
+		Entity entity = spawnEntity(player);
+		if (entity == null) {
+			LOGGER.error("Failed to spawn entity of type: {}", this.entity.type());
+			return;
+		}
+		player.startRiding(entity);
+		player.setData(FORCE_RIDER, force);
 	}
 
 	private static void removeVehicle(ServerPlayer player) {
