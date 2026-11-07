@@ -123,8 +123,9 @@ public class DropperBehavior implements PersistentGameBehavior {
 		}
 		getScoreAccess(objectives.stats(), WIN_STAT_NAME).add(1);
 		Vec3 randomLocation = Vec3.atCenterOf(successRegion.pickRandomPos(game, game.level().getRandom()).pos());
-		player.level().playSeededSound(null, randomLocation.x(), randomLocation.y(), randomLocation.z, SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.VOICE, 5f, 1.0F, player.getRandom().nextLong());
 		player.teleportTo(randomLocation.x(), randomLocation.y(), randomLocation.z());
+		player.level().playSeededSound(null, randomLocation.x(), randomLocation.y(), randomLocation.z, SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.VOICE, 5f, 1.0F, player.getRandom().nextLong());
+		player.sendSystemMessage(Component.literal("You Win!"), false);
 	}
 
 	private void onFail(PersistentGame game, ServerPlayer player, RegionQuery failRegion) {
