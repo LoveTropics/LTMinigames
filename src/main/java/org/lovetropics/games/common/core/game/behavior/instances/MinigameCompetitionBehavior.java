@@ -39,6 +39,7 @@ import org.lovetropics.games.common.core.game.command.GameCommandRegistrar;
 import org.lovetropics.games.common.core.game.config.GameConfig;
 import org.lovetropics.games.common.core.game.config.GameConfigs;
 import org.lovetropics.games.common.core.game.player.PlayerRole;
+import org.lovetropics.games.common.core.game.state.Overlords;
 import org.lovetropics.games.common.core.game.state.statistics.GameStatistics;
 import org.lovetropics.games.common.core.game.state.statistics.LeaderboardConfig;
 import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
@@ -125,6 +126,7 @@ public final class MinigameCompetitionBehavior implements IGameBehavior {
 	private void onStopSubGame(IGamePhase topGame, IGamePhase subGame, GameStopReason reason) {
 		LOGGER.debug("Stopped {} in minigame competition due to {}", subGame.definition().name().getString(), reason);
 		if (reason.isFinished()) {
+			clearOverlordsFromGameStats(subGame);
 			topGame.statistics().copyFrom(subGame.statistics(), shareStatistics);
 			if (accumulatedStatistics == null) {
 				accumulatedStatistics = new GameStatistics();
@@ -145,12 +147,20 @@ public final class MinigameCompetitionBehavior implements IGameBehavior {
 			for (StatisticAccumulator accumulator : accumulateStatistics) {
 				accumulator.addFromAccumulator(topGame.statistics(), accumulatedStatistics);
 			}
+			clearOverlordsFromGameStats(topGame);
 			accumulatedStatistics = null;
 		}
 		LOGGER.debug("Returned to lobby in minigame competition. New statistics: {}", encodeStatistics(topGame.statistics()));
 
 		returnToLobbyActions.apply(topGame, ContextMap.EMPTY, ActionSubjects.EMPTY);
 		topGame.invoker(MinigameCompetitionEvents.RETURN_TO_LOBBY).onReturnToLobby();
+	}
+
+	// TODO: why do we need this, pls.
+	private void clearOverlordsFromGameStats(IGamePhase game) {
+		for (ServerPlayer player : Overlords.get(game)) {
+			game.statistics().forPlayer(player).clear();
+		}
 	}
 
 	private @Nullable Tag encodeStatistics(GameStatistics statistics) {
