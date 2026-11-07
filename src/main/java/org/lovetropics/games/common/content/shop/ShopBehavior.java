@@ -11,32 +11,28 @@ import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePlayerEvents;
+import org.lovetropics.games.common.core.game.behavior.instances.action.SetStatisticAction;
 import org.lovetropics.games.common.core.game.behavior.instances.command.CustomCommandBehavior;
 
 import java.util.List;
 
 /// Sets up a [Shop] for this game, which participants can use from this phase and from any of its sub-phases
-public final class ShopBehavior implements IGameBehavior {
+public record ShopBehavior(
+		List<ShopOffer> offers,
+		double tropicoinsPerDonatedAmount,
+		SetStatisticAction.Scope coinsScope
+) implements IGameBehavior {
 	public static final MapCodec<ShopBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			ShopOffer.CODEC.listOf().fieldOf("offers").forGetter(b -> b.offers),
-			Codec.doubleRange(0.0, Double.MAX_VALUE).optionalFieldOf("tropicoins_per_donated_amount", 1.0).forGetter(b -> b.tropicoinsPerDonatedAmount)
+			ShopOffer.CODEC.listOf().fieldOf("offers").forGetter(ShopBehavior::offers),
+			Codec.doubleRange(0.0, Double.MAX_VALUE).optionalFieldOf("tropicoins_per_donated_amount", 1.0).forGetter(ShopBehavior::tropicoinsPerDonatedAmount),
+			SetStatisticAction.Scope.CODEC.optionalFieldOf("coins_scope", SetStatisticAction.Scope.PLAYER).forGetter(ShopBehavior::coinsScope)
 	).apply(i, ShopBehavior::new));
 
 	private static final int UPDATE_INTERVAL = 10;
 
-	private final List<ShopOffer> offers;
-	private final double tropicoinsPerDonatedAmount;
-
-	private Shop shop;
-
-	public ShopBehavior(List<ShopOffer> offers, double tropicoinsPerDonatedAmount) {
-		this.offers = offers;
-		this.tropicoinsPerDonatedAmount = tropicoinsPerDonatedAmount;
-	}
-
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		shop = Shop.register(game, events, offers, tropicoinsPerDonatedAmount);
+		Shop shop = Shop.register(game, events, coinsScope, offers, tropicoinsPerDonatedAmount);
 
 		for (ShopOffer offer : offers) {
 			offer.actions().register(game, events);

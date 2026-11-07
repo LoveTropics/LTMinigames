@@ -13,6 +13,7 @@ import org.lovetropics.games.common.core.game.behavior.action.ActionSubjects;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GameActionEvents;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
+import org.lovetropics.games.common.core.game.state.statistics.StatisticsGetter;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticsMap;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
 import org.lovetropics.games.common.core.game.state.team.TeamState;
@@ -64,6 +65,18 @@ public record SetStatisticAction(
 
 		Scope(String name) {
 			this.name = name;
+		}
+
+		public StatisticsGetter read(IGamePhase game, ServerPlayer player) {
+			return switch (this) {
+				case GLOBAL -> game.statistics().global();
+				case PLAYER -> game.statistics().readForPlayer(player);
+				case TEAM -> {
+					TeamState teams = game.instanceState().getOrNull(TeamState.KEY);
+					GameTeamKey team = teams != null ? teams.getTeamForPlayer(player) : null;
+					yield team != null ? game.statistics().readForTeam(team) : StatisticsGetter.EMPTY;
+				}
+			};
 		}
 
 		public @Nullable StatisticsMap get(IGamePhase game, ServerPlayer player) {

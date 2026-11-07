@@ -184,7 +184,7 @@ public final class TeamsBehavior implements IGameBehavior {
 		);
 	}
 
-	private static GameTeam getTeamArgument(CommandContext<CommandSourceStack> context, String name, TeamState teams) throws CommandSyntaxException {
+	public static GameTeam getTeamArgument(CommandContext<CommandSourceStack> context, String name, TeamState teams) throws CommandSyntaxException {
 		String teamId = StringArgumentType.getString(context, name);
 		return teams.stream()
 				.filter(team -> team.key().id().equals(teamId))
@@ -192,7 +192,7 @@ public final class TeamsBehavior implements IGameBehavior {
 				.orElseThrow(() -> NO_TEAM.create(teamId));
 	}
 
-	private static SuggestionProvider<CommandSourceStack> suggestTeam(TeamState teams) {
+	public static SuggestionProvider<CommandSourceStack> suggestTeam(TeamState teams) {
 		return (_, builder) ->
 				SharedSuggestionProvider.suggest(teams.stream().map(i -> i.key().id()), builder);
 	}

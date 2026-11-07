@@ -28,6 +28,7 @@ import org.lovetropics.games.common.core.game.behavior.action.GameActionContextK
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GameLogicEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
+import org.lovetropics.games.common.core.game.behavior.instances.action.SetStatisticAction;
 import org.lovetropics.games.common.core.game.client_state.GameClientState;
 import org.lovetropics.games.common.core.game.client_state.GameClientStateTypes;
 import org.lovetropics.games.common.core.game.client_state.instance.ShopClientState;
@@ -40,6 +41,7 @@ import org.lovetropics.games.common.core.game.state.IGameState;
 import org.lovetropics.games.common.core.game.state.Overlords;
 import org.lovetropics.games.common.core.game.state.statistics.PlayerKey;
 import org.lovetropics.games.common.core.game.state.statistics.StatisticKey;
+import org.lovetropics.games.common.core.game.state.statistics.StatisticsMap;
 import org.lovetropics.games.common.core.game.state.team.GameTeam;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
 import org.lovetropics.games.common.core.game.state.team.TeamState;
@@ -63,6 +65,7 @@ public final class Shop implements IGameState {
 	public static final GameStateKey<Shop> KEY = GameStateKey.create("Shop");
 
 	private final IGamePhase game;
+	private final SetStatisticAction.Scope coinsScope;
 	private final List<ShopOffer> allOffers;
 	private List<ShopOffer> playerOffers = List.of();
 	private List<ShopOffer> ghostOffers = List.of();
@@ -80,8 +83,9 @@ public final class Shop implements IGameState {
 
 	private boolean locked;
 
-	private Shop(IGamePhase game, List<ShopOffer> offers, double tropicoinsPerDonatedAmount) {
+	private Shop(IGamePhase game, SetStatisticAction.Scope coinsScope, List<ShopOffer> offers, double tropicoinsPerDonatedAmount) {
 		this.game = game;
+		this.coinsScope = coinsScope;
 		allOffers = new ArrayList<>(offers);
 		rebuildOffers();
 		this.tropicoinsPerDonatedAmount = tropicoinsPerDonatedAmount;
@@ -106,8 +110,8 @@ public final class Shop implements IGameState {
 		return false;
 	}
 
-	public static Shop register(IGamePhase game, EventRegistrar events, List<ShopOffer> offers, double tropicoinsPerDonatedAmount) {
-		Shop shop = new Shop(game, offers, tropicoinsPerDonatedAmount);
+	public static Shop register(IGamePhase game, EventRegistrar events, SetStatisticAction.Scope coinsScope, List<ShopOffer> offers, double tropicoinsPerDonatedAmount) {
+		Shop shop = new Shop(game, coinsScope, offers, tropicoinsPerDonatedAmount);
 		game.state().register(KEY, shop);
 		events.listen(GamePhaseEvents.REGISTER_COMMANDS, (commands, _) -> {
 			commands.register(Commands.literal("shop").then(Commands.literal("offer")
@@ -219,7 +223,10 @@ public final class Shop implements IGameState {
 
 		// It's important right now to not instantiate statistics if we don't actually want it, because everything is terrible
 		if (offer.cost() > 0) {
-			game.statistics().forPlayer(player).set(StatisticKey.TROPICOINS, balance - offer.cost());
+			StatisticsMap statistics = coinsScope.get(game, player);
+			if (statistics != null) {
+				statistics.set(StatisticKey.TROPICOINS, balance - offer.cost());
+			}
 		}
 		purchases.computeIfAbsent(player.getUUID(), _ -> new Object2IntOpenHashMap<>()).addTo(offer.id(), 1);
 		Optional<Integer> cooldown = offer.targetCooldownTicks();
@@ -477,11 +484,15 @@ public final class Shop implements IGameState {
 	}
 
 	private int getBalance(ServerPlayer player) {
-		return game.statistics().readForPlayer(player).getOr(StatisticKey.TROPICOINS, 0);
+		return coinsScope.read(game, player).getInt(StatisticKey.TROPICOINS);
 	}
 
 	private int getPoints(ServerPlayer player) {
-		return game.statistics().readForPlayer(player).getOr(StatisticKey.POINTS, 0);
+		return game.statistics().readForPlayer(player).getInt(StatisticKey.POINTS);
+	}
+
+	public SetStatisticAction.Scope coinsScope() {
+		return coinsScope;
 	}
 
 	/// @param remainingStock for each offer, how many more times the player can buy it

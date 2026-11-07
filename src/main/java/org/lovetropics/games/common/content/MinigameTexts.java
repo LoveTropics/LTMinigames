@@ -368,6 +368,16 @@ public final class MinigameTexts {
 		KEYS.add("donation.hail_event.description", "Hail rains down from the sky! The players better have their Umbrellas ready.");
 		KEYS.add("donation.hail_event.toast", "Chat has started a HAILSTORM for 1 minute!");
 
+		KEYS.add("donation.player_team_donation_5", "Small Team Donation");
+		KEYS.add("donation.player_team_donation_5.description", "Donate Coins to a team that they can spend in their shops, either to help themselves or cause chaos for other teams!");
+		KEYS.add("donation.player_team_donation_5.toast", "You received a Small Team Donation");
+		KEYS.add("donation.player_team_donation_10", "Medium Team Donation");
+		KEYS.add("donation.player_team_donation_10.description", "Donate Coins to a team that they can spend in their shops, either to help themselves or cause chaos for other teams!");
+		KEYS.add("donation.player_team_donation_10.toast", "You received a Medium Team Donation");
+		KEYS.add("donation.player_team_donation_15", "Large Team Donation");
+		KEYS.add("donation.player_team_donation_15.description", "Donate Coins to a team that they can spend in their shops, either to help themselves or cause chaos for other teams!");
+		KEYS.add("donation.player_team_donation_15.toast", "You received a Large Team Donation");
+
 		KEYS.add("spleef.flavor.volcano.layer_countdown", "Next layer crumble in %s");
 		KEYS.add("spleef.flavor.volcano.forced_progression", "The %s level of the volcano has become unstable. It will now crumble below your feet!");
 		KEYS.add("spleef.flavor.volcano.eliminated", "You fell into the volcano");

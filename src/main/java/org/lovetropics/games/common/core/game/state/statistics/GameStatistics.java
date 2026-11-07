@@ -73,6 +73,15 @@ public final class GameStatistics implements IGameState {
 		return forTeam(team.key());
 	}
 
+	public StatisticsGetter readForTeam(GameTeamKey key) {
+		StatisticsMap map = byTeam.get(key);
+		return map != null ? map : StatisticsGetter.EMPTY;
+	}
+
+	public StatisticsGetter readForTeam(GameTeam team) {
+		return readForTeam(team.key());
+	}
+
 	public Set<PlayerKey> getPlayers() {
 		return byPlayer.keySet();
 	}
