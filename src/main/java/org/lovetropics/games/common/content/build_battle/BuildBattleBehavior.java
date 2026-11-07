@@ -30,6 +30,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.GameType;
 import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.core.game.GameException;
 import org.lovetropics.games.common.core.game.GameWinner;
@@ -392,10 +393,19 @@ public final class BuildBattleBehavior implements IGameBehavior {
 	}
 
 	private void refreshReviewee(IGamePhase game, GameWidgets widgets) {
+		Plot plot = reviewedPlots.get(revieweeIndex);
+
 		for (ServerPlayer player : game.allPlayers()) {
 			SpawnBuilder spawn = new SpawnBuilder(player);
 			game.invoker(GamePlayerEvents.SPAWN).onSpawn(player.getUUID(), spawn, null);
 			spawn.teleportAndApply(player);
+			if (overlords.contains(player)) {
+				player.setGameMode(GameType.CREATIVE);
+			} else if (plot.players.contains(PlayerKey.from(player))) {
+				player.setGameMode(GameType.ADVENTURE);
+			} else {
+				player.setGameMode(GameType.SPECTATOR);
+			}
 		}
 		for (ServerPlayer overlord : overlords) {
 			overlord.getInventory().clearContent();
@@ -410,7 +420,6 @@ public final class BuildBattleBehavior implements IGameBehavior {
 			overlord.addItem(next);
 		}
 
-		Plot plot = reviewedPlots.get(revieweeIndex);
 		Component displayName = plot.getDisplayName(game);
 
 		bar.close();
