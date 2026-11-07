@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 public final class WorkspaceRegions implements Iterable<WorkspaceRegions.Entry> {
 	private final ResourceKey<Level> dimension;
@@ -144,6 +145,10 @@ public final class WorkspaceRegions implements Iterable<WorkspaceRegions.Entry> 
 	@Override
 	public Iterator<Entry> iterator() {
 		return entries.values().iterator();
+	}
+
+	public Stream<Entry> stream() {
+		return entries.values().stream();
 	}
 
 	public MapRegions compile() {

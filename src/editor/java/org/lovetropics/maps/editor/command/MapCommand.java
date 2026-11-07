@@ -3,6 +3,7 @@ package org.lovetropics.maps.editor.command;
 import com.lovetropics.lib.BlockBox;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
@@ -17,6 +18,7 @@ import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.Identifier;
@@ -49,6 +51,8 @@ import org.slf4j.Logger;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Comparator;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
@@ -66,10 +70,43 @@ public final class MapCommand {
 
 	private static final SimpleCommandExceptionType NOT_IN_WORKSPACE = new SimpleCommandExceptionType(Component.literal("You are not in a workspace!"));
 
+	private static final DynamicCommandExceptionType REGION_NOT_FOUND = new DynamicCommandExceptionType(
+			value -> Component.translatableEscape("Region not found with id: %s", value)
+	);
+
 	private static final Logger LOGGER = LogUtils.getLogger();
 
 	@SubscribeEvent
 	public static void register(RegisterCommandsEvent event) {
+		RequiredArgumentBuilder<CommandSourceStack, String> locateSubcommand = argument("key", StringArgumentType.string())
+				.suggests((context, builder) -> {
+					WorkspaceRegions regions = getCurrentRegions(context);
+					return SharedSuggestionProvider.suggest(regions.stream().map(entry -> entry.key), builder);
+				})
+				.executes(context -> {
+					String key = StringArgumentType.getString(context, "key");
+					WorkspaceRegions regions = getCurrentRegions(context);
+					Vec3 position = context.getSource().getPosition();
+					Optional<WorkspaceRegions.Entry> closestEntry = regions.stream()
+							.filter(e -> e.key.equals(key))
+							.min(Comparator.comparingDouble(value -> value.region.asAabb().distanceToSqr(position)));
+					if (closestEntry.isEmpty()) {
+						throw REGION_NOT_FOUND.create(key);
+					}
+
+					BlockBox closestRegion = closestEntry.get().region;
+					BlockPos closestPos = closestRegion.centerBlock();
+					int distance = (int) Math.round(Math.sqrt(closestRegion.asAabb().distanceToSqr(position)));
+					Component coordinates = ComponentUtils.wrapInSquareBrackets(Component.translatable("chat.coordinates", closestPos.getX(), closestPos.getY(), closestPos.getZ()))
+							.withStyle(
+									s -> s.withColor(ChatFormatting.GREEN)
+											.withClickEvent(new ClickEvent.SuggestCommand("/tp @s " + closestPos.getX() + " " + closestPos.getY() + " " + closestPos.getZ()))
+											.withHoverEvent(new HoverEvent.ShowText(Component.translatable("chat.coordinates.tooltip")))
+							);
+					context.getSource().sendSuccess(() -> Component.translatable("commands.locate.poi.success", Component.literal(key), coordinates, distance), false);
+					return 1;
+				});
+
 		// @formatter:off
         event.getDispatcher().register(
             literal("map")
@@ -141,9 +178,17 @@ public final class MapCommand {
 					)
 					.then(literal("hide")
 							.executes(MapCommand::showHideRegions))
+					.then(literal("locate").then(locateSubcommand))
 				)
         );
         // @formatter:on
+
+		event.getDispatcher().register(Commands.literal("locate")
+				.then(Commands.literal("region")
+						.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+						.then(locateSubcommand)
+				)
+		);
 	}
 
 	private static int openMap(CommandContext<CommandSourceStack> context, LevelStem dimension) throws CommandSyntaxException {
