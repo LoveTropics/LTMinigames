@@ -81,6 +81,7 @@ import org.lovetropics.games.common.core.game.behavior.instances.action.DelayedA
 import org.lovetropics.games.common.core.game.behavior.instances.action.DisplayLeaderboardAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.EndGameAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.ExtinguishPlayerFireAction;
+import org.lovetropics.games.common.core.game.behavior.instances.action.GiveCompassWithLodestoneTargetAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.GiveDimensionTransportItemAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.GiveEffectAction;
 import org.lovetropics.games.common.core.game.behavior.instances.action.GiveHatsAction;
@@ -493,6 +494,7 @@ public class GameBehaviorTypes {
 
 		register("prevent_dimension_portals", PreventDimensionPortalsBehavior.CODEC);
 		register("give_dimension_transport_item", GiveDimensionTransportItemAction.CODEC);
+		register("give_compass_with_lodestone_target", GiveCompassWithLodestoneTargetAction.CODEC);
 		register("remove_item_from_player", RemoveItemFromPlayerAction.CODEC);
 
 		register("announcements", AnnouncementsBehavior.CODEC);
@@ -501,7 +503,7 @@ public class GameBehaviorTypes {
 		register("swap_teams", SwapTeamsAction.CODEC);
 		register("modify_furnace_smelt_times", ModifyFurnaceSmeltTimesBehavior.CODEC);
 
-		register("game_limted_chat", GameLimitedChatBehavior.CODEC);
+		register("game_limited_chat", GameLimitedChatBehavior.CODEC);
 		register("leaky_pockets", LeakyPocketsBehavior.CODEC);
 	}
 
