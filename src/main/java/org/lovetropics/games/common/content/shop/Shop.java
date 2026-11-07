@@ -11,6 +11,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
+import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -114,7 +115,20 @@ public final class Shop implements IGameState {
 		Shop shop = new Shop(game, coinsScope, offers, tropicoinsPerDonatedAmount);
 		game.state().register(KEY, shop);
 		events.listen(GamePhaseEvents.REGISTER_COMMANDS, (commands, _) -> {
-			commands.register(Commands.literal("shop").then(Commands.literal("offer")
+			commands.register(Commands.literal("shop")
+					.then(Commands.literal("restock")
+						.requires(GameCommandRegistrar.adminOrOverlord(game))
+							.then(Commands.argument("player", EntityArgument.players())
+									.executes(context -> {
+										for (ServerPlayer player : EntityArgument.getPlayers(context, "player")) {
+											shop.resetStockForPlayer(player);
+										}
+										context.getSource().sendSuccess(() -> Component.literal("Stock restocked").withStyle(ChatFormatting.GREEN),
+												true);
+										return 1;
+									}))
+					)
+					.then(Commands.literal("offer")
 					.requires(GameCommandRegistrar.adminOrOverlord(game))
 					.then(Commands.argument("id", StringArgumentType.string())
 							.suggests((_, builder) -> SharedSuggestionProvider.suggest(shop.allOffers.stream().map(ShopOffer::id), builder))
@@ -142,6 +156,11 @@ public final class Shop implements IGameState {
 		});
 		events.listen(GameLogicEvents.GAME_OVER, winner -> shop.locked = true);
 		return shop;
+	}
+
+	private int resetStockForPlayer(ServerPlayer player){
+		purchases.get(player.getUUID()).clear();
+		return 1;
 	}
 
 	/// @param change what was changed, for the feedback message
