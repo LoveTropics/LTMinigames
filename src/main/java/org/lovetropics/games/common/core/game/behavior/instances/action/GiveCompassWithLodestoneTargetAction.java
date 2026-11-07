@@ -56,7 +56,7 @@ public record GiveCompassWithLodestoneTargetAction(
 				ItemStack itemStack = itemStackTemplate.create();
 				ResourceKey<Level> targetLevel = LinkedDimensions.resolve(player.level(), vanillaKey);
 				Region targetRegion = this.targetLocation.oneIn(game, game.server().getLevel(targetLevel));
-				LodestoneTracker lodestoneTracker = new LodestoneTracker(Optional.of(GlobalPos.of(targetLevel, targetRegion.centerBlock())), true);
+				LodestoneTracker lodestoneTracker = new LodestoneTracker(Optional.of(GlobalPos.of(targetLevel, targetRegion.centerBlock())), false);
 				itemStack.set(DataComponents.LODESTONE_TRACKER, lodestoneTracker);
 				player.addItem(itemStack);
 			}
