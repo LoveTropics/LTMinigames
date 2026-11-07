@@ -16,6 +16,8 @@ import org.lovetropics.games.common.core.game.state.Overlords;
 public final class GhostsBehavior implements IGameBehavior {
 	public static final MapCodec<GhostsBehavior> CODEC = MapCodec.unit(GhostsBehavior::new);
 
+	private static final String TAG = "ghost";
+
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) {
 		Ghosts ghosts = Ghosts.get(game);
@@ -24,6 +26,13 @@ public final class GhostsBehavior implements IGameBehavior {
 		events.listen(GamePlayerEvents.SET_ROLE, (player, role, lastRole) -> {
 			if (lastRole == PlayerRole.PARTICIPANT && role == PlayerRole.SPECTATOR && !overlords.contains(player)) {
 				ghosts.add(player);
+				player.addTag(TAG);
+			}
+		});
+
+		events.listen(GamePlayerEvents.ADD, player -> {
+			if (ghosts.contains(player)) {
+				player.addTag(TAG);
 			}
 		});
 
