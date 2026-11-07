@@ -1,12 +1,8 @@
 package org.lovetropics.games.common.core.game.behavior.instances.action;
 
-import com.google.gson.JsonElement;
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
-import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.commands.arguments.item.ItemParser;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.TypedDataComponent;
@@ -33,8 +29,7 @@ import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GameActionEvents;
 import org.lovetropics.games.common.core.game.region.Region;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
-
-import java.util.Optional;
+import org.lovetropics.games.common.util.Util;
 
 public record GiveDimensionTransportItemAction(
 		ItemStackTemplate itemStackTemplate,
@@ -65,9 +60,8 @@ public record GiveDimensionTransportItemAction(
 				Tag pos = Vec3.CODEC.encodeStart(ops, targetRegion.center()).getOrThrow();
 				compoundTag.put("destination_pos", pos);
 				DataResult<?> parse = TRANSPORT_DATA_COMPONENT.get().codecOrThrow().parse(ops, compoundTag);
-				TypedDataComponent<?> unchecked = TypedDataComponent.createUnchecked(TRANSPORT_DATA_COMPONENT.get(), parse.getOrThrow());
-				itemStack.set(unchecked);
-				player.addItem(itemStack);
+				itemStack.set(TypedDataComponent.createUnchecked(TRANSPORT_DATA_COMPONENT.get(), parse.getOrThrow()));
+				Util.addItemStackToInventory(player, itemStack);
 			});
 			return true;
 		});
