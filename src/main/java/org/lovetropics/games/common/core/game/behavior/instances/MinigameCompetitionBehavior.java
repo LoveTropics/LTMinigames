@@ -159,7 +159,7 @@ public final class MinigameCompetitionBehavior implements IGameBehavior {
 	// TODO: why do we need this, pls.
 	private void clearOverlordsFromGameStats(IGamePhase game) {
 		for (ServerPlayer player : Overlords.get(game)) {
-			game.statistics().forPlayer(player).clear();
+			game.statistics().clearPlayer(player);
 		}
 	}
 

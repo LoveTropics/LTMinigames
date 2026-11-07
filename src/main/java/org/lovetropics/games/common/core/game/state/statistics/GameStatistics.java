@@ -3,6 +3,7 @@ package org.lovetropics.games.common.core.game.state.statistics;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.NameAndId;
 import net.minecraft.world.entity.player.Player;
 import org.lovetropics.games.common.core.game.state.GameStateKey;
@@ -136,6 +137,10 @@ public final class GameStatistics implements IGameState {
 		global.clear();
 		byPlayer.clear();
 		byTeam.clear();
+	}
+
+	public void clearPlayer(ServerPlayer player) {
+		byPlayer.remove(PlayerKey.from(player));
 	}
 
 	private record PlayerEntry(
