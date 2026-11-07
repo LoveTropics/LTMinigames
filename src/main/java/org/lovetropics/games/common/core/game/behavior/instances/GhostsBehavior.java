@@ -3,6 +3,7 @@ package org.lovetropics.games.common.core.game.behavior.instances;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.server.level.ServerPlayer;
 import org.lovetropics.games.common.core.game.IGamePhase;
 import org.lovetropics.games.common.core.game.behavior.IGameBehavior;
 import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
@@ -25,14 +26,13 @@ public final class GhostsBehavior implements IGameBehavior {
 
 		events.listen(GamePlayerEvents.SET_ROLE, (player, role, lastRole) -> {
 			if (lastRole == PlayerRole.PARTICIPANT && role == PlayerRole.SPECTATOR && !overlords.contains(player)) {
-				ghosts.add(player);
-				player.addTag(TAG);
+				addGhost(player, ghosts);
 			}
 		});
 
 		events.listen(GamePlayerEvents.ADD, player -> {
 			if (ghosts.contains(player)) {
-				player.addTag(TAG);
+				applyGhost(player, true);
 			}
 		});
 
@@ -42,7 +42,7 @@ public final class GhostsBehavior implements IGameBehavior {
 					.then(Commands.literal("add")
 							.then(Commands.argument("players", EntityArgument.players())
 									.executes(context -> {
-										EntityArgument.getPlayers(context, "players").forEach(ghosts::add);
+										EntityArgument.getPlayers(context, "players").forEach(p -> addGhost(p, ghosts));
 										return 1;
 									})
 							)
@@ -50,12 +50,31 @@ public final class GhostsBehavior implements IGameBehavior {
 					.then(Commands.literal("remove")
 							.then(Commands.argument("players", EntityArgument.players())
 									.executes(context -> {
-										EntityArgument.getPlayers(context, "players").forEach(ghosts::remove);
+										EntityArgument.getPlayers(context, "players").forEach(p -> removeGhost(p, ghosts));
 										return 1;
 									})
 							)
 					)
 			);
 		});
+	}
+
+	private void addGhost(ServerPlayer player, Ghosts ghosts) {
+		ghosts.add(player);
+		applyGhost(player, true);
+	}
+
+	private void removeGhost(ServerPlayer player, Ghosts ghosts) {
+		if (ghosts.remove(player)) {
+			applyGhost(player, false);
+		}
+	}
+
+	private void applyGhost(ServerPlayer player, boolean ghost) {
+		if (ghost) {
+			player.addTag(TAG);
+		} else {
+			player.removeTag(TAG);
+		}
 	}
 }

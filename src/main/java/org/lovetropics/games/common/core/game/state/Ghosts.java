@@ -26,8 +26,8 @@ public class Ghosts implements IGameState {
 		players.add(player.getUUID());
 	}
 
-	public void remove(ServerPlayer player) {
-		players.remove(player.getUUID());
+	public boolean remove(ServerPlayer player) {
+		return players.remove(player.getUUID());
 	}
 
 	public boolean contains(ServerPlayer player) {
