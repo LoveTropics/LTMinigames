@@ -4,7 +4,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -112,8 +111,16 @@ public record CheckpointsBehavior(
 
 	private void spawnAt(IGamePhase game, SpawnBuilder spawn, Checkpoint checkpoint) {
 		Region spawnRegion = checkpoint.group.spawns != null ? Util.getRandom(checkpoint.group.spawns, game.random()) : checkpoint.region;
-		Vec3 spawnPos = spawnRegion.center().with(Direction.Axis.Y, spawnRegion.min().getY());
 		Region faceRegion = checkpoint.group.faceRegion;
+		ServerLevel level = spawnRegion.level();
+		BlockPos spawnBlock = spawnRegion.centerBlock();
+		while (level.isEmptyBlock(spawnBlock.below()) && spawnBlock.getY() > level.getMinY()) {
+			spawnBlock = spawnBlock.below();
+		}
+		while (!level.isEmptyBlock(spawnBlock) && spawnBlock.getY() < level.getMaxY()) {
+			spawnBlock = spawnBlock.above();
+		}
+		Vec3 spawnPos = Vec3.atBottomCenterOf(spawnBlock);
 		float angle = faceRegion != null ? PositionPlayersBehavior.getAngleTo(BlockPos.containing(spawnPos), faceRegion.box()) : this.angle;
 		spawn.teleportTo(spawnRegion.level(), spawnPos, angle, 0.0f);
 	}
