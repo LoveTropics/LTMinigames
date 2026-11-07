@@ -21,6 +21,7 @@ import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.Style;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.TriState;
 import net.minecraft.world.BossEvent;
@@ -72,6 +73,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.IntStream;
 
 public final class BuildBattleBehavior implements IGameBehavior {
 	private static final long REVIEW_DELAY_TICKS = 10 * SharedConstants.TICKS_PER_SECOND;
@@ -79,7 +81,10 @@ public final class BuildBattleBehavior implements IGameBehavior {
 	public static final MapCodec<BuildBattleBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			RegionQuery.CODEC.fieldOf("plots_name").forGetter(c -> c.plotRegionsName),
 			Codec.LONG.fieldOf("build_time").orElse((long) (5 * 60 * SharedConstants.TICKS_PER_SECOND)).forGetter(c -> c.buildEndTime),
-			ComponentSerialization.CODEC.fieldOf("theme").forGetter(c -> c.theme)
+			ComponentSerialization.CODEC.fieldOf("theme").forGetter(c -> c.theme),
+			Codec.INT.optionalFieldOf("base_points", 1).forGetter(c -> c.basePoints),
+			Codec.INT.optionalFieldOf("point_increment", 1).forGetter(c -> c.pointIncrement),
+			ExtraCodecs.POSITIVE_INT.optionalFieldOf("point_option_count", 6).forGetter(c -> c.pointOptionCount)
 	).apply(i, BuildBattleBehavior::new));
 
 	private static final Logger LOGGER = LogUtils.getLogger();
@@ -89,6 +94,9 @@ public final class BuildBattleBehavior implements IGameBehavior {
 	private final RegionQuery plotRegionsName;
 	private long buildEndTime;
 	private final Component theme;
+	private final int basePoints;
+	private final int pointIncrement;
+	private final int pointOptionCount;
 
 	private final List<Plot> plots = new ArrayList<>();
 	private final Map<UUID, Plot> plotsByPlayer = new HashMap<>();
@@ -108,15 +116,18 @@ public final class BuildBattleBehavior implements IGameBehavior {
 	private GameBossBar bar;
 	private boolean building = true;
 
-	public BuildBattleBehavior(RegionQuery plotRegionsName, long buildEndTime, Component theme) {
+	public BuildBattleBehavior(RegionQuery plotRegionsName, long buildEndTime, Component theme, int basePoints, int pointIncrement, int pointOptionCount) {
 		this.plotRegionsName = plotRegionsName;
 		this.buildEndTime = buildEndTime;
 		this.theme = theme;
+		this.basePoints = basePoints;
+		this.pointIncrement = pointIncrement;
+		this.pointOptionCount = pointOptionCount;
 	}
 
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
-		selectorItems = new SelectorItems<>(new VoteItemsHandlers(this), List.of(1, 2, 3, 4, 5, 6));
+		selectorItems = new SelectorItems<>(new VoteItemsHandlers(this), IntStream.range(0, pointOptionCount).mapToObj(index -> basePoints + index * pointIncrement).toList());
 
 		GameWidgets widgets = GameWidgets.getOrRegister(game, events);
 		bar = widgets.openGlobalBossBar(Component.empty(), BossEvent.BossBarColor.BLUE, BossEvent.BossBarOverlay.NOTCHED_10);
