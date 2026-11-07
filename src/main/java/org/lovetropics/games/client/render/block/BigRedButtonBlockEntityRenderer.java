@@ -25,8 +25,8 @@ public class BigRedButtonBlockEntityRenderer implements BlockEntityRenderer<BigR
 	private static final int TEXT_PADDING = 4;
 	private static final float Z_OFFSET = 0.01f;
 
-	private static final int START_COLOR = TextColor.GOLD.getValue();
-	private static final int TRIGGERED_COLOR = TextColor.GREEN.getValue();
+	private static final int START_COLOR = ARGB.opaque(TextColor.GOLD.getValue());
+	private static final int TRIGGERED_COLOR = ARGB.opaque(TextColor.GREEN.getValue());
 
 	private final Font font;
 
@@ -41,6 +41,7 @@ public class BigRedButtonBlockEntityRenderer implements BlockEntityRenderer<BigR
 
 	@Override
 	public void extractRenderState(BigRedButtonBlockEntity blockEntity, BigRedButtonBlockEntityRenderState state, float partialTicks, Vec3 cameraPosition, ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress) {
+		BlockEntityRenderer.super.extractRenderState(blockEntity, state, partialTicks, cameraPosition, breakProgress);
 		state.presentCount = blockEntity.getPlayersPresentCount();
 		state.requiredCount = blockEntity.getPlayersRequiredCount();
 		state.facing = blockEntity.getBlockState().getValue(ButtonBlock.FACING);
