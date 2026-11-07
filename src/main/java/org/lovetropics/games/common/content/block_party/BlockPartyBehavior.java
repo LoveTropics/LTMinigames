@@ -144,12 +144,12 @@ public final class BlockPartyBehavior implements IGameBehavior {
 		events.listen(GamePlayerEvents.DEATH, (player, damageSource) -> {
 			StatisticsMap playerStatistics = game.statistics().forPlayer(player);
 			int lives = playerStatistics.getInt(StatisticKey.LIVES);
-			if (lives == 0) {
+			int newLives = Math.max(lives - 1, 0);
+			playerStatistics.set(StatisticKey.LIVES, newLives);
+			if (newLives == 0) {
 				// Pass through to normal death logic
 				return TriState.DEFAULT;
 			}
-			int newLives = Math.max(lives - 1, 0);
-			playerStatistics.set(StatisticKey.LIVES, newLives);
 			SpawnBuilder spawn = new SpawnBuilder(player);
 			spawnPlayer(spawn);
 			player.setGameMode(GameType.SPECTATOR);
