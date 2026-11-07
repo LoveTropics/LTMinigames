@@ -337,10 +337,10 @@ public final class MinigameTexts {
 		KEYS.add("donation.player_dvd", "DVD Screensaver");
 		KEYS.add("donation.player_dvd.description", "Add your player face as a DVD Screensaver over everyone's screens");
 		KEYS.add("donation.player_dvd.toast", "%sender% wants you to see their DVD Screensaver");
-		KEYS.add("donation.swap_teams", "Swap Teams");
+		KEYS.add("donation.swap_teams", "Swap Team Positions");
 		KEYS.add("donation.swap_teams.description", "Swaps every teams' positions");
-		KEYS.add("donation.swap_teams.toast", "%sender% is swapping all teams!");
-		KEYS.add("donation.swap_teams.warning", "All teams will be swapping %time% seconds!");
+		KEYS.add("donation.swap_teams.toast", "%sender% is swapping all team positions!");
+		KEYS.add("donation.swap_teams.warning", "All team positions will be swapping %time% seconds!");
 		KEYS.add("donation.bad_mic", "Terrible Microphone");
 		KEYS.add("donation.bad_mic.description", "Turn back the clock on microphone quality - who needs those anyway?");
 		KEYS.add("donation.bad_mic.toast", "%sender% has given everyone TERRIBLE MICROPHONES!");
