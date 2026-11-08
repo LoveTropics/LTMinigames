@@ -8,6 +8,7 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.content.escape_race.EscapeRace;
@@ -20,6 +21,7 @@ import org.lovetropics.games.common.core.game.behavior.event.EventRegistrar;
 import org.lovetropics.games.common.core.game.behavior.event.GameActionEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GameLogicEvents;
 import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
+import org.lovetropics.games.common.core.game.behavior.event.GameWorldEvents;
 import org.lovetropics.games.common.core.game.player.PlayerSet;
 import org.lovetropics.games.common.core.game.region.Region;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
@@ -57,9 +59,10 @@ public record ExtractionLayerBehavior(
 		TeamState teamState = game.instanceState()
 				.getOrNull(TeamState.KEY);
 		state.layerRegion = actualLayerRegion;
-		events.listen(GameActionEvents.APPLY, (context, targets) -> {
-			state.pad = spawnPad(actualLayerRegion);
-			return true;
+		events.listen(GameWorldEvents.CHUNK_LOAD, (level, chunk) -> {
+			if(chunk.getPos().contains(actualLayerRegion.centerBlock())){
+				state.pad = spawnPad(actualLayerRegion);
+			}
 		});
 		events.listen(GamePhaseEvents.TICK, () -> tick(game, state, teamState, isUnlockTime));
 	}
