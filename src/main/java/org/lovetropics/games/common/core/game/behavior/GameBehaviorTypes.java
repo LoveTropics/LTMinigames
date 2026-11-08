@@ -43,6 +43,7 @@ import org.lovetropics.games.common.core.game.behavior.instances.LeakyPocketsBeh
 import org.lovetropics.games.common.core.game.behavior.instances.MinecraftBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.MinigameCompetitionBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.ModifyLootTablesBehavior;
+import org.lovetropics.games.common.core.game.behavior.instances.NoneRemainingEndTrigger;
 import org.lovetropics.games.common.core.game.behavior.instances.OnlyTickInPeriodBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.OrderedTrialSpawnerBehavior;
 import org.lovetropics.games.common.core.game.behavior.instances.PermanentItemBehavior;
@@ -302,6 +303,7 @@ public class GameBehaviorTypes {
 		register("disable_tnt_block_destruction", DisableTntDestructionBehavior.CODEC);
 		register("set_max_health", SetMaxHealthBehavior.CODEC);
 		register("last_remaining_win_trigger", LastRemainingWinTrigger.CODEC);
+		register("none_remaining_end_trigger", NoneRemainingEndTrigger.CODEC);
 		register("first_empty_team_win_trigger", FirstEmptyTeamWinTrigger.CODEC);
 		register("sync_teams", SyncTeamsBehavior.CODEC);
 		register("add_equipment", AddEquipmentAction.CODEC);
