@@ -23,27 +23,37 @@ import org.lovetropics.games.common.core.game.behavior.event.GamePhaseEvents;
 import org.lovetropics.games.common.core.game.player.PlayerSet;
 import org.lovetropics.games.common.core.game.region.Region;
 import org.lovetropics.games.common.core.game.region.RegionQuery;
+import org.lovetropics.games.common.core.game.state.progress.ProgressChannel;
+import org.lovetropics.games.common.core.game.state.progress.ProgressionPeriod;
 import org.lovetropics.games.common.core.game.state.team.GameTeamKey;
 import org.lovetropics.games.common.core.game.state.team.TeamState;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.BooleanSupplier;
 import java.util.stream.Collectors;
 
 public record ExtractionLayerBehavior(
 		RegionQuery layerRegion,
 		int secondsForWin,
-		int initialSecondsForWin
+		int initialSecondsForWin,
+		ProgressionPeriod unlockPeriod,
+		ProgressChannel channel
 ) implements IGameBehavior {
+
 	public static final MapCodec<ExtractionLayerBehavior> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			RegionQuery.CODEC.fieldOf("region").forGetter(c -> c.layerRegion),
 			Codec.INT.fieldOf("seconds").forGetter(c -> c.secondsForWin),
-			Codec.INT.fieldOf("initial_seconds").forGetter(c -> c.initialSecondsForWin)
+			Codec.INT.fieldOf("initial_seconds").forGetter(c -> c.initialSecondsForWin),
+			ProgressionPeriod.CODEC.fieldOf("unlock_period").forGetter(c -> c.unlockPeriod),
+			ProgressChannel.CODEC.optionalFieldOf("channel", ProgressChannel.MAIN).forGetter(c -> c.channel)
 	).apply(i, ExtractionLayerBehavior::new));
+
 	@Override
 	public void register(IGamePhase game, EventRegistrar events) throws GameException {
 		State state = new State();
 		Region actualLayerRegion = this.layerRegion.one(game);
+		BooleanSupplier isUnlockTime = unlockPeriod.createPredicate(game, channel);
 		TeamState teamState = game.instanceState()
 				.getOrNull(TeamState.KEY);
 		state.layerRegion = actualLayerRegion;
@@ -51,12 +61,20 @@ public record ExtractionLayerBehavior(
 			state.pad = spawnPad(actualLayerRegion);
 			return true;
 		});
-		events.listen(GamePhaseEvents.TICK, () -> tick(game, state, teamState));
+		events.listen(GamePhaseEvents.TICK, () -> tick(game, state, teamState, isUnlockTime));
 	}
 
-	private void tick(IGamePhase game, State state, TeamState teamState){
+	private void tick(IGamePhase game, State state, TeamState teamState, BooleanSupplier isUnlockTime){
 		if(state.pad == null || state.hasFinished){
 			return;
+		}
+		if(!isUnlockTime.getAsBoolean()){
+			updateActionBar(game, state, teamState);
+			return;
+		}
+		if(!state.isActive){
+			state.isActive = true;
+			state.pad.setRoomName(Component.empty());
 		}
 		PlayerSet playersInRegion = game.participants().filter(serverPlayer -> state.layerRegion.contains(serverPlayer));
 		if(playersInRegion.isEmpty()){
@@ -64,6 +82,7 @@ public record ExtractionLayerBehavior(
 				state.unlockingTicks = 0;
 				state.isUnlocking = false;
 				state.isFirstUnlock = false;
+				state.multipleTeams = false;
 				state.winningTeam = null;
 				state.countOfTeamInRegion = 0;
 				state.pad.setUnlockingTicks(state.unlockingTicks, state.isUnlocking);
@@ -80,9 +99,11 @@ public record ExtractionLayerBehavior(
 			state.isFirstUnlock = false;
 			state.multipleTeams = true;
 		} else if(teamsInRegion.size() == 1){
+			state.multipleTeams = false;
+			state.isFirstUnlock = false;
 			winningTeam.ifPresent(
 					(team) -> {
-						PlayerSet playersForTeam = teamState.getPlayersForTeam(game, team);
+						PlayerSet playersForTeam = teamState.getParticipantsForTeam(game, team);
 						if(playersForTeam.stream().allMatch(serverPlayer -> state.layerRegion.contains(serverPlayer))){
 							state.unlockingTicks++;
 							state.isUnlocking = true;
@@ -110,16 +131,25 @@ public record ExtractionLayerBehavior(
 		Component timer = Component.literal(state.unlockingTicks / SharedConstants.TICKS_PER_SECOND + "s / " + actualSecondsForWin + "s");
 		if(state.winningTeam != null){
 			teamName = teamState.getTeamByKey(state.winningTeam).styledName();
-			playerCount = Component.literal(state.countOfTeamInRegion + " of " + teamState.getPlayersForTeam(gamePhase, state.winningTeam).size() + " players");
+			playerCount = Component.literal(state.countOfTeamInRegion + " of " + teamState.getParticipantsForTeam(gamePhase, state.winningTeam).size() + " players");
 		}
 		MutableComponent totalActionBar = Component.empty();
-		if(state.multipleTeams){
-			totalActionBar = totalActionBar.append("Multiple teams in extraction zone").append(" - ").append(timer);
+		if(state.isActive) {
+			if (state.multipleTeams) {
+				totalActionBar = totalActionBar.append("Multiple teams in extraction zone").append(" - ").append(timer);
+			} else {
+				totalActionBar = totalActionBar.append(teamName).append(" - ").append(playerCount).append(" - ").append(timer);
+			}
 		} else {
-			totalActionBar = totalActionBar.append(teamName).append(" - ").append(playerCount).append(" - ").append(timer);
+			totalActionBar = totalActionBar.append("The Extraction Zone is not open.");
 		}
 		MutableComponent finalTotalActionBar = totalActionBar;
-		gamePhase.allPlayers().forEach(serverPlayer -> serverPlayer.sendOverlayMessage(finalTotalActionBar));
+		if(state.isActive) {
+			gamePhase.allPlayers().forEach(serverPlayer -> serverPlayer.sendOverlayMessage(finalTotalActionBar));
+		} else {
+			gamePhase.allPlayers().filter(player -> state.layerRegion.contains(player))
+					.forEach(serverPlayer -> serverPlayer.sendOverlayMessage(finalTotalActionBar));
+		}
 	}
 
 	public RoomEntrancePadEntity spawnPad(Region region){
@@ -135,11 +165,13 @@ public record ExtractionLayerBehavior(
 		pad.setDepth(size.getZ() - 0.01f);
 		region.level().getChunkSource().updateChunkForced(pad.chunkPosition(), true);
 		region.level().addFreshEntity(pad);
+		pad.setRoomName(Component.literal("Extraction Zone - Closed."));
 		return pad;
 	}
 
 	public static class State {
 		public @Nullable RoomEntrancePadEntity pad;
+		public boolean isActive = false;
 		public Region layerRegion;
 		public boolean isFirstUnlock = true;
 		public boolean isUnlocking = false;
