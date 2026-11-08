@@ -185,7 +185,9 @@ public class BigRedButtonBlockEntity extends BlockEntity {
 					Mth.floor(percent * smallestTeamSize),
 					count
 			);
-			return Math.min(preferredCount, smallestTeamSize);
+			int count = Math.min(preferredCount, smallestTeamSize);
+			// Always require at least one player :)
+			return Math.max(count, 1);
 		}
 	}
 }
