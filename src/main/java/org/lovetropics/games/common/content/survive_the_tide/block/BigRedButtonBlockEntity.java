@@ -137,7 +137,7 @@ public class BigRedButtonBlockEntity extends BlockEntity {
 	@Override
 	public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
 		CompoundTag tag = new CompoundTag();
-		tag.putInt(TAG_PRESENT, playersPresentCount);
+		tag.putInt(TAG_PRESENT, Mth.clamp(playersPresentCount, 0, playersRequiredCount));
 		tag.putInt(TAG_REQUIREMENTS, playersRequiredCount);
 		return tag;
 	}
