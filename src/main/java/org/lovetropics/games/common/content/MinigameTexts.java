@@ -344,6 +344,9 @@ public final class MinigameTexts {
 		KEYS.add("donation.bad_mic", "Terrible Microphone");
 		KEYS.add("donation.bad_mic.description", "Turn back the clock on microphone quality - who needs those anyway?");
 		KEYS.add("donation.bad_mic.toast", "%sender% has given everyone TERRIBLE MICROPHONES!");
+		KEYS.add("donation.gilets_jaunes", "Gilets jaunes");
+		KEYS.add("donation.gilets_jaunes.description", "Safety first! Put a reflective vest on every player");
+		KEYS.add("donation.gilets_jaunes.toast", "%sender% made everyone put on a GILET JAUNE!");
 
 		KEYS.add("donation.pvp_crabs", "Crab Hockey: PvP");
 		KEYS.add("donation.pvp_crabs.description", "Turn every player into a Crab, and allow PvP - players can score with each other!");

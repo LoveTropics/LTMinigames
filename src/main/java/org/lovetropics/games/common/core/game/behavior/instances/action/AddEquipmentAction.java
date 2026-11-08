@@ -34,7 +34,8 @@ public record AddEquipmentAction(
 		boolean clear,
 		boolean colorByTeam,
 		Map<GameTeamKey, ItemStackTemplate> hotbarTeamItems,
-		boolean allowDuplicates
+		boolean allowDuplicates,
+		boolean keepReplaced
 ) implements IGameBehavior {
 	public static final MapCodec<AddEquipmentAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			ItemStackTemplate.CODEC.listOf().optionalFieldOf("items", List.of()).forGetter(AddEquipmentAction::items),
@@ -47,7 +48,8 @@ public record AddEquipmentAction(
 			Codec.BOOL.optionalFieldOf("clear", false).forGetter(AddEquipmentAction::clear),
 			Codec.BOOL.optionalFieldOf("color_by_team", false).forGetter(AddEquipmentAction::colorByTeam),
 			Codec.unboundedMap(GameTeamKey.CODEC, ItemStackTemplate.CODEC).optionalFieldOf("hotbar_team_items", Map.of()).forGetter(AddEquipmentAction::hotbarTeamItems),
-			Codec.BOOL.optionalFieldOf("allow_duplicates", true).forGetter(AddEquipmentAction::allowDuplicates)
+			Codec.BOOL.optionalFieldOf("allow_duplicates", true).forGetter(AddEquipmentAction::allowDuplicates),
+			Codec.BOOL.optionalFieldOf("keep_replaced", false).forGetter(AddEquipmentAction::keepReplaced)
 	).apply(i, AddEquipmentAction::new));
 
 	@Override
@@ -90,15 +92,23 @@ public record AddEquipmentAction(
 				}
 			}
 
-			head.ifPresent(stack -> livingEntity.setItemSlot(EquipmentSlot.HEAD, copyAndModify(livingEntity, teams, stack.create())));
-			chest.ifPresent(stack -> livingEntity.setItemSlot(EquipmentSlot.CHEST, copyAndModify(livingEntity, teams, stack.create())));
-			legs.ifPresent(stack -> livingEntity.setItemSlot(EquipmentSlot.LEGS, copyAndModify(livingEntity, teams, stack.create())));
-			feet.ifPresent(stack -> livingEntity.setItemSlot(EquipmentSlot.FEET, copyAndModify(livingEntity, teams, stack.create())));
+			head.ifPresent(stack -> setArmorSlot(livingEntity, EquipmentSlot.HEAD, copyAndModify(livingEntity, teams, stack.create())));
+			chest.ifPresent(stack -> setArmorSlot(livingEntity, EquipmentSlot.CHEST, copyAndModify(livingEntity, teams, stack.create())));
+			legs.ifPresent(stack -> setArmorSlot(livingEntity, EquipmentSlot.LEGS, copyAndModify(livingEntity, teams, stack.create())));
+			feet.ifPresent(stack -> setArmorSlot(livingEntity, EquipmentSlot.FEET, copyAndModify(livingEntity, teams, stack.create())));
 			mainhand.ifPresent(stack -> addOrReplaceInSlot(livingEntity, EquipmentSlot.MAINHAND, copyAndModify(livingEntity, teams, stack.create())));
 			offhand.ifPresent(stack -> addOrReplaceInSlot(livingEntity, EquipmentSlot.OFFHAND, copyAndModify(livingEntity, teams, stack.create())));
 
 			return true;
 		});
+	}
+
+	private void setArmorSlot(LivingEntity entity, EquipmentSlot slot, ItemStack itemStack) {
+		ItemStack oldStack = entity.getItemBySlot(slot);
+		entity.setItemSlot(slot, itemStack);
+		if (keepReplaced && !oldStack.isEmpty() && entity instanceof ServerPlayer player) {
+			player.getInventory().placeItemBackInInventory(oldStack);
+		}
 	}
 
 	private void addOrReplaceInSlot(LivingEntity entity, EquipmentSlot slot, ItemStack itemStack) {
