@@ -70,7 +70,7 @@ public class BigRedButtonBlockEntityRenderer implements BlockEntityRenderer<BigR
 		float scale = 1.0f / (textWidth + TEXT_PADDING);
 		poseStack.scale(scale, scale, -scale);
 
-		int color = ARGB.linearLerp((float) presentCount / requiredCount, START_COLOR, TRIGGERED_COLOR);
+		int color = requiredCount == 0 ? START_COLOR : ARGB.linearLerp(Mth.clamp((float) presentCount / requiredCount, 0.0f, 1.0f), START_COLOR, TRIGGERED_COLOR);
 		submitNodeCollector.submitText(
 				poseStack,
 				-textWidth / 2.0f,
