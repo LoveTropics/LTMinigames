@@ -126,8 +126,10 @@ public final class GameLobbyTexts {
 
 		public static final Component MANAGE_GAME_LOBBY = KEYS.add("manage_game_lobby", "Manage Game Lobby");
 		public static final Component LOBBY_NAME = KEYS.add("lobby_name", "Lobby Name");
-		public static final Component PUBLISH = KEYS.add("publish", "Publish");
-		public static final Component UNPUBLISH = KEYS.add("unpublish", "Unpublish");
+		private static final TranslationCollector.Fun1 PLAYERS = KEYS.add1("players", "Players (%s)");
+		public static final Component LOBBY_LOCKED = KEYS.add("lobby_locked", "Private");
+		public static final Component LOBBY_UNLOCKED = KEYS.add("lobby_unlocked", "Public");
+		public static final Component ADD_PLAYER = KEYS.add("add_player", "Add Player");
 		public static final Component FOCUS_LIVE = KEYS.add("focus_live", "Focus Live");
 		public static final Component GAME_QUEUE = KEYS.add("game_queue", "Game Queue");
 		public static final Component INSTALLED_GAMES = KEYS.add("installed_games", "Installed");
@@ -174,6 +176,10 @@ public final class GameLobbyTexts {
 				return skipsGames ? CONFIRM_PLAY_NOW_STOPS_AND_SKIPS : CONFIRM_PLAY_NOW_STOPS_GAME;
 			}
 			return CONFIRM_PLAY_NOW_SKIPS_GAMES;
+		}
+
+		public static MutableComponent players(int count) {
+			return PLAYERS.apply(count);
 		}
 
 		public static MutableComponent playerCount(int count) {

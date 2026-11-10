@@ -19,6 +19,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
+//TODO: MOVE THIS?
 public class TestPermissionAPI implements RoleLookup {
 	private final Map<UUID, Roles> roles = new HashMap<>();
 

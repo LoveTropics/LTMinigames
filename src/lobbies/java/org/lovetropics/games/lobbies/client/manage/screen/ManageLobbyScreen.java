@@ -4,6 +4,8 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.LockIconButton;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
@@ -24,6 +26,7 @@ import org.lovetropics.games.lobbies.client.screen.ConfirmLayer;
 import org.lovetropics.games.lobbies.client.screen.FlexUi;
 import org.lovetropics.games.lobbies.client.screen.flex.Box;
 import org.lovetropics.games.lobbies.client.screen.flex.Layout;
+import org.lovetropics.games.lobbies.client.screen.list.AbstractLTList;
 import org.lovetropics.games.lobbies.client.state.ClientCurrentGame;
 
 import java.util.List;
@@ -35,7 +38,8 @@ public final class ManageLobbyScreen extends Screen {
 	private ManageLobbyLayout layout;
 
 	private EditBox nameField;
-	private Button publishButton;
+	private LockIconButton lockButton;
+	private Button addPlayerButton;
 	private Button focusLiveButton;
 
 	private GameList gameList;
@@ -131,13 +135,6 @@ public final class ManageLobbyScreen extends Screen {
 		nameField.setMaxLength(200);
 		nameField.setValue(lobby.getName());
 
-		publishButton = addRenderableWidget(FlexUi.createButton(layout.publish, GameLobbyTexts.Ui.PUBLISH, button -> session.toggleVisibility()));
-		focusLiveButton = addRenderableWidget(FlexUi.createButton(layout.focusLive, GameLobbyTexts.Ui.FOCUS_LIVE, button -> ConfirmLayer.open(
-				GameLobbyTexts.Ui.CONFIRM_FOCUS_LIVE_TITLE,
-				GameLobbyTexts.Ui.CONFIRM_FOCUS_LIVE_MESSAGE,
-				session::focusLive
-		)));
-
 		Component closeLobby = GameLobbyTexts.Ui.CLOSE_LOBBY.copy()
 				.withStyle(ChatFormatting.RED, ChatFormatting.UNDERLINE);
 		closeButton = addRenderableWidget(FlexUi.createButton(layout.close, closeLobby, button -> {
@@ -151,6 +148,20 @@ public final class ManageLobbyScreen extends Screen {
 				);
 			}
 		}));
+
+		focusLiveButton = addRenderableWidget(FlexUi.createButton(layout.focusLive, GameLobbyTexts.Ui.FOCUS_LIVE, button -> ConfirmLayer.open(
+				GameLobbyTexts.Ui.CONFIRM_FOCUS_LIVE_TITLE,
+				GameLobbyTexts.Ui.CONFIRM_FOCUS_LIVE_MESSAGE,
+				session::focusLive
+		)));
+
+		Box lock = layout.playersLock.content();
+		lockButton = addRenderableWidget(new LockIconButton(lock.left(), lock.top(), button -> session.toggleVisibility()));
+
+		addPlayerButton = addRenderableWidget(FlexUi.createButton(layout.playersAdd, Component.literal("+"), button -> {}));
+		addPlayerButton.setTooltip(Tooltip.create(GameLobbyTexts.Ui.ADD_PLAYER));
+		// TODO: open the add player layer
+		addPlayerButton.active = false;
 
 		playerList = addWidget(new LobbyPlayerList(this, lobby, layout.playerList));
 
@@ -201,10 +212,9 @@ public final class ManageLobbyScreen extends Screen {
 
 	public void updatePublishState() {
 		ClientLobbyManageState lobby = session.lobby();
-		switch (lobby.getVisibility()) {
-			case PRIVATE -> publishButton.setMessage(GameLobbyTexts.Ui.PUBLISH);
-			case PUBLIC -> publishButton.setMessage(GameLobbyTexts.Ui.UNPUBLISH);
-		}
+		boolean locked = lobby.getVisibility().isPrivate();
+		lockButton.setLocked(locked);
+		lockButton.setTooltip(Tooltip.create(locked ? GameLobbyTexts.Ui.LOBBY_LOCKED : GameLobbyTexts.Ui.LOBBY_UNLOCKED));
 		focusLiveButton.active = lobby.canFocusLive() && !lobby.isFocusedLive();
 	}
 
@@ -230,6 +240,8 @@ public final class ManageLobbyScreen extends Screen {
 		for (Layout marginal : layout.marginals) {
 			FlexUi.fill(marginal, graphics, 0xFF101010);
 		}
+
+		FlexUi.fill(layout.separator, graphics, AbstractLTList.SEPARATOR_COLOR);
 	}
 
 	@Override
@@ -244,6 +256,9 @@ public final class ManageLobbyScreen extends Screen {
 		graphics.text(font, nameField.getMessage(), nameField.getX(), nameField.getY() - font.lineHeight - 2, CommonColors.WHITE);
 		nameField.extractRenderState(graphics, mouseX, mouseY, partialTicks);
 
+		Box playersTitle = layout.playersTitle.content();
+		Component players = GameLobbyTexts.Ui.players(session.lobby().getPlayers().size());
+		graphics.centeredText(font, players, playersTitle.centerX(), playersTitle.centerY() - font.lineHeight / 2, CommonColors.WHITE);
 		playerList.render(graphics, mouseX, mouseY);
 
 		Box header = layout.header.content();

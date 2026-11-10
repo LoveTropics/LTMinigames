@@ -19,7 +19,7 @@ public abstract class AbstractLTList<T extends LTListEntry<T>> extends ObjectSel
 	private static final int SCROLL_WIDTH = 6;
 	private static final int LIST_PADDING = 2;
 	private static final int SEPARATOR_INSET = 4;
-	private static final int SEPARATOR_COLOR = 0x33FFFFFF;
+	public static final int SEPARATOR_COLOR = 0x33FFFFFF;
 
 	public final Screen screen;
 	protected @Nullable T draggingEntry;
