@@ -76,14 +76,26 @@ public final class GameQueueList extends AbstractGameList {
 
 		if (game != null) {
 			applyRunningGame(game, entry);
-			if (lobby.getControlsState().enabled(LobbyControls.Type.STOP)) {
-				entry.addAction(Component.literal("⏹"), GameLobbyTexts.Ui.STOP_GAME, handlers::stop);
-			}
+			addControlActions(game, entry);
 		} else {
 			applyInactiveGame(entry);
 		}
 
 		return entry;
+	}
+
+	private void addControlActions(ClientCurrentGame game, Entry entry) {
+		LobbyControls.State controls = lobby.getControlsState();
+		// an errored game is resumed from the queue instead
+		if (game.error().isEmpty() && controls.enabled(LobbyControls.Type.PLAY)) {
+			entry.addAction(Component.literal("▶"), GameLobbyTexts.Ui.START_GAME, () -> handlers.control(LobbyControls.Type.PLAY));
+		}
+		if (controls.enabled(LobbyControls.Type.RESTART)) {
+			entry.addAction(Component.literal("⟳"), GameLobbyTexts.Ui.RESTART_GAME, () -> handlers.control(LobbyControls.Type.RESTART));
+		}
+		if (controls.enabled(LobbyControls.Type.STOP)) {
+			entry.addAction(Component.literal("⏹"), GameLobbyTexts.Ui.STOP_GAME, () -> handlers.control(LobbyControls.Type.STOP));
+		}
 	}
 
 	private void applyRunningGame(ClientCurrentGame game, Entry entry) {
@@ -138,7 +150,7 @@ public final class GameQueueList extends AbstractGameList {
 
 		void play(int id);
 
-		void stop();
+		void control(LobbyControls.Type control);
 
 		void reorder(int id, int offset);
 	}

@@ -19,9 +19,6 @@ final class ManageLobbyLayout {
 
 	final Layout gameList;
 
-	final Layout play;
-	final Layout restart;
-
 	final Layout rightColumn;
 
 	final Layout properties;
@@ -55,10 +52,6 @@ final class ManageLobbyLayout {
 				.height(1.0F, Flex.Unit.PERCENT).grow(1.0f)
 				.alignCross(Align.Cross.START);
 
-		Flex centerFooter = footer.child().row()
-				.height(1.0F, Flex.Unit.PERCENT).grow(1.0f)
-				.alignCross(Align.Cross.CENTER);
-
 		Flex rightFooter = footer.child().row()
 				.height(1.0F, Flex.Unit.PERCENT).grow(1.0f)
 				.alignCross(Align.Cross.END);
@@ -70,12 +63,6 @@ final class ManageLobbyLayout {
 		Flex gameList = leftColumn.child()
 				.size(1.0f, 1.0f, Flex.Unit.PERCENT)
 				.alignMain(Align.Main.START);
-
-		Flex controls = centerFooter.child().row()
-				.alignCross(Align.Cross.CENTER);
-
-		Flex play = controls.child().size(20, 20).margin(2, 0);
-		Flex restart = controls.child().size(20, 20).margin(2, 0);
 
 		Flex rightColumn = body.child().column()
 				.size(0.4f, 1.0F, Flex.Unit.PERCENT)
@@ -117,9 +104,6 @@ final class ManageLobbyLayout {
 		this.leftColumn = solve.layout(leftColumn);
 		this.leftFooter = solve.layout(leftFooter);
 		this.gameList = solve.layout(gameList);
-
-		this.play = solve.layout(play);
-		this.restart = solve.layout(restart);
 
 		this.rightColumn = solve.layout(rightColumn);
 		this.properties = solve.layout(properties);

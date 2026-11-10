@@ -43,8 +43,6 @@ public final class ManageLobbyScreen extends Screen {
 
 	private Button closeButton;
 
-	private Button playButton;
-	private Button restartButton;
 
 	private int selectedGameId = -1;
 
@@ -102,12 +100,20 @@ public final class ManageLobbyScreen extends Screen {
 			}
 
 			@Override
-			public void stopGame() {
-				ConfirmLayer.open(
-						GameLobbyTexts.Ui.CONFIRM_STOP_GAME_TITLE,
-						GameLobbyTexts.Ui.CONFIRM_STOP_GAME_MESSAGE,
-						() -> session.selectControl(LobbyControls.Type.STOP)
-				);
+			public void selectControl(LobbyControls.Type control) {
+				switch (control) {
+					case STOP -> ConfirmLayer.open(
+							GameLobbyTexts.Ui.CONFIRM_STOP_GAME_TITLE,
+							GameLobbyTexts.Ui.CONFIRM_STOP_GAME_MESSAGE,
+							() -> session.selectControl(control)
+					);
+					case RESTART -> ConfirmLayer.open(
+							GameLobbyTexts.Ui.CONFIRM_RESTART_GAME_TITLE,
+							GameLobbyTexts.Ui.CONFIRM_RESTART_GAME_MESSAGE,
+							() -> session.selectControl(control)
+					);
+					default -> session.selectControl(control);
+				}
 			}
 
 			@Override
@@ -147,13 +153,6 @@ public final class ManageLobbyScreen extends Screen {
 		}));
 
 		playerList = addWidget(new LobbyPlayerList(this, lobby, layout.playerList));
-
-		playButton = addRenderableWidget(FlexUi.createButton(layout.play, Component.literal("▶"), b -> {
-			session.selectControl(LobbyControls.Type.PLAY);
-		}));
-		restartButton = addRenderableWidget(FlexUi.createButton(layout.restart, Component.literal("⟳"), b -> {
-			session.selectControl(LobbyControls.Type.RESTART);
-		}));
 
 		addRenderableWidget(FlexUi.createButton(layout.done, CommonComponents.GUI_DONE, b -> onClose()));
 
@@ -196,11 +195,7 @@ public final class ManageLobbyScreen extends Screen {
 	}
 
 	public void updateControlsState() {
-		ClientLobbyManageState lobby = session.lobby();
-		LobbyControls.State controls = lobby.getControlsState();
-		playButton.active = controls.enabled(LobbyControls.Type.PLAY);
-		restartButton.active = controls.enabled(LobbyControls.Type.RESTART);
-		// inline play/stop actions depend on the controls
+		// inline control actions depend on the controls
 		gameList.updateEntries();
 	}
 

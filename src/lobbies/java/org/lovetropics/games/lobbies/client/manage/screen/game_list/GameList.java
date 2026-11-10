@@ -11,6 +11,7 @@ import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import org.jetbrains.annotations.Nullable;
+import org.lovetropics.games.lobbies.LobbyControls;
 import org.lovetropics.games.lobbies.client.manage.state.ClientLobbyManageState;
 import org.lovetropics.games.lobbies.client.screen.flex.Layout;
 
@@ -65,8 +66,8 @@ public final class GameList implements GuiEventListener, NarratableEntry {
 			}
 
 			@Override
-			public void stop() {
-				handlers.stopGame();
+			public void control(LobbyControls.Type control) {
+				handlers.selectControl(control);
 			}
 
 			@Override
@@ -203,6 +204,6 @@ public final class GameList implements GuiEventListener, NarratableEntry {
 
 		void playQueuedGame(int queuedGameId);
 
-		void stopGame();
+		void selectControl(LobbyControls.Type control);
 	}
 }

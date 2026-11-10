@@ -4,6 +4,7 @@ import com.lovetropics.lib.slideshow.SlideshowApi;
 import com.lovetropics.lib.slideshow.SlideshowInstanceHandle;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.Unit;
 import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.common.config.ConfigLT;
 import org.lovetropics.games.common.core.game.GamePhaseType;
@@ -44,6 +45,11 @@ abstract class LobbyState {
 
 	final Yield yield() {
 		return new Yield(phase);
+	}
+
+	static GameResult<Unit> restart(GamePhase phase) {
+		phase.game.lobby().gameQueue.enqueueFirst(phase.config());
+		return phase.requestStop(GameStopReason.canceled());
 	}
 
 	static class Paused extends LobbyState {
@@ -164,11 +170,7 @@ abstract class LobbyState {
 		Playing(GamePhase phase) {
 			super(phase);
 			controls.add(LobbyControls.Type.SKIP, () -> phase.requestStop(GameStopReason.canceled()));
-			controls.add(LobbyControls.Type.RESTART, () -> phase.requestStop(GameStopReason.canceled()));
-			controls.add(LobbyControls.Type.STOP, () -> {
-				pause = true;
-				return phase.requestStop(GameStopReason.canceled());
-			});
+			controls.add(LobbyControls.Type.RESTART, () -> restart(phase));
 			controls.add(LobbyControls.Type.STOP, () -> {
 				pause = true;
 				return phase.requestStop(GameStopReason.canceled());
@@ -208,9 +210,9 @@ abstract class LobbyState {
 
 			controls.add(LobbyControls.Type.PLAY, () -> phase.requestStop(GameStopReason.finished()));
 			controls.add(LobbyControls.Type.SKIP, () -> phase.requestStop(GameStopReason.canceled()));
-			// TODO stuffs
-			controls.add(LobbyControls.Type.RESTART, () -> {
-				// TODO queue another game up
+			controls.add(LobbyControls.Type.RESTART, () -> restart(phase));
+			controls.add(LobbyControls.Type.STOP, () -> {
+				pause = true;
 				return phase.requestStop(GameStopReason.canceled());
 			});
 		}

@@ -36,6 +36,8 @@
   "ltgames_lobbies.ui.confirm_play_now.stops_and_skips": "The current game will be stopped and skipped, and the game(s) queued inbetween will be skipped.",
   "ltgames_lobbies.ui.confirm_play_now.stops_game": "The current game will be stopped and skipped.",
   "ltgames_lobbies.ui.confirm_play_now.title": "Play this game now?",
+  "ltgames_lobbies.ui.confirm_restart_game.message": "The current game will be restarted from the beginning.",
+  "ltgames_lobbies.ui.confirm_restart_game.title": "Restart the current game?",
   "ltgames_lobbies.ui.confirm_stop_game.message": "Players will leave the game and the queue will pause.",
   "ltgames_lobbies.ui.confirm_stop_game.title": "Stop the current game?",
   "ltgames_lobbies.ui.focus_live": "Focus Live",
@@ -50,6 +52,7 @@
   "ltgames_lobbies.ui.play_now": "Play Now",
   "ltgames_lobbies.ui.publish": "Publish",
   "ltgames_lobbies.ui.remove_from_queue": "Remove from Queue",
+  "ltgames_lobbies.ui.restart_game": "Restart Game",
   "ltgames_lobbies.ui.search_games": "Search...",
   "ltgames_lobbies.ui.select_play": "Play",
   "ltgames_lobbies.ui.select_player_role": "Select Player Role",
@@ -57,6 +60,7 @@
   "ltgames_lobbies.ui.select_role_message_important": "Please select to %s or %s",
   "ltgames_lobbies.ui.select_spectate": "Spectate",
   "ltgames_lobbies.ui.spectating": "Spectating",
+  "ltgames_lobbies.ui.start_game": "Start Game",
   "ltgames_lobbies.ui.stop_game": "Stop Game",
   "ltgames_lobbies.ui.unpublish": "Unpublish"
 }

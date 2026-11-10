@@ -137,7 +137,11 @@ public final class GameLobbyTexts {
 		public static final Component ADD_GAME = KEYS.add("add_game", "Add a minigame...");
 		public static final Component REMOVE_FROM_QUEUE = KEYS.add("remove_from_queue", "Remove from Queue");
 		public static final Component PLAY_NOW = KEYS.add("play_now", "Play Now");
+		public static final Component START_GAME = KEYS.add("start_game", "Start Game");
+		public static final Component RESTART_GAME = KEYS.add("restart_game", "Restart Game");
 		public static final Component STOP_GAME = KEYS.add("stop_game", "Stop Game");
+		public static final Component CONFIRM_RESTART_GAME_TITLE = KEYS.add("confirm_restart_game.title", "Restart the current game?");
+		public static final Component CONFIRM_RESTART_GAME_MESSAGE = KEYS.add("confirm_restart_game.message", "The current game will be restarted from the beginning.");
 		public static final Component CONFIRM_PLAY_NOW_TITLE = KEYS.add("confirm_play_now.title", "Play this game now?");
 		private static final Component CONFIRM_PLAY_NOW_STOPS_GAME = KEYS.add("confirm_play_now.stops_game", "The current game will be stopped and skipped.");
 		private static final Component CONFIRM_PLAY_NOW_SKIPS_GAMES = KEYS.add("confirm_play_now.skips_games", "The game(s) queued inbetween will be skipped.");

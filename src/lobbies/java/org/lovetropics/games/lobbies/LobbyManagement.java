@@ -114,12 +114,6 @@ public final class LobbyManagement {
 
 	public void selectControl(LobbyControls.Type type) {
 		LobbyControls.Action action = lobby.getControls().get(type);
-		// TODO: This shouldn't be here!
-		GamePhase topPhase = lobby.state.getTopPhase();
-		if (topPhase != null && type == LobbyControls.Type.RESTART) {
-			QueuedGame queuedGame = lobby.gameQueue.enqueue(topPhase.config());
-			reorderQueuedGame(queuedGame.networkId(), 0);
-		}
 		if (action != null) {
 			Scheduler.nextTick().run(server -> {
 				// TODO: handle result

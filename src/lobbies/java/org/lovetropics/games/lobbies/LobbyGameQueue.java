@@ -29,6 +29,12 @@ public final class LobbyGameQueue implements Iterable<QueuedGame> {
 		return entry;
 	}
 
+	QueuedGame enqueueFirst(GameConfig game) {
+		QueuedGame entry = QueuedGame.create(game);
+		entries.addFirst(entry);
+		return entry;
+	}
+
 	public void clear() {
 		entries.clear();
 	}

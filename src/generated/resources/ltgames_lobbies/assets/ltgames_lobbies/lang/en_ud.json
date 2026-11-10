@@ -36,6 +36,8 @@
   "ltgames_lobbies.ui.confirm_play_now.stops_and_skips": "˙pǝddıʞs ǝq ןןıʍ uǝǝʍʇǝquı pǝnǝnb (s)ǝɯɐb ǝɥʇ puɐ 'pǝddıʞs puɐ pǝddoʇs ǝq ןןıʍ ǝɯɐb ʇuǝɹɹnɔ ǝɥ⟘",
   "ltgames_lobbies.ui.confirm_play_now.stops_game": "˙pǝddıʞs puɐ pǝddoʇs ǝq ןןıʍ ǝɯɐb ʇuǝɹɹnɔ ǝɥ⟘",
   "ltgames_lobbies.ui.confirm_play_now.title": "¿ʍou ǝɯɐb sıɥʇ ʎɐןԀ",
+  "ltgames_lobbies.ui.confirm_restart_game.message": "˙buıuuıbǝq ǝɥʇ ɯoɹɟ pǝʇɹɐʇsǝɹ ǝq ןןıʍ ǝɯɐb ʇuǝɹɹnɔ ǝɥ⟘",
+  "ltgames_lobbies.ui.confirm_restart_game.title": "¿ǝɯɐb ʇuǝɹɹnɔ ǝɥʇ ʇɹɐʇsǝᴚ",
   "ltgames_lobbies.ui.confirm_stop_game.message": "˙ǝsnɐd ןןıʍ ǝnǝnb ǝɥʇ puɐ ǝɯɐb ǝɥʇ ǝʌɐǝן ןןıʍ sɹǝʎɐןԀ",
   "ltgames_lobbies.ui.confirm_stop_game.title": "¿ǝɯɐb ʇuǝɹɹnɔ ǝɥʇ doʇS",
   "ltgames_lobbies.ui.focus_live": "ǝʌıꞀ snɔoℲ",
@@ -50,6 +52,7 @@
   "ltgames_lobbies.ui.play_now": "ʍoN ʎɐןԀ",
   "ltgames_lobbies.ui.publish": "ɥsıןqnԀ",
   "ltgames_lobbies.ui.remove_from_queue": "ǝnǝnὉ ɯoɹɟ ǝʌoɯǝᴚ",
+  "ltgames_lobbies.ui.restart_game": "ǝɯɐ⅁ ʇɹɐʇsǝᴚ",
   "ltgames_lobbies.ui.search_games": "˙˙˙ɥɔɹɐǝS",
   "ltgames_lobbies.ui.select_play": "ʎɐןԀ",
   "ltgames_lobbies.ui.select_player_role": "ǝןoᴚ ɹǝʎɐןԀ ʇɔǝןǝS",
@@ -57,6 +60,7 @@
   "ltgames_lobbies.ui.select_role_message_important": "%2$s ɹo %1$s oʇ ʇɔǝןǝs ǝsɐǝןԀ",
   "ltgames_lobbies.ui.select_spectate": "ǝʇɐʇɔǝdS",
   "ltgames_lobbies.ui.spectating": "buıʇɐʇɔǝdS",
+  "ltgames_lobbies.ui.start_game": "ǝɯɐ⅁ ʇɹɐʇS",
   "ltgames_lobbies.ui.stop_game": "ǝɯɐ⅁ doʇS",
   "ltgames_lobbies.ui.unpublish": "ɥsıןqndu∩"
 }
