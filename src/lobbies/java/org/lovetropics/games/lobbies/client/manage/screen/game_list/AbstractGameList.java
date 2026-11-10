@@ -166,6 +166,11 @@ public abstract class AbstractGameList extends AbstractLTList<AbstractGameList.E
 			return this;
 		}
 
+		@Override
+		public boolean hasSeparators() {
+			return !banner;
+		}
+
 		public Entry setDraggable(Reorder reorder) {
 			this.reorder = reorder;
 			return this;

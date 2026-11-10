@@ -18,6 +18,8 @@ public abstract class AbstractLTList<T extends LTListEntry<T>> extends ObjectSel
 
 	private static final int SCROLL_WIDTH = 6;
 	private static final int LIST_PADDING = 2;
+	private static final int SEPARATOR_INSET = 4;
+	private static final int SEPARATOR_COLOR = 0x33FFFFFF;
 
 	public final Screen screen;
 	protected @Nullable T draggingEntry;
@@ -234,8 +236,9 @@ public abstract class AbstractLTList<T extends LTListEntry<T>> extends ObjectSel
 		boolean listHovered = isMouseOver(mouseX, mouseY);
 		boolean dragging = draggingEntry != null;
 
+		@Nullable T hoveredEntry = null;
 		for (T entry : children()) {
-			if (entry.getY() + entry.getHeight() < getY() || entry.getY() > getBottom()) {
+			if (!isEntryVisible(entry)) {
 				continue;
 			}
 
@@ -246,8 +249,40 @@ public abstract class AbstractLTList<T extends LTListEntry<T>> extends ObjectSel
 			boolean entryHovered = !dragging && listHovered && entry.isMouseOver(mouseX, mouseY);
 			entry.extractContent(graphics, mouseX, mouseY, entryHovered, a);
 			if (entryHovered) {
+				hoveredEntry = entry;
 				graphics.requestCursor(CursorTypes.POINTING_HAND);
 			}
 		}
+
+		extractSeparators(graphics, hoveredEntry);
+	}
+
+	private void extractSeparators(GuiGraphicsExtractor graphics, @Nullable T hoveredEntry) {
+		List<T> entries = children();
+		int left = getRowLeft() + SEPARATOR_INSET;
+		int right = getRowLeft() + getRowWidth() - SEPARATOR_INSET;
+		for (int index = 1; index < entries.size(); index++) {
+			T above = entries.get(index - 1);
+			T below = entries.get(index);
+			if (!isEntryVisible(below) || !hasSeparatorBetween(above, below, hoveredEntry)) {
+				continue;
+			}
+			int y = below.getY();
+			graphics.fill(left, y, right, y + 1, SEPARATOR_COLOR);
+		}
+	}
+
+	// highlighted entries already stand out and a separator would cut into their styled box.
+	private boolean hasSeparatorBetween(T above, T below, @Nullable T hoveredEntry) {
+		for (T entry : List.of(above, below)) {
+			if (!entry.hasSeparators() || entry == hoveredEntry || entry == getSelected() || entry == draggingEntry) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private boolean isEntryVisible(T entry) {
+		return entry.getY() + entry.getHeight() >= getY() && entry.getY() <= getBottom();
 	}
 }

@@ -23,6 +23,10 @@ public abstract class LTListEntry<T extends LTListEntry<T>> extends Entry<T> {
 	public void renderTooltips(GuiGraphicsExtractor graphics, int width, int mouseX, int mouseY) {
 	}
 
+	public boolean hasSeparators() {
+		return true;
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
