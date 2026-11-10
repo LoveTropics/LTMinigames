@@ -106,14 +106,17 @@ public final class ManageLobbyScreen extends Screen {
 
 		Component closeLobby = GameLobbyTexts.Ui.CLOSE_LOBBY.copy()
 				.withStyle(ChatFormatting.RED, ChatFormatting.UNDERLINE);
-		closeButton = addRenderableWidget(FlexUi.createButton(layout.close, closeLobby, buton -> ConfirmLayer.open(
-				GameLobbyTexts.Ui.CONFIRM_CLOSE_LOBBY_TITLE,
-				GameLobbyTexts.Ui.CONFIRM_CLOSE_LOBBY_MESSAGE,
-				() -> {
-					session.closeLobby();
-					onClose();
-				}
-		)));
+		closeButton = addRenderableWidget(FlexUi.createButton(layout.close, closeLobby, button -> {
+			if (lobby.getQueue().isEmpty()) {
+				closeLobby();
+			} else {
+				ConfirmLayer.open(
+						GameLobbyTexts.Ui.CONFIRM_CLOSE_LOBBY_TITLE,
+						GameLobbyTexts.Ui.CONFIRM_CLOSE_LOBBY_MESSAGE,
+						this::closeLobby
+				);
+			}
+		}));
 
 		playerList = addWidget(new LobbyPlayerList(this, lobby, layout.playerList));
 
@@ -148,6 +151,11 @@ public final class ManageLobbyScreen extends Screen {
 		if (listener == nameField) {
 			applyNameField();
 		}
+	}
+
+	private void closeLobby() {
+		session.closeLobby();
+		onClose();
 	}
 
 	public void updateGameEntries() {
