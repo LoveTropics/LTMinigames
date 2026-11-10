@@ -1,6 +1,7 @@
 package org.lovetropics.games.lobbies.client.screen.list;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.ObjectSelectionList;
@@ -52,6 +53,8 @@ public abstract class AbstractLTList<T extends LTListEntry<T>> extends ObjectSel
 		dragging.setY(getDraggingY(mouseY));
 		dragging.extractContent(graphics, mouseX, mouseY, true, partialTicks);
 		dragging.setY(restoreY);
+
+		graphics.requestCursor(CursorTypes.RESIZE_NS);
 	}
 
 	protected void renderTooltips(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
@@ -242,6 +245,9 @@ public abstract class AbstractLTList<T extends LTListEntry<T>> extends ObjectSel
 
 			boolean entryHovered = !dragging && listHovered && entry.isMouseOver(mouseX, mouseY);
 			entry.extractContent(graphics, mouseX, mouseY, entryHovered, a);
+			if (entryHovered) {
+				graphics.requestCursor(CursorTypes.POINTING_HAND);
+			}
 		}
 	}
 }
