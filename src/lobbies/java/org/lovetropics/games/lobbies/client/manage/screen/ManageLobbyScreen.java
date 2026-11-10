@@ -6,6 +6,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.CommonColors;
@@ -234,6 +235,15 @@ public final class ManageLobbyScreen extends Screen {
 	@Override
 	public Optional<GuiEventListener> getChildAt(double mouseX, double mouseY) {
 		return gameList.getChildAt(mouseX, mouseY).or(() -> super.getChildAt(mouseX, mouseY));
+	}
+
+	@Override
+	public boolean keyPressed(KeyEvent event) {
+		if (event.isEscape() && gameList.back()) {
+			setFocused(gameList);
+			return true;
+		}
+		return super.keyPressed(event);
 	}
 
 	@Override

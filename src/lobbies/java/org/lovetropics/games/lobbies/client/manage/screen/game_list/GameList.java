@@ -72,7 +72,15 @@ public final class GameList implements GuiEventListener, NarratableEntry {
 			handlers.enqueueGame(index);
 
 			setActive(createQueue());
-		});
+		}, this::back);
+	}
+
+	public boolean back() {
+		if (active instanceof InstalledGameList) {
+			setActive(createQueue());
+			return true;
+		}
+		return false;
 	}
 
 	private void setActive(AbstractGameList active) {

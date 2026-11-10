@@ -157,6 +157,10 @@ public abstract class AbstractLTList<T extends LTListEntry<T>> extends ObjectSel
 	@Override
 	public boolean keyPressed(KeyEvent event) {
 		T selected = getSelected();
+		if (selected != null && selected.handleActionKey(event)) {
+			return true;
+		}
+
 		if (selected != null && selected.reorder != null && Minecraft.getInstance().hasShiftDown()) {
 			int offset = 0;
 			if (event.key() == InputConstants.KEY_UP) {
@@ -224,9 +228,13 @@ public abstract class AbstractLTList<T extends LTListEntry<T>> extends ObjectSel
 
 	@Override
 	public void setSelected(@Nullable T entry) {
+		T previous = getSelected();
 		T dragging = draggingEntry;
-		if (entry == null && dragging != null && dragging == getSelected()) {
+		if (entry == null && dragging != null && dragging == previous) {
 			stopDragging(dragging);
+		}
+		if (previous != null && previous != entry) {
+			previous.resetFocusedAction();
 		}
 		super.setSelected(entry);
 	}
@@ -252,6 +260,8 @@ public abstract class AbstractLTList<T extends LTListEntry<T>> extends ObjectSel
 				hoveredEntry = entry;
 				graphics.requestCursor(CursorTypes.POINTING_HAND);
 			}
+			// after the entry cursor so that an inactivee action can override it
+			entry.extractActions(graphics, mouseX, mouseY, entryHovered, a);
 		}
 
 		extractSeparators(graphics, hoveredEntry);

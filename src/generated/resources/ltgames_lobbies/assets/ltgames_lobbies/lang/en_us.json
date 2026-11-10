@@ -23,6 +23,8 @@
   "ltgames_lobbies.status.lobby_stopped": "Your current lobby has stopped! You have been teleported to your last location.",
   "ltgames_lobbies.status.player_joined": "%s has joined %s!",
   "ltgames_lobbies.status.spectator_joined": "%s has joined %s as a spectator!",
+  "ltgames_lobbies.ui.add_to_queue": "Add to Queue",
+  "ltgames_lobbies.ui.back_to_queue": "Back to Queue",
   "ltgames_lobbies.ui.click_to_select": "%s [Click to Select]",
   "ltgames_lobbies.ui.close_lobby": "Close",
   "ltgames_lobbies.ui.confirm_close_lobby.message": "The lobby will be removed.",

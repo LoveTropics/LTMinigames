@@ -23,6 +23,8 @@
   "ltgames_lobbies.status.lobby_stopped": "˙uoıʇɐɔoן ʇsɐן ɹnoʎ oʇ pǝʇɹodǝןǝʇ uǝǝq ǝʌɐɥ noʎ ¡pǝddoʇs sɐɥ ʎqqoן ʇuǝɹɹnɔ ɹnoʎ",
   "ltgames_lobbies.status.player_joined": "¡%2$s pǝuıoظ sɐɥ %1$s",
   "ltgames_lobbies.status.spectator_joined": "¡ɹoʇɐʇɔǝds ɐ sɐ %2$s pǝuıoظ sɐɥ %1$s",
+  "ltgames_lobbies.ui.add_to_queue": "ǝnǝnὉ oʇ ppⱯ",
+  "ltgames_lobbies.ui.back_to_queue": "ǝnǝnὉ oʇ ʞɔɐᗺ",
   "ltgames_lobbies.ui.click_to_select": "[ʇɔǝןǝS oʇ ʞɔıןƆ] %1$s",
   "ltgames_lobbies.ui.close_lobby": "ǝsoןƆ",
   "ltgames_lobbies.ui.confirm_close_lobby.message": "˙pǝʌoɯǝɹ ǝq ןןıʍ ʎqqoן ǝɥ⟘",

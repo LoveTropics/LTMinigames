@@ -110,7 +110,7 @@ public abstract class AbstractGameList extends AbstractLTList<AbstractGameList.E
 			int top = getContentY();
 			fillEntry(graphics, left, top, width, height, hovered, selected, outline);
 
-			int maxTextWidth = getMaxTextWidth(width);
+			int maxTextWidth = getMaxTextWidth(width) - getVisibleActionsWidth(hovered);
 
 			if (subtitle != null) {
 				graphics.text(font, title.forWidth(font, maxTextWidth), left + PADDING, top + PADDING + 1, CommonColors.WHITE);
@@ -123,8 +123,12 @@ public abstract class AbstractGameList extends AbstractLTList<AbstractGameList.E
 		@Override
 		public void renderTooltips(GuiGraphicsExtractor graphics, int width, int mouseX, int mouseY) {
 			super.renderTooltips(graphics, width, mouseX, mouseY);
+			// the hovered action shows its own tooltip
+			if (isMouseOverAction(mouseX, mouseY)) {
+				return;
+			}
 			TrimmedText subtitle = this.subtitle;
-			int maxTextWidth = getMaxTextWidth(width);
+			int maxTextWidth = getMaxTextWidth(width) - getVisibleActionsWidth(true);
 			Font font = screen.getMinecraft().font;
 			if (subtitle != null && subtitle.isTrimmedForWidth(font, maxTextWidth)) {
 				graphics.setTooltipForNextFrame(subtitle.text(), mouseX, mouseY);

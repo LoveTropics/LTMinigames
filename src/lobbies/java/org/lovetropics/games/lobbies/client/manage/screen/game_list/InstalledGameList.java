@@ -4,11 +4,11 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
-import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.lobbies.GameLobbyTexts;
 import org.lovetropics.games.lobbies.client.ClientGameDefinition;
 import org.lovetropics.games.lobbies.client.manage.state.ClientLobbyManageState;
@@ -27,36 +27,34 @@ public final class InstalledGameList extends AbstractGameList {
 			.withStyle(ChatFormatting.UNDERLINE, ChatFormatting.BOLD);
 
 	private final ClientLobbyManageState lobby;
-	private final IntConsumer select;
+	private final IntConsumer enqueue;
+	private final Runnable back;
 
+	private final Button backButton;
 	private final EditBox searchField;
-	private final Button enqueueButton;
-	private final Button cancelButton;
 
-	public InstalledGameList(Screen screen, Layout main, Layout footer, ClientLobbyManageState lobby, IntConsumer select) {
+	public InstalledGameList(Screen screen, Layout main, Layout footer, ClientLobbyManageState lobby, IntConsumer enqueue, Runnable back) {
 		super(screen, main, TITLE);
 		this.lobby = lobby;
-		this.select = select;
+		this.enqueue = enqueue;
+		this.back = back;
 
 		Flex root = new Flex().row();
-		Flex search = root.child().grow(1.0F).height(20).marginRight(2);
-		Flex enqueue = root.child().size(20, 20).margin(2, 0);
-		Flex cancel = root.child().size(20, 20).marginLeft(2);
+		Flex backFlex = root.child().size(20, 20).marginRight(2);
+		Flex search = root.child().grow(1.0F).height(20).marginLeft(2);
 
 		FlexSolver.Results solve = new FlexSolver(footer.content()).apply(root);
+		backButton = FlexUi.createButton(solve.layout(backFlex), Component.literal("←"), button -> back.run());
+		backButton.setTooltip(Tooltip.create(GameLobbyTexts.Ui.BACK_TO_QUEUE));
 		searchField = FlexUi.createTextField(solve.layout(search), screen.getMinecraft().font, GameLobbyTexts.Ui.SEARCH_GAMES);
 		searchField.setHint(GameLobbyTexts.Ui.SEARCH_GAMES);
 		searchField.setResponder(query -> updateEntries());
-		enqueueButton = FlexUi.createButton(solve.layout(enqueue), Component.literal("✔"), this::enqueue);
-		cancelButton = FlexUi.createButton(solve.layout(cancel), Component.literal("❌"), this::cancel);
 	}
 
 	@Override
 	public Optional<GuiEventListener> getChildAt(double x, double y) {
-		if (enqueueButton.isMouseOver(x, y)) {
-			return Optional.of(enqueueButton);
-		} else if (cancelButton.isMouseOver(x, y)) {
-			return Optional.of(cancelButton);
+		if (backButton.isMouseOver(x, y)) {
+			return Optional.of(backButton);
 		}
 		return super.getChildAt(x, y);
 	}
@@ -71,7 +69,7 @@ public final class InstalledGameList extends AbstractGameList {
 
 	@Override
 	public boolean isMouseOver(double mouseX, double mouseY) {
-		return enqueueButton.isMouseOver(mouseX, mouseY) || cancelButton.isMouseOver(mouseX, mouseY) || super.isMouseOver(mouseX, mouseY);
+		return backButton.isMouseOver(mouseX, mouseY) || super.isMouseOver(mouseX, mouseY);
 	}
 
 	@Override
@@ -88,8 +86,15 @@ public final class InstalledGameList extends AbstractGameList {
 			if (!matches(game, query)) {
 				continue;
 			}
-			addEntry(Entry.game(this, id, game));
+			addEntry(createEntry(id, game));
 		}
+	}
+
+	private Entry createEntry(int id, ClientGameDefinition game) {
+		Entry entry = Entry.game(this, id, game);
+		entry.addAction(Component.literal("✔"), GameLobbyTexts.Ui.ADD_TO_QUEUE, () -> enqueue.accept(id));
+		entry.setActivateAction(() -> enqueue.accept(id));
+		return entry;
 	}
 
 	private static boolean matches(ClientGameDefinition game, String query) {
@@ -100,34 +105,18 @@ public final class InstalledGameList extends AbstractGameList {
 				|| game.id().toString().contains(query);
 	}
 
-	private void enqueue(Button button) {
-		Entry selected = getSelected();
-		select.accept(selected != null ? selected.getId() : -1);
-	}
-
-	private void cancel(Button button) {
-		select.accept(-1);
-	}
-
 	@Override
 	public void renderOverlays(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
 		super.renderOverlays(graphics, mouseX, mouseY, partialTicks);
-		enqueueButton.extractRenderState(graphics, mouseX, mouseY, partialTicks);
-		cancelButton.extractRenderState(graphics, mouseX, mouseY, partialTicks);
+		backButton.extractRenderState(graphics, mouseX, mouseY, partialTicks);
 		searchField.extractRenderState(graphics, mouseX, mouseY, partialTicks);
 	}
 
 	@Override
 	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
-		if (enqueueButton.mouseClicked(event, doubleClick) || cancelButton.mouseClicked(event, doubleClick)) {
+		if (backButton.mouseClicked(event, doubleClick)) {
 			return true;
 		}
 		return super.mouseClicked(event, doubleClick);
-	}
-
-	@Override
-	public void setSelected(@Nullable Entry entry) {
-		super.setSelected(entry);
-		enqueueButton.active = entry != null;
 	}
 }
