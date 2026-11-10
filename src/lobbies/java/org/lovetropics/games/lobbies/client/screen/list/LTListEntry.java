@@ -1,8 +1,10 @@
 package org.lovetropics.games.lobbies.client.screen.list;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractButton;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.SpriteIconButton;
 import net.minecraft.client.gui.components.Tooltip;
@@ -33,6 +35,7 @@ public abstract class LTListEntry<T extends LTListEntry<T>> extends Entry<T> {
 	private int focusedAction = -1;
 	private boolean pressedAction;
 	private @Nullable Runnable activate;
+	private boolean activateOnClick;
 
 	public LTListEntry(AbstractLTList<T> list, Screen screen) {
 		super();
@@ -124,6 +127,10 @@ public abstract class LTListEntry<T extends LTListEntry<T>> extends Entry<T> {
 		this.activate = activate;
 	}
 
+	public void setActivateOnClick(boolean activateOnClick) {
+		this.activateOnClick = activateOnClick;
+	}
+
 	boolean handleActionKey(KeyEvent event) {
 		if (event.key() == InputConstants.KEY_RIGHT && focusedAction < actions.size() - 1) {
 			focusedAction++;
@@ -154,6 +161,12 @@ public abstract class LTListEntry<T extends LTListEntry<T>> extends Entry<T> {
 		pressedAction = action != null;
 		if (pressedAction) {
 			action.mouseClicked(event, doubleClick);
+			return true;
+		}
+
+		if (activateOnClick && activate != null) {
+			AbstractWidget.playButtonClickSound(Minecraft.getInstance().getSoundManager());
+			activate.run();
 			return true;
 		}
 

@@ -74,6 +74,7 @@ public abstract class AbstractGameList extends AbstractLTList<AbstractGameList.E
 		private int outlineColor = 0xFF808080;
 
 		boolean banner;
+		boolean centered;
 
 		public Entry(AbstractLTList<Entry> list, int id) {
 			super(list, list.screen);
@@ -112,7 +113,9 @@ public abstract class AbstractGameList extends AbstractLTList<AbstractGameList.E
 
 			int maxTextWidth = getMaxTextWidth(width) - getVisibleActionsWidth(hovered);
 
-			if (subtitle != null) {
+			if (centered) {
+				graphics.centeredText(font, title.forWidth(font, maxTextWidth), left + width / 2, top + (height - fontHeight) / 2, CommonColors.WHITE);
+			} else if (subtitle != null) {
 				graphics.text(font, title.forWidth(font, maxTextWidth), left + PADDING, top + PADDING + 1, CommonColors.WHITE);
 				graphics.text(font, subtitle.forWidth(font, maxTextWidth), left + PADDING, top + height - PADDING - fontHeight, 0xff555555);
 			} else {
@@ -167,6 +170,11 @@ public abstract class AbstractGameList extends AbstractLTList<AbstractGameList.E
 
 		public Entry setBanner(boolean banner) {
 			this.banner = banner;
+			return this;
+		}
+
+		public Entry setCentered(boolean centered) {
+			this.centered = centered;
 			return this;
 		}
 

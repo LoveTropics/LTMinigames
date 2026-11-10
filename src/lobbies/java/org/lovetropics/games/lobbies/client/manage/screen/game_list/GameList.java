@@ -43,7 +43,7 @@ public final class GameList implements GuiEventListener, NarratableEntry {
 	}
 
 	private GameQueueList createQueue() {
-		return new GameQueueList(screen, mainLayout, footerLayout, lobby, new GameQueueList.Handlers() {
+		return new GameQueueList(screen, mainLayout, lobby, new GameQueueList.Handlers() {
 			@Override
 			public void select(int id) {
 				handlers.selectQueuedGame(id);

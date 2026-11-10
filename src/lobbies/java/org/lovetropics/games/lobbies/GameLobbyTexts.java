@@ -134,6 +134,8 @@ public final class GameLobbyTexts {
 		public static final Component SEARCH_GAMES = KEYS.add("search_games", "Search...");
 		public static final Component ADD_TO_QUEUE = KEYS.add("add_to_queue", "Add to Queue");
 		public static final Component BACK_TO_QUEUE = KEYS.add("back_to_queue", "Back to Queue");
+		public static final Component ADD_GAME = KEYS.add("add_game", "Add a minigame...");
+		public static final Component REMOVE_FROM_QUEUE = KEYS.add("remove_from_queue", "Remove from Queue");
 		public static final Component GAME_INACTIVE = KEYS.add("game_inactive", "Inactive");
 		public static final Component CLOSE_LOBBY = KEYS.add("close_lobby", "Close");
 		public static final Component CONFIRM_FOCUS_LIVE_TITLE = KEYS.add("confirm_focus_live.title", "Are you sure to focus this lobby live?");
