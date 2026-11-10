@@ -99,17 +99,18 @@ final class ManageLobbyLayout {
 				.width(1.0F, Flex.Unit.PERCENT).height(20)
 				.marginTop(PADDING / 2);
 
+		Flex close = properties.child()
+				.width(1.0F, Flex.Unit.PERCENT).height(20)
+				.marginTop(PADDING / 2);
+
 		Flex playerList = properties.child()
 				.width(1.0F, Flex.Unit.PERCENT).grow(1.0F)
 				.marginTop(PADDING);
 
-		Flex close = rightFooter.child()
-				.grow(1.0F).height(20)
-				.margin(2, 0);
-
 		Flex done = rightFooter.child()
-				.grow(1.0F).height(20)
-				.margin(2, 0);
+				.width(0.5F, Flex.Unit.PERCENT).height(20)
+				.margin(2, 0)
+				.alignMain(Align.Main.END);
 
 		FlexSolver.Results solve = new FlexSolver(new Box(screen)).apply(root);
 

@@ -19,6 +19,7 @@ import org.lovetropics.games.lobbies.client.manage.screen.game_list.GameList;
 import org.lovetropics.games.lobbies.client.manage.screen.player_list.LobbyPlayerList;
 import org.lovetropics.games.lobbies.client.manage.state.ClientLobbyManageState;
 import org.lovetropics.games.lobbies.client.manage.state.ClientLobbyQueue;
+import org.lovetropics.games.lobbies.client.screen.ConfirmLayer;
 import org.lovetropics.games.lobbies.client.screen.FlexUi;
 import org.lovetropics.games.lobbies.client.screen.flex.Box;
 import org.lovetropics.games.lobbies.client.screen.flex.Layout;
@@ -97,7 +98,22 @@ public final class ManageLobbyScreen extends Screen {
 		nameField.setValue(lobby.getName());
 
 		publishButton = addRenderableWidget(FlexUi.createButton(layout.publish, GameLobbyTexts.Ui.PUBLISH, button -> session.toggleVisibility()));
-		focusLiveButton = addRenderableWidget(FlexUi.createButton(layout.focusLive, GameLobbyTexts.Ui.FOCUS_LIVE, button -> session.focusLive()));
+		focusLiveButton = addRenderableWidget(FlexUi.createButton(layout.focusLive, GameLobbyTexts.Ui.FOCUS_LIVE, button -> ConfirmLayer.open(
+				GameLobbyTexts.Ui.CONFIRM_FOCUS_LIVE_TITLE,
+				GameLobbyTexts.Ui.CONFIRM_FOCUS_LIVE_MESSAGE,
+				session::focusLive
+		)));
+
+		Component closeLobby = GameLobbyTexts.Ui.CLOSE_LOBBY.copy()
+				.withStyle(ChatFormatting.RED, ChatFormatting.UNDERLINE);
+		closeButton = addRenderableWidget(FlexUi.createButton(layout.close, closeLobby, buton -> ConfirmLayer.open(
+				GameLobbyTexts.Ui.CONFIRM_CLOSE_LOBBY_TITLE,
+				GameLobbyTexts.Ui.CONFIRM_CLOSE_LOBBY_MESSAGE,
+				() -> {
+					session.closeLobby();
+					onClose();
+				}
+		)));
 
 		playerList = addWidget(new LobbyPlayerList(this, lobby, layout.playerList));
 
@@ -111,12 +127,6 @@ public final class ManageLobbyScreen extends Screen {
 			session.selectControl(LobbyControls.Type.RESTART);
 		}));
 
-		Component closeLobby = GameLobbyTexts.Ui.CLOSE_LOBBY.copy()
-				.withStyle(ChatFormatting.RED, ChatFormatting.UNDERLINE);
-		closeButton = addRenderableWidget(FlexUi.createButton(layout.close, closeLobby, b -> {
-			session.closeLobby();
-			onClose();
-		}));
 		addRenderableWidget(FlexUi.createButton(layout.done, CommonComponents.GUI_DONE, b -> onClose()));
 
 		updateGameEntries();
@@ -144,7 +154,7 @@ public final class ManageLobbyScreen extends Screen {
 		gameList.updateEntries();
 
 		ClientLobbyManageState lobby = session.lobby();
-		closeButton.active = lobby.getCurrentGame() == null && lobby.getQueue().isEmpty();
+		closeButton.active = lobby.getCurrentGame() == null;
 	}
 
 	public void updateNameField() {

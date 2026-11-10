@@ -134,6 +134,10 @@ public final class GameLobbyTexts {
 		public static final Component SEARCH_GAMES = KEYS.add("search_games", "Search...");
 		public static final Component GAME_INACTIVE = KEYS.add("game_inactive", "Inactive");
 		public static final Component CLOSE_LOBBY = KEYS.add("close_lobby", "Close");
+		public static final Component CONFIRM_FOCUS_LIVE_TITLE = KEYS.add("confirm_focus_live.title", "Are you sure to focus this lobby live?");
+		public static final Component CONFIRM_FOCUS_LIVE_MESSAGE = KEYS.add("confirm_focus_live.message", "Only one lobby can be live at a time.");
+		public static final Component CONFIRM_CLOSE_LOBBY_TITLE = KEYS.add("confirm_close_lobby.title", "Close this lobby?");
+		public static final Component CONFIRM_CLOSE_LOBBY_MESSAGE = KEYS.add("confirm_close_lobby.message", "The lobby will be removed.");
 
 		public static final Component SELECT_PLAYER_ROLE = KEYS.add("select_player_role", "Select Player Role");
 		private static final TranslationCollector.Fun1 SELECT_ROLE_MESSAGE = KEYS.add1("select_role_message", "Welcome to the game lobby!\nBefore the game, %s.\n\nYou will be prompted before each game in this lobby.");
