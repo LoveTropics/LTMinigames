@@ -24,6 +24,7 @@ import org.lovetropics.games.lobbies.client.screen.ConfirmLayer;
 import org.lovetropics.games.lobbies.client.screen.FlexUi;
 import org.lovetropics.games.lobbies.client.screen.flex.Box;
 import org.lovetropics.games.lobbies.client.screen.flex.Layout;
+import org.lovetropics.games.lobbies.client.state.ClientCurrentGame;
 
 import java.util.List;
 import java.util.Optional;
@@ -43,8 +44,6 @@ public final class ManageLobbyScreen extends Screen {
 	private Button closeButton;
 
 	private Button playButton;
-	private Button skipButton;
-
 	private Button restartButton;
 
 	private int selectedGameId = -1;
@@ -81,6 +80,34 @@ public final class ManageLobbyScreen extends Screen {
 			@Override
 			public void removeQueuedGame(int queuedGameId) {
 				session.removeQueuedGame(queuedGameId);
+			}
+
+			@Override
+			public void playQueuedGame(int queuedGameId) {
+				int index = lobby.getQueue().indexById(queuedGameId);
+				if (index == -1) {
+					return;
+				}
+				ClientCurrentGame currentGame = lobby.getCurrentGame();
+				boolean stopsGame = currentGame != null && currentGame.error().isEmpty();
+				if (index == 0 && !stopsGame) {
+					session.playQueuedGame(queuedGameId);
+				} else {
+					ConfirmLayer.open(
+							GameLobbyTexts.Ui.CONFIRM_PLAY_NOW_TITLE,
+							GameLobbyTexts.Ui.confirmPlayNowMessage(stopsGame, index > 0),
+							() -> session.playQueuedGame(queuedGameId)
+					);
+				}
+			}
+
+			@Override
+			public void stopGame() {
+				ConfirmLayer.open(
+						GameLobbyTexts.Ui.CONFIRM_STOP_GAME_TITLE,
+						GameLobbyTexts.Ui.CONFIRM_STOP_GAME_MESSAGE,
+						() -> session.selectControl(LobbyControls.Type.STOP)
+				);
 			}
 
 			@Override
@@ -123,9 +150,6 @@ public final class ManageLobbyScreen extends Screen {
 
 		playButton = addRenderableWidget(FlexUi.createButton(layout.play, Component.literal("▶"), b -> {
 			session.selectControl(LobbyControls.Type.PLAY);
-		}));
-		skipButton = addRenderableWidget(FlexUi.createButton(layout.skip, Component.literal("⏭"), b -> {
-			session.selectControl(LobbyControls.Type.SKIP);
 		}));
 		restartButton = addRenderableWidget(FlexUi.createButton(layout.restart, Component.literal("⟳"), b -> {
 			session.selectControl(LobbyControls.Type.RESTART);
@@ -175,8 +199,9 @@ public final class ManageLobbyScreen extends Screen {
 		ClientLobbyManageState lobby = session.lobby();
 		LobbyControls.State controls = lobby.getControlsState();
 		playButton.active = controls.enabled(LobbyControls.Type.PLAY);
-		skipButton.active = controls.enabled(LobbyControls.Type.SKIP);
 		restartButton.active = controls.enabled(LobbyControls.Type.RESTART);
+		// inline play/stop actions depend on the controls
+		gameList.updateEntries();
 	}
 
 	public void updatePublishState() {

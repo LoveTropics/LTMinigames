@@ -20,8 +20,6 @@ final class ManageLobbyLayout {
 	final Layout gameList;
 
 	final Layout play;
-	final Layout skip;
-
 	final Layout restart;
 
 	final Layout rightColumn;
@@ -77,7 +75,6 @@ final class ManageLobbyLayout {
 				.alignCross(Align.Cross.CENTER);
 
 		Flex play = controls.child().size(20, 20).margin(2, 0);
-		Flex stop = controls.child().size(20, 20).margin(2, 0);
 		Flex restart = controls.child().size(20, 20).margin(2, 0);
 
 		Flex rightColumn = body.child().column()
@@ -122,7 +119,6 @@ final class ManageLobbyLayout {
 		this.gameList = solve.layout(gameList);
 
 		this.play = solve.layout(play);
-		skip = solve.layout(stop);
 		this.restart = solve.layout(restart);
 
 		this.rightColumn = solve.layout(rightColumn);

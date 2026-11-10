@@ -159,10 +159,20 @@ abstract class LobbyState {
 	}
 
 	static final class Playing extends LobbyState {
+		boolean pause;
+
 		Playing(GamePhase phase) {
 			super(phase);
 			controls.add(LobbyControls.Type.SKIP, () -> phase.requestStop(GameStopReason.canceled()));
 			controls.add(LobbyControls.Type.RESTART, () -> phase.requestStop(GameStopReason.canceled()));
+			controls.add(LobbyControls.Type.STOP, () -> {
+				pause = true;
+				return phase.requestStop(GameStopReason.canceled());
+			});
+			controls.add(LobbyControls.Type.STOP, () -> {
+				pause = true;
+				return phase.requestStop(GameStopReason.canceled());
+			});
 		}
 
 		@Override
@@ -176,7 +186,7 @@ abstract class LobbyState {
 
 		private GameResult<LobbyState> nextState(GameStopReason stopping) {
 			if (!stopping.isErrored()) {
-				return GameResult.ok(this.yield());
+				return GameResult.ok(pause ? new Paused() : this.yield());
 			} else {
 				return GameResult.error(stopping.getError());
 			}
@@ -190,6 +200,7 @@ abstract class LobbyState {
 
 	static final class Waiting extends LobbyState {
 		final Supplier<LobbyState> start;
+		boolean pause;
 
 		Waiting(GamePhase phase, Supplier<LobbyState> start) {
 			super(phase);
@@ -219,7 +230,10 @@ abstract class LobbyState {
 
 		private GameResult<LobbyState> nextState(GameStopReason stopping) {
 			if (!stopping.isErrored()) {
-				return GameResult.ok(stopping.isFinished() ? start.get() : this.yield());
+				if (stopping.isFinished()) {
+					return GameResult.ok(start.get());
+				}
+				return GameResult.ok(pause ? new Paused() : this.yield());
 			} else {
 				return GameResult.error(stopping.getError());
 			}

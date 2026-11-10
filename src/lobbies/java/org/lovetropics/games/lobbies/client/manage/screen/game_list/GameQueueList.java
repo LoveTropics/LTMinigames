@@ -6,6 +6,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import org.jspecify.annotations.Nullable;
 import org.lovetropics.games.lobbies.GameLobbyTexts;
+import org.lovetropics.games.lobbies.LobbyControls;
 import org.lovetropics.games.lobbies.client.manage.state.ClientLobbyManageState;
 import org.lovetropics.games.lobbies.client.manage.state.ClientLobbyQueue;
 import org.lovetropics.games.lobbies.client.screen.flex.Layout;
@@ -53,6 +54,9 @@ public final class GameQueueList extends AbstractGameList {
 		int id = entry.id();
 		Entry listEntry = Entry.game(this, id, entry.game().definition())
 				.setDraggable(offset -> handlers.reorder(id, offset));
+		LobbyControls.State controls = lobby.getControlsState();
+		listEntry.addAction(Component.literal("▶"), GameLobbyTexts.Ui.PLAY_NOW, () -> handlers.play(id)).active =
+				controls.enabled(LobbyControls.Type.PLAY) || controls.enabled(LobbyControls.Type.SKIP);
 		listEntry.addAction(Component.literal("❌"), GameLobbyTexts.Ui.REMOVE_FROM_QUEUE, () -> remove(listEntry));
 		return listEntry;
 	}
@@ -72,6 +76,9 @@ public final class GameQueueList extends AbstractGameList {
 
 		if (game != null) {
 			applyRunningGame(game, entry);
+			if (lobby.getControlsState().enabled(LobbyControls.Type.STOP)) {
+				entry.addAction(Component.literal("⏹"), GameLobbyTexts.Ui.STOP_GAME, handlers::stop);
+			}
 		} else {
 			applyInactiveGame(entry);
 		}
@@ -128,6 +135,10 @@ public final class GameQueueList extends AbstractGameList {
 		void enqueue();
 
 		void remove(int id);
+
+		void play(int id);
+
+		void stop();
 
 		void reorder(int id, int offset);
 	}

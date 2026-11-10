@@ -85,6 +85,10 @@ public final class ClientLobbyManagement {
 			sendUpdates(updates -> updates.reorderQueuedGame(id, newIndex));
 		}
 
+		public void playQueuedGame(int id) {
+			sendUpdates(updates -> updates.playQueuedGame(id));
+		}
+
 		public void selectControl(LobbyControls.Type control) {
 			sendUpdates(updates -> updates.selectControl(control));
 		}

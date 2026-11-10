@@ -59,6 +59,15 @@ public final class LobbyGameQueue implements Iterable<QueuedGame> {
 		return true;
 	}
 
+	boolean moveToFrontByNetworkId(int networkId) {
+		int index = indexByNetworkId(networkId);
+		if (index == -1) {
+			return false;
+		}
+		entries.subList(0, index).clear();
+		return true;
+	}
+
 	@Nullable QueuedGame getByNetworkId(int networkId) {
 		int index = indexByNetworkId(networkId);
 		return index != -1 ? entries.get(index) : null;

@@ -46,6 +46,11 @@ public abstract class ServerLobbyUpdate extends PartialUpdate<LobbyManagement> {
 			return this;
 		}
 
+		public Set playQueuedGame(int id) {
+			add(new PlayQueuedGame(id));
+			return this;
+		}
+
 		public Set selectControl(LobbyControls.Type control) {
 			add(new SelectControl(control));
 			return this;
@@ -74,6 +79,7 @@ public abstract class ServerLobbyUpdate extends PartialUpdate<LobbyManagement> {
 		SELECT_CONTROL(SelectControl::decode),
 		SET_VISIBILITY(SetVisibility::decode),
 		CLOSE(Close::decode),
+		PLAY_QUEUED_GAME(PlayQueuedGame::decode),
 		;
 
 		private final StreamDecoder<RegistryFriendlyByteBuf, ServerLobbyUpdate> decode;
@@ -187,6 +193,29 @@ public abstract class ServerLobbyUpdate extends PartialUpdate<LobbyManagement> {
 
 		static ReorderQueuedGame decode(FriendlyByteBuf buffer) {
 			return new ReorderQueuedGame(buffer.readVarInt(), buffer.readVarInt());
+		}
+	}
+
+	public static final class PlayQueuedGame extends ServerLobbyUpdate {
+		private final int id;
+
+		PlayQueuedGame(int id) {
+			super(Type.PLAY_QUEUED_GAME);
+			this.id = id;
+		}
+
+		@Override
+		public void applyTo(LobbyManagement lobby) {
+			lobby.playQueuedGame(id);
+		}
+
+		@Override
+		protected void encode(RegistryFriendlyByteBuf buffer) {
+			buffer.writeVarInt(id);
+		}
+
+		static PlayQueuedGame decode(FriendlyByteBuf buffer) {
+			return new PlayQueuedGame(buffer.readVarInt());
 		}
 	}
 

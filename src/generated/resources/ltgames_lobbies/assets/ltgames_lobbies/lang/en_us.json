@@ -32,6 +32,12 @@
   "ltgames_lobbies.ui.confirm_close_lobby.title": "Close this lobby?",
   "ltgames_lobbies.ui.confirm_focus_live.message": "Only one lobby can be live at a time.",
   "ltgames_lobbies.ui.confirm_focus_live.title": "Are you sure to focus this lobby live?",
+  "ltgames_lobbies.ui.confirm_play_now.skips_games": "The game(s) queued inbetween will be skipped.",
+  "ltgames_lobbies.ui.confirm_play_now.stops_and_skips": "The current game will be stopped and skipped, and the game(s) queued inbetween will be skipped.",
+  "ltgames_lobbies.ui.confirm_play_now.stops_game": "The current game will be stopped and skipped.",
+  "ltgames_lobbies.ui.confirm_play_now.title": "Play this game now?",
+  "ltgames_lobbies.ui.confirm_stop_game.message": "Players will leave the game and the queue will pause.",
+  "ltgames_lobbies.ui.confirm_stop_game.title": "Stop the current game?",
   "ltgames_lobbies.ui.focus_live": "Focus Live",
   "ltgames_lobbies.ui.free_camera": "Free Camera",
   "ltgames_lobbies.ui.game_inactive": "Inactive",
@@ -41,6 +47,7 @@
   "ltgames_lobbies.ui.lobby_name": "Lobby Name",
   "ltgames_lobbies.ui.manage_game_lobby": "Manage Game Lobby",
   "ltgames_lobbies.ui.participating": "Participating",
+  "ltgames_lobbies.ui.play_now": "Play Now",
   "ltgames_lobbies.ui.publish": "Publish",
   "ltgames_lobbies.ui.remove_from_queue": "Remove from Queue",
   "ltgames_lobbies.ui.search_games": "Search...",
@@ -50,5 +57,6 @@
   "ltgames_lobbies.ui.select_role_message_important": "Please select to %s or %s",
   "ltgames_lobbies.ui.select_spectate": "Spectate",
   "ltgames_lobbies.ui.spectating": "Spectating",
+  "ltgames_lobbies.ui.stop_game": "Stop Game",
   "ltgames_lobbies.ui.unpublish": "Unpublish"
 }

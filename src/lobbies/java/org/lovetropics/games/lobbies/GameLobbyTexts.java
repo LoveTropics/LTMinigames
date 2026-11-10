@@ -136,6 +136,14 @@ public final class GameLobbyTexts {
 		public static final Component BACK_TO_QUEUE = KEYS.add("back_to_queue", "Back to Queue");
 		public static final Component ADD_GAME = KEYS.add("add_game", "Add a minigame...");
 		public static final Component REMOVE_FROM_QUEUE = KEYS.add("remove_from_queue", "Remove from Queue");
+		public static final Component PLAY_NOW = KEYS.add("play_now", "Play Now");
+		public static final Component STOP_GAME = KEYS.add("stop_game", "Stop Game");
+		public static final Component CONFIRM_PLAY_NOW_TITLE = KEYS.add("confirm_play_now.title", "Play this game now?");
+		private static final Component CONFIRM_PLAY_NOW_STOPS_GAME = KEYS.add("confirm_play_now.stops_game", "The current game will be stopped and skipped.");
+		private static final Component CONFIRM_PLAY_NOW_SKIPS_GAMES = KEYS.add("confirm_play_now.skips_games", "The game(s) queued inbetween will be skipped.");
+		private static final Component CONFIRM_PLAY_NOW_STOPS_AND_SKIPS = KEYS.add("confirm_play_now.stops_and_skips", "The current game will be stopped and skipped, and the game(s) queued inbetween will be skipped.");
+		public static final Component CONFIRM_STOP_GAME_TITLE = KEYS.add("confirm_stop_game.title", "Stop the current game?");
+		public static final Component CONFIRM_STOP_GAME_MESSAGE = KEYS.add("confirm_stop_game.message", "Players will leave the game and the queue will pause.");
 		public static final Component GAME_INACTIVE = KEYS.add("game_inactive", "Inactive");
 		public static final Component CLOSE_LOBBY = KEYS.add("close_lobby", "Close");
 		public static final Component CONFIRM_FOCUS_LIVE_TITLE = KEYS.add("confirm_focus_live.title", "Are you sure to focus this lobby live?");
@@ -156,6 +164,13 @@ public final class GameLobbyTexts {
 
 		public static final Component FREE_CAMERA = KEYS.add("free_camera", "Free Camera");
 		public static final TranslationCollector.Fun1 CLICK_TO_SELECT = KEYS.add1("click_to_select", "%s [Click to Select]");
+
+		public static Component confirmPlayNowMessage(boolean stopsGame, boolean skipsGames) {
+			if (stopsGame) {
+				return skipsGames ? CONFIRM_PLAY_NOW_STOPS_AND_SKIPS : CONFIRM_PLAY_NOW_STOPS_GAME;
+			}
+			return CONFIRM_PLAY_NOW_SKIPS_GAMES;
+		}
 
 		public static MutableComponent playerCount(int count) {
 			return GAME_PLAYER_COUNT.apply(count);

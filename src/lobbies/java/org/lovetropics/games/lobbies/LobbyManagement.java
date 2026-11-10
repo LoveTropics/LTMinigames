@@ -90,6 +90,24 @@ public final class LobbyManagement {
 		}
 	}
 
+	public void playQueuedGame(int id) {
+		if (!lobby.gameQueue.moveToFrontByNetworkId(id)) {
+			return;
+		}
+		sendUpdates(updates -> updates.updateQueue(lobby.gameQueue));
+
+		// cancelling the current game or resuming the queue both start the next queued game
+		LobbyControls controls = lobby.getControls();
+		LobbyControls.Action action = controls.get(LobbyControls.Type.SKIP);
+		if (action == null) {
+			action = controls.get(LobbyControls.Type.PLAY);
+		}
+		if (action != null) {
+			LobbyControls.Action run = action;
+			Scheduler.nextTick().run(server -> run.run());
+		}
+	}
+
 	public @Nullable QueuedGame getQueuedGame(int id) {
 		return lobby.gameQueue.getByNetworkId(id);
 	}

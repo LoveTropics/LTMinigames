@@ -60,6 +60,16 @@ public final class GameList implements GuiEventListener, NarratableEntry {
 			}
 
 			@Override
+			public void play(int id) {
+				handlers.playQueuedGame(id);
+			}
+
+			@Override
+			public void stop() {
+				handlers.stopGame();
+			}
+
+			@Override
 			public void reorder(int id, int offset) {
 				handlers.reorderQueuedGame(id, offset);
 			}
@@ -190,5 +200,9 @@ public final class GameList implements GuiEventListener, NarratableEntry {
 		void removeQueuedGame(int queuedGameId);
 
 		void reorderQueuedGame(int queuedGameId, int offset);
+
+		void playQueuedGame(int queuedGameId);
+
+		void stopGame();
 	}
 }
