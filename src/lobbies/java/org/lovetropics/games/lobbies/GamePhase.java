@@ -406,6 +406,18 @@ public class GamePhase implements IGamePhase {
 		return game.instanceState();
 	}
 
+	public boolean hasPlayer(ServerPlayer player) {
+		if (allPlayers.contains(player)) {
+			return true;
+		}
+		for (GamePhase subPhase : subPhases) {
+			if (subPhase.hasPlayer(player)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	@Override
 	public PlayerSet allPlayers(boolean includeSubPhases) {
 		if (includeSubPhases) {

@@ -223,6 +223,7 @@ public final class GameLobby {
 
 	void onPlayerRegister(ServerPlayer player) {
 		manager.addPlayerToLobby(player, this);
+		trackingPlayers.updateTracking(player);
 
 		stateListener.onPlayerJoin(this, player);
 
@@ -239,7 +240,8 @@ public final class GameLobby {
 		try {
 			GamePhase phase = state.getTopPhase();
 			// Note: can be re-entrant from dimension changing as a result of leaving a lobby - don't try to remove the player twice
-			if (phase != null && phase.allPlayers(true).contains(player)) {
+			// Players that joined during a waiting phase have no role yet, so they are not part of allPlayers(true)
+			if (phase != null && phase.hasPlayer(player)) {
 				player = phase.removePlayer(player, loggingOut);
 
 				// Don't try to restore the player if they're logging out, as we never save their in-game state anyway
@@ -256,11 +258,12 @@ public final class GameLobby {
 		}
 
 		stateListener.onPlayerLeave(this, player);
-		management.stopManaging(player);
+		management.forceStopManaging(player);
 
 		management.onPlayersChanged();
 
 		manager.removePlayerFromLobby(player, this);
+		trackingPlayers.updateTracking(player);
 
 		rewardsMap.grant(player);
 

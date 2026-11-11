@@ -19,6 +19,7 @@ import org.lovetropics.games.lobbies.LobbyControls;
 import org.lovetropics.games.lobbies.client.ClientGameDefinition;
 import org.lovetropics.games.lobbies.client.manage.ClientLobbyManagement;
 import org.lovetropics.games.lobbies.client.manage.screen.game_list.GameList;
+import org.lovetropics.games.lobbies.client.manage.screen.player_list.AddPlayerLayer;
 import org.lovetropics.games.lobbies.client.manage.screen.player_list.LobbyPlayerList;
 import org.lovetropics.games.lobbies.client.manage.state.ClientLobbyManageState;
 import org.lovetropics.games.lobbies.client.manage.state.ClientLobbyQueue;
@@ -158,12 +159,11 @@ public final class ManageLobbyScreen extends Screen {
 		Box lock = layout.playersLock.content();
 		lockButton = addRenderableWidget(new LockIconButton(lock.left(), lock.top(), button -> session.toggleVisibility()));
 
-		addPlayerButton = addRenderableWidget(FlexUi.createButton(layout.playersAdd, Component.literal("+"), button -> {}));
+		addPlayerButton = addRenderableWidget(FlexUi.createButton(layout.playersAdd, Component.literal("+"), button -> AddPlayerLayer.open(session)));
 		addPlayerButton.setTooltip(Tooltip.create(GameLobbyTexts.Ui.ADD_PLAYER));
-		// TODO: open the add player layer
-		addPlayerButton.active = false;
 
-		playerList = addWidget(new LobbyPlayerList(this, lobby, layout.playerList));
+		playerList = addWidget(new LobbyPlayerList(this, lobby, layout.playerList, session::kickPlayer));
+		playerList.updateEntries();
 
 		addRenderableWidget(FlexUi.createButton(layout.done, CommonComponents.GUI_DONE, b -> onClose()));
 
@@ -198,6 +198,10 @@ public final class ManageLobbyScreen extends Screen {
 
 		ClientLobbyManageState lobby = session.lobby();
 		closeButton.active = lobby.getCurrentGame() == null;
+	}
+
+	public void updatePlayers() {
+		playerList.updateEntries();
 	}
 
 	public void updateNameField() {
@@ -259,12 +263,12 @@ public final class ManageLobbyScreen extends Screen {
 		Box playersTitle = layout.playersTitle.content();
 		Component players = GameLobbyTexts.Ui.players(session.lobby().getPlayers().size());
 		graphics.centeredText(font, players, playersTitle.centerX(), playersTitle.centerY() - font.lineHeight / 2, CommonColors.WHITE);
-		playerList.render(graphics, mouseX, mouseY);
+		playerList.extractRenderState(graphics, mouseX, mouseY, partialTicks);
 
 		Box header = layout.header.content();
 		graphics.centeredText(font, title, header.centerX(), header.centerY(), CommonColors.WHITE);
 
-		playerList.renderTooltip(graphics, mouseX, mouseY);
+		playerList.renderOverlays(graphics, mouseX, mouseY, partialTicks);
 	}
 
 	@Override

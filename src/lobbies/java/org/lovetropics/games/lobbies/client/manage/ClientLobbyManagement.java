@@ -10,6 +10,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.jspecify.annotations.Nullable;
+import org.lovetropics.games.common.core.game.player.PlayerRole;
 import org.lovetropics.games.lobbies.LobbiesMod;
 import org.lovetropics.games.lobbies.LobbyControls;
 import org.lovetropics.games.lobbies.LobbyKeybinds;
@@ -20,6 +21,7 @@ import org.lovetropics.games.lobbies.client.manage.state.ClientLobbyManageState;
 import org.lovetropics.games.lobbies.client.manage.state.ClientLobbyPlayer;
 import org.lovetropics.games.lobbies.client.manage.state.ClientLobbyQueue;
 import org.lovetropics.games.lobbies.client.manage.state.ClientLobbyQueuedGame;
+import org.lovetropics.games.lobbies.client.manage.state.ClientOnlinePlayer;
 import org.lovetropics.games.lobbies.client.manage.state.update.ClientLobbyUpdate;
 import org.lovetropics.games.lobbies.client.manage.state.update.ServerLobbyUpdate;
 import org.lovetropics.games.lobbies.client.state.ClientCurrentGame;
@@ -27,6 +29,8 @@ import org.lovetropics.games.lobbies.network.ManageOrCreateLobbyPacket;
 import org.lovetropics.games.lobbies.network.ServerManageLobbyMessage;
 
 import java.util.List;
+import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 
 @EventBusSubscriber(modid = LobbiesMod.ID, value = Dist.CLIENT)
@@ -54,6 +58,7 @@ public final class ClientLobbyManagement {
 		final int id;
 		final ClientLobbyManageState lobby;
 		@Nullable ManageLobbyScreen screen;
+		private @Nullable Consumer<List<ClientOnlinePlayer>> onlinePlayersListener;
 
 		Session(int id, ClientLobbyManageState lobby) {
 			this.id = id;
@@ -106,6 +111,23 @@ public final class ClientLobbyManagement {
 				lobby.setVisibility(visibility, true, true);
 				sendUpdates(updates -> updates.setVisibility(visibility, true));
 			}
+		}
+
+		public void requestOnlinePlayers(Consumer<List<ClientOnlinePlayer>> listener) {
+			onlinePlayersListener = listener;
+			sendUpdates(ServerLobbyUpdate.Set::requestOnlinePlayers);
+		}
+
+		public void stopListeningOnlinePlayers() {
+			onlinePlayersListener = null;
+		}
+
+		public void addPlayer(UUID player, PlayerRole role) {
+			sendUpdates(updates -> updates.addPlayer(player, role));
+		}
+
+		public void kickPlayer(UUID player) {
+			sendUpdates(updates -> updates.kickPlayer(player));
 		}
 
 		public void closeLobby() {
@@ -161,6 +183,27 @@ public final class ClientLobbyManagement {
 
 		public void handlePlayers(List<ClientLobbyPlayer> players) {
 			lobby.setPlayers(players);
+			if (screen != null) {
+				screen.updatePlayers();
+			}
+		}
+
+		public void handleStopManaging() {
+			ManageLobbyScreen screen = this.screen;
+			Minecraft minecraft = Minecraft.getInstance();
+			if (screen != null && minecraft.gui.screen() == screen) {
+				minecraft.gui.setScreen(null);
+			} else if (ClientLobbyManagement.session == this) {
+				ClientLobbyManagement.session = null;
+			}
+		}
+
+		public void handleOnlinePlayers(List<ClientOnlinePlayer> players) {
+			// every manager receives the list, only the one waiting for it uses it
+			Consumer<List<ClientOnlinePlayer>> listener = onlinePlayersListener;
+			if (listener != null) {
+				listener.accept(players);
+			}
 		}
 
 		public void handleControlsState(LobbyControls.State state) {

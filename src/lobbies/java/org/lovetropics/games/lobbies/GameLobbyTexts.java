@@ -130,6 +130,15 @@ public final class GameLobbyTexts {
 		public static final Component LOBBY_LOCKED = KEYS.add("lobby_locked", "Private");
 		public static final Component LOBBY_UNLOCKED = KEYS.add("lobby_unlocked", "Public");
 		public static final Component ADD_PLAYER = KEYS.add("add_player", "Add Player");
+		public static final Component ADD_AS_PARTICIPANT = KEYS.add("add_as_participant", "Add as Participant");
+		public static final Component ADD_AS_SPECTATOR = KEYS.add("add_as_spectator", "Add as Spectator");
+		public static final Component KICK_PLAYER = KEYS.add("kick_player", "Kick player");
+		public static final Component SEARCH_PLAYERS = KEYS.add("search_players", "Search players...");
+		public static final Component LOADING_PLAYERS = KEYS.add("loading_players", "Loading players...");
+		public static final Component NO_PLAYERS_TO_ADD = KEYS.add("no_players_to_add", "No players to add");
+		private static final TranslationCollector.Fun1 IN_LOBBY = KEYS.add1("in_lobby", "In %s");
+		private static final TranslationCollector.Fun1 CONFIRM_MOVE_PLAYER_TITLE = KEYS.add1("confirm_move_player.title", "Move %s to this lobby?");
+		private static final TranslationCollector.Fun2 CONFIRM_MOVE_PLAYER_MESSAGE = KEYS.add2("confirm_move_player.message", "%s is currently in %s and will be removed from it.");
 		public static final Component FOCUS_LIVE = KEYS.add("focus_live", "Focus Live");
 		public static final Component GAME_QUEUE = KEYS.add("game_queue", "Game Queue");
 		public static final Component INSTALLED_GAMES = KEYS.add("installed_games", "Installed");
@@ -176,6 +185,18 @@ public final class GameLobbyTexts {
 				return skipsGames ? CONFIRM_PLAY_NOW_STOPS_AND_SKIPS : CONFIRM_PLAY_NOW_STOPS_GAME;
 			}
 			return CONFIRM_PLAY_NOW_SKIPS_GAMES;
+		}
+
+		public static MutableComponent inLobby(String lobbyName) {
+			return IN_LOBBY.apply(lobbyName);
+		}
+
+		public static MutableComponent confirmMovePlayerTitle(String playerName) {
+			return CONFIRM_MOVE_PLAYER_TITLE.apply(playerName);
+		}
+
+		public static MutableComponent confirmMovePlayerMessage(String playerName, String lobbyName) {
+			return CONFIRM_MOVE_PLAYER_MESSAGE.apply(playerName, lobbyName);
 		}
 
 		public static MutableComponent players(int count) {

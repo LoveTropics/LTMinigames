@@ -18,13 +18,15 @@ import java.util.function.Consumer;
 
 public final class PlayerRoleSelections {
 	private final GameLobbyId lobbyId;
+	private final Runnable onChange;
 
 	private final Map<UUID, PlayerRole> roles = new Object2ObjectOpenHashMap<>();
 	private final Map<UUID, CompletableFuture<PlayerRole>> pendingResponses = new Object2ObjectOpenHashMap<>();
 	private final Map<UUID, Consumer<PlayerRole>> responseHandlers = new Object2ObjectOpenHashMap<>();
 
-	public PlayerRoleSelections(GameLobbyId lobbyId) {
+	public PlayerRoleSelections(GameLobbyId lobbyId, Runnable onChange) {
 		this.lobbyId = lobbyId;
+		this.onChange = onChange;
 	}
 
 	public void clear() {
@@ -37,6 +39,7 @@ public final class PlayerRoleSelections {
 		for (ServerPlayer player : players) {
 			prompt(player);
 		}
+		onChange.run();
 	}
 
 	public CompletableFuture<PlayerRole> prompt(ServerPlayer player) {
@@ -50,6 +53,7 @@ public final class PlayerRoleSelections {
 			responseHandlers.put(player.getUUID(), rootFuture::complete);
 			future = rootFuture.thenApplyAsync(role -> {
 				roles.put(player.getUUID(), role);
+				onChange.run();
 				return role;
 			}, player.level().getServer());
 			pendingResponses.put(player.getUUID(), future);

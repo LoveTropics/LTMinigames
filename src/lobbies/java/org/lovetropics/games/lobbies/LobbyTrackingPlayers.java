@@ -27,6 +27,14 @@ final class LobbyTrackingPlayers implements PlayerSet {
 		}
 	}
 
+	void updateTracking(ServerPlayer player) {
+		if (lobby.isVisibleTo(player)) {
+			startTracking(player);
+		} else {
+			stopTracking(player);
+		}
+	}
+
 	void onPlayerLoggedIn(ServerPlayer player) {
 		if (lobby.isVisibleTo(player)) {
 			startTracking(player);

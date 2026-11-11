@@ -7,12 +7,15 @@ import net.minecraft.network.codec.StreamDecoder;
 import net.minecraft.resources.Identifier;
 import org.lovetropics.games.common.core.game.config.GameConfig;
 import org.lovetropics.games.common.core.game.config.GameConfigs;
+import org.lovetropics.games.common.core.game.player.PlayerRole;
 import org.lovetropics.games.common.util.PartialUpdate;
 import org.lovetropics.games.lobbies.LobbyControls;
 import org.lovetropics.games.lobbies.LobbyManagement;
 import org.lovetropics.games.lobbies.LobbyVisibility;
 import org.lovetropics.games.lobbies.client.ClientGameDefinition;
 import org.lovetropics.games.lobbies.network.ServerManageLobbyMessage;
+
+import java.util.UUID;
 
 public abstract class ServerLobbyUpdate extends PartialUpdate<LobbyManagement> {
 	public static final class Set extends AbstractSet<LobbyManagement> {
@@ -61,6 +64,21 @@ public abstract class ServerLobbyUpdate extends PartialUpdate<LobbyManagement> {
 			return this;
 		}
 
+		public Set requestOnlinePlayers() {
+			add(new RequestOnlinePlayers());
+			return this;
+		}
+
+		public Set addPlayer(UUID player, PlayerRole role) {
+			add(new AddPlayer(player, role));
+			return this;
+		}
+
+		public Set kickPlayer(UUID player) {
+			add(new KickPlayer(player));
+			return this;
+		}
+
 		public Set close() {
 			add(new Close());
 			return this;
@@ -80,6 +98,9 @@ public abstract class ServerLobbyUpdate extends PartialUpdate<LobbyManagement> {
 		SET_VISIBILITY(SetVisibility::decode),
 		CLOSE(Close::decode),
 		PLAY_QUEUED_GAME(PlayQueuedGame::decode),
+		REQUEST_ONLINE_PLAYERS(RequestOnlinePlayers::decode),
+		ADD_PLAYER(AddPlayer::decode),
+		KICK_PLAYER(KickPlayer::decode),
 		;
 
 		private final StreamDecoder<RegistryFriendlyByteBuf, ServerLobbyUpdate> decode;
@@ -286,6 +307,74 @@ public abstract class ServerLobbyUpdate extends PartialUpdate<LobbyManagement> {
 
 		static Close decode(FriendlyByteBuf buffer) {
 			return new Close();
+		}
+	}
+
+	public static final class RequestOnlinePlayers extends ServerLobbyUpdate {
+		RequestOnlinePlayers() {
+			super(Type.REQUEST_ONLINE_PLAYERS);
+		}
+
+		@Override
+		public void applyTo(LobbyManagement lobby) {
+			lobby.sendOnlinePlayers();
+		}
+
+		@Override
+		protected void encode(RegistryFriendlyByteBuf buffer) {
+		}
+
+		static RequestOnlinePlayers decode(FriendlyByteBuf buffer) {
+			return new RequestOnlinePlayers();
+		}
+	}
+
+	public static final class AddPlayer extends ServerLobbyUpdate {
+		private final UUID player;
+		private final PlayerRole role;
+
+		AddPlayer(UUID player, PlayerRole role) {
+			super(Type.ADD_PLAYER);
+			this.player = player;
+			this.role = role;
+		}
+
+		@Override
+		public void applyTo(LobbyManagement lobby) {
+			lobby.addPlayer(player, role);
+		}
+
+		@Override
+		protected void encode(RegistryFriendlyByteBuf buffer) {
+			buffer.writeUUID(player);
+			buffer.writeEnum(role);
+		}
+
+		static AddPlayer decode(FriendlyByteBuf buffer) {
+			return new AddPlayer(buffer.readUUID(), buffer.readEnum(PlayerRole.class));
+		}
+	}
+
+	public static final class KickPlayer extends ServerLobbyUpdate {
+		private final UUID player;
+
+		KickPlayer(UUID player) {
+			super(Type.KICK_PLAYER);
+			this.player = player;
+		}
+
+		@Override
+		public void applyTo(LobbyManagement lobby) {
+			lobby.kickPlayer(player);
+		}
+
+		@Override
+		protected void encode(RegistryFriendlyByteBuf buffer) {
+			buffer.writeUUID(player);
+		}
+
+		static KickPlayer decode(FriendlyByteBuf buffer) {
+			return new KickPlayer(buffer.readUUID());
 		}
 	}
 }

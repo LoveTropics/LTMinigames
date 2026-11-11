@@ -23,7 +23,7 @@ public final class LobbyPlayerManager implements PlayerSet {
 	LobbyPlayerManager(GameLobby lobby) {
 		this.lobby = lobby;
 		registrations = new LobbyRegistrations(lobby.getServer());
-		roleSelections = new PlayerRoleSelections(lobby.getMetadata().id());
+		roleSelections = new PlayerRoleSelections(lobby.getMetadata().id(), () -> lobby.getManagement().onPlayersChanged());
 	}
 
 	public TeamAllocator<PlayerRole, PlayerKey> createRoleAllocator() {
@@ -89,6 +89,11 @@ public final class LobbyPlayerManager implements PlayerSet {
 			roleSelections.remove(player);
 		}
 		return player;
+	}
+
+	public PlayerRole getLobbyRole(UUID id) {
+		PlayerRole forcedRole = registrations.getForcedRoleFor(id);
+		return forcedRole != null ? forcedRole : roleSelections.getSelectedRoleFor(id);
 	}
 
 	public boolean forceRole(ServerPlayer player, @Nullable PlayerRole role) {

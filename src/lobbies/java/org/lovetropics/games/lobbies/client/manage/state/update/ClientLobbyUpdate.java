@@ -18,6 +18,7 @@ import org.lovetropics.games.lobbies.QueuedGame;
 import org.lovetropics.games.lobbies.client.ClientGameDefinition;
 import org.lovetropics.games.lobbies.client.manage.ClientLobbyManagement;
 import org.lovetropics.games.lobbies.client.manage.state.ClientLobbyPlayer;
+import org.lovetropics.games.lobbies.client.manage.state.ClientOnlinePlayer;
 import org.lovetropics.games.lobbies.client.manage.state.ClientLobbyQueue;
 import org.lovetropics.games.lobbies.client.manage.state.ClientLobbyQueuedGame;
 import org.lovetropics.games.lobbies.client.state.ClientCurrentGame;
@@ -96,6 +97,16 @@ public abstract class ClientLobbyUpdate extends PartialUpdate<ClientLobbyManagem
 			return this;
 		}
 
+		public Set stopManaging() {
+			add(new StopManaging());
+			return this;
+		}
+
+		public Set setOnlinePlayers(List<ClientOnlinePlayer> players) {
+			add(new SetOnlinePlayers(players));
+			return this;
+		}
+
 		public Set setVisibility(LobbyVisibility visibility, boolean focusedLive, boolean canFocusLive) {
 			add(new SetVisibility(visibility, focusedLive, canFocusLive));
 			return this;
@@ -113,7 +124,9 @@ public abstract class ClientLobbyUpdate extends PartialUpdate<ClientLobbyManagem
 		UPDATE_QUEUE(UpdateQueue::decode),
 		SET_PLAYERS(SetPlayers::decode),
 		SET_CONTROLS_STATE(SetControlsState::decode),
-		SET_VISIBILITY(SetVisibility::decode);
+		SET_VISIBILITY(SetVisibility::decode),
+		SET_ONLINE_PLAYERS(SetOnlinePlayers::decode),
+		STOP_MANAGING(StopManaging::decode);
 
 		private final StreamDecoder<RegistryFriendlyByteBuf, ClientLobbyUpdate> decode;
 
@@ -345,6 +358,56 @@ public abstract class ClientLobbyUpdate extends PartialUpdate<ClientLobbyManagem
 
 		static SetVisibility decode(FriendlyByteBuf buffer) {
 			return new SetVisibility(buffer.readEnum(LobbyVisibility.class), buffer.readBoolean(), buffer.readBoolean());
+		}
+	}
+
+	public static final class SetOnlinePlayers extends ClientLobbyUpdate {
+		private final List<ClientOnlinePlayer> players;
+
+		SetOnlinePlayers(List<ClientOnlinePlayer> players) {
+			super(Type.SET_ONLINE_PLAYERS);
+			this.players = players;
+		}
+
+		@Override
+		public void applyTo(ClientLobbyManagement.Session session) {
+			session.handleOnlinePlayers(players);
+		}
+
+		@Override
+		protected void encode(RegistryFriendlyByteBuf buffer) {
+			buffer.writeVarInt(players.size());
+			for (ClientOnlinePlayer player : players) {
+				player.encode(buffer);
+			}
+		}
+
+		static SetOnlinePlayers decode(FriendlyByteBuf buffer) {
+			int size = buffer.readVarInt();
+			List<ClientOnlinePlayer> players = new ArrayList<>(size);
+			for (int i = 0; i < size; i++) {
+				players.add(ClientOnlinePlayer.decode(buffer));
+			}
+			return new SetOnlinePlayers(players);
+		}
+	}
+
+	public static final class StopManaging extends ClientLobbyUpdate {
+		StopManaging() {
+			super(Type.STOP_MANAGING);
+		}
+
+		@Override
+		public void applyTo(ClientLobbyManagement.Session session) {
+			session.handleStopManaging();
+		}
+
+		@Override
+		protected void encode(RegistryFriendlyByteBuf buffer) {
+		}
+
+		static StopManaging decode(FriendlyByteBuf buffer) {
+			return new StopManaging();
 		}
 	}
 }
