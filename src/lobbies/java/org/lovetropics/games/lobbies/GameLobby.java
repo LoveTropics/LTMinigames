@@ -108,6 +108,9 @@ public final class GameLobby {
 		if (management.canManage(source)) {
 			return true;
 		}
+		if (source.getEntity() instanceof ServerPlayer player && players.contains(player.getUUID())) {
+			return true;
+		}
 
 		return metadata.visibility().isPublic();
 	}
@@ -310,6 +313,9 @@ public final class GameLobby {
 	static final class ChatNotifyListener implements LobbyStateListener {
 		@Override
 		public void onPlayerStartTracking(GameLobby lobby, ServerPlayer player) {
+			if (lobby.getPlayers().contains(player.getUUID())) {
+				return;
+			}
 			player.sendSystemMessage(GameLobbyTexts.Status.lobbyOpened(lobby), false);
 		}
 
