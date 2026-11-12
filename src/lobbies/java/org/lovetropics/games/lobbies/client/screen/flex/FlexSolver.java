@@ -18,8 +18,9 @@ public final class FlexSolver {
 		Results results = new Results();
 
 		FlexSolve rootSolve = results.flexSolve(root);
-		rootSolve.outerSize = rootSolve.innerSize = screen.size();
 		rootSolve.layout = layout(root, screen);
+		rootSolve.outerSize = screen.size();
+		rootSolve.innerSize = rootSolve.layout.content().size();
 
 		updateInnerSizes(results, root, rootSolve);
 		solveSizes(results, root, rootSolve);
